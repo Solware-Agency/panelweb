@@ -1,6 +1,6 @@
 import React from 'react';
 import { LoginForm } from '../components/auth/LoginForm';
-import { LoginCredentials } from '../types/auth';
+import type { LoginCredentials } from '../types/auth';
 
 export const LoginPage: React.FC = () => {
   const handleLogin = (credentials: LoginCredentials) => {
