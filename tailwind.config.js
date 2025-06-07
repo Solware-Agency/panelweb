@@ -4,54 +4,48 @@ export default {
     "./index.html",
     "./src/**/*.{js,ts,jsx,tsx}",
   ],
+  darkMode: 'class',
   theme: {
     extend: {
-      colors: {
-        background: '#f8fafc', // secondary-50
-        foreground: '#0f172a', // secondary-900
-        primary: {
-          50: '#eff6ff',
-          100: '#dbeafe',
-          200: '#bfdbfe',
-          300: '#93c5fd',
-          400: '#60a5fa',
-          500: '#3b82f6',
-          600: '#2563eb',
-          700: '#1d4ed8',
-          800: '#1e40af',
-          900: '#1e3a8a',
-        },
-        secondary: {
-          50: '#f8fafc',
-          100: '#f1f5f9',
-          200: '#e2e8f0',
-          300: '#cbd5e1',
-          400: '#94a3b8',
-          500: '#64748b',
-          600: '#475569',
-          700: '#334155',
-          800: '#1e293b',
-          900: '#0f172a',
-        }
+      transitionDuration: {
+        '600': '600ms',
       },
-      fontFamily: {
-        sans: ['Inter', 'system-ui', 'sans-serif'],
+      scale: {
+        '98': '.98',
+      },
+      colors: {
+        dark: {
+          DEFAULT: '#1A2D42',
+          50: '#1f3754',
+          100: '#243f61',
+          200: '#2a476e',
+          300: '#2f4f7b',
+          400: '#355788',
+          500: '#3a5f95',
+          600: '#4067a2',
+          700: '#456faf',
+          800: '#4b77bc',
+          900: '#507fc9',
+        },
+        darkSecondary: '#2E4156',
+        darkText: {
+          primary: '#D4D8DD',
+          secondary: '#AAB7B7',
+        },
+        darkBorder: '#C8D0DA',
       },
       animation: {
-        'fade-in': 'fadeIn 0.5s ease-in-out',
-        'slide-up': 'slideUp 0.3s ease-out',
+        'spin-slow': 'spin 3s linear infinite',
+        'progress': 'progress 2.5s ease-in-out forwards',
+        'bounce': 'bounce 1s infinite',
       },
       keyframes: {
-        fadeIn: {
-          '0%': { opacity: '0' },
-          '100%': { opacity: '1' },
-        },
-        slideUp: {
-          '0%': { transform: 'translateY(10px)', opacity: '0' },
-          '100%': { transform: 'translateY(0)', opacity: '1' },
-        },
-      },
+        progress: {
+          '0%': { transform: 'translateX(-100%)' },
+          '100%': { transform: 'translateX(0)' }
+        }
+      }
     },
   },
   plugins: [],
-}
+};
