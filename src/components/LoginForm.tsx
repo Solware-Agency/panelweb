@@ -21,6 +21,7 @@ function LoginForm() {
 							placeholder="tu@email.com"
 							required
 							className="border-2 border-dark rounded-md p-2 w-full"
+							autoComplete="email"
 						/>
 						<p className="text-sm text-secondary-600">Contraseña:</p>
 						<input
@@ -29,6 +30,7 @@ function LoginForm() {
 							placeholder="••••••••"
 							required
 							className="border-2 border-dark rounded-md p-2 w-full"
+							autoComplete="current-password"
 						/>
 					</div>
 

@@ -19,7 +19,7 @@ function RegisterForm() {
 					<p className="text-gray-600">Crea una cuenta para continuar</p>
 				</div>
 
-				<div className="w-full">
+				<form className="w-full">
 					<div className="flex flex-col gap-2 mb-4 w-full">
 						<p className="text-sm text-gray-600">Correo electrónico:</p>
 						<input
@@ -30,18 +30,20 @@ function RegisterForm() {
 							onChange={(e) => setEmail(e.target.value)}
 							required
 							className="border-2 border-gray-900 rounded-md p-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
+							autoComplete="email"
 						/>
-						
+
 						<p className="text-sm text-gray-600">Contraseña:</p>
 						<div className="relative">
 							<input
-								type={showPassword ? "text" : "password"}
+								type={showPassword ? 'text' : 'password'}
 								name="password"
 								placeholder="••••••••"
 								value={password}
 								onChange={(e) => setPassword(e.target.value)}
 								required
 								className="border-2 border-gray-900 rounded-md p-2 w-full pr-10 focus:outline-none focus:ring-2 focus:ring-blue-500"
+								autoComplete="new-password"
 							/>
 							<button
 								type="button"
@@ -51,17 +53,18 @@ function RegisterForm() {
 								{showPassword ? <Eye size={20} /> : <EyeOff size={20} />}
 							</button>
 						</div>
-						
+
 						<p className="text-sm text-gray-600">Confirmar contraseña:</p>
 						<div className="relative">
 							<input
-								type={showConfirmPassword ? "text" : "password"}
+								type={showConfirmPassword ? 'text' : 'password'}
 								name="confirmPassword"
 								placeholder="••••••••"
 								value={confirmPassword}
 								onChange={(e) => setConfirmPassword(e.target.value)}
 								required
 								className="border-2 border-gray-900 rounded-md p-2 w-full pr-10 focus:outline-none focus:ring-2 focus:ring-blue-500"
+								autoComplete="new-password"
 							/>
 							<button
 								type="button"
@@ -74,11 +77,12 @@ function RegisterForm() {
 					</div>
 
 					<button
+						type="submit"
 						className="w-full bg-blue-500 text-white rounded-md p-2 hover:bg-blue-600 transition-colors"
 					>
 						Registrarse
 					</button>
-				</div>
+				</form>
 
 				{/* Footer */}
 				<div className="mt-6 text-center">
