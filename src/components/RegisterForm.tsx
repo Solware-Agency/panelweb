@@ -1,5 +1,7 @@
 import { UserRound, Eye, EyeOff } from 'lucide-react'
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { signUp, sendVerificationEmail } from '../firebase/auth'
 
 function RegisterForm() {
 	const [email, setEmail] = useState('')
@@ -7,6 +9,24 @@ function RegisterForm() {
 	const [confirmPassword, setConfirmPassword] = useState('')
 	const [showPassword, setShowPassword] = useState(false)
 	const [showConfirmPassword, setShowConfirmPassword] = useState(false)
+	const [error, setError] = useState('')
+	const navigate = useNavigate()
+
+	const handleRegister = async (event: React.FormEvent<HTMLFormElement>) => {
+		event.preventDefault()
+		if (password !== confirmPassword) {
+			setError('Passwords do not match.')
+			return
+		}
+		try {
+			const userCredential = await signUp(email, password)
+			await sendVerificationEmail(userCredential.user)
+			setError('Verification email sent. Please check your inbox.')
+			navigate('/dashboard')
+		} catch (err) {
+			setError('Failed to register. Please try again.')
+		}
+	}
 
 	return (
 		<div className="w-screen h-screen bg-dark flex items-center justify-center">
@@ -19,7 +39,7 @@ function RegisterForm() {
 					<p className="text-gray-600">Crea una cuenta para continuar</p>
 				</div>
 
-				<form className="w-full">
+				<form className="w-full" onSubmit={handleRegister}>
 					<div className="flex flex-col gap-2 mb-4 w-full">
 						<p className="text-sm text-gray-600">Correo electrónico:</p>
 						<input
@@ -75,6 +95,8 @@ function RegisterForm() {
 							</button>
 						</div>
 					</div>
+
+					{error && <p className="text-red-500 text-sm mb-4">{error}</p>}
 
 					<button
 						type="submit"
