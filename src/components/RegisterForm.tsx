@@ -1,7 +1,7 @@
 import { UserRound, Eye, EyeOff } from 'lucide-react'
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { signUp, sendVerificationEmail } from '../firebase/auth'
+import { Link, useNavigate } from 'react-router-dom'
+import { signUp } from '../firebase/auth'
 
 function RegisterForm() {
 	const [email, setEmail] = useState('')
@@ -10,22 +10,46 @@ function RegisterForm() {
 	const [showPassword, setShowPassword] = useState(false)
 	const [showConfirmPassword, setShowConfirmPassword] = useState(false)
 	const [error, setError] = useState('')
+	const [message, setMessage] = useState('')
+	const [loading, setLoading] = useState(false)
 	const navigate = useNavigate()
 
 	const handleRegister = async (event: React.FormEvent<HTMLFormElement>) => {
 		event.preventDefault()
+		
 		if (password !== confirmPassword) {
-			setError('Passwords do not match.')
+			setError('Las contraseñas no coinciden.')
 			return
 		}
-		try {
-			const userCredential = await signUp(email, password)
-			await sendVerificationEmail(userCredential.user)
-			setError('Verification email sent. Please check your inbox.')
-			navigate('/dashboard')
-		} catch (err) {
-			setError('Failed to register. Please try again.')
+
+		if (password.length < 6) {
+			setError('La contraseña debe tener al menos 6 caracteres.')
+			return
 		}
+
+		try {
+			setError('')
+			setMessage('')
+			setLoading(true)
+			await signUp(email, password)
+			setMessage('Cuenta creada exitosamente. Se ha enviado un correo de verificación a tu email.')
+			
+			// Redirect to login after a short delay
+			setTimeout(() => {
+				navigate('/login')
+			}, 3000)
+		} catch (err: any) {
+			if (err.code === 'auth/email-already-in-use') {
+				setError('Ya existe una cuenta con este correo electrónico.')
+			} else if (err.code === 'auth/invalid-email') {
+				setError('Correo electrónico inválido.')
+			} else if (err.code === 'auth/weak-password') {
+				setError('La contraseña es muy débil.')
+			} else {
+				setError('Error al crear la cuenta. Inténtalo de nuevo.')
+			}
+		}
+		setLoading(false)
 	}
 
 	return (
@@ -96,13 +120,24 @@ function RegisterForm() {
 						</div>
 					</div>
 
-					{error && <p className="text-red-500 text-sm mb-4">{error}</p>}
+					{error && (
+						<div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+							{error}
+						</div>
+					)}
+
+					{message && (
+						<div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
+							{message}
+						</div>
+					)}
 
 					<button
 						type="submit"
-						className="w-full bg-blue-500 text-white rounded-md p-2 hover:bg-blue-600 transition-colors"
+						disabled={loading}
+						className="w-full bg-blue-500 text-white rounded-md p-2 hover:bg-blue-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
 					>
-						Registrarse
+						{loading ? 'Creando cuenta...' : 'Registrarse'}
 					</button>
 				</form>
 
@@ -110,9 +145,9 @@ function RegisterForm() {
 				<div className="mt-6 text-center">
 					<p className="text-sm">
 						¿Ya tienes una cuenta?{' '}
-						<a href="/login" className="font-medium">
+						<Link to="/login" className="font-medium text-blue-500 hover:text-blue-600 transition-colors">
 							Inicia sesión aquí
-						</a>
+						</Link>
 					</p>
 				</div>
 			</div>

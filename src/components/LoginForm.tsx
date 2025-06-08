@@ -1,22 +1,45 @@
 import { useState } from 'react'
 import { Lock } from 'lucide-react'
-import { useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { signIn } from '../firebase/auth'
 
 function LoginForm() {
 	const [email, setEmail] = useState('')
 	const [password, setPassword] = useState('')
 	const [error, setError] = useState('')
+	const [loading, setLoading] = useState(false)
 	const navigate = useNavigate()
 
 	const handleLogin = async (event: React.FormEvent<HTMLFormElement>) => {
 		event.preventDefault()
+		
 		try {
-			await signIn(email, password)
+			setError('')
+			setLoading(true)
+			const userCredential = await signIn(email, password)
+			
+			// Check if email is verified
+			if (!userCredential.user.emailVerified) {
+				setError('Por favor verifica tu correo electrónico antes de acceder al dashboard.')
+				setLoading(false)
+				return
+			}
+			
 			navigate('/dashboard')
-		} catch (err) {
-			setError('Failed to log in. Please check your credentials.')
+		} catch (err: any) {
+			if (err.code === 'auth/user-not-found') {
+				setError('No se encontró una cuenta con este correo electrónico.')
+			} else if (err.code === 'auth/wrong-password') {
+				setError('Contraseña incorrecta.')
+			} else if (err.code === 'auth/invalid-email') {
+				setError('Correo electrónico inválido.')
+			} else if (err.code === 'auth/user-disabled') {
+				setError('Esta cuenta ha sido deshabilitada.')
+			} else {
+				setError('Error al iniciar sesión. Verifica tus credenciales.')
+			}
 		}
+		setLoading(false)
 	}
 
 	return (
@@ -40,7 +63,7 @@ function LoginForm() {
 							value={email}
 							onChange={(e) => setEmail(e.target.value)}
 							required
-							className="border-2 border-dark rounded-md p-2 w-full"
+							className="border-2 border-dark rounded-md p-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
 							autoComplete="email"
 						/>
 						<p className="text-sm text-secondary-600">Contraseña:</p>
@@ -51,12 +74,16 @@ function LoginForm() {
 							value={password}
 							onChange={(e) => setPassword(e.target.value)}
 							required
-							className="border-2 border-dark rounded-md p-2 w-full"
+							className="border-2 border-dark rounded-md p-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
 							autoComplete="current-password"
 						/>
 					</div>
 
-					{error && <p className="text-red-500 text-sm mb-4">{error}</p>}
+					{error && (
+						<div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+							{error}
+						</div>
+					)}
 
 					<div className="flex items-center justify-between w-full mb-8">
 						<label className="flex items-center">
@@ -64,13 +91,17 @@ function LoginForm() {
 							<span className="ml-2 text-sm text-secondary-600">Recordarme</span>
 						</label>
 
-						<a href="#" className="text-sm text-blue-500 hover:text-blue-600 transition-colors">
+						<Link to="/forgot-password" className="text-sm text-blue-500 hover:text-blue-600 transition-colors">
 							¿Olvidaste tu contraseña?
-						</a>
+						</Link>
 					</div>
 
-					<button type="submit" className="w-full bg-blue-500 text-white rounded-md p-2">
-						Iniciar sesión
+					<button 
+						type="submit" 
+						disabled={loading}
+						className="w-full bg-blue-500 text-white rounded-md p-2 hover:bg-blue-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+					>
+						{loading ? 'Iniciando sesión...' : 'Iniciar sesión'}
 					</button>
 				</form>
 
@@ -78,9 +109,9 @@ function LoginForm() {
 				<div className="mt-6 text-center">
 					<p className="text-sm">
 						¿No tienes una cuenta?{' '}
-						<a href="/register" className="font-medium">
+						<Link to="/register" className="font-medium text-blue-500 hover:text-blue-600 transition-colors">
 							Regístrate aquí
-						</a>
+						</Link>
 					</p>
 				</div>
 			</div>

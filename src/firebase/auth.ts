@@ -3,11 +3,14 @@ import {
 	createUserWithEmailAndPassword,
 	signOut,
 	sendEmailVerification,
+	sendPasswordResetEmail,
 } from 'firebase/auth'
 import { auth } from './config'
 
 export const signUp = async (email: string, password: string) => {
-	return await createUserWithEmailAndPassword(auth, email, password)
+	const userCredential = await createUserWithEmailAndPassword(auth, email, password)
+	await sendEmailVerification(userCredential.user)
+	return userCredential
 }
 
 export const signIn = async (email: string, password: string) => {
@@ -20,4 +23,8 @@ export const logout = async () => {
 
 export const sendVerificationEmail = async (user: any) => {
 	return await sendEmailVerification(user)
+}
+
+export const resetPassword = async (email: string) => {
+	return await sendPasswordResetEmail(auth, email)
 }
