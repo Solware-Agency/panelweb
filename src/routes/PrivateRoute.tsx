@@ -6,6 +6,9 @@ import type { JSX } from 'react'
 const PrivateRoute = ({ children }: { children: JSX.Element }) => {
 	const { user, loading } = useAuth()
 
+	console.log('User:', user)
+	console.log('Email Verified:', user?.emailVerified)
+
 	if (loading) {
 		return (
 			<div className="w-screen h-screen bg-dark flex items-center justify-center">
