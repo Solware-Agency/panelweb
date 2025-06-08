@@ -54,7 +54,7 @@ function RegisterForm() {
 
 	return (
 		<div className="w-screen h-screen bg-dark flex items-center justify-center">
-			<div className="flex flex-col items-center justify-center bg-white p-8 rounded-none md:rounded-lg w-screen h-screen md:h-auto md:w-full md:max-w-md">
+			<div className="flex flex-col items-center justify-center bg-white p-8 rounded-none md:rounded-lg w-screen h-screen md:h-auto md:w-full md:max-w-md shadow-2xl shadow-black/60">
 				<div className="text-center mb-4 flex flex-col items-center justify-center">
 					<div className="p-4 bg-blue-500 rounded-full mb-4">
 						<UserRound className="text-white size-12" />

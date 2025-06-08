@@ -12,19 +12,21 @@ function LoginForm() {
 
 	const handleLogin = async (event: React.FormEvent<HTMLFormElement>) => {
 		event.preventDefault()
-		
+
 		try {
 			setError('')
 			setLoading(true)
 			const userCredential = await signIn(email, password)
-			
+
+			await userCredential.user.reload()
+			const refreshedUser = userCredential.user
+
 			// Check if email is verified
-			if (!userCredential.user.emailVerified) {
-				setError('Por favor verifica tu correo electrónico antes de acceder al dashboard.')
-				setLoading(false)
+			if (!refreshedUser.emailVerified) {
+				navigate('/email-verification-notice')
 				return
 			}
-			
+
 			navigate('/dashboard')
 		} catch (err: any) {
 			if (err.code === 'auth/user-not-found') {
@@ -36,7 +38,7 @@ function LoginForm() {
 			} else if (err.code === 'auth/user-disabled') {
 				setError('Esta cuenta ha sido deshabilitada.')
 			} else {
-				setError('Error al iniciar sesión. Verifica tus credenciales.')
+				setError('Error al iniciar sesión. Verifica tus credenciales o crea una cuenta.')
 			}
 		}
 		setLoading(false)
@@ -44,7 +46,7 @@ function LoginForm() {
 
 	return (
 		<div className="w-screen h-screen bg-dark flex items-center justify-center">
-			<div className="flex flex-col items-center justify-center bg-white p-8 rounded-none md:rounded-lg w-screen h-screen md:h-auto md:w-full md:max-w-md">
+			<div className="flex flex-col items-center justify-center bg-white p-8 rounded-none md:rounded-lg w-screen h-screen md:h-auto md:w-full md:max-w-md shadow-2xl shadow-black/60">
 				<div className="text-center mb-4 flex flex-col items-center justify-center">
 					<div className="p-4 bg-blue-500 rounded-full mb-4">
 						<Lock className="text-white size-12" />
@@ -79,11 +81,7 @@ function LoginForm() {
 						/>
 					</div>
 
-					{error && (
-						<div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-							{error}
-						</div>
-					)}
+					{error && <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">{error}</div>}
 
 					<div className="flex items-center justify-between w-full mb-8">
 						<label className="flex items-center">
@@ -96,8 +94,8 @@ function LoginForm() {
 						</Link>
 					</div>
 
-					<button 
-						type="submit" 
+					<button
+						type="submit"
 						disabled={loading}
 						className="w-full bg-blue-500 text-white rounded-md p-2 hover:bg-blue-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
 					>

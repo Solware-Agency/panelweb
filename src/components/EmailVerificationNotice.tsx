@@ -1,6 +1,5 @@
 import { useState } from 'react'
 import { Mail, RefreshCw, ArrowLeft } from 'lucide-react'
-import { Link } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { sendVerificationEmail, logout } from '../firebase/auth'
 
@@ -35,7 +34,7 @@ function EmailVerificationNotice() {
 
 	return (
 		<div className="w-screen h-screen bg-dark flex items-center justify-center">
-			<div className="flex flex-col items-center justify-center bg-white p-8 rounded-none md:rounded-lg w-screen h-screen md:h-auto md:w-full md:max-w-md">
+			<div className="flex flex-col items-center justify-center bg-white p-8 rounded-none md:rounded-lg w-screen h-screen md:h-auto md:w-full md:max-w-md shadow-2xl shadow-black/60">
 				<div className="text-center mb-6 flex flex-col items-center justify-center">
 					<div className="p-4 bg-orange-500 rounded-full mb-4">
 						<Mail className="text-white size-12" />

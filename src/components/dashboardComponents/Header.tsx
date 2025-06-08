@@ -1,7 +1,6 @@
 import React from 'react'
 import { Moon, Sun, Bell } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
-import { useAuth } from '../../context/AuthContext'
 import { logout } from '../../firebase/auth'
 
 interface HeaderProps {
@@ -11,7 +10,6 @@ interface HeaderProps {
 }
 
 const Header: React.FC<HeaderProps> = ({ isDark, toggleDarkMode, currentDate }) => {
-	const { user } = useAuth()
 	const navigate = useNavigate()
 
 	const handleLogout = async () => {
@@ -69,7 +67,6 @@ const Header: React.FC<HeaderProps> = ({ isDark, toggleDarkMode, currentDate }) 
 						<Bell className="w-5 h-5" />
 					</button>
 					<div className="flex items-center gap-4">
-						{user && <span>{user.email}</span>}
 						<button onClick={handleLogout} className="bg-red-500 px-4 py-2 rounded hover:bg-red-600">
 							Cerrar sesión
 						</button>

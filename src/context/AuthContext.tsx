@@ -18,12 +18,23 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 	const [loading, setLoading] = useState(true)
 
 	useEffect(() => {
-		const unsubscribe = onAuthStateChanged(auth, (user) => {
-			setUser(user)
+		const unsubscribe = onAuthStateChanged(auth, async (user) => {
+			if (user) {
+				try {
+					await user.reload()
+					console.log("Email Verified (después del reload):", user.emailVerified)
+					setUser({ ...user }) // No usar auth.currentUser
+				} catch (error) {
+					console.error("Error al hacer reload del usuario:", error)
+				}
+			} else {
+				setUser(null)
+			}
 			setLoading(false)
 		})
 		return () => unsubscribe()
 	}, [])
+	
 
 	return <AuthContext.Provider value={{ user, loading }}>{children}</AuthContext.Provider>
 }
