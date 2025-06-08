@@ -1,6 +1,24 @@
+import { useState } from 'react'
 import { Lock } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
+import { signIn } from '../firebase/auth'
 
 function LoginForm() {
+	const [email, setEmail] = useState('')
+	const [password, setPassword] = useState('')
+	const [error, setError] = useState('')
+	const navigate = useNavigate()
+
+	const handleLogin = async (event: React.FormEvent<HTMLFormElement>) => {
+		event.preventDefault()
+		try {
+			await signIn(email, password)
+			navigate('/dashboard')
+		} catch (err) {
+			setError('Failed to log in. Please check your credentials.')
+		}
+	}
+
 	return (
 		<div className="w-screen h-screen bg-dark flex items-center justify-center">
 			<div className="flex flex-col items-center justify-center bg-white p-8 rounded-none md:rounded-lg w-screen h-screen md:h-auto md:w-full md:max-w-md">
@@ -12,13 +30,15 @@ function LoginForm() {
 					<p className="text-secondary-600">Inicia sesión en tu cuenta para continuar</p>
 				</div>
 
-				<form className="w-full">
+				<form className="w-full" onSubmit={handleLogin}>
 					<div className="flex flex-col gap-2 mb-4 w-full">
 						<p className="text-sm text-secondary-600">Correo electrónico:</p>
 						<input
 							type="email"
 							name="email"
 							placeholder="tu@email.com"
+							value={email}
+							onChange={(e) => setEmail(e.target.value)}
 							required
 							className="border-2 border-dark rounded-md p-2 w-full"
 							autoComplete="email"
@@ -28,11 +48,15 @@ function LoginForm() {
 							type="password"
 							name="password"
 							placeholder="••••••••"
+							value={password}
+							onChange={(e) => setPassword(e.target.value)}
 							required
 							className="border-2 border-dark rounded-md p-2 w-full"
 							autoComplete="current-password"
 						/>
 					</div>
+
+					{error && <p className="text-red-500 text-sm mb-4">{error}</p>}
 
 					<div className="flex items-center justify-between w-full mb-8">
 						<label className="flex items-center">
