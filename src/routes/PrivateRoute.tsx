@@ -1,6 +1,5 @@
 import { Navigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
-import EmailVerificationNotice from '../components/EmailVerificationNotice'
 import type { JSX } from 'react'
 
 const PrivateRoute = ({ children }: { children: JSX.Element }) => {
@@ -24,7 +23,7 @@ const PrivateRoute = ({ children }: { children: JSX.Element }) => {
 	}
 
 	if (!user.emailVerified) {
-		return <EmailVerificationNotice />
+		return <Navigate to="/email-verification-notice" />
 	}
 
 	return children

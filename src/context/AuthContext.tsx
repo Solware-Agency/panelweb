@@ -53,27 +53,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 			setLoading(false)
 		})
 
-		// Listen for when the user returns to the app (visibility change)
-		const handleVisibilityChange = () => {
-			if (!document.hidden && auth.currentUser) {
-				refreshUser()
-			}
-		}
-
-		// Listen for when the user focuses back on the app
-		const handleFocus = () => {
-			if (auth.currentUser) {
-				refreshUser()
-			}
-		}
-
-		document.addEventListener('visibilitychange', handleVisibilityChange)
-		window.addEventListener('focus', handleFocus)
-
 		return () => {
 			unsubscribe()
-			document.removeEventListener('visibilitychange', handleVisibilityChange)
-			window.removeEventListener('focus', handleFocus)
 		}
 	}, [])
 
