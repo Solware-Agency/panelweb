@@ -4,6 +4,7 @@ import { RegisterPage } from './pages/RegisterPage'
 import { ForgotPasswordPage } from './pages/ForgotPasswordPage'
 import Dashboard from './pages/Dashboard'
 import PrivateRoute from './routes/PrivateRoute'
+import EmailVerificationNotice from './components/EmailVerificationNotice'
 
 function App() {
 	return (
@@ -19,6 +20,7 @@ function App() {
 					<Route path="/login" element={<LoginPage />} />
 					<Route path="/register" element={<RegisterPage />} />
 					<Route path="/forgot-password" element={<ForgotPasswordPage />} />
+					<Route path="/email-verification-notice" element={<EmailVerificationNotice />} />
 
 					{/* Default route */}
 					<Route path="/" element={<Navigate to="/login" />} />

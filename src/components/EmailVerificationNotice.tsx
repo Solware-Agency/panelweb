@@ -1,13 +1,62 @@
-import { useState } from 'react'
-import { Mail, RefreshCw, ArrowLeft } from 'lucide-react'
+import { useState, useEffect } from 'react'
+import { Mail, RefreshCw, ArrowLeft, CheckCircle } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 import { sendVerificationEmail, logout } from '../firebase/auth'
 
 function EmailVerificationNotice() {
-	const { user } = useAuth()
+	const { user, refreshUser } = useAuth()
 	const [message, setMessage] = useState('')
 	const [error, setError] = useState('')
 	const [loading, setLoading] = useState(false)
+	const [checkingVerification, setCheckingVerification] = useState(false)
+
+	// Check verification status when component mounts and periodically
+	useEffect(() => {
+		let intervalId: NodeJS.Timeout
+
+		const checkVerificationStatus = async () => {
+			if (user && !checkingVerification) {
+				setCheckingVerification(true)
+				await refreshUser()
+				setCheckingVerification(false)
+			}
+		}
+
+		// Check immediately when component mounts
+		checkVerificationStatus()
+
+		// Set up periodic checking every 5 seconds
+		intervalId = setInterval(checkVerificationStatus, 5000)
+
+		return () => {
+			if (intervalId) {
+				clearInterval(intervalId)
+			}
+		}
+	}, [user, refreshUser, checkingVerification])
+
+	// Listen for when the user returns to the app
+	useEffect(() => {
+		const handleVisibilityChange = async () => {
+			if (!document.hidden && user) {
+				await refreshUser()
+			}
+		}
+
+		const handleFocus = async () => {
+			if (user) {
+				await refreshUser()
+			}
+		}
+
+		document.addEventListener('visibilitychange', handleVisibilityChange)
+		window.addEventListener('focus', handleFocus)
+
+		return () => {
+			document.removeEventListener('visibilitychange', handleVisibilityChange)
+			window.removeEventListener('focus', handleFocus)
+		}
+	}, [user, refreshUser])
 
 	const handleResendVerification = async () => {
 		if (!user) return
@@ -28,6 +77,30 @@ function EmailVerificationNotice() {
 		setLoading(false)
 	}
 
+	const handleCheckVerification = async () => {
+		if (!user) return
+
+		try {
+			setCheckingVerification(true)
+			setMessage('')
+			setError('')
+			await refreshUser()
+			
+			// Small delay to ensure state updates
+			setTimeout(() => {
+				if (user.emailVerified) {
+					setMessage('¡Email verificado exitosamente! Serás redirigido al dashboard.')
+				} else {
+					setError('El email aún no ha sido verificado. Por favor, revisa tu correo e inténtalo de nuevo.')
+				}
+				setCheckingVerification(false)
+			}, 1000)
+		} catch (err) {
+			setError('Error al verificar el estado del email. Inténtalo de nuevo.')
+			setCheckingVerification(false)
+		}
+	}
+
 	const handleLogout = async () => {
 		await logout()
 	}
@@ -41,7 +114,7 @@ function EmailVerificationNotice() {
 					</div>
 					<h1 className="text-2xl font-bold text-gray-900 mb-2">Verifica tu Correo Electrónico</h1>
 					<p className="text-gray-600 text-center">
-						Por favor verifica tu dirección de correo electrónico e inicia sesión nuevamente para acceder al dashboard.
+						Por favor verifica tu dirección de correo electrónico para acceder al dashboard.
 					</p>
 				</div>
 
@@ -65,27 +138,49 @@ function EmailVerificationNotice() {
 						</div>
 					)}
 
-					<button
-						onClick={handleResendVerification}
-						disabled={loading}
-						className="w-full bg-orange-500 text-white rounded-md p-2 hover:bg-orange-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed mb-3 flex items-center justify-center gap-2"
-					>
-						<RefreshCw size={16} className={loading ? 'animate-spin' : ''} />
-						{loading ? 'Enviando...' : 'Reenviar Correo de Verificación'}
-					</button>
+					{checkingVerification && (
+						<div className="bg-yellow-100 border border-yellow-400 text-yellow-700 px-4 py-3 rounded mb-4 flex items-center gap-2">
+							<RefreshCw size={16} className="animate-spin" />
+							Verificando estado del email...
+						</div>
+					)}
+
+					<div className="space-y-3">
+						<button
+							onClick={handleCheckVerification}
+							disabled={checkingVerification}
+							className="w-full bg-green-500 text-white rounded-md p-2 hover:bg-green-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+						>
+							<CheckCircle size={16} />
+							{checkingVerification ? 'Verificando...' : 'Ya verifiqué mi email'}
+						</button>
+
+						<button
+							onClick={handleResendVerification}
+							disabled={loading || checkingVerification}
+							className="w-full bg-orange-500 text-white rounded-md p-2 hover:bg-orange-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+						>
+							<RefreshCw size={16} className={loading ? 'animate-spin' : ''} />
+							{loading ? 'Enviando...' : 'Reenviar Correo de Verificación'}
+						</button>
+					</div>
 				</div>
 
 				<div className="text-center space-y-3">
 					<p className="text-sm text-gray-600">
-						¿Ya verificaste tu correo?
+						¿Problemas con la verificación?
 					</p>
 					<button
 						onClick={handleLogout}
 						className="flex items-center justify-center gap-2 text-sm text-blue-500 hover:text-blue-600 transition-colors mx-auto"
 					>
 						<ArrowLeft size={16} />
-						Iniciar sesión nuevamente
+						Cerrar sesión e intentar de nuevo
 					</button>
+				</div>
+
+				<div className="mt-4 text-xs text-gray-500 text-center">
+					<p>💡 Consejo: Después de verificar tu email, haz clic en "Ya verifiqué mi email" o regresa a esta pestaña.</p>
 				</div>
 			</div>
 		</div>

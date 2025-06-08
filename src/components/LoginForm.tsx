@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Lock } from 'lucide-react'
 import { Link, useNavigate } from 'react-router-dom'
 import { signIn } from '../firebase/auth'
+import { useAuth } from '../context/AuthContext'
 
 function LoginForm() {
 	const [email, setEmail] = useState('')
@@ -9,6 +10,7 @@ function LoginForm() {
 	const [error, setError] = useState('')
 	const [loading, setLoading] = useState(false)
 	const navigate = useNavigate()
+	const { refreshUser } = useAuth()
 
 	const handleLogin = async (event: React.FormEvent<HTMLFormElement>) => {
 		event.preventDefault()
@@ -18,8 +20,12 @@ function LoginForm() {
 			setLoading(true)
 			const userCredential = await signIn(email, password)
 
-			await userCredential.user.reload()
+			// Refresh user data to get the latest emailVerified status
+			await refreshUser()
+			
+			// Get the refreshed user
 			const refreshedUser = userCredential.user
+			await refreshedUser.reload()
 
 			// Check if email is verified
 			if (!refreshedUser.emailVerified) {
@@ -37,6 +43,8 @@ function LoginForm() {
 				setError('Correo electrónico inválido.')
 			} else if (err.code === 'auth/user-disabled') {
 				setError('Esta cuenta ha sido deshabilitada.')
+			} else if (err.code === 'auth/invalid-credential') {
+				setError('Credenciales inválidas. Verifica tu email y contraseña.')
 			} else {
 				setError('Error al iniciar sesión. Verifica tus credenciales o crea una cuenta.')
 			}
