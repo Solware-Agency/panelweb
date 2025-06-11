@@ -40,10 +40,9 @@ const EyeTrackingComponent = ({ className = '' }: EyeTrackingComponentProps) => 
 				margin: 0,
 				padding: 0,
 				display: 'flex',
-				width: '100%',
 			}}
 		>
-			<svg style={{ margin: 'auto' }} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 500" className={className}>
+			<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 500" className={className}>
 				<g ref={eyeBallRef} transform="matrix(1.084081, 0, 0, 1.081948, -12.577974, 19.817105)" className="eyeball">
 					{/* Todos los paths y elementos del SVG original */}
 					{/* ... (todo el contenido SVG que proporcionaste) ... */}

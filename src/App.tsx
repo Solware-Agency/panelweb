@@ -8,6 +8,8 @@ import Layout from './components/dashboardLayout/Layout'
 import HomePage from './pages/dashboard/home/HomePage'
 import CalendarPage from './pages/dashboard/calendar/CalendarPage'
 import StatsPage from './pages/dashboard/stats/StatsPage'
+import Form from './pages/Form'
+import FormRoute from './routes/FormRoute'
 
 function App() {
 	return (
@@ -24,10 +26,18 @@ function App() {
 					<Route path="/register" element={<RegisterPage />} />
 					<Route path="/forgot-password" element={<ForgotPasswordPage />} />
 					<Route path="/email-verification-notice" element={<EmailVerificationNotice />} />
+					<Route
+						path="/form"
+						element={
+							<FormRoute>
+								<Form />
+							</FormRoute>
+						}
+					/>
 
 					{/* Default route */}
 					<Route path="/" element={<Navigate to="/login" />} />
-					
+
 					{/* Protected dashboard routes */}
 					<Route
 						path="/dashboard"
