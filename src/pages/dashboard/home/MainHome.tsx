@@ -1,5 +1,5 @@
 import EyeTrackingComponent from '../../../components/dashboardComponents/RobotTraking'
-import { TrendingUp, Users, CheckCircle, DollarSign, Calendar, Clock, ArrowRight, BarChart3 } from 'lucide-react'
+import { TrendingUp, Users, CheckCircle, DollarSign, Calendar, Clock, ArrowRight, BarChart3, Sparkles, Target } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 
 function MainHome() {
@@ -8,87 +8,174 @@ function MainHome() {
 	return (
 		<>
 			<main className="m-5 parent">
-				{/* Grid 1 - Welcome Section */}
-				<div className="bg-white/80 dark:bg-gray-900/80 rounded-xl py-4 px-6 transition-colors duration-300 flex items-center justify-around div1">
-					<div>
-						<h1 className="text-2xl font-bold text-gray-700 dark:text-gray-300">Bienvenido a Solware!</h1>
-						<p className="text-gray-700 dark:text-gray-300">
-							Recuerda revisar los proyectos pendientes y el calendario
+				{/* Grid 1 - Enhanced Welcome Section */}
+				<div className="bg-gradient-to-br from-white/90 to-blue-50/80 dark:from-gray-900/90 dark:to-blue-900/20 rounded-xl py-6 px-8 transition-all duration-300 flex items-center justify-between div1 border border-blue-100 dark:border-blue-800/30 shadow-lg hover:shadow-xl">
+					<div className="flex-1">
+						<div className="flex items-center gap-3 mb-3">
+							<div className="p-2 bg-blue-500 rounded-lg">
+								<Sparkles className="w-6 h-6 text-white" />
+							</div>
+							<div>
+								<h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 bg-clip-text text-transparent">
+									¡Bienvenido a Solware!
+								</h1>
+								<div className="flex items-center gap-2 mt-1">
+									<div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+									<span className="text-sm text-green-600 dark:text-green-400 font-medium">Sistema activo</span>
+								</div>
+							</div>
+						</div>
+						<p className="text-gray-600 dark:text-gray-300 mb-4 text-lg">
+							Gestiona tus proyectos y revisa el progreso de tu equipo
 						</p>
+						<div className="flex items-center gap-4">
+							<div className="flex items-center gap-2 px-3 py-2 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
+								<Target className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+								<span className="text-sm font-medium text-blue-700 dark:text-blue-300">3 tareas pendientes</span>
+							</div>
+							<div className="flex items-center gap-2 px-3 py-2 bg-green-100 dark:bg-green-900/30 rounded-lg">
+								<CheckCircle className="w-4 h-4 text-green-600 dark:text-green-400" />
+								<span className="text-sm font-medium text-green-700 dark:text-green-300">2 proyectos completados</span>
+							</div>
+						</div>
 					</div>
-					<EyeTrackingComponent
-						className={
-							'size-36 drop-shadow-[0px_0px_10px_rgba(0,0,0,0.5)] dark:drop-shadow-[0px_0px_10px_rgba(225,225,225,0.5)] transition duration-300'
-						}
-					/>
+					<div className="relative">
+						<div className="absolute inset-0 bg-gradient-to-r from-blue-400 to-purple-500 rounded-full blur-xl opacity-20 animate-pulse"></div>
+						<EyeTrackingComponent
+							className={
+								'size-40 drop-shadow-[0px_10px_20px_rgba(59,130,246,0.3)] dark:drop-shadow-[0px_10px_20px_rgba(147,197,253,0.3)] transition-all duration-300 hover:scale-105 relative z-10'
+							}
+						/>
+					</div>
 				</div>
 
-				{/* Grid 2 - Revenue Chart (Clickable to Stats) */}
+				{/* Grid 2 - Enhanced Revenue Chart */}
 				<div 
-					className="bg-white/80 dark:bg-gray-900/80 rounded-xl py-5 px-6 transition-colors duration-300 div2 cursor-pointer hover:bg-white/90 dark:hover:bg-gray-900/90 group"
+					className="bg-gradient-to-br from-white/90 to-purple-50/80 dark:from-gray-900/90 dark:to-purple-900/20 rounded-xl py-6 px-8 transition-all duration-300 div2 cursor-pointer hover:shadow-xl group border border-purple-100 dark:border-purple-800/30 shadow-lg"
 					onClick={() => navigate('/dashboard/stats')}
 				>
-					<div className="flex items-center justify-between mb-2">
-						<h2 className="text-2xl font-bold text-gray-700 dark:text-gray-300">Ingresos por Servicio</h2>
-						<ArrowRight className="w-5 h-5 text-gray-400 group-hover:text-blue-500 transition-colors" />
-					</div>
-					<div className="flex gap-5 items-center justify-center p-5">
-						<div className="relative size-40">
-							<svg className="size-full -rotate-90" viewBox="0 0 36 36">
-								<circle
-									cx="18"
-									cy="18"
-									r="14"
-									fill="none"
-									className="stroke-current text-gray-200 dark:text-neutral-700"
-									strokeWidth="5"
-								></circle>
-								<circle
-									cx="18"
-									cy="18"
-									r="14"
-									fill="none"
-									className="stroke-current text-red-500 dark:text-red-500"
-									strokeWidth="5"
-									strokeDasharray="100"
-									strokeDashoffset="0"
-								></circle>
-								<circle
-									cx="18"
-									cy="18"
-									r="14"
-									fill="none"
-									className="stroke-current text-orange-500 dark:text-orange-500"
-									strokeWidth="5"
-									strokeDasharray="100"
-									strokeDashoffset="50"
-								></circle>
-								<circle
-									cx="18"
-									cy="18"
-									r="14"
-									fill="none"
-									className="stroke-current text-blue-600 dark:text-blue-500"
-									strokeWidth="5"
-									strokeDasharray="100"
-									strokeDashoffset="65"
-								></circle>
-							</svg>
+					<div className="flex items-center justify-between mb-6">
+						<div className="flex items-center gap-3">
+							<div className="p-3 bg-gradient-to-r from-purple-500 to-pink-500 rounded-xl shadow-lg">
+								<BarChart3 className="w-7 h-7 text-white" />
+							</div>
+							<div>
+								<h2 className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 dark:from-purple-400 dark:to-pink-400 bg-clip-text text-transparent">
+									Ingresos por Servicio
+								</h2>
+								<p className="text-sm text-gray-500 dark:text-gray-400">Distribución de ingresos Q1 2024</p>
+							</div>
 						</div>
-						<ul className="flex flex-col gap-2">
-							<li className="flex items-center gap-2">
-								<div className="size-2 bg-blue-500 dark:bg-blue-500 rounded-full"></div>
-								<p className="text-gray-700 dark:text-gray-300">Automatización: $100</p>
-							</li>
-							<li className="flex items-center gap-2">
-								<div className="size-2 bg-orange-500 dark:bg-orange-500 rounded-full"></div>
-								<p className="text-gray-700 dark:text-gray-300">Agentes IA: $25</p>
-							</li>
-							<li className="flex items-center gap-2">
-								<div className="size-2 bg-red-500 dark:bg-red-500 rounded-full"></div>
-								<p className="text-gray-700 dark:text-gray-300">Desarrollo: $1000</p>
-							</li>
-						</ul>
+						<div className="flex items-center gap-2 px-3 py-2 bg-purple-100 dark:bg-purple-900/30 rounded-lg group-hover:bg-purple-200 dark:group-hover:bg-purple-900/50 transition-colors">
+							<span className="text-sm font-medium text-purple-700 dark:text-purple-300">Ver detalles</span>
+							<ArrowRight className="w-4 h-4 text-purple-600 dark:text-purple-400 group-hover:translate-x-1 transition-transform" />
+						</div>
+					</div>
+					
+					<div className="flex gap-8 items-center justify-center">
+						<div className="relative">
+							<div className="relative size-44">
+								<svg className="size-full -rotate-90" viewBox="0 0 36 36">
+									<circle
+										cx="18"
+										cy="18"
+										r="14"
+										fill="none"
+										className="stroke-current text-gray-200 dark:text-neutral-700"
+										strokeWidth="4"
+									></circle>
+									<circle
+										cx="18"
+										cy="18"
+										r="14"
+										fill="none"
+										className="stroke-current text-red-500 drop-shadow-lg"
+										strokeWidth="4"
+										strokeDasharray="100"
+										strokeDashoffset="0"
+									></circle>
+									<circle
+										cx="18"
+										cy="18"
+										r="14"
+										fill="none"
+										className="stroke-current text-orange-500 drop-shadow-lg"
+										strokeWidth="4"
+										strokeDasharray="100"
+										strokeDashoffset="50"
+									></circle>
+									<circle
+										cx="18"
+										cy="18"
+										r="14"
+										fill="none"
+										className="stroke-current text-blue-600 drop-shadow-lg"
+										strokeWidth="4"
+										strokeDasharray="100"
+										strokeDashoffset="65"
+									></circle>
+								</svg>
+								<div className="absolute inset-0 flex items-center justify-center">
+									<div className="text-center">
+										<p className="text-2xl font-bold text-gray-700 dark:text-gray-300">$1,125</p>
+										<p className="text-xs text-gray-500 dark:text-gray-400">Total</p>
+									</div>
+								</div>
+							</div>
+						</div>
+						
+						<div className="flex-1 space-y-4">
+							<div className="flex items-center justify-between p-3 bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 rounded-xl border border-blue-200 dark:border-blue-800/30">
+								<div className="flex items-center gap-3">
+									<div className="w-4 h-4 bg-blue-500 rounded-full shadow-lg"></div>
+									<div>
+										<p className="font-medium text-gray-700 dark:text-gray-300">Automatización</p>
+										<p className="text-xs text-gray-500 dark:text-gray-400">15% del total</p>
+									</div>
+								</div>
+								<div className="text-right">
+									<span className="text-lg font-bold text-blue-600 dark:text-blue-400">$100</span>
+									<div className="flex items-center gap-1">
+										<TrendingUp className="w-3 h-3 text-green-500" />
+										<span className="text-xs text-green-600 dark:text-green-400">+8%</span>
+									</div>
+								</div>
+							</div>
+							
+							<div className="flex items-center justify-between p-3 bg-gradient-to-r from-orange-50 to-orange-100 dark:from-orange-900/20 dark:to-orange-800/20 rounded-xl border border-orange-200 dark:border-orange-800/30">
+								<div className="flex items-center gap-3">
+									<div className="w-4 h-4 bg-orange-500 rounded-full shadow-lg"></div>
+									<div>
+										<p className="font-medium text-gray-700 dark:text-gray-300">Agentes IA</p>
+										<p className="text-xs text-gray-500 dark:text-gray-400">2% del total</p>
+									</div>
+								</div>
+								<div className="text-right">
+									<span className="text-lg font-bold text-orange-600 dark:text-orange-400">$25</span>
+									<div className="flex items-center gap-1">
+										<TrendingUp className="w-3 h-3 text-green-500" />
+										<span className="text-xs text-green-600 dark:text-green-400">+15%</span>
+									</div>
+								</div>
+							</div>
+							
+							<div className="flex items-center justify-between p-3 bg-gradient-to-r from-red-50 to-red-100 dark:from-red-900/20 dark:to-red-800/20 rounded-xl border border-red-200 dark:border-red-800/30">
+								<div className="flex items-center gap-3">
+									<div className="w-4 h-4 bg-red-500 rounded-full shadow-lg"></div>
+									<div>
+										<p className="font-medium text-gray-700 dark:text-gray-300">Desarrollo Web</p>
+										<p className="text-xs text-gray-500 dark:text-gray-400">83% del total</p>
+									</div>
+								</div>
+								<div className="text-right">
+									<span className="text-lg font-bold text-red-600 dark:text-red-400">$1,000</span>
+									<div className="flex items-center gap-1">
+										<TrendingUp className="w-3 h-3 text-green-500" />
+										<span className="text-xs text-green-600 dark:text-green-400">+12%</span>
+									</div>
+								</div>
+							</div>
+						</div>
 					</div>
 				</div>
 
