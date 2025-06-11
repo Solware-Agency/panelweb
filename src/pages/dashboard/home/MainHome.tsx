@@ -1,7 +1,10 @@
 import EyeTrackingComponent from '../../../components/dashboardComponents/RobotTraking'
-import { TrendingUp, Users, CheckCircle, DollarSign, Calendar, Clock } from 'lucide-react'
+import { TrendingUp, Users, CheckCircle, DollarSign, Calendar, Clock, ArrowRight, BarChart3 } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
 
 function MainHome() {
+	const navigate = useNavigate()
+
 	return (
 		<>
 			<main className="m-5 parent">
@@ -20,9 +23,15 @@ function MainHome() {
 					/>
 				</div>
 
-				{/* Grid 2 - Revenue Chart */}
-				<div className="bg-white/80 dark:bg-gray-900/80 rounded-xl py-5 px-6 transition-colors duration-300 div2">
-					<h2 className="text-2xl font-bold text-gray-700 dark:text-gray-300">Ingresos por Servicio</h2>
+				{/* Grid 2 - Revenue Chart (Clickable to Stats) */}
+				<div 
+					className="bg-white/80 dark:bg-gray-900/80 rounded-xl py-5 px-6 transition-colors duration-300 div2 cursor-pointer hover:bg-white/90 dark:hover:bg-gray-900/90 group"
+					onClick={() => navigate('/dashboard/stats')}
+				>
+					<div className="flex items-center justify-between mb-2">
+						<h2 className="text-2xl font-bold text-gray-700 dark:text-gray-300">Ingresos por Servicio</h2>
+						<ArrowRight className="w-5 h-5 text-gray-400 group-hover:text-blue-500 transition-colors" />
+					</div>
 					<div className="flex gap-5 items-center justify-center p-5">
 						<div className="relative size-40">
 							<svg className="size-full -rotate-90" viewBox="0 0 36 36">
@@ -44,7 +53,6 @@ function MainHome() {
 									strokeDasharray="100"
 									strokeDashoffset="0"
 								></circle>
-
 								<circle
 									cx="18"
 									cy="18"
@@ -70,29 +78,35 @@ function MainHome() {
 						<ul className="flex flex-col gap-2">
 							<li className="flex items-center gap-2">
 								<div className="size-2 bg-blue-500 dark:bg-blue-500 rounded-full"></div>
-								<p className="text-gray-700 dark:text-gray-300">Automatización de Procesos: 100$</p>
+								<p className="text-gray-700 dark:text-gray-300">Automatización: $100</p>
 							</li>
 							<li className="flex items-center gap-2">
 								<div className="size-2 bg-orange-500 dark:bg-orange-500 rounded-full"></div>
-								<p className="text-gray-700 dark:text-gray-300">Agentes IA: 25$</p>
+								<p className="text-gray-700 dark:text-gray-300">Agentes IA: $25</p>
 							</li>
 							<li className="flex items-center gap-2">
 								<div className="size-2 bg-red-500 dark:bg-red-500 rounded-full"></div>
-								<p className="text-gray-700 dark:text-gray-300">Desarrollo Web y Móvil: 1000$</p>
+								<p className="text-gray-700 dark:text-gray-300">Desarrollo: $1000</p>
 							</li>
 						</ul>
 					</div>
 				</div>
 
-				{/* Grid 3 - KPI Card: Monthly Revenue */}
-				<div className='bg-white/80 dark:bg-gray-900/80 rounded-xl py-5 px-6 transition-colors duration-300 div3 flex flex-col justify-between'>
+				{/* Grid 3 - KPI Card: Monthly Revenue (Clickable to Stats) */}
+				<div 
+					className='bg-white/80 dark:bg-gray-900/80 rounded-xl py-5 px-6 transition-colors duration-300 div3 flex flex-col justify-between cursor-pointer hover:bg-white/90 dark:hover:bg-gray-900/90 group'
+					onClick={() => navigate('/dashboard/stats')}
+				>
 					<div className="flex items-center justify-between mb-4">
 						<div className="p-2 bg-green-100 dark:bg-green-900/30 rounded-lg">
 							<DollarSign className="w-6 h-6 text-green-600 dark:text-green-400" />
 						</div>
-						<div className="flex items-center text-green-600 dark:text-green-400">
-							<TrendingUp className="w-4 h-4 mr-1" />
-							<span className="text-sm font-medium">+12.5%</span>
+						<div className="flex items-center gap-2">
+							<div className="flex items-center text-green-600 dark:text-green-400">
+								<TrendingUp className="w-4 h-4 mr-1" />
+								<span className="text-sm font-medium">+12.5%</span>
+							</div>
+							<ArrowRight className="w-4 h-4 text-gray-400 group-hover:text-blue-500 transition-colors" />
 						</div>
 					</div>
 					<div>
@@ -102,15 +116,21 @@ function MainHome() {
 					</div>
 				</div>
 
-				{/* Grid 4 - KPI Card: Registered Users */}
-				<div className='bg-white/80 dark:bg-gray-900/80 rounded-xl py-5 px-6 transition-colors duration-300 div4 flex flex-col justify-between'>
+				{/* Grid 4 - KPI Card: Registered Users (Clickable to Stats) */}
+				<div 
+					className='bg-white/80 dark:bg-gray-900/80 rounded-xl py-5 px-6 transition-colors duration-300 div4 flex flex-col justify-between cursor-pointer hover:bg-white/90 dark:hover:bg-gray-900/90 group'
+					onClick={() => navigate('/dashboard/stats')}
+				>
 					<div className="flex items-center justify-between mb-4">
 						<div className="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
 							<Users className="w-6 h-6 text-blue-600 dark:text-blue-400" />
 						</div>
-						<div className="flex items-center text-blue-600 dark:text-blue-400">
-							<TrendingUp className="w-4 h-4 mr-1" />
-							<span className="text-sm font-medium">+8.2%</span>
+						<div className="flex items-center gap-2">
+							<div className="flex items-center text-blue-600 dark:text-blue-400">
+								<TrendingUp className="w-4 h-4 mr-1" />
+								<span className="text-sm font-medium">+8.2%</span>
+							</div>
+							<ArrowRight className="w-4 h-4 text-gray-400 group-hover:text-blue-500 transition-colors" />
 						</div>
 					</div>
 					<div>
@@ -120,13 +140,19 @@ function MainHome() {
 					</div>
 				</div>
 
-				{/* Grid 5 - Simulated Line Chart */}
-				<div className='bg-white/80 dark:bg-gray-900/80 rounded-xl py-5 px-6 transition-colors duration-300 div5'>
+				{/* Grid 5 - Simulated Line Chart (Clickable to Stats) */}
+				<div 
+					className='bg-white/80 dark:bg-gray-900/80 rounded-xl py-5 px-6 transition-colors duration-300 div5 cursor-pointer hover:bg-white/90 dark:hover:bg-gray-900/90 group'
+					onClick={() => navigate('/dashboard/stats')}
+				>
 					<div className="flex items-center justify-between mb-4">
 						<h3 className="text-lg font-bold text-gray-700 dark:text-gray-300">Tendencia de Ventas</h3>
 						<div className="flex items-center gap-2">
-							<div className="w-3 h-3 bg-blue-500 rounded-full"></div>
-							<span className="text-sm text-gray-600 dark:text-gray-400">Últimos 7 días</span>
+							<div className="flex items-center gap-2">
+								<div className="w-3 h-3 bg-blue-500 rounded-full"></div>
+								<span className="text-sm text-gray-600 dark:text-gray-400">Últimos 7 días</span>
+							</div>
+							<ArrowRight className="w-4 h-4 text-gray-400 group-hover:text-blue-500 transition-colors" />
 						</div>
 					</div>
 					<div className="relative h-24 flex items-end justify-between gap-2">
@@ -150,119 +176,122 @@ function MainHome() {
 					</div>
 				</div>
 
-				{/* Grid 6 - Recent Activity & Tasks Completed */}
-				<div className='bg-white/80 dark:bg-gray-900/80 rounded-xl py-5 px-6 transition-colors duration-300 div6 flex flex-col'>
-					<div className="mb-4">
-						<div className="flex items-center justify-between mb-3">
+				{/* Grid 6 - Calendar Preview (Clickable to Calendar) */}
+				<div 
+					className='bg-white/80 dark:bg-gray-900/80 rounded-xl py-5 px-6 transition-colors duration-300 div6 flex flex-col cursor-pointer hover:bg-white/90 dark:hover:bg-gray-900/90 group'
+					onClick={() => navigate('/dashboard/calendar')}
+				>
+					<div className="flex items-center justify-between mb-4">
+						<div className="flex items-center gap-3">
 							<div className="p-2 bg-purple-100 dark:bg-purple-900/30 rounded-lg">
-								<CheckCircle className="w-6 h-6 text-purple-600 dark:text-purple-400" />
+								<Calendar className="w-6 h-6 text-purple-600 dark:text-purple-400" />
 							</div>
-							<span className="text-2xl font-bold text-gray-700 dark:text-gray-300">92%</span>
+							<h3 className="text-lg font-bold text-gray-700 dark:text-gray-300">Próximos Eventos</h3>
 						</div>
-						<h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">Tareas Completadas Hoy</h3>
-						<div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2 mt-2">
-							<div className="bg-purple-600 h-2 rounded-full" style={{width: '92%'}}></div>
-						</div>
+						<ArrowRight className="w-4 h-4 text-gray-400 group-hover:text-blue-500 transition-colors" />
 					</div>
 					
-					<div className="flex-1">
-						<h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">Actividad Reciente</h4>
-						<div className="space-y-3">
-							<div className="flex items-center gap-3">
-								<div className="w-2 h-2 bg-green-500 rounded-full"></div>
-								<div className="flex-1">
-									<p className="text-xs text-gray-600 dark:text-gray-400">Proyecto web completado</p>
-									<p className="text-xs text-gray-500 dark:text-gray-500">hace 2 horas</p>
-								</div>
+					<div className="space-y-3 flex-1">
+						<div className="flex items-center gap-3 p-2 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+							<div className="w-3 h-3 bg-blue-500 rounded-full"></div>
+							<div className="flex-1">
+								<p className="text-sm font-medium text-gray-700 dark:text-gray-300">Reunión con cliente</p>
+								<p className="text-xs text-gray-500 dark:text-gray-400">Hoy, 2:00 PM</p>
 							</div>
-							<div className="flex items-center gap-3">
-								<div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-								<div className="flex-1">
-									<p className="text-xs text-gray-600 dark:text-gray-400">Nueva reunión programada</p>
-									<p className="text-xs text-gray-500 dark:text-gray-500">hace 4 horas</p>
-								</div>
+						</div>
+						<div className="flex items-center gap-3 p-2 bg-green-50 dark:bg-green-900/20 rounded-lg">
+							<div className="w-3 h-3 bg-green-500 rounded-full"></div>
+							<div className="flex-1">
+								<p className="text-sm font-medium text-gray-700 dark:text-gray-300">Entrega de proyecto</p>
+								<p className="text-xs text-gray-500 dark:text-gray-400">Mañana, 10:00 AM</p>
 							</div>
-							<div className="flex items-center gap-3">
-								<div className="w-2 h-2 bg-orange-500 rounded-full"></div>
-								<div className="flex-1">
-									<p className="text-xs text-gray-600 dark:text-gray-400">Factura enviada</p>
-									<p className="text-xs text-gray-500 dark:text-gray-500">hace 6 horas</p>
-								</div>
+						</div>
+						<div className="flex items-center gap-3 p-2 bg-orange-50 dark:bg-orange-900/20 rounded-lg">
+							<div className="w-3 h-3 bg-orange-500 rounded-full"></div>
+							<div className="flex-1">
+								<p className="text-sm font-medium text-gray-700 dark:text-gray-300">Revisión semanal</p>
+								<p className="text-xs text-gray-500 dark:text-gray-400">Viernes, 4:00 PM</p>
 							</div>
 						</div>
 					</div>
 				</div>
 
-				{/* Grid 7 - Client Summary Table */}
-				<div className='bg-white/80 dark:bg-gray-900/80 rounded-xl py-5 px-6 transition-colors duration-300 div7'>
-					<h3 className="text-lg font-bold text-gray-700 dark:text-gray-300 mb-4">Clientes Recientes</h3>
-					<div className="overflow-hidden">
-						<table className="w-full text-sm">
-							<thead>
-								<tr className="border-b border-gray-200 dark:border-gray-700">
-									<th className="text-left py-2 text-gray-600 dark:text-gray-400 font-medium">Cliente</th>
-									<th className="text-left py-2 text-gray-600 dark:text-gray-400 font-medium">Estado</th>
-									<th className="text-left py-2 text-gray-600 dark:text-gray-400 font-medium">Total</th>
-								</tr>
-							</thead>
-							<tbody className="space-y-2">
-								<tr className="border-b border-gray-100 dark:border-gray-800">
-									<td className="py-2 text-gray-700 dark:text-gray-300">TechCorp SA</td>
-									<td className="py-2">
-										<span className="px-2 py-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 rounded-full text-xs">Completado</span>
-									</td>
-									<td className="py-2 text-gray-700 dark:text-gray-300 font-medium">$2,500</td>
-								</tr>
-								<tr className="border-b border-gray-100 dark:border-gray-800">
-									<td className="py-2 text-gray-700 dark:text-gray-300">StartupXYZ</td>
-									<td className="py-2">
-										<span className="px-2 py-1 bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400 rounded-full text-xs">En progreso</span>
-									</td>
-									<td className="py-2 text-gray-700 dark:text-gray-300 font-medium">$1,800</td>
-								</tr>
-								<tr>
-									<td className="py-2 text-gray-700 dark:text-gray-300">InnovateLtd</td>
-									<td className="py-2">
-										<span className="px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 rounded-full text-xs">Pendiente</span>
-									</td>
-									<td className="py-2 text-gray-700 dark:text-gray-300 font-medium">$3,200</td>
-								</tr>
-							</tbody>
-						</table>
+				{/* Grid 7 - Top Services/Products (Clickable to Reports) */}
+				<div 
+					className='bg-white/80 dark:bg-gray-900/80 rounded-xl py-5 px-6 transition-colors duration-300 div7 cursor-pointer hover:bg-white/90 dark:hover:bg-gray-900/90 group'
+					onClick={() => navigate('/dashboard/reports')}
+				>
+					<div className="flex items-center justify-between mb-4">
+						<h3 className="text-lg font-bold text-gray-700 dark:text-gray-300">Servicios Más Vendidos</h3>
+						<ArrowRight className="w-4 h-4 text-gray-400 group-hover:text-blue-500 transition-colors" />
+					</div>
+					<div className="space-y-3">
+						<div className="flex items-center justify-between p-3 bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 rounded-lg">
+							<div className="flex items-center gap-3">
+								<div className="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center">
+									<span className="text-white font-bold text-sm">1</span>
+								</div>
+								<div>
+									<p className="text-sm font-medium text-gray-700 dark:text-gray-300">Desarrollo Web</p>
+									<p className="text-xs text-gray-500 dark:text-gray-400">15 proyectos</p>
+								</div>
+							</div>
+							<span className="text-lg font-bold text-blue-600 dark:text-blue-400">$45k</span>
+						</div>
+						<div className="flex items-center justify-between p-3 bg-gradient-to-r from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20 rounded-lg">
+							<div className="flex items-center gap-3">
+								<div className="w-8 h-8 bg-green-500 rounded-lg flex items-center justify-center">
+									<span className="text-white font-bold text-sm">2</span>
+								</div>
+								<div>
+									<p className="text-sm font-medium text-gray-700 dark:text-gray-300">Automatización</p>
+									<p className="text-xs text-gray-500 dark:text-gray-400">8 proyectos</p>
+								</div>
+							</div>
+							<span className="text-lg font-bold text-green-600 dark:text-green-400">$28k</span>
+						</div>
+						<div className="flex items-center justify-between p-3 bg-gradient-to-r from-orange-50 to-orange-100 dark:from-orange-900/20 dark:to-orange-800/20 rounded-lg">
+							<div className="flex items-center gap-3">
+								<div className="w-8 h-8 bg-orange-500 rounded-lg flex items-center justify-center">
+									<span className="text-white font-bold text-sm">3</span>
+								</div>
+								<div>
+									<p className="text-sm font-medium text-gray-700 dark:text-gray-300">Agentes IA</p>
+									<p className="text-xs text-gray-500 dark:text-gray-400">5 proyectos</p>
+								</div>
+							</div>
+							<span className="text-lg font-bold text-orange-600 dark:text-orange-400">$12k</span>
+						</div>
 					</div>
 				</div>
 
-				{/* Grid 8 - Quick Stats */}
+				{/* Grid 8 - Quick Actions & Notifications */}
 				<div className='bg-white/80 dark:bg-gray-900/80 rounded-xl py-5 px-6 transition-colors duration-300 div8'>
-					<h3 className="text-lg font-bold text-gray-700 dark:text-gray-300 mb-4">Estadísticas Rápidas</h3>
-					<div className="space-y-4">
-						<div className="flex items-center justify-between">
-							<div className="flex items-center gap-3">
-								<Calendar className="w-5 h-5 text-blue-500" />
-								<span className="text-sm text-gray-600 dark:text-gray-400">Reuniones esta semana</span>
+					<div className="flex items-center justify-between mb-4">
+						<h3 className="text-lg font-bold text-gray-700 dark:text-gray-300">Acciones Rápidas</h3>
+						<div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
+					</div>
+					<div className="space-y-3">
+						<button 
+							className="w-full p-3 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white rounded-lg transition-all duration-200 flex items-center justify-center gap-2"
+							onClick={() => navigate('/dashboard/stats')}
+						>
+							<BarChart3 className="w-4 h-4" />
+							Ver Estadísticas Completas
+						</button>
+						<button 
+							className="w-full p-3 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white rounded-lg transition-all duration-200 flex items-center justify-center gap-2"
+							onClick={() => navigate('/dashboard/calendar')}
+						>
+							<Calendar className="w-4 h-4" />
+							Abrir Calendario
+						</button>
+						<div className="p-3 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg">
+							<div className="flex items-center gap-2 mb-1">
+								<div className="w-2 h-2 bg-yellow-500 rounded-full"></div>
+								<span className="text-sm font-medium text-yellow-800 dark:text-yellow-400">Recordatorio</span>
 							</div>
-							<span className="text-lg font-bold text-gray-700 dark:text-gray-300">8</span>
-						</div>
-						<div className="flex items-center justify-between">
-							<div className="flex items-center gap-3">
-								<Clock className="w-5 h-5 text-orange-500" />
-								<span className="text-sm text-gray-600 dark:text-gray-400">Horas trabajadas</span>
-							</div>
-							<span className="text-lg font-bold text-gray-700 dark:text-gray-300">42h</span>
-						</div>
-						<div className="flex items-center justify-between">
-							<div className="flex items-center gap-3">
-								<CheckCircle className="w-5 h-5 text-green-500" />
-								<span className="text-sm text-gray-600 dark:text-gray-400">Proyectos activos</span>
-							</div>
-							<span className="text-lg font-bold text-gray-700 dark:text-gray-300">12</span>
-						</div>
-						<div className="flex items-center justify-between">
-							<div className="flex items-center gap-3">
-								<TrendingUp className="w-5 h-5 text-purple-500" />
-								<span className="text-sm text-gray-600 dark:text-gray-400">Crecimiento mensual</span>
-							</div>
-							<span className="text-lg font-bold text-green-600 dark:text-green-400">+15.3%</span>
+							<p className="text-xs text-yellow-700 dark:text-yellow-300">Tienes 3 tareas pendientes para hoy</p>
 						</div>
 					</div>
 				</div>

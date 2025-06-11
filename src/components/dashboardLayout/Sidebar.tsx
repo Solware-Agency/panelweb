@@ -1,5 +1,5 @@
 import React from 'react'
-import { Code2, Home, PieChart, Calendar as CalendarIcon, Settings, ChevronRight } from 'lucide-react'
+import { Code2, Home, PieChart, Calendar as CalendarIcon, Settings, ChevronRight, FileText } from 'lucide-react'
 import { NavLink } from 'react-router-dom'
 
 const Sidebar: React.FC = () => {
@@ -65,6 +65,25 @@ const Sidebar: React.FC = () => {
 							<div className="flex gap-3 items-center">
 					<CalendarIcon className="stroke-2 size-5" />
 								<p className="text-md">Calendario</p>
+							</div>
+						</>
+					)}
+				</NavLink>
+				<NavLink
+					to="/dashboard/reports"
+					className={({ isActive }) =>
+						`flex justify-between items-center gap-3 cursor-pointer transition w-full pl-2 ${
+							isActive
+								? 'text-blue-500 border-l border-blue-500'
+								: 'hover:text-blue-500'
+						}`
+					}
+				>
+					{({ isActive }) => (
+						<>
+							<div className="flex gap-3 items-center">
+					<FileText className="stroke-2 size-5" />
+								<p className="text-md">Reportes</p>
 							</div>
 						</>
 					)}

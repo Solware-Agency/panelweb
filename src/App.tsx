@@ -8,6 +8,7 @@ import Layout from './components/dashboardLayout/Layout'
 import HomePage from './pages/dashboard/home/HomePage'
 import CalendarPage from './pages/dashboard/calendar/CalendarPage'
 import StatsPage from './pages/dashboard/stats/StatsPage'
+import ReportsPage from './pages/dashboard/reports/ReportsPage'
 import Form from './pages/Form'
 import FormRoute from './routes/FormRoute'
 
@@ -52,6 +53,7 @@ function App() {
 						<Route path="home" element={<HomePage />} />
 						<Route path="calendar" element={<CalendarPage />} />
 						<Route path="stats" element={<StatsPage />} />
+						<Route path="reports" element={<ReportsPage />} />
 					</Route>
 				</Routes>
 			</div>
