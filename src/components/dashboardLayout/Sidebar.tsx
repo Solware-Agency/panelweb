@@ -66,7 +66,6 @@ const Sidebar: React.FC = () => {
 					<CalendarIcon className="stroke-2 size-5" />
 								<p className="text-md">Calendario</p>
 							</div>
-							
 						</>
 					)}
 				</NavLink>
