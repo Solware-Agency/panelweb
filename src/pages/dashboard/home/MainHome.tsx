@@ -116,7 +116,7 @@ function MainHome() {
 											r="16"
 											fill="none"
 											className="stroke-current text-gray-400/70 dark:text-gray-200 transition-colors duration-300"
-											stroke-width="4"
+											strokeWidth="4"
 										></circle>
 										<circle
 											cx="18"
@@ -124,10 +124,10 @@ function MainHome() {
 											r="16"
 											fill="none"
 											className="stroke-current text-purple-600"
-											stroke-width="4"
-											stroke-dasharray="100"
-											stroke-dashoffset="87"
-											stroke-linecap="round"
+											strokeWidth="4"
+											strokeDasharray="100"
+											strokeDashoffset="87"
+											strokeLinecap="round"
 										></circle>
 									</svg>
 									<div className="absolute top-1/2 start-1/2 transform -translate-y-1/2 -translate-x-1/2">
@@ -162,7 +162,7 @@ function MainHome() {
 											r="16"
 											fill="none"
 											className="stroke-current text-gray-400/70 dark:text-gray-200 transition-colors duration-300"
-											stroke-width="4"
+											strokeWidth="4"
 										></circle>
 										<circle
 											cx="18"
@@ -170,10 +170,10 @@ function MainHome() {
 											r="16"
 											fill="none"
 											className="stroke-current text-blue-500"
-											stroke-width="4"
-											stroke-dasharray="100"
-											stroke-dashoffset="48"
-											stroke-linecap="round"
+											strokeWidth="4"
+											strokeDasharray="100"
+											strokeDashoffset="48"
+											strokeLinecap="round"
 										></circle>
 									</svg>
 									<div className="absolute top-1/2 start-1/2 transform -translate-y-1/2 -translate-x-1/2">
