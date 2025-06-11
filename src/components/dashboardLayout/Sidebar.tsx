@@ -38,8 +38,15 @@ const Sidebar: React.FC = () => {
 						}`
 					}
 				>
+					{({ isActive }) => (
+						<>
+							<div className="flex gap-3">
 					<PieChart className="stroke-2 size-5" />
-					<p className="text-md">Estadisticas</p>
+								<p className="text-md">Estadisticas</p>
+							</div>
+							{isActive && <ChevronRight />}
+						</>
+					)}
 				</NavLink>
 				<NavLink
 					to="/dashboard/calendar"
@@ -49,8 +56,15 @@ const Sidebar: React.FC = () => {
 						}`
 					}
 				>
+					{({ isActive }) => (
+						<>
+							<div className="flex gap-3">
 					<CalendarIcon className="stroke-2 size-5" />
-					<p className="text-md">Calendario</p>
+								<p className="text-md">Calendario</p>
+							</div>
+							{isActive && <ChevronRight />}
+						</>
+					)}
 				</NavLink>
 			</div>
 			<div className="flex items-center gap-3 cursor-pointer pl-2 hover:text-blue-500 transition">
