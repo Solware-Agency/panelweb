@@ -1,5 +1,5 @@
 import EyeTrackingComponent from '../../../components/dashboardComponents/RobotTraking'
-import { TrendingUp, Users, CheckCircle, DollarSign, Calendar, Clock, ArrowRight, BarChart3, Sparkles, Target } from 'lucide-react'
+import { TrendingUp, Users, DollarSign, Calendar, ArrowRight, BarChart3 } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 
 function MainHome() {
@@ -9,12 +9,9 @@ function MainHome() {
 		<>
 			<main className="m-5 parent">
 				{/* Grid 1 - Enhanced Welcome Section */}
-				<div className="bg-gradient-to-br from-white/90 to-blue-50/80 dark:from-gray-900/90 dark:to-blue-900/20 rounded-xl py-6 px-8 transition-all duration-300 flex items-center justify-between div1 border border-blue-100 dark:border-blue-800/30 shadow-lg hover:shadow-xl">
+				<div className="bg-gradient-to-br from-white/90 to-blue-50/80 dark:from-gray-900/90 dark:to-gray-900/30 dark:hover:bg-gray-900/30 rounded-xl py-6 px-8 transition-all duration-300 flex items-center justify-between div1 border border-blue-100 dark:border-blue-800/30 shadow-lg hover:shadow-xl">
 					<div className="flex-1">
 						<div className="flex items-center gap-3 mb-3">
-							<div className="p-2 bg-blue-500 rounded-lg">
-								<Sparkles className="w-6 h-6 text-white" />
-							</div>
 							<div>
 								<h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 bg-clip-text text-transparent">
 									¡Bienvenido a Solware!
@@ -28,16 +25,6 @@ function MainHome() {
 						<p className="text-gray-600 dark:text-gray-300 mb-4 text-lg">
 							Gestiona tus proyectos y revisa el progreso de tu equipo
 						</p>
-						<div className="flex items-center gap-4">
-							<div className="flex items-center gap-2 px-3 py-2 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
-								<Target className="w-4 h-4 text-blue-600 dark:text-blue-400" />
-								<span className="text-sm font-medium text-blue-700 dark:text-blue-300">3 tareas pendientes</span>
-							</div>
-							<div className="flex items-center gap-2 px-3 py-2 bg-green-100 dark:bg-green-900/30 rounded-lg">
-								<CheckCircle className="w-4 h-4 text-green-600 dark:text-green-400" />
-								<span className="text-sm font-medium text-green-700 dark:text-green-300">2 proyectos completados</span>
-							</div>
-						</div>
 					</div>
 					<div className="relative">
 						<div className="absolute inset-0 bg-gradient-to-r from-blue-400 to-purple-500 rounded-full blur-xl opacity-20 animate-pulse"></div>
@@ -51,14 +38,11 @@ function MainHome() {
 
 				{/* Grid 2 - Enhanced Revenue Chart */}
 				<div 
-					className="bg-gradient-to-br from-white/90 to-purple-50/80 dark:from-gray-900/90 dark:to-purple-900/20 rounded-xl py-6 px-8 transition-all duration-300 div2 cursor-pointer hover:shadow-xl group border border-purple-100 dark:border-purple-800/30 shadow-lg"
+					className="bg-gradient-to-br from-white/90 to-blue-50/80 dark:from-gray-900/90 dark:to-gray-900/30 dark:hover:bg-gray-900/30 rounded-xl py-6 px-8 transition-all duration-300 div2 cursor-pointer hover:shadow-xl group border border-purple-100 dark:border-purple-800/30 shadow-lg"
 					onClick={() => navigate('/dashboard/stats')}
 				>
 					<div className="flex items-center justify-between mb-6">
 						<div className="flex items-center gap-3">
-							<div className="p-3 bg-gradient-to-r from-purple-500 to-pink-500 rounded-xl shadow-lg">
-								<BarChart3 className="w-7 h-7 text-white" />
-							</div>
 							<div>
 								<h2 className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 dark:from-purple-400 dark:to-pink-400 bg-clip-text text-transparent">
 									Ingresos por Servicio
@@ -89,7 +73,7 @@ function MainHome() {
 										cy="18"
 										r="14"
 										fill="none"
-										className="stroke-current text-red-500 drop-shadow-lg"
+										className="stroke-current text-red-500"
 										strokeWidth="4"
 										strokeDasharray="100"
 										strokeDashoffset="0"
@@ -99,7 +83,7 @@ function MainHome() {
 										cy="18"
 										r="14"
 										fill="none"
-										className="stroke-current text-orange-500 drop-shadow-lg"
+										className="stroke-current text-orange-500"
 										strokeWidth="4"
 										strokeDasharray="100"
 										strokeDashoffset="50"
@@ -109,7 +93,7 @@ function MainHome() {
 										cy="18"
 										r="14"
 										fill="none"
-										className="stroke-current text-blue-600 drop-shadow-lg"
+										className="stroke-current text-blue-600"
 										strokeWidth="4"
 										strokeDasharray="100"
 										strokeDashoffset="65"
@@ -135,10 +119,6 @@ function MainHome() {
 								</div>
 								<div className="text-right">
 									<span className="text-lg font-bold text-blue-600 dark:text-blue-400">$100</span>
-									<div className="flex items-center gap-1">
-										<TrendingUp className="w-3 h-3 text-green-500" />
-										<span className="text-xs text-green-600 dark:text-green-400">+8%</span>
-									</div>
 								</div>
 							</div>
 							
@@ -152,10 +132,6 @@ function MainHome() {
 								</div>
 								<div className="text-right">
 									<span className="text-lg font-bold text-orange-600 dark:text-orange-400">$25</span>
-									<div className="flex items-center gap-1">
-										<TrendingUp className="w-3 h-3 text-green-500" />
-										<span className="text-xs text-green-600 dark:text-green-400">+15%</span>
-									</div>
 								</div>
 							</div>
 							
@@ -169,10 +145,6 @@ function MainHome() {
 								</div>
 								<div className="text-right">
 									<span className="text-lg font-bold text-red-600 dark:text-red-400">$1,000</span>
-									<div className="flex items-center gap-1">
-										<TrendingUp className="w-3 h-3 text-green-500" />
-										<span className="text-xs text-green-600 dark:text-green-400">+12%</span>
-									</div>
 								</div>
 							</div>
 						</div>
@@ -181,7 +153,7 @@ function MainHome() {
 
 				{/* Grid 3 - KPI Card: Monthly Revenue (Clickable to Stats) */}
 				<div 
-					className='bg-white/80 dark:bg-gray-900/80 rounded-xl py-5 px-6 transition-colors duration-300 div3 flex flex-col justify-between cursor-pointer hover:bg-white/90 dark:hover:bg-gray-900/90 group'
+					className='bg-gradient-to-br from-white/90 to-blue-50/80 dark:from-gray-900/90 dark:to-gray-900/30 dark:hover:bg-gray-900/30 rounded-xl py-5 px-6 transition-colors duration-300 div3 flex flex-col justify-between cursor-pointer hover:bg-white/90 group'
 					onClick={() => navigate('/dashboard/stats')}
 				>
 					<div className="flex items-center justify-between mb-4">
@@ -205,7 +177,7 @@ function MainHome() {
 
 				{/* Grid 4 - KPI Card: Registered Users (Clickable to Stats) */}
 				<div 
-					className='bg-white/80 dark:bg-gray-900/80 rounded-xl py-5 px-6 transition-colors duration-300 div4 flex flex-col justify-between cursor-pointer hover:bg-white/90 dark:hover:bg-gray-900/90 group'
+					className='bg-gradient-to-br from-white/90 to-blue-50/80 dark:from-gray-900/90 dark:to-gray-900/30 dark:hover:bg-gray-900/30 rounded-xl py-5 px-6 transition-colors duration-300 div4 flex flex-col justify-between cursor-pointer hover:bg-white/90 group'
 					onClick={() => navigate('/dashboard/stats')}
 				>
 					<div className="flex items-center justify-between mb-4">
@@ -229,7 +201,7 @@ function MainHome() {
 
 				{/* Grid 5 - Simulated Line Chart (Clickable to Stats) */}
 				<div 
-					className='bg-white/80 dark:bg-gray-900/80 rounded-xl py-5 px-6 transition-colors duration-300 div5 cursor-pointer hover:bg-white/90 dark:hover:bg-gray-900/90 group'
+					className='bg-gradient-to-br from-white/90 to-blue-50/80 dark:from-gray-900/90 dark:to-gray-900/30 dark:hover:bg-gray-900/30 rounded-xl py-5 px-6 transition-colors duration-300 div5 cursor-pointer hover:bg-white/90 group'
 					onClick={() => navigate('/dashboard/stats')}
 				>
 					<div className="flex items-center justify-between mb-4">
@@ -265,7 +237,7 @@ function MainHome() {
 
 				{/* Grid 6 - Calendar Preview (Clickable to Calendar) */}
 				<div 
-					className='bg-white/80 dark:bg-gray-900/80 rounded-xl py-5 px-6 transition-colors duration-300 div6 flex flex-col cursor-pointer hover:bg-white/90 dark:hover:bg-gray-900/90 group'
+					className='bg-gradient-to-br from-white/90 to-blue-50/80 dark:from-gray-900/90 dark:to-gray-900/30 dark:hover:bg-gray-900/30 rounded-xl py-5 px-6 transition-colors duration-300 div6 flex flex-col cursor-pointer hover:bg-white/90 group'
 					onClick={() => navigate('/dashboard/calendar')}
 				>
 					<div className="flex items-center justify-between mb-4">
@@ -305,7 +277,7 @@ function MainHome() {
 
 				{/* Grid 7 - Top Services/Products (Clickable to Reports) */}
 				<div 
-					className='bg-white/80 dark:bg-gray-900/80 rounded-xl py-5 px-6 transition-colors duration-300 div7 cursor-pointer hover:bg-white/90 dark:hover:bg-gray-900/90 group'
+					className='bg-gradient-to-br from-white/90 to-blue-50/80 dark:from-gray-900/90 dark:to-gray-900/30 rounded-xl py-5 px-6 transition-colors duration-300 div7 cursor-pointer hover:bg-white/90 dark:hover:bg-gray-900/30 group'
 					onClick={() => navigate('/dashboard/reports')}
 				>
 					<div className="flex items-center justify-between mb-4">
@@ -353,7 +325,7 @@ function MainHome() {
 				</div>
 
 				{/* Grid 8 - Quick Actions & Notifications */}
-				<div className='bg-white/80 dark:bg-gray-900/80 rounded-xl py-5 px-6 transition-colors duration-300 div8'>
+				<div className='bg-gradient-to-br from-white/90 to-blue-50/80 dark:from-gray-900/90 dark:to-gray-900/30 dark:hover:bg-gray-900/30 rounded-xl py-5 px-6 transition-colors duration-300 div8'>
 					<div className="flex items-center justify-between mb-4">
 						<h3 className="text-lg font-bold text-gray-700 dark:text-gray-300">Acciones Rápidas</h3>
 						<div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
