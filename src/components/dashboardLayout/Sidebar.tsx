@@ -22,7 +22,7 @@ const Sidebar: React.FC = () => {
 				>
 					{({ isActive }) => (
 						<>
-							<div className="flex gap-3">
+							<div className="flex gap-3 items-center">
 								<Home className="stroke-2 size-5" />
 								<p className="text-md">Inicio</p>
 							</div>
@@ -42,7 +42,7 @@ const Sidebar: React.FC = () => {
 				>
 					{({ isActive }) => (
 						<>
-							<div className="flex gap-3">
+							<div className="flex gap-3 items-center">
 					<PieChart className="stroke-2 size-5" />
 								<p className="text-md">Estadisticas</p>
 							</div>
@@ -62,7 +62,7 @@ const Sidebar: React.FC = () => {
 				>
 					{({ isActive }) => (
 						<>
-							<div className="flex gap-3">
+							<div className="flex gap-3 items-center">
 					<CalendarIcon className="stroke-2 size-5" />
 								<p className="text-md">Calendario</p>
 							</div>
