@@ -26,7 +26,7 @@ const Sidebar: React.FC = () => {
 								<Home className="stroke-2 size-5" />
 								<p className="text-md">Inicio</p>
 							</div>
-							{isActive && <ChevronRight />}
+							
 						</>
 					)}
 				</NavLink>
@@ -46,7 +46,7 @@ const Sidebar: React.FC = () => {
 					<PieChart className="stroke-2 size-5" />
 								<p className="text-md">Estadisticas</p>
 							</div>
-							{isActive && <ChevronRight />}
+							
 						</>
 					)}
 				</NavLink>
@@ -66,7 +66,7 @@ const Sidebar: React.FC = () => {
 					<CalendarIcon className="stroke-2 size-5" />
 								<p className="text-md">Calendario</p>
 							</div>
-							{isActive && <ChevronRight />}
+							
 						</>
 					)}
 				</NavLink>
