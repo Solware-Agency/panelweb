@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Lock } from 'lucide-react'
+import { CodeXml, Eye, EyeOff } from 'lucide-react'
 import { Link, useNavigate } from 'react-router-dom'
 import { signIn } from '../firebase/auth'
 import { useAuth } from '../context/AuthContext'
@@ -11,6 +11,7 @@ function LoginForm() {
 	const [loading, setLoading] = useState(false)
 	const navigate = useNavigate()
 	const { refreshUser } = useAuth()
+	const [showPassword, setShowPassword] = useState(false)
 
 	const handleLogin = async (event: React.FormEvent<HTMLFormElement>) => {
 		event.preventDefault()
@@ -22,7 +23,7 @@ function LoginForm() {
 
 			// Refresh user data to get the latest emailVerified status
 			await refreshUser()
-			
+
 			// Get the refreshed user
 			const refreshedUser = userCredential.user
 			await refreshedUser.reload()
@@ -57,7 +58,7 @@ function LoginForm() {
 			<div className="flex flex-col items-center justify-center bg-white p-8 rounded-none md:rounded-lg w-screen h-screen md:h-auto md:w-full md:max-w-md shadow-2xl shadow-black/60">
 				<div className="text-center mb-4 flex flex-col items-center justify-center">
 					<div className="p-4 bg-blue-500 rounded-full mb-4">
-						<Lock className="text-white size-12" />
+						<CodeXml className="text-white size-12" />
 					</div>
 					<h1 className="text-2xl font-bold text-secondary-900 mb-2">Bienvenido, Inicia sesión</h1>
 					<p className="text-secondary-600">Inicia sesión en tu cuenta para continuar</p>
@@ -77,16 +78,25 @@ function LoginForm() {
 							autoComplete="email"
 						/>
 						<p className="text-sm text-secondary-600">Contraseña:</p>
-						<input
-							type="password"
-							name="password"
-							placeholder="••••••••"
-							value={password}
-							onChange={(e) => setPassword(e.target.value)}
-							required
-							className="border-2 border-dark rounded-md p-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
-							autoComplete="current-password"
-						/>
+						<div className="relative">
+							<input
+								type={showPassword ? 'text' : 'password'}
+								name="password"
+								placeholder="••••••••"
+								value={password}
+								onChange={(e) => setPassword(e.target.value)}
+								required
+								className="border-2 border-dark rounded-md p-2 w-full pr-10 focus:outline-none focus:ring-2 focus:ring-blue-500"
+								autoComplete="current-password"
+							/>
+							<button
+								type="button"
+								onClick={() => setShowPassword(!showPassword)}
+								className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-600 hover:text-gray-900"
+							>
+								{showPassword ? <Eye size={20} /> : <EyeOff size={20} />}
+							</button>
+						</div>
 					</div>
 
 					{error && <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">{error}</div>}
