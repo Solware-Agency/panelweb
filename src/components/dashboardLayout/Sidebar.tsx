@@ -33,8 +33,10 @@ const Sidebar: React.FC = () => {
 				<NavLink
 					to="/dashboard/stats"
 					className={({ isActive }) =>
-						`flex justify-center items-center gap-3 cursor-pointer pl-2 transition ${
-							isActive ? 'text-blue-500' : 'hover:text-blue-500'
+						`flex justify-between items-center gap-3 cursor-pointer transition w-full pl-2 ${
+							isActive
+								? 'text-blue-500 border-l border-blue-500'
+								: 'hover:text-blue-500'
 						}`
 					}
 				>
@@ -51,8 +53,10 @@ const Sidebar: React.FC = () => {
 				<NavLink
 					to="/dashboard/calendar"
 					className={({ isActive }) =>
-						`flex justify-center items-center gap-3 cursor-pointer pl-2 transition ${
-							isActive ? 'text-blue-500' : 'hover:text-blue-500'
+						`flex justify-between items-center gap-3 cursor-pointer transition w-full pl-2 ${
+							isActive
+								? 'text-blue-500 border-l border-blue-500'
+								: 'hover:text-blue-500'
 						}`
 					}
 				>
