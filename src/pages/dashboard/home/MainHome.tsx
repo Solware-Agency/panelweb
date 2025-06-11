@@ -1,7 +1,7 @@
-import EyeTrackingComponent from './RobotTraking'
-import TaskList from './TaskListHome'
+import EyeTrackingComponent from '../../../components/dashboardComponents/RobotTraking'
+import TaskList from '../../../components/dashboardComponents/TaskListHome'
 import { Menu } from 'lucide-react'
-import AddItemModal from './AddItemModal'
+import AddItemModal from '../../../components/dashboardComponents/AddItemModal'
 import { useState } from 'react'
 
 interface Item {

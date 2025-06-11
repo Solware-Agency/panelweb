@@ -2,9 +2,12 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { LoginPage } from './pages/LoginPage'
 import { RegisterPage } from './pages/RegisterPage'
 import { ForgotPasswordPage } from './pages/ForgotPasswordPage'
-import Dashboard from './pages/Dashboard'
 import PrivateRoute from './routes/PrivateRoute'
 import EmailVerificationNotice from './components/EmailVerificationNotice'
+import Layout from './components/dashboardLayout/Layout'
+import HomePage from './pages/dashboard/home/HomePage'
+import CalendarPage from './pages/dashboard/calendar/CalendarPage'
+import StatsPage from './pages/dashboard/stats/StatsPage'
 
 function App() {
 	return (
@@ -25,15 +28,21 @@ function App() {
 					{/* Default route */}
 					<Route path="/" element={<Navigate to="/login" />} />
 					
-					{/* Protected route */}
+					{/* Protected dashboard routes */}
 					<Route
 						path="/dashboard"
 						element={
 							<PrivateRoute>
-								<Dashboard />
+								<Layout />
 							</PrivateRoute>
 						}
-					/>
+					>
+						{/* Nested routes that will render in the Outlet */}
+						<Route index element={<Navigate to="/dashboard/home" replace />} />
+						<Route path="home" element={<HomePage />} />
+						<Route path="calendar" element={<CalendarPage />} />
+						<Route path="stats" element={<StatsPage />} />
+					</Route>
 				</Routes>
 			</div>
 		</Router>
