@@ -2,7 +2,7 @@ import { Navigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import type { JSX } from 'react'
 
-const PrivateRoute = ({ children }: { children: JSX.Element }) => {
+const FormRoute = ({ children }: { children: JSX.Element }) => {
 	const { user, loading } = useAuth()
 
 	if (loading) {
@@ -22,15 +22,11 @@ const PrivateRoute = ({ children }: { children: JSX.Element }) => {
 		return <Navigate to="/login" />
 	}
 
-	if (!user.emailVerified) {
-		return <Navigate to="/email-verification-notice" />
-	}
-
-	if (user.email !== 'juegosgeorge0502@gmail.com') {
-		return <Navigate to="/form" />
+	if (user.email === 'juegosgeorge0502@gmail.com') {
+		return <Navigate to="/dashboard" />
 	}
 
 	return children
 }
 
-export default PrivateRoute
+export default FormRoute
