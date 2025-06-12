@@ -67,7 +67,7 @@ const Header: React.FC<HeaderProps> = ({ isDark, toggleDarkMode, currentDate }) 
 						<Bell className="w-5 h-5" />
 					</button>
 					<div className="flex items-center gap-4">
-						<button onClick={handleLogout} className="bg-red-500 px-4 py-2 rounded hover:bg-red-600">
+						<button onClick={handleLogout} className="bg-red-500 px-4 py-2 rounded hover:bg-red-950 text-white">
 							Cerrar sesión
 						</button>
 					</div>
