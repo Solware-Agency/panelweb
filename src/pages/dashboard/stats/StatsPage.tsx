@@ -1,5 +1,5 @@
 import React from 'react'
-import { TrendingUp, TrendingDown, Users, DollarSign, ShoppingCart, Eye, Calendar, Clock, ArrowUpRight, ArrowDownRight } from 'lucide-react'
+import { TrendingUp, Users, DollarSign, ShoppingCart, ArrowUpRight, ArrowDownRight } from 'lucide-react'
 
 const StatsPage: React.FC = () => {
 	return (

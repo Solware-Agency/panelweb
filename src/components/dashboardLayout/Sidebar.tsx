@@ -1,5 +1,5 @@
 import React from 'react'
-import { Code2, Home, PieChart, Calendar as CalendarIcon, Settings, ChevronRight, FileText } from 'lucide-react'
+import { Code2, Home, PieChart, Calendar as CalendarIcon, Settings, FileText } from 'lucide-react'
 import { NavLink } from 'react-router-dom'
 
 const Sidebar: React.FC = () => {
@@ -20,15 +20,10 @@ const Sidebar: React.FC = () => {
 						}`
 					}
 				>
-					{({ isActive }) => (
-						<>
-							<div className="flex gap-3 items-center">
-								<Home className="stroke-2 size-5" />
-								<p className="text-md">Inicio</p>
-							</div>
-							
-						</>
-					)}
+					<div className="flex gap-3 items-center">
+						<Home className="stroke-2 size-5" />
+						<p className="text-md">Inicio</p>
+					</div>
 				</NavLink>
 				<NavLink
 					to="/dashboard/stats"
@@ -40,15 +35,10 @@ const Sidebar: React.FC = () => {
 						}`
 					}
 				>
-					{({ isActive }) => (
-						<>
-							<div className="flex gap-3 items-center">
-					<PieChart className="stroke-2 size-5" />
-								<p className="text-md">Estadisticas</p>
-							</div>
-							
-						</>
-					)}
+					<div className="flex gap-3 items-center">
+						<PieChart className="stroke-2 size-5" />
+						<p className="text-md">Estadisticas</p>
+					</div>
 				</NavLink>
 				<NavLink
 					to="/dashboard/calendar"
@@ -60,14 +50,10 @@ const Sidebar: React.FC = () => {
 						}`
 					}
 				>
-					{({ isActive }) => (
-						<>
-							<div className="flex gap-3 items-center">
-					<CalendarIcon className="stroke-2 size-5" />
-								<p className="text-md">Calendario</p>
-							</div>
-						</>
-					)}
+					<div className="flex gap-3 items-center">
+						<CalendarIcon className="stroke-2 size-5" />
+						<p className="text-md">Calendario</p>
+					</div>
 				</NavLink>
 				<NavLink
 					to="/dashboard/reports"
@@ -79,14 +65,10 @@ const Sidebar: React.FC = () => {
 						}`
 					}
 				>
-					{({ isActive }) => (
-						<>
-							<div className="flex gap-3 items-center">
-					<FileText className="stroke-2 size-5" />
-								<p className="text-md">Reportes</p>
-							</div>
-						</>
-					)}
+					<div className="flex gap-3 items-center">
+						<FileText className="stroke-2 size-5" />
+						<p className="text-md">Reportes</p>
+					</div>
 				</NavLink>
 			</div>
 			<div className="flex items-center gap-3 cursor-pointer pl-2 hover:text-blue-500 transition">

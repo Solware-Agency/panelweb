@@ -1,5 +1,5 @@
 import React from 'react'
-import { TrendingUp, Download, FileText, BarChart3, PieChart, Calendar, DollarSign, Users, Star, Award } from 'lucide-react'
+import { TrendingUp, Download, FileText, BarChart3, Calendar, DollarSign, Users, Star, Award } from 'lucide-react'
 
 const ReportsPage: React.FC = () => {
 	return (
