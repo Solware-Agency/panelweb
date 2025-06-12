@@ -1,15 +1,31 @@
 import React from 'react'
-import { Code2, Home, PieChart, Calendar as CalendarIcon, Settings, FileText } from 'lucide-react'
+import { Code2, Home, PieChart, Calendar as CalendarIcon, Settings, FileText, X } from 'lucide-react'
 import { NavLink } from 'react-router-dom'
 
-const Sidebar: React.FC = () => {
+interface SidebarProps {
+	onClose?: () => void
+}
+
+const Sidebar: React.FC<SidebarProps> = ({ onClose }) => {
 	return (
-		<aside className="bg-white/80 dark:bg-gray-900/80 flex flex-col justify-between sticky top-0 left-0 h-screen py-8 px-5 gap-4 w-64 border-gray-600 text-gray-700 dark:text-gray-300 transition-colors duration-300">
+		<aside className="bg-white/80 dark:bg-gray-900/80 flex flex-col justify-between h-screen py-8 px-5 gap-4 w-64 border-gray-600 text-gray-700 dark:text-gray-300 transition-colors duration-300">
 			<div className="flex flex-col items-start gap-6">
-				<div className="flex justify-center items-center gap-3 mb-5">
-					<Code2 className="size-8" />
-					<p className="text-2xl font-bold">Solware</p>
+				<div className="flex justify-between items-center w-full mb-5">
+					<div className="flex items-center gap-3">
+						<Code2 className="size-8" />
+						<p className="text-2xl font-bold">Solware</p>
+					</div>
+					{/* Close button for mobile */}
+					{onClose && (
+						<button
+							onClick={onClose}
+							className="lg:hidden p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
+						>
+							<X className="w-5 h-5" />
+						</button>
+					)}
 				</div>
+				
 				<NavLink
 					to="/dashboard/home"
 					className={({ isActive }) =>
@@ -19,12 +35,14 @@ const Sidebar: React.FC = () => {
 								: 'hover:text-blue-500'
 						}`
 					}
+					onClick={onClose}
 				>
 					<div className="flex gap-3 items-center">
 						<Home className="stroke-2 size-5" />
 						<p className="text-md">Inicio</p>
 					</div>
 				</NavLink>
+				
 				<NavLink
 					to="/dashboard/stats"
 					className={({ isActive }) =>
@@ -34,12 +52,14 @@ const Sidebar: React.FC = () => {
 								: 'hover:text-blue-500'
 						}`
 					}
+					onClick={onClose}
 				>
 					<div className="flex gap-3 items-center">
 						<PieChart className="stroke-2 size-5" />
 						<p className="text-md">Estadisticas</p>
 					</div>
 				</NavLink>
+				
 				<NavLink
 					to="/dashboard/calendar"
 					className={({ isActive }) =>
@@ -49,12 +69,14 @@ const Sidebar: React.FC = () => {
 								: 'hover:text-blue-500'
 						}`
 					}
+					onClick={onClose}
 				>
 					<div className="flex gap-3 items-center">
 						<CalendarIcon className="stroke-2 size-5" />
 						<p className="text-md">Calendario</p>
 					</div>
 				</NavLink>
+				
 				<NavLink
 					to="/dashboard/reports"
 					className={({ isActive }) =>
@@ -64,6 +86,7 @@ const Sidebar: React.FC = () => {
 								: 'hover:text-blue-500'
 						}`
 					}
+					onClick={onClose}
 				>
 					<div className="flex gap-3 items-center">
 						<FileText className="stroke-2 size-5" />
@@ -71,6 +94,7 @@ const Sidebar: React.FC = () => {
 					</div>
 				</NavLink>
 			</div>
+			
 			<div className="flex items-center gap-3 cursor-pointer pl-2 hover:text-blue-500 transition">
 				<Settings className="stroke-2 size-5" />
 				<p className="text-md">Configuraciones</p>
