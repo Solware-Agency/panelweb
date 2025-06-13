@@ -60,8 +60,8 @@ function LoginForm() {
 					<div className="p-4 bg-blue-500 rounded-full mb-4">
 						<CodeXml className="text-white size-12" />
 					</div>
-					<h1 className="text-2xl font-bold text-secondary-900 mb-2">Bienvenido a Solware, Inicia sesión</h1>
-					<p className="text-secondary-600">Inicia sesión en tu cuenta para continuar</p>
+					<h1 className="text-2xl font-bold text-secondary-900 mb-2">Bienvenido, inicia sesión</h1>
+					<p className="text-secondary-600">Inicia sesión en tu cuenta para continuar.</p>
 				</div>
 
 				<form className="w-full" onSubmit={handleLogin}>
