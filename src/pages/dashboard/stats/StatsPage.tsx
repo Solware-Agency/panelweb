@@ -6,10 +6,10 @@ const StatsPage: React.FC = () => {
 	return (
 		<div className="p-3 sm:p-6">
 			<div className="mb-4 sm:mb-6">
-				<h1 className="text-2xl sm:text-3xl font-bold text-gray-700 dark:text-gray-300 mb-2">
+				<h1 className="text-2xl sm:text-3xl font-bold text-white mb-2">
 					Estadísticas Detalladas
 				</h1>
-				<p className="text-gray-600 dark:text-gray-400">Análisis completo del rendimiento de tu negocio</p>
+				<p className="text-white">Análisis completo del rendimiento de tu negocio</p>
 			</div>
 
 			{/* KPI Cards Grid */}
@@ -111,7 +111,7 @@ const StatsPage: React.FC = () => {
 							{[65, 78, 82, 75, 88, 92, 85, 95, 89, 98, 94, 100].map((height, index) => (
 								<div
 									key={index}
-									className="flex-1 bg-gradient-to-t from-blue-500 to-blue-300 rounded-t-sm transition-all duration-300 hover:from-blue-600 hover:to-blue-400"
+									className="flex-1 bg-gradient-to-t from-blue-500 to-blue-300 rounded-t-sm transition-all duration-200 hover:from-blue-600 hover:to-blue-400 hover:translate-y-[-4px]"
 									style={{ height: `${height}%` }}
 								></div>
 							))}

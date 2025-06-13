@@ -9,6 +9,7 @@ import HomePage from './pages/dashboard/home/HomePage'
 import CalendarPage from './pages/dashboard/calendar/CalendarPage'
 import StatsPage from './pages/dashboard/stats/StatsPage'
 import ReportsPage from './pages/dashboard/reports/ReportsPage'
+import CasesPage from './pages/dashboard/cases/CasesPage'
 import Form from './pages/Form'
 import FormRoute from './routes/FormRoute'
 
@@ -54,6 +55,7 @@ function App() {
 						<Route path="calendar" element={<CalendarPage />} />
 						<Route path="stats" element={<StatsPage />} />
 						<Route path="reports" element={<ReportsPage />} />
+						<Route path="cases" element={<CasesPage />} />
 					</Route>
 				</Routes>
 			</div>

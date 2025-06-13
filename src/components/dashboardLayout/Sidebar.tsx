@@ -1,5 +1,5 @@
 import React from 'react'
-import { Code2, Home, PieChart, Calendar as CalendarIcon, Settings, FileText, X } from 'lucide-react'
+import { Code2, Home, PieChart, Calendar as CalendarIcon, Settings, FileText, X, FolderInput } from 'lucide-react'
 import { NavLink } from 'react-router-dom'
 
 interface SidebarProps {
@@ -91,6 +91,22 @@ const Sidebar: React.FC<SidebarProps> = ({ onClose }) => {
 					<div className="flex gap-3 items-center">
 						<FileText className="stroke-2 size-5" />
 						<p className="text-md">Reportes</p>
+					</div>
+				</NavLink>
+				<NavLink
+					to="/dashboard/cases"
+					className={({ isActive }) =>
+						`flex justify-between items-center gap-3 cursor-pointer transition w-full pl-2 ${
+							isActive
+								? 'text-blue-500 border-l border-blue-500'
+								: 'hover:text-blue-500'
+						}`
+					}
+					onClick={onClose}
+				>
+					<div className="flex gap-3 items-center">
+						<FolderInput className="stroke-2 size-5" />
+						<p className="text-md">Casos</p>
 					</div>
 				</NavLink>
 			</div>
