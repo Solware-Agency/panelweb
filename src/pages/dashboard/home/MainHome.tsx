@@ -10,7 +10,7 @@ function MainHome() {
 		<>
 			<main className="p-3 sm:p-5">
 				{/* Mobile-first responsive grid */}
-				<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-4 mb-6 sm:mb-8">
+				<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-4">
 					{/* Grid 1 - Enhanced Welcome Section */}
 					<BackgroundGradient
 						containerClassName="col-span-1 sm:col-span-2 lg:col-span-3 row-span-1 lg:row-span-2"
@@ -277,31 +277,31 @@ function MainHome() {
 							<div className="relative h-16 sm:h-20 lg:h-24 flex items-end justify-between gap-1 sm:gap-2">
 								{/* Simulated bar chart */}
 								<div
-									className="flex-1 bg-gradient-to-t from-blue-500 to-blue-300 rounded-t-sm"
+									className="flex-1 bg-gradient-to-t from-blue-500 to-blue-300 rounded-t-sm hover:translate-y-[-4px] transition-all duration-200"
 									style={{ height: '60%' }}
 								></div>
 								<div
-									className="flex-1 bg-gradient-to-t from-blue-500 to-blue-300 rounded-t-sm"
+									className="flex-1 bg-gradient-to-t from-blue-500 to-blue-300 rounded-t-sm hover:translate-y-[-4px] transition-all duration-200"
 									style={{ height: '80%' }}
 								></div>
 								<div
-									className="flex-1 bg-gradient-to-t from-blue-500 to-blue-300 rounded-t-sm"
+									className="flex-1 bg-gradient-to-t from-blue-500 to-blue-300 rounded-t-sm hover:translate-y-[-4px] transition-all duration-200"
 									style={{ height: '45%' }}
 								></div>
 								<div
-									className="flex-1 bg-gradient-to-t from-blue-500 to-blue-300 rounded-t-sm"
+									className="flex-1 bg-gradient-to-t from-blue-500 to-blue-300 rounded-t-sm hover:translate-y-[-4px] transition-all duration-200"
 									style={{ height: '90%' }}
 								></div>
 								<div
-									className="flex-1 bg-gradient-to-t from-blue-500 to-blue-300 rounded-t-sm"
+									className="flex-1 bg-gradient-to-t from-blue-500 to-blue-300 rounded-t-sm hover:translate-y-[-4px] transition-all duration-200"
 									style={{ height: '70%' }}
 								></div>
 								<div
-									className="flex-1 bg-gradient-to-t from-blue-500 to-blue-300 rounded-t-sm"
+									className="flex-1 bg-gradient-to-t from-blue-500 to-blue-300 rounded-t-sm hover:translate-y-[-4px] transition-all duration-200"
 									style={{ height: '100%' }}
 								></div>
 								<div
-									className="flex-1 bg-gradient-to-t from-blue-500 to-blue-300 rounded-t-sm"
+									className="flex-1 bg-gradient-to-t from-blue-500 to-blue-300 rounded-t-sm hover:translate-y-[-4px] transition-all duration-200"
 									style={{ height: '85%' }}
 								></div>
 							</div>
@@ -382,7 +382,7 @@ function MainHome() {
 							</div>
 							<div className="space-y-2 sm:space-y-3 flex-1">
 								<button
-									className="w-full p-2 sm:p-3 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white rounded-lg transition-all duration-200 flex items-center justify-center gap-2 text-sm sm:text-base"
+									className="w-full p-2 sm:p-3 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white rounded-lg transition flex items-center justify-center gap-2 text-sm sm:text-base"
 									onClick={() => navigate('/dashboard/stats')}
 								>
 									<BarChart3 className="w-4 h-4" />
@@ -390,7 +390,7 @@ function MainHome() {
 									<span className="sm:hidden">Estadísticas</span>
 								</button>
 								<button
-									className="w-full p-2 sm:p-3 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white rounded-lg transition-all duration-200 flex items-center justify-center gap-2 text-sm sm:text-base"
+									className="w-full p-2 sm:p-3 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white rounded-lg transition flex items-center justify-center gap-2 text-sm sm:text-base"
 									onClick={() => navigate('/dashboard/calendar')}
 								>
 									<Calendar className="w-4 h-4" />
