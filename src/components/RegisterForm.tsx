@@ -59,7 +59,7 @@ function RegisterForm() {
 					<div className="p-4 bg-blue-500 rounded-full mb-4">
 						<UserRound className="text-white size-12" />
 					</div>
-					<h1 className="text-2xl font-bold text-gray-900 mb-2">Bienvenido, Registrate</h1>
+					<h1 className="text-2xl font-bold text-gray-900 mb-2">Bienvenido a Solware, Registrate</h1>
 					<p className="text-gray-600">Crea una cuenta para continuar</p>
 				</div>
 
