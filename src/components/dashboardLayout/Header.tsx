@@ -19,7 +19,7 @@ const Header: React.FC<HeaderProps> = ({ isDark, toggleDarkMode, currentDate, on
 	}
 
 	return (
-		<div className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-[10px] rounded-bl-xl transition-colors duration-300 ml-2 sm:ml-5 sticky top-0 left-0 z-30">
+		<div className="bg-white/80 dark:bg-gray-900/90 backdrop-blur-[10px] rounded-bl-xl transition-colors duration-300 ml-2 sm:ml-5 sticky top-0 left-0 z-30">
 			<header className="flex justify-between items-center px-3 sm:px-6 py-4 max-w-6xl mx-auto">
 				{/* Mobile menu button and search */}
 				<div className="flex items-center gap-3 flex-1">

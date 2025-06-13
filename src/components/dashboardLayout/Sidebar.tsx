@@ -8,7 +8,7 @@ interface SidebarProps {
 
 const Sidebar: React.FC<SidebarProps> = ({ onClose }) => {
 	return (
-		<aside className="bg-white/80 dark:bg-gray-900/80 flex flex-col justify-between h-screen py-8 px-5 gap-4 w-64 border-gray-600 text-gray-700 dark:text-gray-300 transition-colors duration-300">
+		<aside className="bg-white/80 dark:bg-gray-900 flex flex-col justify-between h-screen py-8 px-5 gap-4 w-64 border-gray-600 text-gray-700 dark:text-gray-300 transition-colors duration-300">
 			<div className="flex flex-col items-start gap-6">
 				<div className="flex justify-between items-center w-full mb-5">
 					<div className="flex items-center gap-3">
