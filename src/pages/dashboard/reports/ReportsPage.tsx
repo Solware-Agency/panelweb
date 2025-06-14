@@ -1,15 +1,10 @@
 import React from 'react'
-import { TrendingUp, Download, FileText, BarChart3, Calendar, DollarSign, Users, Star, Award } from 'lucide-react'
+import { TrendingUp, Download, FileText, BarChart3, Calendar, DollarSign, Users, Star, Award, Earth, Settings, Bot, Lightbulb } from 'lucide-react'
 import { BackgroundGradient } from '../../../components/ui/background-gradient'
 
 const ReportsPage: React.FC = () => {
 	return (
 		<div className="p-3 sm:p-6">
-			<div className="mb-4 sm:mb-6">
-				<h1 className="text-2xl sm:text-3xl font-bold text-white mb-2">Reportes y Análisis</h1>
-				<p className="text-white">Informes detallados sobre el rendimiento de tu negocio</p>
-			</div>
-
 			{/* Quick Actions */}
 			<div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-6 sm:mb-8">
 				<BackgroundGradient containerClassName="col-span-1 grid" className="grid">
@@ -80,7 +75,7 @@ const ReportsPage: React.FC = () => {
 									revenue: 45000,
 									growth: 25,
 									color: 'blue',
-									icon: '🌐',
+									icon: <Earth className="w-4 h-4 text-white" />,
 								},
 								{
 									name: 'Automatización de Procesos',
@@ -88,7 +83,7 @@ const ReportsPage: React.FC = () => {
 									revenue: 28000,
 									growth: 18,
 									color: 'green',
-									icon: '⚙️',
+									icon: <Settings className="w-4 h-4 text-white" />,
 								},
 								{
 									name: 'Agentes IA Personalizados',
@@ -96,7 +91,7 @@ const ReportsPage: React.FC = () => {
 									revenue: 12000,
 									growth: 35,
 									color: 'purple',
-									icon: '🤖',
+									icon: <Bot className="w-4 h-4 text-white" />,
 								},
 								{
 									name: 'Consultoría Tecnológica',
@@ -104,7 +99,7 @@ const ReportsPage: React.FC = () => {
 									revenue: 18000,
 									growth: 12,
 									color: 'orange',
-									icon: '💡',
+									icon: <Lightbulb className="w-4 h-4 text-white" />,
 								},
 							].map((service, index) => (
 								<div

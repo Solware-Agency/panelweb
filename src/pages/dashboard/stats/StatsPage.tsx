@@ -5,13 +5,6 @@ import { BackgroundGradient } from '../../../components/ui/background-gradient'
 const StatsPage: React.FC = () => {
 	return (
 		<div className="p-3 sm:p-6">
-			<div className="mb-4 sm:mb-6">
-				<h1 className="text-2xl sm:text-3xl font-bold text-white mb-2">
-					Estadísticas Detalladas
-				</h1>
-				<p className="text-white">Análisis completo del rendimiento de tu negocio</p>
-			</div>
-
 			{/* KPI Cards Grid */}
 			<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6 sm:mb-8">
 				{/* Revenue Card */}

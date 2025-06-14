@@ -14,7 +14,7 @@ function MainHome() {
 					{/* Grid 1 - Enhanced Welcome Section */}
 					<BackgroundGradient
 						containerClassName="col-span-1 sm:col-span-2 lg:col-span-3 row-span-1 lg:row-span-2"
-						className="dark:bg-gray-900 bg-white rounded-xl py-4 sm:py-6 px-4 sm:px-8 transition-all duration-300 flex flex-col sm:flex-row items-center justify-between shadow-lg hover:shadow-xl h-full cursor-pointer"
+						className="dark:bg-gray-900 bg-white/80 rounded-xl py-4 sm:py-6 px-4 sm:px-8 transition-all duration-300 flex flex-col sm:flex-row items-center justify-between shadow-lg hover:shadow-xl h-full cursor-pointer"
 					>
 						<div className="flex-1 text-center sm:text-left mb-4 sm:mb-0">
 							<div className="flex flex-col sm:flex-row items-center sm:items-start gap-3 mb-3">
@@ -45,7 +45,7 @@ function MainHome() {
 					{/* Grid 2 - Enhanced Revenue Chart */}
 					<BackgroundGradient
 						containerClassName="col-span-1 sm:col-span-2 lg:col-span-3 row-span-1 lg:row-span-2"
-						className="dark:bg-gray-900 bg-white rounded-xl py-4 sm:py-6 px-4 sm:px-8 transition-all duration-300 cursor-pointer hover:shadow-xl group shadow-lg h-full"
+						className="dark:bg-gray-900 bg-white/80 rounded-xl py-4 sm:py-6 px-4 sm:px-8 transition-all duration-300 cursor-pointer hover:shadow-xl group shadow-lg h-full"
 					>
 						<div className="h-full flex flex-col" onClick={() => navigate('/dashboard/stats')}>
 							<div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 sm:mb-6">
@@ -165,7 +165,7 @@ function MainHome() {
 					{/* Grid 3 - KPI Card: Monthly Revenue */}
 					<BackgroundGradient
 						containerClassName="col-span-1 sm:col-span-1 lg:col-span-2 row-span-1 lg:row-span-2"
-						className="dark:bg-gray-900 bg-white rounded-xl py-4 sm:py-5 px-4 sm:px-6 transition-colors duration-300 flex flex-col justify-between cursor-pointer hover:bg-white/90 group h-full"
+						className="dark:bg-gray-900 bg-white/80 rounded-xl py-4 sm:py-5 px-4 sm:px-6 transition-colors duration-300 flex flex-col justify-between cursor-pointer hover:bg-white/90 group h-full"
 					>
 						<div className="h-full flex flex-col justify-between" onClick={() => navigate('/dashboard/stats')}>
 							<div className="flex items-center justify-between mb-4">
@@ -191,7 +191,7 @@ function MainHome() {
 					{/* Grid 4 - KPI Card: Registered Users */}
 					<BackgroundGradient
 						containerClassName="col-span-1 sm:col-span-1 lg:col-span-2 row-span-1 lg:row-span-2"
-						className="dark:bg-gray-900 bg-white rounded-xl py-4 sm:py-5 px-4 sm:px-6 transition-colors duration-300 flex flex-col justify-between cursor-pointer hover:bg-white/90 group h-full"
+						className="dark:bg-gray-900 bg-white/80 rounded-xl py-4 sm:py-5 px-4 sm:px-6 transition-colors duration-300 flex flex-col justify-between cursor-pointer hover:bg-white/90 group h-full"
 					>
 						<div className="h-full flex flex-col justify-between" onClick={() => navigate('/dashboard/stats')}>
 							<div className="flex items-center justify-between mb-4">
@@ -217,7 +217,7 @@ function MainHome() {
 					{/* Grid 5 - Calendar Preview */}
 					<BackgroundGradient
 						containerClassName="col-span-1 sm:col-span-2 lg:col-span-2 row-span-1 lg:row-span-4"
-						className="dark:bg-gray-900 bg-white rounded-xl py-4 sm:py-5 px-4 sm:px-6 transition-colors duration-300 flex flex-col cursor-pointer hover:bg-white/90 group h-full"
+						className="dark:bg-gray-900 bg-white/80 rounded-xl py-4 sm:py-5 px-4 sm:px-6 transition-colors duration-300 flex flex-col cursor-pointer hover:bg-white/90 group h-full"
 					>
 						<div className="h-full flex flex-col" onClick={() => navigate('/dashboard/calendar')}>
 							<div className="flex items-center justify-between mb-4">
@@ -259,7 +259,7 @@ function MainHome() {
 					{/* Grid 6 - Simulated Line Chart */}
 					<BackgroundGradient
 						containerClassName="col-span-1 sm:col-span-2 lg:col-span-4 row-span-1 lg:row-span-2"
-						className="dark:bg-gray-900 bg-white rounded-xl py-4 sm:py-5 px-4 sm:px-6 transition-colors duration-300 cursor-pointer hover:bg-white/90 group h-full"
+						className="dark:bg-gray-900 bg-white/80 rounded-xl py-4 sm:py-5 px-4 sm:px-6 transition-colors duration-300 cursor-pointer hover:bg-white/90 group h-full"
 					>
 						<div className="h-full flex flex-col" onClick={() => navigate('/dashboard/stats')}>
 							<div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4">
@@ -320,7 +320,7 @@ function MainHome() {
 					{/* Grid 7 - Top Services/Products */}
 					<BackgroundGradient
 						containerClassName="col-span-1 sm:col-span-2 lg:col-span-3 row-span-1 lg:row-span-2"
-						className="dark:bg-gray-900 bg-white rounded-xl py-4 sm:py-5 px-4 sm:px-6 transition-colors duration-300 cursor-pointer hover:bg-white/90 group h-full"
+						className="dark:bg-gray-900 bg-white/80 rounded-xl py-4 sm:py-5 px-4 sm:px-6 transition-colors duration-300 cursor-pointer hover:bg-white/90 group h-full"
 					>
 						<div className="h-full flex flex-col" onClick={() => navigate('/dashboard/reports')}>
 							<div className="flex items-center justify-between mb-4">
@@ -373,7 +373,7 @@ function MainHome() {
 					{/* Grid 8 - Quick Actions & Notifications */}
 					<BackgroundGradient
 						containerClassName="col-span-1 sm:col-span-2 lg:col-span-3 row-span-1 lg:row-span-2"
-						className="dark:bg-gray-900 bg-white rounded-xl py-4 sm:py-5 px-4 sm:px-6 transition-colors duration-300 h-full"
+						className="dark:bg-gray-900 bg-white/80 rounded-xl py-4 sm:py-5 px-4 sm:px-6 transition-colors duration-300 h-full"
 					>
 						<div className="h-full flex flex-col">
 							<div className="flex items-center justify-between mb-4">
