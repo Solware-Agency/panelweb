@@ -69,11 +69,6 @@ const MainCases: React.FC = () => {
 
   return (
     <div className="p-3 sm:p-6">
-      <div className="mb-4 sm:mb-6">
-        <h1 className="text-2xl sm:text-3xl font-bold text-white mb-2">Casos Médicos</h1>
-        <p className="text-white">Gestión y seguimiento de casos médicos</p>
-      </div>
-
       {/* Action Buttons */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-6 sm:mb-8">
         <BackgroundGradient containerClassName="col-span-1 grid" className="grid">

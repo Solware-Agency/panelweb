@@ -61,14 +61,14 @@ const Layout: React.FC = () => {
 			)}
 
 			{/* Sidebar */}
-			<div className={`fixed top-0 left-0 h-screen w-64 z-50 transform transition-transform duration-300 ease-in-out lg:translate-x-0 ${
+			<div className={`fixed top-0 left-0 h-screen w-56 z-50 transform transition-transform duration-300 ease-in-out lg:translate-x-0 ${
 				sidebarOpen ? 'translate-x-0' : '-translate-x-full'
 			}`}>
 				<Sidebar onClose={() => setSidebarOpen(false)} />
 			</div>
 
 			{/* Main content */}
-			<div className="lg:ml-64 min-h-screen flex flex-col">
+			<div className="lg:ml-56 min-h-screen flex flex-col">
 				<Header 
 					isDark={isDark} 
 					toggleDarkMode={toggleDarkMode} 

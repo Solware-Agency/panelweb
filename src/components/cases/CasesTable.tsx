@@ -160,7 +160,7 @@ const CasesTable: React.FC<CasesTableProps> = ({ cases, onCaseSelect }) => {
   )
 
   return (
-    <div className="bg-white/80 dark:bg-gray-900 rounded-xl transition-colors duration-300">
+    <div className="bg-white/80 dark:bg-gray-900 rounded-xl transition-colors duration-300 h-full">
       {/* Search and Filter Controls */}
       <div className="p-4 sm:p-6 border-b border-gray-200 dark:border-gray-700">
         <div className="flex flex-col gap-4">
@@ -254,9 +254,9 @@ const CasesTable: React.FC<CasesTableProps> = ({ cases, onCaseSelect }) => {
       {/* Desktop View - Table */}
       <div className="hidden lg:block">
         <div className="overflow-x-auto">
-          <div className="max-h-[60vh] overflow-y-auto">
+          <div className="max-h-[50vh] overflow-y-auto">
             <table className="w-full">
-              <thead className="bg-gray-50 dark:bg-gray-800/50 sticky top-0 z-10">
+              <thead className="bg-gray-50/50 dark:bg-gray-800/50 backdrop-blur-[10px] sticky top-0 z-10">
                 <tr>
                   <th className="px-4 py-3 text-left">
                     <button

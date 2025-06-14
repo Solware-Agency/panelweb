@@ -150,11 +150,6 @@ const CalendarPage: React.FC = () => {
 
 	return (
 		<div className="p-3 sm:p-6">
-			<div className="mb-4 sm:mb-6">
-				<h1 className="text-2xl sm:text-3xl font-bold text-white mb-2">Calendario</h1>
-				<p className="text-white">Gestiona tus eventos y reuniones</p>
-			</div>
-
 			<div className="grid grid-cols-1 xl:grid-cols-3 gap-4 sm:gap-6">
 				{/* Calendar Grid */}
 				<BackgroundGradient containerClassName="xl:col-span-2 grid" className="grid">
