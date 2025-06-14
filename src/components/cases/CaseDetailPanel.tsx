@@ -1,5 +1,5 @@
 import React from 'react'
-import { X, User, Calendar, MapPin, Stethoscope, CreditCard, FileText, CheckCircle, XCircle, Clock } from 'lucide-react'
+import { X, User, Stethoscope, CreditCard, FileText, CheckCircle } from 'lucide-react'
 import { motion, AnimatePresence } from 'motion/react'
 import type { MedicalCase } from '../../types/case'
 
