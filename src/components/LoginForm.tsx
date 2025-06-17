@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { CodeXml, Eye, EyeOff } from 'lucide-react'
 import { Link, useNavigate } from 'react-router-dom'
-import { signIn } from '../firebase/auth'
+import { signIn } from '../supabase/auth'
 import { useAuth } from '../context/AuthContext'
 
 function LoginForm() {
@@ -10,7 +10,7 @@ function LoginForm() {
 	const [error, setError] = useState('')
 	const [loading, setLoading] = useState(false)
 	const navigate = useNavigate()
-	const { refreshUser } = useAuth()
+	const { refreshUser, refreshProfile } = useAuth()
 	const [showPassword, setShowPassword] = useState(false)
 
 	const handleLogin = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -19,36 +19,44 @@ function LoginForm() {
 		try {
 			setError('')
 			setLoading(true)
-			const userCredential = await signIn(email, password)
+			
+			const { user, error: signInError } = await signIn(email, password)
 
-			// Refresh user data to get the latest emailVerified status
+			if (signInError) {
+				// Handle Supabase auth errors
+				if (signInError.message.includes('Invalid login credentials')) {
+					setError('Credenciales inválidas. Verifica tu email y contraseña.')
+				} else if (signInError.message.includes('Email not confirmed')) {
+					setError('Por favor confirma tu email antes de iniciar sesión.')
+					navigate('/email-verification-notice')
+					return
+				} else if (signInError.message.includes('Too many requests')) {
+					setError('Demasiados intentos. Espera un momento antes de intentar de nuevo.')
+				} else {
+					setError('Error al iniciar sesión. Verifica tus credenciales.')
+				}
+				return
+			}
+
+			if (!user) {
+				setError('Error al iniciar sesión. Inténtalo de nuevo.')
+				return
+			}
+
+			// Refresh user data to get the latest information
 			await refreshUser()
-
-			// Get the refreshed user
-			const refreshedUser = userCredential.user
-			await refreshedUser.reload()
+			await refreshProfile()
 
 			// Check if email is verified
-			if (!refreshedUser.emailVerified) {
+			if (!user.email_confirmed_at) {
 				navigate('/email-verification-notice')
 				return
 			}
 
 			navigate('/dashboard')
 		} catch (err: any) {
-			if (err.code === 'auth/user-not-found') {
-				setError('No se encontró una cuenta con este correo electrónico.')
-			} else if (err.code === 'auth/wrong-password') {
-				setError('Contraseña incorrecta.')
-			} else if (err.code === 'auth/invalid-email') {
-				setError('Correo electrónico inválido.')
-			} else if (err.code === 'auth/user-disabled') {
-				setError('Esta cuenta ha sido deshabilitada.')
-			} else if (err.code === 'auth/invalid-credential') {
-				setError('Credenciales inválidas. Verifica tu email y contraseña.')
-			} else {
-				setError('Error al iniciar sesión. Verifica tus credenciales o crea una cuenta.')
-			}
+			console.error('Login error:', err)
+			setError('Error al iniciar sesión. Verifica tus credenciales o crea una cuenta.')
 		}
 		setLoading(false)
 	}

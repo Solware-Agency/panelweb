@@ -3,7 +3,7 @@ import { useAuth } from '../context/AuthContext'
 import type { JSX } from 'react'
 
 const FormRoute = ({ children }: { children: JSX.Element }) => {
-	const { user, loading } = useAuth()
+	const { user, profile, loading } = useAuth()
 
 	if (loading) {
 		return (
@@ -22,7 +22,8 @@ const FormRoute = ({ children }: { children: JSX.Element }) => {
 		return <Navigate to="/login" />
 	}
 
-	if (user.email === 'juegosgeorge0502@gmail.com') {
+	// If user has owner role, redirect to dashboard
+	if (profile?.role === 'owner') {
 		return <Navigate to="/dashboard" />
 	}
 

@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Mail, RefreshCw, ArrowLeft, CheckCircle } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
-import { sendVerificationEmail, logout } from '../firebase/auth'
+import { resendConfirmation, signOut } from '../supabase/auth'
 import { useNavigate } from 'react-router-dom'
 
 function EmailVerificationNotice() {
@@ -13,20 +13,28 @@ function EmailVerificationNotice() {
 	const navigate = useNavigate()
 
 	const handleResendVerification = async () => {
-		if (!user) return
+		if (!user?.email) return
 
 		try {
 			setMessage('')
 			setError('')
 			setLoading(true)
-			await sendVerificationEmail(user)
+			
+			const { error: resendError } = await resendConfirmation(user.email)
+
+			if (resendError) {
+				if (resendError.message.includes('For security purposes')) {
+					setError('Demasiados intentos. Espera un momento antes de intentar de nuevo.')
+				} else {
+					setError('Error al enviar el correo de verificación. Inténtalo de nuevo.')
+				}
+				return
+			}
+
 			setMessage('Correo de verificación enviado. Revisa tu bandeja de entrada.')
 		} catch (err: any) {
-			if (err.code === 'auth/too-many-requests') {
-				setError('Demasiados intentos. Espera un momento antes de intentar de nuevo.')
-			} else {
-				setError('Error al enviar el correo de verificación. Inténtalo de nuevo.')
-			}
+			console.error('Resend verification error:', err)
+			setError('Error al enviar el correo de verificación. Inténtalo de nuevo.')
 		}
 		setLoading(false)
 	}
@@ -39,11 +47,11 @@ function EmailVerificationNotice() {
 			setMessage('')
 			setError('')
 			
-			// Refresh user data
+			// Refresh user data to get latest email verification status
 			await refreshUser()
 			
 			// Check if email is now verified
-			if (user.emailVerified) {
+			if (user.email_confirmed_at) {
 				setMessage('¡Email verificado exitosamente! Redirigiendo al dashboard...')
 				setTimeout(() => {
 					navigate('/dashboard')
@@ -52,13 +60,14 @@ function EmailVerificationNotice() {
 				setError('El email aún no ha sido verificado. Por favor, revisa tu correo e inténtalo de nuevo.')
 			}
 		} catch (err) {
+			console.error('Check verification error:', err)
 			setError('Error al verificar el estado del email. Inténtalo de nuevo.')
 		}
 		setCheckingVerification(false)
 	}
 
 	const handleLogout = async () => {
-		await logout()
+		await signOut()
 		navigate('/login')
 	}
 

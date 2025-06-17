@@ -1,7 +1,7 @@
 import React from 'react'
 import { Moon, Sun, Bell, Menu } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
-import { logout } from '../../firebase/auth'
+import { signOut } from '../../supabase/auth'
 
 interface HeaderProps {
 	isDark: boolean
@@ -14,7 +14,7 @@ const Header: React.FC<HeaderProps> = ({ isDark, toggleDarkMode, currentDate, on
 	const navigate = useNavigate()
 
 	const handleLogout = async () => {
-		await logout()
+		await signOut()
 		navigate('/login')
 	}
 

@@ -3,7 +3,7 @@ import { useAuth } from '../context/AuthContext'
 import type { JSX } from 'react'
 
 const PrivateRoute = ({ children }: { children: JSX.Element }) => {
-	const { user, loading } = useAuth()
+	const { user, profile, loading } = useAuth()
 
 	if (loading) {
 		return (
@@ -22,11 +22,12 @@ const PrivateRoute = ({ children }: { children: JSX.Element }) => {
 		return <Navigate to="/login" />
 	}
 
-	if (!user.emailVerified) {
+	if (!user.email_confirmed_at) {
 		return <Navigate to="/email-verification-notice" />
 	}
 
-	if (user.email !== 'juegosgeorge0502@gmail.com') {
+	// Check if user has owner role (equivalent to the previous email check)
+	if (profile?.role !== 'owner') {
 		return <Navigate to="/form" />
 	}
 

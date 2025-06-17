@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Lock, ArrowLeft } from 'lucide-react'
 import { Link } from 'react-router-dom'
-import { resetPassword } from '../firebase/auth'
+import { resetPassword } from '../supabase/auth'
 
 function ForgotPassword() {
 	const [email, setEmail] = useState('')
@@ -16,16 +16,24 @@ function ForgotPassword() {
 			setMessage('')
 			setError('')
 			setLoading(true)
-			await resetPassword(email)
+			
+			const { error: resetError } = await resetPassword(email)
+
+			if (resetError) {
+				if (resetError.message.includes('Unable to validate email address')) {
+					setError('Correo electrónico inválido.')
+				} else if (resetError.message.includes('For security purposes')) {
+					setError('Por seguridad, solo se puede enviar un correo de restablecimiento cada 60 segundos.')
+				} else {
+					setError('Error al enviar el correo de restablecimiento. Inténtalo de nuevo.')
+				}
+				return
+			}
+
 			setMessage('Revisa tu correo electrónico para obtener instrucciones de restablecimiento de contraseña.')
 		} catch (err: any) {
-			if (err.code === 'auth/user-not-found') {
-				setError('No se encontró una cuenta con este correo electrónico.')
-			} else if (err.code === 'auth/invalid-email') {
-				setError('Correo electrónico inválido.')
-			} else {
-				setError('Error al enviar el correo de restablecimiento. Inténtalo de nuevo.')
-			}
+			console.error('Reset password error:', err)
+			setError('Error al enviar el correo de restablecimiento. Inténtalo de nuevo.')
 		}
 		setLoading(false)
 	}

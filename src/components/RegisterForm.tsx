@@ -1,7 +1,7 @@
 import { UserRound, Eye, EyeOff } from 'lucide-react'
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { signUp } from '../firebase/auth'
+import { signUp } from '../supabase/auth'
 
 function RegisterForm() {
 	const [email, setEmail] = useState('')
@@ -31,23 +31,34 @@ function RegisterForm() {
 			setError('')
 			setMessage('')
 			setLoading(true)
-			await signUp(email, password)
-			setMessage('Cuenta creada exitosamente. Se ha enviado un correo de verificación a tu email.')
 			
-			// Redirect to login after a short delay
-			setTimeout(() => {
-				navigate('/login')
-			}, 3000)
-		} catch (err: any) {
-			if (err.code === 'auth/email-already-in-use') {
-				setError('Ya existe una cuenta con este correo electrónico.')
-			} else if (err.code === 'auth/invalid-email') {
-				setError('Correo electrónico inválido.')
-			} else if (err.code === 'auth/weak-password') {
-				setError('La contraseña es muy débil.')
-			} else {
-				setError('Error al crear la cuenta. Inténtalo de nuevo.')
+			const { user, error: signUpError } = await signUp(email, password)
+
+			if (signUpError) {
+				// Handle Supabase auth errors
+				if (signUpError.message.includes('User already registered')) {
+					setError('Ya existe una cuenta con este correo electrónico.')
+				} else if (signUpError.message.includes('Password should be at least')) {
+					setError('La contraseña es muy débil.')
+				} else if (signUpError.message.includes('Unable to validate email address')) {
+					setError('Correo electrónico inválido.')
+				} else {
+					setError('Error al crear la cuenta. Inténtalo de nuevo.')
+				}
+				return
 			}
+
+			if (user) {
+				setMessage('Cuenta creada exitosamente. Se ha enviado un correo de verificación a tu email.')
+				
+				// Redirect to login after a short delay
+				setTimeout(() => {
+					navigate('/login')
+				}, 3000)
+			}
+		} catch (err: any) {
+			console.error('Registration error:', err)
+			setError('Error al crear la cuenta. Inténtalo de nuevo.')
 		}
 		setLoading(false)
 	}
