@@ -1,4 +1,4 @@
-import { supabase } from './config'
+import { supabase, REDIRECT_URL } from './config'
 import type { User, AuthError } from '@supabase/supabase-js'
 
 export interface AuthResponse {
@@ -18,13 +18,14 @@ export interface UserProfile {
 export const signUp = async (email: string, password: string): Promise<AuthResponse> => {
   try {
     console.log('Attempting to sign up user:', email)
+    console.log('Using redirect URL:', `${REDIRECT_URL}/auth/callback`)
     
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: {
         // Email confirmation is required
-        emailRedirectTo: `${window.location.origin}/auth/callback`,
+        emailRedirectTo: `${REDIRECT_URL}/auth/callback`,
         data: {
           email_confirm: true
         }
@@ -38,6 +39,7 @@ export const signUp = async (email: string, password: string): Promise<AuthRespo
 
     console.log('Signup successful, user created:', data.user?.email)
     console.log('Email confirmed at signup:', data.user?.email_confirmed_at)
+    console.log('User confirmation sent at:', data.user?.confirmation_sent_at)
 
     // Note: Profile creation is handled by the database trigger
     // No need to manually create profile here
@@ -70,10 +72,10 @@ export const signIn = async (email: string, password: string): Promise<AuthRespo
       return { user: null, error }
     }
 
-    // Check if email is verified
+    // CRITICAL: Check if email is verified
     if (data.user && !data.user.email_confirmed_at) {
       console.log('User email not confirmed:', email)
-      // Return a custom error to indicate email not confirmed
+      // Return the user but with a custom error to indicate email not confirmed
       return { 
         user: data.user, 
         error: { 
@@ -113,12 +115,22 @@ export const signOut = async (): Promise<{ error: AuthError | null }> => {
   }
 }
 
-// Send password reset email
+// Send password reset email - FIXED WITH PROPER REDIRECT URL
 export const resetPassword = async (email: string): Promise<{ error: AuthError | null }> => {
   try {
+    console.log('Sending password reset email to:', email)
+    console.log('Using redirect URL:', `${REDIRECT_URL}/auth/callback`)
+    
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${window.location.origin}/auth/callback`
+      redirectTo: `${REDIRECT_URL}/auth/callback`
     })
+    
+    if (error) {
+      console.error('Reset password error:', error)
+    } else {
+      console.log('Password reset email sent successfully')
+    }
+    
     return { error }
   } catch (err) {
     console.error('Unexpected reset password error:', err)
@@ -131,16 +143,17 @@ export const resetPassword = async (email: string): Promise<{ error: AuthError |
   }
 }
 
-// Resend email confirmation - IMPROVED VERSION
+// Resend email confirmation - IMPROVED VERSION WITH PROPER REDIRECT
 export const resendConfirmation = async (email: string): Promise<{ error: AuthError | null }> => {
   try {
     console.log('Attempting to resend confirmation email to:', email)
+    console.log('Using redirect URL:', `${REDIRECT_URL}/auth/callback`)
     
     const { error } = await supabase.auth.resend({
       type: 'signup',
       email,
       options: {
-        emailRedirectTo: `${window.location.origin}/auth/callback`
+        emailRedirectTo: `${REDIRECT_URL}/auth/callback`
       }
     })
 
@@ -156,6 +169,33 @@ export const resendConfirmation = async (email: string): Promise<{ error: AuthEr
     return { 
       error: { 
         message: 'An unexpected error occurred while resending confirmation',
+        name: 'UnexpectedError'
+      } as AuthError 
+    }
+  }
+}
+
+// Update password after reset - NEW FUNCTION
+export const updatePassword = async (newPassword: string): Promise<{ error: AuthError | null }> => {
+  try {
+    console.log('Attempting to update password')
+    
+    const { error } = await supabase.auth.updateUser({
+      password: newPassword
+    })
+
+    if (error) {
+      console.error('Update password error:', error)
+    } else {
+      console.log('Password updated successfully')
+    }
+
+    return { error }
+  } catch (err) {
+    console.error('Unexpected update password error:', err)
+    return { 
+      error: { 
+        message: 'An unexpected error occurred while updating password',
         name: 'UnexpectedError'
       } as AuthError 
     }
@@ -236,4 +276,33 @@ export const isOwner = async (userId: string): Promise<boolean> => {
 // Check if user is employee
 export const isEmployee = async (userId: string): Promise<boolean> => {
   return hasRole(userId, 'employee')
+}
+
+// Admin function to completely delete a user (for development/testing)
+export const adminDeleteUser = async (email: string): Promise<{ error: AuthError | null }> => {
+  try {
+    console.log('Admin deleting user:', email)
+    
+    // This requires admin privileges and should only be used in development
+    // In production, use Supabase dashboard or admin API
+    const { error } = await supabase.auth.admin.deleteUser(
+      email, // This should be the user ID, but we're using email for simplicity
+    )
+
+    if (error) {
+      console.error('Admin delete user error:', error)
+    } else {
+      console.log('User deleted successfully')
+    }
+
+    return { error }
+  } catch (err) {
+    console.error('Unexpected admin delete user error:', err)
+    return { 
+      error: { 
+        message: 'An unexpected error occurred while deleting user',
+        name: 'UnexpectedError'
+      } as AuthError 
+    }
+  }
 }

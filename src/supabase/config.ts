@@ -12,12 +12,29 @@ if (supabaseUrl === 'your_supabase_url_here' || supabaseAnonKey === 'your_supaba
   throw new Error('Please update your .env file with valid Supabase configuration values.')
 }
 
+// Get the correct redirect URL based on environment
+const getRedirectUrl = () => {
+  if (typeof window === 'undefined') return 'http://localhost:5173'
+  
+  const isDevelopment = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+  
+  if (isDevelopment) {
+    return `${window.location.protocol}//${window.location.host}`
+  }
+  
+  // Production URL
+  return import.meta.env.VITE_PRODUCTION_URL || 'https://panel.solware.agency'
+}
+
+export const REDIRECT_URL = getRedirectUrl()
+
 // Create Supabase client
 export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   auth: {
     autoRefreshToken: true,
     persistSession: true,
-    detectSessionInUrl: true
+    detectSessionInUrl: true,
+    flowType: 'pkce'
   }
 })
 
