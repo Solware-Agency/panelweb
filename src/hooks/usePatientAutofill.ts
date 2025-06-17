@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { UseFormSetValue } from 'react-hook-form';
-import { FormValues } from '@/lib/form-schema';
+import { type UseFormSetValue } from 'react-hook-form';
+import type { FormValues } from '@/lib/form-schema';
 
 interface PatientData {
   full_name: string;

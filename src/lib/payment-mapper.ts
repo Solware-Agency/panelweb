@@ -1,4 +1,4 @@
-import { FormValues } from "./form-schema";
+import { type FormValues } from "./form-schema";
 
 // --- Helper: Map payments array to flat columns for Supabase ---
 export const mapPaymentsToColumns = (payments: FormValues['payments']) => {

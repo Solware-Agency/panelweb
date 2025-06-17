@@ -1,6 +1,6 @@
 import { mapPaymentsToColumns } from "./payment-mapper";
 import { calculatePaymentDetails } from "./payment-utils";
-import { FormValues } from "./form-schema";
+import { type FormValues } from "./form-schema";
 
 export function prepareSubmissionData(data: FormValues, exchangeRate: number | undefined) {
   const { paymentStatus, missingAmount } = calculatePaymentDetails(

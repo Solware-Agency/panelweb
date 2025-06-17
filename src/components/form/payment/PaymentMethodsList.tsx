@@ -1,5 +1,5 @@
-import { Control, FieldErrors, FieldArrayWithId, UseFieldArrayAppend, UseFieldArrayRemove } from "react-hook-form";
-import { FormValues } from "@/lib/form-schema";
+import { type Control, type FieldErrors, type FieldArrayWithId, type UseFieldArrayAppend, type UseFieldArrayRemove } from "react-hook-form";
+import { type FormValues } from "@/lib/form-schema";
 import { FormLabel, FormMessage } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
 import { PlusCircle } from "lucide-react";

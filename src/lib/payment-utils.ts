@@ -1,4 +1,4 @@
-import { FormValues } from "./form-schema";
+import { type FormValues } from "./form-schema";
 
 type Payment = FormValues['payments'][0];
 

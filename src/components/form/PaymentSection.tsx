@@ -1,5 +1,5 @@
-import { Control, FieldErrors, FieldArrayWithId, UseFieldArrayAppend, UseFieldArrayRemove, useWatch } from "react-hook-form";
-import { FormValues } from "@/lib/form-schema";
+import { type Control, type FieldErrors, type FieldArrayWithId, type UseFieldArrayAppend, type UseFieldArrayRemove, useWatch } from "react-hook-form";
+import { type FormValues } from "@/lib/form-schema";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useMemo } from "react";
 import { PaymentHeader } from "./payment/PaymentHeader";
