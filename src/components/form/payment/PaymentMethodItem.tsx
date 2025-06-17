@@ -1,5 +1,5 @@
-import { Control, FieldArrayWithId, UseFieldArrayRemove, useWatch } from "react-hook-form";
-import { FormValues } from "@/lib/form-schema";
+import { type Control, type FieldArrayWithId, type UseFieldArrayRemove, useWatch } from "react-hook-form";
+import { type FormValues } from "@/lib/form-schema";
 import { FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";

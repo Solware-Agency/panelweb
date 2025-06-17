@@ -1,5 +1,5 @@
-import { Control } from "react-hook-form";
-import { FormValues } from "@/lib/form-schema";
+import { type Control } from "react-hook-form";
+import { type FormValues } from "@/lib/form-schema";
 import {
   FormField,
   FormItem,

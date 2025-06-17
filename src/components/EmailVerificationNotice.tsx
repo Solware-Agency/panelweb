@@ -6,10 +6,10 @@ import { useNavigate } from 'react-router-dom'
 
 function EmailVerificationNotice() {
 	const { user, refreshUser } = useAuth()
+	const [checkingVerification, setCheckingVerification] = useState(false)
 	const [message, setMessage] = useState('')
 	const [error, setError] = useState('')
 	const [loading, setLoading] = useState(false)
-	const [checkingVerification, setCheckingVerification] = useState(false)
 	const navigate = useNavigate()
 
 	const handleResendVerification = async () => {
@@ -48,47 +48,47 @@ function EmailVerificationNotice() {
 		}
 	}
 
-	const handleCheckVerification = async () => {
-		if (!user) return
+	// const handleCheckVerification = async () => {
+	// 	if (!user) return
 
-		try {
-			setCheckingVerification(true)
-			setMessage('')
-			setError('')
+	// 	try {
+	// 		setCheckingVerification(true)
+	// 		setMessage('')
+	// 		setError('')
 			
-			console.log('Checking verification status for user:', user.email)
+	// 		console.log('Checking verification status for user:', user.email)
 			
-			// Refresh user data to get latest email verification status
-			await refreshUser()
+	// 		// Refresh user data to get latest email verification status
+	// 		await refreshUser()
 			
-			// Get the latest user data from Supabase
-			const { supabase } = await import('../supabase/config')
-			const { data: { user: latestUser } } = await supabase.auth.getUser()
+	// 		// Get the latest user data from Supabase
+	// 		const { supabase } = await import('../supabase/config')
+	// 		const { data: { user: latestUser } } = await supabase.auth.getUser()
 			
-			console.log('Latest user verification status:', latestUser?.email_confirmed_at)
+	// 		console.log('Latest user verification status:', latestUser?.email_confirmed_at)
 			
-			// Check if email is now verified
-			if (latestUser?.email_confirmed_at) {
-				setMessage('¡Email verificado exitosamente! Redirigiendo...')
-				setTimeout(() => {
-					// Simple email-based redirect logic
-					if (latestUser.email === 'juegosgeorge0502@gmail.com') {
-						navigate('/dashboard')
-					} else {
-						navigate('/form')
-					}
-				}, 1500)
-			} else {
-				setError('El email aún no ha sido verificado. Por favor, revisa tu correo e inténtalo de nuevo.')
-			}
-		} catch (err) {
-			console.error('Check verification error:', err)
-			setError('Error al verificar el estado del email. Inténtalo de nuevo.')
-		} finally {
-			// CRITICAL: Always reset loading state
-			setCheckingVerification(false)
-		}
-	}
+	// 		// Check if email is now verified
+	// 		if (latestUser?.email_confirmed_at) {
+	// 			setMessage('¡Email verificado exitosamente! Redirigiendo...')
+	// 			setTimeout(() => {
+	// 				// Simple email-based redirect logic
+	// 				if (latestUser.email === 'juegosgeorge0502@gmail.com') {
+	// 					navigate('/dashboard')
+	// 				} else {
+	// 					navigate('/form')
+	// 				}
+	// 			}, 1500)
+	// 		} else {
+	// 			setError('El email aún no ha sido verificado. Por favor, revisa tu correo e inténtalo de nuevo.')
+	// 		}
+	// 	} catch (err) {
+	// 		console.error('Check verification error:', err)
+	// 		setError('Error al verificar el estado del email. Inténtalo de nuevo.')
+	// 	} finally {
+	// 		// CRITICAL: Always reset loading state
+	// 		setCheckingVerification(false)
+	// 	}
+	// }
 
 	const handleLogout = async () => {
 		await signOut()
@@ -132,7 +132,7 @@ function EmailVerificationNotice() {
 
 					<div className="space-y-3">
 						<button
-							onClick={handleCheckVerification}
+							onClick={handleLogout}
 							disabled={checkingVerification || loading}
 							className="w-full bg-green-500 text-white rounded-md p-2 hover:bg-green-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
 						>

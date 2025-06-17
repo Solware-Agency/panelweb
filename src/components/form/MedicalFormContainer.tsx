@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
 import { useToast } from "@/hooks/use-toast";
-import { formSchema, FormValues } from "@/lib/form-schema";
+import { formSchema, type FormValues } from "@/lib/form-schema";
 import { PatientDataSection } from "./PatientDataSection";
 import { ServiceSection } from "./ServiceSection";
 import { PaymentSection } from "./PaymentSection";

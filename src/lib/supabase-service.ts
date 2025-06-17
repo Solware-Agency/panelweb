@@ -1,5 +1,5 @@
 import { supabase } from "@/integrations/supabase/client";
-import { FormValues } from "./form-schema";
+import { type FormValues } from "./form-schema";
 import { prepareSubmissionData } from "./prepareSubmissionData";
 
 export interface MedicalRecord {

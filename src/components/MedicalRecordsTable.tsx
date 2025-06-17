@@ -11,7 +11,7 @@ import {
 } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Cliente } from '@/lib/supabase-service';
+import { type Cliente } from '@/lib/supabase-service';
 
 interface MedicalRecordsTableProps {
   records: Cliente[];

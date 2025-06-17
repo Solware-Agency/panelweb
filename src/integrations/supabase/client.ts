@@ -2,8 +2,8 @@
 import { createClient } from '@supabase/supabase-js';
 import type { Database } from './types';
 
-const SUPABASE_URL = "https://sbqepjsxnqtldyvlntqk.supabase.co";
-const SUPABASE_PUBLISHABLE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNicWVwanN4bnF0bGR5dmxudHFrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTAxMjU3OTUsImV4cCI6MjA2NTcwMTc5NX0.Pq0Fu-Lv-MrrkrrAQM60TYGgyTIuOwu33tzU31rbDvY";
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
+const SUPABASE_PUBLISHABLE_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
 // Verificar que las variables estén definidas
 if (!SUPABASE_URL || !SUPABASE_PUBLISHABLE_KEY) {

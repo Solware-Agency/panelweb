@@ -1,11 +1,11 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useCallback } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { MedicalRecordsTable } from './MedicalRecordsTable';
 import { SearchBar } from './SearchBar';
 import { Button } from '@/components/ui/button';
 import { RefreshCw, Users, DollarSign, TrendingUp } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { getClientes, searchClientes, Cliente } from '@/lib/supabase-service';
+import { getClientes, searchClientes } from '@/lib/supabase-service';
 
 export const RecordsSection: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
