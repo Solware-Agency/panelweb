@@ -17,9 +17,12 @@ function ForgotPassword() {
 			setError('')
 			setLoading(true)
 			
+			console.log('Sending password reset email to:', email)
+			
 			const { error: resetError } = await resetPassword(email)
 
 			if (resetError) {
+				console.error('Reset password error:', resetError)
 				if (resetError.message.includes('Unable to validate email address')) {
 					setError('Correo electrónico inválido.')
 				} else if (resetError.message.includes('For security purposes')) {

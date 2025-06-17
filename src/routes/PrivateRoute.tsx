@@ -20,6 +20,7 @@ const PrivateRoute = ({ children }: { children: JSX.Element }) => {
 
 	// User must be logged in
 	if (!user) {
+		console.log('No user found, redirecting to login')
 		return <Navigate to="/login" />
 	}
 

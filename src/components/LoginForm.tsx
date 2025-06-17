@@ -31,16 +31,15 @@ function LoginForm() {
 				if (signInError.message.includes('Invalid login credentials')) {
 					setError('Credenciales inválidas. Verifica tu email y contraseña.')
 				} else if (signInError.name === 'EmailNotConfirmed' || signInError.message.includes('Email not confirmed')) {
-					setError('Por favor confirma tu email antes de iniciar sesión.')
+					console.log('Email not confirmed, redirecting to verification notice')
 					// If user exists but email not confirmed, redirect to verification notice
 					if (user) {
+						await refreshUser()
 						navigate('/email-verification-notice')
 						return
+					} else {
+						setError('Por favor confirma tu email antes de iniciar sesión.')
 					}
-				} else if (signInError.message.includes('Email not confirmed')) {
-					setError('Por favor confirma tu email antes de iniciar sesión.')
-					navigate('/email-verification-notice')
-					return
 				} else if (signInError.message.includes('Too many requests')) {
 					setError('Demasiados intentos. Espera un momento antes de intentar de nuevo.')
 				} else if (signInError.message.includes('Invalid email')) {

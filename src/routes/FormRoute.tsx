@@ -20,6 +20,7 @@ const FormRoute = ({ children }: { children: JSX.Element }) => {
 
 	// User must be logged in
 	if (!user) {
+		console.log('No user found, redirecting to login')
 		return <Navigate to="/login" />
 	}
 
@@ -31,6 +32,7 @@ const FormRoute = ({ children }: { children: JSX.Element }) => {
 
 	// If user is the owner, redirect to dashboard
 	if (user.email === 'juegosgeorge0502@gmail.com') {
+		console.log('Owner user accessing form route, redirecting to dashboard')
 		return <Navigate to="/dashboard" />
 	}
 

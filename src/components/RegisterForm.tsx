@@ -57,6 +57,7 @@ function RegisterForm() {
 			if (user) {
 				console.log('User registered successfully:', user.email)
 				console.log('Email confirmed at registration:', user.email_confirmed_at)
+				console.log('Confirmation sent at:', user.confirmation_sent_at)
 				
 				// IMPORTANT: New users need to verify their email
 				if (!user.email_confirmed_at) {
