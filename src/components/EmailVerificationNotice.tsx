@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Mail, RefreshCw, ArrowLeft, CheckCircle, AlertCircle } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
-import { resendConfirmation, triggerEmailConfirmation, signOut } from '../supabase/auth'
+import { resendConfirmation, signOut } from '../supabase/auth'
 import { useNavigate } from 'react-router-dom'
 
 function EmailVerificationNotice() {
@@ -44,32 +44,6 @@ function EmailVerificationNotice() {
 		setLoading(false)
 	}
 
-	const handleTriggerConfirmation = async () => {
-		if (!user?.email) return
-
-		try {
-			setMessage('')
-			setError('')
-			setLoading(true)
-			
-			console.log('Triggering email confirmation for:', user.email)
-			
-			const { error: triggerError } = await triggerEmailConfirmation(user.email)
-
-			if (triggerError) {
-				console.error('Trigger error:', triggerError)
-				setError('Error al activar la confirmación de email. Inténtalo de nuevo.')
-				return
-			}
-
-			setMessage('Proceso de confirmación activado. Revisa tu correo electrónico.')
-		} catch (err: any) {
-			console.error('Trigger confirmation error:', err)
-			setError('Error al activar la confirmación de email. Inténtalo de nuevo.')
-		}
-		setLoading(false)
-	}
-
 	const handleCheckVerification = async () => {
 		if (!user) return
 
@@ -90,9 +64,14 @@ function EmailVerificationNotice() {
 			
 			// Check if email is now verified
 			if (latestUser?.email_confirmed_at) {
-				setMessage('¡Email verificado exitosamente! Redirigiendo al dashboard...')
+				setMessage('¡Email verificado exitosamente! Redirigiendo...')
 				setTimeout(() => {
-					navigate('/dashboard')
+					// Simple email-based redirect logic
+					if (latestUser.email === 'juegosgeorge0502@gmail.com') {
+						navigate('/dashboard')
+					} else {
+						navigate('/form')
+					}
 				}, 1500)
 			} else {
 				setError('El email aún no ha sido verificado. Por favor, revisa tu correo e inténtalo de nuevo.')
@@ -118,7 +97,7 @@ function EmailVerificationNotice() {
 					</div>
 					<h1 className="text-2xl font-bold text-gray-900 mb-2">Verifica tu Correo Electrónico</h1>
 					<p className="text-gray-600 text-center">
-						Por favor verifica tu dirección de correo electrónico para acceder al dashboard.
+						Por favor verifica tu dirección de correo electrónico para continuar.
 					</p>
 				</div>
 
@@ -170,15 +149,6 @@ function EmailVerificationNotice() {
 						>
 							<RefreshCw size={16} className={loading ? 'animate-spin' : ''} />
 							{loading ? 'Enviando...' : 'Reenviar Correo de Verificación'}
-						</button>
-
-						<button
-							onClick={handleTriggerConfirmation}
-							disabled={loading || checkingVerification}
-							className="w-full bg-blue-500 text-white rounded-md p-2 hover:bg-blue-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-						>
-							<Mail size={16} />
-							{loading ? 'Activando...' : 'Activar Confirmación de Email'}
 						</button>
 					</div>
 				</div>

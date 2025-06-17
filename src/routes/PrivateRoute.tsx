@@ -3,7 +3,7 @@ import { useAuth } from '../context/AuthContext'
 import type { JSX } from 'react'
 
 const PrivateRoute = ({ children }: { children: JSX.Element }) => {
-	const { user, profile, loading } = useAuth()
+	const { user, loading } = useAuth()
 
 	if (loading) {
 		return (
@@ -26,8 +26,8 @@ const PrivateRoute = ({ children }: { children: JSX.Element }) => {
 		return <Navigate to="/email-verification-notice" />
 	}
 
-	// Check if user has owner role (equivalent to the previous email check)
-	if (profile?.role !== 'owner') {
+	// Simple email-based access control for dashboard
+	if (user.email !== 'juegosgeorge0502@gmail.com') {
 		return <Navigate to="/form" />
 	}
 

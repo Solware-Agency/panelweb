@@ -60,7 +60,12 @@ function RegisterForm() {
 					// User is already confirmed (shouldn't happen with new registrations)
 					setMessage('Cuenta creada y verificada exitosamente. Redirigiendo...')
 					setTimeout(() => {
-						navigate('/dashboard')
+						// Simple email-based redirect logic
+						if (user.email === 'juegosgeorge0502@gmail.com') {
+							navigate('/dashboard')
+						} else {
+							navigate('/form')
+						}
 					}, 2000)
 				} else {
 					// User needs to confirm email

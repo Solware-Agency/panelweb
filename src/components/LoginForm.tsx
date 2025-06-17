@@ -10,7 +10,7 @@ function LoginForm() {
 	const [error, setError] = useState('')
 	const [loading, setLoading] = useState(false)
 	const navigate = useNavigate()
-	const { refreshUser, refreshProfile } = useAuth()
+	const { refreshUser } = useAuth()
 	const [showPassword, setShowPassword] = useState(false)
 
 	const handleLogin = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -20,9 +20,12 @@ function LoginForm() {
 			setError('')
 			setLoading(true)
 			
+			console.log('Attempting to sign in with:', email)
+			
 			const { user, error: signInError } = await signIn(email, password)
 
 			if (signInError) {
+				console.error('Sign in error:', signInError)
 				// Handle Supabase auth errors
 				if (signInError.message.includes('Invalid login credentials')) {
 					setError('Credenciales inválidas. Verifica tu email y contraseña.')
@@ -43,17 +46,27 @@ function LoginForm() {
 				return
 			}
 
-			// Refresh user data to get the latest information
-			await refreshUser()
-			await refreshProfile()
+			console.log('User signed in successfully:', user.email)
 
 			// Check if email is verified
 			if (!user.email_confirmed_at) {
+				console.log('Email not confirmed, redirecting to verification notice')
 				navigate('/email-verification-notice')
 				return
 			}
 
-			navigate('/dashboard')
+			// Refresh user data
+			await refreshUser()
+
+			// Simple email-based redirect logic
+			if (user.email === 'juegosgeorge0502@gmail.com') {
+				console.log('Owner email detected, redirecting to dashboard')
+				navigate('/dashboard')
+			} else {
+				console.log('Regular user email detected, redirecting to form')
+				navigate('/form')
+			}
+
 		} catch (err: any) {
 			console.error('Login error:', err)
 			setError('Error al iniciar sesión. Verifica tus credenciales o crea una cuenta.')
