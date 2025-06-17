@@ -1,6 +1,6 @@
 import React from 'react'
 import { TrendingUp, Users, DollarSign, ShoppingCart, ArrowUpRight, ArrowDownRight } from 'lucide-react'
-import { BackgroundGradient } from '../../../components/ui/background-gradient'
+import { BackgroundGradient } from '@/components/ui/background-gradient'
 
 const StatsPage: React.FC = () => {
 	return (

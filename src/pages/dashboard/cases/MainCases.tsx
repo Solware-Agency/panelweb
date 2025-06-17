@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react'
 import { Plus, Download, Filter, RefreshCw } from 'lucide-react'
-import { BackgroundGradient } from '../../../components/ui/background-gradient'
-import CasesTable from '../../../components/cases/CasesTable'
-import CaseDetailPanel from '../../../components/cases/CaseDetailPanel'
-import { generateMockCases } from '../../../utils/mockCases'
-import type { MedicalCase } from '../../../types/case'
+import { BackgroundGradient } from '@/components/ui/background-gradient'
+import CasesTable from '@/components/cases/CasesTable'
+import CaseDetailPanel from '@/components/cases/CaseDetailPanel'
+import { generateMockCases } from '@/utils/mockCases'
+import type { MedicalCase } from '@/types/case'
 
 const MainCases: React.FC = () => {
   const [cases, setCases] = useState<MedicalCase[]>([])

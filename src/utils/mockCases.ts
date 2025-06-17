@@ -1,4 +1,4 @@
-import type { MedicalCase } from '../types/case'
+import type { MedicalCase } from '@/types/case'
 
 const estudios = [
   'Resonancia Magnética',

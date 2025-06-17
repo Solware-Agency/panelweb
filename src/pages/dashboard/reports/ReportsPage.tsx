@@ -1,6 +1,6 @@
 import React from 'react'
 import { TrendingUp, Download, FileText, BarChart3, Calendar, DollarSign, Users, Star, Award, Earth, Settings, Bot, Lightbulb } from 'lucide-react'
-import { BackgroundGradient } from '../../../components/ui/background-gradient'
+import { BackgroundGradient } from '@/components/ui/background-gradient'
 
 const ReportsPage: React.FC = () => {
 	return (

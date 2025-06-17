@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useState } from 'react'
-import { supabase } from '../supabase/config'
+import { supabase } from '@/supabase/config'
 import type { ReactNode } from 'react'
 import type { User, Session } from '@supabase/supabase-js'
 
