@@ -57,8 +57,9 @@ function EmailVerificationNotice() {
 			// Refresh user data to get latest email verification status
 			await refreshUser()
 			
-			// Get the latest user data
-			const { data: { user: latestUser } } = await import('../supabase/config').then(m => m.supabase.auth.getUser())
+			// Get the latest user data from Supabase
+			const { supabase } = await import('../supabase/config')
+			const { data: { user: latestUser } } = await supabase.auth.getUser()
 			
 			console.log('Latest user verification status:', latestUser?.email_confirmed_at)
 			

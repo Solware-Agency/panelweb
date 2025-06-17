@@ -38,6 +38,7 @@ function RegisterForm() {
 
 			if (signUpError) {
 				console.error('Registration error:', signUpError)
+				
 				// Handle Supabase auth errors
 				if (signUpError.message.includes('User already registered')) {
 					setError('Ya existe una cuenta con este correo electrónico.')
@@ -55,9 +56,19 @@ function RegisterForm() {
 
 			if (user) {
 				console.log('User registered successfully:', user.email)
+				console.log('Email confirmed at registration:', user.email_confirmed_at)
 				
-				if (user.email_confirmed_at) {
-					// User is already confirmed (shouldn't happen with new registrations)
+				// IMPORTANT: New users need to verify their email
+				if (!user.email_confirmed_at) {
+					// User needs to confirm email (this is the expected flow)
+					setMessage('¡Cuenta creada exitosamente! Se ha enviado un correo de verificación a tu email. Revisa tu bandeja de entrada y carpeta de spam.')
+					
+					// Redirect to email verification notice after showing the message
+					setTimeout(() => {
+						navigate('/email-verification-notice')
+					}, 3000)
+				} else {
+					// User is already confirmed (rare case, but handle it)
 					setMessage('Cuenta creada y verificada exitosamente. Redirigiendo...')
 					setTimeout(() => {
 						// Simple email-based redirect logic
@@ -67,14 +78,6 @@ function RegisterForm() {
 							navigate('/form')
 						}
 					}, 2000)
-				} else {
-					// User needs to confirm email
-					setMessage('Cuenta creada exitosamente. Se ha enviado un correo de verificación a tu email. Revisa tu bandeja de entrada y carpeta de spam.')
-					
-					// Redirect to email verification notice after a short delay
-					setTimeout(() => {
-						navigate('/email-verification-notice')
-					}, 3000)
 				}
 			}
 		} catch (err: any) {

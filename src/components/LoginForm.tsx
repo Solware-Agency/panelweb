@@ -26,15 +26,25 @@ function LoginForm() {
 
 			if (signInError) {
 				console.error('Sign in error:', signInError)
-				// Handle Supabase auth errors
+				
+				// Handle specific Supabase auth errors
 				if (signInError.message.includes('Invalid login credentials')) {
 					setError('Credenciales inválidas. Verifica tu email y contraseña.')
+				} else if (signInError.name === 'EmailNotConfirmed' || signInError.message.includes('Email not confirmed')) {
+					setError('Por favor confirma tu email antes de iniciar sesión.')
+					// If user exists but email not confirmed, redirect to verification notice
+					if (user) {
+						navigate('/email-verification-notice')
+						return
+					}
 				} else if (signInError.message.includes('Email not confirmed')) {
 					setError('Por favor confirma tu email antes de iniciar sesión.')
 					navigate('/email-verification-notice')
 					return
 				} else if (signInError.message.includes('Too many requests')) {
 					setError('Demasiados intentos. Espera un momento antes de intentar de nuevo.')
+				} else if (signInError.message.includes('Invalid email')) {
+					setError('Correo electrónico inválido.')
 				} else {
 					setError('Error al iniciar sesión. Verifica tus credenciales.')
 				}
@@ -47,10 +57,12 @@ function LoginForm() {
 			}
 
 			console.log('User signed in successfully:', user.email)
+			console.log('Email confirmed at:', user.email_confirmed_at)
 
-			// Check if email is verified
+			// CRITICAL: Check if email is verified
 			if (!user.email_confirmed_at) {
 				console.log('Email not confirmed, redirecting to verification notice')
+				setError('Por favor confirma tu email antes de continuar.')
 				navigate('/email-verification-notice')
 				return
 			}

@@ -12,6 +12,7 @@ import ReportsPage from './pages/dashboard/reports/ReportsPage'
 import CasesPage from './pages/dashboard/cases/CasesPage'
 import Form from './pages/Form'
 import FormRoute from './routes/FormRoute'
+import AuthCallback from './components/AuthCallback'
 
 function App() {
 	return (
@@ -28,6 +29,11 @@ function App() {
 					<Route path="/register" element={<RegisterPage />} />
 					<Route path="/forgot-password" element={<ForgotPasswordPage />} />
 					<Route path="/email-verification-notice" element={<EmailVerificationNotice />} />
+					
+					{/* Auth callback route for email verification */}
+					<Route path="/auth/callback" element={<AuthCallback />} />
+					
+					{/* Form route for regular users */}
 					<Route
 						path="/form"
 						element={
@@ -40,7 +46,7 @@ function App() {
 					{/* Default route */}
 					<Route path="/" element={<Navigate to="/login" />} />
 
-					{/* Protected dashboard routes */}
+					{/* Protected dashboard routes (owner only) */}
 					<Route
 						path="/dashboard"
 						element={

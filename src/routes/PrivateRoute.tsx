@@ -18,16 +18,20 @@ const PrivateRoute = ({ children }: { children: JSX.Element }) => {
 		)
 	}
 
+	// User must be logged in
 	if (!user) {
 		return <Navigate to="/login" />
 	}
 
+	// CRITICAL: User must have verified their email
 	if (!user.email_confirmed_at) {
+		console.log('User email not confirmed, redirecting to verification notice')
 		return <Navigate to="/email-verification-notice" />
 	}
 
 	// Simple email-based access control for dashboard
 	if (user.email !== 'juegosgeorge0502@gmail.com') {
+		console.log('Non-owner user trying to access dashboard, redirecting to form')
 		return <Navigate to="/form" />
 	}
 

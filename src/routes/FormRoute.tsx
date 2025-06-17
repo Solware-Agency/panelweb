@@ -18,8 +18,15 @@ const FormRoute = ({ children }: { children: JSX.Element }) => {
 		)
 	}
 
+	// User must be logged in
 	if (!user) {
 		return <Navigate to="/login" />
+	}
+
+	// CRITICAL: User must have verified their email
+	if (!user.email_confirmed_at) {
+		console.log('User email not confirmed, redirecting to verification notice')
+		return <Navigate to="/email-verification-notice" />
 	}
 
 	// If user is the owner, redirect to dashboard

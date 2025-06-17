@@ -14,14 +14,17 @@ export interface UserProfile {
   updated_at: string
 }
 
-// Sign up with email and password
+// Sign up with email and password - ENHANCED WITH PROPER EMAIL VERIFICATION
 export const signUp = async (email: string, password: string): Promise<AuthResponse> => {
   try {
+    console.log('Attempting to sign up user:', email)
+    
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: {
-        emailRedirectTo: `${window.location.origin}/dashboard`,
+        // Email confirmation is required
+        emailRedirectTo: `${window.location.origin}/auth/callback`,
         data: {
           email_confirm: true
         }
@@ -33,25 +36,11 @@ export const signUp = async (email: string, password: string): Promise<AuthRespo
       return { user: null, error }
     }
 
-    // Create user profile after successful signup
-    if (data.user && !data.user.email_confirmed_at) {
-      // Only create profile if user was actually created (not if they already exist)
-      const role = email === 'juegosgeorge0502@gmail.com' ? 'owner' : 'employee'
-      
-      const { error: profileError } = await supabase
-        .from('profiles')
-        .upsert({
-          id: data.user.id,
-          email: data.user.email!,
-          role
-        }, {
-          onConflict: 'id'
-        })
+    console.log('Signup successful, user created:', data.user?.email)
+    console.log('Email confirmed at signup:', data.user?.email_confirmed_at)
 
-      if (profileError) {
-        console.error('Error creating user profile:', profileError)
-      }
-    }
+    // Note: Profile creation is handled by the database trigger
+    // No need to manually create profile here
 
     return { user: data.user, error: null }
   } catch (err) {
@@ -66,15 +55,36 @@ export const signUp = async (email: string, password: string): Promise<AuthRespo
   }
 }
 
-// Sign in with email and password
+// Sign in with email and password - ENHANCED WITH EMAIL VERIFICATION CHECK
 export const signIn = async (email: string, password: string): Promise<AuthResponse> => {
   try {
+    console.log('Attempting to sign in user:', email)
+    
     const { data, error } = await supabase.auth.signInWithPassword({
       email,
       password
     })
 
-    return { user: data.user, error }
+    if (error) {
+      console.error('Signin error:', error)
+      return { user: null, error }
+    }
+
+    // Check if email is verified
+    if (data.user && !data.user.email_confirmed_at) {
+      console.log('User email not confirmed:', email)
+      // Return a custom error to indicate email not confirmed
+      return { 
+        user: data.user, 
+        error: { 
+          message: 'Email not confirmed. Please check your email and click the confirmation link.',
+          name: 'EmailNotConfirmed'
+        } as AuthError 
+      }
+    }
+
+    console.log('Signin successful for verified user:', email)
+    return { user: data.user, error: null }
   } catch (err) {
     console.error('Unexpected signin error:', err)
     return { 
@@ -107,7 +117,7 @@ export const signOut = async (): Promise<{ error: AuthError | null }> => {
 export const resetPassword = async (email: string): Promise<{ error: AuthError | null }> => {
   try {
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${window.location.origin}/reset-password`
+      redirectTo: `${window.location.origin}/auth/callback`
     })
     return { error }
   } catch (err) {
@@ -130,7 +140,7 @@ export const resendConfirmation = async (email: string): Promise<{ error: AuthEr
       type: 'signup',
       email,
       options: {
-        emailRedirectTo: `${window.location.origin}/dashboard`
+        emailRedirectTo: `${window.location.origin}/auth/callback`
       }
     })
 
@@ -146,35 +156,6 @@ export const resendConfirmation = async (email: string): Promise<{ error: AuthEr
     return { 
       error: { 
         message: 'An unexpected error occurred while resending confirmation',
-        name: 'UnexpectedError'
-      } as AuthError 
-    }
-  }
-}
-
-// Manual email confirmation trigger - NEW FUNCTION
-export const triggerEmailConfirmation = async (email: string): Promise<{ error: AuthError | null }> => {
-  try {
-    console.log('Triggering email confirmation for:', email)
-    
-    // First try to resend the signup confirmation
-    const { error: resendError } = await supabase.auth.resend({
-      type: 'signup',
-      email
-    })
-
-    if (resendError) {
-      console.error('Error triggering email confirmation:', resendError)
-      return { error: resendError }
-    }
-
-    console.log('Email confirmation triggered successfully')
-    return { error: null }
-  } catch (err) {
-    console.error('Unexpected error triggering email confirmation:', err)
-    return { 
-      error: { 
-        message: 'An unexpected error occurred while triggering email confirmation',
         name: 'UnexpectedError'
       } as AuthError 
     }
