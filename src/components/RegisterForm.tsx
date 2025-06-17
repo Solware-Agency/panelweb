@@ -32,16 +32,21 @@ function RegisterForm() {
 			setMessage('')
 			setLoading(true)
 			
+			console.log('Attempting to register user:', email)
+			
 			const { user, error: signUpError } = await signUp(email, password)
 
 			if (signUpError) {
+				console.error('Registration error:', signUpError)
 				// Handle Supabase auth errors
 				if (signUpError.message.includes('User already registered')) {
 					setError('Ya existe una cuenta con este correo electrónico.')
 				} else if (signUpError.message.includes('Password should be at least')) {
 					setError('La contraseña es muy débil.')
-				} else if (signUpError.message.includes('Unable to validate email address')) {
+				} else if (signUpError.message.includes('Unable to validate email address') || signUpError.message.includes('Invalid email')) {
 					setError('Correo electrónico inválido.')
+				} else if (signUpError.message.includes('Signup is disabled')) {
+					setError('El registro está temporalmente deshabilitado. Contacta al administrador.')
 				} else {
 					setError('Error al crear la cuenta. Inténtalo de nuevo.')
 				}
@@ -49,12 +54,23 @@ function RegisterForm() {
 			}
 
 			if (user) {
-				setMessage('Cuenta creada exitosamente. Se ha enviado un correo de verificación a tu email.')
+				console.log('User registered successfully:', user.email)
 				
-				// Redirect to login after a short delay
-				setTimeout(() => {
-					navigate('/login')
-				}, 3000)
+				if (user.email_confirmed_at) {
+					// User is already confirmed (shouldn't happen with new registrations)
+					setMessage('Cuenta creada y verificada exitosamente. Redirigiendo...')
+					setTimeout(() => {
+						navigate('/dashboard')
+					}, 2000)
+				} else {
+					// User needs to confirm email
+					setMessage('Cuenta creada exitosamente. Se ha enviado un correo de verificación a tu email. Revisa tu bandeja de entrada y carpeta de spam.')
+					
+					// Redirect to email verification notice after a short delay
+					setTimeout(() => {
+						navigate('/email-verification-notice')
+					}, 3000)
+				}
 			}
 		} catch (err: any) {
 			console.error('Registration error:', err)

@@ -1,7 +1,7 @@
 import { useState } from 'react'
-import { Mail, RefreshCw, ArrowLeft, CheckCircle } from 'lucide-react'
+import { Mail, RefreshCw, ArrowLeft, CheckCircle, AlertCircle } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
-import { resendConfirmation, signOut } from '../supabase/auth'
+import { resendConfirmation, triggerEmailConfirmation, signOut } from '../supabase/auth'
 import { useNavigate } from 'react-router-dom'
 
 function EmailVerificationNotice() {
@@ -20,21 +20,52 @@ function EmailVerificationNotice() {
 			setError('')
 			setLoading(true)
 			
+			console.log('Resending verification email to:', user.email)
+			
 			const { error: resendError } = await resendConfirmation(user.email)
 
 			if (resendError) {
-				if (resendError.message.includes('For security purposes')) {
+				console.error('Resend error:', resendError)
+				if (resendError.message.includes('For security purposes') || resendError.message.includes('rate limit')) {
 					setError('Demasiados intentos. Espera un momento antes de intentar de nuevo.')
+				} else if (resendError.message.includes('already confirmed')) {
+					setMessage('Tu email ya está verificado. Intenta iniciar sesión.')
 				} else {
 					setError('Error al enviar el correo de verificación. Inténtalo de nuevo.')
 				}
 				return
 			}
 
-			setMessage('Correo de verificación enviado. Revisa tu bandeja de entrada.')
+			setMessage('Correo de verificación enviado. Revisa tu bandeja de entrada y carpeta de spam.')
 		} catch (err: any) {
 			console.error('Resend verification error:', err)
 			setError('Error al enviar el correo de verificación. Inténtalo de nuevo.')
+		}
+		setLoading(false)
+	}
+
+	const handleTriggerConfirmation = async () => {
+		if (!user?.email) return
+
+		try {
+			setMessage('')
+			setError('')
+			setLoading(true)
+			
+			console.log('Triggering email confirmation for:', user.email)
+			
+			const { error: triggerError } = await triggerEmailConfirmation(user.email)
+
+			if (triggerError) {
+				console.error('Trigger error:', triggerError)
+				setError('Error al activar la confirmación de email. Inténtalo de nuevo.')
+				return
+			}
+
+			setMessage('Proceso de confirmación activado. Revisa tu correo electrónico.')
+		} catch (err: any) {
+			console.error('Trigger confirmation error:', err)
+			setError('Error al activar la confirmación de email. Inténtalo de nuevo.')
 		}
 		setLoading(false)
 	}
@@ -47,11 +78,18 @@ function EmailVerificationNotice() {
 			setMessage('')
 			setError('')
 			
+			console.log('Checking verification status for user:', user.email)
+			
 			// Refresh user data to get latest email verification status
 			await refreshUser()
 			
+			// Get the latest user data
+			const { data: { user: latestUser } } = await import('../supabase/config').then(m => m.supabase.auth.getUser())
+			
+			console.log('Latest user verification status:', latestUser?.email_confirmed_at)
+			
 			// Check if email is now verified
-			if (user.email_confirmed_at) {
+			if (latestUser?.email_confirmed_at) {
 				setMessage('¡Email verificado exitosamente! Redirigiendo al dashboard...')
 				setTimeout(() => {
 					navigate('/dashboard')
@@ -93,13 +131,15 @@ function EmailVerificationNotice() {
 					</div>
 
 					{error && (
-						<div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+						<div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4 flex items-center gap-2">
+							<AlertCircle size={16} />
 							{error}
 						</div>
 					)}
 
 					{message && (
-						<div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
+						<div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4 flex items-center gap-2">
+							<CheckCircle size={16} />
 							{message}
 						</div>
 					)}
@@ -131,6 +171,15 @@ function EmailVerificationNotice() {
 							<RefreshCw size={16} className={loading ? 'animate-spin' : ''} />
 							{loading ? 'Enviando...' : 'Reenviar Correo de Verificación'}
 						</button>
+
+						<button
+							onClick={handleTriggerConfirmation}
+							disabled={loading || checkingVerification}
+							className="w-full bg-blue-500 text-white rounded-md p-2 hover:bg-blue-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+						>
+							<Mail size={16} />
+							{loading ? 'Activando...' : 'Activar Confirmación de Email'}
+						</button>
 					</div>
 				</div>
 
@@ -147,8 +196,14 @@ function EmailVerificationNotice() {
 					</button>
 				</div>
 
-				<div className="mt-4 text-xs text-gray-500 text-center">
-					<p>💡 Consejo: Después de verificar tu email en tu correo, haz clic en "Ya verifiqué mi email".</p>
+				<div className="mt-4 text-xs text-gray-500 text-center space-y-2">
+					<p>💡 <strong>Consejos:</strong></p>
+					<ul className="text-left space-y-1">
+						<li>• Revisa tu carpeta de spam/correo no deseado</li>
+						<li>• Espera hasta 5 minutos para que llegue el correo</li>
+						<li>• Asegúrate de que tu email esté escrito correctamente</li>
+						<li>• Después de hacer clic en el enlace del correo, regresa aquí y haz clic en "Ya verifiqué mi email"</li>
+					</ul>
 				</div>
 			</div>
 		</div>

@@ -21,24 +21,31 @@ export const signUp = async (email: string, password: string): Promise<AuthRespo
       email,
       password,
       options: {
-        emailRedirectTo: `${window.location.origin}/dashboard`
+        emailRedirectTo: `${window.location.origin}/dashboard`,
+        data: {
+          email_confirm: true
+        }
       }
     })
 
     if (error) {
+      console.error('Signup error:', error)
       return { user: null, error }
     }
 
     // Create user profile after successful signup
-    if (data.user) {
+    if (data.user && !data.user.email_confirmed_at) {
+      // Only create profile if user was actually created (not if they already exist)
       const role = email === 'juegosgeorge0502@gmail.com' ? 'owner' : 'employee'
       
       const { error: profileError } = await supabase
         .from('profiles')
-        .insert({
+        .upsert({
           id: data.user.id,
           email: data.user.email!,
           role
+        }, {
+          onConflict: 'id'
         })
 
       if (profileError) {
@@ -48,6 +55,7 @@ export const signUp = async (email: string, password: string): Promise<AuthRespo
 
     return { user: data.user, error: null }
   } catch (err) {
+    console.error('Unexpected signup error:', err)
     return { 
       user: null, 
       error: { 
@@ -68,6 +76,7 @@ export const signIn = async (email: string, password: string): Promise<AuthRespo
 
     return { user: data.user, error }
   } catch (err) {
+    console.error('Unexpected signin error:', err)
     return { 
       user: null, 
       error: { 
@@ -84,6 +93,7 @@ export const signOut = async (): Promise<{ error: AuthError | null }> => {
     const { error } = await supabase.auth.signOut()
     return { error }
   } catch (err) {
+    console.error('Unexpected signout error:', err)
     return { 
       error: { 
         message: 'An unexpected error occurred during signout',
@@ -101,6 +111,7 @@ export const resetPassword = async (email: string): Promise<{ error: AuthError |
     })
     return { error }
   } catch (err) {
+    console.error('Unexpected reset password error:', err)
     return { 
       error: { 
         message: 'An unexpected error occurred while sending reset email',
@@ -110,9 +121,11 @@ export const resetPassword = async (email: string): Promise<{ error: AuthError |
   }
 }
 
-// Resend email confirmation
+// Resend email confirmation - IMPROVED VERSION
 export const resendConfirmation = async (email: string): Promise<{ error: AuthError | null }> => {
   try {
+    console.log('Attempting to resend confirmation email to:', email)
+    
     const { error } = await supabase.auth.resend({
       type: 'signup',
       email,
@@ -120,11 +133,48 @@ export const resendConfirmation = async (email: string): Promise<{ error: AuthEr
         emailRedirectTo: `${window.location.origin}/dashboard`
       }
     })
+
+    if (error) {
+      console.error('Resend confirmation error:', error)
+    } else {
+      console.log('Confirmation email resent successfully')
+    }
+
     return { error }
   } catch (err) {
+    console.error('Unexpected resend confirmation error:', err)
     return { 
       error: { 
         message: 'An unexpected error occurred while resending confirmation',
+        name: 'UnexpectedError'
+      } as AuthError 
+    }
+  }
+}
+
+// Manual email confirmation trigger - NEW FUNCTION
+export const triggerEmailConfirmation = async (email: string): Promise<{ error: AuthError | null }> => {
+  try {
+    console.log('Triggering email confirmation for:', email)
+    
+    // First try to resend the signup confirmation
+    const { error: resendError } = await supabase.auth.resend({
+      type: 'signup',
+      email
+    })
+
+    if (resendError) {
+      console.error('Error triggering email confirmation:', resendError)
+      return { error: resendError }
+    }
+
+    console.log('Email confirmation triggered successfully')
+    return { error: null }
+  } catch (err) {
+    console.error('Unexpected error triggering email confirmation:', err)
+    return { 
+      error: { 
+        message: 'An unexpected error occurred while triggering email confirmation',
         name: 'UnexpectedError'
       } as AuthError 
     }
@@ -176,6 +226,7 @@ export const updateUserProfile = async (
 
     return { error: error as AuthError | null }
   } catch (err) {
+    console.error('Unexpected error updating profile:', err)
     return { 
       error: { 
         message: 'An unexpected error occurred while updating profile',
