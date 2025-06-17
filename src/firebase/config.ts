@@ -13,7 +13,7 @@ const requiredEnvVars = {
 
 // Check for missing environment variables
 const missingVars = Object.entries(requiredEnvVars)
-  .filter(([key, value]) => !value || value === 'your_firebase_api_key_here' || value.includes('your_'))
+  .filter(([_key, value]) => !value || value === 'your_firebase_api_key_here' || value.includes('your_'))
   .map(([key]) => `VITE_FIREBASE_${key.replace(/([A-Z])/g, '_$1').toUpperCase()}`);
 
 if (missingVars.length > 0) {
