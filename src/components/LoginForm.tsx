@@ -81,8 +81,10 @@ function LoginForm() {
 		} catch (err: any) {
 			console.error('Login error:', err)
 			setError('Error al iniciar sesión. Verifica tus credenciales o crea una cuenta.')
+		} finally {
+			// CRITICAL: Always reset loading state
+			setLoading(false)
 		}
-		setLoading(false)
 	}
 
 	return (
@@ -106,7 +108,8 @@ function LoginForm() {
 							value={email}
 							onChange={(e) => setEmail(e.target.value)}
 							required
-							className="border-2 border-dark rounded-md p-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
+							disabled={loading}
+							className="border-2 border-dark rounded-md p-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
 							autoComplete="email"
 						/>
 						<p className="text-sm text-secondary-600">Contraseña:</p>
@@ -118,28 +121,41 @@ function LoginForm() {
 								value={password}
 								onChange={(e) => setPassword(e.target.value)}
 								required
-								className="border-2 border-dark rounded-md p-2 w-full pr-10 focus:outline-none focus:ring-2 focus:ring-blue-500"
+								disabled={loading}
+								className="border-2 border-dark rounded-md p-2 w-full pr-10 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
 								autoComplete="current-password"
 							/>
 							<button
 								type="button"
 								onClick={() => setShowPassword(!showPassword)}
-								className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-600 hover:text-gray-900"
+								disabled={loading}
+								className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-600 hover:text-gray-900 disabled:opacity-50"
 							>
 								{showPassword ? <Eye size={20} /> : <EyeOff size={20} />}
 							</button>
 						</div>
 					</div>
 
-					{error && <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">{error}</div>}
+					{error && (
+						<div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+							{error}
+						</div>
+					)}
 
 					<div className="flex items-center justify-between w-full mb-8">
 						<label className="flex items-center">
-							<input type="checkbox" className="rounded border-secondary-300 text-primary-600 focus:ring-primary-500" />
+							<input 
+								type="checkbox" 
+								disabled={loading}
+								className="rounded border-secondary-300 text-primary-600 focus:ring-primary-500 disabled:opacity-50" 
+							/>
 							<span className="ml-2 text-sm text-secondary-600">Recordarme</span>
 						</label>
 
-						<Link to="/forgot-password" className="text-sm text-blue-500 hover:text-blue-600 transition-colors">
+						<Link 
+							to="/forgot-password" 
+							className={`text-sm text-blue-500 hover:text-blue-600 transition-colors ${loading ? 'pointer-events-none opacity-50' : ''}`}
+						>
 							¿Olvidaste tu contraseña?
 						</Link>
 					</div>
@@ -147,9 +163,16 @@ function LoginForm() {
 					<button
 						type="submit"
 						disabled={loading}
-						className="w-full bg-blue-500 text-white rounded-md p-2 hover:bg-blue-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+						className="w-full bg-blue-500 text-white rounded-md p-2 hover:bg-blue-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
 					>
-						{loading ? 'Iniciando sesión...' : 'Iniciar sesión'}
+						{loading ? (
+							<>
+								<div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+								Iniciando sesión...
+							</>
+						) : (
+							'Iniciar sesión'
+						)}
 					</button>
 				</form>
 
@@ -157,7 +180,10 @@ function LoginForm() {
 				<div className="mt-6 text-center">
 					<p className="text-sm">
 						¿No tienes una cuenta?{' '}
-						<Link to="/register" className="font-medium text-blue-500 hover:text-blue-600 transition-colors">
+						<Link 
+							to="/register" 
+							className={`font-medium text-blue-500 hover:text-blue-600 transition-colors ${loading ? 'pointer-events-none opacity-50' : ''}`}
+						>
 							Regístrate aquí
 						</Link>
 					</p>

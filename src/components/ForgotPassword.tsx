@@ -27,6 +27,8 @@ function ForgotPassword() {
 					setError('Correo electrónico inválido.')
 				} else if (resetError.message.includes('For security purposes')) {
 					setError('Por seguridad, solo se puede enviar un correo de restablecimiento cada 60 segundos.')
+				} else if (resetError.message.includes('Email rate limit exceeded')) {
+					setError('Demasiados intentos. Espera un momento antes de intentar de nuevo.')
 				} else {
 					setError('Error al enviar el correo de restablecimiento. Inténtalo de nuevo.')
 				}
@@ -37,8 +39,10 @@ function ForgotPassword() {
 		} catch (err: any) {
 			console.error('Reset password error:', err)
 			setError('Error al enviar el correo de restablecimiento. Inténtalo de nuevo.')
+		} finally {
+			// CRITICAL: Always reset loading state
+			setLoading(false)
 		}
-		setLoading(false)
 	}
 
 	return (
@@ -62,7 +66,8 @@ function ForgotPassword() {
 							value={email}
 							onChange={(e) => setEmail(e.target.value)}
 							required
-							className="border-2 border-gray-900 rounded-md p-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
+							disabled={loading}
+							className="border-2 border-gray-900 rounded-md p-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
 							autoComplete="email"
 						/>
 					</div>
@@ -82,9 +87,16 @@ function ForgotPassword() {
 					<button
 						type="submit"
 						disabled={loading}
-						className="w-full bg-blue-500 text-white rounded-md p-2 hover:bg-blue-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed mb-4"
+						className="w-full bg-blue-500 text-white rounded-md p-2 hover:bg-blue-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed mb-4 flex items-center justify-center gap-2"
 					>
-						{loading ? 'Enviando...' : 'Enviar Correo de Restablecimiento'}
+						{loading ? (
+							<>
+								<div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+								Enviando...
+							</>
+						) : (
+							'Enviar Correo de Restablecimiento'
+						)}
 					</button>
 				</form>
 
@@ -92,7 +104,7 @@ function ForgotPassword() {
 				<div className="mt-6 text-center">
 					<Link 
 						to="/login" 
-						className="flex items-center justify-center gap-2 text-sm text-blue-500 hover:text-blue-600 transition-colors"
+						className={`flex items-center justify-center gap-2 text-sm text-blue-500 hover:text-blue-600 transition-colors ${loading ? 'pointer-events-none opacity-50' : ''}`}
 					>
 						<ArrowLeft size={16} />
 						Volver al inicio de sesión

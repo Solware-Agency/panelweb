@@ -30,6 +30,8 @@ function EmailVerificationNotice() {
 					setError('Demasiados intentos. Espera un momento antes de intentar de nuevo.')
 				} else if (resendError.message.includes('already confirmed')) {
 					setMessage('Tu email ya está verificado. Intenta iniciar sesión.')
+				} else if (resendError.message.includes('Email rate limit exceeded')) {
+					setError('Límite de correos alcanzado. Espera un momento antes de intentar de nuevo.')
 				} else {
 					setError('Error al enviar el correo de verificación. Inténtalo de nuevo.')
 				}
@@ -40,8 +42,10 @@ function EmailVerificationNotice() {
 		} catch (err: any) {
 			console.error('Resend verification error:', err)
 			setError('Error al enviar el correo de verificación. Inténtalo de nuevo.')
+		} finally {
+			// CRITICAL: Always reset loading state
+			setLoading(false)
 		}
-		setLoading(false)
 	}
 
 	const handleCheckVerification = async () => {
@@ -80,8 +84,10 @@ function EmailVerificationNotice() {
 		} catch (err) {
 			console.error('Check verification error:', err)
 			setError('Error al verificar el estado del email. Inténtalo de nuevo.')
+		} finally {
+			// CRITICAL: Always reset loading state
+			setCheckingVerification(false)
 		}
-		setCheckingVerification(false)
 	}
 
 	const handleLogout = async () => {
@@ -127,7 +133,7 @@ function EmailVerificationNotice() {
 					<div className="space-y-3">
 						<button
 							onClick={handleCheckVerification}
-							disabled={checkingVerification}
+							disabled={checkingVerification || loading}
 							className="w-full bg-green-500 text-white rounded-md p-2 hover:bg-green-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
 						>
 							{checkingVerification ? (
@@ -148,8 +154,17 @@ function EmailVerificationNotice() {
 							disabled={loading || checkingVerification}
 							className="w-full bg-orange-500 text-white rounded-md p-2 hover:bg-orange-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
 						>
-							<RefreshCw size={16} className={loading ? 'animate-spin' : ''} />
-							{loading ? 'Enviando...' : 'Reenviar Correo de Verificación'}
+							{loading ? (
+								<>
+									<RefreshCw size={16} className="animate-spin" />
+									Enviando...
+								</>
+							) : (
+								<>
+									<RefreshCw size={16} />
+									Reenviar Correo de Verificación
+								</>
+							)}
 						</button>
 					</div>
 				</div>
@@ -160,7 +175,8 @@ function EmailVerificationNotice() {
 					</p>
 					<button
 						onClick={handleLogout}
-						className="flex items-center justify-center gap-2 text-sm text-blue-500 hover:text-blue-600 transition-colors mx-auto"
+						disabled={loading || checkingVerification}
+						className={`flex items-center justify-center gap-2 text-sm text-blue-500 hover:text-blue-600 transition-colors mx-auto ${(loading || checkingVerification) ? 'opacity-50 cursor-not-allowed' : ''}`}
 					>
 						<ArrowLeft size={16} />
 						Cerrar sesión e intentar de nuevo

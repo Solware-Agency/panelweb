@@ -17,6 +17,10 @@ function RegisterForm() {
 	const handleRegister = async (event: React.FormEvent<HTMLFormElement>) => {
 		event.preventDefault()
 		
+		// Reset previous states
+		setError('')
+		setMessage('')
+		
 		if (password !== confirmPassword) {
 			setError('Las contraseñas no coinciden.')
 			return
@@ -28,8 +32,6 @@ function RegisterForm() {
 		}
 
 		try {
-			setError('')
-			setMessage('')
 			setLoading(true)
 			
 			console.log('Attempting to register user:', email)
@@ -48,6 +50,8 @@ function RegisterForm() {
 					setError('Correo electrónico inválido.')
 				} else if (signUpError.message.includes('Signup is disabled')) {
 					setError('El registro está temporalmente deshabilitado. Contacta al administrador.')
+				} else if (signUpError.message.includes('Email rate limit exceeded')) {
+					setError('Demasiados intentos de registro. Espera un momento antes de intentar de nuevo.')
 				} else {
 					setError('Error al crear la cuenta. Inténtalo de nuevo.')
 				}
@@ -71,8 +75,10 @@ function RegisterForm() {
 		} catch (err: any) {
 			console.error('Registration error:', err)
 			setError('Error al crear la cuenta. Inténtalo de nuevo.')
+		} finally {
+			// CRITICAL: Always reset loading state
+			setLoading(false)
 		}
-		setLoading(false)
 	}
 
 	return (
@@ -96,7 +102,8 @@ function RegisterForm() {
 							value={email}
 							onChange={(e) => setEmail(e.target.value)}
 							required
-							className="border-2 border-gray-900 rounded-md p-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
+							disabled={loading}
+							className="border-2 border-gray-900 rounded-md p-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
 							autoComplete="email"
 						/>
 
@@ -109,13 +116,15 @@ function RegisterForm() {
 								value={password}
 								onChange={(e) => setPassword(e.target.value)}
 								required
-								className="border-2 border-gray-900 rounded-md p-2 w-full pr-10 focus:outline-none focus:ring-2 focus:ring-blue-500"
+								disabled={loading}
+								className="border-2 border-gray-900 rounded-md p-2 w-full pr-10 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
 								autoComplete="new-password"
 							/>
 							<button
 								type="button"
 								onClick={() => setShowPassword(!showPassword)}
-								className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-600 hover:text-gray-900"
+								disabled={loading}
+								className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-600 hover:text-gray-900 disabled:opacity-50"
 							>
 								{showPassword ? <Eye size={20} /> : <EyeOff size={20} />}
 							</button>
@@ -130,13 +139,15 @@ function RegisterForm() {
 								value={confirmPassword}
 								onChange={(e) => setConfirmPassword(e.target.value)}
 								required
-								className="border-2 border-gray-900 rounded-md p-2 w-full pr-10 focus:outline-none focus:ring-2 focus:ring-blue-500"
+								disabled={loading}
+								className="border-2 border-gray-900 rounded-md p-2 w-full pr-10 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
 								autoComplete="new-password"
 							/>
 							<button
 								type="button"
 								onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-								className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-600 hover:text-gray-900"
+								disabled={loading}
+								className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-600 hover:text-gray-900 disabled:opacity-50"
 							>
 								{showConfirmPassword ? <Eye size={20} /> : <EyeOff size={20} />}
 							</button>
@@ -158,9 +169,16 @@ function RegisterForm() {
 					<button
 						type="submit"
 						disabled={loading}
-						className="w-full bg-blue-500 text-white rounded-md p-2 hover:bg-blue-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+						className="w-full bg-blue-500 text-white rounded-md p-2 hover:bg-blue-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
 					>
-						{loading ? 'Creando cuenta...' : 'Registrarse'}
+						{loading ? (
+							<>
+								<div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+								Creando cuenta...
+							</>
+						) : (
+							'Registrarse'
+						)}
 					</button>
 				</form>
 
@@ -168,7 +186,10 @@ function RegisterForm() {
 				<div className="mt-6 text-center">
 					<p className="text-sm">
 						¿Ya tienes una cuenta?{' '}
-						<Link to="/login" className="font-medium text-blue-500 hover:text-blue-600 transition-colors">
+						<Link 
+							to="/login" 
+							className={`font-medium text-blue-500 hover:text-blue-600 transition-colors ${loading ? 'pointer-events-none opacity-50' : ''}`}
+						>
 							Inicia sesión aquí
 						</Link>
 					</p>
