@@ -28,7 +28,7 @@ const getRedirectUrl = () => {
 
 export const REDIRECT_URL = getRedirectUrl()
 
-// Create Supabase client
+// Create Supabase client with STRICT email confirmation settings
 export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   auth: {
     autoRefreshToken: true,

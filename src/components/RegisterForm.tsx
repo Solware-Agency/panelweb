@@ -59,27 +59,14 @@ function RegisterForm() {
 				console.log('Email confirmed at registration:', user.email_confirmed_at)
 				console.log('Confirmation sent at:', user.confirmation_sent_at)
 				
-				// IMPORTANT: New users need to verify their email
-				if (!user.email_confirmed_at) {
-					// User needs to confirm email (this is the expected flow)
-					setMessage('¡Cuenta creada exitosamente! Se ha enviado un correo de verificación a tu email. Revisa tu bandeja de entrada y carpeta de spam.')
-					
-					// Redirect to email verification notice after showing the message
-					setTimeout(() => {
-						navigate('/email-verification-notice')
-					}, 3000)
-				} else {
-					// User is already confirmed (rare case, but handle it)
-					setMessage('Cuenta creada y verificada exitosamente. Redirigiendo...')
-					setTimeout(() => {
-						// Simple email-based redirect logic
-						if (user.email === 'juegosgeorge0502@gmail.com') {
-							navigate('/dashboard')
-						} else {
-							navigate('/form')
-						}
-					}, 2000)
-				}
+				// CRITICAL: Always redirect to email verification notice
+				// New users should NEVER be automatically verified
+				setMessage('¡Cuenta creada exitosamente! Se ha enviado un correo de verificación a tu email. Revisa tu bandeja de entrada y carpeta de spam.')
+				
+				// Always redirect to email verification notice
+				setTimeout(() => {
+					navigate('/email-verification-notice')
+				}, 2000)
 			}
 		} catch (err: any) {
 			console.error('Registration error:', err)
