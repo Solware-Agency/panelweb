@@ -26,7 +26,7 @@ function App() {
 			<div className="App">
 				<Routes>
 					{/* Public routes */}
-					<Route path="/login" element={<LoginPage />} />
+					<Route path="/" element={<LoginPage />} />
 					<Route path="/register" element={<RegisterPage />} />
 					<Route path="/forgot-password" element={<ForgotPasswordPage />} />
 					<Route path="/email-verification-notice" element={<EmailVerificationNotice />} />

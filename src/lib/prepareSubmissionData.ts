@@ -1,34 +1,31 @@
-import { mapPaymentsToColumns } from "./payment-mapper";
-import { calculatePaymentDetails } from "./payment-utils";
-import { type FormValues } from "./form-schema";
+import { mapPaymentsToColumns } from './payment-mapper'
+import { calculatePaymentDetails } from './payment-utils'
+import { type FormValues } from './form-schema'
+import type { MedicalRecordInsert } from '@/integrations/supabase/types'
 
-export function prepareSubmissionData(data: FormValues, exchangeRate: number | undefined) {
-  const { paymentStatus, missingAmount } = calculatePaymentDetails(
-    data.payments,
-    data.totalAmount,
-    exchangeRate
-  );
-  const paymentsColumns = mapPaymentsToColumns(data.payments);
+export function prepareSubmissionData(data: FormValues, exchangeRate: number | undefined): MedicalRecordInsert {
+	const { paymentStatus, missingAmount } = calculatePaymentDetails(data.payments, data.totalAmount, exchangeRate)
+	const paymentsColumns = mapPaymentsToColumns(data.payments)
 
-  return {
-    fullName: data.fullName,
-    idNumber: data.idNumber,
-    phone: data.phone,
-    age: data.age,
-    email: data.email,
-    examType: data.examType,
-    origin: data.origin,
-    treatingDoctor: data.treatingDoctor,
-    sampleType: data.sampleType,
-    numberOfSamples: data.numberOfSamples,
-    relationship: data.relationship,
-    branch: data.branch,
-    date: data.date instanceof Date ? data.date.toISOString() : String(data.date),
-    totalAmount: data.totalAmount,
-    comments: data.comments,
-    exchangeRate: exchangeRate || null,
-    paymentStatus: paymentStatus || "N/A",
-    remaining: paymentStatus === "Completado" ? 0 : missingAmount,
-    ...paymentsColumns,
-  };
+	return {
+		full_name: data.fullName,
+		id_number: data.idNumber,
+		phone: data.phone,
+		age: data.age,
+		email: data.email,
+		exam_type: data.examType,
+		origin: data.origin,
+		treating_doctor: data.treatingDoctor,
+		sample_type: data.sampleType,
+		number_of_samples: data.numberOfSamples,
+		relationship: data.relationship,
+		branch: data.branch,
+		date: data.date instanceof Date ? data.date.toISOString() : String(data.date),
+		total_amount: data.totalAmount,
+		comments: data.comments,
+		exchange_rate: exchangeRate || null,
+		payment_status: paymentStatus || 'N/A',
+		remaining: paymentStatus === 'Completado' ? 0 : missingAmount,
+		...paymentsColumns,
+	}
 }

@@ -127,7 +127,7 @@ function AuthCallback() {
             setStatus('error')
             setMessage('Error al verificar el email. El enlace puede haber expirado.')
             setTimeout(() => {
-              navigate('/login')
+              navigate('/')
             }, 3000)
             return
           }
@@ -150,7 +150,7 @@ function AuthCallback() {
             setStatus('error')
             setMessage('No se pudo verificar la sesión. Redirigiendo al login...')
             setTimeout(() => {
-              navigate('/login')
+              navigate('/')
             }, 3000)
           }
         }
@@ -159,7 +159,7 @@ function AuthCallback() {
         setStatus('error')
         setMessage('Error inesperado. Redirigiendo al login...')
         setTimeout(() => {
-          navigate('/login')
+          navigate('/')
         }, 3000)
       }
     }
@@ -196,7 +196,7 @@ function AuthCallback() {
       setShowPasswordForm(false)
       
       setTimeout(() => {
-        navigate('/login')
+        navigate('/')
       }, 2000)
       
     } catch (err) {
@@ -246,7 +246,7 @@ function AuthCallback() {
             {status === 'error' && (
               <div className="w-full">
                 <button
-                  onClick={() => navigate('/login')}
+                  onClick={() => navigate('/')}
                   className="w-full bg-blue-500 text-white rounded-md p-2 hover:bg-blue-600 transition-colors"
                 >
                   Ir al Login

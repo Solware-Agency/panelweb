@@ -21,7 +21,7 @@ const FormRoute = ({ children }: { children: JSX.Element }) => {
 	// User must be logged in
 	if (!user) {
 		console.log('No user found, redirecting to login')
-		return <Navigate to="/login" />
+		return <Navigate to="/" />
 	}
 
 	// CRITICAL: User must have verified their email
