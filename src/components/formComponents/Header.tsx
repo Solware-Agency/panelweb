@@ -6,7 +6,7 @@ function Header() {
 
 	const handleLogout = async () => {
 		await signOut()
-		navigate('/login')
+		navigate('/')
 	}
   return (
     <header className="flex justify-between items-center bg-white/80 dark:bg-gray-900/80 backdrop-blur-[10px] rounded-bl-xl transition-colors duration-300 sticky top-0 left-0 z-50">

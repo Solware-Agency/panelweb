@@ -15,7 +15,7 @@ const Header: React.FC<HeaderProps> = ({ isDark, toggleDarkMode, currentDate, on
 
 	const handleLogout = async () => {
 		await signOut()
-		navigate('/login')
+		navigate('/')
 	}
 
 	return (

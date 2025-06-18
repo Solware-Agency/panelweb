@@ -23,7 +23,7 @@ export default function Form() {
 
 	const handleLogout = async () => {
 		await signOut()
-		navigate('/login')
+		navigate('/')
 	}
 
 	return (
