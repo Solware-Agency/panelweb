@@ -92,17 +92,17 @@ export const insertMedicalRecord = async (
       id_number: submissionData.idNumber,
       phone: submissionData.phone,
       age: Number(submissionData.age),
-      email: submissionData.email || null,
+      email: submissionData.email || undefined,
       date: submissionData.date,
       exam_type: submissionData.examType,
       origin: submissionData.origin,
       treating_doctor: submissionData.treatingDoctor,
       sample_type: submissionData.sampleType,
       number_of_samples: submissionData.numberOfSamples,
-      relationship: submissionData.relationship || null,
+      relationship: submissionData.relationship || undefined,
       branch: submissionData.branch,
       total_amount: submissionData.totalAmount,
-      exchange_rate: submissionData.exchangeRate,
+      exchange_rate: submissionData.exchangeRate || undefined,
       payment_status: submissionData.paymentStatus,
       remaining: submissionData.remaining,
       payment_method_1: submissionData.payment_method_1,
@@ -117,7 +117,7 @@ export const insertMedicalRecord = async (
       payment_method_4: submissionData.payment_method_4,
       payment_amount_4: submissionData.payment_amount_4,
       payment_reference_4: submissionData.payment_reference_4,
-      comments: submissionData.comments || null,
+      comments: submissionData.comments || undefined,
     };
 
     console.log(`💾 Insertando datos en tabla ${TABLE_NAME}:`, recordData);
@@ -169,7 +169,7 @@ export const insertMedicalRecord = async (
     }
 
     console.log(`✅ Registro médico insertado exitosamente en ${TABLE_NAME}:`, data);
-    return { data, error: null };
+    return { data: data as Cliente, error: null };
   } catch (error) {
     console.error(`❌ Error inesperado insertando en ${TABLE_NAME}:`, error);
     

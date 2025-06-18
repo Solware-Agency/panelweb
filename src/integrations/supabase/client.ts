@@ -33,15 +33,16 @@ export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABL
 });
 
 // Test connection with the new 'medical_records_clean' table
-supabase.from('medical_records_clean').select('count', { count: 'exact', head: true })
-  .then(({ error }) => {
-    if (error) {
-      console.error('❌ Error de conexión con tabla medical_records_clean:', error);
-      console.log('💡 Ejecuta las migraciones para crear la tabla medical_records_clean');
-    } else {
-      console.log('✅ Conexión con tabla medical_records_clean establecida correctamente');
-    }
-  })
-  .catch((err) => {
-    console.error('❌ Error inesperado conectando con tabla medical_records_clean:', err);
-  });
+;(async () => {
+	try {
+		const { error } = await supabase.from('medical_records_clean').select('count', { count: 'exact', head: true })
+		if (error) {
+			console.error('❌ Error de conexión con tabla medical_records_clean:', error)
+			console.log('💡 Ejecuta las migraciones para crear la tabla medical_records_clean')
+		} else {
+			console.log('✅ Conexión con tabla medical_records_clean establecida correctamente')
+		}
+	} catch (err) {
+		console.error('❌ Error inesperado conectando con tabla medical_records_clean:', err)
+	}
+})()

@@ -26,7 +26,6 @@ export const PaymentMethodsList = ({
   inputStyles,
   paymentStatus,
   isPaymentComplete,
-  missingAmount,
 }: PaymentMethodsListProps) => (
   <div className="space-y-4">
     <div className="flex justify-between items-center mb-2">
