@@ -15,14 +15,14 @@ interface PaymentMethodItemProps {
   fieldsLength: number;
 }
 
-export const PaymentMethodItem = ({ control, index, item, remove, inputStyles, fieldsLength }: PaymentMethodItemProps) => {
+export const PaymentMethodItem = ({ control, index, remove, inputStyles, fieldsLength }: PaymentMethodItemProps) => {
   const paymentMethod = useWatch({ control, name: `payments.${index}.method` });
   const isBolivares = ["Punto de venta", "Pago móvil", "Bs en efectivo"].includes(paymentMethod || "");
   const currencyLabel = isBolivares ? "(Bs)" : "($)";
   const currencySymbol = isBolivares ? "Bs" : "$";
 
   return (
-    <div key={item.id} className="grid grid-cols-1 md:grid-cols-4 gap-4 items-start bg-secondary p-4 rounded-lg">
+    <div className="grid grid-cols-1 md:grid-cols-4 gap-4 items-start bg-secondary p-4 rounded-lg">
       <FormField
         control={control}
         name={`payments.${index}.method`}

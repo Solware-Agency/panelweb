@@ -23,7 +23,7 @@ export function prepareSubmissionData(data: FormValues, exchangeRate: number | u
     numberOfSamples: data.numberOfSamples,
     relationship: data.relationship,
     branch: data.branch,
-    date: data.date instanceof Date ? data.date.toISOString() : data.date,
+    date: data.date instanceof Date ? data.date.toISOString() : String(data.date),
     totalAmount: data.totalAmount,
     comments: data.comments,
     exchangeRate: exchangeRate || null,

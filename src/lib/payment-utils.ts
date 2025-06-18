@@ -7,10 +7,10 @@ export const calculatePaymentDetails = (
   totalAmount: number | string | undefined,
   exchangeRate: number | undefined
 ) => {
-  const totalAmountValue = parseFloat(totalAmount as any) || 0;
+  const totalAmountValue = parseFloat(String(totalAmount)) || 0;
 
   const currentTotalPaid = payments.reduce((acc, payment) => {
-    const amount = parseFloat(payment.amount as any) || 0;
+    const amount = parseFloat(String(payment.amount)) || 0;
     if (!payment.method || !amount) return acc;
 
     const isBolivares = ["Punto de venta", "Pago móvil", "Bs en efectivo"].includes(payment.method);

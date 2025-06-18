@@ -174,7 +174,7 @@ export const insertMedicalRecord = async (
     console.error(`❌ Error inesperado insertando en ${TABLE_NAME}:`, error);
     
     // Si es un error de red
-    if (error instanceof TypeError && error.message.includes('fetch')) {
+    if (error instanceof TypeError && String(error).includes('fetch')) {
       return { 
         data: null, 
         error: { 

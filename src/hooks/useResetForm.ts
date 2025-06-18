@@ -1,6 +1,13 @@
 import { useEffect } from "react";
+import { UseFormReturn } from "react-hook-form";
 
-export function useResetForm(form: any, getInitialFormValues: () => any, setUsdValue: (s: string) => void, setIsSubmitted: (b: boolean) => void, toast: (args: any) => void) {
+export function useResetForm(
+  form: UseFormReturn<any>, 
+  getInitialFormValues: () => any, 
+  setUsdValue: (s: string) => void, 
+  setIsSubmitted: (b: boolean) => void, 
+  toast: (args: any) => void
+) {
   useEffect(() => {
     const clearFormHandler = () => {
       form.reset(getInitialFormValues());
@@ -13,6 +20,5 @@ export function useResetForm(form: any, getInitialFormValues: () => any, setUsdV
     };
     window.addEventListener('clearForm', clearFormHandler);
     return () => window.removeEventListener('clearForm', clearFormHandler);
-    // eslint-disable-next-line
-  }, [form, toast, setUsdValue, setIsSubmitted]);
+  }, [form, toast, setUsdValue, setIsSubmitted, getInitialFormValues]);
 }

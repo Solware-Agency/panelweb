@@ -15,7 +15,7 @@ export const AutocompleteInput = React.forwardRef<
   HTMLInputElement,
   AutocompleteInputProps
 >(({ className, fieldName, onValueChange, onPatientSelect, minSearchLength = 2, ...props }, ref) => {
-  const [inputValue, setInputValue] = React.useState(props.value as string || "");
+  const [inputValue, setInputValue] = React.useState(String(props.value || ""));
   const [showSuggestions, setShowSuggestions] = React.useState(false);
   const [selectedIndex, setSelectedIndex] = React.useState(-1);
   const [searchTerminated, setSearchTerminated] = React.useState(false);
@@ -31,7 +31,7 @@ export const AutocompleteInput = React.forwardRef<
   // Sincronizar con el valor externo
   React.useEffect(() => {
     if (props.value !== inputValue) {
-      const newValue = props.value as string || "";
+      const newValue = String(props.value || "");
       setInputValue(newValue);
       
       // Si el valor cambió externamente (autofill), marcar como autofilled

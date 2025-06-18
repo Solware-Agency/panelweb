@@ -32,7 +32,7 @@ export const PaymentHeader = ({ control, inputStyles, exchangeRate, isLoadingRat
 
   const totalInVes = React.useMemo(() => {
     if (exchangeRate && totalAmount) {
-      const amount = parseFloat(totalAmount as any);
+      const amount = parseFloat(String(totalAmount));
       if (!isNaN(amount) && amount > 0) {
         return (amount * exchangeRate).toFixed(2);
       }
