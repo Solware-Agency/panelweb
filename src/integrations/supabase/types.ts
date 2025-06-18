@@ -444,3 +444,5 @@ export const Constants = {
     Enums: {},
   },
 } as const
+
+export type MedicalRecordInsert = TablesInsert<"medical_records_clean">;

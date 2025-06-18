@@ -9,7 +9,7 @@ import { getClientes, searchClientes } from '@/lib/supabase-service';
 
 export const RecordsSection: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
-  const [isSearching, setIsSearching] = useState(false);
+  const [, setIsSearching] = useState(false);
 
   // Query for all records (when no search term)
   const {

@@ -5,8 +5,8 @@ import { resendConfirmation, signOut } from '../supabase/auth'
 import { useNavigate } from 'react-router-dom'
 
 function EmailVerificationNotice() {
-	const { user, refreshUser } = useAuth()
-	const [checkingVerification, setCheckingVerification] = useState(false)
+	const { user } = useAuth()
+	const [checkingVerification] = useState(false)
 	const [message, setMessage] = useState('')
 	const [error, setError] = useState('')
 	const [loading, setLoading] = useState(false)
@@ -19,9 +19,9 @@ function EmailVerificationNotice() {
 			setMessage('')
 			setError('')
 			setLoading(true)
-			
+
 			console.log('Resending verification email to:', user.email)
-			
+
 			const { error: resendError } = await resendConfirmation(user.email)
 
 			if (resendError) {
@@ -55,18 +55,18 @@ function EmailVerificationNotice() {
 	// 		setCheckingVerification(true)
 	// 		setMessage('')
 	// 		setError('')
-			
+
 	// 		console.log('Checking verification status for user:', user.email)
-			
+
 	// 		// Refresh user data to get latest email verification status
 	// 		await refreshUser()
-			
+
 	// 		// Get the latest user data from Supabase
 	// 		const { supabase } = await import('../supabase/config')
 	// 		const { data: { user: latestUser } } = await supabase.auth.getUser()
-			
+
 	// 		console.log('Latest user verification status:', latestUser?.email_confirmed_at)
-			
+
 	// 		// Check if email is now verified
 	// 		if (latestUser?.email_confirmed_at) {
 	// 			setMessage('¡Email verificado exitosamente! Redirigiendo...')
@@ -170,13 +170,13 @@ function EmailVerificationNotice() {
 				</div>
 
 				<div className="text-center space-y-3">
-					<p className="text-sm text-gray-600">
-						¿Problemas con la verificación?
-					</p>
+					<p className="text-sm text-gray-600">¿Problemas con la verificación?</p>
 					<button
 						onClick={handleLogout}
 						disabled={loading || checkingVerification}
-						className={`flex items-center justify-center gap-2 text-sm text-blue-500 hover:text-blue-600 transition-colors mx-auto ${(loading || checkingVerification) ? 'opacity-50 cursor-not-allowed' : ''}`}
+						className={`flex items-center justify-center gap-2 text-sm text-blue-500 hover:text-blue-600 transition-colors mx-auto ${
+							loading || checkingVerification ? 'opacity-50 cursor-not-allowed' : ''
+						}`}
 					>
 						<ArrowLeft size={16} />
 						Cerrar sesión e intentar de nuevo
@@ -184,7 +184,9 @@ function EmailVerificationNotice() {
 				</div>
 
 				<div className="mt-4 text-xs text-gray-500 text-center space-y-2">
-					<p>💡 <strong>Consejos:</strong></p>
+					<p>
+						💡 <strong>Consejos:</strong>
+					</p>
 					<ul className="text-left space-y-1">
 						<li>• Revisa tu carpeta de spam/correo no deseado</li>
 						<li>• Espera hasta 5 minutos para que llegue el correo</li>

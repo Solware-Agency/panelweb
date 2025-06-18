@@ -3,13 +3,6 @@ import { supabase } from '@/integrations/supabase/client';
 import { type UseFormSetValue } from 'react-hook-form';
 import type { FormValues } from '@/lib/form-schema';
 
-interface PatientData {
-  full_name: string;
-  phone: string;
-  age: number;
-  email: string | null;
-}
-
 export const usePatientAutofill = (setValue: UseFormSetValue<FormValues>) => {
   const [isLoading, setIsLoading] = useState(false);
   const [lastFilledPatient, setLastFilledPatient] = useState<string | null>(null);

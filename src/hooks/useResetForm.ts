@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { UseFormReturn } from "react-hook-form";
+import { type UseFormReturn } from "react-hook-form";
 
 export function useResetForm(
   form: UseFormReturn<any>, 

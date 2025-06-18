@@ -256,7 +256,7 @@ function RegisterForm() {
 					<p className="text-sm">
 						¿Ya tienes una cuenta?{' '}
 						<Link 
-							to="/login" 
+							to="/" 
 							className={`font-medium text-blue-500 hover:text-blue-600 transition-colors ${(loading || rateLimitError) ? 'pointer-events-none opacity-50' : ''}`}
 						>
 							Inicia sesión aquí
