@@ -11,14 +11,14 @@ function ForgotPassword() {
 
 	const handleResetPassword = async (event: React.FormEvent<HTMLFormElement>) => {
 		event.preventDefault()
-		
+
 		try {
 			setMessage('')
 			setError('')
 			setLoading(true)
-			
+
 			console.log('Sending password reset email to:', email)
-			
+
 			const { error: resetError } = await resetPassword(email)
 
 			if (resetError) {
@@ -72,16 +72,10 @@ function ForgotPassword() {
 						/>
 					</div>
 
-					{error && (
-						<div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-							{error}
-						</div>
-					)}
+					{error && <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">{error}</div>}
 
 					{message && (
-						<div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
-							{message}
-						</div>
+						<div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">{message}</div>
 					)}
 
 					<button
@@ -102,8 +96,8 @@ function ForgotPassword() {
 
 				{/* Footer */}
 				<div className="mt-6 text-center">
-					<Link 
-						to="/" 
+					<Link
+						to="/"
 						className={`flex items-center justify-center gap-2 text-sm text-blue-500 hover:text-blue-600 transition-colors ${loading ? 'pointer-events-none opacity-50' : ''}`}
 					>
 						<ArrowLeft size={16} />

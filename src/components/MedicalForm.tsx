@@ -1,4 +1,4 @@
-import { MedicalFormContainer } from "./form/MedicalFormContainer";
+import { MedicalFormContainer } from './form/MedicalFormContainer'
 export function MedicalForm() {
-  return <MedicalFormContainer />;
+	return <MedicalFormContainer />
 }

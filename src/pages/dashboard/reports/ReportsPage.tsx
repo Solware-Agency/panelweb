@@ -1,5 +1,19 @@
 import React from 'react'
-import { TrendingUp, Download, FileText, BarChart3, Calendar, DollarSign, Users, Star, Award, Earth, Settings, Bot, Lightbulb } from 'lucide-react'
+import {
+	TrendingUp,
+	Download,
+	FileText,
+	BarChart3,
+	Calendar,
+	DollarSign,
+	Users,
+	Star,
+	Award,
+	Earth,
+	Settings,
+	Bot,
+	Lightbulb,
+} from 'lucide-react'
 import { BackgroundGradient } from '@/components/ui/background-gradient'
 
 const ReportsPage: React.FC = () => {
@@ -108,10 +122,10 @@ const ReportsPage: React.FC = () => {
 										service.color === 'blue'
 											? 'from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20'
 											: service.color === 'green'
-											? 'from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20'
-											: service.color === 'purple'
-											? 'from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-800/20'
-											: 'from-orange-50 to-orange-100 dark:from-orange-900/20 dark:to-orange-800/20'
+												? 'from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20'
+												: service.color === 'purple'
+													? 'from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-800/20'
+													: 'from-orange-50 to-orange-100 dark:from-orange-900/20 dark:to-orange-800/20'
 									} border border-gray-200 dark:border-gray-700`}
 								>
 									<div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-3">
@@ -121,10 +135,10 @@ const ReportsPage: React.FC = () => {
 													service.color === 'blue'
 														? 'bg-blue-500'
 														: service.color === 'green'
-														? 'bg-green-500'
-														: service.color === 'purple'
-														? 'bg-purple-500'
-														: 'bg-orange-500'
+															? 'bg-green-500'
+															: service.color === 'purple'
+																? 'bg-purple-500'
+																: 'bg-orange-500'
 												}`}
 											>
 												{service.icon}
@@ -144,10 +158,10 @@ const ReportsPage: React.FC = () => {
 													service.color === 'blue'
 														? 'text-blue-600 dark:text-blue-400'
 														: service.color === 'green'
-														? 'text-green-600 dark:text-green-400'
-														: service.color === 'purple'
-														? 'text-purple-600 dark:text-purple-400'
-														: 'text-orange-600 dark:text-orange-400'
+															? 'text-green-600 dark:text-green-400'
+															: service.color === 'purple'
+																? 'text-purple-600 dark:text-purple-400'
+																: 'text-orange-600 dark:text-orange-400'
 												}`}
 											>
 												${service.revenue.toLocaleString()}
@@ -164,10 +178,10 @@ const ReportsPage: React.FC = () => {
 												service.color === 'blue'
 													? 'bg-blue-500'
 													: service.color === 'green'
-													? 'bg-green-500'
-													: service.color === 'purple'
-													? 'bg-purple-500'
-													: 'bg-orange-500'
+														? 'bg-green-500'
+														: service.color === 'purple'
+															? 'bg-purple-500'
+															: 'bg-orange-500'
 											}`}
 											style={{ width: `${(service.revenue / 45000) * 100}%` }}
 										></div>
@@ -262,10 +276,10 @@ const ReportsPage: React.FC = () => {
 												item.color === 'blue'
 													? 'bg-blue-500'
 													: item.color === 'green'
-													? 'bg-green-500'
-													: item.color === 'orange'
-													? 'bg-orange-500'
-													: 'bg-purple-500'
+														? 'bg-green-500'
+														: item.color === 'orange'
+															? 'bg-orange-500'
+															: 'bg-purple-500'
 											}`}
 										></div>
 										<span className="text-sm text-gray-600 dark:text-gray-400">{item.name}</span>
@@ -395,8 +409,8 @@ const ReportsPage: React.FC = () => {
 														client.status === 'Activo'
 															? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300'
 															: client.status === 'En Progreso'
-															? 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300'
-															: 'bg-gray-100 dark:bg-gray-900/30 text-gray-700 dark:text-gray-300'
+																? 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300'
+																: 'bg-gray-100 dark:bg-gray-900/30 text-gray-700 dark:text-gray-300'
 													}`}
 												>
 													{client.status}
@@ -478,10 +492,10 @@ const ReportsPage: React.FC = () => {
 										metric.color === 'blue'
 											? 'bg-blue-100 dark:bg-blue-900/30'
 											: metric.color === 'green'
-											? 'bg-green-100 dark:bg-green-900/30'
-											: metric.color === 'purple'
-											? 'bg-purple-100 dark:bg-purple-900/30'
-											: 'bg-orange-100 dark:bg-orange-900/30'
+												? 'bg-green-100 dark:bg-green-900/30'
+												: metric.color === 'purple'
+													? 'bg-purple-100 dark:bg-purple-900/30'
+													: 'bg-orange-100 dark:bg-orange-900/30'
 									}`}
 								>
 									<metric.icon
@@ -489,10 +503,10 @@ const ReportsPage: React.FC = () => {
 											metric.color === 'blue'
 												? 'text-blue-600 dark:text-blue-400'
 												: metric.color === 'green'
-												? 'text-green-600 dark:text-green-400'
-												: metric.color === 'purple'
-												? 'text-purple-600 dark:text-purple-400'
-												: 'text-orange-600 dark:text-orange-400'
+													? 'text-green-600 dark:text-green-400'
+													: metric.color === 'purple'
+														? 'text-purple-600 dark:text-purple-400'
+														: 'text-orange-600 dark:text-orange-400'
 										}`}
 									/>
 								</div>
