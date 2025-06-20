@@ -3,6 +3,8 @@ import { ChevronUp, ChevronDown, Search, Filter, Eye, Calendar, User, Stethoscop
 import { useQuery } from '@tanstack/react-query'
 import { getMedicalRecords } from '@/lib/supabase-service'
 import type { MedicalRecord } from '@/lib/supabase-service'
+import { format } from 'date-fns'
+import { es } from 'date-fns/locale'
 
 interface CasesTableProps {
   onCaseSelect: (case_: MedicalRecord) => void
@@ -115,7 +117,7 @@ const CasesTable: React.FC<CasesTableProps> = ({ onCaseSelect }) => {
           {case_.payment_status}
         </span>
         <span className="text-sm font-mono text-gray-600 dark:text-gray-400">
-          {case_.id.slice(-6).toUpperCase()}
+          {case_.id?.slice(-6).toUpperCase()}
         </span>
       </div>
 
@@ -150,7 +152,7 @@ const CasesTable: React.FC<CasesTableProps> = ({ onCaseSelect }) => {
         <div className="flex items-center gap-1">
           <Calendar className="w-3 h-3 text-gray-400" />
           <span className="text-xs text-gray-500 dark:text-gray-400">
-            {new Date(case_.created_at).toLocaleDateString('es-ES')}
+            {case_.created_at ? format(new Date(case_.created_at), 'dd/MM/yyyy HH:mm', { locale: es }) : 'N/A'}
           </span>
         </div>
         <div className="flex items-center gap-1">
