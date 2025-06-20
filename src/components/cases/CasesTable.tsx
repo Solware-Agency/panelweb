@@ -10,7 +10,7 @@ interface CasesTableProps {
 	onCaseSelect: (case_: MedicalRecord) => void
 }
 
-type SortField = 'id' | 'created_at' | 'full_name' | 'age' | 'total_amount'
+type SortField = 'id' | 'created_at' | 'full_name' | 'age' | 'total_amount' | 'branch'
 type SortDirection = 'asc' | 'desc'
 
 const CasesTable: React.FC<CasesTableProps> = ({ onCaseSelect }) => {
@@ -65,7 +65,8 @@ const CasesTable: React.FC<CasesTableProps> = ({ onCaseSelect }) => {
 				case_.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
 				case_.id_number.toLowerCase().includes(searchTerm.toLowerCase()) ||
 				case_.exam_type.toLowerCase().includes(searchTerm.toLowerCase()) ||
-				case_.treating_doctor.toLowerCase().includes(searchTerm.toLowerCase())
+				case_.treating_doctor.toLowerCase().includes(searchTerm.toLowerCase()) ||
+				case_.branch.toLowerCase().includes(searchTerm.toLowerCase())
 
 			const matchesStatus = statusFilter === 'all' || case_.payment_status === statusFilter
 
@@ -238,6 +239,7 @@ const CasesTable: React.FC<CasesTableProps> = ({ onCaseSelect }) => {
 								<option value="En Proceso">En Proceso</option>
 								<option value="Completado">Completado</option>
 								<option value="Cancelado">Cancelado</option>
+								<option value="Incompleto">Incompleto</option>
 							</select>
 						</div>
 					</div>
@@ -272,7 +274,8 @@ const CasesTable: React.FC<CasesTableProps> = ({ onCaseSelect }) => {
 										case_.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
 										case_.id_number.toLowerCase().includes(searchTerm.toLowerCase()) ||
 										case_.exam_type.toLowerCase().includes(searchTerm.toLowerCase()) ||
-										case_.treating_doctor.toLowerCase().includes(searchTerm.toLowerCase())
+										case_.treating_doctor.toLowerCase().includes(searchTerm.toLowerCase()) ||
+										case_.branch.toLowerCase().includes(searchTerm.toLowerCase())
 									const matchesStatus = statusFilter === 'all' || case_.payment_status === statusFilter
 									return matchesSearch && matchesStatus
 								}).length
@@ -312,7 +315,7 @@ const CasesTable: React.FC<CasesTableProps> = ({ onCaseSelect }) => {
 									<th className="px-4 py-3 text-left">
 										<button
 											onClick={() => handleSort('id')}
-											className="flex items-center gap-2 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider hover:text-gray-700 dark:hover:text-gray-200"
+											className="flex items-center gap-2 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider hover:text-gray-700 dark:hover:text-gray-200 text-center"
 										>
 											Estatus / Código
 											<SortIcon field="id" />
@@ -321,16 +324,16 @@ const CasesTable: React.FC<CasesTableProps> = ({ onCaseSelect }) => {
 									<th className="px-4 py-3 text-left">
 										<button
 											onClick={() => handleSort('created_at')}
-											className="flex items-center gap-2 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider hover:text-gray-700 dark:hover:text-gray-200"
+											className="flex items-center gap-2 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider hover:text-gray-700 dark:hover:text-gray-200 text-center"
 										>
-											Fecha Ingreso
+											Fecha de Ingreso
 											<SortIcon field="created_at" />
 										</button>
 									</th>
 									<th className="px-4 py-3 text-left">
 										<button
 											onClick={() => handleSort('full_name')}
-											className="flex items-center gap-2 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider hover:text-gray-700 dark:hover:text-gray-200"
+											className="flex items-center gap-2 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider hover:text-gray-700 dark:hover:text-gray-200 text-center"
 										>
 											Paciente
 											<SortIcon field="full_name" />
@@ -338,23 +341,23 @@ const CasesTable: React.FC<CasesTableProps> = ({ onCaseSelect }) => {
 									</th>
 									<th className="px-4 py-3 text-left">
 										<button
-											onClick={() => handleSort('age')}
-											className="flex items-center gap-2 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider hover:text-gray-700 dark:hover:text-gray-200"
+											onClick={() => handleSort('branch')}
+											className="flex items-center gap-2 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider hover:text-gray-700 dark:hover:text-gray-200 text-center"
 										>
-											Edad
-											<SortIcon field="age" />
+											Sede
+											<SortIcon field="branch" />
 										</button>
 									</th>
-									<th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+									<th className="px-4 py-3 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider text-center">
 										Estudio
 									</th>
-									<th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+									<th className="px-4 py-3 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider text-center">
 										Médico Tratante
 									</th>
 									<th className="px-4 py-3 text-left">
 										<button
 											onClick={() => handleSort('total_amount')}
-											className="flex items-center gap-2 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider hover:text-gray-700 dark:hover:text-gray-200"
+											className="flex items-center gap-2 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider hover:text-gray-700 dark:hover:text-gray-200 text-center"
 										>
 											Monto Total
 											<SortIcon field="total_amount" />
@@ -370,10 +373,9 @@ const CasesTable: React.FC<CasesTableProps> = ({ onCaseSelect }) => {
 									<tr
 										key={case_.id}
 										className="hover:bg-gray-50 dark:hover:bg-gray-800/50 cursor-pointer transition-colors"
-										onClick={() => onCaseSelect(case_)}
 									>
 										<td className="px-4 py-4">
-											<div className="space-y-1">
+											<div className="space-y-1 text-center">
 												<span
 													className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(case_.payment_status)}`}
 												>
@@ -384,7 +386,7 @@ const CasesTable: React.FC<CasesTableProps> = ({ onCaseSelect }) => {
 												</div>
 											</div>
 										</td>
-										<td className="px-4 py-4 text-sm text-gray-900 dark:text-gray-100">
+										<td className="px-4 py-4 text-sm text-gray-900 dark:text-gray-100 text-center">
 											{new Date(case_.created_at).toLocaleDateString('es-ES')}
 										</td>
 										<td className="px-4 py-4">
@@ -393,7 +395,7 @@ const CasesTable: React.FC<CasesTableProps> = ({ onCaseSelect }) => {
 												<div className="text-sm text-gray-500 dark:text-gray-400">{case_.id_number}</div>
 											</div>
 										</td>
-										<td className="px-4 py-4text-sm text-gray-900 dark:text-gray-100">
+										<td className="px-4 py-4 text-sm text-gray-900 dark:text-gray-100">
 											<div className="bg-gray-200 dark:bg-gray-900/60 hover:bg-gray-300 dark:hover:bg-gray-800/80 text-center border border-gray-500 dark:border-gray-700 rounded-lg p-1">
 												{case_.branch}
 											</div>

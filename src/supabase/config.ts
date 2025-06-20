@@ -15,16 +15,16 @@ console.log('🔗 Conectando a Supabase con tabla medical_records_clean')
 
 // Get the correct redirect URL based on environment
 const getRedirectUrl = () => {
-  if (typeof window === 'undefined') return 'http://localhost:5173'
-  
-  const isDevelopment = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-  
-  if (isDevelopment) {
-    return `${window.location.protocol}//${window.location.host}`
-  }
-  
-  // Production URL
-  return import.meta.env.VITE_PRODUCTION_URL || 'https://panel.solware.agency'
+	if (typeof window === 'undefined') return 'http://localhost:5173'
+
+	const isDevelopment = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+
+	if (isDevelopment) {
+		return `${window.location.protocol}//${window.location.host}`
+	}
+
+	// Production URL
+	return import.meta.env.VITE_PRODUCTION_URL || 'https://panel.solware.agency'
 }
 
 export const REDIRECT_URL = getRedirectUrl()
@@ -33,9 +33,9 @@ export const REDIRECT_URL = getRedirectUrl()
 export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
 	auth: {
 		autoRefreshToken: true,
-    persistSession: true,
-    detectSessionInUrl: true,
-    flowType: 'pkce'
+		persistSession: true,
+		detectSessionInUrl: true,
+		flowType: 'pkce',
 	},
 	db: {
 		schema: 'public',
@@ -49,33 +49,33 @@ export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABL
 
 // Database types (you can generate these with Supabase CLI)
 export interface Database {
-  public: {
-    Tables: {
-      profiles: {
-        Row: {
-          id: string
-          email: string
-          role: 'owner' | 'employee'
-          created_at: string
-          updated_at: string
-        }
-        Insert: {
-          id: string
-          email: string
-          role?: 'owner' | 'employee'
-          created_at?: string
-          updated_at?: string
-        }
-        Update: {
-          id?: string
-          email?: string
-          role?: 'owner' | 'employee'
-          created_at?: string
-          updated_at?: string
-        }
-      }
-    }
-  }
+	public: {
+		Tables: {
+			profiles: {
+				Row: {
+					id: string
+					email: string
+					role: 'owner' | 'employee'
+					created_at: string
+					updated_at: string
+				}
+				Insert: {
+					id: string
+					email: string
+					role?: 'owner' | 'employee'
+					created_at?: string
+					updated_at?: string
+				}
+				Update: {
+					id?: string
+					email?: string
+					role?: 'owner' | 'employee'
+					created_at?: string
+					updated_at?: string
+				}
+			}
+		}
+	}
 }
 
 supabase

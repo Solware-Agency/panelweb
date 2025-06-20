@@ -32,12 +32,12 @@ function RegisterForm() {
 
 	const handleRegister = async (event: React.FormEvent<HTMLFormElement>) => {
 		event.preventDefault()
-		
+
 		// Reset previous states
 		setError('')
 		setMessage('')
 		setRateLimitError(false)
-		
+
 		if (password !== confirmPassword) {
 			setError('Las contraseñas no coinciden.')
 			return
@@ -50,26 +50,34 @@ function RegisterForm() {
 
 		try {
 			setLoading(true)
-			
+
 			console.log('Attempting to register user:', email)
-			
+
 			const { user, error: signUpError } = await signUp(email, password)
 
 			if (signUpError) {
 				console.error('Registration error:', signUpError)
-				
+
 				// Handle Supabase auth errors
 				if (signUpError.message.includes('User already registered')) {
 					setError('Ya existe una cuenta con este correo electrónico.')
 				} else if (signUpError.message.includes('Password should be at least')) {
 					setError('La contraseña es muy débil.')
-				} else if (signUpError.message.includes('Unable to validate email address') || signUpError.message.includes('Invalid email')) {
+				} else if (
+					signUpError.message.includes('Unable to validate email address') ||
+					signUpError.message.includes('Invalid email')
+				) {
 					setError('Correo electrónico inválido.')
 				} else if (signUpError.message.includes('Signup is disabled')) {
 					setError('El registro está temporalmente deshabilitado. Contacta al administrador.')
-				} else if (signUpError.message.includes('email rate limit exceeded') || signUpError.message.includes('over_email_send_rate_limit')) {
+				} else if (
+					signUpError.message.includes('email rate limit exceeded') ||
+					signUpError.message.includes('over_email_send_rate_limit')
+				) {
 					setRateLimitError(true)
-					setError('Se ha alcanzado el límite de envío de correos electrónicos. Este es un límite temporal del servicio de email.')
+					setError(
+						'Se ha alcanzado el límite de envío de correos electrónicos. Este es un límite temporal del servicio de email.',
+					)
 					startRetryCountdown(300) // 5 minutes countdown
 				} else {
 					setError('Error al crear la cuenta. Inténtalo de nuevo.')
@@ -81,11 +89,13 @@ function RegisterForm() {
 				console.log('User registered successfully:', user.email)
 				console.log('Email confirmed at registration:', user.email_confirmed_at)
 				console.log('Confirmation sent at:', user.confirmation_sent_at)
-				
+
 				// CRITICAL: Always redirect to email verification notice
 				// New users should NEVER be automatically verified
-				setMessage('¡Cuenta creada exitosamente! Se ha enviado un correo de verificación a tu email. Revisa tu bandeja de entrada y carpeta de spam.')
-				
+				setMessage(
+					'¡Cuenta creada exitosamente! Se ha enviado un correo de verificación a tu email. Revisa tu bandeja de entrada y carpeta de spam.',
+				)
+
 				// Always redirect to email verification notice
 				setTimeout(() => {
 					navigate('/email-verification-notice')
@@ -93,11 +103,16 @@ function RegisterForm() {
 			}
 		} catch (err: any) {
 			console.error('Registration error:', err)
-			
+
 			// Check if the error is related to rate limiting
-			if (err.message && (err.message.includes('email rate limit exceeded') || err.message.includes('over_email_send_rate_limit'))) {
+			if (
+				err.message &&
+				(err.message.includes('email rate limit exceeded') || err.message.includes('over_email_send_rate_limit'))
+			) {
 				setRateLimitError(true)
-				setError('Se ha alcanzado el límite de envío de correos electrónicos. Este es un límite temporal del servicio de email.')
+				setError(
+					'Se ha alcanzado el límite de envío de correos electrónicos. Este es un límite temporal del servicio de email.',
+				)
 				startRetryCountdown(300) // 5 minutes countdown
 			} else {
 				setError('Error al crear la cuenta. Inténtalo de nuevo.')
@@ -188,11 +203,13 @@ function RegisterForm() {
 					</div>
 
 					{error && (
-						<div className={`border px-4 py-3 rounded mb-4 ${
-							rateLimitError 
-								? 'bg-yellow-100 border-yellow-400 text-yellow-800' 
-								: 'bg-red-100 border-red-400 text-red-700'
-						}`}>
+						<div
+							className={`border px-4 py-3 rounded mb-4 ${
+								rateLimitError
+									? 'bg-yellow-100 border-yellow-400 text-yellow-800'
+									: 'bg-red-100 border-red-400 text-red-700'
+							}`}
+						>
 							<div className="flex items-start gap-2">
 								{rateLimitError && <Clock className="w-5 h-5 mt-0.5 flex-shrink-0" />}
 								<div className="flex-1">
@@ -204,9 +221,7 @@ function RegisterForm() {
 												<li>Se han enviado muchos correos en poco tiempo</li>
 												<li>El servicio de email está temporalmente limitado</li>
 											</ul>
-											<p className="mt-2 font-medium">
-												Soluciones recomendadas:
-											</p>
+											<p className="mt-2 font-medium">Soluciones recomendadas:</p>
 											<ul className="list-disc list-inside mt-1 space-y-1">
 												<li>Espera unos minutos e intenta de nuevo</li>
 												<li>Verifica si ya recibiste un correo de confirmación</li>
@@ -225,9 +240,7 @@ function RegisterForm() {
 					)}
 
 					{message && (
-						<div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
-							{message}
-						</div>
+						<div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">{message}</div>
 					)}
 
 					<button
@@ -255,9 +268,9 @@ function RegisterForm() {
 				<div className="mt-6 text-center">
 					<p className="text-sm text-gray-600">
 						¿Ya tienes una cuenta?{' '}
-						<Link 
-							to="/" 
-							className={`font-medium text-blue-500 hover:text-blue-600 transition-colors ${(loading || rateLimitError) ? 'pointer-events-none opacity-50' : ''}`}
+						<Link
+							to="/"
+							className={`font-medium text-blue-500 hover:text-blue-600 transition-colors ${loading || rateLimitError ? 'pointer-events-none opacity-50' : ''}`}
 						>
 							Inicia sesión aquí
 						</Link>

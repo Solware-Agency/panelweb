@@ -126,10 +126,10 @@ const CalendarPage: React.FC = () => {
 									event.color === 'blue'
 										? 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300'
 										: event.color === 'green'
-										? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300'
-										: event.color === 'purple'
-										? 'bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300'
-										: 'bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-300'
+											? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300'
+											: event.color === 'purple'
+												? 'bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300'
+												: 'bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-300'
 								}`}
 							>
 								{event.title}
@@ -202,8 +202,8 @@ const CalendarPage: React.FC = () => {
 					<BackgroundGradient containerClassName="grid" className="grid">
 						<div className="bg-white/80 dark:bg-gray-900 rounded-xl p-4 sm:p-6 transition-colors duration-300">
 							<button className="relative h-12 overflow-hidden p-[1px] focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2 focus:ring-offset-slate-50 w-full bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white rounded-full transition flex items-center justify-center gap-2 text-sm sm:text-base hover:translate-y-[-2px] hover:shadow-md hover:shadow-blue-500/20">
-									<Plus className="w-4 h-4 sm:w-5 sm:h-5" />
-									<span className="text-sm sm:text-base">Nuevo Evento</span>
+								<Plus className="w-4 h-4 sm:w-5 sm:h-5" />
+								<span className="text-sm sm:text-base">Nuevo Evento</span>
 							</button>
 						</div>
 					</BackgroundGradient>
@@ -223,10 +223,10 @@ const CalendarPage: React.FC = () => {
 												event.color === 'blue'
 													? 'bg-blue-50 dark:bg-blue-900/20 border-blue-500'
 													: event.color === 'green'
-													? 'bg-green-50 dark:bg-green-900/20 border-green-500'
-													: event.color === 'purple'
-													? 'bg-purple-50 dark:bg-purple-900/20 border-purple-500'
-													: 'bg-orange-50 dark:bg-orange-900/20 border-orange-500'
+														? 'bg-green-50 dark:bg-green-900/20 border-green-500'
+														: event.color === 'purple'
+															? 'bg-purple-50 dark:bg-purple-900/20 border-purple-500'
+															: 'bg-orange-50 dark:bg-orange-900/20 border-orange-500'
 											}`}
 										>
 											<h4 className="font-medium text-gray-700 dark:text-gray-300 mb-2 text-sm sm:text-base">
@@ -272,10 +272,10 @@ const CalendarPage: React.FC = () => {
 												event.color === 'blue'
 													? 'bg-blue-500'
 													: event.color === 'green'
-													? 'bg-green-500'
-													: event.color === 'purple'
-													? 'bg-purple-500'
-													: 'bg-orange-500'
+														? 'bg-green-500'
+														: event.color === 'purple'
+															? 'bg-purple-500'
+															: 'bg-orange-500'
 											}`}
 										></div>
 										<div className="flex-1">

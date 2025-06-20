@@ -25,14 +25,12 @@ const Sidebar: React.FC<SidebarProps> = ({ onClose }) => {
 						</button>
 					)}
 				</div>
-				
+
 				<NavLink
 					to="/dashboard/home"
 					className={({ isActive }) =>
 						`flex justify-between items-center gap-3 cursor-pointer transition w-full pl-2 ${
-							isActive
-								? 'text-blue-500 border-l border-blue-500'
-								: 'hover:text-blue-500'
+							isActive ? 'text-blue-500 border-l border-blue-500' : 'hover:text-blue-500'
 						}`
 					}
 					onClick={onClose}
@@ -42,14 +40,12 @@ const Sidebar: React.FC<SidebarProps> = ({ onClose }) => {
 						<p className="text-md">Inicio</p>
 					</div>
 				</NavLink>
-				
+
 				<NavLink
 					to="/dashboard/stats"
 					className={({ isActive }) =>
 						`flex justify-between items-center gap-3 cursor-pointer transition w-full pl-2 ${
-							isActive
-								? 'text-blue-500 border-l border-blue-500'
-								: 'hover:text-blue-500'
+							isActive ? 'text-blue-500 border-l border-blue-500' : 'hover:text-blue-500'
 						}`
 					}
 					onClick={onClose}
@@ -59,14 +55,12 @@ const Sidebar: React.FC<SidebarProps> = ({ onClose }) => {
 						<p className="text-md">Estadisticas</p>
 					</div>
 				</NavLink>
-				
+
 				<NavLink
 					to="/dashboard/calendar"
 					className={({ isActive }) =>
 						`flex justify-between items-center gap-3 cursor-pointer transition w-full pl-2 ${
-							isActive
-								? 'text-blue-500 border-l border-blue-500'
-								: 'hover:text-blue-500'
+							isActive ? 'text-blue-500 border-l border-blue-500' : 'hover:text-blue-500'
 						}`
 					}
 					onClick={onClose}
@@ -76,14 +70,12 @@ const Sidebar: React.FC<SidebarProps> = ({ onClose }) => {
 						<p className="text-md">Calendario</p>
 					</div>
 				</NavLink>
-				
+
 				<NavLink
 					to="/dashboard/reports"
 					className={({ isActive }) =>
 						`flex justify-between items-center gap-3 cursor-pointer transition w-full pl-2 ${
-							isActive
-								? 'text-blue-500 border-l border-blue-500'
-								: 'hover:text-blue-500'
+							isActive ? 'text-blue-500 border-l border-blue-500' : 'hover:text-blue-500'
 						}`
 					}
 					onClick={onClose}
@@ -97,9 +89,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onClose }) => {
 					to="/dashboard/cases"
 					className={({ isActive }) =>
 						`flex justify-between items-center gap-3 cursor-pointer transition w-full pl-2 ${
-							isActive
-								? 'text-blue-500 border-l border-blue-500'
-								: 'hover:text-blue-500'
+							isActive ? 'text-blue-500 border-l border-blue-500' : 'hover:text-blue-500'
 						}`
 					}
 					onClick={onClose}
@@ -110,7 +100,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onClose }) => {
 					</div>
 				</NavLink>
 			</div>
-			
+
 			<div className="flex items-center gap-3 cursor-pointer pl-2 hover:text-blue-500 transition">
 				<Settings className="stroke-2 size-5" />
 				<p className="text-md">Configuraciones</p>

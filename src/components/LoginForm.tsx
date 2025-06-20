@@ -19,14 +19,14 @@ function LoginForm() {
 		try {
 			setError('')
 			setLoading(true)
-			
+
 			console.log('Attempting to sign in with:', email)
-			
+
 			const { user, error: signInError } = await signIn(email, password)
 
 			if (signInError) {
 				console.error('Sign in error:', signInError)
-				
+
 				// Handle specific Supabase auth errors
 				if (signInError.message.includes('Invalid login credentials')) {
 					setError('Credenciales inválidas. Verifica tu email y contraseña.')
@@ -77,7 +77,6 @@ function LoginForm() {
 				console.log('Regular user email detected, redirecting to form')
 				navigate('/form')
 			}
-
 		} catch (err: any) {
 			console.error('Login error:', err)
 			setError('Error al iniciar sesión. Verifica tus credenciales o crea una cuenta.')
@@ -136,24 +135,20 @@ function LoginForm() {
 						</div>
 					</div>
 
-					{error && (
-						<div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-							{error}
-						</div>
-					)}
+					{error && <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">{error}</div>}
 
 					<div className="flex items-center justify-between w-full mb-8">
 						<label className="flex items-center">
-							<input 
-								type="checkbox" 
+							<input
+								type="checkbox"
 								disabled={loading}
-								className="rounded border-secondary-300 text-primary-600 focus:ring-primary-500 disabled:opacity-50" 
+								className="rounded border-secondary-300 text-primary-600 focus:ring-primary-500 disabled:opacity-50"
 							/>
 							<span className="ml-2 text-sm text-secondary-600 text-gray-600">Recordarme</span>
 						</label>
 
-						<Link 
-							to="/forgot-password" 
+						<Link
+							to="/forgot-password"
 							className={`text-sm text-blue-500 hover:text-blue-600 transition-colors ${loading ? 'pointer-events-none opacity-50' : ''}`}
 						>
 							¿Olvidaste tu contraseña?
@@ -180,8 +175,8 @@ function LoginForm() {
 				<div className="mt-6 text-center">
 					<p className="text-sm text-gray-600">
 						¿No tienes una cuenta?{' '}
-						<Link 
-							to="/register" 
+						<Link
+							to="/register"
 							className={`font-medium text-blue-500 hover:text-blue-600 transition-colors ${loading ? 'pointer-events-none opacity-50' : ''}`}
 						>
 							Regístrate aquí

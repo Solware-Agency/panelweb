@@ -29,7 +29,7 @@ const Header: React.FC<HeaderProps> = ({ isDark, toggleDarkMode, currentDate, on
 					>
 						<Menu className="w-5 h-5 text-gray-600 dark:text-gray-400" />
 					</button>
-					
+
 					<form className="flex-1 max-w-md">
 						<label htmlFor="default-search" className="mb-2 text-sm font-medium text-gray-900 sr-only dark:text-white">
 							Search
@@ -79,8 +79,8 @@ const Header: React.FC<HeaderProps> = ({ isDark, toggleDarkMode, currentDate, on
 						<Bell className="w-5 h-5" />
 					</button>
 					<div className="flex items-center gap-2 sm:gap-4">
-						<button 
-							onClick={handleLogout} 
+						<button
+							onClick={handleLogout}
 							className="bg-red-500 px-2 sm:px-4 py-2 rounded hover:bg-red-600 text-white text-sm"
 						>
 							<span className="hidden sm:inline">Cerrar sesión</span>
