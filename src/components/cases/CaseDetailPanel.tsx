@@ -1,10 +1,10 @@
 import React from 'react'
 import { X, User, Stethoscope, CreditCard, FileText, CheckCircle } from 'lucide-react'
 import { motion, AnimatePresence } from 'motion/react'
-import type { MedicalCase } from '@/types/case'
+import type { MedicalRecord } from '@/lib/supabase-service'
 
 interface CaseDetailPanelProps {
-  case_: MedicalCase | null
+  case_: MedicalRecord | null
   isOpen: boolean
   onClose: () => void
 }
@@ -12,7 +12,7 @@ interface CaseDetailPanelProps {
 const CaseDetailPanel: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClose }) => {
   if (!case_) return null
 
-  const getStatusColor = (status: MedicalCase['estatus']) => {
+  const getStatusColor = (status: string) => {
     switch (status) {
       case 'Completado':
         return 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300'
@@ -22,21 +22,6 @@ const CaseDetailPanel: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClos
         return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300'
       case 'Cancelado':
         return 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300'
-      default:
-        return 'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-300'
-    }
-  }
-
-  const getPaymentStatusColor = (status: MedicalCase['estatusPagoInforme']) => {
-    switch (status) {
-      case 'Completado':
-        return 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300'
-      case 'Pagado':
-        return 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300'
-      case 'Enviado':
-        return 'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300'
-      case 'Pendiente':
-        return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300'
       default:
         return 'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-300'
     }
@@ -85,10 +70,10 @@ const CaseDetailPanel: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClos
               <div className="flex items-center justify-between">
                 <div>
                   <h2 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-gray-100">
-                    Caso {case_.codigo}
+                    Caso {case_.id.slice(-6).toUpperCase()}
                   </h2>
                   <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                    {case_.nombreCompleto}
+                    {case_.full_name}
                   </p>
                 </div>
                 <button
@@ -101,24 +86,13 @@ const CaseDetailPanel: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClos
 
               {/* Status badges */}
               <div className="flex flex-wrap gap-2 mt-4">
-                <span className={`inline-flex px-3 py-1 text-sm font-semibold rounded-full ${getStatusColor(case_.estatus)}`}>
-                  {case_.estatus}
+                <span className={`inline-flex px-3 py-1 text-sm font-semibold rounded-full ${getStatusColor(case_.payment_status)}`}>
+                  {case_.payment_status}
                 </span>
-                <span className={`inline-flex px-3 py-1 text-sm font-semibold rounded-full ${getPaymentStatusColor(case_.estatusPagoInforme)}`}>
-                  {case_.estatusPagoInforme}
+                <span className="inline-flex items-center gap-1 px-3 py-1 text-sm font-semibold rounded-full bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300">
+                  <CheckCircle className="w-3 h-3" />
+                  {case_.branch}
                 </span>
-                {case_.verificacion && (
-                  <span className="inline-flex items-center gap-1 px-3 py-1 text-sm font-semibold rounded-full bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300">
-                    <CheckCircle className="w-3 h-3" />
-                    Verificado
-                  </span>
-                )}
-                {case_.enviado && (
-                  <span className="inline-flex items-center gap-1 px-3 py-1 text-sm font-semibold rounded-full bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300">
-                    <CheckCircle className="w-3 h-3" />
-                    Enviado
-                  </span>
-                )}
               </div>
             </div>
 
@@ -127,111 +101,91 @@ const CaseDetailPanel: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClos
               {/* Patient Information */}
               <InfoSection title="Información del Paciente" icon={User}>
                 <div className="space-y-1">
-                  <InfoRow label="Nombre completo" value={case_.nombreCompleto} />
-                  <InfoRow label="Cédula" value={case_.cedula} />
-                  <InfoRow label="Edad" value={`${case_.edad} años`} />
-                  <InfoRow label="Teléfono" value={case_.telefono} />
+                  <InfoRow label="Nombre completo" value={case_.full_name} />
+                  <InfoRow label="Cédula" value={case_.id_number} />
+                  <InfoRow label="Edad" value={`${case_.age} años`} />
+                  <InfoRow label="Teléfono" value={case_.phone} />
                   <InfoRow label="Email" value={case_.email} />
-                  <InfoRow label="Relación" value={case_.relacion} />
+                  <InfoRow label="Relación" value={case_.relationship} />
                 </div>
               </InfoSection>
 
               {/* Medical Information */}
               <InfoSection title="Información Médica" icon={Stethoscope}>
                 <div className="space-y-1">
-                  <InfoRow label="Estudio" value={case_.estudio} />
-                  <InfoRow label="Médico tratante" value={case_.medicoTratante} />
-                  <InfoRow label="Procedencia" value={case_.procedencia} />
-                  <InfoRow label="Sede" value={case_.sedes} />
-                  <InfoRow label="Muestra" value={case_.muestra} />
-                  <InfoRow label="Cantidad de muestras" value={case_.cantidadMuestras} />
-                  <InfoRow label="Fecha de ingreso" value={new Date(case_.fechaIngreso).toLocaleDateString('es-ES')} />
+                  <InfoRow label="Estudio" value={case_.exam_type} />
+                  <InfoRow label="Médico tratante" value={case_.treating_doctor} />
+                  <InfoRow label="Procedencia" value={case_.origin} />
+                  <InfoRow label="Sede" value={case_.branch} />
+                  <InfoRow label="Muestra" value={case_.sample_type} />
+                  <InfoRow label="Cantidad de muestras" value={case_.number_of_samples} />
+                  <InfoRow label="Fecha de ingreso" value={new Date(case_.created_at).toLocaleDateString('es-ES')} />
                 </div>
               </InfoSection>
 
               {/* Financial Information */}
               <InfoSection title="Información Financiera" icon={CreditCard}>
                 <div className="space-y-1">
-                  <InfoRow label="Monto total" value={`$${case_.montoTotal.toLocaleString()}`} />
-                  <InfoRow label="Monto faltante" value={`$${case_.montoFaltante.toLocaleString()}`} />
-                  <InfoRow label="Tasa" value={case_.tasa.toFixed(2)} />
+                  <InfoRow label="Monto total" value={`$${case_.total_amount.toLocaleString()}`} />
+                  <InfoRow label="Monto faltante" value={`$${case_.remaining.toLocaleString()}`} />
+                  <InfoRow label="Tasa de cambio" value={case_.exchange_rate?.toFixed(2)} />
                 </div>
 
                 {/* Payment Methods */}
                 <div className="mt-4">
                   <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Formas de Pago:</h4>
                   <div className="space-y-2">
-                    {case_.formaPago1 && (
+                    {case_.payment_method_1 && (
                       <div className="bg-white dark:bg-gray-800 p-3 rounded border">
                         <div className="flex justify-between items-center">
-                          <span className="text-sm font-medium">{case_.formaPago1}</span>
-                          <span className="text-sm">${case_.monto1?.toLocaleString()}</span>
+                          <span className="text-sm font-medium">{case_.payment_method_1}</span>
+                          <span className="text-sm">${case_.payment_amount_1?.toLocaleString()}</span>
                         </div>
-                        {case_.referenciaPago1 && (
+                        {case_.payment_reference_1 && (
                           <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                            Ref: {case_.referenciaPago1}
-                          </div>
-                        )}
-                        {case_.conversion1 && (
-                          <div className="text-xs text-gray-500 dark:text-gray-400">
-                            Conversión: {case_.conversion1.toFixed(2)}
+                            Ref: {case_.payment_reference_1}
                           </div>
                         )}
                       </div>
                     )}
 
-                    {case_.formaPago2 && (
+                    {case_.payment_method_2 && (
                       <div className="bg-white dark:bg-gray-800 p-3 rounded border">
                         <div className="flex justify-between items-center">
-                          <span className="text-sm font-medium">{case_.formaPago2}</span>
-                          <span className="text-sm">${case_.monto2?.toLocaleString()}</span>
+                          <span className="text-sm font-medium">{case_.payment_method_2}</span>
+                          <span className="text-sm">${case_.payment_amount_2?.toLocaleString()}</span>
                         </div>
-                        {case_.referenciaPago2 && (
+                        {case_.payment_reference_2 && (
                           <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                            Ref: {case_.referenciaPago2}
-                          </div>
-                        )}
-                        {case_.conversion2 && (
-                          <div className="text-xs text-gray-500 dark:text-gray-400">
-                            Conversión: {case_.conversion2.toFixed(2)}
+                            Ref: {case_.payment_reference_2}
                           </div>
                         )}
                       </div>
                     )}
 
-                    {case_.formaPago3 && (
+                    {case_.payment_method_3 && (
                       <div className="bg-white dark:bg-gray-800 p-3 rounded border">
                         <div className="flex justify-between items-center">
-                          <span className="text-sm font-medium">{case_.formaPago3}</span>
-                          <span className="text-sm">${case_.monto3?.toLocaleString()}</span>
+                          <span className="text-sm font-medium">{case_.payment_method_3}</span>
+                          <span className="text-sm">${case_.payment_amount_3?.toLocaleString()}</span>
                         </div>
-                        {case_.referenciaPago3 && (
+                        {case_.payment_reference_3 && (
                           <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                            Ref: {case_.referenciaPago3}
-                          </div>
-                        )}
-                        {case_.conversion3 && (
-                          <div className="text-xs text-gray-500 dark:text-gray-400">
-                            Conversión: {case_.conversion3.toFixed(2)}
+                            Ref: {case_.payment_reference_3}
                           </div>
                         )}
                       </div>
                     )}
 
-                    {case_.formaPago4 && (
+                    {case_.payment_method_4 && (
                       <div className="bg-white dark:bg-gray-800 p-3 rounded border">
                         <div className="flex justify-between items-center">
-                          <span className="text-sm font-medium">{case_.formaPago4}</span>
-                          <span className="text-sm">${case_.monto4?.toLocaleString()}</span>
+                          <span className="text-sm font-medium">{case_.payment_method_4}</span>
+                          <span className="text-sm">${case_.payment_amount_4?.toLocaleString()}</span>
                         </div>
-                        {case_.referenciaPago4 && (
+                        {case_.payment_reference_4 && (
                           <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                            Ref: {case_.referenciaPago4}
-                          </div>
-                        )}
-                        {case_.conversion4 && (
-                          <div className="text-xs text-gray-500 dark:text-gray-400">
-                            Conversión: {case_.conversion4.toFixed(2)}
+                            Ref: {case_.payment_reference_4}
                           </div>
                         )}
                       </div>
@@ -243,13 +197,13 @@ const CaseDetailPanel: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClos
               {/* Additional Information */}
               <InfoSection title="Información Adicional" icon={FileText}>
                 <div className="space-y-1">
-                  <InfoRow label="Encabezados" value={case_.encabezados} />
-                  <InfoRow label="Informe QR" value={case_.informeQR} />
-                  {case_.comentarios && (
+                  <InfoRow label="Fecha de creación" value={new Date(case_.created_at).toLocaleDateString('es-ES')} />
+                  <InfoRow label="Última actualización" value={new Date(case_.updated_at).toLocaleDateString('es-ES')} />
+                  {case_.comments && (
                     <div className="py-2">
                       <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Comentarios:</span>
                       <p className="text-sm text-gray-900 dark:text-gray-100 mt-1 p-3 bg-white dark:bg-gray-800 rounded border">
-                        {case_.comentarios}
+                        {case_.comments}
                       </p>
                     </div>
                   )}

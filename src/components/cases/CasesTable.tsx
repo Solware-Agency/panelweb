@@ -1,23 +1,33 @@
 import React, { useState, useMemo } from 'react'
 import { ChevronUp, ChevronDown, Search, Filter, Eye, Calendar, User, Stethoscope, CreditCard } from 'lucide-react'
-import type { MedicalCase } from '../../types/case'
+import { useQuery } from '@tanstack/react-query'
+import { getMedicalRecords } from '@/lib/supabase-service'
+import type { MedicalRecord } from '@/lib/supabase-service'
 
 interface CasesTableProps {
-  cases: MedicalCase[]
-  onCaseSelect: (case_: MedicalCase) => void
+  onCaseSelect: (case_: MedicalRecord) => void
 }
 
-type SortField = 'codigo' | 'fechaIngreso' | 'nombreCompleto' | 'edad' | 'montoTotal'
+type SortField = 'id' | 'created_at' | 'full_name' | 'age' | 'total_amount'
 type SortDirection = 'asc' | 'desc'
 
-const CasesTable: React.FC<CasesTableProps> = ({ cases, onCaseSelect }) => {
+const CasesTable: React.FC<CasesTableProps> = ({ onCaseSelect }) => {
   const [searchTerm, setSearchTerm] = useState('')
   const [statusFilter, setStatusFilter] = useState<string>('all')
-  const [sortField, setSortField] = useState<SortField>('fechaIngreso')
+  const [sortField, setSortField] = useState<SortField>('created_at')
   const [sortDirection, setSortDirection] = useState<SortDirection>('desc')
   const [rowLimit, setRowLimit] = useState<number>(20)
 
-  const getStatusColor = (status: MedicalCase['estatus']) => {
+  // Fetch data from Supabase
+  const { data: casesData, isLoading, error, refetch } = useQuery({
+    queryKey: ['medical-cases'],
+    queryFn: () => getMedicalRecords(100, 0), // Fetch more records to allow proper filtering
+    staleTime: 1000 * 60 * 5, // 5 minutes
+  })
+
+  const cases = casesData?.data || []
+
+  const getStatusColor = (status: string) => {
     switch (status) {
       case 'Completado':
         return 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300'
@@ -44,13 +54,13 @@ const CasesTable: React.FC<CasesTableProps> = ({ cases, onCaseSelect }) => {
   const filteredAndSortedCases = useMemo(() => {
     let filtered = cases.filter(case_ => {
       const matchesSearch = 
-        case_.nombreCompleto.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        case_.codigo.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        case_.cedula.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        case_.estudio.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        case_.medicoTratante.toLowerCase().includes(searchTerm.toLowerCase())
+        case_.full_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        case_.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        case_.id_number.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        case_.exam_type.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        case_.treating_doctor.toLowerCase().includes(searchTerm.toLowerCase())
 
-      const matchesStatus = statusFilter === 'all' || case_.estatus === statusFilter
+      const matchesStatus = statusFilter === 'all' || case_.payment_status === statusFilter
 
       return matchesSearch && matchesStatus
     })
@@ -59,7 +69,7 @@ const CasesTable: React.FC<CasesTableProps> = ({ cases, onCaseSelect }) => {
       let aValue: any = a[sortField]
       let bValue: any = b[sortField]
 
-      if (sortField === 'fechaIngreso') {
+      if (sortField === 'created_at') {
         aValue = new Date(aValue).getTime()
         bValue = new Date(bValue).getTime()
       }
@@ -94,18 +104,18 @@ const CasesTable: React.FC<CasesTableProps> = ({ cases, onCaseSelect }) => {
   }
 
   // Mobile Card Component
-  const CaseCard = ({ case_ }: { case_: MedicalCase }) => (
+  const CaseCard = ({ case_ }: { case_: MedicalRecord }) => (
     <div
       onClick={() => onCaseSelect(case_)}
       className="bg-white dark:bg-gray-800 rounded-lg p-4 border border-gray-200 dark:border-gray-700 hover:shadow-md transition-all cursor-pointer"
     >
       {/* Header with status and code */}
       <div className="flex items-center justify-between mb-3">
-        <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(case_.estatus)}`}>
-          {case_.estatus}
+        <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(case_.payment_status)}`}>
+          {case_.payment_status}
         </span>
         <span className="text-sm font-mono text-gray-600 dark:text-gray-400">
-          {case_.codigo}
+          {case_.id.slice(-6).toUpperCase()}
         </span>
       </div>
 
@@ -114,10 +124,10 @@ const CasesTable: React.FC<CasesTableProps> = ({ cases, onCaseSelect }) => {
         <User className="w-4 h-4 text-blue-600 dark:text-blue-400" />
         <div>
           <p className="font-medium text-gray-900 dark:text-gray-100 text-sm">
-            {case_.nombreCompleto}
+            {case_.full_name}
           </p>
           <p className="text-xs text-gray-500 dark:text-gray-400">
-            {case_.cedula} • {case_.edad} años
+            {case_.id_number} • {case_.age} años
           </p>
         </div>
       </div>
@@ -127,10 +137,10 @@ const CasesTable: React.FC<CasesTableProps> = ({ cases, onCaseSelect }) => {
         <Stethoscope className="w-4 h-4 text-green-600 dark:text-green-400" />
         <div>
           <p className="text-sm text-gray-900 dark:text-gray-100">
-            {case_.estudio}
+            {case_.exam_type}
           </p>
           <p className="text-xs text-gray-500 dark:text-gray-400">
-            {case_.medicoTratante}
+            {case_.treating_doctor}
           </p>
         </div>
       </div>
@@ -140,24 +150,60 @@ const CasesTable: React.FC<CasesTableProps> = ({ cases, onCaseSelect }) => {
         <div className="flex items-center gap-1">
           <Calendar className="w-3 h-3 text-gray-400" />
           <span className="text-xs text-gray-500 dark:text-gray-400">
-            {new Date(case_.fechaIngreso).toLocaleDateString('es-ES')}
+            {new Date(case_.created_at).toLocaleDateString('es-ES')}
           </span>
         </div>
         <div className="flex items-center gap-1">
           <CreditCard className="w-3 h-3 text-gray-400" />
           <span className="text-sm font-medium text-gray-900 dark:text-gray-100">
-            ${case_.montoTotal.toLocaleString()}
+            ${case_.total_amount.toLocaleString()}
           </span>
         </div>
       </div>
 
-      {case_.montoFaltante > 0 && (
+      {case_.remaining > 0 && (
         <div className="mt-2 text-xs text-red-600 dark:text-red-400">
-          Faltante: ${case_.montoFaltante.toLocaleString()}
+          Faltante: ${case_.remaining.toLocaleString()}
         </div>
       )}
     </div>
   )
+
+  if (isLoading) {
+    return (
+      <div className="bg-white/80 dark:bg-gray-900 rounded-xl transition-colors duration-300 h-full">
+        <div className="p-4 sm:p-6 border-b border-gray-200 dark:border-gray-700">
+          <div className="flex items-center justify-center py-12">
+            <div className="flex items-center gap-3">
+              <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-500"></div>
+              <span className="text-lg text-gray-700 dark:text-gray-300">Cargando casos...</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="bg-white/80 dark:bg-gray-900 rounded-xl transition-colors duration-300 h-full">
+        <div className="p-4 sm:p-6 border-b border-gray-200 dark:border-gray-700">
+          <div className="text-center py-12">
+            <div className="text-red-500 dark:text-red-400">
+              <p className="text-lg font-medium">Error al cargar los casos</p>
+              <p className="text-sm mt-2">Verifica tu conexión a internet o contacta al administrador</p>
+              <button 
+                onClick={() => refetch()}
+                className="mt-4 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+              >
+                Reintentar
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="bg-white/80 dark:bg-gray-900 rounded-xl transition-colors duration-300 h-full">
@@ -219,12 +265,12 @@ const CasesTable: React.FC<CasesTableProps> = ({ cases, onCaseSelect }) => {
             <div className="text-sm text-gray-600 dark:text-gray-400">
               Mostrando {filteredAndSortedCases.length} de {cases.filter(case_ => {
                 const matchesSearch = 
-                  case_.nombreCompleto.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                  case_.codigo.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                  case_.cedula.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                  case_.estudio.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                  case_.medicoTratante.toLowerCase().includes(searchTerm.toLowerCase())
-                const matchesStatus = statusFilter === 'all' || case_.estatus === statusFilter
+                  case_.full_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                  case_.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                  case_.id_number.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                  case_.exam_type.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                  case_.treating_doctor.toLowerCase().includes(searchTerm.toLowerCase())
+                const matchesStatus = statusFilter === 'all' || case_.payment_status === statusFilter
                 return matchesSearch && matchesStatus
               }).length} casos
             </div>
@@ -236,7 +282,7 @@ const CasesTable: React.FC<CasesTableProps> = ({ cases, onCaseSelect }) => {
       <div className="block lg:hidden">
         <div className="p-4 space-y-4 max-h-[60vh] overflow-y-auto">
           {filteredAndSortedCases.map((case_) => (
-            <CaseCard key={case_.codigo} case_={case_} />
+            <CaseCard key={case_.id} case_={case_} />
           ))}
 
           {filteredAndSortedCases.length === 0 && (
@@ -260,38 +306,38 @@ const CasesTable: React.FC<CasesTableProps> = ({ cases, onCaseSelect }) => {
                 <tr>
                   <th className="px-4 py-3 text-left">
                     <button
-                      onClick={() => handleSort('codigo')}
+                      onClick={() => handleSort('id')}
                       className="flex items-center gap-2 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider hover:text-gray-700 dark:hover:text-gray-200"
                     >
                       Estatus / Código
-                      <SortIcon field="codigo" />
+                      <SortIcon field="id" />
                     </button>
                   </th>
                   <th className="px-4 py-3 text-left">
                     <button
-                      onClick={() => handleSort('fechaIngreso')}
+                      onClick={() => handleSort('created_at')}
                       className="flex items-center gap-2 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider hover:text-gray-700 dark:hover:text-gray-200"
                     >
                       Fecha Ingreso
-                      <SortIcon field="fechaIngreso" />
+                      <SortIcon field="created_at" />
                     </button>
                   </th>
                   <th className="px-4 py-3 text-left">
                     <button
-                      onClick={() => handleSort('nombreCompleto')}
+                      onClick={() => handleSort('full_name')}
                       className="flex items-center gap-2 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider hover:text-gray-700 dark:hover:text-gray-200"
                     >
                       Paciente
-                      <SortIcon field="nombreCompleto" />
+                      <SortIcon field="full_name" />
                     </button>
                   </th>
                   <th className="px-4 py-3 text-left">
                     <button
-                      onClick={() => handleSort('edad')}
+                      onClick={() => handleSort('age')}
                       className="flex items-center gap-2 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider hover:text-gray-700 dark:hover:text-gray-200"
                     >
                       Edad
-                      <SortIcon field="edad" />
+                      <SortIcon field="age" />
                     </button>
                   </th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
@@ -302,11 +348,11 @@ const CasesTable: React.FC<CasesTableProps> = ({ cases, onCaseSelect }) => {
                   </th>
                   <th className="px-4 py-3 text-left">
                     <button
-                      onClick={() => handleSort('montoTotal')}
+                      onClick={() => handleSort('total_amount')}
                       className="flex items-center gap-2 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider hover:text-gray-700 dark:hover:text-gray-200"
                     >
                       Monto Total
-                      <SortIcon field="montoTotal" />
+                      <SortIcon field="total_amount" />
                     </button>
                   </th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
@@ -317,49 +363,49 @@ const CasesTable: React.FC<CasesTableProps> = ({ cases, onCaseSelect }) => {
               <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
                 {filteredAndSortedCases.map((case_) => (
                   <tr
-                    key={case_.codigo}
+                    key={case_.id}
                     className="hover:bg-gray-50 dark:hover:bg-gray-800/50 cursor-pointer transition-colors"
                     onClick={() => onCaseSelect(case_)}
                   >
                     <td className="px-4 py-4">
                       <div className="space-y-1">
-                        <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(case_.estatus)}`}>
-                          {case_.estatus}
+                        <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(case_.payment_status)}`}>
+                          {case_.payment_status}
                         </span>
                         <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
-                          {case_.codigo}
+                          {case_.id.slice(-6).toUpperCase()}
                         </div>
                       </div>
                     </td>
                     <td className="px-4 py-4 text-sm text-gray-900 dark:text-gray-100">
-                      {new Date(case_.fechaIngreso).toLocaleDateString('es-ES')}
+                      {new Date(case_.created_at).toLocaleDateString('es-ES')}
                     </td>
                     <td className="px-4 py-4">
                       <div>
                         <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
-                          {case_.nombreCompleto}
+                          {case_.full_name}
                         </div>
                         <div className="text-sm text-gray-500 dark:text-gray-400">
-                          {case_.cedula}
+                          {case_.id_number}
                         </div>
                       </div>
                     </td>
                     <td className="px-4 py-4 text-sm text-gray-900 dark:text-gray-100">
-                      {case_.edad} años
+                      {case_.age} años
                     </td>
                     <td className="px-4 py-4 text-sm text-gray-900 dark:text-gray-100">
-                      {case_.estudio}
+                      {case_.exam_type}
                     </td>
                     <td className="px-4 py-4 text-sm text-gray-900 dark:text-gray-100">
-                      {case_.medicoTratante}
+                      {case_.treating_doctor}
                     </td>
                     <td className="px-4 py-4">
                       <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
-                        ${case_.montoTotal.toLocaleString()}
+                        ${case_.total_amount.toLocaleString()}
                       </div>
-                      {case_.montoFaltante > 0 && (
+                      {case_.remaining > 0 && (
                         <div className="text-xs text-red-600 dark:text-red-400">
-                          Faltante: ${case_.montoFaltante.toLocaleString()}
+                          Faltante: ${case_.remaining.toLocaleString()}
                         </div>
                       )}
                     </td>
