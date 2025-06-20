@@ -12,8 +12,7 @@ export const RecordsSection: React.FC = () => {
   // Query for all records (when no search term)
   const {
     data: allRecords,
-    isLoading: isLoadingAll,
-    error: errorAll,
+    isLoading: isLoadingAll,    
     refetch: refetchAll,
   } = useQuery({
     queryKey: ['clientes'],
@@ -25,7 +24,6 @@ export const RecordsSection: React.FC = () => {
   const {
     data: searchResults,
     isLoading: isLoadingSearch,
-    error: errorSearch,
     refetch: refetchSearch,
   } = useQuery({
     queryKey: ['clientes-search', searchTerm],
@@ -44,7 +42,6 @@ export const RecordsSection: React.FC = () => {
   // Determine which data to use
   const records = searchTerm ? searchResults?.data : allRecords?.data;
   const isLoading = searchTerm ? isLoadingSearch : isLoadingAll;
-  const error = searchTerm ? errorSearch : errorAll;
 
   // Calculate statistics
   const stats = React.useMemo(() => {
@@ -133,11 +130,7 @@ export const RecordsSection: React.FC = () => {
       )}
 
       {/* Records table */}
-      <MedicalRecordsTable
-        records={records || []}
-        isLoading={isLoading}
-        error={error}
-      />
+      <MedicalRecordsTable />
     </div>
   );
 };

@@ -70,7 +70,7 @@ const CaseDetailPanel: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClos
               <div className="flex items-center justify-between">
                 <div>
                   <h2 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-gray-100">
-                    Caso {case_.id.slice(-6).toUpperCase()}
+                    Caso {case_.id?.slice(-6).toUpperCase()}
                   </h2>
                   <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
                     {case_.full_name}
@@ -105,8 +105,8 @@ const CaseDetailPanel: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClos
                   <InfoRow label="Cédula" value={case_.id_number} />
                   <InfoRow label="Edad" value={`${case_.age} años`} />
                   <InfoRow label="Teléfono" value={case_.phone} />
-                  <InfoRow label="Email" value={case_.email} />
-                  <InfoRow label="Relación" value={case_.relationship} />
+                  <InfoRow label="Email" value={case_.email || 'N/A'} />
+                  <InfoRow label="Relación" value={case_.relationship || 'N/A'} />
                 </div>
               </InfoSection>
 
@@ -119,7 +119,7 @@ const CaseDetailPanel: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClos
                   <InfoRow label="Sede" value={case_.branch} />
                   <InfoRow label="Muestra" value={case_.sample_type} />
                   <InfoRow label="Cantidad de muestras" value={case_.number_of_samples} />
-                  <InfoRow label="Fecha de ingreso" value={new Date(case_.created_at).toLocaleDateString('es-ES')} />
+                  <InfoRow label="Fecha de ingreso" value={new Date(case_.created_at || '').toLocaleDateString('es-ES')} />
                 </div>
               </InfoSection>
 
@@ -197,8 +197,8 @@ const CaseDetailPanel: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClos
               {/* Additional Information */}
               <InfoSection title="Información Adicional" icon={FileText}>
                 <div className="space-y-1">
-                  <InfoRow label="Fecha de creación" value={new Date(case_.created_at).toLocaleDateString('es-ES')} />
-                  <InfoRow label="Última actualización" value={new Date(case_.updated_at).toLocaleDateString('es-ES')} />
+                  <InfoRow label="Fecha de creación" value={new Date(case_.created_at || '').toLocaleDateString('es-ES')} />
+                  <InfoRow label="Última actualización" value={new Date(case_.updated_at || '').toLocaleDateString('es-ES')} />
                   {case_.comments && (
                     <div className="py-2">
                       <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Comentarios:</span>
