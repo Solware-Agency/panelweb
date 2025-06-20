@@ -1,15 +1,13 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { MedicalRecordsTable } from './MedicalRecordsTable';
-import { SearchBar } from './SearchBar';
+import MedicalRecordsTable from './MedicalRecordsTable';
 import { Button } from '@/components/ui/button';
 import { RefreshCw, Users, DollarSign, TrendingUp } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { getClientes, searchClientes } from '@/lib/supabase-service';
 
 export const RecordsSection: React.FC = () => {
-  const [searchTerm, setSearchTerm] = useState('');
-  const [, setIsSearching] = useState(false);
+  const [searchTerm] = useState('');
 
   // Query for all records (when no search term)
   const {
@@ -34,11 +32,6 @@ export const RecordsSection: React.FC = () => {
     queryFn: () => searchClientes(searchTerm),
     enabled: !!searchTerm,
   });
-
-  const handleSearch = useCallback((term: string) => {
-    setSearchTerm(term.trim());
-    setIsSearching(!!term.trim());
-  }, []);
 
   const handleRefresh = () => {
     if (searchTerm) {
@@ -85,13 +78,6 @@ export const RecordsSection: React.FC = () => {
           Actualizar
         </Button>
       </div>
-
-      {/* Search bar */}
-      <SearchBar
-        onSearch={handleSearch}
-        isLoading={isLoading}
-        placeholder="Buscar por nombre, cédula o teléfono..."
-      />
 
       {/* Statistics cards */}
       {!searchTerm && records && (
