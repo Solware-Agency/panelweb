@@ -26,11 +26,11 @@ export const MedicalRecordsTable: React.FC<MedicalRecordsTableProps> = ({
 }) => {
   const getPaymentStatusBadge = (status: string) => {
     const statusConfig = {
-      'Completado': { variant: 'default' as const, className: 'bg-green-100 text-green-800' },
-      'Pendiente': { variant: 'secondary' as const, className: 'bg-yellow-100 text-yellow-800' },
-      'Incompleto': { variant: 'destructive' as const, className: 'bg-red-100 text-red-800' },
+      'Completado': { variant: 'default' as const, className: 'bg-green-100 text-green-800 cursor-pointer' },
+      'Pendiente': { variant: 'secondary' as const, className: 'bg-yellow-100 text-yellow-800 cursor-pointer' },
+      'Incompleto': { variant: 'destructive' as const, className: 'bg-red-100 text-red-800 cursor-pointer' },
     };
-
+ 
     const config = statusConfig[status as keyof typeof statusConfig] || statusConfig['Pendiente'];
     
     return (
@@ -109,18 +109,18 @@ export const MedicalRecordsTable: React.FC<MedicalRecordsTableProps> = ({
       <Table>
         <TableHeader>
           <TableRow className="bg-gray-50">
-            <TableHead className="font-semibold">Nombre</TableHead>
-            <TableHead className="font-semibold">Cédula</TableHead>
-            <TableHead className="font-semibold">Teléfono</TableHead>
-            <TableHead className="font-semibold">Sede</TableHead>
-            <TableHead className="font-semibold">Monto</TableHead>
-            <TableHead className="font-semibold">Estado</TableHead>
-            <TableHead className="font-semibold">Fecha</TableHead>
+            <TableHead className="font-semibold text-gray-900">Nombre</TableHead>
+            <TableHead className="font-semibold text-gray-900">Cédula</TableHead>
+            <TableHead className="font-semibold text-gray-900">Teléfono</TableHead>
+            <TableHead className="font-semibold text-gray-900">Sede</TableHead>
+            <TableHead className="font-semibold text-gray-900">Monto</TableHead>
+            <TableHead className="font-semibold text-gray-900">Estado</TableHead>
+            <TableHead className="font-semibold text-gray-900">Fecha</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {records.map((record) => (
-            <TableRow key={record.id} className="hover:bg-gray-50 transition-colors">
+            <TableRow key={record.id} className="hover:bg-gray-200 transition-colors cursor-pointer">
               <TableCell className="font-medium">
                 <div>
                   <div className="font-semibold text-gray-900">{record.full_name}</div>
@@ -130,11 +130,11 @@ export const MedicalRecordsTable: React.FC<MedicalRecordsTableProps> = ({
               <TableCell className="text-gray-700">{record.id_number}</TableCell>
               <TableCell className="text-gray-700">{record.phone}</TableCell>
               <TableCell>
-                <Badge variant="outline" className="font-mono">
+                <Badge variant="outline" className="font-mono text-gray-700">
                   {record.branch}
                 </Badge>
               </TableCell>
-              <TableCell className="font-semibold">
+              <TableCell className="font-semibold text-gray-700">
                 {formatCurrency(record.total_amount)}
                 {record.remaining && record.remaining > 0 && (
                   <div className="text-xs text-red-600">

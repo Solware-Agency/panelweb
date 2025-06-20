@@ -1,7 +1,7 @@
 import { mapPaymentsToColumns } from './payment-mapper'
 import { calculatePaymentDetails } from './payment-utils'
 import { type FormValues } from './form-schema'
-import type { MedicalRecordInsert } from '@/integrations/supabase/types'
+import type { MedicalRecordInsert } from '@/types/types'
 
 export function prepareSubmissionData(data: FormValues, exchangeRate: number | undefined): MedicalRecordInsert {
 	const { paymentStatus, missingAmount } = calculatePaymentDetails(data.payments, data.totalAmount, exchangeRate)

@@ -253,7 +253,7 @@ function RegisterForm() {
 
 				{/* Footer */}
 				<div className="mt-6 text-center">
-					<p className="text-sm">
+					<p className="text-sm text-gray-600">
 						¿Ya tienes una cuenta?{' '}
 						<Link 
 							to="/" 
