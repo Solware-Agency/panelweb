@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { supabase } from '@/integrations/supabase/client';
+import { supabase } from '@/supabase/config'
 import { type UseFormSetValue } from 'react-hook-form';
 import type { FormValues } from '@/lib/form-schema';
 

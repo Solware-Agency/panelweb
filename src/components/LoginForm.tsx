@@ -94,13 +94,13 @@ function LoginForm() {
 					<div className="p-4 bg-blue-500 rounded-full mb-4">
 						<CodeXml className="text-white size-12" />
 					</div>
-					<h1 className="text-2xl font-bold text-secondary-900 mb-2">Bienvenido, inicia sesión</h1>
-					<p className="text-secondary-600">Inicia sesión en tu cuenta para continuar.</p>
+					<h1 className="text-2xl font-bold text-secondary-900 mb-2 text-black">Bienvenido, inicia sesión</h1>
+					<p className="text-secondary-600 text-black">Inicia sesión en tu cuenta para continuar.</p>
 				</div>
 
 				<form className="w-full" onSubmit={handleLogin}>
 					<div className="flex flex-col gap-2 mb-4 w-full">
-						<p className="text-sm text-secondary-600">Correo electrónico:</p>
+						<p className="text-sm text-secondary-600 text-gray-600">Correo electrónico:</p>
 						<input
 							type="email"
 							name="email"
@@ -112,7 +112,7 @@ function LoginForm() {
 							className="border-2 border-dark rounded-md p-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
 							autoComplete="email"
 						/>
-						<p className="text-sm text-secondary-600">Contraseña:</p>
+						<p className="text-sm text-secondary-600 text-gray-600">Contraseña:</p>
 						<div className="relative">
 							<input
 								type={showPassword ? 'text' : 'password'}
@@ -122,7 +122,7 @@ function LoginForm() {
 								onChange={(e) => setPassword(e.target.value)}
 								required
 								disabled={loading}
-								className="border-2 border-dark rounded-md p-2 w-full pr-10 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+								className="border-2 border-dark text-gray-700 rounded-md p-2 w-full pr-10 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
 								autoComplete="current-password"
 							/>
 							<button
@@ -149,7 +149,7 @@ function LoginForm() {
 								disabled={loading}
 								className="rounded border-secondary-300 text-primary-600 focus:ring-primary-500 disabled:opacity-50" 
 							/>
-							<span className="ml-2 text-sm text-secondary-600">Recordarme</span>
+							<span className="ml-2 text-sm text-secondary-600 text-gray-600">Recordarme</span>
 						</label>
 
 						<Link 
@@ -178,7 +178,7 @@ function LoginForm() {
 
 				{/* Footer */}
 				<div className="mt-6 text-center">
-					<p className="text-sm">
+					<p className="text-sm text-gray-600">
 						¿No tienes una cuenta?{' '}
 						<Link 
 							to="/register" 

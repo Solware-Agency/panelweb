@@ -1,7 +1,7 @@
-import { supabase } from "@/integrations/supabase/client";
-import { type FormValues } from "./form-schema";
-import { prepareSubmissionData } from "./prepareSubmissionData";
-import type { MedicalRecordInsert } from '@/integrations/supabase/types'
+import { supabase } from '@/supabase/config'
+import { type FormValues } from './form-schema'
+import { prepareSubmissionData } from './prepareSubmissionData'
+import type { MedicalRecordInsert } from '@/types/types'
 
 export interface MedicalRecord {
 	id?: string
@@ -184,109 +184,93 @@ export const insertMedicalRecord = async (
 }
 
 export const getMedicalRecords = async (limit = 50, offset = 0) => {
-  try {
-    const { data, error } = await supabase
-      .from(TABLE_NAME)
-      .select('*')
-      .order('created_at', { ascending: false })
-      .range(offset, offset + limit - 1);
+	try {
+		const { data, error } = await supabase
+			.from(TABLE_NAME)
+			.select('*')
+			.order('created_at', { ascending: false })
+			.range(offset, offset + limit - 1)
 
-    return { data, error };
-  } catch (error) {
-    console.error(`Error fetching ${TABLE_NAME}:`, error);
-    return { data: null, error };
-  }
-};
+		return { data, error }
+	} catch (error) {
+		console.error(`Error fetching ${TABLE_NAME}:`, error)
+		return { data: null, error }
+	}
+}
 
 export const getMedicalRecordById = async (id: string) => {
-  try {
-    const { data, error } = await supabase
-      .from(TABLE_NAME)
-      .select('*')
-      .eq('id', id)
-      .single();
+	try {
+		const { data, error } = await supabase.from(TABLE_NAME).select('*').eq('id', id).single()
 
-    return { data, error };
-  } catch (error) {
-    console.error(`Error fetching record from ${TABLE_NAME}:`, error);
-    return { data: null, error };
-  }
-};
+		return { data, error }
+	} catch (error) {
+		console.error(`Error fetching record from ${TABLE_NAME}:`, error)
+		return { data: null, error }
+	}
+}
 
 export const searchMedicalRecords = async (searchTerm: string) => {
-  try {
-    const { data, error } = await supabase
-      .from(TABLE_NAME)
-      .select('*')
-      .or(`full_name.ilike.%${searchTerm}%,id_number.ilike.%${searchTerm}%,phone.ilike.%${searchTerm}%`)
-      .order('created_at', { ascending: false });
+	try {
+		const { data, error } = await supabase
+			.from(TABLE_NAME)
+			.select('*')
+			.or(`full_name.ilike.%${searchTerm}%,id_number.ilike.%${searchTerm}%,phone.ilike.%${searchTerm}%`)
+			.order('created_at', { ascending: false })
 
-    return { data, error };
-  } catch (error) {
-    console.error(`Error searching ${TABLE_NAME}:`, error);
-    return { data: null, error };
-  }
-};
+		return { data, error }
+	} catch (error) {
+		console.error(`Error searching ${TABLE_NAME}:`, error)
+		return { data: null, error }
+	}
+}
 
 export const updateMedicalRecord = async (id: string, updates: Partial<MedicalRecord>) => {
-  try {
-    const { data, error } = await supabase
-      .from(TABLE_NAME)
-      .update(updates)
-      .eq('id', id)
-      .select()
-      .single();
+	try {
+		const { data, error } = await supabase.from(TABLE_NAME).update(updates).eq('id', id).select().single()
 
-    return { data, error };
-  } catch (error) {
-    console.error(`Error updating record in ${TABLE_NAME}:`, error);
-    return { data: null, error };
-  }
-};
+		return { data, error }
+	} catch (error) {
+		console.error(`Error updating record in ${TABLE_NAME}:`, error)
+		return { data: null, error }
+	}
+}
 
 export const deleteMedicalRecord = async (id: string) => {
-  try {
-    const { data, error } = await supabase
-      .from(TABLE_NAME)
-      .delete()
-      .eq('id', id)
-      .select()
-      .single();
+	try {
+		const { data, error } = await supabase.from(TABLE_NAME).delete().eq('id', id).select().single()
 
-    return { data, error };
-  } catch (error) {
-    console.error(`Error deleting record from ${TABLE_NAME}:`, error);
-    return { data: null, error };
-  }
-};
+		return { data, error }
+	} catch (error) {
+		console.error(`Error deleting record from ${TABLE_NAME}:`, error)
+		return { data: null, error }
+	}
+}
 
 // Función para obtener estadísticas
 export const getMedicalRecordsStats = async () => {
-  try {
-    const { data, error } = await supabase
-      .from(TABLE_NAME)
-      .select('total_amount, payment_status, created_at');
+	try {
+		const { data, error } = await supabase.from(TABLE_NAME).select('total_amount, payment_status, created_at')
 
-    if (error) return { data: null, error };
+		if (error) return { data: null, error }
 
-    const stats = {
-      total: data.length,
-      totalAmount: data.reduce((sum, record) => sum + record.total_amount, 0),
-      completed: data.filter(record => record.payment_status === 'Completado').length,
-      pending: data.filter(record => record.payment_status === 'Pendiente').length,
-      incomplete: data.filter(record => record.payment_status.includes('Incompleto')).length,
-    };
+		const stats = {
+			total: data.length,
+			totalAmount: data.reduce((sum, record) => sum + record.total_amount, 0),
+			completed: data.filter((record) => record.payment_status === 'Completado').length,
+			pending: data.filter((record) => record.payment_status === 'Pendiente').length,
+			incomplete: data.filter((record) => record.payment_status.includes('Incompleto')).length,
+		}
 
-    return { data: stats, error: null };
-  } catch (error) {
-    console.error(`Error getting stats from ${TABLE_NAME}:`, error);
-    return { data: null, error };
-  }
-};
+		return { data: stats, error: null }
+	} catch (error) {
+		console.error(`Error getting stats from ${TABLE_NAME}:`, error)
+		return { data: null, error }
+	}
+}
 
 // Mantener compatibilidad con nombres anteriores
-export const insertCliente = insertMedicalRecord;
-export const getClientes = getMedicalRecords;
-export const getClienteById = getMedicalRecordById;
-export const searchClientes = searchMedicalRecords;
-export type Cliente = MedicalRecord;
+export const insertCliente = insertMedicalRecord
+export const getClientes = getMedicalRecords
+export const getClienteById = getMedicalRecordById
+export const searchClientes = searchMedicalRecords
+export type Cliente = MedicalRecord

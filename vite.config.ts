@@ -11,7 +11,7 @@ export default defineConfig({
       "@/components": path.resolve(__dirname, "./src/components"),
       "@/lib": path.resolve(__dirname, "./src/lib"),
       "@/hooks": path.resolve(__dirname, "./src/hooks"),
-      "@/integrations": path.resolve(__dirname, "./src/integrations"),
+      "@/supabase": path.resolve(__dirname, "./src/supabase"),
     },
   },
 })

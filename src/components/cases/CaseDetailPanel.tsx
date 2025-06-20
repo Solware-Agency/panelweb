@@ -1,7 +1,7 @@
 import React from 'react'
 import { X, User, Stethoscope, CreditCard, FileText, CheckCircle } from 'lucide-react'
 import { motion, AnimatePresence } from 'motion/react'
-import type { MedicalCase } from '../../types/case'
+import type { MedicalCase } from '@/types/case'
 
 interface CaseDetailPanelProps {
   case_: MedicalCase | null
