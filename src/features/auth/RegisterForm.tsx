@@ -1,7 +1,7 @@
 import { UserRound, Eye, EyeOff, Clock } from 'lucide-react'
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { signUp } from '../supabase/auth'
+import { signUp } from '@/supabase/auth'
 
 function RegisterForm() {
 	const [email, setEmail] = useState('')

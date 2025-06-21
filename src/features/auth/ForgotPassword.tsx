@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Lock, ArrowLeft } from 'lucide-react'
 import { Link } from 'react-router-dom'
-import { resetPassword } from '../supabase/auth'
+import { resetPassword } from '@/supabase/auth'
 
 function ForgotPassword() {
 	const [email, setEmail] = useState('')

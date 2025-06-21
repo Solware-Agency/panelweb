@@ -1,4 +1,4 @@
-import EyeTrackingComponent from '@/components/dashboardComponents/RobotTraking'
+import EyeTrackingComponent from '@/features/dashboard/home/RobotTraking'
 import { TrendingUp, Users, DollarSign, Calendar, ArrowRight, BarChart3 } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { BackgroundGradient } from '@/components/ui/background-gradient'

@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom'
-import { signOut } from '../../supabase/auth'
+import { signOut } from '@/supabase/auth'
 
 function Header() {
 	const navigate = useNavigate()

@@ -13,7 +13,7 @@ import { PaymentHeader } from './payment/PaymentHeader'
 import { CurrencyConverter } from './payment/CurrencyConverter'
 import { PaymentMethodsList } from './payment/PaymentMethodsList'
 import { PaymentSectionSkeleton } from './payment/PaymentSectionSkeleton'
-import { calculatePaymentDetails } from '@/lib/payment-utils'
+import { calculatePaymentDetails } from '@/lib/payment/payment-utils'
 
 interface PaymentSectionProps {
 	control: Control<FormValues>

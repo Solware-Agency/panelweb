@@ -1,5 +1,5 @@
-import { mapPaymentsToColumns } from './payment-mapper'
-import { calculatePaymentDetails } from './payment-utils'
+import { mapPaymentsToColumns } from '@/lib/payment/payment-mapper'
+import { calculatePaymentDetails } from '@/lib/payment/payment-utils'
 import { type FormValues } from './form-schema'
 import type { MedicalRecordInsert } from '@/types/types'
 
