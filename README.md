@@ -2,6 +2,7 @@
 
 ## 📂 Project Struture
 
+```bash
 src/
 ├── App.tsx
 ├── index.css
@@ -120,3 +121,4 @@ src/
 
 └── types/
     └── types.ts
+```
