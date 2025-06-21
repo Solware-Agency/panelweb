@@ -1,54 +1,124 @@
-# React + TypeScript + Vite
+# React + TypeScript + Vite + TailwindCSS
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## 📂 Project Struture
 
-Currently, two official plugins are available:
+```bash
+src/
+├── App.tsx
+├── index.css
+├── main.tsx
+├── vite-env.d.ts
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+├── assets/
 
-## Expanding the ESLint configuration
+├── components/
+│   ├── cases/
+│   │   ├── CaseDetailPanel.tsx
+│   │   └── CasesTable.tsx
+│   └── ui/
+│       ├── autocomplete-input.tsx
+│       ├── background-gradient.tsx
+│       ├── badge.tsx
+│       ├── button.tsx
+│       ├── calendar.tsx
+│       ├── card.tsx
+│       ├── form.tsx
+│       ├── input.tsx
+│       ├── label.tsx
+│       ├── popover.tsx
+│       ├── select.tsx
+│       ├── skeleton.tsx
+│       ├── sonner.tsx
+│       ├── table.tsx
+│       ├── tabs.tsx
+│       ├── textarea.tsx
+│       ├── ThemeToggle.tsx
+│       ├── toast.tsx
+│       └── toaster.tsx
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+├── context/
+│   ├── AuthContext.tsx
+│   └── ThemeProvider.tsx
 
-```js
-export default tseslint.config({
-  extends: [
-    // Remove ...tseslint.configs.recommended and replace with this
-    ...tseslint.configs.recommendedTypeChecked,
-    // Alternatively, use this for stricter rules
-    ...tseslint.configs.strictTypeChecked,
-    // Optionally, add this for stylistic rules
-    ...tseslint.configs.stylisticTypeChecked,
-  ],
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
-```
+├── features/
+│   ├── auth/
+│   │   ├── AuthCallback.tsx
+│   │   ├── EmailVerificationNotice.tsx
+│   │   ├── ForgotPassword.tsx
+│   │   ├── LoginForm.tsx
+│   │   └── RegisterForm.tsx
+│   ├── dashboard/
+│   │   ├── calendar/
+│   │   │   └── CalendarPage.tsx
+│   │   ├── cases/
+│   │   │   ├── CasesPage.tsx
+│   │   │   └── MainCases.tsx
+│   │   ├── home/
+│   │   │   ├── HomePage.tsx
+│   │   │   ├── MainHome.tsx
+│   │   │   └── RobotTraking.tsx
+│   │   ├── reports/
+│   │   │   └── ReportsPage.tsx
+│   │   └── stats/
+│   │       └── StatsPage.tsx
+│   └── form/
+│       ├── CommentsSection.tsx
+│       ├── MedicalForm.tsx
+│       ├── MedicalFormContainer.tsx
+│       ├── PatientDataSection.tsx
+│       ├── PaymentSection.tsx
+│       ├── RecordsSection.tsx
+│       ├── ServiceSection.tsx
+│       └── payment/
+│           ├── CurrencyConverter.tsx
+│           ├── PaymentHeader.tsx
+│           ├── PaymentMethodItem.tsx
+│           ├── PaymentMethodsList.tsx
+│           └── PaymentSectionSkeleton.tsx
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+├── hooks/
+│   ├── use-toast.ts
+│   ├── useAutocomplete.ts
+│   ├── useDarkMode.ts
+│   ├── useExchangeRate.ts
+│   ├── usePatientAutofill.ts
+│   └── useResetForm.ts
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+├── layouts/
+│   ├── dashboardLayout/
+│   │   ├── Header.tsx
+│   │   ├── Layout.tsx
+│   │   └── Sidebar.tsx
+│   └── formLayout/
+│       └── Header.tsx
 
-export default tseslint.config({
-  plugins: {
-    // Add the react-x and react-dom plugins
-    'react-x': reactX,
-    'react-dom': reactDom,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended typescript rules
-    ...reactX.configs['recommended-typescript'].rules,
-    ...reactDom.configs.recommended.rules,
-  },
-})
+├── lib/
+│   ├── cn.tsx
+│   ├── form-schema.ts
+│   ├── prepareSubmissionData.ts
+│   ├── supabase-service.ts
+│   ├── utils.ts
+│   └── payment/
+│       ├── payment-mapper.ts
+│       └── payment-utils.ts
+
+├── pages/
+│   ├── Dashboard.tsx
+│   ├── ForgotPasswordPage.tsx
+│   ├── Form.tsx
+│   ├── LoginPage.tsx
+│   └── RegisterPage.tsx
+
+├── routes/
+│   ├── FormRoute.tsx
+│   └── PrivateRoute.tsx
+
+├── supabase/
+│   ├── auth.ts
+│   ├── config.ts
+│   └── migrations/
+│       └── 20250617034950_raspy_cave.sql
+
+└── types/
+    └── types.ts
 ```
