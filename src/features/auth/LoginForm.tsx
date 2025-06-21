@@ -1,8 +1,8 @@
 import { useState } from 'react'
 import { CodeXml, Eye, EyeOff } from 'lucide-react'
 import { Link, useNavigate } from 'react-router-dom'
-import { signIn } from '../supabase/auth'
-import { useAuth } from '../context/AuthContext'
+import { signIn } from '@/supabase/auth'
+import { useAuth } from '@/context/AuthContext'
 
 function LoginForm() {
 	const [email, setEmail] = useState('')

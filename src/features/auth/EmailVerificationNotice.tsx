@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Mail, RefreshCw, ArrowLeft, CheckCircle, AlertCircle } from 'lucide-react'
-import { useAuth } from '../context/AuthContext'
-import { resendConfirmation, signOut } from '../supabase/auth'
+import { useAuth } from '@/context/AuthContext'
+import { resendConfirmation, signOut } from '@/supabase/auth'
 import { useNavigate } from 'react-router-dom'
 
 function EmailVerificationNotice() {

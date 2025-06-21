@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { Outlet } from 'react-router-dom'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { useDarkMode } from '../../hooks/useDarkMode'
+import { useDarkMode } from '@/hooks/useDarkMode'
 import Header from './Header'
 import Sidebar from './Sidebar'
 

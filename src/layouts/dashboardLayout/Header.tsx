@@ -1,7 +1,7 @@
 import React from 'react'
 import { Moon, Sun, Bell, Menu } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
-import { signOut } from '../../supabase/auth'
+import { signOut } from '@/supabase/auth'
 
 interface HeaderProps {
 	isDark: boolean

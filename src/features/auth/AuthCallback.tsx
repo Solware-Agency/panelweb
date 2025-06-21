@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
-import { supabase } from '../supabase/config'
-import { updatePassword } from '../supabase/auth'
+import { supabase } from '@/supabase/config'
+import { updatePassword } from '@/supabase/auth'
 import { CheckCircle, AlertCircle, RefreshCw, Lock, Eye, EyeOff } from 'lucide-react'
 
 function AuthCallback() {
