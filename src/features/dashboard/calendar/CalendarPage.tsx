@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { ChevronLeft, ChevronRight, Plus, Calendar as CalendarIcon, Clock, MapPin, Users } from 'lucide-react'
-import { BackgroundGradient } from '@/components/ui/background-gradient'
+import { BackgroundGradient } from '@shared/components/ui/background-gradient'
 
 const CalendarPage: React.FC = () => {
 	const [currentDate, setCurrentDate] = useState(new Date())

@@ -14,7 +14,7 @@ import {
 	Bot,
 	Lightbulb,
 } from 'lucide-react'
-import { BackgroundGradient } from '@/components/ui/background-gradient'
+import { BackgroundGradient } from '@shared/components/ui/background-gradient'
 
 const ReportsPage: React.FC = () => {
 	return (

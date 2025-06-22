@@ -1,7 +1,7 @@
-import { supabase } from '@/supabase/config'
-import { type FormValues } from './form-schema'
-import { prepareSubmissionData } from './prepareSubmissionData'
-import type { MedicalRecordInsert } from '@/types/types'
+import { supabase } from '@lib/supabase/config'
+import { type FormValues } from '@features/form/lib/form-schema'
+import { prepareSubmissionData } from '@features/form/lib/prepareSubmissionData'
+import type { MedicalRecordInsert } from '@shared/types/types'
 
 export interface MedicalRecord {
 	id?: string
