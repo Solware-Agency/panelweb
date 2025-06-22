@@ -4,14 +4,13 @@ import path from 'path'
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  plugins: [react()],
-  resolve: {
-    alias: {
-      "@": path.resolve(__dirname, "./src"),
-      "@/components": path.resolve(__dirname, "./src/components"),
-      "@/lib": path.resolve(__dirname, "./src/lib"),
-      "@/hooks": path.resolve(__dirname, "./src/hooks"),
-      "@/supabase": path.resolve(__dirname, "./src/supabase"),
-    },
-  },
+	plugins: [react()],
+	resolve: {
+		alias: {
+			'@lib': path.resolve(__dirname, 'src/lib'),
+			'@app': path.resolve(__dirname, 'src/app'),
+			'@features': path.resolve(__dirname, 'src/features'),
+			'@shared': path.resolve(__dirname, 'src/shared'),
+		},
+	},
 })

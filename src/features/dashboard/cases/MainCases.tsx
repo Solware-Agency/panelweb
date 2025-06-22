@@ -1,9 +1,9 @@
 import React, { useState } from 'react'
 import { Plus, Download, Filter, RefreshCw } from 'lucide-react'
-import { BackgroundGradient } from '@/components/ui/background-gradient'
-import CasesTable from '@/components/cases/CasesTable'
-import CaseDetailPanel from '@/components/cases/CaseDetailPanel'
-import type { MedicalRecord } from '@/lib/supabase-service'
+import { BackgroundGradient } from '@shared/components/ui/background-gradient'
+import CasesTable from '@shared/components/cases/CasesTable'
+import CaseDetailPanel from '@shared/components/cases/CaseDetailPanel'
+import type { MedicalRecord } from '@lib/supabase-service'
 
 const MainCases: React.FC = () => {
 	const [selectedCase, setSelectedCase] = useState<MedicalRecord | null>(null)
