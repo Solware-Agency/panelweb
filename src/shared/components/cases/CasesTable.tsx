@@ -1,5 +1,16 @@
 import React, { useState, useMemo } from 'react'
-import { ChevronUp, ChevronDown, Search, Filter, Eye, Calendar, User, Stethoscope, CreditCard } from 'lucide-react'
+import {
+	ChevronUp,
+	ChevronDown,
+	Search,
+	Filter,
+	Eye,
+	Calendar,
+	User,
+	Stethoscope,
+	CreditCard,
+	Maximize2,
+} from 'lucide-react'
 import { useQuery } from '@tanstack/react-query'
 import { getMedicalRecords, type MedicalRecord } from '@lib/supabase-service'
 import { format } from 'date-fns'
@@ -346,10 +357,10 @@ const CasesTable: React.FC<CasesTableProps> = ({ onCaseSelect }) => {
 											<SortIcon field="full_name" />
 										</button>
 									</th>
-									<th className="pr-4 py-3">
+									<th className="px-3 py-3 text-center">
 										<button
 											onClick={() => handleSort('branch')}
-											className="flex items-center gap-2 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider hover:text-gray-700 dark:hover:text-gray-200 text-left"
+											className="flex items-center gap-2 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider hover:text-gray-700 dark:hover:text-gray-200 text-center"
 										>
 											Sede
 											<SortIcon field="branch" />
@@ -404,8 +415,8 @@ const CasesTable: React.FC<CasesTableProps> = ({ onCaseSelect }) => {
 												<div className="text-sm text-gray-500 dark:text-gray-400">{case_.id_number}</div>
 											</div>
 										</td>
-										<td className="text-sm text-gray-900 dark:text-gray-100 flex justify-start">
-											<div className="bg-gray-200 dark:bg-gray-900/60 hover:bg-gray-300 dark:hover:bg-gray-800/80 text-center border border-gray-500 dark:border-gray-700 rounded-lg px-2 py-1">
+										<td className="text-sm text-gray-900 dark:text-gray-100">
+											<div className="bg-gray-200 dark:bg-gray-900/60 hover:bg-gray-300 dark:hover:bg-gray-800/80 text-center border border-gray-500 dark:border-gray-700 rounded-lg px-1 py-1">
 												{case_.branch}
 											</div>
 										</td>
@@ -423,7 +434,7 @@ const CasesTable: React.FC<CasesTableProps> = ({ onCaseSelect }) => {
 												</div>
 											)}
 										</td>
-										<td className="px-4 py-4 flex">
+										<td className="px-4 py-4">
 											<button
 												onClick={(e) => {
 													e.stopPropagation()
@@ -433,15 +444,6 @@ const CasesTable: React.FC<CasesTableProps> = ({ onCaseSelect }) => {
 											>
 												<Eye className="w-3 h-3" />
 												Ver
-											</button>
-											<span className="inline-flex items-center gap-1 py-1 text-xs font-medium text-gray-500 dark:text-gray-400">
-												/
-											</span>
-											<button
-												onClick={() => setIsFullscreen(true)}
-												className="inline-flex items-center gap-1 px-3 py-1 text-xs font-medium text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-300 transition-colors"
-											>
-												Expandir
 											</button>
 										</td>
 									</tr>
@@ -499,6 +501,13 @@ const CasesTable: React.FC<CasesTableProps> = ({ onCaseSelect }) => {
 								<option value="Incompleto">Incompleto</option>
 							</select>
 						</div>
+						<button
+							onClick={() => setIsFullscreen(true)}
+							className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:text-white text-sm flex items-center gap-2"
+						>
+							<Maximize2 className="size-3" />
+							Expandir
+						</button>
 					</div>
 
 					{/* Row Limit Selector */}
@@ -596,10 +605,10 @@ const CasesTable: React.FC<CasesTableProps> = ({ onCaseSelect }) => {
 											<SortIcon field="full_name" />
 										</button>
 									</th>
-									<th className="pr-4 py-3">
+									<th className="px-3 py-3 text-center">
 										<button
 											onClick={() => handleSort('branch')}
-											className="flex items-center gap-2 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider hover:text-gray-700 dark:hover:text-gray-200 text-left"
+											className="flex items-center gap-2 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider hover:text-gray-700 dark:hover:text-gray-200 text-center"
 										>
 											Sede
 											<SortIcon field="branch" />
@@ -654,8 +663,8 @@ const CasesTable: React.FC<CasesTableProps> = ({ onCaseSelect }) => {
 												<div className="text-sm text-gray-500 dark:text-gray-400">{case_.id_number}</div>
 											</div>
 										</td>
-										<td className="text-sm text-gray-900 dark:text-gray-100 flex justify-start">
-											<div className="bg-gray-200 dark:bg-gray-900/60 hover:bg-gray-300 dark:hover:bg-gray-800/80 text-center border border-gray-500 dark:border-gray-700 rounded-lg px-2 py-1">
+										<td className="text-sm text-gray-900 dark:text-gray-100">
+											<div className="bg-gray-200 dark:bg-gray-900/60 hover:bg-gray-300 dark:hover:bg-gray-800/80 text-center border border-gray-500 dark:border-gray-700 rounded-lg px-1 py-1">
 												{case_.branch}
 											</div>
 										</td>
@@ -673,7 +682,7 @@ const CasesTable: React.FC<CasesTableProps> = ({ onCaseSelect }) => {
 												</div>
 											)}
 										</td>
-										<td className="px-4 py-4 flex">
+										<td className="px-4 py-4">
 											<button
 												onClick={(e) => {
 													e.stopPropagation()
@@ -683,15 +692,6 @@ const CasesTable: React.FC<CasesTableProps> = ({ onCaseSelect }) => {
 											>
 												<Eye className="w-3 h-3" />
 												Ver
-											</button>
-											<span className="inline-flex items-center gap-1 py-1 text-xs font-medium text-gray-500 dark:text-gray-400">
-												/
-											</span>
-											<button
-												onClick={() => setIsFullscreen(true)}
-												className="inline-flex items-center gap-1 px-3 py-1 text-xs font-medium text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-300 transition-colors"
-											>
-												Expandir
 											</button>
 										</td>
 									</tr>

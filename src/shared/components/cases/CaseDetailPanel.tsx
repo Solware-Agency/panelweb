@@ -58,6 +58,7 @@ const CaseDetailPanel: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClos
 				<>
 					{/* Backdrop */}
 					<motion.div
+						viewport={{ margin: '0px' }} 
 						initial={{ opacity: 0 }}
 						animate={{ opacity: 1 }}
 						exit={{ opacity: 0 }}
@@ -67,11 +68,12 @@ const CaseDetailPanel: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClos
 
 					{/* Panel */}
 					<motion.div
+						viewport={{ margin: '0px' }}
 						initial={{ x: '100%' }}
 						animate={{ x: 0 }}
 						exit={{ x: '100%' }}
 						transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-						className="fixed right-0 top-0 h-full w-full sm:w-2/3 lg:w-1/2 xl:w-2/5 bg-white dark:bg-gray-900 shadow-2xl z-[999999] overflow-y-auto"
+						className="fixed right-0 top-0 h-full w-full sm:w-2/3 lg:w-1/2 xl:w-2/5 bg-white dark:bg-gray-900 shadow-2xl z-[999999] overflow-y-auto rounded-lg"
 					>
 						{/* Header */}
 						<div className="sticky top-0 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 p-4 sm:p-6 z-10">
@@ -93,7 +95,9 @@ const CaseDetailPanel: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClos
 							{/* Status badges */}
 							<div className="flex flex-wrap gap-2 mt-4">
 								<span
-									className={`inline-flex px-3 py-1 text-sm font-semibold rounded-full ${getStatusColor(case_.payment_status)}`}
+									className={`inline-flex px-3 py-1 text-sm font-semibold rounded-full ${getStatusColor(
+										case_.payment_status,
+									)}`}
 								>
 									{case_.payment_status}
 								</span>
