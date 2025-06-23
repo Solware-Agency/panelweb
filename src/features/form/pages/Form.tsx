@@ -33,11 +33,11 @@ export default function Form() {
 				<Sonner />
 				<div className="fixed top-4 right-4 z-50 flex items-center gap-2">
 					{activeTab === 'form' && (
-						<Button variant="outline" onClick={handleClearForm}>
+						<Button variant="outline" onClick={handleClearForm} className="shadow-xl shadow-black">
 							Limpiar
 						</Button>
 					)}
-					<Button variant="destructive" onClick={handleLogout}>
+					<Button variant="destructive" onClick={handleLogout} className="shadow-xl shadow-black">
 						Cerrar sesión
 					</Button>
 					<ThemeToggle />

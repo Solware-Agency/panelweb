@@ -69,7 +69,7 @@ export const RecordsSection: React.FC = () => {
 	}, [records])
 
 	return (
-		<div className="space-y-6">
+		<div>
 			{/* Header with search and refresh */}
 			<div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
 				<div>
@@ -92,7 +92,7 @@ export const RecordsSection: React.FC = () => {
 
 			{/* Statistics cards */}
 			{!searchTerm && records && (
-				<div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+				<div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
 					<Card>
 						<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
 							<CardTitle className="text-sm font-medium">Total Registros</CardTitle>
