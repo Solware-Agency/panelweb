@@ -18,6 +18,7 @@ const CasesTable: React.FC<CasesTableProps> = ({ onCaseSelect }) => {
 	const [sortField, setSortField] = useState<SortField>('created_at')
 	const [sortDirection, setSortDirection] = useState<SortDirection>('desc')
 	const [rowLimit, setRowLimit] = useState<number>(20)
+	const [isFullscreen, setIsFullscreen] = useState(false)
 
 	// Fetch data from Supabase
 	const {
@@ -206,6 +207,263 @@ const CasesTable: React.FC<CasesTableProps> = ({ onCaseSelect }) => {
 		)
 	}
 
+	if (isFullscreen) {
+		return (
+			<div className="fixed inset-0 z-[99999] bg-white dark:bg-gray-900 h-screen flex flex-col">
+				{/* Fixed Header with Controls */}
+				<div className="flex-shrink-0 p-4 sm:p-6 border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900">
+					<div className="flex flex-col gap-4">
+						{/* Search and Status Filter Row */}
+						<div className="flex flex-col sm:flex-row gap-4">
+							{/* Search */}
+							<div className="flex-1 relative">
+								<Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+								<input
+									type="text"
+									placeholder="Buscar por nombre, código, cédula, estudio o médico..."
+									value={searchTerm}
+									onChange={(e) => setSearchTerm(e.target.value)}
+									className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:text-white text-sm"
+								/>
+							</div>
+
+							{/* Status Filter */}
+							<div className="flex items-center gap-2">
+								<Filter className="w-4 h-4 text-gray-400" />
+								<select
+									value={statusFilter}
+									onChange={(e) => setStatusFilter(e.target.value)}
+									className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:text-white text-sm"
+								>
+									<option value="all">Todos los estatus</option>
+									<option value="Pendiente">Pendiente</option>
+									<option value="En Proceso">En Proceso</option>
+									<option value="Completado">Completado</option>
+									<option value="Cancelado">Cancelado</option>
+									<option value="Incompleto">Incompleto</option>
+								</select>
+							</div>
+							<button
+								onClick={() => setIsFullscreen(false)}
+								className="text-gray-500 dark:text-gray-300 hover:text-red-500 dark:hover:text-red-400 text-sm border px-3 py-1 rounded-md"
+							>
+								Cerrar ✕
+							</button>
+						</div>
+
+						{/* Row Limit Selector */}
+						<div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+							<div className="flex items-center gap-2">
+								<label htmlFor="rowLimit" className="text-sm font-medium text-gray-700 dark:text-gray-300">
+									Mostrar:
+								</label>
+								<select
+									id="rowLimit"
+									value={rowLimit}
+									onChange={(e) => setRowLimit(Number(e.target.value))}
+									className="px-3 py-1 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:text-white text-sm"
+								>
+									<option value={5}>Últimos 5 casos</option>
+									<option value={10}>Últimos 10 casos</option>
+									<option value={20}>Últimos 20 casos</option>
+									<option value={50}>Últimos 50 casos</option>
+									<option value={0}>Todos los casos</option>
+								</select>
+							</div>
+
+							{/* Results count */}
+							<div className="text-sm text-gray-600 dark:text-gray-400">
+								Mostrando {filteredAndSortedCases.length} de{' '}
+								{
+									cases.filter((case_) => {
+										const matchesSearch =
+											case_.full_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+											case_.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
+											case_.id_number.toLowerCase().includes(searchTerm.toLowerCase()) ||
+											case_.exam_type.toLowerCase().includes(searchTerm.toLowerCase()) ||
+											case_.treating_doctor.toLowerCase().includes(searchTerm.toLowerCase()) ||
+											case_.branch.toLowerCase().includes(searchTerm.toLowerCase())
+										const matchesStatus = statusFilter === 'all' || case_.payment_status === statusFilter
+										return matchesSearch && matchesStatus
+									}).length
+								}{' '}
+								casos
+							</div>
+						</div>
+					</div>
+				</div>
+
+				{/* Scrollable Content Area */}
+				<div className="flex-1 overflow-hidden">
+					{/* Mobile View - Cards */}
+					<div className="block lg:hidden h-full overflow-y-auto">
+						<div className="p-4 space-y-4">
+							{filteredAndSortedCases.map((case_) => (
+								<CaseCard key={case_.id} case_={case_} />
+							))}
+
+							{filteredAndSortedCases.length === 0 && (
+								<div className="text-center py-12">
+									<div className="text-gray-500 dark:text-gray-400">
+										<Search className="w-12 h-12 mx-auto mb-4 opacity-50" />
+										<p className="text-lg font-medium">No se encontraron casos</p>
+										<p className="text-sm">Intenta ajustar los filtros de búsqueda</p>
+									</div>
+								</div>
+							)}
+						</div>
+					</div>
+
+					{/* Desktop View - Table */}
+					<div className="hidden lg:block h-full overflow-y-auto">
+						<table className="w-full">
+							<thead className="bg-gray-50/50 dark:bg-gray-800/50 backdrop-blur-[10px] sticky top-0 z-10">
+								<tr>
+									<th className="px-4 py-3 text-left">
+										<button
+											onClick={() => handleSort('id')}
+											className="flex items-center gap-2 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider hover:text-gray-700 dark:hover:text-gray-200 text-left"
+										>
+											Estatus / Código
+											<SortIcon field="id" />
+										</button>
+									</th>
+									<th className="px-4 py-3 text-left">
+										<button
+											onClick={() => handleSort('created_at')}
+											className="flex items-center gap-2 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider hover:text-gray-700 dark:hover:text-gray-200 text-left"
+										>
+											Fecha de Ingreso
+											<SortIcon field="created_at" />
+										</button>
+									</th>
+									<th className="px-4 py-3 text-left">
+										<button
+											onClick={() => handleSort('full_name')}
+											className="flex items-center gap-2 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider hover:text-gray-700 dark:hover:text-gray-200 text-left"
+										>
+											Paciente
+											<SortIcon field="full_name" />
+										</button>
+									</th>
+									<th className="pr-4 py-3">
+										<button
+											onClick={() => handleSort('branch')}
+											className="flex items-center gap-2 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider hover:text-gray-700 dark:hover:text-gray-200 text-left"
+										>
+											Sede
+											<SortIcon field="branch" />
+										</button>
+									</th>
+									<th className="px-4 py-3 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider text-center">
+										Estudio
+									</th>
+									<th className="px-4 py-3 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider text-left">
+										Médico Tratante
+									</th>
+									<th className="px-4 py-3 text-left">
+										<button
+											onClick={() => handleSort('total_amount')}
+											className="flex items-center gap-2 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider hover:text-gray-700 dark:hover:text-gray-200 text-left"
+										>
+											Monto Total
+											<SortIcon field="total_amount" />
+										</button>
+									</th>
+									<th className="px-4 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+										Acciones
+									</th>
+								</tr>
+							</thead>
+							<tbody className="divide-y divide-gray-200 dark:divide-gray-700">
+								{filteredAndSortedCases.map((case_) => (
+									<tr
+										key={case_.id}
+										className="hover:bg-gray-50 dark:hover:bg-gray-800/50 cursor-pointer transition-colors"
+									>
+										<td className="px-4 py-4">
+											<div className="space-y-1 text-left">
+												<span
+													className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(
+														case_.payment_status,
+													)}`}
+												>
+													{case_.payment_status}
+												</span>
+												<div className="text-sm font-medium text-gray-900 dark:text-gray-100">
+													{case_.id.slice(-6).toUpperCase()}
+												</div>
+											</div>
+										</td>
+										<td className="px-4 py-4 text-sm text-gray-900 dark:text-gray-100 text-left">
+											{new Date(case_.created_at).toLocaleDateString('es-ES')}
+										</td>
+										<td className="px-4 py-4">
+											<div className="text-left">
+												<div className="text-sm font-medium text-gray-900 dark:text-gray-100">{case_.full_name}</div>
+												<div className="text-sm text-gray-500 dark:text-gray-400">{case_.id_number}</div>
+											</div>
+										</td>
+										<td className="text-sm text-gray-900 dark:text-gray-100 flex justify-start">
+											<div className="bg-gray-200 dark:bg-gray-900/60 hover:bg-gray-300 dark:hover:bg-gray-800/80 text-center border border-gray-500 dark:border-gray-700 rounded-lg px-2 py-1">
+												{case_.branch}
+											</div>
+										</td>
+										<td className="px-4 py-4 text-sm text-gray-900 dark:text-gray-100 text-center">
+											{case_.exam_type}
+										</td>
+										<td className="px-4 py-4 text-sm text-gray-900 dark:text-gray-100">{case_.treating_doctor}</td>
+										<td className="px-4 py-4">
+											<div className="text-sm font-medium text-gray-900 dark:text-gray-100">
+												${case_.total_amount.toLocaleString()}
+											</div>
+											{case_.remaining > 0 && (
+												<div className="text-xs text-red-600 dark:text-red-400">
+													Faltante: ${case_.remaining.toLocaleString()}
+												</div>
+											)}
+										</td>
+										<td className="px-4 py-4 flex">
+											<button
+												onClick={(e) => {
+													e.stopPropagation()
+													onCaseSelect(case_)
+												}}
+												className="inline-flex items-center gap-1 px-3 py-1 text-xs font-medium text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 transition-colors"
+											>
+												<Eye className="w-3 h-3" />
+												Ver
+											</button>
+											<span className="inline-flex items-center gap-1 py-1 text-xs font-medium text-gray-500 dark:text-gray-400">
+												/
+											</span>
+											<button
+												onClick={() => setIsFullscreen(true)}
+												className="inline-flex items-center gap-1 px-3 py-1 text-xs font-medium text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-300 transition-colors"
+											>
+												Expandir
+											</button>
+										</td>
+									</tr>
+								))}
+							</tbody>
+						</table>
+
+						{filteredAndSortedCases.length === 0 && (
+							<div className="text-center py-12">
+								<div className="text-gray-500 dark:text-gray-400">
+									<Search className="w-12 h-12 mx-auto mb-4 opacity-50" />
+									<p className="text-lg font-medium">No se encontraron casos</p>
+									<p className="text-sm">Intenta ajustar los filtros de búsqueda</p>
+								</div>
+							</div>
+						)}
+					</div>
+				</div>
+			</div>
+		)
+	}
+
 	return (
 		<div className="bg-white/80 dark:bg-gray-900 rounded-xl transition-colors duration-300 h-full">
 			{/* Search and Filter Controls */}
@@ -314,7 +572,7 @@ const CasesTable: React.FC<CasesTableProps> = ({ onCaseSelect }) => {
 									<th className="px-4 py-3 text-left">
 										<button
 											onClick={() => handleSort('id')}
-											className="flex items-center gap-2 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider hover:text-gray-700 dark:hover:text-gray-200 text-center"
+											className="flex items-center gap-2 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider hover:text-gray-700 dark:hover:text-gray-200 text-left"
 										>
 											Estatus / Código
 											<SortIcon field="id" />
@@ -323,7 +581,7 @@ const CasesTable: React.FC<CasesTableProps> = ({ onCaseSelect }) => {
 									<th className="px-4 py-3 text-left">
 										<button
 											onClick={() => handleSort('created_at')}
-											className="flex items-center gap-2 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider hover:text-gray-700 dark:hover:text-gray-200 text-center"
+											className="flex items-center gap-2 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider hover:text-gray-700 dark:hover:text-gray-200 text-left"
 										>
 											Fecha de Ingreso
 											<SortIcon field="created_at" />
@@ -332,16 +590,16 @@ const CasesTable: React.FC<CasesTableProps> = ({ onCaseSelect }) => {
 									<th className="px-4 py-3 text-left">
 										<button
 											onClick={() => handleSort('full_name')}
-											className="flex items-center gap-2 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider hover:text-gray-700 dark:hover:text-gray-200 text-center"
+											className="flex items-center gap-2 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider hover:text-gray-700 dark:hover:text-gray-200 text-left"
 										>
 											Paciente
 											<SortIcon field="full_name" />
 										</button>
 									</th>
-									<th className="px-4 py-3 text-left">
+									<th className="pr-4 py-3">
 										<button
 											onClick={() => handleSort('branch')}
-											className="flex items-center gap-2 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider hover:text-gray-700 dark:hover:text-gray-200 text-center"
+											className="flex items-center gap-2 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider hover:text-gray-700 dark:hover:text-gray-200 text-left"
 										>
 											Sede
 											<SortIcon field="branch" />
@@ -350,19 +608,19 @@ const CasesTable: React.FC<CasesTableProps> = ({ onCaseSelect }) => {
 									<th className="px-4 py-3 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider text-center">
 										Estudio
 									</th>
-									<th className="px-4 py-3 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider text-center">
+									<th className="px-4 py-3 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider text-left">
 										Médico Tratante
 									</th>
 									<th className="px-4 py-3 text-left">
 										<button
 											onClick={() => handleSort('total_amount')}
-											className="flex items-center gap-2 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider hover:text-gray-700 dark:hover:text-gray-200 text-center"
+											className="flex items-center gap-2 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider hover:text-gray-700 dark:hover:text-gray-200 text-left"
 										>
 											Monto Total
 											<SortIcon field="total_amount" />
 										</button>
 									</th>
-									<th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+									<th className="px-4 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
 										Acciones
 									</th>
 								</tr>
@@ -374,9 +632,11 @@ const CasesTable: React.FC<CasesTableProps> = ({ onCaseSelect }) => {
 										className="hover:bg-gray-50 dark:hover:bg-gray-800/50 cursor-pointer transition-colors"
 									>
 										<td className="px-4 py-4">
-											<div className="space-y-1 text-center">
+											<div className="space-y-1 text-left">
 												<span
-													className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(case_.payment_status)}`}
+													className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(
+														case_.payment_status,
+													)}`}
 												>
 													{case_.payment_status}
 												</span>
@@ -385,21 +645,23 @@ const CasesTable: React.FC<CasesTableProps> = ({ onCaseSelect }) => {
 												</div>
 											</div>
 										</td>
-										<td className="px-4 py-4 text-sm text-gray-900 dark:text-gray-100 text-center">
+										<td className="px-4 py-4 text-sm text-gray-900 dark:text-gray-100 text-left">
 											{new Date(case_.created_at).toLocaleDateString('es-ES')}
 										</td>
 										<td className="px-4 py-4">
-											<div>
+											<div className="text-left">
 												<div className="text-sm font-medium text-gray-900 dark:text-gray-100">{case_.full_name}</div>
 												<div className="text-sm text-gray-500 dark:text-gray-400">{case_.id_number}</div>
 											</div>
 										</td>
-										<td className="px-4 py-4 text-sm text-gray-900 dark:text-gray-100">
-											<div className="bg-gray-200 dark:bg-gray-900/60 hover:bg-gray-300 dark:hover:bg-gray-800/80 text-center border border-gray-500 dark:border-gray-700 rounded-lg p-1">
+										<td className="text-sm text-gray-900 dark:text-gray-100 flex justify-start">
+											<div className="bg-gray-200 dark:bg-gray-900/60 hover:bg-gray-300 dark:hover:bg-gray-800/80 text-center border border-gray-500 dark:border-gray-700 rounded-lg px-2 py-1">
 												{case_.branch}
 											</div>
 										</td>
-										<td className="px-4 py-4 text-sm text-gray-900 dark:text-gray-100">{case_.exam_type}</td>
+										<td className="px-4 py-4 text-sm text-gray-900 dark:text-gray-100 text-center">
+											{case_.exam_type}
+										</td>
 										<td className="px-4 py-4 text-sm text-gray-900 dark:text-gray-100">{case_.treating_doctor}</td>
 										<td className="px-4 py-4">
 											<div className="text-sm font-medium text-gray-900 dark:text-gray-100">
@@ -411,7 +673,7 @@ const CasesTable: React.FC<CasesTableProps> = ({ onCaseSelect }) => {
 												</div>
 											)}
 										</td>
-										<td className="px-4 py-4">
+										<td className="px-4 py-4 flex">
 											<button
 												onClick={(e) => {
 													e.stopPropagation()
@@ -421,6 +683,15 @@ const CasesTable: React.FC<CasesTableProps> = ({ onCaseSelect }) => {
 											>
 												<Eye className="w-3 h-3" />
 												Ver
+											</button>
+											<span className="inline-flex items-center gap-1 py-1 text-xs font-medium text-gray-500 dark:text-gray-400">
+												/
+											</span>
+											<button
+												onClick={() => setIsFullscreen(true)}
+												className="inline-flex items-center gap-1 px-3 py-1 text-xs font-medium text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-300 transition-colors"
+											>
+												Expandir
 											</button>
 										</td>
 									</tr>
