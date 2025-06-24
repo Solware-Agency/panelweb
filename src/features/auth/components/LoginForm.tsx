@@ -1,17 +1,24 @@
 import { useState } from 'react'
 import { CodeXml, Eye, EyeOff } from 'lucide-react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import { signIn } from '@lib/supabase/auth'
 import { useAuth } from '@app/providers/AuthContext'
+import { useSecureRedirect } from '@shared/hooks/useSecureRedirect'
 
 function LoginForm() {
 	const [email, setEmail] = useState('')
 	const [password, setPassword] = useState('')
 	const [error, setError] = useState('')
 	const [loading, setLoading] = useState(false)
-	const navigate = useNavigate()
 	const { refreshUser } = useAuth()
 	const [showPassword, setShowPassword] = useState(false)
+
+	// Use secure redirect hook for role-based navigation
+	const { isRedirecting, redirectUser } = useSecureRedirect({
+		onRedirect: (role, path) => {
+			console.log(`User with role "${role}" being redirected to: ${path}`)
+		}
+	})
 
 	const handleLogin = async (event: React.FormEvent<HTMLFormElement>) => {
 		event.preventDefault()
@@ -35,7 +42,9 @@ function LoginForm() {
 					// If user exists but email not confirmed, redirect to verification notice
 					if (user) {
 						await refreshUser()
-						navigate('/email-verification-notice')
+						// Note: The useSecureRedirect hook will handle the redirect to verification notice
+						// if email is not confirmed
+						redirectUser()
 						return
 					} else {
 						setError('Por favor confirma tu email antes de iniciar sesión.')
@@ -60,23 +69,17 @@ function LoginForm() {
 
 			// CRITICAL: Check if email is verified
 			if (!user.email_confirmed_at) {
-				console.log('Email not confirmed, redirecting to verification notice')
+				console.log('Email not confirmed, will be handled by secure redirect')
 				setError('Por favor confirma tu email antes de continuar.')
-				navigate('/email-verification-notice')
-				return
 			}
 
-			// Refresh user data
+			// Refresh user data and let the secure redirect handle the navigation
 			await refreshUser()
+			
+			// The useSecureRedirect hook will automatically handle role-based redirection
+			// after the user profile is loaded
+			redirectUser()
 
-			// Simple email-based redirect logic
-			if (user.email === 'juegosgeorge0502@gmail.com') {
-				console.log('Owner email detected, redirecting to dashboard')
-				navigate('/dashboard')
-			} else {
-				console.log('Regular user email detected, redirecting to form')
-				navigate('/form')
-			}
 		} catch (err: any) {
 			console.error('Login error:', err)
 			setError('Error al iniciar sesión. Verifica tus credenciales o crea una cuenta.')
@@ -107,7 +110,7 @@ function LoginForm() {
 							value={email}
 							onChange={(e) => setEmail(e.target.value)}
 							required
-							disabled={loading}
+							disabled={loading || isRedirecting}
 							className="border-2 border-dark rounded-md p-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
 							autoComplete="email"
 						/>
@@ -120,14 +123,14 @@ function LoginForm() {
 								value={password}
 								onChange={(e) => setPassword(e.target.value)}
 								required
-								disabled={loading}
+								disabled={loading || isRedirecting}
 								className="border-2 border-dark text-gray-700 rounded-md p-2 w-full pr-10 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
 								autoComplete="current-password"
 							/>
 							<button
 								type="button"
 								onClick={() => setShowPassword(!showPassword)}
-								disabled={loading}
+								disabled={loading || isRedirecting}
 								className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-600 hover:text-gray-900 disabled:opacity-50"
 							>
 								{showPassword ? <Eye size={20} /> : <EyeOff size={20} />}
@@ -141,7 +144,7 @@ function LoginForm() {
 						<label className="flex items-center">
 							<input
 								type="checkbox"
-								disabled={loading}
+								disabled={loading || isRedirecting}
 								className="rounded border-secondary-300 text-primary-600 focus:ring-primary-500 disabled:opacity-50"
 							/>
 							<span className="ml-2 text-sm text-secondary-600 text-gray-600">Recordarme</span>
@@ -149,7 +152,7 @@ function LoginForm() {
 
 						<Link
 							to="/forgot-password"
-							className={`text-sm text-blue-500 hover:text-blue-600 transition-colors ${loading ? 'pointer-events-none opacity-50' : ''}`}
+							className={`text-sm text-blue-500 hover:text-blue-600 transition-colors ${loading || isRedirecting ? 'pointer-events-none opacity-50' : ''}`}
 						>
 							¿Olvidaste tu contraseña?
 						</Link>
@@ -157,13 +160,13 @@ function LoginForm() {
 
 					<button
 						type="submit"
-						disabled={loading}
+						disabled={loading || isRedirecting}
 						className="w-full bg-blue-500 text-white rounded-md p-2 hover:bg-blue-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
 					>
-						{loading ? (
+						{loading || isRedirecting ? (
 							<>
 								<div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-								Iniciando sesión...
+								{isRedirecting ? 'Redirigiendo...' : 'Iniciando sesión...'}
 							</>
 						) : (
 							'Iniciar sesión'
@@ -177,7 +180,7 @@ function LoginForm() {
 						¿No tienes una cuenta?{' '}
 						<Link
 							to="/register"
-							className={`font-medium text-blue-500 hover:text-blue-600 transition-colors ${loading ? 'pointer-events-none opacity-50' : ''}`}
+							className={`font-medium text-blue-500 hover:text-blue-600 transition-colors ${loading || isRedirecting ? 'pointer-events-none opacity-50' : ''}`}
 						>
 							Regístrate aquí
 						</Link>

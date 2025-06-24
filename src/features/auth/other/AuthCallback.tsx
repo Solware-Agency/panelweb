@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { supabase } from '@lib/supabase/config'
 import { updatePassword } from '@lib/supabase/auth'
+import { useSecureRedirect } from '@shared/hooks/useSecureRedirect'
 import { CheckCircle, AlertCircle, RefreshCw, Lock, Eye, EyeOff } from 'lucide-react'
 
 function AuthCallback() {
@@ -16,6 +17,13 @@ function AuthCallback() {
 	const [passwordLoading, setPasswordLoading] = useState(false)
 	const navigate = useNavigate()
 	const [searchParams] = useSearchParams()
+
+	// Use secure redirect for role-based navigation after successful verification
+	const { redirectUser } = useSecureRedirect({
+		onRedirect: (role, path) => {
+			console.log(`Email verified user with role "${role}" being redirected to: ${path}`)
+		}
+	})
 
 	useEffect(() => {
 		const handleAuthCallback = async () => {
@@ -103,13 +111,9 @@ function AuthCallback() {
 						setStatus('success')
 						setMessage('¡Email verificado exitosamente! Redirigiendo...')
 
-						// Redirect based on email
+						// Use secure redirect for role-based navigation
 						setTimeout(() => {
-							if (user.email === 'juegosgeorge0502@gmail.com') {
-								navigate('/dashboard')
-							} else {
-								navigate('/form')
-							}
+							redirectUser()
 						}, 2000)
 					} else {
 						setStatus('error')
@@ -143,12 +147,9 @@ function AuthCallback() {
 						setStatus('success')
 						setMessage('¡Email verificado exitosamente! Redirigiendo...')
 
+						// Use secure redirect for role-based navigation
 						setTimeout(() => {
-							if (user.email === 'juegosgeorge0502@gmail.com') {
-								navigate('/dashboard')
-							} else {
-								navigate('/form')
-							}
+							redirectUser()
 						}, 2000)
 					} else {
 						setStatus('error')
@@ -169,7 +170,7 @@ function AuthCallback() {
 		}
 
 		handleAuthCallback()
-	}, [navigate, searchParams])
+	}, [navigate, searchParams, redirectUser])
 
 	const handlePasswordUpdate = async (e: React.FormEvent) => {
 		e.preventDefault()

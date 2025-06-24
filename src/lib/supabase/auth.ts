@@ -215,17 +215,31 @@ export const getCurrentUser = async (): Promise<User | null> => {
 	}
 }
 
-// Get user profile with role
+// Get user profile with role - ENHANCED WITH BETTER ERROR HANDLING
 export const getUserProfile = async (userId: string): Promise<UserProfile | null> => {
 	try {
-		const { data, error } = await supabase.from('profiles').select('*').eq('id', userId).single()
+		console.log('Fetching profile for user ID:', userId)
+
+		const { data, error } = await supabase
+			.from('profiles')
+			.select('*')
+			.eq('id', userId)
+			.single()
 
 		if (error) {
 			console.error('Error fetching user profile:', error)
-			return null
+			
+			// If profile doesn't exist, this might be a new user
+			if (error.code === 'PGRST116') {
+				console.warn('Profile not found for user:', userId)
+				return null
+			}
+			
+			throw error
 		}
 
-		return data
+		console.log('Profile fetched successfully:', data)
+		return data as UserProfile
 	} catch (err) {
 		console.error('Error fetching user profile:', err)
 		return null
