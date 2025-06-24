@@ -12,6 +12,7 @@ const Layout: React.FC = () => {
 	const { isDark, setIsDark } = useDarkMode()
 	const [currentDate, setCurrentDate] = useState('')
 	const [sidebarOpen, setSidebarOpen] = useState(false)
+	const [sidebarExpanded, setSidebarExpanded] = useState(false) // New state for hover expansion
 
 	useEffect(() => {
 		const getCurrentDate = () => {
@@ -54,6 +55,14 @@ const Layout: React.FC = () => {
 		setSidebarOpen(!sidebarOpen)
 	}
 
+	const handleSidebarMouseEnter = () => {
+		setSidebarExpanded(true)
+	}
+
+	const handleSidebarMouseLeave = () => {
+		setSidebarExpanded(false)
+	}
+
 	return (
 		<div className="min-h-screen bg-gradient-to-br from-[#3A71EC] via-[#6C5CEC] to-[#9949EC] dark:from-[#2F2E7B] dark:via-[#412982] dark:to-[#511F80] transition-colors duration-300">
 			{/* Mobile overlay */}
@@ -61,17 +70,28 @@ const Layout: React.FC = () => {
 				<div className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden" onClick={() => setSidebarOpen(false)} />
 			)}
 
-			{/* Sidebar */}
+			{/* Sidebar - Updated with collapsible behavior */}
 			<div
-				className={`fixed top-0 left-0 h-screen w-56 z-0 transform transition-transform duration-300 ease-in-out lg:translate-x-0 ${
+				className={`fixed top-0 left-0 h-screen z-50 transform transition-all duration-300 ease-in-out lg:translate-x-0 ${
 					sidebarOpen ? 'translate-x-0' : '-translate-x-full'
+				} ${
+					// On desktop: collapsed by default (w-16), expanded on hover (w-56)
+					sidebarExpanded ? 'lg:w-56' : 'lg:w-16'
 				}`}
+				onMouseEnter={handleSidebarMouseEnter}
+				onMouseLeave={handleSidebarMouseLeave}
 			>
-				<Sidebar onClose={() => setSidebarOpen(false)} />
+				<Sidebar 
+					onClose={() => setSidebarOpen(false)} 
+					isExpanded={sidebarExpanded}
+					isMobile={sidebarOpen}
+				/>
 			</div>
 
-			{/* Main content */}
-			<div className="lg:ml-56 min-h-screen flex flex-col">
+			{/* Main content - Updated margin to accommodate collapsible sidebar */}
+			<div className={`min-h-screen flex flex-col transition-all duration-300 ease-in-out ${
+				sidebarExpanded ? 'lg:ml-56' : 'lg:ml-16'
+			}`}>
 				<Header isDark={isDark} toggleDarkMode={toggleDarkMode} currentDate={currentDate} onMenuClick={toggleSidebar} />
 				<div className="flex-1">
 					<QueryClientProvider client={queryClient}>
