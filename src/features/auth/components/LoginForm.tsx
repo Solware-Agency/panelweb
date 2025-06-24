@@ -14,7 +14,7 @@ function LoginForm() {
 	const [showPassword, setShowPassword] = useState(false)
 
 	// Use secure redirect hook for role-based navigation
-	const { isRedirecting, redirectUser } = useSecureRedirect({
+	const { isRedirecting } = useSecureRedirect({
 		onRedirect: (role, path) => {
 			console.log(`User with role "${role}" being redirected to: ${path}`)
 		}
@@ -44,7 +44,6 @@ function LoginForm() {
 						await refreshUser()
 						// Note: The useSecureRedirect hook will handle the redirect to verification notice
 						// if email is not confirmed
-						redirectUser()
 						return
 					} else {
 						setError('Por favor confirma tu email antes de iniciar sesión.')
@@ -78,7 +77,6 @@ function LoginForm() {
 			
 			// The useSecureRedirect hook will automatically handle role-based redirection
 			// after the user profile is loaded
-			redirectUser()
 
 		} catch (err: any) {
 			console.error('Login error:', err)
