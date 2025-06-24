@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { CodeXml, Eye, EyeOff } from 'lucide-react'
 import { Link, useNavigate } from 'react-router-dom'
-import { signIn } from '@lib/supabase/auth'
+import { signIn, getUserProfile } from '@lib/supabase/auth'
 import { useAuth } from '@app/providers/AuthContext'
 
 function LoginForm() {
@@ -68,13 +68,12 @@ function LoginForm() {
 
 			// Refresh user data
 			await refreshUser()
+			const profile = await getUserProfile(user.id)
 
 			// Simple email-based redirect logic
-			if (user.email === 'juegosgeorge0502@gmail.com') {
-				console.log('Owner email detected, redirecting to dashboard')
+			if (profile?.role === 'owner') {
 				navigate('/dashboard')
 			} else {
-				console.log('Regular user email detected, redirecting to form')
 				navigate('/form')
 			}
 		} catch (err: any) {

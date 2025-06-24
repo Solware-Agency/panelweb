@@ -172,7 +172,7 @@ function EmailVerificationNotice() {
 				<div className="text-center space-y-3">
 					<p className="text-sm text-gray-600">¿Problemas con la verificación?</p>
 					<button
-						onClick={handleLogout}
+						onClick={() => navigate('/')}
 						disabled={loading || checkingVerification}
 						className={`flex items-center justify-center gap-2 text-sm text-blue-500 hover:text-blue-600 transition-colors mx-auto ${
 							loading || checkingVerification ? 'opacity-50 cursor-not-allowed' : ''

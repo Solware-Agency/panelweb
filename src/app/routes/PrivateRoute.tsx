@@ -3,7 +3,7 @@ import { useAuth } from '@app/providers/AuthContext'
 import type { JSX } from 'react'
 
 const PrivateRoute = ({ children }: { children: JSX.Element }) => {
-	const { user, loading } = useAuth()
+	const { user, loading, profile } = useAuth()
 
 	if (loading) {
 		return (
@@ -31,8 +31,7 @@ const PrivateRoute = ({ children }: { children: JSX.Element }) => {
 	}
 
 	// Simple email-based access control for dashboard
-	if (user.email !== 'juegosgeorge0502@gmail.com') {
-		console.log('Non-owner user trying to access dashboard, redirecting to form')
+	if (profile?.role !== 'owner') {
 		return <Navigate to="/form" />
 	}
 
