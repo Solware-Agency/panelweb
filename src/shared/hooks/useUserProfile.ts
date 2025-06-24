@@ -14,16 +14,20 @@ interface UseUserProfileReturn {
  * Automatically fetches profile when user changes and handles loading/error states
  */
 export const useUserProfile = (): UseUserProfileReturn => {
-  const { user } = useAuth()
+  const { user, loading: authLoading } = useAuth()
   const [profile, setProfile] = useState<UserProfile | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [hasAttemptedFetch, setHasAttemptedFetch] = useState(false)
 
   const fetchProfile = async () => {
-    if (!user?.id) {
-      setProfile(null)
-      setIsLoading(false)
-      setError(null)
+    // Don't fetch if auth is still loading or no user
+    if (authLoading || !user?.id) {
+      return
+    }
+
+    // Don't fetch if already attempted for this user
+    if (hasAttemptedFetch && profile?.id === user.id) {
       return
     }
 
@@ -37,6 +41,7 @@ export const useUserProfile = (): UseUserProfileReturn => {
       if (userProfile) {
         console.log('Profile fetched successfully:', userProfile)
         setProfile(userProfile)
+        setError(null)
       } else {
         console.warn('No profile found for user:', user.id)
         setError('No se encontró el perfil del usuario')
@@ -48,21 +53,41 @@ export const useUserProfile = (): UseUserProfileReturn => {
       setProfile(null)
     } finally {
       setIsLoading(false)
+      setHasAttemptedFetch(true)
     }
   }
 
-  // Fetch profile when user changes
+  // Reset state when user changes
   useEffect(() => {
-    fetchProfile()
-  }, [user?.id])
+    if (!user) {
+      setProfile(null)
+      setError(null)
+      setIsLoading(false)
+      setHasAttemptedFetch(false)
+      return
+    }
+
+    // If user changed, reset and fetch new profile
+    if (profile && profile.id !== user.id) {
+      setProfile(null)
+      setError(null)
+      setHasAttemptedFetch(false)
+    }
+
+    // Only fetch if we haven't attempted yet for this user
+    if (!hasAttemptedFetch && !authLoading) {
+      fetchProfile()
+    }
+  }, [user?.id, authLoading])
 
   const refetch = async () => {
+    setHasAttemptedFetch(false)
     await fetchProfile()
   }
 
   return {
     profile,
-    isLoading,
+    isLoading: authLoading || isLoading,
     error,
     refetch,
   }

@@ -215,7 +215,7 @@ export const getCurrentUser = async (): Promise<User | null> => {
 	}
 }
 
-// Get user profile with role - ENHANCED WITH BETTER ERROR HANDLING
+// Get user profile with role - ENHANCED WITH BETTER ERROR HANDLING AND CACHING
 export const getUserProfile = async (userId: string): Promise<UserProfile | null> => {
 	try {
 		console.log('Fetching profile for user ID:', userId)
@@ -235,6 +235,7 @@ export const getUserProfile = async (userId: string): Promise<UserProfile | null
 				return null
 			}
 			
+			// For other errors, throw to be handled by the calling code
 			throw error
 		}
 
@@ -242,6 +243,7 @@ export const getUserProfile = async (userId: string): Promise<UserProfile | null
 		return data as UserProfile
 	} catch (err) {
 		console.error('Error fetching user profile:', err)
+		// Return null instead of throwing to prevent crashes
 		return null
 	}
 }
