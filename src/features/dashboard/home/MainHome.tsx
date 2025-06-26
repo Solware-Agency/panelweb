@@ -311,7 +311,7 @@ function MainHome() {
 										<div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-500"></div>
 									</div>
 								) : (
-									stats?.salesTrendByMonth.map((month, index) => {
+									stats?.salesTrendByMonth.map((month, _index) => {
 										const maxRevenue = Math.max(...(stats?.salesTrendByMonth.map(m => m.revenue) || [1]))
 										const height = maxRevenue > 0 ? (month.revenue / maxRevenue) * 100 : 0
 										const isSelected = month.isSelected
