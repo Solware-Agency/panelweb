@@ -1,10 +1,34 @@
 import EyeTrackingComponent from '@features/dashboard/home/RobotTraking'
-import { TrendingUp, Users, DollarSign, Calendar, ArrowRight, BarChart3 } from 'lucide-react'
+import { TrendingUp, Users, DollarSign, Calendar, ArrowRight, BarChart3, ChevronDown } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { BackgroundGradient } from '@shared/components/ui/background-gradient'
+import { useDashboardStats, useMonthSelector } from '@shared/hooks/useDashboardStats'
+import { useState } from 'react'
+import { format } from 'date-fns'
 
 function MainHome() {
 	const navigate = useNavigate()
+	const [selectedMonth, setSelectedMonth] = useState<Date>(new Date())
+	const { data: stats, isLoading, error } = useDashboardStats(selectedMonth)
+	const months = useMonthSelector()
+
+	if (error) {
+		console.error('Error loading dashboard stats:', error)
+	}
+
+	const formatCurrency = (amount: number) => {
+		return new Intl.NumberFormat('es-VE', {
+			style: 'currency',
+			currency: 'USD',
+			minimumFractionDigits: 0,
+			maximumFractionDigits: 0,
+		}).format(amount)
+	}
+
+	const getGrowthPercentage = (current: number, previous: number) => {
+		if (previous === 0) return current > 0 ? 100 : 0
+		return ((current - previous) / previous) * 100
+	}
 
 	return (
 		<>
@@ -42,7 +66,7 @@ function MainHome() {
 						</div>
 					</BackgroundGradient>
 
-					{/* Grid 2 - Enhanced Revenue Chart */}
+					{/* Grid 2 - Revenue by Branch Chart */}
 					<BackgroundGradient
 						containerClassName="col-span-1 sm:col-span-2 lg:col-span-3 row-span-1 lg:row-span-2"
 						className="dark:bg-gray-900 bg-white/80 rounded-xl py-4 sm:py-6 px-4 sm:px-8 transition-all duration-300 cursor-pointer hover:shadow-xl group shadow-lg h-full"
@@ -52,7 +76,7 @@ function MainHome() {
 								<div className="flex items-center gap-3 mb-3 sm:mb-0">
 									<div>
 										<h2 className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 dark:from-purple-400 dark:to-pink-400 bg-clip-text text-transparent">
-											Ingresos por Servicio
+											Ingresos por Sede
 										</h2>
 									</div>
 								</div>
@@ -74,43 +98,30 @@ function MainHome() {
 												className="stroke-current text-gray-200 dark:text-neutral-700"
 												strokeWidth="4"
 											></circle>
-											<circle
-												cx="18"
-												cy="18"
-												r="14"
-												fill="none"
-												className="stroke-current text-red-500"
-												strokeWidth="4"
-												strokeDasharray="100"
-												strokeDashoffset="0"
-												strokeLinecap="round"
-											></circle>
-											<circle
-												cx="18"
-												cy="18"
-												r="14"
-												fill="none"
-												className="stroke-current text-orange-500"
-												strokeWidth="4"
-												strokeDasharray="100"
-												strokeDashoffset="50"
-												strokeLinecap="round"
-											></circle>
-											<circle
-												cx="18"
-												cy="18"
-												r="14"
-												fill="none"
-												className="stroke-current text-blue-600"
-												strokeWidth="4"
-												strokeDasharray="100"
-												strokeDashoffset="65"
-												strokeLinecap="round"
-											></circle>
+											{stats?.revenueByBranch.map((branch, index) => {
+												const colors = ['text-blue-500', 'text-green-500', 'text-orange-500', 'text-red-500', 'text-purple-500']
+												const offset = stats.revenueByBranch.slice(0, index).reduce((sum, b) => sum + b.percentage, 0)
+												return (
+													<circle
+														key={branch.branch}
+														cx="18"
+														cy="18"
+														r="14"
+														fill="none"
+														className={`stroke-current ${colors[index % colors.length]}`}
+														strokeWidth="4"
+														strokeDasharray={`${branch.percentage} ${100 - branch.percentage}`}
+														strokeDashoffset={-offset}
+														strokeLinecap="round"
+													></circle>
+												)
+											})}
 										</svg>
 										<div className="absolute inset-0 flex items-center justify-center">
 											<div className="text-center">
-												<p className="text-xl sm:text-2xl font-bold text-gray-700 dark:text-gray-300">$1,125</p>
+												<p className="text-xl sm:text-2xl font-bold text-gray-700 dark:text-gray-300">
+													{isLoading ? '...' : formatCurrency(stats?.totalRevenue || 0)}
+												</p>
 												<p className="text-xs text-gray-500 dark:text-gray-400">Total</p>
 											</div>
 										</div>
@@ -118,45 +129,40 @@ function MainHome() {
 								</div>
 
 								<div className="flex-1 w-full space-y-3 sm:space-y-4">
-									<div className="flex items-center justify-between p-2 sm:p-3 bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 rounded-xl border border-blue-200 dark:border-blue-800/30">
-										<div className="flex items-center gap-2 sm:gap-3">
-											<div className="w-3 h-3 sm:w-4 sm:h-4 bg-blue-500 rounded-full shadow-lg"></div>
-											<div>
-												<p className="font-medium text-gray-700 dark:text-gray-300 text-sm sm:text-base">
-													Automatización
-												</p>
-											</div>
+									{isLoading ? (
+										<div className="space-y-3">
+											{[1, 2, 3].map((i) => (
+												<div key={i} className="animate-pulse bg-gray-200 dark:bg-gray-700 h-12 rounded-xl"></div>
+											))}
 										</div>
-										<div className="text-right">
-											<span className="text-base sm:text-lg font-bold text-blue-600 dark:text-blue-400">$100</span>
-										</div>
-									</div>
-
-									<div className="flex items-center justify-between p-2 sm:p-3 bg-gradient-to-r from-orange-50 to-orange-100 dark:from-orange-900/20 dark:to-orange-800/20 rounded-xl border border-orange-200 dark:border-orange-800/30">
-										<div className="flex items-center gap-2 sm:gap-3">
-											<div className="w-3 h-3 sm:w-4 sm:h-4 bg-orange-500 rounded-full shadow-lg"></div>
-											<div>
-												<p className="font-medium text-gray-700 dark:text-gray-300 text-sm sm:text-base">Agentes IA</p>
-											</div>
-										</div>
-										<div className="text-right">
-											<span className="text-base sm:text-lg font-bold text-orange-600 dark:text-orange-400">$25</span>
-										</div>
-									</div>
-
-									<div className="flex items-center justify-between p-2 sm:p-3 bg-gradient-to-r from-red-50 to-red-100 dark:from-red-900/20 dark:to-red-800/20 rounded-xl border border-red-200 dark:border-red-800/30">
-										<div className="flex items-center gap-2 sm:gap-3">
-											<div className="w-3 h-3 sm:w-4 sm:h-4 bg-red-500 rounded-full shadow-lg"></div>
-											<div>
-												<p className="font-medium text-gray-700 dark:text-gray-300 text-sm sm:text-base">
-													Desarrollo Web
-												</p>
-											</div>
-										</div>
-										<div className="text-right">
-											<span className="text-base sm:text-lg font-bold text-red-600 dark:text-red-400">$1,000</span>
-										</div>
-									</div>
+									) : (
+										stats?.revenueByBranch.slice(0, 4).map((branch, index) => {
+											const colors = [
+												{ bg: 'from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20', border: 'border-blue-200 dark:border-blue-800/30', text: 'text-blue-600 dark:text-blue-400', dot: 'bg-blue-500' },
+												{ bg: 'from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20', border: 'border-green-200 dark:border-green-800/30', text: 'text-green-600 dark:text-green-400', dot: 'bg-green-500' },
+												{ bg: 'from-orange-50 to-orange-100 dark:from-orange-900/20 dark:to-orange-800/20', border: 'border-orange-200 dark:border-orange-800/30', text: 'text-orange-600 dark:text-orange-400', dot: 'bg-orange-500' },
+												{ bg: 'from-red-50 to-red-100 dark:from-red-900/20 dark:to-red-800/20', border: 'border-red-200 dark:border-red-800/30', text: 'text-red-600 dark:text-red-400', dot: 'bg-red-500' }
+											]
+											const color = colors[index % colors.length]
+											return (
+												<div key={branch.branch} className={`flex items-center justify-between p-2 sm:p-3 bg-gradient-to-r ${color.bg} rounded-xl border ${color.border}`}>
+													<div className="flex items-center gap-2 sm:gap-3">
+														<div className={`w-3 h-3 sm:w-4 sm:h-4 ${color.dot} rounded-full shadow-lg`}></div>
+														<div>
+															<p className="font-medium text-gray-700 dark:text-gray-300 text-sm sm:text-base">
+																{branch.branch}
+															</p>
+														</div>
+													</div>
+													<div className="text-right">
+														<span className={`text-base sm:text-lg font-bold ${color.text}`}>
+															{formatCurrency(branch.revenue)}
+														</span>
+													</div>
+												</div>
+											)
+										})
+									)}
 								</div>
 							</div>
 						</div>
@@ -175,15 +181,25 @@ function MainHome() {
 								<div className="flex items-center gap-2">
 									<div className="flex items-center text-green-600 dark:text-green-400">
 										<TrendingUp className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
-										<span className="text-xs sm:text-sm font-medium">+12.5%</span>
+										<span className="text-xs sm:text-sm font-medium">
+											{isLoading ? '...' : '+12.5%'}
+										</span>
 									</div>
 									<ArrowRight className="w-3 h-3 sm:w-4 sm:h-4 text-gray-400 group-hover:text-blue-500 transition-colors" />
 								</div>
 							</div>
 							<div>
 								<h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">Ingresos Mensuales</h3>
-								<p className="text-xl sm:text-2xl font-bold text-gray-700 dark:text-gray-300">$1,240</p>
-								<p className="text-xs text-gray-500 dark:text-gray-400 mt-1">vs mes anterior</p>
+								<p className="text-xl sm:text-2xl font-bold text-gray-700 dark:text-gray-300">
+									{isLoading ? '...' : formatCurrency(stats?.monthlyRevenue || 0)}
+								</p>
+								<p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+									{format(selectedMonth, 'MMMM yyyy', { locale: { localize: { month: (n: number) => {
+										const monthNames = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
+														   'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre']
+										return monthNames[n]
+									} } } })}
+								</p>
 							</div>
 						</div>
 					</BackgroundGradient>
@@ -201,20 +217,24 @@ function MainHome() {
 								<div className="flex items-center gap-2">
 									<div className="flex items-center text-blue-600 dark:text-blue-400">
 										<TrendingUp className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
-										<span className="text-xs sm:text-sm font-medium">+8.2%</span>
+										<span className="text-xs sm:text-sm font-medium">
+											{isLoading ? '...' : `+${stats?.newPatientsThisMonth || 0}`}
+										</span>
 									</div>
 									<ArrowRight className="w-3 h-3 sm:w-4 sm:h-4 text-gray-400 group-hover:text-blue-500 transition-colors" />
 								</div>
 							</div>
 							<div>
-								<h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">Usuarios Registrados</h3>
-								<p className="text-xl sm:text-2xl font-bold text-gray-700 dark:text-gray-300">580</p>
-								<p className="text-xs text-gray-500 dark:text-gray-400 mt-1">usuarios activos</p>
+								<h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">Pacientes Registrados</h3>
+								<p className="text-xl sm:text-2xl font-bold text-gray-700 dark:text-gray-300">
+									{isLoading ? '...' : stats?.uniquePatients || 0}
+								</p>
+								<p className="text-xs text-gray-500 dark:text-gray-400 mt-1">pacientes únicos</p>
 							</div>
 						</div>
 					</BackgroundGradient>
 
-					{/* Grid 5 - Calendar Preview */}
+					{/* Grid 5 - Calendar Preview (unchanged) */}
 					<BackgroundGradient
 						containerClassName="col-span-1 sm:col-span-2 lg:col-span-2 row-span-1 lg:row-span-4"
 						className="dark:bg-gray-900 bg-white/80 rounded-xl py-4 sm:py-5 px-4 sm:px-6 transition-colors duration-300 flex flex-col cursor-pointer hover:bg-white/90 group h-full"
@@ -256,7 +276,7 @@ function MainHome() {
 						</div>
 					</BackgroundGradient>
 
-					{/* Grid 6 - Simulated Line Chart */}
+					{/* Grid 6 - Sales Trend Chart */}
 					<BackgroundGradient
 						containerClassName="col-span-1 sm:col-span-2 lg:col-span-4 row-span-1 lg:row-span-2"
 						className="dark:bg-gray-900 bg-white/80 rounded-xl py-4 sm:py-5 px-4 sm:px-6 transition-colors duration-300 cursor-pointer hover:bg-white/90 group h-full"
@@ -269,55 +289,42 @@ function MainHome() {
 								<div className="flex items-center gap-2">
 									<div className="flex items-center gap-2">
 										<div className="w-3 h-3 bg-blue-500 rounded-full"></div>
-										<span className="text-sm text-gray-600 dark:text-gray-400">Últimos 7 días</span>
+										<span className="text-sm text-gray-600 dark:text-gray-400">Últimos 12 meses</span>
 									</div>
 									<ArrowRight className="w-3 h-3 sm:w-4 sm:h-4 text-gray-400 group-hover:text-blue-500 transition-colors" />
 								</div>
 							</div>
 							<div className="relative h-16 sm:h-20 lg:h-24 flex items-end justify-between gap-1 sm:gap-2">
-								{/* Simulated bar chart */}
-								<div
-									className="flex-1 bg-gradient-to-t from-blue-500 to-blue-300 rounded-t-sm hover:translate-y-[-4px] transition-all duration-200"
-									style={{ height: '60%' }}
-								></div>
-								<div
-									className="flex-1 bg-gradient-to-t from-blue-500 to-blue-300 rounded-t-sm hover:translate-y-[-4px] transition-all duration-200"
-									style={{ height: '80%' }}
-								></div>
-								<div
-									className="flex-1 bg-gradient-to-t from-blue-500 to-blue-300 rounded-t-sm hover:translate-y-[-4px] transition-all duration-200"
-									style={{ height: '45%' }}
-								></div>
-								<div
-									className="flex-1 bg-gradient-to-t from-blue-500 to-blue-300 rounded-t-sm hover:translate-y-[-4px] transition-all duration-200"
-									style={{ height: '90%' }}
-								></div>
-								<div
-									className="flex-1 bg-gradient-to-t from-blue-500 to-blue-300 rounded-t-sm hover:translate-y-[-4px] transition-all duration-200"
-									style={{ height: '70%' }}
-								></div>
-								<div
-									className="flex-1 bg-gradient-to-t from-blue-500 to-blue-300 rounded-t-sm hover:translate-y-[-4px] transition-all duration-200"
-									style={{ height: '100%' }}
-								></div>
-								<div
-									className="flex-1 bg-gradient-to-t from-blue-500 to-blue-300 rounded-t-sm hover:translate-y-[-4px] transition-all duration-200"
-									style={{ height: '85%' }}
-								></div>
+								{isLoading ? (
+									<div className="flex items-center justify-center w-full h-full">
+										<div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-500"></div>
+									</div>
+								) : (
+									stats?.salesTrendByMonth.slice(-7).map((month, index) => {
+										const maxRevenue = Math.max(...(stats?.salesTrendByMonth.map(m => m.revenue) || [1]))
+										const height = maxRevenue > 0 ? (month.revenue / maxRevenue) * 100 : 0
+										return (
+											<div
+												key={month.month}
+												className="flex-1 bg-gradient-to-t from-blue-500 to-blue-300 rounded-t-sm hover:translate-y-[-4px] transition-all duration-200"
+												style={{ height: `${Math.max(height, 10)}%` }}
+												title={`${format(new Date(month.month), 'MMM yyyy')}: ${formatCurrency(month.revenue)}`}
+											></div>
+										)
+									})
+								)}
 							</div>
 							<div className="flex justify-between text-xs text-gray-500 dark:text-gray-400 mt-2">
-								<span>Lun</span>
-								<span>Mar</span>
-								<span>Mié</span>
-								<span>Jue</span>
-								<span>Vie</span>
-								<span>Sáb</span>
-								<span>Dom</span>
+								{stats?.salesTrendByMonth.slice(-7).map((month) => (
+									<span key={month.month} className="text-center">
+										{format(new Date(month.month), 'MMM')}
+									</span>
+								)) || ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul'].map(m => <span key={m}>{m}</span>)}
 							</div>
 						</div>
 					</BackgroundGradient>
 
-					{/* Grid 7 - Top Services/Products */}
+					{/* Grid 7 - Top Exam Types */}
 					<BackgroundGradient
 						containerClassName="col-span-1 sm:col-span-2 lg:col-span-3 row-span-1 lg:row-span-2"
 						className="dark:bg-gray-900 bg-white/80 rounded-xl py-4 sm:py-5 px-4 sm:px-6 transition-colors duration-300 cursor-pointer hover:bg-white/90 group h-full"
@@ -325,52 +332,48 @@ function MainHome() {
 						<div className="h-full flex flex-col" onClick={() => navigate('/dashboard/reports')}>
 							<div className="flex items-center justify-between mb-4">
 								<h3 className="text-base sm:text-lg font-bold text-gray-700 dark:text-gray-300">
-									Servicios Más Vendidos
+									Estudios Más Frecuentes
 								</h3>
 								<ArrowRight className="w-3 h-3 sm:w-4 sm:h-4 text-gray-400 group-hover:text-blue-500 transition-colors" />
 							</div>
 							<div className="space-y-2 sm:space-y-3 flex-1">
-								<div className="flex items-center justify-between p-2 sm:p-3 bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 rounded-lg">
-									<div className="flex items-center gap-2 sm:gap-3">
-										<div className="w-6 h-6 sm:w-8 sm:h-8 bg-blue-500 rounded-lg flex items-center justify-center">
-											<span className="text-white font-bold text-xs sm:text-sm">1</span>
-										</div>
-										<div>
-											<p className="text-sm font-medium text-gray-700 dark:text-gray-300">Desarrollo Web</p>
-											<p className="text-xs text-gray-500 dark:text-gray-400">15 proyectos</p>
-										</div>
+								{isLoading ? (
+									<div className="space-y-3">
+										{[1, 2, 3].map((i) => (
+											<div key={i} className="animate-pulse bg-gray-200 dark:bg-gray-700 h-12 rounded-lg"></div>
+										))}
 									</div>
-									<span className="text-base sm:text-lg font-bold text-blue-600 dark:text-blue-400">$45k</span>
-								</div>
-								<div className="flex items-center justify-between p-2 sm:p-3 bg-gradient-to-r from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20 rounded-lg">
-									<div className="flex items-center gap-2 sm:gap-3">
-										<div className="w-6 h-6 sm:w-8 sm:h-8 bg-green-500 rounded-lg flex items-center justify-center">
-											<span className="text-white font-bold text-xs sm:text-sm">2</span>
-										</div>
-										<div>
-											<p className="text-sm font-medium text-gray-700 dark:text-gray-300">Automatización</p>
-											<p className="text-xs text-gray-500 dark:text-gray-400">8 proyectos</p>
-										</div>
-									</div>
-									<span className="text-base sm:text-lg font-bold text-green-600 dark:text-green-400">$28k</span>
-								</div>
-								<div className="flex items-center justify-between p-2 sm:p-3 bg-gradient-to-r from-orange-50 to-orange-100 dark:from-orange-900/20 dark:to-orange-800/20 rounded-lg">
-									<div className="flex items-center gap-2 sm:gap-3">
-										<div className="w-6 h-6 sm:w-8 sm:h-8 bg-orange-500 rounded-lg flex items-center justify-center">
-											<span className="text-white font-bold text-xs sm:text-sm">3</span>
-										</div>
-										<div>
-											<p className="text-sm font-medium text-gray-700 dark:text-gray-300">Agentes IA</p>
-											<p className="text-xs text-gray-500 dark:text-gray-400">5 proyectos</p>
-										</div>
-									</div>
-									<span className="text-base sm:text-lg font-bold text-orange-600 dark:text-orange-400">$12k</span>
-								</div>
+								) : (
+									stats?.topExamTypes.slice(0, 3).map((exam, index) => {
+										const colors = [
+											{ bg: 'from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20', text: 'text-blue-600 dark:text-blue-400', badge: 'bg-blue-500' },
+											{ bg: 'from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20', text: 'text-green-600 dark:text-green-400', badge: 'bg-green-500' },
+											{ bg: 'from-orange-50 to-orange-100 dark:from-orange-900/20 dark:to-orange-800/20', text: 'text-orange-600 dark:text-orange-400', badge: 'bg-orange-500' }
+										]
+										const color = colors[index]
+										return (
+											<div key={exam.examType} className={`flex items-center justify-between p-2 sm:p-3 bg-gradient-to-r ${color.bg} rounded-lg`}>
+												<div className="flex items-center gap-2 sm:gap-3">
+													<div className={`w-6 h-6 sm:w-8 sm:h-8 ${color.badge} rounded-lg flex items-center justify-center`}>
+														<span className="text-white font-bold text-xs sm:text-sm">{index + 1}</span>
+													</div>
+													<div>
+														<p className="text-sm font-medium text-gray-700 dark:text-gray-300">{exam.examType}</p>
+														<p className="text-xs text-gray-500 dark:text-gray-400">{exam.count} casos</p>
+													</div>
+												</div>
+												<span className={`text-base sm:text-lg font-bold ${color.text}`}>
+													{formatCurrency(exam.revenue)}
+												</span>
+											</div>
+										)
+									})
+								)}
 							</div>
 						</div>
 					</BackgroundGradient>
 
-					{/* Grid 8 - Quick Actions & Notifications */}
+					{/* Grid 8 - Quick Actions & Notifications (unchanged) */}
 					<BackgroundGradient
 						containerClassName="col-span-1 sm:col-span-2 lg:col-span-3 row-span-1 lg:row-span-2"
 						className="dark:bg-gray-900 bg-white/80 rounded-xl py-4 sm:py-5 px-4 sm:px-6 transition-colors duration-300 h-full"
@@ -402,7 +405,9 @@ function MainHome() {
 										<div className="w-2 h-2 bg-yellow-500 rounded-full"></div>
 										<span className="text-sm font-medium text-yellow-800 dark:text-yellow-400">Recordatorio</span>
 									</div>
-									<p className="text-xs text-yellow-700 dark:text-yellow-300">Tienes 3 tareas pendientes para hoy</p>
+									<p className="text-xs text-yellow-700 dark:text-yellow-300">
+										{isLoading ? 'Cargando...' : `Tienes ${stats?.totalCases || 0} casos registrados`}
+									</p>
 								</div>
 							</div>
 						</div>
