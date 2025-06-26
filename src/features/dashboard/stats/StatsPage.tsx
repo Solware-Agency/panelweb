@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { TrendingUp, Users, DollarSign, ShoppingCart, ArrowUpRight, AlertTriangle, Clock } from 'lucide-react'
+import { Users, DollarSign, ShoppingCart, ArrowUpRight, AlertTriangle, Clock } from 'lucide-react'
 import { BackgroundGradient } from '@shared/components/ui/background-gradient'
 import { useDashboardStats } from '@shared/hooks/useDashboardStats'
 import { YearSelector } from '@shared/components/ui/year-selector'
@@ -186,7 +186,7 @@ const StatsPage: React.FC = () => {
 									<div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
 								</div>
 							) : (
-								stats?.salesTrendByMonth.map((month, index) => {
+								stats?.salesTrendByMonth.map((month, _index) => {
 									const maxRevenue = Math.max(...(stats?.salesTrendByMonth.map(m => m.revenue) || [1]))
 									const height = maxRevenue > 0 ? (month.revenue / maxRevenue) * 100 : 0
 									const isSelected = month.isSelected
@@ -322,7 +322,7 @@ const StatsPage: React.FC = () => {
 											</td>
 										</tr>
 									) : (
-										stats?.revenueByExamType.slice(0, 5).map((exam, index) => (
+										stats?.revenueByExamType.slice(0, 5).map((exam, _index) => (
 											<tr key={exam.examType} className="border-b border-gray-100 dark:border-gray-800">
 												<td className="py-3">
 													<div>
