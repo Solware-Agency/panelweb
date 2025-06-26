@@ -240,7 +240,7 @@ const CasesTable: React.FC<CasesTableProps> = ({ onCaseSelect }) => {
 
 							{/* Status Filter */}
 							<div className="flex items-center gap-2">
-								<Filter className="w-4 h-4 text-gray-400" />
+								<Filter className="size-4 text-gray-400 mr-2" />
 								<select
 									value={statusFilter}
 									onChange={(e) => setStatusFilter(e.target.value)}
@@ -574,7 +574,7 @@ const CasesTable: React.FC<CasesTableProps> = ({ onCaseSelect }) => {
 			{/* Desktop View - Table */}
 			<div className="hidden lg:block">
 				<div className="overflow-x-auto">
-					<div className="max-h-[50vh] overflow-y-auto">
+					<div className="max-h-[60vh] overflow-y-auto">
 						<table className="w-full">
 							<thead className="bg-gray-50/50 dark:bg-gray-800/50 backdrop-blur-[10px] sticky top-0 z-10">
 								<tr>

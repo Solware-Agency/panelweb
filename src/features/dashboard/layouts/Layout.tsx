@@ -81,17 +81,22 @@ const Layout: React.FC = () => {
 				onMouseEnter={handleSidebarMouseEnter}
 				onMouseLeave={handleSidebarMouseLeave}
 			>
-				<Sidebar 
-					onClose={() => setSidebarOpen(false)} 
+				<Sidebar
+					onClose={() => setSidebarOpen(false)}
 					isExpanded={sidebarExpanded}
 					isMobile={sidebarOpen}
+					isDark={isDark}
+					toggleDarkMode={toggleDarkMode}
+					currentDate={currentDate}
 				/>
 			</div>
 
 			{/* Main content - Updated margin to accommodate collapsible sidebar */}
-			<div className={`min-h-screen flex flex-col transition-all duration-300 ease-in-out ${
-				sidebarExpanded ? 'lg:ml-56' : 'lg:ml-16'
-			}`}>
+			<div
+				className={`min-h-screen flex flex-col transition-all duration-300 ease-in-out ${
+					sidebarExpanded ? 'lg:ml-56' : 'lg:ml-16'
+				}`}
+			>
 				<Header isDark={isDark} toggleDarkMode={toggleDarkMode} currentDate={currentDate} onMenuClick={toggleSidebar} />
 				<div className="flex-1">
 					<QueryClientProvider client={queryClient}>
