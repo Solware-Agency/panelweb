@@ -1,16 +1,18 @@
 import EyeTrackingComponent from '@features/dashboard/home/RobotTraking'
-import { TrendingUp, Users, DollarSign, Calendar, ArrowRight, BarChart3, ChevronDown } from 'lucide-react'
+import { TrendingUp, Users, DollarSign, Calendar, ArrowRight, BarChart3, ChevronDown, AlertTriangle, Clock } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { BackgroundGradient } from '@shared/components/ui/background-gradient'
-import { useDashboardStats, useMonthSelector } from '@shared/hooks/useDashboardStats'
+import { useDashboardStats, useMonthSelector, useYearSelector } from '@shared/hooks/useDashboardStats'
 import { useState } from 'react'
 import { format } from 'date-fns'
 
 function MainHome() {
 	const navigate = useNavigate()
 	const [selectedMonth, setSelectedMonth] = useState<Date>(new Date())
-	const { data: stats, isLoading, error } = useDashboardStats(selectedMonth)
+	const [selectedYear, setSelectedYear] = useState<number>(new Date().getFullYear())
+	const { data: stats, isLoading, error } = useDashboardStats(selectedMonth, selectedYear)
 	const months = useMonthSelector()
+	const years = useYearSelector()
 
 	if (error) {
 		console.error('Error loading dashboard stats:', error)
@@ -25,9 +27,9 @@ function MainHome() {
 		}).format(amount)
 	}
 
-	const getGrowthPercentage = (current: number, previous: number) => {
-		if (previous === 0) return current > 0 ? 100 : 0
-		return ((current - previous) / previous) * 100
+	const handleMonthBarClick = (monthData: any) => {
+		const clickedDate = new Date(monthData.month + '-01')
+		setSelectedMonth(clickedDate)
 	}
 
 	return (
@@ -276,22 +278,36 @@ function MainHome() {
 						</div>
 					</BackgroundGradient>
 
-					{/* Grid 6 - Sales Trend Chart */}
+					{/* Grid 6 - 12-Month Sales Trend Chart with Year Selector */}
 					<BackgroundGradient
 						containerClassName="col-span-1 sm:col-span-2 lg:col-span-4 row-span-1 lg:row-span-2"
 						className="dark:bg-gray-900 bg-white/80 rounded-xl py-4 sm:py-5 px-4 sm:px-6 transition-colors duration-300 cursor-pointer hover:bg-white/90 group h-full"
 					>
-						<div className="h-full flex flex-col" onClick={() => navigate('/dashboard/stats')}>
+						<div className="h-full flex flex-col">
 							<div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4">
 								<h3 className="text-base sm:text-lg font-bold text-gray-700 dark:text-gray-300 mb-2 sm:mb-0">
 									Tendencia de Ventas
 								</h3>
-								<div className="flex items-center gap-2">
+								<div className="flex items-center gap-4">
+									{/* Year Selector */}
+									<div className="relative">
+										<select
+											value={selectedYear}
+											onChange={(e) => setSelectedYear(Number(e.target.value))}
+											className="appearance-none bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-1 pr-8 text-sm font-medium text-gray-700 dark:text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+										>
+											{years.map((year) => (
+												<option key={year.value} value={year.value}>
+													{year.label}
+												</option>
+											))}
+										</select>
+										<ChevronDown className="absolute right-2 top-1/2 transform -translate-y-1/2 w-3 h-3 text-gray-400 pointer-events-none" />
+									</div>
 									<div className="flex items-center gap-2">
 										<div className="w-3 h-3 bg-blue-500 rounded-full"></div>
-										<span className="text-sm text-gray-600 dark:text-gray-400">Últimos 12 meses</span>
+										<span className="text-sm text-gray-600 dark:text-gray-400">12 meses</span>
 									</div>
-									<ArrowRight className="w-3 h-3 sm:w-4 sm:h-4 text-gray-400 group-hover:text-blue-500 transition-colors" />
 								</div>
 							</div>
 							<div className="relative h-16 sm:h-20 lg:h-24 flex items-end justify-between gap-1 sm:gap-2">
@@ -300,31 +316,37 @@ function MainHome() {
 										<div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-500"></div>
 									</div>
 								) : (
-									stats?.salesTrendByMonth.slice(-7).map((month, index) => {
+									stats?.salesTrendByMonth.map((month, index) => {
 										const maxRevenue = Math.max(...(stats?.salesTrendByMonth.map(m => m.revenue) || [1]))
 										const height = maxRevenue > 0 ? (month.revenue / maxRevenue) * 100 : 0
+										const isSelected = month.isSelected
 										return (
 											<div
 												key={month.month}
-												className="flex-1 bg-gradient-to-t from-blue-500 to-blue-300 rounded-t-sm hover:translate-y-[-4px] transition-all duration-200"
+												className={`flex-1 rounded-t-sm hover:translate-y-[-4px] transition-all duration-200 cursor-pointer ${
+													isSelected 
+														? 'bg-gradient-to-t from-purple-600 to-purple-400 shadow-lg' 
+														: 'bg-gradient-to-t from-blue-500 to-blue-300 hover:from-blue-600 hover:to-blue-400'
+												}`}
 												style={{ height: `${Math.max(height, 10)}%` }}
 												title={`${format(new Date(month.month), 'MMM yyyy')}: ${formatCurrency(month.revenue)}`}
+												onClick={() => handleMonthBarClick(month)}
 											></div>
 										)
 									})
 								)}
 							</div>
 							<div className="flex justify-between text-xs text-gray-500 dark:text-gray-400 mt-2">
-								{stats?.salesTrendByMonth.slice(-7).map((month) => (
+								{stats?.salesTrendByMonth.map((month) => (
 									<span key={month.month} className="text-center">
 										{format(new Date(month.month), 'MMM')}
 									</span>
-								)) || ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul'].map(m => <span key={m}>{m}</span>)}
+								)) || ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'].map(m => <span key={m}>{m}</span>)}
 							</div>
 						</div>
 					</BackgroundGradient>
 
-					{/* Grid 7 - Top Exam Types */}
+					{/* Grid 7 - Top Exam Types (Normalized) */}
 					<BackgroundGradient
 						containerClassName="col-span-1 sm:col-span-2 lg:col-span-3 row-span-1 lg:row-span-2"
 						className="dark:bg-gray-900 bg-white/80 rounded-xl py-4 sm:py-5 px-4 sm:px-6 transition-colors duration-300 cursor-pointer hover:bg-white/90 group h-full"
@@ -373,17 +395,40 @@ function MainHome() {
 						</div>
 					</BackgroundGradient>
 
-					{/* Grid 8 - Quick Actions & Notifications (unchanged) */}
+					{/* Grid 8 - Quick Actions & Status Indicators */}
 					<BackgroundGradient
 						containerClassName="col-span-1 sm:col-span-2 lg:col-span-3 row-span-1 lg:row-span-2"
 						className="dark:bg-gray-900 bg-white/80 rounded-xl py-4 sm:py-5 px-4 sm:px-6 transition-colors duration-300 h-full"
 					>
 						<div className="h-full flex flex-col">
 							<div className="flex items-center justify-between mb-4">
-								<h3 className="text-base sm:text-lg font-bold text-gray-700 dark:text-gray-300">Acciones Rápidas</h3>
-								<div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
+								<h3 className="text-base sm:text-lg font-bold text-gray-700 dark:text-gray-300">Estado del Sistema</h3>
+								<div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
 							</div>
 							<div className="space-y-2 sm:space-y-3 flex-1">
+								{/* Incomplete Cases Alert */}
+								<div className="p-2 sm:p-3 bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-800 rounded-lg">
+									<div className="flex items-center gap-2 mb-1">
+										<AlertTriangle className="w-4 h-4 text-orange-500" />
+										<span className="text-sm font-medium text-orange-800 dark:text-orange-400">Casos Incompletos</span>
+									</div>
+									<p className="text-xs text-orange-700 dark:text-orange-300">
+										{isLoading ? 'Cargando...' : `${stats?.incompleteCases || 0} casos pendientes de completar`}
+									</p>
+								</div>
+
+								{/* Pending Payments Alert */}
+								<div className="p-2 sm:p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
+									<div className="flex items-center gap-2 mb-1">
+										<Clock className="w-4 h-4 text-red-500" />
+										<span className="text-sm font-medium text-red-800 dark:text-red-400">Pagos Pendientes</span>
+									</div>
+									<p className="text-xs text-red-700 dark:text-red-300">
+										{isLoading ? 'Cargando...' : `${formatCurrency(stats?.pendingPayments || 0)} por cobrar`}
+									</p>
+								</div>
+
+								{/* Quick Actions */}
 								<button
 									className="w-full p-2 sm:p-3 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white rounded-lg transition flex items-center justify-center gap-2 text-sm sm:text-base"
 									onClick={() => navigate('/dashboard/stats')}
@@ -392,23 +437,6 @@ function MainHome() {
 									<span className="hidden sm:inline">Ver Estadísticas Completas</span>
 									<span className="sm:hidden">Estadísticas</span>
 								</button>
-								<button
-									className="w-full p-2 sm:p-3 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white rounded-lg transition flex items-center justify-center gap-2 text-sm sm:text-base"
-									onClick={() => navigate('/dashboard/calendar')}
-								>
-									<Calendar className="w-4 h-4" />
-									<span className="hidden sm:inline">Abrir Calendario</span>
-									<span className="sm:hidden">Calendario</span>
-								</button>
-								<div className="p-2 sm:p-3 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg">
-									<div className="flex items-center gap-2 mb-1">
-										<div className="w-2 h-2 bg-yellow-500 rounded-full"></div>
-										<span className="text-sm font-medium text-yellow-800 dark:text-yellow-400">Recordatorio</span>
-									</div>
-									<p className="text-xs text-yellow-700 dark:text-yellow-300">
-										{isLoading ? 'Cargando...' : `Tienes ${stats?.totalCases || 0} casos registrados`}
-									</p>
-								</div>
 							</div>
 						</div>
 					</BackgroundGradient>

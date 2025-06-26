@@ -1,13 +1,15 @@
 import React, { useState } from 'react'
-import { TrendingUp, Users, DollarSign, ShoppingCart, ArrowUpRight, ArrowDownRight, ChevronDown } from 'lucide-react'
+import { TrendingUp, Users, DollarSign, ShoppingCart, ArrowUpRight, ArrowDownRight, ChevronDown, AlertTriangle, Clock } from 'lucide-react'
 import { BackgroundGradient } from '@shared/components/ui/background-gradient'
-import { useDashboardStats, useMonthSelector } from '@shared/hooks/useDashboardStats'
+import { useDashboardStats, useMonthSelector, useYearSelector } from '@shared/hooks/useDashboardStats'
 import { format } from 'date-fns'
 
 const StatsPage: React.FC = () => {
 	const [selectedMonth, setSelectedMonth] = useState<Date>(new Date())
-	const { data: stats, isLoading, error } = useDashboardStats(selectedMonth)
+	const [selectedYear, setSelectedYear] = useState<number>(new Date().getFullYear())
+	const { data: stats, isLoading, error } = useDashboardStats(selectedMonth, selectedYear)
 	const months = useMonthSelector()
+	const years = useYearSelector()
 
 	if (error) {
 		console.error('Error loading stats:', error)
@@ -22,9 +24,9 @@ const StatsPage: React.FC = () => {
 		}).format(amount)
 	}
 
-	const getGrowthPercentage = (current: number, previous: number) => {
-		if (previous === 0) return current > 0 ? 100 : 0
-		return ((current - previous) / previous) * 100
+	const handleMonthBarClick = (monthData: any) => {
+		const clickedDate = new Date(monthData.month + '-01')
+		setSelectedMonth(clickedDate)
 	}
 
 	// Calculate some additional metrics
@@ -33,23 +35,39 @@ const StatsPage: React.FC = () => {
 
 	return (
 		<div className="p-3 sm:p-6">
-			{/* Month Selector */}
+			{/* Month and Year Selectors */}
 			<div className="mb-6">
-				<div className="flex items-center gap-4">
+				<div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
 					<h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Estadísticas</h2>
-					<div className="relative">
-						<select
-							value={selectedMonth.toISOString()}
-							onChange={(e) => setSelectedMonth(new Date(e.target.value))}
-							className="appearance-none bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 pr-8 text-sm font-medium text-gray-700 dark:text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
-						>
-							{months.map((month) => (
-								<option key={month.value.toISOString()} value={month.value.toISOString()}>
-									{month.label}
-								</option>
-							))}
-						</select>
-						<ChevronDown className="absolute right-2 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+					<div className="flex items-center gap-4">
+						<div className="relative">
+							<select
+								value={selectedMonth.toISOString()}
+								onChange={(e) => setSelectedMonth(new Date(e.target.value))}
+								className="appearance-none bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 pr-8 text-sm font-medium text-gray-700 dark:text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+							>
+								{months.map((month) => (
+									<option key={month.value.toISOString()} value={month.value.toISOString()}>
+										{month.label}
+									</option>
+								))}
+							</select>
+							<ChevronDown className="absolute right-2 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+						</div>
+						<div className="relative">
+							<select
+								value={selectedYear}
+								onChange={(e) => setSelectedYear(Number(e.target.value))}
+								className="appearance-none bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 pr-8 text-sm font-medium text-gray-700 dark:text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+							>
+								{years.map((year) => (
+									<option key={year.value} value={year.value}>
+										{year.label}
+									</option>
+								))}
+							</select>
+							<ChevronDown className="absolute right-2 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+						</div>
 					</div>
 				</div>
 			</div>
@@ -134,24 +152,26 @@ const StatsPage: React.FC = () => {
 					</div>
 				</BackgroundGradient>
 
-				{/* Average Revenue Card */}
+				{/* Incomplete Cases Card */}
 				<BackgroundGradient containerClassName="col-span-1 grid" className="grid">
 					<div className="bg-white/80 dark:bg-gray-900 rounded-xl p-4 sm:p-6 transition-colors duration-300">
 						<div className="flex items-center justify-between mb-4">
 							<div className="p-2 sm:p-3 bg-orange-100 dark:bg-orange-900/30 rounded-lg">
-								<TrendingUp className="w-5 h-5 sm:w-6 sm:h-6 text-orange-600 dark:text-orange-400" />
+								<AlertTriangle className="w-5 h-5 sm:w-6 sm:h-6 text-orange-600 dark:text-orange-400" />
 							</div>
-							<div className="flex items-center text-green-600 dark:text-green-400">
-								<ArrowUpRight className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
-								<span className="text-xs sm:text-sm font-medium">+5.2%</span>
+							<div className="flex items-center text-orange-600 dark:text-orange-400">
+								<Clock className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
+								<span className="text-xs sm:text-sm font-medium">Pendientes</span>
 							</div>
 						</div>
 						<div>
-							<h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">Ingreso Promedio</h3>
+							<h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">Casos Incompletos</h3>
 							<p className="text-2xl sm:text-3xl font-bold text-gray-700 dark:text-gray-300">
-								{isLoading ? '...' : formatCurrency(averageRevenuePerCase)}
+								{isLoading ? '...' : stats?.incompleteCases || 0}
 							</p>
-							<p className="text-sm text-gray-500 dark:text-gray-400 mt-1">por caso</p>
+							<p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+								Pagos pendientes: {isLoading ? '...' : formatCurrency(stats?.pendingPayments || 0)}
+							</p>
 						</div>
 					</div>
 				</BackgroundGradient>
@@ -159,7 +179,7 @@ const StatsPage: React.FC = () => {
 
 			{/* Charts Section */}
 			<div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 mb-6 sm:mb-8">
-				{/* Revenue Trend Chart */}
+				{/* 12-Month Revenue Trend Chart with Interactive Bars */}
 				<BackgroundGradient containerClassName="col-span-1 grid" className="grid">
 					<div className="bg-white/80 dark:bg-gray-900 rounded-xl p-4 sm:p-6 transition-colors duration-300">
 						<div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 sm:mb-6">
@@ -168,7 +188,7 @@ const StatsPage: React.FC = () => {
 							</h3>
 							<div className="flex items-center gap-2">
 								<div className="w-3 h-3 bg-blue-500 rounded-full"></div>
-								<span className="text-sm text-gray-600 dark:text-gray-400">Últimos 12 meses</span>
+								<span className="text-sm text-gray-600 dark:text-gray-400">12 meses de {selectedYear}</span>
 							</div>
 						</div>
 						<div className="relative h-48 sm:h-64 flex items-end justify-between gap-1 sm:gap-2">
@@ -180,12 +200,18 @@ const StatsPage: React.FC = () => {
 								stats?.salesTrendByMonth.map((month, index) => {
 									const maxRevenue = Math.max(...(stats?.salesTrendByMonth.map(m => m.revenue) || [1]))
 									const height = maxRevenue > 0 ? (month.revenue / maxRevenue) * 100 : 0
+									const isSelected = month.isSelected
 									return (
 										<div
 											key={month.month}
-											className="flex-1 bg-gradient-to-t from-blue-500 to-blue-300 rounded-t-sm transition-all duration-200 hover:from-blue-600 hover:to-blue-400 hover:translate-y-[-4px]"
+											className={`flex-1 rounded-t-sm transition-all duration-200 cursor-pointer hover:translate-y-[-4px] ${
+												isSelected 
+													? 'bg-gradient-to-t from-purple-600 to-purple-400 shadow-lg' 
+													: 'bg-gradient-to-t from-blue-500 to-blue-300 hover:from-blue-600 hover:to-blue-400'
+											}`}
 											style={{ height: `${Math.max(height, 5)}%` }}
 											title={`${format(new Date(month.month), 'MMM yyyy')}: ${formatCurrency(month.revenue)}`}
+											onClick={() => handleMonthBarClick(month)}
 										></div>
 									)
 								})
@@ -199,6 +225,11 @@ const StatsPage: React.FC = () => {
 							)) || ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'].map((month) => (
 								<span key={month} className="flex-shrink-0">{month}</span>
 							))}
+						</div>
+						<div className="mt-4 text-center">
+							<p className="text-sm text-gray-600 dark:text-gray-400">
+								Haz clic en una barra para seleccionar el mes
+							</p>
 						</div>
 					</div>
 				</BackgroundGradient>
@@ -278,7 +309,7 @@ const StatsPage: React.FC = () => {
 
 			{/* Detailed Tables */}
 			<div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
-				{/* Performance Metrics by Exam Type */}
+				{/* Performance Metrics by Exam Type (Normalized) */}
 				<BackgroundGradient containerClassName="col-span-1 grid" className="grid">
 					<div className="bg-white/80 dark:bg-gray-900 rounded-xl p-4 sm:p-6 transition-colors duration-300">
 						<h3 className="text-lg sm:text-xl font-bold text-gray-700 dark:text-gray-300 mb-4 sm:mb-6">
@@ -370,14 +401,16 @@ const StatsPage: React.FC = () => {
 								</div>
 							</div>
 
-							{/* Monthly Revenue Growth */}
+							{/* Pending Payments Indicator */}
 							<div>
 								<div className="flex items-center justify-between mb-2">
-									<span className="text-sm font-medium text-gray-600 dark:text-gray-400">Crecimiento Mensual</span>
-									<span className="text-sm font-bold text-gray-700 dark:text-gray-300">+12.5%</span>
+									<span className="text-sm font-medium text-gray-600 dark:text-gray-400">Pagos Pendientes</span>
+									<span className="text-sm font-bold text-red-700 dark:text-red-300">
+										{isLoading ? '...' : formatCurrency(stats?.pendingPayments || 0)}
+									</span>
 								</div>
 								<div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-									<div className="bg-purple-500 h-2 rounded-full" style={{ width: '92%' }}></div>
+									<div className="bg-red-500 h-2 rounded-full" style={{ width: `${stats?.pendingPayments ? Math.min((stats.pendingPayments / stats.totalRevenue) * 100, 100) : 0}%` }}></div>
 								</div>
 							</div>
 						</div>
