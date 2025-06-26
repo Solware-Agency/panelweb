@@ -42,25 +42,10 @@ const StatsPage: React.FC = () => {
 
 	return (
 		<div className="p-3 sm:p-6">
-			{/* Header with Year Selector */}
-			<div className="mb-6">
-				<div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
-					<h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Estadísticas</h2>
-					<div className="flex items-center gap-4">
-						{/* Year Selector with Arrows */}
-						<YearSelector
-							selectedYear={selectedYear}
-							onYearChange={handleYearChange}
-							minYear={2020}
-							maxYear={new Date().getFullYear() + 2}
-						/>
-						<div className="text-sm text-gray-600 dark:text-gray-400">
-							Mes seleccionado: <span className="font-medium">{format(selectedMonth, 'MMMM yyyy', { locale: es })}</span>
-						</div>
-					</div>
-				</div>
-			</div>
-
+			{/* <div className="text-sm text-gray-600 dark:text-gray-400">
+							Mes seleccionado:{' '}
+							<span className="font-medium">{format(selectedMonth, 'MMMM yyyy', { locale: es })}</span>
+						</div> */}
 			{/* KPI Cards Grid */}
 			<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6 sm:mb-8">
 				{/* Total Revenue Card */}
@@ -72,9 +57,7 @@ const StatsPage: React.FC = () => {
 							</div>
 							<div className="flex items-center text-green-600 dark:text-green-400">
 								<ArrowUpRight className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
-								<span className="text-xs sm:text-sm font-medium">
-									{isLoading ? '...' : '+12.5%'}
-								</span>
+								<span className="text-xs sm:text-sm font-medium">{isLoading ? '...' : '+12.5%'}</span>
 							</div>
 						</div>
 						<div>
@@ -175,8 +158,13 @@ const StatsPage: React.FC = () => {
 							<h3 className="text-lg sm:text-xl font-bold text-gray-700 dark:text-gray-300 mb-2 sm:mb-0">
 								Tendencia de Ingresos
 							</h3>
-							<div className="flex items-center gap-2">
-								<div className="w-3 h-3 bg-blue-500 rounded-full"></div>
+							<div className="flex items-center gap-4">
+								<YearSelector
+									selectedYear={selectedYear}
+									onYearChange={handleYearChange}
+									minYear={2020}
+									maxYear={new Date().getFullYear() + 2}
+								/>
 								<span className="text-sm text-gray-600 dark:text-gray-400">12 meses de {selectedYear}</span>
 							</div>
 						</div>
@@ -187,19 +175,21 @@ const StatsPage: React.FC = () => {
 								</div>
 							) : (
 								stats?.salesTrendByMonth.map((month, _index) => {
-									const maxRevenue = Math.max(...(stats?.salesTrendByMonth.map(m => m.revenue) || [1]))
+									const maxRevenue = Math.max(...(stats?.salesTrendByMonth.map((m) => m.revenue) || [1]))
 									const height = maxRevenue > 0 ? (month.revenue / maxRevenue) * 100 : 0
 									const isSelected = month.isSelected
 									return (
 										<div
 											key={month.month}
 											className={`flex-1 rounded-t-sm transition-all duration-200 cursor-pointer hover:translate-y-[-4px] ${
-												isSelected 
-													? 'bg-gradient-to-t from-purple-600 to-purple-400 shadow-lg' 
+												isSelected
+													? 'bg-gradient-to-t from-purple-600 to-purple-400 shadow-lg'
 													: 'bg-gradient-to-t from-blue-500 to-blue-300 hover:from-blue-600 hover:to-blue-400'
 											}`}
 											style={{ height: `${Math.max(height, 20)}%` }} // FIXED: Increased minimum height for better UX
-											title={`${format(new Date(month.month), 'MMM yyyy', { locale: es })}: ${formatCurrency(month.revenue)}`}
+											title={`${format(new Date(month.month), 'MMM yyyy', { locale: es })}: ${formatCurrency(
+												month.revenue,
+											)}`}
 											onClick={() => handleMonthBarClick(month)}
 										></div>
 									)
@@ -208,18 +198,14 @@ const StatsPage: React.FC = () => {
 						</div>
 						<div className="flex justify-between text-xs text-gray-500 dark:text-gray-400 mt-4 overflow-x-auto">
 							{/* FIXED: Force Spanish month labels regardless of system language */}
-							{stats?.salesTrendByMonth.map((month) => (
-								<span key={month.month} className="flex-shrink-0">
-									{format(new Date(month.month), 'MMM', { locale: es })}
+							{['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'].map((month) => (
+								<span key={month} className="flex-shrink-0">
+									{month}
 								</span>
-							)) || ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'].map((month) => (
-								<span key={month} className="flex-shrink-0">{month}</span>
 							))}
 						</div>
 						<div className="mt-4 text-center">
-							<p className="text-sm text-gray-600 dark:text-gray-400">
-								Haz clic en una barra para seleccionar el mes
-							</p>
+							<p className="text-sm text-gray-600 dark:text-gray-400">Haz clic en una barra para seleccionar el mes</p>
 						</div>
 					</div>
 				</BackgroundGradient>
@@ -242,7 +228,13 @@ const StatsPage: React.FC = () => {
 										strokeWidth="4"
 									></circle>
 									{stats?.revenueByBranch.map((branch, index) => {
-										const colors = ['text-blue-500', 'text-green-500', 'text-orange-500', 'text-red-500', 'text-purple-500']
+										const colors = [
+											'text-blue-500',
+											'text-green-500',
+											'text-orange-500',
+											'text-red-500',
+											'text-purple-500',
+										]
 										const offset = stats.revenueByBranch.slice(0, index).reduce((sum, b) => sum + b.percentage, 0)
 										return (
 											<circle
@@ -358,8 +350,8 @@ const StatsPage: React.FC = () => {
 									</span>
 								</div>
 								<div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-									<div 
-										className="bg-green-500 h-2 rounded-full transition-all duration-500" 
+									<div
+										className="bg-green-500 h-2 rounded-full transition-all duration-500"
 										style={{ width: `${completionRate}%` }}
 									></div>
 								</div>
@@ -368,7 +360,9 @@ const StatsPage: React.FC = () => {
 							{/* Revenue per Case */}
 							<div>
 								<div className="flex items-center justify-between mb-2">
-									<span className="text-sm font-medium text-gray-600 dark:text-gray-400">Ingreso Promedio por Caso</span>
+									<span className="text-sm font-medium text-gray-600 dark:text-gray-400">
+										Ingreso Promedio por Caso
+									</span>
 									<span className="text-sm font-bold text-gray-700 dark:text-gray-300">
 										{isLoading ? '...' : formatCurrency(averageRevenuePerCase)}
 									</span>
@@ -400,7 +394,14 @@ const StatsPage: React.FC = () => {
 									</span>
 								</div>
 								<div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-									<div className="bg-red-500 h-2 rounded-full" style={{ width: `${stats?.pendingPayments ? Math.min((stats.pendingPayments / stats.totalRevenue) * 100, 100) : 0}%` }}></div>
+									<div
+										className="bg-red-500 h-2 rounded-full"
+										style={{
+											width: `${
+												stats?.pendingPayments ? Math.min((stats.pendingPayments / stats.totalRevenue) * 100, 100) : 0
+											}%`,
+										}}
+									></div>
 								</div>
 							</div>
 						</div>
