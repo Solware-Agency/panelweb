@@ -1,17 +1,14 @@
 import React, { useState } from 'react'
-import { TrendingUp, Users, DollarSign, ShoppingCart, ArrowUpRight, AlertTriangle, Clock, Calendar as CalendarIcon } from 'lucide-react'
+import { TrendingUp, Users, DollarSign, ShoppingCart, ArrowUpRight, AlertTriangle, Clock } from 'lucide-react'
 import { BackgroundGradient } from '@shared/components/ui/background-gradient'
 import { useDashboardStats } from '@shared/hooks/useDashboardStats'
+import { YearSelector } from '@shared/components/ui/year-selector'
 import { format } from 'date-fns'
-import { Popover, PopoverContent, PopoverTrigger } from '@shared/components/ui/popover'
-import { Button } from '@shared/components/ui/button'
-import { Calendar as CalendarComponent } from '@shared/components/ui/calendar'
-import { cn } from '@shared/lib/cn'
+import { es } from 'date-fns/locale'
 
 const StatsPage: React.FC = () => {
 	const [selectedMonth, setSelectedMonth] = useState<Date>(new Date())
 	const [selectedYear, setSelectedYear] = useState<number>(new Date().getFullYear())
-	const [isCalendarOpen, setIsCalendarOpen] = useState(false)
 	const { data: stats, isLoading, error } = useDashboardStats(selectedMonth, selectedYear)
 
 	if (error) {
@@ -33,12 +30,10 @@ const StatsPage: React.FC = () => {
 		setSelectedMonth(clickedDate)
 	}
 
-	const handleDateSelect = (date: Date | undefined) => {
-		if (date) {
-			setSelectedMonth(date)
-			setSelectedYear(date.getFullYear())
-			setIsCalendarOpen(false)
-		}
+	const handleYearChange = (year: number) => {
+		setSelectedYear(year)
+		// Update selected month to the same month in the new year
+		setSelectedMonth(new Date(year, selectedMonth.getMonth(), 1))
 	}
 
 	// Calculate some additional metrics
@@ -47,35 +42,21 @@ const StatsPage: React.FC = () => {
 
 	return (
 		<div className="p-3 sm:p-6">
-			{/* Month and Year Selectors */}
+			{/* Header with Year Selector */}
 			<div className="mb-6">
 				<div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
 					<h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Estadísticas</h2>
 					<div className="flex items-center gap-4">
-						{/* Date Picker for Month/Year Selection */}
-						<Popover open={isCalendarOpen} onOpenChange={setIsCalendarOpen}>
-							<PopoverTrigger asChild>
-								<Button
-									variant="outline"
-									className={cn(
-										"w-auto justify-start text-left font-normal",
-										!selectedMonth && "text-muted-foreground"
-									)}
-								>
-									<CalendarIcon className="mr-2 h-4 w-4" />
-									{selectedMonth ? format(selectedMonth, 'MMMM yyyy') : <span>Seleccionar mes</span>}
-								</Button>
-							</PopoverTrigger>
-							<PopoverContent className="w-auto p-0" align="start">
-								<CalendarComponent
-									mode="single"
-									selected={selectedMonth}
-									onSelect={handleDateSelect}
-									disabled={(date) => date > new Date()}
-									initialFocus
-								/>
-							</PopoverContent>
-						</Popover>
+						{/* Year Selector with Arrows */}
+						<YearSelector
+							selectedYear={selectedYear}
+							onYearChange={handleYearChange}
+							minYear={2020}
+							maxYear={new Date().getFullYear() + 2}
+						/>
+						<div className="text-sm text-gray-600 dark:text-gray-400">
+							Mes seleccionado: <span className="font-medium">{format(selectedMonth, 'MMMM yyyy', { locale: es })}</span>
+						</div>
 					</div>
 				</div>
 			</div>
@@ -217,8 +198,8 @@ const StatsPage: React.FC = () => {
 													? 'bg-gradient-to-t from-purple-600 to-purple-400 shadow-lg' 
 													: 'bg-gradient-to-t from-blue-500 to-blue-300 hover:from-blue-600 hover:to-blue-400'
 											}`}
-											style={{ height: `${Math.max(height, 15)}%` }} // FIXED: Increased minimum height for better UX
-											title={`${format(new Date(month.month), 'MMM yyyy')}: ${formatCurrency(month.revenue)}`}
+											style={{ height: `${Math.max(height, 20)}%` }} // FIXED: Increased minimum height for better UX
+											title={`${format(new Date(month.month), 'MMM yyyy', { locale: es })}: ${formatCurrency(month.revenue)}`}
 											onClick={() => handleMonthBarClick(month)}
 										></div>
 									)
@@ -226,9 +207,10 @@ const StatsPage: React.FC = () => {
 							)}
 						</div>
 						<div className="flex justify-between text-xs text-gray-500 dark:text-gray-400 mt-4 overflow-x-auto">
+							{/* FIXED: Force Spanish month labels regardless of system language */}
 							{stats?.salesTrendByMonth.map((month) => (
 								<span key={month.month} className="flex-shrink-0">
-									{format(new Date(month.month), 'MMM')}
+									{format(new Date(month.month), 'MMM', { locale: es })}
 								</span>
 							)) || ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'].map((month) => (
 								<span key={month} className="flex-shrink-0">{month}</span>

@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query'
 import { supabase } from '@lib/supabase/config'
 import { startOfMonth, endOfMonth, format, startOfYear, endOfYear } from 'date-fns'
+import { es } from 'date-fns/locale'
 
 export interface DashboardStats {
   totalRevenue: number
@@ -207,11 +208,7 @@ export const useMonthSelector = () => {
     const date = new Date(currentDate.getFullYear(), currentDate.getMonth() - i, 1)
     months.push({
       value: date,
-      label: format(date, 'MMMM yyyy', { locale: { localize: { month: (n: number) => {
-        const monthNames = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
-                           'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre']
-        return monthNames[n]
-      } } } })
+      label: format(date, 'MMMM yyyy', { locale: es })
     })
   }
   

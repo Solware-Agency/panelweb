@@ -2,21 +2,17 @@ import EyeTrackingComponent from '@features/dashboard/home/RobotTraking'
 import { TrendingUp, Users, DollarSign, Calendar, ArrowRight, BarChart3, AlertTriangle, Clock } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { BackgroundGradient } from '@shared/components/ui/background-gradient'
-import { useDashboardStats, useYearSelector } from '@shared/hooks/useDashboardStats'
+import { useDashboardStats } from '@shared/hooks/useDashboardStats'
+import { YearSelector } from '@shared/components/ui/year-selector'
 import { useState } from 'react'
 import { format } from 'date-fns'
-import { Popover, PopoverContent, PopoverTrigger } from '@shared/components/ui/popover'
-import { Button } from '@shared/components/ui/button'
-import { Calendar as CalendarComponent } from '@shared/components/ui/calendar'
-import { cn } from '@shared/lib/cn'
+import { es } from 'date-fns/locale'
 
 function MainHome() {
 	const navigate = useNavigate()
 	const [selectedMonth, setSelectedMonth] = useState<Date>(new Date())
 	const [selectedYear, setSelectedYear] = useState<number>(new Date().getFullYear())
-	const [isCalendarOpen, setIsCalendarOpen] = useState(false)
 	const { data: stats, isLoading, error } = useDashboardStats(selectedMonth, selectedYear)
-	const years = useYearSelector()
 
 	if (error) {
 		console.error('Error loading dashboard stats:', error)
@@ -37,11 +33,10 @@ function MainHome() {
 		setSelectedMonth(clickedDate)
 	}
 
-	const handleDateSelect = (date: Date | undefined) => {
-		if (date) {
-			setSelectedMonth(date)
-			setIsCalendarOpen(false)
-		}
+	const handleYearChange = (year: number) => {
+		setSelectedYear(year)
+		// Update selected month to the same month in the new year
+		setSelectedMonth(new Date(year, selectedMonth.getMonth(), 1))
 	}
 
 	return (
@@ -208,11 +203,7 @@ function MainHome() {
 									{isLoading ? '...' : formatCurrency(stats?.monthlyRevenue || 0)}
 								</p>
 								<p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-									{format(selectedMonth, 'MMMM yyyy', { locale: { localize: { month: (n: number) => {
-										const monthNames = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
-														   'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre']
-										return monthNames[n]
-									} } } })}
+									{format(selectedMonth, 'MMMM yyyy', { locale: es })}
 								</p>
 							</div>
 						</div>
@@ -290,7 +281,7 @@ function MainHome() {
 						</div>
 					</BackgroundGradient>
 
-					{/* Grid 6 - 12-Month Sales Trend Chart with Date Picker */}
+					{/* Grid 6 - 12-Month Sales Trend Chart with Year Selector */}
 					<BackgroundGradient
 						containerClassName="col-span-1 sm:col-span-2 lg:col-span-4 row-span-1 lg:row-span-2"
 						className="dark:bg-gray-900 bg-white/80 rounded-xl py-4 sm:py-5 px-4 sm:px-6 transition-colors duration-300 cursor-pointer hover:bg-white/90 group h-full"
@@ -301,30 +292,13 @@ function MainHome() {
 									Tendencia de Ventas
 								</h3>
 								<div className="flex items-center gap-4">
-									{/* Date Picker for Month/Year Selection */}
-									<Popover open={isCalendarOpen} onOpenChange={setIsCalendarOpen}>
-										<PopoverTrigger asChild>
-											<Button
-												variant="outline"
-												className={cn(
-													"w-auto justify-start text-left font-normal",
-													!selectedMonth && "text-muted-foreground"
-												)}
-											>
-												<Calendar className="mr-2 h-4 w-4" />
-												{selectedMonth ? format(selectedMonth, 'MMM yyyy') : <span>Seleccionar mes</span>}
-											</Button>
-										</PopoverTrigger>
-										<PopoverContent className="w-auto p-0" align="end">
-											<CalendarComponent
-												mode="single"
-												selected={selectedMonth}
-												onSelect={handleDateSelect}
-												disabled={(date) => date > new Date()}
-												initialFocus
-											/>
-										</PopoverContent>
-									</Popover>
+									{/* Year Selector with Arrows */}
+									<YearSelector
+										selectedYear={selectedYear}
+										onYearChange={handleYearChange}
+										minYear={2020}
+										maxYear={new Date().getFullYear() + 2}
+									/>
 									<div className="flex items-center gap-2">
 										<div className="w-3 h-3 bg-blue-500 rounded-full"></div>
 										<span className="text-sm text-gray-600 dark:text-gray-400">12 meses</span>
@@ -349,8 +323,8 @@ function MainHome() {
 														? 'bg-gradient-to-t from-purple-600 to-purple-400 shadow-lg' 
 														: 'bg-gradient-to-t from-blue-500 to-blue-300 hover:from-blue-600 hover:to-blue-400'
 												}`}
-												style={{ height: `${Math.max(height, 15)}%` }} // FIXED: Increased minimum height for better UX
-												title={`${format(new Date(month.month), 'MMM yyyy')}: ${formatCurrency(month.revenue)}`}
+												style={{ height: `${Math.max(height, 20)}%` }} // FIXED: Increased minimum height for better UX
+												title={`${format(new Date(month.month), 'MMM yyyy', { locale: es })}: ${formatCurrency(month.revenue)}`}
 												onClick={() => handleMonthBarClick(month)}
 											></div>
 										)
@@ -358,9 +332,10 @@ function MainHome() {
 								)}
 							</div>
 							<div className="flex justify-between text-xs text-gray-500 dark:text-gray-400 mt-2">
+								{/* FIXED: Force Spanish month labels regardless of system language */}
 								{stats?.salesTrendByMonth.map((month) => (
 									<span key={month.month} className="text-center">
-										{format(new Date(month.month), 'MMM')}
+										{format(new Date(month.month), 'MMM', { locale: es })}
 									</span>
 								)) || ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'].map(m => <span key={m}>{m}</span>)}
 							</div>
