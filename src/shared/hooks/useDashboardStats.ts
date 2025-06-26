@@ -12,7 +12,7 @@ export interface DashboardStats {
   newPatientsThisMonth: number
   revenueByBranch: Array<{ branch: string; revenue: number; percentage: number }>
   revenueByExamType: Array<{ examType: string; revenue: number; count: number }>
-  salesTrendByMonth: Array<{ month: string; revenue: number; isSelected?: boolean }>
+  salesTrendByMonth: Array<{ month: string; revenue: number; isSelected?: boolean; monthIndex: number }>
   topExamTypes: Array<{ examType: string; count: number; revenue: number }>
   totalCases: number
 }
@@ -125,7 +125,7 @@ export const useDashboardStats = (selectedMonth?: Date, selectedYear?: number) =
           }))
           .sort((a, b) => b.revenue - a.revenue)
 
-        // Calculate sales trend by month for selected year or last 12 months
+        // Calculate sales trend by month for selected year - FIXED: Start from January (month 0)
         const currentYear = selectedYear || new Date().getFullYear()
         const yearStart = startOfYear(new Date(currentYear, 0, 1))
         const yearEnd = endOfYear(new Date(currentYear, 0, 1))
@@ -136,7 +136,7 @@ export const useDashboardStats = (selectedMonth?: Date, selectedYear?: number) =
           return recordDate >= yearStart && recordDate <= yearEnd
         }) || []
 
-        // Create 12 months for the selected year
+        // Create 12 months for the selected year - FIXED: Start from January (0) to December (11)
         const salesTrendByMonth = []
         for (let month = 0; month < 12; month++) {
           const monthDate = new Date(currentYear, month, 1)
@@ -148,6 +148,7 @@ export const useDashboardStats = (selectedMonth?: Date, selectedYear?: number) =
           salesTrendByMonth.push({
             month: monthKey,
             revenue: monthRevenue,
+            monthIndex: month, // Add month index for proper ordering
             isSelected: selectedMonth ? format(selectedMonth, 'yyyy-MM') === monthKey : false
           })
         }

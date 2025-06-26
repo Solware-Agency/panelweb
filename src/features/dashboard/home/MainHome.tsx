@@ -1,17 +1,21 @@
 import EyeTrackingComponent from '@features/dashboard/home/RobotTraking'
-import { TrendingUp, Users, DollarSign, Calendar, ArrowRight, BarChart3, ChevronDown, AlertTriangle, Clock } from 'lucide-react'
+import { TrendingUp, Users, DollarSign, Calendar, ArrowRight, BarChart3, AlertTriangle, Clock } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { BackgroundGradient } from '@shared/components/ui/background-gradient'
-import { useDashboardStats, useMonthSelector, useYearSelector } from '@shared/hooks/useDashboardStats'
+import { useDashboardStats, useYearSelector } from '@shared/hooks/useDashboardStats'
 import { useState } from 'react'
 import { format } from 'date-fns'
+import { Popover, PopoverContent, PopoverTrigger } from '@shared/components/ui/popover'
+import { Button } from '@shared/components/ui/button'
+import { Calendar as CalendarComponent } from '@shared/components/ui/calendar'
+import { cn } from '@shared/lib/cn'
 
 function MainHome() {
 	const navigate = useNavigate()
 	const [selectedMonth, setSelectedMonth] = useState<Date>(new Date())
 	const [selectedYear, setSelectedYear] = useState<number>(new Date().getFullYear())
+	const [isCalendarOpen, setIsCalendarOpen] = useState(false)
 	const { data: stats, isLoading, error } = useDashboardStats(selectedMonth, selectedYear)
-	const months = useMonthSelector()
 	const years = useYearSelector()
 
 	if (error) {
@@ -28,8 +32,16 @@ function MainHome() {
 	}
 
 	const handleMonthBarClick = (monthData: any) => {
-		const clickedDate = new Date(monthData.month + '-01')
+		// FIXED: Use the monthIndex to create the correct date
+		const clickedDate = new Date(selectedYear, monthData.monthIndex, 1)
 		setSelectedMonth(clickedDate)
+	}
+
+	const handleDateSelect = (date: Date | undefined) => {
+		if (date) {
+			setSelectedMonth(date)
+			setIsCalendarOpen(false)
+		}
 	}
 
 	return (
@@ -278,7 +290,7 @@ function MainHome() {
 						</div>
 					</BackgroundGradient>
 
-					{/* Grid 6 - 12-Month Sales Trend Chart with Year Selector */}
+					{/* Grid 6 - 12-Month Sales Trend Chart with Date Picker */}
 					<BackgroundGradient
 						containerClassName="col-span-1 sm:col-span-2 lg:col-span-4 row-span-1 lg:row-span-2"
 						className="dark:bg-gray-900 bg-white/80 rounded-xl py-4 sm:py-5 px-4 sm:px-6 transition-colors duration-300 cursor-pointer hover:bg-white/90 group h-full"
@@ -289,21 +301,30 @@ function MainHome() {
 									Tendencia de Ventas
 								</h3>
 								<div className="flex items-center gap-4">
-									{/* Year Selector */}
-									<div className="relative">
-										<select
-											value={selectedYear}
-											onChange={(e) => setSelectedYear(Number(e.target.value))}
-											className="appearance-none bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-1 pr-8 text-sm font-medium text-gray-700 dark:text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
-										>
-											{years.map((year) => (
-												<option key={year.value} value={year.value}>
-													{year.label}
-												</option>
-											))}
-										</select>
-										<ChevronDown className="absolute right-2 top-1/2 transform -translate-y-1/2 w-3 h-3 text-gray-400 pointer-events-none" />
-									</div>
+									{/* Date Picker for Month/Year Selection */}
+									<Popover open={isCalendarOpen} onOpenChange={setIsCalendarOpen}>
+										<PopoverTrigger asChild>
+											<Button
+												variant="outline"
+												className={cn(
+													"w-auto justify-start text-left font-normal",
+													!selectedMonth && "text-muted-foreground"
+												)}
+											>
+												<Calendar className="mr-2 h-4 w-4" />
+												{selectedMonth ? format(selectedMonth, 'MMM yyyy') : <span>Seleccionar mes</span>}
+											</Button>
+										</PopoverTrigger>
+										<PopoverContent className="w-auto p-0" align="end">
+											<CalendarComponent
+												mode="single"
+												selected={selectedMonth}
+												onSelect={handleDateSelect}
+												disabled={(date) => date > new Date()}
+												initialFocus
+											/>
+										</PopoverContent>
+									</Popover>
 									<div className="flex items-center gap-2">
 										<div className="w-3 h-3 bg-blue-500 rounded-full"></div>
 										<span className="text-sm text-gray-600 dark:text-gray-400">12 meses</span>
@@ -328,7 +349,7 @@ function MainHome() {
 														? 'bg-gradient-to-t from-purple-600 to-purple-400 shadow-lg' 
 														: 'bg-gradient-to-t from-blue-500 to-blue-300 hover:from-blue-600 hover:to-blue-400'
 												}`}
-												style={{ height: `${Math.max(height, 10)}%` }}
+												style={{ height: `${Math.max(height, 15)}%` }} // FIXED: Increased minimum height for better UX
 												title={`${format(new Date(month.month), 'MMM yyyy')}: ${formatCurrency(month.revenue)}`}
 												onClick={() => handleMonthBarClick(month)}
 											></div>

@@ -1,15 +1,18 @@
 import React, { useState } from 'react'
-import { TrendingUp, Users, DollarSign, ShoppingCart, ArrowUpRight, ArrowDownRight, ChevronDown, AlertTriangle, Clock } from 'lucide-react'
+import { TrendingUp, Users, DollarSign, ShoppingCart, ArrowUpRight, AlertTriangle, Clock, Calendar as CalendarIcon } from 'lucide-react'
 import { BackgroundGradient } from '@shared/components/ui/background-gradient'
-import { useDashboardStats, useMonthSelector, useYearSelector } from '@shared/hooks/useDashboardStats'
+import { useDashboardStats } from '@shared/hooks/useDashboardStats'
 import { format } from 'date-fns'
+import { Popover, PopoverContent, PopoverTrigger } from '@shared/components/ui/popover'
+import { Button } from '@shared/components/ui/button'
+import { Calendar as CalendarComponent } from '@shared/components/ui/calendar'
+import { cn } from '@shared/lib/cn'
 
 const StatsPage: React.FC = () => {
 	const [selectedMonth, setSelectedMonth] = useState<Date>(new Date())
 	const [selectedYear, setSelectedYear] = useState<number>(new Date().getFullYear())
+	const [isCalendarOpen, setIsCalendarOpen] = useState(false)
 	const { data: stats, isLoading, error } = useDashboardStats(selectedMonth, selectedYear)
-	const months = useMonthSelector()
-	const years = useYearSelector()
 
 	if (error) {
 		console.error('Error loading stats:', error)
@@ -25,8 +28,17 @@ const StatsPage: React.FC = () => {
 	}
 
 	const handleMonthBarClick = (monthData: any) => {
-		const clickedDate = new Date(monthData.month + '-01')
+		// FIXED: Use the monthIndex to create the correct date
+		const clickedDate = new Date(selectedYear, monthData.monthIndex, 1)
 		setSelectedMonth(clickedDate)
+	}
+
+	const handleDateSelect = (date: Date | undefined) => {
+		if (date) {
+			setSelectedMonth(date)
+			setSelectedYear(date.getFullYear())
+			setIsCalendarOpen(false)
+		}
 	}
 
 	// Calculate some additional metrics
@@ -40,34 +52,30 @@ const StatsPage: React.FC = () => {
 				<div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
 					<h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Estadísticas</h2>
 					<div className="flex items-center gap-4">
-						<div className="relative">
-							<select
-								value={selectedMonth.toISOString()}
-								onChange={(e) => setSelectedMonth(new Date(e.target.value))}
-								className="appearance-none bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 pr-8 text-sm font-medium text-gray-700 dark:text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
-							>
-								{months.map((month) => (
-									<option key={month.value.toISOString()} value={month.value.toISOString()}>
-										{month.label}
-									</option>
-								))}
-							</select>
-							<ChevronDown className="absolute right-2 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
-						</div>
-						<div className="relative">
-							<select
-								value={selectedYear}
-								onChange={(e) => setSelectedYear(Number(e.target.value))}
-								className="appearance-none bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 pr-8 text-sm font-medium text-gray-700 dark:text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
-							>
-								{years.map((year) => (
-									<option key={year.value} value={year.value}>
-										{year.label}
-									</option>
-								))}
-							</select>
-							<ChevronDown className="absolute right-2 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
-						</div>
+						{/* Date Picker for Month/Year Selection */}
+						<Popover open={isCalendarOpen} onOpenChange={setIsCalendarOpen}>
+							<PopoverTrigger asChild>
+								<Button
+									variant="outline"
+									className={cn(
+										"w-auto justify-start text-left font-normal",
+										!selectedMonth && "text-muted-foreground"
+									)}
+								>
+									<CalendarIcon className="mr-2 h-4 w-4" />
+									{selectedMonth ? format(selectedMonth, 'MMMM yyyy') : <span>Seleccionar mes</span>}
+								</Button>
+							</PopoverTrigger>
+							<PopoverContent className="w-auto p-0" align="start">
+								<CalendarComponent
+									mode="single"
+									selected={selectedMonth}
+									onSelect={handleDateSelect}
+									disabled={(date) => date > new Date()}
+									initialFocus
+								/>
+							</PopoverContent>
+						</Popover>
 					</div>
 				</div>
 			</div>
@@ -209,7 +217,7 @@ const StatsPage: React.FC = () => {
 													? 'bg-gradient-to-t from-purple-600 to-purple-400 shadow-lg' 
 													: 'bg-gradient-to-t from-blue-500 to-blue-300 hover:from-blue-600 hover:to-blue-400'
 											}`}
-											style={{ height: `${Math.max(height, 5)}%` }}
+											style={{ height: `${Math.max(height, 15)}%` }} // FIXED: Increased minimum height for better UX
 											title={`${format(new Date(month.month), 'MMM yyyy')}: ${formatCurrency(month.revenue)}`}
 											onClick={() => handleMonthBarClick(month)}
 										></div>
