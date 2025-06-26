@@ -3,7 +3,6 @@ import {
 	TrendingUp,
 	Download,
 	FileText,
-	BarChart3,
 	Calendar,
 	DollarSign,
 	Users,
@@ -20,7 +19,7 @@ const ReportsPage: React.FC = () => {
 	return (
 		<div className="p-3 sm:p-6">
 			{/* Quick Actions */}
-			<div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-6 sm:mb-8">
+			<div className="grid grid-cols-2 gap-3 sm:gap-4 mb-6 sm:mb-8">
 				<BackgroundGradient containerClassName="col-span-1 grid" className="grid">
 					<button className="bg-white/80 dark:bg-gray-900 rounded-xl p-3 sm:p-4 transition-colors duration-300 flex items-center gap-2 sm:gap-3">
 						<div className="p-1.5 sm:p-2 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
@@ -40,28 +39,6 @@ const ReportsPage: React.FC = () => {
 						<div className="text-left">
 							<p className="text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300">Generar Excel</p>
 							<p className="text-xs text-gray-500 dark:text-gray-400 hidden sm:block">Datos completos</p>
-						</div>
-					</button>
-				</BackgroundGradient>
-				<BackgroundGradient containerClassName="col-span-1 grid" className="grid">
-					<button className="bg-white/80 dark:bg-gray-900 rounded-xl p-3 sm:p-4 transition-colors duration-300 flex items-center gap-2 sm:gap-3">
-						<div className="p-1.5 sm:p-2 bg-purple-100 dark:bg-purple-900/30 rounded-lg">
-							<BarChart3 className="w-4 h-4 sm:w-5 sm:h-5 text-purple-600 dark:text-purple-400" />
-						</div>
-						<div className="text-left">
-							<p className="text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300">Dashboard</p>
-							<p className="text-xs text-gray-500 dark:text-gray-400 hidden sm:block">Vista interactiva</p>
-						</div>
-					</button>
-				</BackgroundGradient>
-				<BackgroundGradient containerClassName="col-span-1 grid" className="grid">
-					<button className="bg-white/80 dark:bg-gray-900 rounded-xl p-3 sm:p-4 transition-colors duration-300 flex items-center gap-2 sm:gap-3">
-						<div className="p-1.5 sm:p-2 bg-orange-100 dark:bg-orange-900/30 rounded-lg">
-							<Calendar className="w-4 h-4 sm:w-5 sm:h-5 text-orange-600 dark:text-orange-400" />
-						</div>
-						<div className="text-left">
-							<p className="text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300">Programar</p>
-							<p className="text-xs text-gray-500 dark:text-gray-400 hidden sm:block">Reportes automáticos</p>
 						</div>
 					</button>
 				</BackgroundGradient>

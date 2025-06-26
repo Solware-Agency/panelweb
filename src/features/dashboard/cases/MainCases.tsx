@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Plus, Download, Filter, RefreshCw } from 'lucide-react'
+import { Download, RefreshCw } from 'lucide-react'
 import { BackgroundGradient } from '@shared/components/ui/background-gradient'
 import CasesTable from '@shared/components/cases/CasesTable'
 import CaseDetailPanel from '@shared/components/cases/CaseDetailPanel'
@@ -23,19 +23,7 @@ const MainCases: React.FC = () => {
 	return (
 		<div className="p-3 sm:p-6">
 			{/* Action Buttons */}
-			<div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-6 sm:mb-8">
-				<BackgroundGradient containerClassName="col-span-1 grid" className="grid">
-					<button className="bg-white/80 dark:bg-gray-900 rounded-xl p-3 sm:p-4 transition-colors duration-300 flex items-center gap-2 sm:gap-3 hover:bg-white dark:hover:bg-gray-800">
-						<div className="p-1.5 sm:p-2 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
-							<Plus className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600 dark:text-blue-400" />
-						</div>
-						<div className="text-left">
-							<p className="text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300">Nuevo Caso</p>
-							<p className="text-xs text-gray-500 dark:text-gray-400 hidden sm:block">Registrar paciente</p>
-						</div>
-					</button>
-				</BackgroundGradient>
-
+			<div className="grid grid-cols-2 gap-3 sm:gap-4 mb-6 sm:mb-8">
 				<BackgroundGradient containerClassName="col-span-1 grid" className="grid">
 					<button className="bg-white/80 dark:bg-gray-900 rounded-xl p-3 sm:p-4 transition-colors duration-300 flex items-center gap-2 sm:gap-3 hover:bg-white dark:hover:bg-gray-800">
 						<div className="p-1.5 sm:p-2 bg-green-100 dark:bg-green-900/30 rounded-lg">
@@ -44,18 +32,6 @@ const MainCases: React.FC = () => {
 						<div className="text-left">
 							<p className="text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300">Exportar</p>
 							<p className="text-xs text-gray-500 dark:text-gray-400 hidden sm:block">Descargar datos</p>
-						</div>
-					</button>
-				</BackgroundGradient>
-
-				<BackgroundGradient containerClassName="col-span-1 grid" className="grid">
-					<button className="bg-white/80 dark:bg-gray-900 rounded-xl p-3 sm:p-4 transition-colors duration-300 flex items-center gap-2 sm:gap-3 hover:bg-white dark:hover:bg-gray-800">
-						<div className="p-1.5 sm:p-2 bg-purple-100 dark:bg-purple-900/30 rounded-lg">
-							<Filter className="w-4 h-4 sm:w-5 sm:h-5 text-purple-600 dark:text-purple-400" />
-						</div>
-						<div className="text-left">
-							<p className="text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300">Filtros</p>
-							<p className="text-xs text-gray-500 dark:text-gray-400 hidden sm:block">Filtros avanzados</p>
 						</div>
 					</button>
 				</BackgroundGradient>
