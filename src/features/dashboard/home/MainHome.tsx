@@ -108,7 +108,13 @@ function MainHome() {
 												strokeWidth="4"
 											></circle>
 											{stats?.revenueByBranch.map((branch, index) => {
-												const colors = ['text-blue-500', 'text-green-500', 'text-orange-500', 'text-red-500', 'text-purple-500']
+												const colors = [
+													'text-blue-500',
+													'text-green-500',
+													'text-orange-500',
+													'text-red-500',
+													'text-purple-500',
+												]
 												const offset = stats.revenueByBranch.slice(0, index).reduce((sum, b) => sum + b.percentage, 0)
 												return (
 													<circle
@@ -128,7 +134,7 @@ function MainHome() {
 										</svg>
 										<div className="absolute inset-0 flex items-center justify-center">
 											<div className="text-center">
-												<p className="text-xl sm:text-2xl font-bold text-gray-700 dark:text-gray-300">
+												<p className="text-xl font-bold text-gray-700 dark:text-gray-300">
 													{isLoading ? '...' : formatCurrency(stats?.totalRevenue || 0)}
 												</p>
 												<p className="text-xs text-gray-500 dark:text-gray-400">Total</p>
@@ -147,14 +153,37 @@ function MainHome() {
 									) : (
 										stats?.revenueByBranch.slice(0, 4).map((branch, index) => {
 											const colors = [
-												{ bg: 'from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20', border: 'border-blue-200 dark:border-blue-800/30', text: 'text-blue-600 dark:text-blue-400', dot: 'bg-blue-500' },
-												{ bg: 'from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20', border: 'border-green-200 dark:border-green-800/30', text: 'text-green-600 dark:text-green-400', dot: 'bg-green-500' },
-												{ bg: 'from-orange-50 to-orange-100 dark:from-orange-900/20 dark:to-orange-800/20', border: 'border-orange-200 dark:border-orange-800/30', text: 'text-orange-600 dark:text-orange-400', dot: 'bg-orange-500' },
-												{ bg: 'from-red-50 to-red-100 dark:from-red-900/20 dark:to-red-800/20', border: 'border-red-200 dark:border-red-800/30', text: 'text-red-600 dark:text-red-400', dot: 'bg-red-500' }
+												{
+													bg: 'from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20',
+													border: 'border-blue-200 dark:border-blue-800/30',
+													text: 'text-blue-600 dark:text-blue-400',
+													dot: 'bg-blue-500',
+												},
+												{
+													bg: 'from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20',
+													border: 'border-green-200 dark:border-green-800/30',
+													text: 'text-green-600 dark:text-green-400',
+													dot: 'bg-green-500',
+												},
+												{
+													bg: 'from-orange-50 to-orange-100 dark:from-orange-900/20 dark:to-orange-800/20',
+													border: 'border-orange-200 dark:border-orange-800/30',
+													text: 'text-orange-600 dark:text-orange-400',
+													dot: 'bg-orange-500',
+												},
+												{
+													bg: 'from-red-50 to-red-100 dark:from-red-900/20 dark:to-red-800/20',
+													border: 'border-red-200 dark:border-red-800/30',
+													text: 'text-red-600 dark:text-red-400',
+													dot: 'bg-red-500',
+												},
 											]
 											const color = colors[index % colors.length]
 											return (
-												<div key={branch.branch} className={`flex items-center justify-between p-2 sm:p-3 bg-gradient-to-r ${color.bg} rounded-xl border ${color.border}`}>
+												<div
+													key={branch.branch}
+													className={`flex items-center justify-between p-2 sm:p-3 bg-gradient-to-r ${color.bg} rounded-xl border ${color.border}`}
+												>
 													<div className="flex items-center gap-2 sm:gap-3">
 														<div className={`w-3 h-3 sm:w-4 sm:h-4 ${color.dot} rounded-full shadow-lg`}></div>
 														<div>
@@ -190,9 +219,7 @@ function MainHome() {
 								<div className="flex items-center gap-2">
 									<div className="flex items-center text-green-600 dark:text-green-400">
 										<TrendingUp className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
-										<span className="text-xs sm:text-sm font-medium">
-											{isLoading ? '...' : '+12.5%'}
-										</span>
+										<span className="text-xs sm:text-sm font-medium">{isLoading ? '...' : '+12.5%'}</span>
 									</div>
 									<ArrowRight className="w-3 h-3 sm:w-4 sm:h-4 text-gray-400 group-hover:text-blue-500 transition-colors" />
 								</div>
@@ -291,18 +318,15 @@ function MainHome() {
 								<h3 className="text-base sm:text-lg font-bold text-gray-700 dark:text-gray-300 mb-2 sm:mb-0">
 									Tendencia de Ventas
 								</h3>
+								{/* Year Selector with Arrows */}
 								<div className="flex items-center gap-4">
-									{/* Year Selector with Arrows */}
 									<YearSelector
 										selectedYear={selectedYear}
 										onYearChange={handleYearChange}
 										minYear={2020}
 										maxYear={new Date().getFullYear() + 2}
 									/>
-									<div className="flex items-center gap-2">
-										<div className="w-3 h-3 bg-blue-500 rounded-full"></div>
-										<span className="text-sm text-gray-600 dark:text-gray-400">12 meses</span>
-									</div>
+									<span className="text-sm text-gray-600 dark:text-gray-400">12 meses de {selectedYear}</span>
 								</div>
 							</div>
 							<div className="relative h-16 sm:h-20 lg:h-24 flex items-end justify-between gap-1 sm:gap-2">
@@ -312,19 +336,21 @@ function MainHome() {
 									</div>
 								) : (
 									stats?.salesTrendByMonth.map((month, _index) => {
-										const maxRevenue = Math.max(...(stats?.salesTrendByMonth.map(m => m.revenue) || [1]))
+										const maxRevenue = Math.max(...(stats?.salesTrendByMonth.map((m) => m.revenue) || [1]))
 										const height = maxRevenue > 0 ? (month.revenue / maxRevenue) * 100 : 0
 										const isSelected = month.isSelected
 										return (
 											<div
 												key={month.month}
 												className={`flex-1 rounded-t-sm hover:translate-y-[-4px] transition-all duration-200 cursor-pointer ${
-													isSelected 
-														? 'bg-gradient-to-t from-purple-600 to-purple-400 shadow-lg' 
+													isSelected
+														? 'bg-gradient-to-t from-purple-600 to-purple-400 shadow-lg'
 														: 'bg-gradient-to-t from-blue-500 to-blue-300 hover:from-blue-600 hover:to-blue-400'
 												}`}
 												style={{ height: `${Math.max(height, 20)}%` }} // FIXED: Increased minimum height for better UX
-												title={`${format(new Date(month.month), 'MMM yyyy', { locale: es })}: ${formatCurrency(month.revenue)}`}
+												title={`${format(new Date(month.month), 'MMM yyyy', { locale: es })}: ${formatCurrency(
+													month.revenue,
+												)}`}
 												onClick={() => handleMonthBarClick(month)}
 											></div>
 										)
@@ -333,11 +359,9 @@ function MainHome() {
 							</div>
 							<div className="flex justify-between text-xs text-gray-500 dark:text-gray-400 mt-2">
 								{/* FIXED: Force Spanish month labels regardless of system language */}
-								{stats?.salesTrendByMonth.map((month) => (
-									<span key={month.month} className="text-center">
-										{format(new Date(month.month), 'MMM', { locale: es })}
-									</span>
-								)) || ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'].map(m => <span key={m}>{m}</span>)}
+								{['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'].map((m) => (
+										<span key={m}>{m}</span>
+									))}
 							</div>
 						</div>
 					</BackgroundGradient>
@@ -364,15 +388,32 @@ function MainHome() {
 								) : (
 									stats?.topExamTypes.slice(0, 3).map((exam, index) => {
 										const colors = [
-											{ bg: 'from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20', text: 'text-blue-600 dark:text-blue-400', badge: 'bg-blue-500' },
-											{ bg: 'from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20', text: 'text-green-600 dark:text-green-400', badge: 'bg-green-500' },
-											{ bg: 'from-orange-50 to-orange-100 dark:from-orange-900/20 dark:to-orange-800/20', text: 'text-orange-600 dark:text-orange-400', badge: 'bg-orange-500' }
+											{
+												bg: 'from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20',
+												text: 'text-blue-600 dark:text-blue-400',
+												badge: 'bg-blue-500',
+											},
+											{
+												bg: 'from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20',
+												text: 'text-green-600 dark:text-green-400',
+												badge: 'bg-green-500',
+											},
+											{
+												bg: 'from-orange-50 to-orange-100 dark:from-orange-900/20 dark:to-orange-800/20',
+												text: 'text-orange-600 dark:text-orange-400',
+												badge: 'bg-orange-500',
+											},
 										]
 										const color = colors[index]
 										return (
-											<div key={exam.examType} className={`flex items-center justify-between p-2 sm:p-3 bg-gradient-to-r ${color.bg} rounded-lg`}>
+											<div
+												key={exam.examType}
+												className={`flex items-center justify-between p-2 sm:p-3 bg-gradient-to-r ${color.bg} rounded-lg`}
+											>
 												<div className="flex items-center gap-2 sm:gap-3">
-													<div className={`w-6 h-6 sm:w-8 sm:h-8 ${color.badge} rounded-lg flex items-center justify-center`}>
+													<div
+														className={`w-6 h-6 sm:w-8 sm:h-8 ${color.badge} rounded-lg flex items-center justify-center`}
+													>
 														<span className="text-white font-bold text-xs sm:text-sm">{index + 1}</span>
 													</div>
 													<div>

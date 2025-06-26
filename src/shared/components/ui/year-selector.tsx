@@ -28,7 +28,7 @@ export const YearSelector: React.FC<YearSelectorProps> = ({
   }
 
   return (
-    <div className="flex items-center gap-2 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-1">
+    <div className="flex items-center bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-1">
       <Button
         variant="ghost"
         size="sm"
