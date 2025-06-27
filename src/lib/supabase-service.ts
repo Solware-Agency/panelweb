@@ -1,6 +1,7 @@
 import { supabase } from '@lib/supabase/config'
 import { type FormValues } from '@features/form/lib/form-schema'
 import { prepareSubmissionData } from '@features/form/lib/prepareSubmissionData'
+import { calculatePaymentDetailsFromRecord } from '@features/form/lib/payment/payment-utils'
 import type { MedicalRecordInsert } from '@shared/types/types'
 
 export interface MedicalRecord {
@@ -241,15 +242,32 @@ export const updateMedicalRecord = async (id: string, updates: Partial<MedicalRe
 	try {
 		console.log(`🔄 Updating medical record ${id} in ${TABLE_NAME}:`, updates)
 
-		// Add updated_at timestamp
-		const updatesWithTimestamp = {
+		// Get the current record to calculate payment status
+		const { data: currentRecord, error: fetchError } = await getMedicalRecordById(id)
+		if (fetchError || !currentRecord) {
+			console.error(`❌ Error fetching current record:`, fetchError)
+			return { data: null, error: fetchError }
+		}
+
+		// Merge current record with updates to get the complete updated record
+		const updatedRecord = { ...currentRecord, ...updates }
+
+		// Calculate payment status and remaining amount based on the updated payment information
+		const { paymentStatus, missingAmount } = calculatePaymentDetailsFromRecord(updatedRecord)
+
+		// Add calculated fields and timestamp to updates
+		const updatesWithCalculations = {
 			...updates,
+			payment_status: paymentStatus || 'N/A',
+			remaining: missingAmount,
 			updated_at: new Date().toISOString()
 		}
 
+		console.log(`💰 Calculated payment status: ${paymentStatus}, remaining: ${missingAmount}`)
+
 		const { data, error } = await supabase
 			.from(TABLE_NAME)
-			.update(updatesWithTimestamp)
+			.update(updatesWithCalculations)
 			.eq('id', id)
 			.select()
 			.single()
@@ -356,7 +374,7 @@ export const updateMedicalRecordWithLog = async (
 		console.log('Updates to apply:', updates)
 		console.log('Changes to log:', changes)
 
-		// Update the medical record first
+		// Update the medical record first (this now includes payment status calculation)
 		const { data: updatedRecord, error: updateError } = await updateMedicalRecord(id, updates)
 
 		if (updateError) {
