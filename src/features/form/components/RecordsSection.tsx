@@ -2,8 +2,7 @@ import React, { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import CasesTable from '@shared/components/cases/CasesTable'
 import CaseDetailPanel from '@shared/components/cases/CaseDetailPanel'
-import { Button } from '@shared/components/ui/button'
-import { RefreshCw, Users, DollarSign, TrendingUp } from 'lucide-react'
+import { Users, DollarSign, TrendingUp } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@shared/components/ui/card'
 import { getClientes, searchClientes, type MedicalRecord } from '@lib/supabase-service'
 
@@ -24,38 +23,21 @@ export const RecordsSection: React.FC = () => {
 	}
 
 	// Query for all records (when no search term)
-	const {
-		data: allRecords,
-		isLoading: isLoadingAll,
-		refetch: refetchAll,
-	} = useQuery({
+	const { data: allRecords } = useQuery({
 		queryKey: ['clientes'],
 		queryFn: () => getClientes(50, 0),
 		enabled: !searchTerm,
 	})
 
 	// Query for search results
-	const {
-		data: searchResults,
-		isLoading: isLoadingSearch,
-		refetch: refetchSearch,
-	} = useQuery({
+	const { data: searchResults } = useQuery({
 		queryKey: ['clientes-search', searchTerm],
 		queryFn: () => searchClientes(searchTerm),
 		enabled: !!searchTerm,
 	})
 
-	const handleRefresh = () => {
-		if (searchTerm) {
-			refetchSearch()
-		} else {
-			refetchAll()
-		}
-	}
-
 	// Determine which data to use
 	const records = searchTerm ? searchResults?.data : allRecords?.data
-	const isLoading = searchTerm ? isLoadingSearch : isLoadingAll
 
 	// Calculate statistics
 	const stats = React.useMemo(() => {
@@ -78,16 +60,6 @@ export const RecordsSection: React.FC = () => {
 						{searchTerm ? `Resultados de búsqueda para "${searchTerm}"` : 'Todos los registros médicos'}
 					</p>
 				</div>
-				<Button
-					onClick={handleRefresh}
-					variant="outline"
-					size="sm"
-					disabled={isLoading}
-					className="flex items-center gap-2"
-				>
-					<RefreshCw className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
-					Actualizar
-				</Button>
 			</div>
 
 			{/* Statistics cards */}
