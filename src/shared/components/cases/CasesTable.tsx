@@ -323,7 +323,6 @@ const CasesTable: React.FC<CasesTableProps> = ({ onCaseSelect }) => {
 								className="flex items-center gap-2 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:text-white text-sm hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors disabled:opacity-50"
 							>
 								<RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
-								Actualizar
 							</button>
 							<button
 								onClick={() => setIsFullscreen(false)}
@@ -586,19 +585,18 @@ const CasesTable: React.FC<CasesTableProps> = ({ onCaseSelect }) => {
 								</select>
 							</div>
 							<button
-								onClick={handleRefresh}
-								disabled={isLoading}
-								className="flex items-center gap-2 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:text-white text-sm hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors disabled:opacity-50"
-							>
-								<RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
-								<span className="hidden sm:inline">Actualizar</span>
-							</button>
-							<button
 								onClick={() => setIsFullscreen(true)}
 								className="hidden lg:flex px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:text-white text-sm items-center gap-2"
 							>
 								<Maximize2 className="size-3" />
 								Expandir
+							</button>
+							<button
+								onClick={handleRefresh}
+								disabled={isLoading}
+								className="flex items-center gap-2 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:text-white text-sm hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors disabled:opacity-50"
+							>
+								<RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
 							</button>
 						</div>
 
