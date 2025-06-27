@@ -55,16 +55,16 @@ const EditCaseModal: React.FC<EditCaseModalProps> = ({ case_, isOpen, onClose, o
     resolver: zodResolver(editCaseSchema),
     defaultValues: {
       comments: '',
-      payment_method_1: '',
+      payment_method_1: undefined,
       payment_amount_1: null,
       payment_reference_1: '',
-      payment_method_2: '',
+      payment_method_2: undefined,
       payment_amount_2: null,
       payment_reference_2: '',
-      payment_method_3: '',
+      payment_method_3: undefined,
       payment_amount_3: null,
       payment_reference_3: '',
-      payment_method_4: '',
+      payment_method_4: undefined,
       payment_amount_4: null,
       payment_reference_4: '',
     }
@@ -75,16 +75,16 @@ const EditCaseModal: React.FC<EditCaseModalProps> = ({ case_, isOpen, onClose, o
     if (case_ && isOpen) {
       form.reset({
         comments: case_.comments || '',
-        payment_method_1: case_.payment_method_1 || '',
+        payment_method_1: case_.payment_method_1 || undefined,
         payment_amount_1: case_.payment_amount_1,
         payment_reference_1: case_.payment_reference_1 || '',
-        payment_method_2: case_.payment_method_2 || '',
+        payment_method_2: case_.payment_method_2 || undefined,
         payment_amount_2: case_.payment_amount_2,
         payment_reference_2: case_.payment_reference_2 || '',
-        payment_method_3: case_.payment_method_3 || '',
+        payment_method_3: case_.payment_method_3 || undefined,
         payment_amount_3: case_.payment_amount_3,
         payment_reference_3: case_.payment_reference_3 || '',
-        payment_method_4: case_.payment_method_4 || '',
+        payment_method_4: case_.payment_method_4 || undefined,
         payment_amount_4: case_.payment_amount_4,
         payment_reference_4: case_.payment_reference_4 || '',
       })
@@ -134,16 +134,20 @@ const EditCaseModal: React.FC<EditCaseModalProps> = ({ case_, isOpen, onClose, o
       const oldValue = case_[field as keyof MedicalRecord]
       const newValue = formData[field]
 
-      // Normalize values for comparison
-      const normalizedOld = oldValue === null || oldValue === undefined ? '' : String(oldValue)
-      const normalizedNew = newValue === null || newValue === undefined ? '' : String(newValue)
+      // Special handling for payment methods - convert undefined to null for comparison
+      const normalizedOld = oldValue === null || oldValue === undefined || oldValue === '' ? null : oldValue
+      const normalizedNew = newValue === null || newValue === undefined || newValue === '' ? null : newValue
 
-      if (normalizedOld !== normalizedNew) {
+      // Convert to strings for comparison, but keep original values for storage
+      const oldStr = normalizedOld === null ? '' : String(normalizedOld)
+      const newStr = normalizedNew === null ? '' : String(normalizedNew)
+
+      if (oldStr !== newStr) {
         detectedChanges.push({
           field,
           fieldLabel: getFieldLabel(field),
-          oldValue: oldValue,
-          newValue: newValue
+          oldValue: normalizedOld,
+          newValue: normalizedNew
         })
       }
     })
@@ -172,8 +176,6 @@ const EditCaseModal: React.FC<EditCaseModalProps> = ({ case_, isOpen, onClose, o
 
     setIsSaving(true)
     try {
-      const formData = form.getValues()
-      
       // Prepare updates object
       const updates: Partial<MedicalRecord> = {}
       changes.forEach(change => {
@@ -215,14 +217,17 @@ const EditCaseModal: React.FC<EditCaseModalProps> = ({ case_, isOpen, onClose, o
           render={({ field }) => (
             <FormItem>
               <FormLabel>Método de Pago {index}</FormLabel>
-              <Select onValueChange={field.onChange} value={field.value || ''}>
+              <Select 
+                onValueChange={(value) => field.onChange(value === 'none' ? undefined : value)} 
+                value={field.value || 'none'}
+              >
                 <FormControl>
                   <SelectTrigger>
                     <SelectValue placeholder="Seleccionar método" />
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>
-                  <SelectItem value="">Sin método</SelectItem>
+                  <SelectItem value="none">Sin método</SelectItem>
                   {paymentMethods.map(method => (
                     <SelectItem key={method} value={method}>{method}</SelectItem>
                   ))}
@@ -246,7 +251,10 @@ const EditCaseModal: React.FC<EditCaseModalProps> = ({ case_, isOpen, onClose, o
                   placeholder="0.00"
                   {...field}
                   value={field.value || ''}
-                  onChange={(e) => field.onChange(e.target.value ? parseFloat(e.target.value) : null)}
+                  onChange={(e) => {
+                    const value = e.target.value
+                    field.onChange(value === '' ? null : parseFloat(value))
+                  }}
                 />
               </FormControl>
               <FormMessage />
