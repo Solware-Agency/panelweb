@@ -239,11 +239,30 @@ export const searchMedicalRecords = async (searchTerm: string) => {
 
 export const updateMedicalRecord = async (id: string, updates: Partial<MedicalRecord>) => {
 	try {
-		const { data, error } = await supabase.from(TABLE_NAME).update(updates).eq('id', id).select().single()
+		console.log(`🔄 Updating medical record ${id} in ${TABLE_NAME}:`, updates)
 
-		return { data, error }
+		// Add updated_at timestamp
+		const updatesWithTimestamp = {
+			...updates,
+			updated_at: new Date().toISOString()
+		}
+
+		const { data, error } = await supabase
+			.from(TABLE_NAME)
+			.update(updatesWithTimestamp)
+			.eq('id', id)
+			.select()
+			.single()
+
+		if (error) {
+			console.error(`❌ Error updating record in ${TABLE_NAME}:`, error)
+			return { data: null, error }
+		}
+
+		console.log(`✅ Medical record updated successfully in ${TABLE_NAME}:`, data)
+		return { data, error: null }
 	} catch (error) {
-		console.error(`Error updating record in ${TABLE_NAME}:`, error)
+		console.error(`❌ Error updating record in ${TABLE_NAME}:`, error)
 		return { data: null, error }
 	}
 }
@@ -334,14 +353,18 @@ export const updateMedicalRecordWithLog = async (
 ) => {
 	try {
 		console.log('🔄 Starting medical record update with change log...')
+		console.log('Updates to apply:', updates)
+		console.log('Changes to log:', changes)
 
-		// Update the medical record
+		// Update the medical record first
 		const { data: updatedRecord, error: updateError } = await updateMedicalRecord(id, updates)
 
 		if (updateError) {
 			console.error('❌ Error updating medical record:', updateError)
 			return { data: null, error: updateError }
 		}
+
+		console.log('✅ Medical record updated successfully:', updatedRecord)
 
 		// Save change logs
 		const { error: logError } = await saveChangeLog(id, userId, userEmail, changes)
@@ -350,6 +373,8 @@ export const updateMedicalRecordWithLog = async (
 			console.error('❌ Error saving change logs (record was updated):', logError)
 			// Note: The record was already updated, so we don't return an error here
 			// but we should log this for monitoring
+		} else {
+			console.log('✅ Change logs saved successfully')
 		}
 
 		console.log('✅ Medical record updated and change logs saved successfully')
