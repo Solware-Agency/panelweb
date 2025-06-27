@@ -39,8 +39,21 @@ export interface MedicalRecord {
 	updated_at?: string
 }
 
+export interface ChangeLog {
+	id?: string
+	medical_record_id: string
+	user_id: string
+	user_email: string
+	field_name: string
+	field_label: string
+	old_value: string | null
+	new_value: string | null
+	changed_at: string
+}
+
 // Nombre de la tabla nueva y limpia
 const TABLE_NAME = 'medical_records_clean'
+const CHANGE_LOG_TABLE = 'change_logs'
 
 export const testConnection = async () => {
 	try {
@@ -242,6 +255,107 @@ export const deleteMedicalRecord = async (id: string) => {
 		return { data, error }
 	} catch (error) {
 		console.error(`Error deleting record from ${TABLE_NAME}:`, error)
+		return { data: null, error }
+	}
+}
+
+// NEW: Function to save change logs
+export const saveChangeLog = async (
+	medicalRecordId: string,
+	userId: string,
+	userEmail: string,
+	changes: Array<{
+		field: string
+		fieldLabel: string
+		oldValue: any
+		newValue: any
+	}>
+) => {
+	try {
+		console.log('💾 Saving change logs for record:', medicalRecordId)
+
+		const changeLogEntries = changes.map(change => ({
+			medical_record_id: medicalRecordId,
+			user_id: userId,
+			user_email: userEmail,
+			field_name: change.field,
+			field_label: change.fieldLabel,
+			old_value: change.oldValue === null || change.oldValue === undefined ? null : String(change.oldValue),
+			new_value: change.newValue === null || change.newValue === undefined ? null : String(change.newValue),
+			changed_at: new Date().toISOString()
+		}))
+
+		const { data, error } = await supabase
+			.from(CHANGE_LOG_TABLE)
+			.insert(changeLogEntries)
+			.select()
+
+		if (error) {
+			console.error('❌ Error saving change logs:', error)
+			return { data: null, error }
+		}
+
+		console.log('✅ Change logs saved successfully:', data)
+		return { data, error: null }
+	} catch (error) {
+		console.error('❌ Unexpected error saving change logs:', error)
+		return { data: null, error }
+	}
+}
+
+// NEW: Function to get change logs for a medical record
+export const getChangeLogsForRecord = async (medicalRecordId: string) => {
+	try {
+		const { data, error } = await supabase
+			.from(CHANGE_LOG_TABLE)
+			.select('*')
+			.eq('medical_record_id', medicalRecordId)
+			.order('changed_at', { ascending: false })
+
+		return { data, error }
+	} catch (error) {
+		console.error(`Error fetching change logs for record ${medicalRecordId}:`, error)
+		return { data: null, error }
+	}
+}
+
+// NEW: Combined function to update medical record and save change log
+export const updateMedicalRecordWithLog = async (
+	id: string,
+	updates: Partial<MedicalRecord>,
+	changes: Array<{
+		field: string
+		fieldLabel: string
+		oldValue: any
+		newValue: any
+	}>,
+	userId: string,
+	userEmail: string
+) => {
+	try {
+		console.log('🔄 Starting medical record update with change log...')
+
+		// Update the medical record
+		const { data: updatedRecord, error: updateError } = await updateMedicalRecord(id, updates)
+
+		if (updateError) {
+			console.error('❌ Error updating medical record:', updateError)
+			return { data: null, error: updateError }
+		}
+
+		// Save change logs
+		const { error: logError } = await saveChangeLog(id, userId, userEmail, changes)
+
+		if (logError) {
+			console.error('❌ Error saving change logs (record was updated):', logError)
+			// Note: The record was already updated, so we don't return an error here
+			// but we should log this for monitoring
+		}
+
+		console.log('✅ Medical record updated and change logs saved successfully')
+		return { data: updatedRecord, error: null }
+	} catch (error) {
+		console.error('❌ Unexpected error in updateMedicalRecordWithLog:', error)
 		return { data: null, error }
 	}
 }
