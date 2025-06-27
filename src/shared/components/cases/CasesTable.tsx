@@ -278,7 +278,7 @@ const CasesTable: React.FC<CasesTableProps> = ({ onCaseSelect }) => {
 
 	if (isFullscreen) {
 		return (
-			<div className="fixed inset-0 z-[99999] bg-white dark:bg-gray-900 h-screen flex flex-col">
+			<div className="fixed inset-0 z-50 bg-white dark:bg-gray-900 h-screen flex flex-col">
 				{/* Fixed Header with Controls */}
 				<div className="flex-shrink-0 p-4 sm:p-6 border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900">
 					<div className="flex flex-col gap-4">
@@ -386,7 +386,7 @@ const CasesTable: React.FC<CasesTableProps> = ({ onCaseSelect }) => {
 					{/* Desktop View - Table */}
 					<div className="hidden lg:block h-full overflow-y-auto">
 						<table className="w-full">
-							<thead className="bg-gray-50/50 dark:bg-gray-800/50 backdrop-blur-[10px] sticky top-0 z-10">
+							<thead className="bg-gray-50/50 dark:bg-gray-800/50 backdrop-blur-[10px] sticky top-0 z-50">
 								<tr>
 									<th className="px-4 py-3 text-left">
 										<button
@@ -574,7 +574,7 @@ const CasesTable: React.FC<CasesTableProps> = ({ onCaseSelect }) => {
 							</div>
 							<button
 								onClick={() => setIsFullscreen(true)}
-								className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:text-white text-sm flex items-center gap-2"
+								className="hidden lg:flex px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:text-white text-sm items-center gap-2"
 							>
 								<Maximize2 className="size-3" />
 								Expandir
@@ -647,7 +647,7 @@ const CasesTable: React.FC<CasesTableProps> = ({ onCaseSelect }) => {
 					<div className="overflow-x-auto">
 						<div className="max-h-[60vh] overflow-y-auto">
 							<table className="w-full">
-								<thead className="bg-gray-50/50 dark:bg-gray-800/50 backdrop-blur-[10px] sticky top-0 z-10">
+								<thead className="bg-gray-50/50 dark:bg-gray-800/50 backdrop-blur-[10px] sticky top-0 z-50">
 									<tr>
 										<th className="px-4 py-3 text-left">
 											<button
