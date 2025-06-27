@@ -11,6 +11,7 @@ import {
 	Stethoscope,
 	CreditCard,
 	Maximize2,
+	RefreshCw,
 } from 'lucide-react'
 import { useQuery } from '@tanstack/react-query'
 import { getMedicalRecords, type MedicalRecord, updateMedicalRecordWithLog } from '@lib/supabase-service'
@@ -110,6 +111,10 @@ const CasesTable: React.FC<CasesTableProps> = ({ onCaseSelect }) => {
 		refetch()
 
 		return data
+	}
+
+	const handleRefresh = () => {
+		refetch()
 	}
 
 	const filteredAndSortedCases = useMemo(() => {
@@ -278,7 +283,7 @@ const CasesTable: React.FC<CasesTableProps> = ({ onCaseSelect }) => {
 
 	if (isFullscreen) {
 		return (
-			<div className="fixed inset-0 z-50 bg-white dark:bg-gray-900 h-screen flex flex-col">
+			<div className="fixed inset-0 z-[999999] bg-white dark:bg-gray-900 h-screen flex flex-col">
 				{/* Fixed Header with Controls */}
 				<div className="flex-shrink-0 p-4 sm:p-6 border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900">
 					<div className="flex flex-col gap-4">
@@ -312,6 +317,14 @@ const CasesTable: React.FC<CasesTableProps> = ({ onCaseSelect }) => {
 									<option value="Incompleto">Incompleto</option>
 								</select>
 							</div>
+							<button
+								onClick={handleRefresh}
+								disabled={isLoading}
+								className="flex items-center gap-2 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:text-white text-sm hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors disabled:opacity-50"
+							>
+								<RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
+								Actualizar
+							</button>
 							<button
 								onClick={() => setIsFullscreen(false)}
 								className="text-gray-500 dark:text-gray-300 hover:text-red-500 dark:hover:text-red-400 text-sm border px-3 py-1 rounded-md"
@@ -572,6 +585,14 @@ const CasesTable: React.FC<CasesTableProps> = ({ onCaseSelect }) => {
 									<option value="Incompleto">Incompleto</option>
 								</select>
 							</div>
+							<button
+								onClick={handleRefresh}
+								disabled={isLoading}
+								className="flex items-center gap-2 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:text-white text-sm hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors disabled:opacity-50"
+							>
+								<RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
+								<span className="hidden sm:inline">Actualizar</span>
+							</button>
 							<button
 								onClick={() => setIsFullscreen(true)}
 								className="hidden lg:flex px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:text-white text-sm items-center gap-2"

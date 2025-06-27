@@ -226,7 +226,7 @@ const EditCaseModal: React.FC<EditCaseModalProps> = ({ case_, isOpen, onClose, o
                     <SelectValue placeholder="Seleccionar método" />
                   </SelectTrigger>
                 </FormControl>
-                <SelectContent>
+                <SelectContent className="z-[9999999]">
                   <SelectItem value="none">Sin método</SelectItem>
                   {paymentMethods.map(method => (
                     <SelectItem key={method} value={method}>{method}</SelectItem>
@@ -425,13 +425,13 @@ const EditCaseModal: React.FC<EditCaseModalProps> = ({ case_, isOpen, onClose, o
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
-                  className="fixed inset-0 bg-black/70 z-[9999999]"
+                  className="fixed inset-0 bg-black/70 z-[99999999]"
                 />
                 <motion.div
                   initial={{ opacity: 0, scale: 0.95 }}
                   animate={{ opacity: 1, scale: 1 }}
                   exit={{ opacity: 0, scale: 0.95 }}
-                  className="fixed inset-0 flex items-center justify-center z-[9999999] p-4"
+                  className="fixed inset-0 flex items-center justify-center z-[99999999] p-4"
                 >
                   <div className="bg-white dark:bg-gray-900 rounded-xl shadow-2xl max-w-md w-full max-h-[80vh] overflow-y-auto">
                     <div className="p-6">

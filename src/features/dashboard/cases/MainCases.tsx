@@ -4,10 +4,19 @@ import { BackgroundGradient } from '@shared/components/ui/background-gradient'
 import CasesTable from '@shared/components/cases/CasesTable'
 import CaseDetailPanel from '@shared/components/cases/CaseDetailPanel'
 import type { MedicalRecord } from '@lib/supabase-service'
+import { useQuery } from '@tanstack/react-query'
+import { getMedicalRecords } from '@lib/supabase-service'
 
 const MainCases: React.FC = () => {
 	const [selectedCase, setSelectedCase] = useState<MedicalRecord | null>(null)
 	const [isPanelOpen, setIsPanelOpen] = useState(false)
+
+	// Query for refreshing data
+	const { refetch, isLoading } = useQuery({
+		queryKey: ['medical-cases'],
+		queryFn: () => getMedicalRecords(100, 0),
+		staleTime: 1000 * 60 * 5, // 5 minutes
+	})
 
 	const handleCaseSelect = (case_: MedicalRecord) => {
 		setSelectedCase(case_)
@@ -18,6 +27,10 @@ const MainCases: React.FC = () => {
 		setIsPanelOpen(false)
 		// Delay clearing selected case to allow animation to complete
 		setTimeout(() => setSelectedCase(null), 300)
+	}
+
+	const handleRefresh = () => {
+		refetch()
 	}
 
 	return (
@@ -37,12 +50,18 @@ const MainCases: React.FC = () => {
 				</BackgroundGradient>
 
 				<BackgroundGradient containerClassName="col-span-1 grid" className="grid">
-					<button className="bg-white/80 dark:bg-gray-900 rounded-xl p-3 sm:p-4 transition-colors duration-300 flex items-center gap-2 sm:gap-3 hover:bg-white dark:hover:bg-gray-800">
+					<button 
+						onClick={handleRefresh}
+						disabled={isLoading}
+						className="bg-white/80 dark:bg-gray-900 rounded-xl p-3 sm:p-4 transition-colors duration-300 flex items-center gap-2 sm:gap-3 hover:bg-white dark:hover:bg-gray-800 disabled:opacity-50"
+					>
 						<div className="p-1.5 sm:p-2 bg-orange-100 dark:bg-orange-900/30 rounded-lg">
-							<RefreshCw className="w-4 h-4 sm:w-5 sm:h-5 text-orange-600 dark:text-orange-400" />
+							<RefreshCw className={`w-4 h-4 sm:w-5 sm:h-5 text-orange-600 dark:text-orange-400 ${isLoading ? 'animate-spin' : ''}`} />
 						</div>
 						<div className="text-left">
-							<p className="text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300">Actualizar</p>
+							<p className="text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300">
+								{isLoading ? 'Actualizando...' : 'Actualizar'}
+							</p>
 							<p className="text-xs text-gray-500 dark:text-gray-400 hidden sm:block">Recargar datos</p>
 						</div>
 					</button>
