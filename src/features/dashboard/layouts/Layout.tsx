@@ -67,12 +67,12 @@ const Layout: React.FC = () => {
 		<div className="min-h-screen bg-gradient-to-br from-[#3A71EC] via-[#6C5CEC] to-[#9949EC] dark:from-[#2F2E7B] dark:via-[#412982] dark:to-[#511F80] transition-colors duration-300">
 			{/* Mobile overlay */}
 			{sidebarOpen && (
-				<div className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden" onClick={() => setSidebarOpen(false)} />
+				<div className="fixed inset-0 bg-black bg-opacity-50 z-[999998] lg:hidden" onClick={() => setSidebarOpen(false)} />
 			)}
 
 			{/* Sidebar - Updated with collapsible behavior */}
 			<div
-				className={`fixed top-0 left-0 h-screen z-10 transform transition-all duration-300 ease-in-out lg:translate-x-0 ${
+				className={`fixed top-0 left-0 h-screen z-[999999] transform transition-all duration-300 ease-in-out lg:translate-x-0 ${
 					sidebarOpen ? 'translate-x-0' : '-translate-x-full'
 				} ${
 					// On desktop: collapsed by default (w-16), expanded on hover (w-56)
