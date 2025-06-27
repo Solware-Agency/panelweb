@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { X, Save, AlertCircle, User, Calendar, DollarSign, FileText, Stethoscope } from 'lucide-react'
+import { X, Save, AlertCircle, User, DollarSign, FileText } from 'lucide-react'
 import { motion, AnimatePresence } from 'motion/react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -219,7 +219,7 @@ const EditCaseModal: React.FC<EditCaseModalProps> = ({ case_, isOpen, onClose, o
               <FormLabel>Método de Pago {index}</FormLabel>
               <Select 
                 onValueChange={(value) => field.onChange(value === 'none' ? undefined : value)} 
-                value={field.value || 'none'}
+                value={field.value?.toString() || 'none'}
               >
                 <FormControl>
                   <SelectTrigger>
