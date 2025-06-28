@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import CasesTable from '@shared/components/cases/CasesTable'
 import CaseDetailPanel from '@shared/components/cases/CaseDetailPanel'
-import { Users, DollarSign, TrendingUp } from 'lucide-react'
+import { Users } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@shared/components/ui/card'
 import { getClientes, searchClientes, type MedicalRecord } from '@lib/supabase-service'
 
@@ -53,7 +53,7 @@ export const RecordsSection: React.FC = () => {
 	return (
 		<div>
 			{/* Header with search and refresh */}
-			<div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+			<div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
 				<div>
 					<h2 className="text-2xl font-bold text-foreground">Registros de Clientes</h2>
 					<p className="text-muted-foreground">
@@ -64,40 +64,18 @@ export const RecordsSection: React.FC = () => {
 
 			{/* Statistics cards */}
 			{!searchTerm && records && (
-				<div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-					<Card>
+				<div className="flex justify-center gap-4 mb-6 w-full">
+					<Card className="w-full max-w-[370px] transition-all duration-300 hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 group">
 						<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-							<CardTitle className="text-sm font-medium">Total Registros</CardTitle>
-							<Users className="h-4 w-4 text-muted-foreground" />
-						</CardHeader>
-						<CardContent>
-							<div className="text-2xl font-bold">{stats.total}</div>
-							<p className="text-xs text-muted-foreground">registros en el sistema</p>
-						</CardContent>
-					</Card>
-
-					<Card>
-						<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-							<CardTitle className="text-sm font-medium">Ingresos Totales</CardTitle>
-							<DollarSign className="h-4 w-4 text-muted-foreground" />
+							<CardTitle className="text-sm font-medium">Casos Pendientes</CardTitle>
+							<Users className="h-4 w-4 text-muted-foreground group-hover:text-primary/80" />
 						</CardHeader>
 						<CardContent>
 							<div className="text-2xl font-bold">
-								${stats.totalAmount.toLocaleString('es-VE', { minimumFractionDigits: 2 })}
+								{stats.total > 0 ? Math.round(((stats.total - stats.completed) / stats.total) * 100) : 0}%
 							</div>
-							<p className="text-xs text-muted-foreground">en montos registrados</p>
-						</CardContent>
-					</Card>
-
-					<Card>
-						<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-							<CardTitle className="text-sm font-medium">Pagos Completados</CardTitle>
-							<TrendingUp className="h-4 w-4 text-muted-foreground" />
-						</CardHeader>
-						<CardContent>
-							<div className="text-2xl font-bold">{stats.completed}</div>
 							<p className="text-xs text-muted-foreground">
-								de {stats.total} registros ({stats.total > 0 ? Math.round((stats.completed / stats.total) * 100) : 0}%)
+								{stats.total - stats.completed} de {stats.total} casos pendientes
 							</p>
 						</CardContent>
 					</Card>
