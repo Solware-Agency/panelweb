@@ -38,6 +38,88 @@ interface Change {
 	newValue: any
 }
 
+const paymentMethods = ['Punto de venta', 'Dólares en efectivo', 'Zelle', 'Pago móvil', 'Bs en efectivo']
+
+// Moved PaymentMethodSection outside to prevent re-creation on each render
+const PaymentMethodSection = React.memo(({ index, form }: { index: number; form: any }) => {
+	const methodField = `payment_method_${index}` as keyof EditCaseFormData
+	const amountField = `payment_amount_${index}` as keyof EditCaseFormData
+	const referenceField = `payment_reference_${index}` as keyof EditCaseFormData
+
+	return (
+		<div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
+			<FormField
+				control={form.control}
+				name={methodField}
+				render={({ field }) => (
+					<FormItem>
+						<FormLabel>Método de Pago {index}</FormLabel>
+						<Select
+							onValueChange={(value) => field.onChange(value === 'none' ? undefined : value)}
+							value={field.value?.toString() || 'none'}
+						>
+							<FormControl>
+								<SelectTrigger>
+									<SelectValue placeholder="Seleccionar método" />
+								</SelectTrigger>
+							</FormControl>
+							<SelectContent className="z-[9999999]">
+								<SelectItem value="none">Sin método</SelectItem>
+								{paymentMethods.map((method) => (
+									<SelectItem key={method} value={method}>
+										{method}
+									</SelectItem>
+								))}
+							</SelectContent>
+						</Select>
+						<FormMessage />
+					</FormItem>
+				)}
+			/>
+
+			<FormField
+				control={form.control}
+				name={amountField}
+				render={({ field }) => (
+					<FormItem>
+						<FormLabel>Monto {index}</FormLabel>
+						<FormControl>
+							<Input
+								type="number"
+								step="0.01"
+								placeholder="0.00"
+								{...field}
+								value={field.value || ''}
+								onChange={(e) => {
+									const value = e.target.value
+									field.onChange(value === '' ? null : parseFloat(value))
+								}}
+							/>
+						</FormControl>
+						<FormMessage />
+					</FormItem>
+				)}
+			/>
+
+			<FormField
+				control={form.control}
+				name={referenceField}
+				render={({ field }) => (
+					<FormItem>
+						<FormLabel>Referencia {index}</FormLabel>
+						<FormControl>
+							<Input placeholder="Referencia de pago" {...field} value={field.value || ''} />
+						</FormControl>
+						<FormMessage />
+					</FormItem>
+				)}
+			/>
+		</div>
+	)
+})
+
+PaymentMethodSection.displayName = 'PaymentMethodSection'
+
 interface EditCaseModalProps {
 	case_: MedicalRecord | null
 	isOpen: boolean
@@ -90,8 +172,6 @@ const EditCaseModal: React.FC<EditCaseModalProps> = ({ case_, isOpen, onClose, o
 			})
 		}
 	}, [case_, isOpen, form])
-
-	const paymentMethods = ['Punto de venta', 'Dólares en efectivo', 'Zelle', 'Pago móvil', 'Bs en efectivo']
 
 	const getFieldLabel = (field: string): string => {
 		const labels: Record<string, string> = {
@@ -196,83 +276,6 @@ const EditCaseModal: React.FC<EditCaseModalProps> = ({ case_, isOpen, onClose, o
 		} finally {
 			setIsSaving(false)
 		}
-	}
-
-	const PaymentMethodSection = ({ index }: { index: number }) => {
-		const methodField = `payment_method_${index}` as keyof EditCaseFormData
-		const amountField = `payment_amount_${index}` as keyof EditCaseFormData
-		const referenceField = `payment_reference_${index}` as keyof EditCaseFormData
-
-		return (
-			<div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
-				<FormField
-					control={form.control}
-					name={methodField}
-					render={({ field }) => (
-						<FormItem>
-							<FormLabel>Método de Pago {index}</FormLabel>
-							<Select
-								onValueChange={(value) => field.onChange(value === 'none' ? undefined : value)}
-								value={field.value?.toString() || 'none'}
-							>
-								<FormControl>
-									<SelectTrigger>
-										<SelectValue placeholder="Seleccionar método" />
-									</SelectTrigger>
-								</FormControl>
-								<SelectContent className="z-[9999999]">
-									<SelectItem value="none">Sin método</SelectItem>
-									{paymentMethods.map((method) => (
-										<SelectItem key={method} value={method}>
-											{method}
-										</SelectItem>
-									))}
-								</SelectContent>
-							</Select>
-							<FormMessage />
-						</FormItem>
-					)}
-				/>
-
-				<FormField
-					control={form.control}
-					name={amountField}
-					render={({ field }) => (
-						<FormItem>
-							<FormLabel>Monto {index}</FormLabel>
-							<FormControl>
-								<Input
-									type="number"
-									step="0.01"
-									placeholder="0.00"
-									{...field}
-									value={field.value || ''}
-									onChange={(e) => {
-										const value = e.target.value
-										field.onChange(value === '' ? null : parseFloat(value))
-									}}
-								/>
-							</FormControl>
-							<FormMessage />
-						</FormItem>
-					)}
-				/>
-
-				<FormField
-					control={form.control}
-					name={referenceField}
-					render={({ field }) => (
-						<FormItem>
-							<FormLabel>Referencia {index}</FormLabel>
-							<FormControl>
-								<Input placeholder="Referencia de pago" {...field} value={field.value || ''} />
-							</FormControl>
-							<FormMessage />
-						</FormItem>
-					)}
-				/>
-			</div>
-		)
 	}
 
 	if (!case_) return null
@@ -390,7 +393,7 @@ const EditCaseModal: React.FC<EditCaseModalProps> = ({ case_, isOpen, onClose, o
 
 										<div className="space-y-4">
 											{[1, 2, 3, 4].map((index) => (
-												<PaymentMethodSection key={index} index={index} />
+												<PaymentMethodSection key={index} index={index} form={form} />
 											))}
 										</div>
 									</div>
