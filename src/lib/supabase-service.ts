@@ -4,7 +4,7 @@ import { prepareSubmissionData } from '@features/form/lib/prepareSubmissionData'
 import { calculatePaymentDetailsFromRecord } from '@features/form/lib/payment/payment-utils'
 import type { MedicalRecordInsert } from '@shared/types/types'
 import { generateMedicalRecordCode } from '@lib/code-generator'
-import { differenceInYears, parseISO } from 'date-fns'
+import { differenceInYears, differenceInMonths, parseISO } from 'date-fns'
 
 export interface MedicalRecord {
 	id?: string
@@ -64,6 +64,28 @@ export const calculateAge = (dateOfBirth: string): number => {
 	} catch (error) {
 		console.error('Error calculating age:', error)
 		return 0
+	}
+}
+
+// Helper function to get age display text (years or months)
+export const getAgeDisplay = (dateOfBirth: string): string => {
+	if (!dateOfBirth) return '0 años'
+	try {
+		const birthDate = parseISO(dateOfBirth)
+		const now = new Date()
+		const years = differenceInYears(now, birthDate)
+		
+		if (years === 0) {
+			// For babies, show months
+			const months = differenceInMonths(now, birthDate)
+			return `${months} ${months === 1 ? 'mes' : 'meses'}`
+		} else {
+			// For older patients, show years
+			return `${years} ${years === 1 ? 'año' : 'años'}`
+		}
+	} catch (error) {
+		console.error('Error calculating age display:', error)
+		return '0 años'
 	}
 }
 

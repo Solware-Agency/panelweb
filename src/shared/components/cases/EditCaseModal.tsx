@@ -5,7 +5,7 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import type { MedicalRecord } from '@lib/supabase-service'
-import { calculateAge } from '@lib/supabase-service'
+import { calculateAge, getAgeDisplay } from '@lib/supabase-service'
 import { Button } from '@shared/components/ui/button'
 import { Input } from '@shared/components/ui/input'
 import { Textarea } from '@shared/components/ui/textarea'
@@ -341,10 +341,11 @@ const EditCaseModal: React.FC<EditCaseModalProps> = ({ case_, isOpen, onClose, o
 
 	if (!case_) return null
 
-	// Calculate age from date of birth
+	// Get age display from date of birth
 	const dateOfBirthValue = form.watch('date_of_birth')
-	const age = dateOfBirthValue ? calculateAge(format(dateOfBirthValue, 'yyyy-MM-dd')) : 
-		(case_.date_of_birth ? calculateAge(case_.date_of_birth) : 0)
+	const ageDisplay = dateOfBirthValue 
+		? getAgeDisplay(format(dateOfBirthValue, 'yyyy-MM-dd')) 
+		: (case_.date_of_birth ? getAgeDisplay(case_.date_of_birth) : '')
 
 	return (
 		<AnimatePresence>
@@ -451,18 +452,18 @@ const EditCaseModal: React.FC<EditCaseModalProps> = ({ case_, isOpen, onClose, o
 																	{field.value ? (
 																		<div className="flex items-center gap-2">
 																			<span>{format(field.value, 'PPP', { locale: es })}</span>
-																			{age > 0 && (
+																			{ageDisplay && (
 																				<span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">
-																					{age} años
+																					{ageDisplay}
 																				</span>
 																			)}
 																		</div>
 																	) : case_.date_of_birth ? (
 																		<div className="flex items-center gap-2">
 																			<span>{format(parseISO(case_.date_of_birth), 'PPP', { locale: es })}</span>
-																			{age > 0 && (
+																			{ageDisplay && (
 																				<span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">
-																					{age} años
+																					{ageDisplay}
 																				</span>
 																			)}
 																		</div>
@@ -491,9 +492,9 @@ const EditCaseModal: React.FC<EditCaseModalProps> = ({ case_, isOpen, onClose, o
 															/>
 														</PopoverContent>
 													</Popover>
-													{age > 0 && (
+													{ageDisplay && (
 														<p className="text-sm text-green-600 font-medium">
-															{age} años
+															{ageDisplay}
 														</p>
 													)}
 													<FormMessage />

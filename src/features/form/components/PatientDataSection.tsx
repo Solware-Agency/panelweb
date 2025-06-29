@@ -7,7 +7,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@shared/components/ui/p
 import { Button } from '@shared/components/ui/button'
 import { cn } from '@shared/lib/cn'
 import { Calendar as CalendarIcon, Loader2, CheckCircle, Cake } from 'lucide-react'
-import { format, differenceInYears } from 'date-fns'
+import { format, differenceInYears, differenceInMonths } from 'date-fns'
 import { es } from 'date-fns/locale'
 import { Calendar } from '@shared/components/ui/calendar'
 import { useFormContext, useWatch } from 'react-hook-form'
@@ -29,12 +29,26 @@ export const PatientDataSection = ({ control, inputStyles }: PatientDataSectionP
 	const dateOfBirth = useWatch({ control, name: 'dateOfBirth' })
 
 	// Calculate age from date of birth
-	const calculateAge = (birthDate: Date): number => {
-		if (!birthDate) return 0
-		return differenceInYears(new Date(), birthDate)
+	const calculateAge = (birthDate: Date): { years: number; months: number } => {
+		if (!birthDate) return { years: 0, months: 0 }
+		const now = new Date()
+		const years = differenceInYears(now, birthDate)
+		const months = differenceInMonths(now, birthDate) % 12
+		return { years, months }
 	}
 
-	const currentAge = dateOfBirth ? calculateAge(dateOfBirth) : 0
+	const { years, months } = dateOfBirth ? calculateAge(dateOfBirth) : { years: 0, months: 0 }
+
+	// Format age display based on years and months
+	const getAgeDisplay = () => {
+		if (years === 0) {
+			return `${months} ${months === 1 ? 'mes' : 'meses'}`
+		} else {
+			return `${years} ${years === 1 ? 'año' : 'años'}`
+		}
+	}
+
+	const currentAge = dateOfBirth ? getAgeDisplay() : ''
 
 	const handlePatientSelect = (idNumber: string) => {
 		fillPatientData(idNumber, true) // Silencioso
@@ -170,9 +184,9 @@ export const PatientDataSection = ({ control, inputStyles }: PatientDataSectionP
 											{field.value ? (
 												<div className="flex items-center gap-2">
 													<span>{format(field.value, 'PPP', { locale: es })}</span>
-													{currentAge > 0 && (
+													{currentAge && (
 														<span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">
-															{currentAge} años
+															{currentAge}
 														</span>
 													)}
 												</div>
@@ -201,9 +215,9 @@ export const PatientDataSection = ({ control, inputStyles }: PatientDataSectionP
 									/>
 								</PopoverContent>
 							</Popover>
-							{currentAge > 0 && (
+							{currentAge && (
 								<p className="text-sm text-green-600 font-medium">
-									{currentAge} años
+									{currentAge}
 								</p>
 							)}
 							<FormMessage />

@@ -2,7 +2,7 @@ import React from 'react'
 import { X, User, Stethoscope, CreditCard, FileText, CheckCircle, Hash, Cake } from 'lucide-react'
 import { motion, AnimatePresence } from 'motion/react'
 import type { MedicalRecord } from '@lib/supabase-service'
-import { calculateAge } from '@lib/supabase-service'
+import { getAgeDisplay } from '@lib/supabase-service'
 import { format, parseISO } from 'date-fns'
 import { es } from 'date-fns/locale'
 
@@ -55,11 +55,12 @@ const CaseDetailPanel: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClos
 		</div>
 	)
 
-	// Calculate age and format date of birth
-	const age = case_.date_of_birth ? calculateAge(case_.date_of_birth) : 0
+	// Format date of birth and get age display
 	const formattedDateOfBirth = case_.date_of_birth 
 		? format(parseISO(case_.date_of_birth), 'dd/MM/yyyy', { locale: es })
 		: 'N/A'
+	
+	const ageDisplay = case_.date_of_birth ? getAgeDisplay(case_.date_of_birth) : ''
 
 	return (
 		<AnimatePresence>
@@ -111,7 +112,7 @@ const CaseDetailPanel: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClos
 									{case_.payment_status}
 								</span>
 								<span className="inline-flex items-center gap-1 px-3 py-1 text-sm font-semibold rounded-full bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300">
-									<CheckCircle className="w-3 h-3" />
+									<CheckCircle size={16} />
 									{case_.branch}
 								</span>
 								{case_.code && (
@@ -150,9 +151,9 @@ const CaseDetailPanel: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClos
 										</span>
 										<div className="text-sm text-gray-900 dark:text-gray-100 sm:text-right">
 											<div>{formattedDateOfBirth}</div>
-											{age > 0 && (
+											{ageDisplay && (
 												<div className="text-xs text-blue-600 dark:text-blue-400 font-medium">
-													{age} años
+													{ageDisplay}
 												</div>
 											)}
 										</div>

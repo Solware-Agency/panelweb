@@ -16,7 +16,7 @@ import {
 	Cake,
 } from 'lucide-react'
 import { useQuery } from '@tanstack/react-query'
-import { getMedicalRecords, type MedicalRecord, updateMedicalRecordWithLog, calculateAge } from '@lib/supabase-service'
+import { getMedicalRecords, type MedicalRecord, updateMedicalRecordWithLog, calculateAge, getAgeDisplay } from '@lib/supabase-service'
 import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
 import { useAuth } from '@app/providers/AuthContext'
@@ -178,7 +178,7 @@ const CasesTable: React.FC<CasesTableProps> = ({ onCaseSelect }) => {
 
 	// Mobile Card Component
 	const CaseCard = ({ case_ }: { case_: MedicalRecord }) => {
-		const age = case_.date_of_birth ? calculateAge(case_.date_of_birth) : 0
+		const ageDisplay = case_.date_of_birth ? getAgeDisplay(case_.date_of_birth) : ''
 		
 		return (
 			<div className="bg-white dark:bg-background rounded-lg p-4 border border-gray-200 dark:border-gray-700 hover:shadow-md transition-all">
@@ -207,12 +207,12 @@ const CasesTable: React.FC<CasesTableProps> = ({ onCaseSelect }) => {
 						<p className="font-medium text-gray-900 dark:text-gray-100 text-sm">{case_.full_name}</p>
 						<div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
 							<span>{case_.id_number}</span>
-							{age > 0 && (
+							{ageDisplay && (
 								<>
 									<span>•</span>
 									<div className="flex items-center gap-1">
 										<Cake className="w-3 h-3 text-pink-500" />
-										<span>{age} años</span>
+										<span>{ageDisplay}</span>
 									</div>
 								</>
 							)}
@@ -484,7 +484,7 @@ const CasesTable: React.FC<CasesTableProps> = ({ onCaseSelect }) => {
 							</thead>
 							<tbody className="divide-y divide-gray-200 dark:divide-gray-700">
 								{filteredAndSortedCases.map((case_) => {
-									const age = case_.date_of_birth ? calculateAge(case_.date_of_birth) : 0
+									const ageDisplay = case_.date_of_birth ? getAgeDisplay(case_.date_of_birth) : ''
 									
 									return (
 										<tr key={case_.id} className="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
@@ -516,12 +516,12 @@ const CasesTable: React.FC<CasesTableProps> = ({ onCaseSelect }) => {
 													<div className="text-sm font-medium text-gray-900 dark:text-gray-100">{case_.full_name}</div>
 													<div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
 														<span>{case_.id_number}</span>
-														{age > 0 && (
+														{ageDisplay && (
 															<>
 																<span>•</span>
 																<div className="flex items-center gap-1">
 																	<Cake className="w-3 h-3 text-pink-500" />
-																	<span>{age} años</span>
+																	<span>{ageDisplay}</span>
 																</div>
 															</>
 														)}
@@ -772,7 +772,7 @@ const CasesTable: React.FC<CasesTableProps> = ({ onCaseSelect }) => {
 									</thead>
 									<tbody className="divide-y divide-gray-200 dark:divide-gray-700">
 										{filteredAndSortedCases.map((case_) => {
-											const age = case_.date_of_birth ? calculateAge(case_.date_of_birth) : 0
+											const ageDisplay = case_.date_of_birth ? getAgeDisplay(case_.date_of_birth) : ''
 											
 											return (
 												<tr key={case_.id} className="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
@@ -806,12 +806,12 @@ const CasesTable: React.FC<CasesTableProps> = ({ onCaseSelect }) => {
 															</div>
 															<div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
 																<span>{case_.id_number}</span>
-																{age > 0 && (
+																{ageDisplay && (
 																	<>
 																		<span>•</span>
 																		<div className="flex items-center gap-1">
 																			<Cake className="w-3 h-3 text-pink-500" />
-																			<span>{age} años</span>
+																			<span>{ageDisplay}</span>
 																		</div>
 																	</>
 																)}
