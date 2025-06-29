@@ -12,11 +12,10 @@ import {
 	CreditCard,
 	Maximize2,
 	RefreshCw,
-	Hash,
 	Cake,
 } from 'lucide-react'
 import { useQuery } from '@tanstack/react-query'
-import { getMedicalRecords, type MedicalRecord, updateMedicalRecordWithLog, calculateAge, getAgeDisplay } from '@lib/supabase-service'
+import { getMedicalRecords, type MedicalRecord, updateMedicalRecordWithLog, getAgeDisplay } from '@lib/supabase-service'
 import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
 import { useAuth } from '@app/providers/AuthContext'
@@ -179,24 +178,27 @@ const CasesTable: React.FC<CasesTableProps> = ({ onCaseSelect }) => {
 	// Mobile Card Component
 	const CaseCard = ({ case_ }: { case_: MedicalRecord }) => {
 		const ageDisplay = case_.date_of_birth ? getAgeDisplay(case_.date_of_birth) : ''
-		
+
 		return (
 			<div className="bg-white dark:bg-background rounded-lg p-4 border border-gray-200 dark:border-gray-700 hover:shadow-md transition-all">
 				{/* Header with status and code */}
 				<div className="flex items-center justify-between mb-3">
 					<span
-						className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(case_.payment_status)}`}
+						className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(
+							case_.payment_status,
+						)}`}
 					>
 						{case_.payment_status}
 					</span>
 					<div className="flex items-center gap-2">
 						{case_.code && (
 							<span className="inline-flex items-center gap-1 px-2 py-1 text-xs font-semibold rounded-full bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300">
-								<Hash className="w-3 h-3" />
 								{case_.code}
 							</span>
 						)}
-						<span className="text-sm font-mono text-gray-600 dark:text-gray-400">{case_.id?.slice(-6).toUpperCase()}</span>
+						<span className="text-sm font-mono text-gray-600 dark:text-gray-400">
+							{case_.id?.slice(-6).toUpperCase()}
+						</span>
 					</div>
 				</div>
 
@@ -246,7 +248,9 @@ const CasesTable: React.FC<CasesTableProps> = ({ onCaseSelect }) => {
 				</div>
 
 				{case_.remaining > 0 && (
-					<div className="mt-2 text-xs text-red-600 dark:text-red-400">Faltante: ${case_.remaining.toLocaleString()}</div>
+					<div className="mt-2 text-xs text-red-600 dark:text-red-400">
+						Faltante: ${case_.remaining.toLocaleString()}
+					</div>
 				)}
 
 				{/* Action buttons */}
@@ -485,14 +489,13 @@ const CasesTable: React.FC<CasesTableProps> = ({ onCaseSelect }) => {
 							<tbody className="divide-y divide-gray-200 dark:divide-gray-700">
 								{filteredAndSortedCases.map((case_) => {
 									const ageDisplay = case_.date_of_birth ? getAgeDisplay(case_.date_of_birth) : ''
-									
+
 									return (
 										<tr key={case_.id} className="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
 											<td className="px-4 py-4">
 												<div className="space-y-1 text-left">
 													{case_.code && (
 														<div className="inline-flex items-center gap-1 px-2 py-1 text-xs font-semibold rounded-full bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300 mb-1">
-															<Hash className="w-3 h-3" />
 															{case_.code}
 														</div>
 													)}
@@ -503,9 +506,6 @@ const CasesTable: React.FC<CasesTableProps> = ({ onCaseSelect }) => {
 													>
 														{case_.payment_status}
 													</span>
-													<div className="text-sm font-medium text-gray-900 dark:text-gray-100">
-														{case_.id.slice(-6).toUpperCase()}
-													</div>
 												</div>
 											</td>
 											<td className="px-4 py-4 text-sm text-gray-900 dark:text-gray-100 text-left">
@@ -773,14 +773,13 @@ const CasesTable: React.FC<CasesTableProps> = ({ onCaseSelect }) => {
 									<tbody className="divide-y divide-gray-200 dark:divide-gray-700">
 										{filteredAndSortedCases.map((case_) => {
 											const ageDisplay = case_.date_of_birth ? getAgeDisplay(case_.date_of_birth) : ''
-											
+
 											return (
 												<tr key={case_.id} className="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
 													<td className="px-4 py-4">
 														<div className="space-y-1 text-left">
 															{case_.code && (
 																<div className="inline-flex items-center gap-1 px-2 py-1 text-xs font-semibold rounded-full bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300 mb-1">
-																	<Hash className="w-3 h-3" />
 																	{case_.code}
 																</div>
 															)}
@@ -791,9 +790,6 @@ const CasesTable: React.FC<CasesTableProps> = ({ onCaseSelect }) => {
 															>
 																{case_.payment_status}
 															</span>
-															<div className="text-sm font-medium text-gray-900 dark:text-gray-100">
-																{case_.id.slice(-6).toUpperCase()}
-															</div>
 														</div>
 													</td>
 													<td className="px-4 py-4 text-sm text-gray-900 dark:text-gray-100 text-left">
@@ -826,7 +822,9 @@ const CasesTable: React.FC<CasesTableProps> = ({ onCaseSelect }) => {
 													<td className="px-4 py-4 text-sm text-gray-900 dark:text-gray-100 text-center">
 														{case_.exam_type}
 													</td>
-													<td className="px-4 py-4 text-sm text-gray-900 dark:text-gray-100">{case_.treating_doctor}</td>
+													<td className="px-4 py-4 text-sm text-gray-900 dark:text-gray-100">
+														{case_.treating_doctor}
+													</td>
 													<td className="px-4 py-4">
 														<div className="text-sm font-medium text-gray-900 dark:text-gray-100">
 															${case_.total_amount.toLocaleString()}

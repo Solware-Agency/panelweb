@@ -6,7 +6,7 @@ interface AutocompleteOption {
 	count: number
 }
 
-export const useAutocomplete = (fieldName: string, minLength: number = 0) => {
+export const useAutocomplete = (fieldName: string) => {
 	const [suggestions, setSuggestions] = useState<AutocompleteOption[]>([])
 	const [isLoading, setIsLoading] = useState(false)
 	const abortControllerRef = useRef<AbortController | null>(null)

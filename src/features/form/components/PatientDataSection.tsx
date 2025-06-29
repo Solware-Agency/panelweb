@@ -55,7 +55,7 @@ export const PatientDataSection = ({ control, inputStyles }: PatientDataSectionP
 	}
 
 	return (
-		<Card className="transition-all duration-300 hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20">
+		<Card className="transition-all duration-300 hover:border-primary hover:shadow-lg hover:shadow-primary/20">
 			<CardHeader>
 				<CardTitle className="flex items-center gap-2">
 					Datos del Paciente
