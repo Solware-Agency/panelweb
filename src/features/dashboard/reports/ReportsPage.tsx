@@ -8,14 +8,39 @@ import {
 	Users,
 	Star,
 	Award,
-	Earth,
-	Settings,
-	Bot,
-	Lightbulb,
+	Stethoscope,
+	Activity,
+	Heart,
+	Eye,
 } from 'lucide-react'
 import { Card } from '@shared/components/ui/card'
+import { useDashboardStats } from '@shared/hooks/useDashboardStats'
 
 const ReportsPage: React.FC = () => {
+	const { data: stats, isLoading } = useDashboardStats()
+
+	const formatCurrency = (amount: number) => {
+		return new Intl.NumberFormat('es-VE', {
+			style: 'currency',
+			currency: 'USD',
+			minimumFractionDigits: 0,
+			maximumFractionDigits: 0,
+		}).format(amount)
+	}
+
+	// Get exam type icon based on type
+	const getExamTypeIcon = (examType: string) => {
+		const type = examType.toLowerCase()
+		if (type.includes('citologia')) {
+			return <Eye className="w-4 h-4 text-white" />
+		} else if (type.includes('biopsia')) {
+			return <Activity className="w-4 h-4 text-white" />
+		} else if (type.includes('inmunohistoquimica')) {
+			return <Heart className="w-4 h-4 text-white" />
+		}
+		return <Stethoscope className="w-4 h-4 text-white" />
+	}
+
 	return (
 		<div className="p-3 sm:p-6">
 			{/* Quick Actions */}
@@ -46,125 +71,104 @@ const ReportsPage: React.FC = () => {
 
 			{/* Services Performance */}
 			<div className="grid grid-cols-1 xl:grid-cols-2 gap-4 sm:gap-6 mb-6 sm:mb-8">
-				{/* Top Services Detailed */}
+				{/* Top Medical Exam Types - UPDATED SECTION */}
 				<Card className="col-span-1 grid hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 transition-all duration-300 shadow-lg">
 					<div className="bg-white dark:bg-background rounded-xl p-4 sm:p-6 transition-colors duration-300">
 						<div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 sm:mb-6">
 							<h3 className="text-lg sm:text-xl font-bold text-gray-700 dark:text-gray-300 mb-2 sm:mb-0">
-								Servicios Más Vendidos
+								Tipos de Exámenes Más Solicitados
 							</h3>
-							<div className="flex items-center gap-2">
-								<div className="w-3 h-3 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full"></div>
-								<span className="text-sm text-gray-600 dark:text-gray-400">Este trimestre</span>
+							<div className="flex items-center gap-2 px-3 py-2 bg-purple-100 dark:bg-purple-900/30 rounded-lg">
+								<span className="text-sm font-medium text-purple-700 dark:text-purple-300">Servicios médicos</span>
 							</div>
 						</div>
 						<div className="space-y-3 sm:space-y-4">
-							{[
-								{
-									name: 'Desarrollo Web Completo',
-									projects: 15,
-									revenue: 45000,
-									growth: 25,
-									color: 'blue',
-									icon: <Earth className="w-4 h-4 text-white" />,
-								},
-								{
-									name: 'Automatización de Procesos',
-									projects: 8,
-									revenue: 28000,
-									growth: 18,
-									color: 'green',
-									icon: <Settings className="w-4 h-4 text-white" />,
-								},
-								{
-									name: 'Agentes IA Personalizados',
-									projects: 5,
-									revenue: 12000,
-									growth: 35,
-									color: 'purple',
-									icon: <Bot className="w-4 h-4 text-white" />,
-								},
-								{
-									name: 'Consultoría Tecnológica',
-									projects: 12,
-									revenue: 18000,
-									growth: 12,
-									color: 'orange',
-									icon: <Lightbulb className="w-4 h-4 text-white" />,
-								},
-							].map((service, index) => (
-								<div
-									key={index}
-									className={`p-3 sm:p-4 rounded-xl bg-gradient-to-r ${
-										service.color === 'blue'
-											? 'from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20'
-											: service.color === 'green'
-												? 'from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20'
-												: service.color === 'purple'
-													? 'from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-800/20'
-													: 'from-orange-50 to-orange-100 dark:from-orange-900/20 dark:to-orange-800/20'
-									} border border-gray-200 dark:border-gray-700`}
-								>
-									<div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-3">
-										<div className="flex items-center gap-2 sm:gap-3 mb-2 sm:mb-0">
-											<div
-												className={`w-8 h-8 sm:w-10 sm:h-10 rounded-lg flex items-center justify-center text-base sm:text-lg ${
-													service.color === 'blue'
-														? 'bg-blue-500'
-														: service.color === 'green'
-															? 'bg-green-500'
-															: service.color === 'purple'
-																? 'bg-purple-500'
-																: 'bg-orange-500'
-												}`}
-											>
-												{service.icon}
-											</div>
-											<div>
-												<h4 className="font-medium text-gray-700 dark:text-gray-300 text-sm sm:text-base">
-													{service.name}
-												</h4>
-												<p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">
-													{service.projects} proyectos completados
-												</p>
-											</div>
-										</div>
-										<div className="text-right">
-											<p
-												className={`text-base sm:text-lg font-bold ${
-													service.color === 'blue'
-														? 'text-blue-600 dark:text-blue-400'
-														: service.color === 'green'
-															? 'text-green-600 dark:text-green-400'
-															: service.color === 'purple'
-																? 'text-purple-600 dark:text-purple-400'
-																: 'text-orange-600 dark:text-orange-400'
-												}`}
-											>
-												${service.revenue.toLocaleString()}
-											</p>
-											<div className="flex items-center gap-1">
-												<TrendingUp className="w-3 h-3 text-green-500" />
-												<span className="text-xs text-green-600 dark:text-green-400">+{service.growth}%</span>
-											</div>
-										</div>
-									</div>
-									<div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-										<div
-											className={`h-2 rounded-full ${
-												service.color === 'blue'
-													? 'bg-blue-500'
-													: service.color === 'green'
-														? 'bg-green-500'
-														: service.color === 'purple'
-															? 'bg-purple-500'
-															: 'bg-orange-500'
-											}`}
-											style={{ width: `${(service.revenue / 45000) * 100}%` }}
-										></div>
-									</div>
+							{isLoading ? (
+								<div className="space-y-3">
+									{[1, 2, 3].map((i) => (
+										<div key={i} className="animate-pulse bg-gray-200 dark:bg-gray-700 h-16 rounded-xl"></div>
+									))}
 								</div>
-							))}
+							) : stats?.revenueByExamType && stats.revenueByExamType.length > 0 ? (
+								stats.revenueByExamType.slice(0, 4).map((exam, index) => {
+									const colors = [
+										{
+											bg: 'from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20',
+											border: 'border-blue-200 dark:border-blue-800/30',
+											text: 'text-blue-600 dark:text-blue-400',
+											iconBg: 'bg-blue-500',
+										},
+										{
+											bg: 'from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20',
+											border: 'border-green-200 dark:border-green-800/30',
+											text: 'text-green-600 dark:text-green-400',
+											iconBg: 'bg-green-500',
+										},
+										{
+											bg: 'from-orange-50 to-orange-100 dark:from-orange-900/20 dark:to-orange-800/20',
+											border: 'border-orange-200 dark:border-orange-800/30',
+											text: 'text-orange-600 dark:text-orange-400',
+											iconBg: 'bg-orange-500',
+										},
+										{
+											bg: 'from-red-50 to-red-100 dark:from-red-900/20 dark:to-red-800/20',
+											border: 'border-red-200 dark:border-red-800/30',
+											text: 'text-red-600 dark:text-red-400',
+											iconBg: 'bg-red-500',
+										},
+									]
+									const color = colors[index % colors.length]
+									return (
+										<div
+											key={exam.examType}
+											className={`p-3 sm:p-4 rounded-xl bg-gradient-to-r ${color.bg} border ${color.border}`}
+										>
+											<div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-3">
+												<div className="flex items-center gap-2 sm:gap-3 mb-2 sm:mb-0">
+													<div
+														className={`w-8 h-8 sm:w-10 sm:h-10 rounded-lg flex items-center justify-center ${color.iconBg}`}
+													>
+														{getExamTypeIcon(exam.examType)}
+													</div>
+													<div>
+														<h4 className="font-medium text-gray-700 dark:text-gray-300 text-sm sm:text-base">
+															{exam.examType}
+														</h4>
+														<p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">
+															{exam.count} caso{exam.count !== 1 ? 's' : ''} realizados
+														</p>
+													</div>
+												</div>
+												<div className="text-right">
+													<span className={`text-base sm:text-lg font-bold ${color.text}`}>
+														{formatCurrency(exam.revenue)}
+													</span>
+													<div className="flex items-center gap-1">
+														<TrendingUp className="w-3 h-3 text-green-500" />
+														<span className="text-xs text-green-600 dark:text-green-400">
+															{stats.totalRevenue > 0 ? ((exam.revenue / stats.totalRevenue) * 100).toFixed(1) : 0}%
+														</span>
+													</div>
+												</div>
+											</div>
+											<div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+												<div
+													className={`h-2 rounded-full ${color.iconBg}`}
+													style={{ 
+														width: `${stats.revenueByExamType.length > 0 ? 
+															(exam.revenue / Math.max(...stats.revenueByExamType.map(e => e.revenue))) * 100 : 0}%` 
+													}}
+												></div>
+											</div>
+										</div>
+									)
+								})
+							) : (
+								<div className="text-center py-8">
+									<Stethoscope className="w-12 h-12 mx-auto mb-4 text-gray-300 dark:text-gray-600" />
+									<p className="text-gray-500 dark:text-gray-400">No hay datos de exámenes disponibles</p>
+								</div>
+							)}
 						</div>
 					</div>
 				</Card>
@@ -173,7 +177,7 @@ const ReportsPage: React.FC = () => {
 				<Card className="col-span-1 grid hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 transition-all duration-300 shadow-lg">
 					<div className="bg-white dark:bg-background rounded-xl p-4 sm:p-6 transition-colors duration-300">
 						<h3 className="text-lg sm:text-xl font-bold text-gray-700 dark:text-gray-300 mb-4 sm:mb-6">
-							Desglose de Ingresos
+							Desglose de Ingresos por Examen
 						</h3>
 						<div className="flex items-center justify-center mb-4 sm:mb-6">
 							<div className="relative size-36 sm:size-48">
@@ -186,87 +190,69 @@ const ReportsPage: React.FC = () => {
 										className="stroke-current text-gray-200 dark:text-neutral-700"
 										strokeWidth="3"
 									></circle>
-									{/* Desarrollo Web - 43% */}
-									<circle
-										cx="18"
-										cy="18"
-										r="14"
-										fill="none"
-										className="stroke-current text-blue-500"
-										strokeWidth="3"
-										strokeDasharray="43 57"
-										strokeDashoffset="0"
-									></circle>
-									{/* Automatización - 27% */}
-									<circle
-										cx="18"
-										cy="18"
-										r="14"
-										fill="none"
-										className="stroke-current text-green-500"
-										strokeWidth="3"
-										strokeDasharray="27 73"
-										strokeDashoffset="-43"
-									></circle>
-									{/* Consultoría - 18% */}
-									<circle
-										cx="18"
-										cy="18"
-										r="14"
-										fill="none"
-										className="stroke-current text-orange-500"
-										strokeWidth="3"
-										strokeDasharray="18 82"
-										strokeDashoffset="-70"
-									></circle>
-									{/* IA - 12% */}
-									<circle
-										cx="18"
-										cy="18"
-										r="14"
-										fill="none"
-										className="stroke-current text-purple-500"
-										strokeWidth="3"
-										strokeDasharray="12 88"
-										strokeDashoffset="-88"
-									></circle>
+									{isLoading ? null : stats?.revenueByExamType?.map((exam, index) => {
+										const colors = ['text-blue-500', 'text-green-500', 'text-orange-500', 'text-red-500']
+										const totalRevenue = stats.revenueByExamType.reduce((sum, e) => sum + e.revenue, 0)
+										const percentage = totalRevenue > 0 ? (exam.revenue / totalRevenue) * 100 : 0
+										const offset = stats.revenueByExamType.slice(0, index).reduce((sum, e) => {
+											return sum + (totalRevenue > 0 ? (e.revenue / totalRevenue) * 100 : 0)
+										}, 0)
+										
+										return (
+											<circle
+												key={exam.examType}
+												cx="18"
+												cy="18"
+												r="14"
+												fill="none"
+												className={`stroke-current ${colors[index % colors.length]}`}
+												strokeWidth="3"
+												strokeDasharray={`${percentage} ${100 - percentage}`}
+												strokeDashoffset={-offset}
+												strokeLinecap="round"
+											></circle>
+										)
+									})}
 								</svg>
 								<div className="absolute inset-0 flex items-center justify-center">
 									<div className="text-center">
-										<p className="text-xl sm:text-2xl font-bold text-gray-700 dark:text-gray-300">$103k</p>
-										<p className="text-sm text-gray-500 dark:text-gray-400">Total Q1</p>
+										<p className="text-xl sm:text-2xl font-bold text-gray-700 dark:text-gray-300">
+											{isLoading ? '...' : formatCurrency(stats?.totalRevenue || 0)}
+										</p>
+										<p className="text-sm text-gray-500 dark:text-gray-400">Total</p>
 									</div>
 								</div>
 							</div>
 						</div>
 						<div className="space-y-3">
-							{[
-								{ name: 'Desarrollo Web', percentage: 43, amount: 45000, color: 'blue' },
-								{ name: 'Automatización', percentage: 27, amount: 28000, color: 'green' },
-								{ name: 'Consultoría', percentage: 18, amount: 18000, color: 'orange' },
-								{ name: 'Agentes IA', percentage: 12, amount: 12000, color: 'purple' },
-							].map((item, index) => (
-								<div key={index} className="flex items-center justify-between">
-									<div className="flex items-center gap-2 sm:gap-3">
-										<div
-											className={`w-3 h-3 sm:w-4 sm:h-4 rounded-full ${
-												item.color === 'blue'
-													? 'bg-blue-500'
-													: item.color === 'green'
-														? 'bg-green-500'
-														: item.color === 'orange'
-															? 'bg-orange-500'
-															: 'bg-purple-500'
-											}`}
-										></div>
-										<span className="text-sm text-gray-600 dark:text-gray-400">{item.name}</span>
-									</div>
-									<div className="text-right">
-										<span className="text-sm font-medium text-gray-700 dark:text-gray-300">{item.percentage}%</span>
-										<p className="text-xs text-gray-500 dark:text-gray-400">${item.amount.toLocaleString()}</p>
-									</div>
+							{isLoading ? (
+								<div className="space-y-2">
+									{[1, 2, 3].map((i) => (
+										<div key={i} className="animate-pulse bg-gray-200 dark:bg-gray-700 h-6 rounded"></div>
+									))}
 								</div>
-							))}
+							) : stats?.revenueByExamType?.map((exam, index) => {
+								const colors = ['bg-blue-500', 'bg-green-500', 'bg-orange-500', 'bg-red-500']
+								const totalRevenue = stats.revenueByExamType.reduce((sum, e) => sum + e.revenue, 0)
+								const percentage = totalRevenue > 0 ? (exam.revenue / totalRevenue) * 100 : 0
+								
+								return (
+									<div key={exam.examType} className="flex items-center justify-between">
+										<div className="flex items-center gap-2 sm:gap-3">
+											<div className={`w-3 h-3 sm:w-4 sm:h-4 rounded-full ${colors[index % colors.length]}`}></div>
+											<span className="text-sm text-gray-600 dark:text-gray-400">{exam.examType}</span>
+										</div>
+										<div className="text-right">
+											<span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+												{percentage.toFixed(1)}%
+											</span>
+											<p className="text-xs text-gray-500 dark:text-gray-400">
+												{formatCurrency(exam.revenue)} • {exam.count} casos
+											</p>
+										</div>
+									</div>
+								)
+							})}
 						</div>
 					</div>
 				</Card>
@@ -279,22 +265,22 @@ const ReportsPage: React.FC = () => {
 					<div className="bg-white dark:bg-background rounded-xl p-4 sm:p-6 transition-colors duration-300">
 						<div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 sm:mb-6">
 							<h3 className="text-lg sm:text-xl font-bold text-gray-700 dark:text-gray-300 mb-2 sm:mb-0">
-								Análisis de Clientes
+								Análisis de Pacientes
 							</h3>
 							<div className="flex items-center gap-2">
 								<Star className="w-4 h-4 text-yellow-500" />
-								<span className="text-sm text-gray-600 dark:text-gray-400">Clientes VIP</span>
+								<span className="text-sm text-gray-600 dark:text-gray-400">Pacientes Frecuentes</span>
 							</div>
 						</div>
 						<div className="overflow-x-auto">
 							<table className="w-full min-w-full">
 								<thead>
 									<tr className="border-b border-gray-200 dark:border-gray-700">
-										<th className="text-left py-3 text-gray-600 dark:text-gray-400 font-medium text-sm">Cliente</th>
-										<th className="text-left py-3 text-gray-600 dark:text-gray-400 font-medium text-sm">Proyectos</th>
+										<th className="text-left py-3 text-gray-600 dark:text-gray-400 font-medium text-sm">Paciente</th>
+										<th className="text-left py-3 text-gray-600 dark:text-gray-400 font-medium text-sm">Casos</th>
 										<th className="text-left py-3 text-gray-600 dark:text-gray-400 font-medium text-sm">Ingresos</th>
 										<th className="text-left py-3 text-gray-600 dark:text-gray-400 font-medium text-sm hidden sm:table-cell">
-											Satisfacción
+											Último Examen
 										</th>
 										<th className="text-left py-3 text-gray-600 dark:text-gray-400 font-medium text-sm">Estado</th>
 									</tr>
@@ -302,95 +288,83 @@ const ReportsPage: React.FC = () => {
 								<tbody>
 									{[
 										{
-											name: 'TechCorp SA',
-											type: 'Empresa',
-											projects: 8,
-											revenue: 24500,
-											satisfaction: 4.9,
+											name: 'María González',
+											idNumber: '12345678',
+											cases: 3,
+											revenue: 450,
+											lastExam: 'Citología',
 											status: 'Activo',
 											tier: 'VIP',
 										},
 										{
-											name: 'InnovateLtd',
-											type: 'Startup',
-											projects: 5,
-											revenue: 18200,
-											satisfaction: 4.7,
+											name: 'Carlos Rodríguez',
+											idNumber: '87654321',
+											cases: 2,
+											revenue: 320,
+											lastExam: 'Biopsia',
 											status: 'Activo',
 											tier: 'Premium',
 										},
 										{
-											name: 'StartupXYZ',
-											type: 'Startup',
-											projects: 3,
-											revenue: 12800,
-											satisfaction: 4.8,
+											name: 'Ana Martínez',
+											idNumber: '11223344',
+											cases: 2,
+											revenue: 280,
+											lastExam: 'Inmunohistoquímica',
 											status: 'Completado',
 											tier: 'Standard',
 										},
 										{
-											name: 'GlobalTech',
-											type: 'Corporación',
-											projects: 6,
-											revenue: 15600,
-											satisfaction: 4.6,
+											name: 'Luis Pérez',
+											idNumber: '44332211',
+											cases: 1,
+											revenue: 150,
+											lastExam: 'Citología',
 											status: 'En Progreso',
-											tier: 'Premium',
+											tier: 'Standard',
 										},
 										{
-											name: 'LocalBiz',
-											type: 'PYME',
-											projects: 4,
-											revenue: 8900,
-											satisfaction: 4.5,
+											name: 'Carmen Silva',
+											idNumber: '55667788',
+											cases: 1,
+											revenue: 120,
+											lastExam: 'Biopsia',
 											status: 'Activo',
 											tier: 'Standard',
 										},
-									].map((client, index) => (
+									].map((patient, index) => (
 										<tr
 											key={index}
 											className="border-b border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800/50"
 										>
 											<td className="py-4">
 												<div className="flex items-center gap-2 sm:gap-3">
-													{client.tier === 'VIP' && <Star className="w-3 h-3 sm:w-4 sm:h-4 text-yellow-500" />}
-													{client.tier === 'Premium' && <Award className="w-3 h-3 sm:w-4 sm:h-4 text-purple-500" />}
+													{patient.tier === 'VIP' && <Star className="w-3 h-3 sm:w-4 sm:h-4 text-yellow-500" />}
+													{patient.tier === 'Premium' && <Award className="w-3 h-3 sm:w-4 sm:h-4 text-purple-500" />}
 													<div>
-														<p className="font-medium text-gray-700 dark:text-gray-300 text-sm">{client.name}</p>
-														<p className="text-xs text-gray-500 dark:text-gray-400">{client.type}</p>
+														<p className="font-medium text-gray-700 dark:text-gray-300 text-sm">{patient.name}</p>
+														<p className="text-xs text-gray-500 dark:text-gray-400">{patient.idNumber}</p>
 													</div>
 												</div>
 											</td>
-											<td className="py-4 text-gray-700 dark:text-gray-300 text-sm">{client.projects}</td>
+											<td className="py-4 text-gray-700 dark:text-gray-300 text-sm">{patient.cases}</td>
 											<td className="py-4 text-gray-700 dark:text-gray-300 font-medium text-sm">
-												${client.revenue.toLocaleString()}
+												${patient.revenue.toLocaleString()}
 											</td>
 											<td className="py-4 hidden sm:table-cell">
-												<div className="flex items-center gap-2">
-													<div className="flex">
-														{[...Array(5)].map((_, i) => (
-															<Star
-																key={i}
-																className={`w-3 h-3 ${
-																	i < Math.floor(client.satisfaction) ? 'text-yellow-400 fill-current' : 'text-gray-300'
-																}`}
-															/>
-														))}
-													</div>
-													<span className="text-sm text-gray-600 dark:text-gray-400">{client.satisfaction}</span>
-												</div>
+												<span className="text-sm text-gray-600 dark:text-gray-400">{patient.lastExam}</span>
 											</td>
 											<td className="py-4">
 												<span
 													className={`px-2 py-1 text-xs font-medium rounded-full ${
-														client.status === 'Activo'
+														patient.status === 'Activo'
 															? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300'
-															: client.status === 'En Progreso'
+															: patient.status === 'En Progreso'
 																? 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300'
 																: 'bg-gray-100 dark:bg-gray-900/30 text-gray-700 dark:text-gray-300'
 													}`}
 												>
-													{client.status}
+													{patient.status}
 												</span>
 											</td>
 										</tr>
@@ -404,44 +378,59 @@ const ReportsPage: React.FC = () => {
 				<Card className="grid hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 transition-all duration-300 shadow-lg">
 					<div className="bg-white dark:bg-background rounded-xl p-4 sm:p-6 transition-colors duration-300">
 						<h3 className="text-base sm:text-lg font-bold text-gray-700 dark:text-gray-300 mb-4 sm:mb-6">
-							Métricas de Cliente
+							Métricas de Pacientes
 						</h3>
 						<div className="space-y-4 sm:space-y-6">
 							<div className="text-center p-3 sm:p-4 bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 rounded-lg">
 								<Users className="w-6 h-6 sm:w-8 sm:h-8 text-blue-600 dark:text-blue-400 mx-auto mb-2" />
-								<p className="text-xl sm:text-2xl font-bold text-blue-600 dark:text-blue-400">127</p>
-								<p className="text-sm text-gray-600 dark:text-gray-400">Clientes Totales</p>
+								<p className="text-xl sm:text-2xl font-bold text-blue-600 dark:text-blue-400">
+									{isLoading ? '...' : stats?.uniquePatients || 0}
+								</p>
+								<p className="text-sm text-gray-600 dark:text-gray-400">Pacientes Únicos</p>
 							</div>
 
 							<div className="text-center p-3 sm:p-4 bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20 rounded-lg">
 								<DollarSign className="w-6 h-6 sm:w-8 sm:h-8 text-green-600 dark:text-green-400 mx-auto mb-2" />
-								<p className="text-xl sm:text-2xl font-bold text-green-600 dark:text-green-400">$812</p>
-								<p className="text-sm text-gray-600 dark:text-gray-400">Valor Promedio</p>
+								<p className="text-xl sm:text-2xl font-bold text-green-600 dark:text-green-400">
+									{isLoading ? '...' : formatCurrency(stats?.totalRevenue && stats?.uniquePatients ? stats.totalRevenue / stats.uniquePatients : 0)}
+								</p>
+								<p className="text-sm text-gray-600 dark:text-gray-400">Valor Promedio por Paciente</p>
 							</div>
 
 							<div className="text-center p-3 sm:p-4 bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-800/20 rounded-lg">
-								<Star className="w-6 h-6 sm:w-8 sm:h-8 text-purple-600 dark:text-purple-400 mx-auto mb-2" />
-								<p className="text-xl sm:text-2xl font-bold text-purple-600 dark:text-purple-400">4.7</p>
-								<p className="text-sm text-gray-600 dark:text-gray-400">Satisfacción Media</p>
+								<Stethoscope className="w-6 h-6 sm:w-8 sm:h-8 text-purple-600 dark:text-purple-400 mx-auto mb-2" />
+								<p className="text-xl sm:text-2xl font-bold text-purple-600 dark:text-purple-400">
+									{isLoading ? '...' : stats?.totalCases && stats?.uniquePatients ? (stats.totalCases / stats.uniquePatients).toFixed(1) : '0'}
+								</p>
+								<p className="text-sm text-gray-600 dark:text-gray-400">Casos Promedio por Paciente</p>
 							</div>
 
 							<div className="space-y-3">
 								<div>
 									<div className="flex items-center justify-between mb-1">
-										<span className="text-sm text-gray-600 dark:text-gray-400">Retención</span>
-										<span className="text-sm font-medium text-gray-700 dark:text-gray-300">89%</span>
+										<span className="text-sm text-gray-600 dark:text-gray-400">Tasa de Finalización</span>
+										<span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+											{isLoading ? '...' : stats?.totalCases ? `${((stats.completedCases / stats.totalCases) * 100).toFixed(1)}%` : '0%'}
+										</span>
 									</div>
 									<div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-										<div className="bg-green-500 h-2 rounded-full" style={{ width: '89%' }}></div>
+										<div 
+											className="bg-green-500 h-2 rounded-full" 
+											style={{ 
+												width: `${stats?.totalCases ? (stats.completedCases / stats.totalCases) * 100 : 0}%` 
+											}}
+										></div>
 									</div>
 								</div>
 								<div>
 									<div className="flex items-center justify-between mb-1">
-										<span className="text-sm text-gray-600 dark:text-gray-400">Recomendación</span>
-										<span className="text-sm font-medium text-gray-700 dark:text-gray-300">94%</span>
+										<span className="text-sm text-gray-600 dark:text-gray-400">Pacientes Nuevos</span>
+										<span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+											{isLoading ? '...' : `+${stats?.newPatientsThisMonth || 0}`}
+										</span>
 									</div>
 									<div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-										<div className="bg-blue-500 h-2 rounded-full" style={{ width: '94%' }}></div>
+										<div className="bg-blue-500 h-2 rounded-full" style={{ width: '75%' }}></div>
 									</div>
 								</div>
 							</div>
@@ -458,10 +447,34 @@ const ReportsPage: React.FC = () => {
 					</h3>
 					<div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
 						{[
-							{ title: 'Proyectos Entregados', value: '127', change: '+15%', color: 'blue', icon: FileText },
-							{ title: 'Tiempo Promedio', value: '18 días', change: '-8%', color: 'green', icon: Calendar },
-							{ title: 'Margen de Ganancia', value: '68%', change: '+5%', color: 'purple', icon: TrendingUp },
-							{ title: 'Eficiencia del Equipo', value: '94%', change: '+12%', color: 'orange', icon: Award },
+							{ 
+								title: 'Casos Completados', 
+								value: isLoading ? '...' : (stats?.completedCases || 0).toString(), 
+								change: '+15%', 
+								color: 'blue', 
+								icon: FileText 
+							},
+							{ 
+								title: 'Tiempo Promedio', 
+								value: '3 días', 
+								change: '-8%', 
+								color: 'green', 
+								icon: Calendar 
+							},
+							{ 
+								title: 'Margen de Ganancia', 
+								value: '68%', 
+								change: '+5%', 
+								color: 'purple', 
+								icon: TrendingUp 
+							},
+							{ 
+								title: 'Eficiencia del Servicio', 
+								value: isLoading ? '...' : stats?.totalCases ? `${((stats.completedCases / stats.totalCases) * 100).toFixed(0)}%` : '0%', 
+								change: '+12%', 
+								color: 'orange', 
+								icon: Award 
+							},
 						].map((metric, index) => (
 							<div key={index} className="text-center">
 								<div
