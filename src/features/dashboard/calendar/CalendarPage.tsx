@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { ChevronLeft, ChevronRight, Plus, Calendar as CalendarIcon, Clock, MapPin, Users } from 'lucide-react'
-import { BackgroundGradient } from '@shared/components/ui/background-gradient'
+import { Card } from '@shared/components/ui/card'
 
 const CalendarPage: React.FC = () => {
 	const [currentDate, setCurrentDate] = useState(new Date())
@@ -152,8 +152,8 @@ const CalendarPage: React.FC = () => {
 		<div className="p-3 sm:p-6">
 			<div className="grid grid-cols-1 xl:grid-cols-3 gap-4 sm:gap-6">
 				{/* Calendar Grid */}
-				<BackgroundGradient containerClassName="xl:col-span-2 grid" className="grid">
-					<div className="bg-white/80 dark:bg-gray-900 rounded-xl p-3 sm:p-6 transition-colors duration-300">
+				<Card className="xl:col-span-2 grid hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 transition-all duration-300 shadow-lg">
+					<div className="bg-white dark:bg-background rounded-xl p-3 sm:p-6 transition-colors duration-300">
 						{/* Calendar Header */}
 						<div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 sm:mb-6">
 							<h2 className="text-xl sm:text-2xl font-bold text-gray-700 dark:text-gray-300 mb-3 sm:mb-0">
@@ -194,22 +194,22 @@ const CalendarPage: React.FC = () => {
 						</div>
 						<div className="grid grid-cols-7 gap-0 overflow-hidden">{renderCalendarDays()}</div>
 					</div>
-				</BackgroundGradient>
+				</Card>
 
 				{/* Event Details Sidebar */}
 				<div className="space-y-4 sm:space-y-6">
 					{/* Add Event Button */}
-					<BackgroundGradient containerClassName="grid" className="grid">
-						<div className="bg-white/80 dark:bg-gray-900 rounded-xl p-4 sm:p-6 transition-colors duration-300">
-							<button className="relative h-12 overflow-hidden p-[1px] focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2 focus:ring-offset-slate-50 w-full bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white rounded-full transition flex items-center justify-center gap-2 text-sm sm:text-base hover:translate-y-[-2px] hover:shadow-md hover:shadow-blue-500/20">
+					<Card className="grid hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 transition-all duration-300 shadow-lg">
+						<div className="bg-white dark:bg-background rounded-xl p-4 sm:p-6 transition-colors duration-300">
+							<button className="relative h-12 overflow-hidden p-[1px] w-full bg-white dark:bg-background text-gray-700 dark:text-white rounded-full transition flex items-center justify-center gap-2 text-sm sm:text-base hover:translate-y-[-2px] hover:shadow-sm hover:shadow-primary border border-primary">
 								<Plus className="w-4 h-4 sm:w-5 sm:h-5" />
 								<span className="text-sm sm:text-base">Nuevo Evento</span>
 							</button>
 						</div>
-					</BackgroundGradient>
+					</Card>
 					{/* Selected Date Events */}
-					<BackgroundGradient containerClassName="grid" className="grid">
-						<div className="bg-white/80 dark:bg-gray-900 rounded-xl p-4 sm:p-6 transition-colors duration-300">
+					<Card className="grid hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 transition-all duration-300 shadow-lg">
+						<div className="bg-white dark:bg-background rounded-xl p-4 sm:p-6 transition-colors duration-300">
 							<h3 className="text-base sm:text-lg font-bold text-gray-700 dark:text-gray-300 mb-4">
 								{formatDate(selectedDate)}
 							</h3>
@@ -256,10 +256,10 @@ const CalendarPage: React.FC = () => {
 								</div>
 							)}
 						</div>
-					</BackgroundGradient>
+					</Card>
 					{/* Upcoming Events */}
-					<BackgroundGradient containerClassName="grid" className="grid">
-						<div className="bg-white/80 dark:bg-gray-900 rounded-xl p-4 sm:p-6 transition-colors duration-300">
+					<Card className="grid hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 transition-all duration-300 shadow-lg">
+						<div className="bg-white dark:bg-background rounded-xl p-4 sm:p-6 transition-colors duration-300">
 							<h3 className="text-base sm:text-lg font-bold text-gray-700 dark:text-gray-300 mb-4">Próximos Eventos</h3>
 							<div className="space-y-3">
 								{events.slice(0, 3).map((event) => (
@@ -286,7 +286,7 @@ const CalendarPage: React.FC = () => {
 								))}
 							</div>
 						</div>
-					</BackgroundGradient>
+					</Card>
 				</div>
 			</div>
 		</div>

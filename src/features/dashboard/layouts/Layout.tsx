@@ -64,7 +64,7 @@ const Layout: React.FC = () => {
 	}
 
 	return (
-		<div className="min-h-screen bg-gradient-to-br from-[#3A71EC] via-[#6C5CEC] to-[#9949EC] dark:from-[#2F2E7B] dark:via-[#412982] dark:to-[#511F80] transition-colors duration-300">
+		<div className="min-h-screen bg-white dark:bg-background transition-colors duration-300">
 			{/* Mobile overlay */}
 			{sidebarOpen && (
 				<div className="fixed inset-0 bg-black bg-opacity-50 z-[999998] lg:hidden" onClick={() => setSidebarOpen(false)} />

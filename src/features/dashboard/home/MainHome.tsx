@@ -1,9 +1,9 @@
 import EyeTrackingComponent from '@features/dashboard/home/RobotTraking'
 import { TrendingUp, Users, DollarSign, Calendar, ArrowRight, BarChart3, AlertTriangle, Clock } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
-import { BackgroundGradient } from '@shared/components/ui/background-gradient'
 import { useDashboardStats } from '@shared/hooks/useDashboardStats'
 import { YearSelector } from '@shared/components/ui/year-selector'
+import { Card } from '@shared/components/ui/card'
 import { useState } from 'react'
 import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
@@ -45,15 +45,12 @@ function MainHome() {
 				{/* Mobile-first responsive grid */}
 				<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-4">
 					{/* Grid 1 - Enhanced Welcome Section */}
-					<BackgroundGradient
-						containerClassName="col-span-1 sm:col-span-2 lg:col-span-3 row-span-1 lg:row-span-2"
-						className="dark:bg-gray-900 bg-white/80 rounded-xl py-4 sm:py-6 px-4 sm:px-8 transition-all duration-300 flex flex-col sm:flex-row items-center justify-between shadow-lg hover:shadow-xl h-full cursor-pointer"
-					>
-						<div className="flex-1 text-center sm:text-left mb-4 sm:mb-0">
+					<Card className="col-span-1 sm:col-span-2 lg:col-span-3 row-span-1 lg:row-span-2 dark:bg-background bg-white rounded-xl py-4 sm:py-6 px-4 sm:px-8 flex flex-col sm:flex-row items-center justify-between shadow-lg h-full cursor-pointer transition-all duration-300 hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20">
+						<div className="flex-1 text-center sm:text-left mb-4 sm:mb-0 ">
 							<div className="flex flex-col sm:flex-row items-center sm:items-start gap-3 mb-3">
 								<div>
 									<h1 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 bg-clip-text text-transparent">
-										¡Bienvenido a Solware!
+										¡Bienvenido a Conspat!
 									</h1>
 									<div className="flex items-center justify-center sm:justify-start gap-2 mt-1">
 										<div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
@@ -62,7 +59,7 @@ function MainHome() {
 								</div>
 							</div>
 							<p className="text-gray-600 dark:text-gray-300 mb-4 text-base sm:text-lg">
-								Gestiona tus proyectos y revisa el progreso de tu equipo
+								Gestiona tus ingresos y estadisticas de empresa.
 							</p>
 						</div>
 						<div className="relative">
@@ -73,12 +70,11 @@ function MainHome() {
 								}
 							/>
 						</div>
-					</BackgroundGradient>
+					</Card>
 
 					{/* Grid 2 - Revenue by Branch Chart */}
-					<BackgroundGradient
-						containerClassName="col-span-1 sm:col-span-2 lg:col-span-3 row-span-1 lg:row-span-2"
-						className="dark:bg-gray-900 bg-white/80 rounded-xl py-4 sm:py-6 px-4 sm:px-8 transition-all duration-300 cursor-pointer hover:shadow-xl group shadow-lg h-full"
+					<Card
+						className="col-span-1 sm:col-span-2 lg:col-span-3 row-span-1 lg:row-span-2 dark:bg-background bg-white rounded-xl py-4 sm:py-6 px-4 sm:px-8 transition-all duration-300 cursor-pointer group shadow-lg h-full hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20"
 					>
 						<div className="h-full flex flex-col" onClick={() => navigate('/dashboard/stats')}>
 							<div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 sm:mb-6">
@@ -204,12 +200,11 @@ function MainHome() {
 								</div>
 							</div>
 						</div>
-					</BackgroundGradient>
+					</Card>
 
 					{/* Grid 3 - KPI Card: Monthly Revenue */}
-					<BackgroundGradient
-						containerClassName="col-span-1 sm:col-span-1 lg:col-span-2 row-span-1 lg:row-span-2"
-						className="dark:bg-gray-900 bg-white/80 rounded-xl py-4 sm:py-5 px-4 sm:px-6 transition-colors duration-300 flex flex-col justify-between cursor-pointer hover:bg-white/90 group h-full"
+					<Card
+						className="col-span-1 sm:col-span-1 lg:col-span-2 row-span-1 lg:row-span-2 dark:bg-background bg-white rounded-xl py-4 sm:py-5 px-4 sm:px-6 transition-all duration-300 flex flex-col justify-between cursor-pointer shadow-lg hover:bg-white/90 group h-full hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20"
 					>
 						<div className="h-full flex flex-col justify-between" onClick={() => navigate('/dashboard/stats')}>
 							<div className="flex items-center justify-between mb-4">
@@ -234,12 +229,11 @@ function MainHome() {
 								</p>
 							</div>
 						</div>
-					</BackgroundGradient>
+					</Card>
 
 					{/* Grid 4 - KPI Card: Registered Users */}
-					<BackgroundGradient
-						containerClassName="col-span-1 sm:col-span-1 lg:col-span-2 row-span-1 lg:row-span-2"
-						className="dark:bg-gray-900 bg-white/80 rounded-xl py-4 sm:py-5 px-4 sm:px-6 transition-colors duration-300 flex flex-col justify-between cursor-pointer hover:bg-white/90 group h-full"
+					<Card
+						className="col-span-1 sm:col-span-1 lg:col-span-2 row-span-1 lg:row-span-2 dark:bg-background bg-white rounded-xl py-4 sm:py-5 px-4 sm:px-6 transition-all duration-300 flex flex-col justify-between cursor-pointer shadow-lg hover:bg-white/90 group h-full hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20"
 					>
 						<div className="h-full flex flex-col justify-between" onClick={() => navigate('/dashboard/stats')}>
 							<div className="flex items-center justify-between mb-4">
@@ -264,12 +258,11 @@ function MainHome() {
 								<p className="text-xs text-gray-500 dark:text-gray-400 mt-1">pacientes únicos</p>
 							</div>
 						</div>
-					</BackgroundGradient>
+					</Card>
 
 					{/* Grid 5 - Calendar Preview (unchanged) */}
-					<BackgroundGradient
-						containerClassName="col-span-1 sm:col-span-2 lg:col-span-2 row-span-1 lg:row-span-4"
-						className="dark:bg-gray-900 bg-white/80 rounded-xl py-4 sm:py-5 px-4 sm:px-6 transition-colors duration-300 flex flex-col cursor-pointer hover:bg-white/90 group h-full"
+					<Card
+						className="col-span-1 sm:col-span-2 lg:col-span-2 row-span-1 lg:row-span-4 dark:bg-background bg-white rounded-xl py-4 sm:py-5 px-4 sm:px-6 transition-all duration-300 flex flex-col cursor-pointer shadow-lg hover:bg-white/90 group h-full hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20"
 					>
 						<div className="h-full flex flex-col" onClick={() => navigate('/dashboard/calendar')}>
 							<div className="flex items-center justify-between mb-4">
@@ -306,12 +299,11 @@ function MainHome() {
 								</div>
 							</div>
 						</div>
-					</BackgroundGradient>
+					</Card>
 
 					{/* Grid 6 - 12-Month Sales Trend Chart with Year Selector */}
-					<BackgroundGradient
-						containerClassName="col-span-1 sm:col-span-2 lg:col-span-4 row-span-1 lg:row-span-2"
-						className="dark:bg-gray-900 bg-white/80 rounded-xl py-4 sm:py-5 px-4 sm:px-6 transition-colors duration-300 cursor-pointer hover:bg-white/90 group h-full"
+					<Card
+						className="col-span-1 sm:col-span-2 lg:col-span-4 row-span-1 lg:row-span-2 dark:bg-background bg-white rounded-xl py-4 sm:py-5 px-4 sm:px-6 transition-all duration-300 cursor-pointer shadow-lg hover:bg-white/90 group h-full hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20"
 					>
 						<div className="h-full flex flex-col">
 							<div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4">
@@ -360,16 +352,15 @@ function MainHome() {
 							<div className="flex justify-between text-xs text-gray-500 dark:text-gray-400 mt-2">
 								{/* FIXED: Force Spanish month labels regardless of system language */}
 								{['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'].map((m) => (
-										<span key={m}>{m}</span>
-									))}
+									<span key={m}>{m}</span>
+								))}
 							</div>
 						</div>
-					</BackgroundGradient>
+					</Card>
 
 					{/* Grid 7 - Top Exam Types (Normalized) */}
-					<BackgroundGradient
-						containerClassName="col-span-1 sm:col-span-2 lg:col-span-3 row-span-1 lg:row-span-2"
-						className="dark:bg-gray-900 bg-white/80 rounded-xl py-4 sm:py-5 px-4 sm:px-6 transition-colors duration-300 cursor-pointer hover:bg-white/90 group h-full"
+					<Card
+						className="col-span-1 sm:col-span-2 lg:col-span-3 row-span-1 lg:row-span-2 dark:bg-background bg-white rounded-xl py-4 sm:py-5 px-4 sm:px-6 transition-all duration-300 cursor-pointer shadow-lg hover:bg-white/90 group h-full hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20"
 					>
 						<div className="h-full flex flex-col" onClick={() => navigate('/dashboard/reports')}>
 							<div className="flex items-center justify-between mb-4">
@@ -430,12 +421,11 @@ function MainHome() {
 								)}
 							</div>
 						</div>
-					</BackgroundGradient>
+					</Card>
 
 					{/* Grid 8 - Quick Actions & Status Indicators */}
-					<BackgroundGradient
-						containerClassName="col-span-1 sm:col-span-2 lg:col-span-3 row-span-1 lg:row-span-2"
-						className="dark:bg-gray-900 bg-white/80 rounded-xl py-4 sm:py-5 px-4 sm:px-6 transition-colors duration-300 h-full"
+					<Card
+						className="col-span-1 sm:col-span-2 lg:col-span-3 row-span-1 lg:row-span-2 dark:bg-background bg-white rounded-xl py-4 sm:py-5 px-4 sm:px-6 transition-all duration-300 h-full hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 shadow-lg"
 					>
 						<div className="h-full flex flex-col">
 							<div className="flex items-center justify-between mb-4">
@@ -467,7 +457,7 @@ function MainHome() {
 
 								{/* Quick Actions */}
 								<button
-									className="w-full p-2 sm:p-3 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white rounded-lg transition flex items-center justify-center gap-2 text-sm sm:text-base"
+									className="w-full p-2 sm:p-3 bg-primary hover:bg-primary/80 text-white rounded-lg transition flex items-center justify-center gap-2 text-sm sm:text-base"
 									onClick={() => navigate('/dashboard/stats')}
 								>
 									<BarChart3 className="w-4 h-4" />
@@ -476,7 +466,7 @@ function MainHome() {
 								</button>
 							</div>
 						</div>
-					</BackgroundGradient>
+					</Card>
 				</div>
 			</main>
 		</>

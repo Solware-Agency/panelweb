@@ -47,7 +47,7 @@ const PaymentMethodSection = React.memo(({ index, form }: { index: number; form:
 	const referenceField = `payment_reference_${index}` as keyof EditCaseFormData
 
 	return (
-		<div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
+		<div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 bg-white dark:bg-background rounded-lg">
 			<FormField
 				control={form.control}
 				name={methodField}
@@ -299,10 +299,10 @@ const EditCaseModal: React.FC<EditCaseModalProps> = ({ case_, isOpen, onClose, o
 						animate={{ x: 0 }}
 						exit={{ x: '100%' }}
 						transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-						className="fixed right-0 top-0 h-full w-full sm:w-2/3 lg:w-1/2 xl:w-2/5 bg-white dark:bg-gray-900 shadow-2xl z-[999999] overflow-y-auto"
+						className="fixed right-0 top-0 h-full w-full sm:w-2/3 lg:w-1/2 xl:w-2/5 bg-white dark:bg-background shadow-2xl z-[999999] overflow-y-auto border-l border-input"
 					>
 						{/* Header */}
-						<div className="sticky top-0 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 p-4 sm:p-6 z-10">
+						<div className="sticky top-0 bg-white dark:bg-background border-b border-gray-200 dark:border-gray-700 p-4 sm:p-6 z-10">
 							<div className="flex items-center justify-between">
 								<div>
 									<h2 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-gray-100">Editar Caso</h2>
@@ -324,7 +324,7 @@ const EditCaseModal: React.FC<EditCaseModalProps> = ({ case_, isOpen, onClose, o
 							<Form {...form}>
 								<form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
 									{/* Patient Info (Read-only) */}
-									<div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4">
+									<div className="bg-white dark:bg-background rounded-lg p-4 border border-input">
 										<div className="flex items-center gap-2 mb-3">
 											<User className="w-5 h-5 text-blue-600 dark:text-blue-400" />
 											<h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
@@ -403,7 +403,7 @@ const EditCaseModal: React.FC<EditCaseModalProps> = ({ case_, isOpen, onClose, o
 										<Button type="button" variant="outline" onClick={onClose} className="flex-1">
 											Cancelar
 										</Button>
-										<Button type="submit" className="flex-1 bg-blue-600 hover:bg-blue-700">
+										<Button type="submit" className="flex-1 bg-primary hover:bg-primary/80">
 											<Save className="w-4 h-4 mr-2" />
 											Guardar Cambios
 										</Button>
@@ -429,7 +429,7 @@ const EditCaseModal: React.FC<EditCaseModalProps> = ({ case_, isOpen, onClose, o
 									exit={{ opacity: 0, scale: 0.95 }}
 									className="fixed inset-0 flex items-center justify-center z-[99999999] p-4"
 								>
-									<div className="bg-white dark:bg-gray-900 rounded-xl shadow-2xl max-w-md w-full max-h-[80vh] overflow-y-auto">
+									<div className="bg-white dark:bg-background rounded-xl shadow-2xl max-w-md w-full max-h-[80vh] overflow-y-auto">
 										<div className="p-6">
 											<div className="flex items-center gap-3 mb-4">
 												<div className="p-2 bg-orange-100 dark:bg-orange-900/30 rounded-lg">
