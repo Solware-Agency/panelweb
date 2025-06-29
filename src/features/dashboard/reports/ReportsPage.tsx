@@ -16,6 +16,7 @@ import {
 	AlertCircle,
 	CheckCircle,
 	XCircle,
+	User,
 } from 'lucide-react'
 import { Card } from '@shared/components/ui/card'
 import { useDashboardStats } from '@shared/hooks/useDashboardStats'
@@ -78,7 +79,84 @@ const ReportsPage: React.FC = () => {
 				</Card>
 			</div>
 
-			{/* Pending Payments Section - NEW SECTION */}
+			{/* Doctor Revenue Section - NEW SECTION */}
+			<Card className="col-span-1 grid hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 transition-all duration-300 shadow-lg mb-6 sm:mb-8">
+				<div className="bg-white dark:bg-background rounded-xl p-4 sm:p-6 transition-colors duration-300">
+					<div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 sm:mb-6">
+						<h3 className="text-lg sm:text-xl font-bold text-gray-700 dark:text-gray-300 mb-2 sm:mb-0 flex items-center gap-2">
+							<User className="w-5 h-5 text-blue-500" />
+							Ingreso por Médico Tratante
+						</h3>
+						<div className="flex items-center gap-2 px-3 py-2 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
+							<span className="text-sm font-medium text-blue-700 dark:text-blue-300">Monto Total</span>
+						</div>
+					</div>
+
+					<div className="overflow-x-auto">
+						<table className="w-full min-w-full">
+							<thead>
+								<tr className="border-b border-gray-200 dark:border-gray-700">
+									<th className="text-left py-3 text-gray-600 dark:text-gray-400 font-medium text-sm">Médico Tratante</th>
+									<th className="text-center py-3 text-gray-600 dark:text-gray-400 font-medium text-sm">Casos</th>
+									<th className="text-right py-3 text-gray-600 dark:text-gray-400 font-medium text-sm">Monto Total</th>
+								</tr>
+							</thead>
+							<tbody>
+								{isLoading ? (
+									<tr>
+										<td colSpan={3} className="py-8 text-center">
+											<div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-500 mx-auto"></div>
+										</td>
+									</tr>
+								) : stats?.topTreatingDoctors && stats.topTreatingDoctors.length > 0 ? (
+									stats.topTreatingDoctors.map((doctor, index) => (
+										<tr key={index} className="border-b border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800/50">
+											<td className="py-4">
+												<div className="flex items-center gap-2">
+													<div className="w-8 h-8 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center">
+														<User className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+													</div>
+													<div>
+														<p className="font-medium text-gray-700 dark:text-gray-300 text-sm">{doctor.doctor}</p>
+													</div>
+												</div>
+											</td>
+											<td className="py-4 text-center">
+												<span className="inline-flex items-center justify-center px-2 py-1 text-xs font-medium rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300">
+													{doctor.cases} caso{doctor.cases !== 1 ? 's' : ''}
+												</span>
+											</td>
+											<td className="py-4 text-right">
+												<p className="text-base font-bold text-gray-700 dark:text-gray-300">{formatCurrency(doctor.revenue)}</p>
+												<div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-1.5 mt-1">
+													<div 
+														className="bg-blue-500 h-1.5 rounded-full" 
+														style={{ 
+															width: `${stats.topTreatingDoctors.length > 0 ? 
+																(doctor.revenue / Math.max(...stats.topTreatingDoctors.map(d => d.revenue))) * 100 : 0}%` 
+														}}
+													></div>
+												</div>
+											</td>
+										</tr>
+									))
+								) : (
+									<tr>
+										<td colSpan={3} className="py-8 text-center">
+											<div className="text-gray-500 dark:text-gray-400">
+												<User className="w-12 h-12 mx-auto mb-4 opacity-50" />
+												<p className="text-lg font-medium">No hay datos de médicos</p>
+											</div>
+										</td>
+									</tr>
+								)}
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</Card>
+
+			{/* Pending Payments Section */}
 			<Card className="col-span-1 grid hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 transition-all duration-300 shadow-lg mb-6 sm:mb-8">
 				<div className="bg-white dark:bg-background rounded-xl p-4 sm:p-6 transition-colors duration-300">
 					<div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 sm:mb-6">
