@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { X, Save, AlertCircle, User, DollarSign, FileText, Cake } from 'lucide-react'
+import { X, Save, AlertCircle, User, DollarSign, FileText, Cake, Mail, Phone } from 'lucide-react'
 import { motion, AnimatePresence } from 'motion/react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -20,6 +20,10 @@ import { es } from 'date-fns/locale'
 
 // Validation schema for editing
 const editCaseSchema = z.object({
+	full_name: z.string().min(1, 'El nombre es requerido'),
+	id_number: z.string().min(1, 'La cédula es requerida'),
+	phone: z.string().min(1, 'El teléfono es requerido').max(15, 'Máximo 15 caracteres'),
+	email: z.string().email('Email inválido').optional().nullable(),
 	date_of_birth: z.date().optional().nullable(),
 	comments: z.string().optional(),
 	payment_method_1: z.string().optional(),
@@ -144,6 +148,10 @@ const EditCaseModal: React.FC<EditCaseModalProps> = ({ case_, isOpen, onClose, o
 	const form = useForm<EditCaseFormData>({
 		resolver: zodResolver(editCaseSchema),
 		defaultValues: {
+			full_name: '',
+			id_number: '',
+			phone: '',
+			email: null,
 			date_of_birth: null,
 			comments: '',
 			payment_method_1: undefined,
@@ -175,6 +183,10 @@ const EditCaseModal: React.FC<EditCaseModalProps> = ({ case_, isOpen, onClose, o
 			}
 
 			form.reset({
+				full_name: case_.full_name || '',
+				id_number: case_.id_number || '',
+				phone: case_.phone || '',
+				email: case_.email || null,
 				date_of_birth: dateOfBirth,
 				comments: case_.comments || '',
 				payment_method_1: case_.payment_method_1 || undefined,
@@ -195,6 +207,10 @@ const EditCaseModal: React.FC<EditCaseModalProps> = ({ case_, isOpen, onClose, o
 
 	const getFieldLabel = (field: string): string => {
 		const labels: Record<string, string> = {
+			full_name: 'Nombre Completo',
+			id_number: 'Cédula',
+			phone: 'Teléfono',
+			email: 'Correo Electrónico',
 			date_of_birth: 'Fecha de Nacimiento',
 			comments: 'Comentarios',
 			payment_method_1: 'Método de Pago 1',
@@ -306,13 +322,13 @@ const EditCaseModal: React.FC<EditCaseModalProps> = ({ case_, isOpen, onClose, o
 			const updates: Partial<MedicalRecord> = {}
 			changes.forEach((change) => {
 				// Special handling for date_of_birth to format as string
-				if (change.newValue instanceof Date) {
+				if (change.field === 'date_of_birth' && change.newValue instanceof Date) {
 					updates[change.field as keyof MedicalRecord] = format(change.newValue, 'yyyy-MM-dd') as any
-			} else if (typeof change.newValue === 'string' || change.newValue === null) {
+				} else if (typeof change.newValue === 'string' || typeof change.newValue === 'number' || change.newValue === null) {
 					updates[change.field as keyof MedicalRecord] = change.newValue as any
-			} else {
+				} else {
 					updates[change.field as keyof MedicalRecord] = undefined
-			}
+				}
 			})
 
 			await onSave(case_.id!, updates, changes)
@@ -372,7 +388,7 @@ const EditCaseModal: React.FC<EditCaseModalProps> = ({ case_, isOpen, onClose, o
 								<div>
 									<h2 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-gray-100">Editar Caso</h2>
 									<p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-										{case_.full_name} - {case_.code || case_.id?.slice(-6).toUpperCase()}
+										{case_.code || case_.id?.slice(-6).toUpperCase()}
 									</p>
 								</div>
 								<button
@@ -388,7 +404,7 @@ const EditCaseModal: React.FC<EditCaseModalProps> = ({ case_, isOpen, onClose, o
 						<div className="p-4 sm:p-6">
 							<Form {...form}>
 								<form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
-									{/* Patient Info (Read-only) */}
+									{/* Patient Info (Now Editable) */}
 									<div className="bg-white dark:bg-background rounded-lg p-4 border border-input">
 										<div className="flex items-center gap-2 mb-3">
 											<User className="w-5 h-5 text-blue-600 dark:text-blue-400" />
@@ -396,30 +412,91 @@ const EditCaseModal: React.FC<EditCaseModalProps> = ({ case_, isOpen, onClose, o
 												Información del Paciente
 											</h3>
 										</div>
-										<div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
-											<div>
-												<span className="font-medium text-gray-600 dark:text-gray-400">Nombre:</span>
-												<p className="text-gray-900 dark:text-gray-100">{case_.full_name}</p>
-											</div>
-											<div>
-												<span className="font-medium text-gray-600 dark:text-gray-400">Cédula:</span>
-												<p className="text-gray-900 dark:text-gray-100">{case_.id_number}</p>
-											</div>
-											<div>
-												<span className="font-medium text-gray-600 dark:text-gray-400">Estudio:</span>
-												<p className="text-gray-900 dark:text-gray-100">{case_.exam_type}</p>
-											</div>
-											<div>
-												<span className="font-medium text-gray-600 dark:text-gray-400">Monto Total:</span>
-												<div className="flex items-center gap-2">
-													<p className="text-gray-900 dark:text-gray-100">${case_.total_amount.toLocaleString()}</p>
-													{case_.remaining > 0 && (
-														<div className="text-xs text-red-600 dark:text-red-400">
-															Faltante: ${case_.remaining.toLocaleString()}
-														</div>
-													)}
-												</div>
-											</div>
+										
+										<div className="space-y-4">
+											{/* Full Name */}
+											<FormField
+												control={form.control}
+												name="full_name"
+												render={({ field }) => (
+													<FormItem>
+														<FormLabel>Nombre Completo</FormLabel>
+														<FormControl>
+															<Input 
+																placeholder="Nombre y Apellido" 
+																{...field} 
+																className="focus:border-primary focus:ring-primary"
+															/>
+														</FormControl>
+														<FormMessage />
+													</FormItem>
+												)}
+											/>
+
+											{/* ID Number */}
+											<FormField
+												control={form.control}
+												name="id_number"
+												render={({ field }) => (
+													<FormItem>
+														<FormLabel>Cédula</FormLabel>
+														<FormControl>
+															<Input 
+																placeholder="12345678" 
+																{...field} 
+																className="focus:border-primary focus:ring-primary"
+															/>
+														</FormControl>
+														<FormMessage />
+													</FormItem>
+												)}
+											/>
+
+											{/* Phone */}
+											<FormField
+												control={form.control}
+												name="phone"
+												render={({ field }) => (
+													<FormItem>
+														<FormLabel className="flex items-center gap-2">
+															<Phone className="w-4 h-4 text-blue-500" />
+															Teléfono
+														</FormLabel>
+														<FormControl>
+															<Input 
+																placeholder="0412-1234567" 
+																{...field} 
+																className="focus:border-primary focus:ring-primary"
+															/>
+														</FormControl>
+														<FormMessage />
+													</FormItem>
+												)}
+											/>
+
+											{/* Email */}
+											<FormField
+												control={form.control}
+												name="email"
+												render={({ field }) => (
+													<FormItem>
+														<FormLabel className="flex items-center gap-2">
+															<Mail className="w-4 h-4 text-blue-500" />
+															Correo Electrónico
+														</FormLabel>
+														<FormControl>
+															<Input 
+																type="email"
+																placeholder="correo@ejemplo.com" 
+																{...field} 
+																value={field.value || ''}
+																className="focus:border-primary focus:ring-primary"
+															/>
+														</FormControl>
+														<FormMessage />
+													</FormItem>
+												)}
+											/>
 										</div>
 									</div>
 
