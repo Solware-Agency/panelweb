@@ -12,7 +12,6 @@ import { useNavigate } from 'react-router-dom'
 import { signOut } from '@lib/supabase/auth'
 import { getMedicalRecords } from '@lib/supabase-service'
 import { RefreshCw, Maximize2 } from 'lucide-react'
-import { useUserProfile } from '@shared/hooks/useUserProfile'
 
 const queryClient = new QueryClient()
 
@@ -20,7 +19,6 @@ function FormContent() {
 	const [activeTab, setActiveTab] = useState('form')
 	const [isFullscreen, setIsFullscreen] = useState(false)
 	const navigate = useNavigate()
-	const { profile } = useUserProfile()
 
 	// Query for medical records data
 	const {

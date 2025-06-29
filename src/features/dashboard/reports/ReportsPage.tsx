@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react'
+import React, { useRef } from 'react'
 import {
 	TrendingUp,
 	FileText,
@@ -9,25 +9,19 @@ import {
 	Clock,
 	AlertCircle,
 	CheckCircle,
-	XCircle,
-	Download
+	XCircle
 } from 'lucide-react'
 import { Card } from '@shared/components/ui/card'
 import { useDashboardStats } from '@shared/hooks/useDashboardStats'
-import { Button } from '@shared/components/ui/button'
-import { useToast } from '@shared/hooks/use-toast'
 import DoctorRevenueReport from './DoctorRevenueReport'
 import OriginRevenueReport from './OriginRevenueReport'
 import ExamTypeReport from './ExamTypeReport'
 import BranchRevenueReport from './BranchRevenueReport'
 import ExportSection from './ExportSection'
-import { exportElementToPdf } from '@shared/components/ui/pdf-export'
 
 const ReportsPage: React.FC = () => {
 	const { data: stats, isLoading } = useDashboardStats()
-	const { toast } = useToast()
 	const reportRef = useRef<HTMLDivElement>(null)
-	const [isExporting, setIsExporting] = useState(false)
 
 	const formatCurrency = (amount: number) => {
 		return new Intl.NumberFormat('es-VE', {
@@ -280,7 +274,7 @@ const ReportsPage: React.FC = () => {
 			</Card>
 
 			{/* Print styles - only applied when printing */}
-			<style jsx global>{`
+			<style>{`
 				@media print {
 					body {
 						background: white;
