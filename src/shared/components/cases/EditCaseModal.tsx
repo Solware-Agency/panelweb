@@ -492,11 +492,6 @@ const EditCaseModal: React.FC<EditCaseModalProps> = ({ case_, isOpen, onClose, o
 															/>
 														</PopoverContent>
 													</Popover>
-													{ageDisplay && (
-														<p className="text-sm text-green-600 font-medium">
-															{ageDisplay}
-														</p>
-													)}
 													<FormMessage />
 												</FormItem>
 											)}

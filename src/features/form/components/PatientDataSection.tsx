@@ -215,11 +215,6 @@ export const PatientDataSection = ({ control, inputStyles }: PatientDataSectionP
 									/>
 								</PopoverContent>
 							</Popover>
-							{currentAge && (
-								<p className="text-sm text-green-600 font-medium">
-									{currentAge}
-								</p>
-							)}
 							<FormMessage />
 						</FormItem>
 					)}
