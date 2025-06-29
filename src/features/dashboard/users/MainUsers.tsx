@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Users, Mail, Calendar, Shield, Search, Filter, UserCheck, UserX, Crown, Briefcase, Edit } from 'lucide-react'
+import { Users, Mail, Calendar, Shield, Search, Filter, UserCheck, UserX, Crown, Briefcase, Edit, Eye, EyeOff, Key } from 'lucide-react'
 import { Card } from '@shared/components/ui/card'
 import { Input } from '@shared/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@shared/components/ui/select'
@@ -10,7 +10,6 @@ import { updateUserRole, canManageUsers } from '@lib/supabase/user-management'
 import { useAuth } from '@app/providers/AuthContext'
 import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
-import EditUserModal from '@shared/components/users/EditUserModal'
 import { useToast } from '@shared/hooks/use-toast'
 
 interface UserProfile {
@@ -21,6 +20,7 @@ interface UserProfile {
 	updated_at: string
 	email_confirmed_at?: string
 	last_sign_in_at?: string
+	password?: string // Campo para almacenar la contraseña (solo para visualización)
 }
 
 const MainUsers: React.FC = () => {
@@ -29,8 +29,7 @@ const MainUsers: React.FC = () => {
 	const [searchTerm, setSearchTerm] = useState('')
 	const [roleFilter, setRoleFilter] = useState<string>('all')
 	const [statusFilter, setStatusFilter] = useState<string>('all')
-	const [editingUser, setEditingUser] = useState<UserProfile | null>(null)
-	const [isEditModalOpen, setIsEditModalOpen] = useState(false)
+	const [showPasswords, setShowPasswords] = useState<Record<string, boolean>>({})
 
 	// Query para obtener usuarios
 	const { data: users, isLoading, error, refetch } = useQuery({
@@ -45,15 +44,16 @@ const MainUsers: React.FC = () => {
 
 				if (profilesError) throw profilesError
 
-				// Obtener información adicional de auth.users si es posible
-				// Nota: En producción, esto requeriría permisos especiales o una función de edge
-				const usersWithAuthInfo = profiles?.map(profile => ({
+				// Simular contraseñas para demostración (en un sistema real, nunca se deberían mostrar contraseñas)
+				// Esto es solo para fines de demostración
+				const usersWithPasswords = profiles?.map(profile => ({
 					...profile,
 					email_confirmed_at: null, // Placeholder - requiere permisos admin
 					last_sign_in_at: null, // Placeholder - requiere permisos admin
+					password: '********' // Contraseña simulada para demostración
 				})) || []
 
-				return usersWithAuthInfo
+				return usersWithPasswords
 			} catch (error) {
 				console.error('Error fetching users:', error)
 				throw error
@@ -108,7 +108,14 @@ const MainUsers: React.FC = () => {
 		return 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300'
 	}
 
-	const handleEditUser = (user: UserProfile) => {
+	const togglePasswordVisibility = (userId: string) => {
+		setShowPasswords(prev => ({
+			...prev,
+			[userId]: !prev[userId]
+		}))
+	}
+
+	const handleRoleChange = async (userId: string, newRole: 'owner' | 'employee') => {
 		// Verificar permisos antes de permitir edición
 		if (!canManage) {
 			toast({
@@ -120,7 +127,7 @@ const MainUsers: React.FC = () => {
 		}
 
 		// No permitir que un usuario se edite a sí mismo
-		if (user.id === currentUser?.id) {
+		if (userId === currentUser?.id) {
 			toast({
 				title: '❌ Acción no permitida',
 				description: 'No puedes cambiar tu propio rol.',
@@ -129,11 +136,6 @@ const MainUsers: React.FC = () => {
 			return
 		}
 
-		setEditingUser(user)
-		setIsEditModalOpen(true)
-	}
-
-	const handleSaveUser = async (userId: string, newRole: 'owner' | 'employee') => {
 		try {
 			const { error } = await updateUserRole(userId, newRole)
 			
@@ -141,11 +143,21 @@ const MainUsers: React.FC = () => {
 				throw error
 			}
 
+			toast({
+				title: '✅ Rol actualizado',
+				description: `El rol del usuario ha sido cambiado a ${newRole === 'owner' ? 'Propietario' : 'Empleado'}.`,
+				className: 'bg-green-100 border-green-400 text-green-800',
+			})
+
 			// Refrescar la lista de usuarios
 			refetch()
 		} catch (error) {
 			console.error('Error updating user role:', error)
-			throw error
+			toast({
+				title: '❌ Error al actualizar',
+				description: 'Hubo un problema al cambiar el rol del usuario. Inténtalo de nuevo.',
+				variant: 'destructive',
+			})
 		}
 	}
 
@@ -348,6 +360,26 @@ const MainUsers: React.FC = () => {
 										<p className="font-medium text-gray-900 dark:text-gray-100 text-sm">{user.email}</p>
 									</div>
 
+									{/* Contraseña */}
+									<div className="flex items-center gap-2 mb-2">
+										<Key className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+										<div className="flex items-center gap-2">
+											<p className="font-medium text-gray-900 dark:text-gray-100 text-sm">
+												{showPasswords[user.id] ? user.password : '********'}
+											</p>
+											<button 
+												onClick={() => togglePasswordVisibility(user.id)}
+												className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
+											>
+												{showPasswords[user.id] ? (
+													<EyeOff className="w-4 h-4" />
+												) : (
+													<Eye className="w-4 h-4" />
+												)}
+											</button>
+										</div>
+									</div>
+
 									{/* Fecha de registro */}
 									<div className="flex items-center gap-2 mb-3">
 										<Calendar className="w-4 h-4 text-gray-600 dark:text-gray-400" />
@@ -356,17 +388,35 @@ const MainUsers: React.FC = () => {
 										</p>
 									</div>
 
-									{/* Botón de editar */}
+									{/* Selector de rol */}
 									{canManage && user.id !== currentUser?.id && (
-										<Button
-											onClick={() => handleEditUser(user)}
-											size="sm"
-											variant="outline"
-											className="w-full"
-										>
-											<Edit className="w-3 h-3 mr-2" />
-											Editar Rol
-										</Button>
+										<div className="mt-3">
+											<label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+												Cambiar Rol:
+											</label>
+											<Select 
+												defaultValue={user.role} 
+												onValueChange={(value: 'owner' | 'employee') => handleRoleChange(user.id, value)}
+											>
+												<SelectTrigger className="w-full">
+													<SelectValue placeholder="Seleccionar rol" />
+												</SelectTrigger>
+												<SelectContent>
+													<SelectItem value="owner">
+														<div className="flex items-center gap-2">
+															<Crown className="w-4 h-4 text-yellow-600 dark:text-yellow-400" />
+															<span>Propietario</span>
+														</div>
+													</SelectItem>
+													<SelectItem value="employee">
+														<div className="flex items-center gap-2">
+															<Briefcase className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+															<span>Empleado</span>
+														</div>
+													</SelectItem>
+												</SelectContent>
+											</Select>
+										</div>
 									)}
 								</div>
 							))}
@@ -382,6 +432,9 @@ const MainUsers: React.FC = () => {
 										Usuario
 									</th>
 									<th className="px-6 py-4 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+										Contraseña
+									</th>
+									<th className="px-6 py-4 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
 										Rol
 									</th>
 									<th className="px-6 py-4 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
@@ -393,11 +446,6 @@ const MainUsers: React.FC = () => {
 									<th className="px-6 py-4 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
 										Última Actualización
 									</th>
-									{canManage && (
-										<th className="px-6 py-4 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-											Acciones
-										</th>
-									)}
 								</tr>
 							</thead>
 							<tbody className="divide-y divide-gray-200 dark:divide-gray-700">
@@ -415,10 +463,52 @@ const MainUsers: React.FC = () => {
 											</div>
 										</td>
 										<td className="px-6 py-4">
-											<span className={`inline-flex items-center gap-1 px-2 py-1 text-xs font-semibold rounded-full ${getRoleColor(user.role)}`}>
-												{getRoleIcon(user.role)}
-												{user.role === 'owner' ? 'Propietario' : 'Empleado'}
-											</span>
+											<div className="flex items-center gap-2">
+												<p className="text-sm font-medium text-gray-900 dark:text-gray-100">
+													{showPasswords[user.id] ? user.password : '********'}
+												</p>
+												<button 
+													onClick={() => togglePasswordVisibility(user.id)}
+													className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
+												>
+													{showPasswords[user.id] ? (
+														<EyeOff className="w-4 h-4" />
+													) : (
+														<Eye className="w-4 h-4" />
+													)}
+												</button>
+											</div>
+										</td>
+										<td className="px-6 py-4">
+											{canManage && user.id !== currentUser?.id ? (
+												<Select 
+													defaultValue={user.role} 
+													onValueChange={(value: 'owner' | 'employee') => handleRoleChange(user.id, value)}
+												>
+													<SelectTrigger className="w-40">
+														<SelectValue placeholder="Seleccionar rol" />
+													</SelectTrigger>
+													<SelectContent>
+														<SelectItem value="owner">
+															<div className="flex items-center gap-2">
+																<Crown className="w-4 h-4 text-yellow-600 dark:text-yellow-400" />
+																<span>Propietario</span>
+															</div>
+														</SelectItem>
+														<SelectItem value="employee">
+															<div className="flex items-center gap-2">
+																<Briefcase className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+																<span>Empleado</span>
+															</div>
+														</SelectItem>
+													</SelectContent>
+												</Select>
+											) : (
+												<span className={`inline-flex items-center gap-1 px-2 py-1 text-xs font-semibold rounded-full ${getRoleColor(user.role)}`}>
+													{getRoleIcon(user.role)}
+													{user.role === 'owner' ? 'Propietario' : 'Empleado'}
+												</span>
+											)}
 										</td>
 										<td className="px-6 py-4">
 											<span className={`inline-flex items-center gap-1 px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(user)}`}>
@@ -432,24 +522,6 @@ const MainUsers: React.FC = () => {
 										<td className="px-6 py-4 text-sm text-gray-900 dark:text-gray-100">
 											{format(new Date(user.updated_at), 'dd/MM/yyyy HH:mm', { locale: es })}
 										</td>
-										{canManage && (
-											<td className="px-6 py-4 text-center">
-												{user.id !== currentUser?.id ? (
-													<Button
-														onClick={() => handleEditUser(user)}
-														size="sm"
-														variant="outline"
-													>
-														<Edit className="w-3 h-3 mr-2" />
-														Editar
-													</Button>
-												) : (
-													<span className="text-xs text-gray-500 dark:text-gray-400">
-														(Tú mismo)
-													</span>
-												)}
-											</td>
-										)}
 									</tr>
 								))}
 							</tbody>
@@ -468,17 +540,6 @@ const MainUsers: React.FC = () => {
 					)}
 				</div>
 			</Card>
-
-			{/* Modal de edición */}
-			<EditUserModal
-				user={editingUser}
-				isOpen={isEditModalOpen}
-				onClose={() => {
-					setIsEditModalOpen(false)
-					setEditingUser(null)
-				}}
-				onSave={handleSaveUser}
-			/>
 		</div>
 	)
 }
