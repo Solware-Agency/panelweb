@@ -131,6 +131,129 @@ const PaymentMethodSection = React.memo(({ index, form }: { index: number; form:
 
 PaymentMethodSection.displayName = 'PaymentMethodSection'
 
+// Sección: Información del Paciente
+const PatientInfoSection = React.memo(({ control }: { control: any }) => (
+	<div className="bg-white dark:bg-background rounded-lg p-4 border border-input">
+		<div className="flex items-center gap-2 mb-3">
+			<User className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+			<h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+				Información del Paciente
+			</h3>
+		</div>
+		<div className="space-y-4">
+			{/* Full Name */}
+			<FormField
+				control={control}
+				name="full_name"
+				render={({ field }) => (
+					<FormItem>
+						<FormLabel>Nombre Completo</FormLabel>
+						<FormControl>
+							<Input 
+								placeholder="Nombre y Apellido" 
+								{...field} 
+								className="focus:border-primary focus:ring-primary"
+							/>
+						</FormControl>
+						<FormMessage />
+					</FormItem>
+				)}
+			/>
+			{/* ID Number */}
+			<FormField
+				control={control}
+				name="id_number"
+				render={({ field }) => (
+					<FormItem>
+						<FormLabel>Cédula</FormLabel>
+						<FormControl>
+							<Input 
+								placeholder="12345678" 
+								{...field} 
+								className="focus:border-primary focus:ring-primary"
+							/>
+						</FormControl>
+						<FormMessage />
+					</FormItem>
+				)}
+			/>
+			{/* Phone */}
+			<FormField
+				control={control}
+				name="phone"
+				render={({ field }) => (
+					<FormItem>
+						<FormLabel className="flex items-center gap-2">
+							<Phone className="w-4 h-4 text-blue-500" />
+							Teléfono
+						</FormLabel>
+						<FormControl>
+							<Input 
+								placeholder="0412-1234567" 
+								{...field} 
+								className="focus:border-primary focus:ring-primary"
+							/>
+						</FormControl>
+						<FormMessage />
+					</FormItem>
+				)}
+			/>
+			{/* Email */}
+			<FormField
+				control={control}
+				name="email"
+				render={({ field }) => (
+					<FormItem>
+						<FormLabel className="flex items-center gap-2">
+							<Mail className="w-4 h-4 text-blue-500" />
+							Correo Electrónico
+						</FormLabel>
+						<FormControl>
+							<Input 
+								type="email"
+								placeholder="correo@ejemplo.com" 
+								{...field} 
+								value={field.value || ''}
+								className="focus:border-primary focus:ring-primary"
+							/>
+						</FormControl>
+						<FormMessage />
+					</FormItem>
+				)}
+			/>
+		</div>
+	</div>
+))
+PatientInfoSection.displayName = 'PatientInfoSection'
+
+// Sección: Comentarios
+const CommentsSectionMemo = React.memo(({ control }: { control: any }) => (
+	<div className="space-y-4">
+		<div className="flex items-center gap-2">
+			<FileText className="w-5 h-5 text-green-600 dark:text-green-400" />
+			<h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Comentarios</h3>
+		</div>
+		<FormField
+			control={control}
+			name="comments"
+			render={({ field }) => (
+				<FormItem>
+					<FormLabel>Comentarios del caso</FormLabel>
+					<FormControl>
+						<Textarea
+							placeholder="Agregar comentarios adicionales..."
+							className="min-h-[100px]"
+							{...field}
+						/>
+					</FormControl>
+					<FormMessage />
+				</FormItem>
+			)}
+		/>
+	</div>
+))
+CommentsSectionMemo.displayName = 'CommentsSectionMemo'
+
 interface EditCaseModalProps {
 	case_: MedicalRecord | null
 	isOpen: boolean
@@ -205,7 +328,7 @@ const EditCaseModal: React.FC<EditCaseModalProps> = ({ case_, isOpen, onClose, o
 		}
 	}, [case_, isOpen, form])
 
-	const getFieldLabel = (field: string): string => {
+	const getFieldLabel = React.useCallback((field: string): string => {
 		const labels: Record<string, string> = {
 			full_name: 'Nombre Completo',
 			id_number: 'Cédula',
@@ -227,14 +350,14 @@ const EditCaseModal: React.FC<EditCaseModalProps> = ({ case_, isOpen, onClose, o
 			payment_reference_4: 'Referencia de Pago 4',
 		}
 		return labels[field] || field
-	}
+	}, [])
 
-	const formatValue = (value: any): string => {
+	const formatValue = React.useCallback((value: any): string => {
 		if (value === null || value === undefined || value === '') return 'Vacío'
 		if (value instanceof Date) return format(value, 'dd/MM/yyyy', { locale: es })
 		if (typeof value === 'number') return value.toString()
 		return String(value)
-	}
+	}, [])
 
 	const detectChanges = (formData: EditCaseFormData): Change[] => {
 		if (!case_) return []
@@ -332,7 +455,7 @@ const EditCaseModal: React.FC<EditCaseModalProps> = ({ case_, isOpen, onClose, o
 			})
 
 			await onSave(case_.id!, updates, changes)
-
+			await new Promise((res) => setTimeout(res, 500))
 			toast({
 				title: '✅ Caso actualizado',
 				description: `Se guardaron ${changes.length} cambio(s) exitosamente.`,
@@ -404,101 +527,8 @@ const EditCaseModal: React.FC<EditCaseModalProps> = ({ case_, isOpen, onClose, o
 						<div className="p-4 sm:p-6">
 							<Form {...form}>
 								<form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
-									{/* Patient Info (Now Editable) */}
-									<div className="bg-white dark:bg-background rounded-lg p-4 border border-input">
-										<div className="flex items-center gap-2 mb-3">
-											<User className="w-5 h-5 text-blue-600 dark:text-blue-400" />
-											<h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
-												Información del Paciente
-											</h3>
-										</div>
-										
-										<div className="space-y-4">
-											{/* Full Name */}
-											<FormField
-												control={form.control}
-												name="full_name"
-												render={({ field }) => (
-													<FormItem>
-														<FormLabel>Nombre Completo</FormLabel>
-														<FormControl>
-															<Input 
-																placeholder="Nombre y Apellido" 
-																{...field} 
-																className="focus:border-primary focus:ring-primary"
-															/>
-														</FormControl>
-														<FormMessage />
-													</FormItem>
-												)}
-											/>
-
-											{/* ID Number */}
-											<FormField
-												control={form.control}
-												name="id_number"
-												render={({ field }) => (
-													<FormItem>
-														<FormLabel>Cédula</FormLabel>
-														<FormControl>
-															<Input 
-																placeholder="12345678" 
-																{...field} 
-																className="focus:border-primary focus:ring-primary"
-															/>
-														</FormControl>
-														<FormMessage />
-													</FormItem>
-												)}
-											/>
-
-											{/* Phone */}
-											<FormField
-												control={form.control}
-												name="phone"
-												render={({ field }) => (
-													<FormItem>
-														<FormLabel className="flex items-center gap-2">
-															<Phone className="w-4 h-4 text-blue-500" />
-															Teléfono
-														</FormLabel>
-														<FormControl>
-															<Input 
-																placeholder="0412-1234567" 
-																{...field} 
-																className="focus:border-primary focus:ring-primary"
-															/>
-														</FormControl>
-														<FormMessage />
-													</FormItem>
-												)}
-											/>
-
-											{/* Email */}
-											<FormField
-												control={form.control}
-												name="email"
-												render={({ field }) => (
-													<FormItem>
-														<FormLabel className="flex items-center gap-2">
-															<Mail className="w-4 h-4 text-blue-500" />
-															Correo Electrónico
-														</FormLabel>
-														<FormControl>
-															<Input 
-																type="email"
-																placeholder="correo@ejemplo.com" 
-																{...field} 
-																value={field.value || ''}
-																className="focus:border-primary focus:ring-primary"
-															/>
-														</FormControl>
-														<FormMessage />
-													</FormItem>
-												)}
-											/>
-										</div>
-									</div>
+									{/* Patient Info (Memoizado) */}
+									<PatientInfoSection control={form.control} />
 
 									{/* Date of Birth Section */}
 									<div className="space-y-4">
@@ -573,31 +603,8 @@ const EditCaseModal: React.FC<EditCaseModalProps> = ({ case_, isOpen, onClose, o
 										/>
 									</div>
 
-									{/* Comments Section */}
-									<div className="space-y-4">
-										<div className="flex items-center gap-2">
-											<FileText className="w-5 h-5 text-green-600 dark:text-green-400" />
-											<h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Comentarios</h3>
-										</div>
-
-										<FormField
-											control={form.control}
-											name="comments"
-											render={({ field }) => (
-												<FormItem>
-													<FormLabel>Comentarios del caso</FormLabel>
-													<FormControl>
-														<Textarea
-															placeholder="Agregar comentarios adicionales..."
-															className="min-h-[100px]"
-															{...field}
-														/>
-													</FormControl>
-													<FormMessage />
-												</FormItem>
-											)}
-										/>
-									</div>
+									{/* Comments Section (Memoizado) */}
+									<CommentsSectionMemo control={form.control} />
 
 									{/* Payment Methods Section */}
 									<div className="space-y-4">
@@ -608,7 +615,7 @@ const EditCaseModal: React.FC<EditCaseModalProps> = ({ case_, isOpen, onClose, o
 
 										<div className="space-y-4">
 											{[1, 2, 3, 4].map((index) => (
-												<PaymentMethodSection key={index} index={index} form={form} />
+												<PaymentMethodSection key={index} index={index} form={{ control: form.control }} />
 											))}
 										</div>
 									</div>

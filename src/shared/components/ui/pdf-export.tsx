@@ -257,7 +257,7 @@ export const exportTableToPdf = (
 
     // Add footer
     if (includeFooter) {
-      const pageCount = pdf.internal.getNumberOfPages()
+      const pageCount = pdf.getNumberOfPages()
       for (let i = 1; i <= pageCount; i++) {
         pdf.setPage(i)
         const footerY = pdf.internal.pageSize.getHeight() - 10

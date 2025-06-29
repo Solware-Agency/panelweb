@@ -203,9 +203,6 @@ const CasesTable: React.FC<CasesTableProps> = ({
 								{case_.code}
 							</span>
 						)}
-						<span className="text-sm font-mono text-gray-600 dark:text-gray-400">
-							{case_.id?.slice(-6).toUpperCase()}
-						</span>
 					</div>
 				</div>
 
@@ -411,7 +408,7 @@ const CasesTable: React.FC<CasesTableProps> = ({
 										case_.treating_doctor.toLowerCase().includes(searchTerm.toLowerCase()) ||
 										case_.branch.toLowerCase().includes(searchTerm.toLowerCase()) ||
 										(case_.code && case_.code.toLowerCase().includes(searchTerm.toLowerCase()))
-									
+
 									let matchesStatus = true
 									if (statusFilter === 'Completado') {
 										matchesStatus = case_.payment_status === 'Completado'
@@ -421,7 +418,7 @@ const CasesTable: React.FC<CasesTableProps> = ({
 
 									const matchesBranch = branchFilter === 'all' || case_.branch === branchFilter
 									const matchesExamType = examTypeFilter === 'all' || case_.exam_type === examTypeFilter
-									
+
 									return matchesSearch && matchesStatus && matchesBranch && matchesExamType
 								}).length
 							}{' '}
@@ -523,7 +520,7 @@ const CasesTable: React.FC<CasesTableProps> = ({
 									return (
 										<tr key={case_.id} className="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
 											<td className="px-4 py-4">
-												<div className="space-y-1 text-left">
+												<div className="flex flex-col items-start space-y-1 text-left">
 													{case_.code && (
 														<div className="inline-flex items-center gap-1 px-2 py-1 text-xs font-semibold rounded-full bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300 mb-1">
 															{case_.code}
@@ -717,7 +714,7 @@ const CasesTable: React.FC<CasesTableProps> = ({
 											case_.treating_doctor.toLowerCase().includes(searchTerm.toLowerCase()) ||
 											case_.branch.toLowerCase().includes(searchTerm.toLowerCase()) ||
 											(case_.code && case_.code.toLowerCase().includes(searchTerm.toLowerCase()))
-										
+
 										let matchesStatus = true
 										if (statusFilter === 'Completado') {
 											matchesStatus = case_.payment_status === 'Completado'
@@ -727,7 +724,7 @@ const CasesTable: React.FC<CasesTableProps> = ({
 
 										const matchesBranch = branchFilter === 'all' || case_.branch === branchFilter
 										const matchesExamType = examTypeFilter === 'all' || case_.exam_type === examTypeFilter
-										
+
 										return matchesSearch && matchesStatus && matchesBranch && matchesExamType
 									}).length
 								}{' '}
@@ -821,7 +818,7 @@ const CasesTable: React.FC<CasesTableProps> = ({
 											return (
 												<tr key={case_.id} className="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
 													<td className="px-4 py-4">
-														<div className="space-y-1 text-left">
+														<div className="flex flex-col items-start space-y-1 text-left">
 															{case_.code && (
 																<div className="inline-flex items-center gap-1 px-2 py-1 text-xs font-semibold rounded-full bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300 mb-1">
 																	{case_.code}
