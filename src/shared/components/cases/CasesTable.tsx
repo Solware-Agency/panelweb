@@ -129,7 +129,15 @@ const CasesTable: React.FC<CasesTableProps> = ({ onCaseSelect }) => {
 				case_.branch.toLowerCase().includes(searchTerm.toLowerCase()) ||
 				(case_.code && case_.code.toLowerCase().includes(searchTerm.toLowerCase()))
 
-			const matchesStatus = statusFilter === 'all' || case_.payment_status === statusFilter
+			// Updated filter logic to handle only "Completado" and "Incompleto"
+			let matchesStatus = true
+			if (statusFilter === 'Completado') {
+				matchesStatus = case_.payment_status === 'Completado'
+			} else if (statusFilter === 'Incompleto') {
+				// "Incompleto" includes all non-completed statuses
+				matchesStatus = case_.payment_status !== 'Completado'
+			}
+			// If statusFilter is 'all', matchesStatus remains true
 
 			return matchesSearch && matchesStatus
 		})
@@ -326,7 +334,7 @@ const CasesTable: React.FC<CasesTableProps> = ({ onCaseSelect }) => {
 								/>
 							</div>
 
-							{/* Status Filter */}
+							{/* Status Filter - Updated with only Completado and Incompleto */}
 							<div className="flex items-center gap-2">
 								<Filter className="size-4 text-gray-400 mr-2" />
 								<select
@@ -335,10 +343,7 @@ const CasesTable: React.FC<CasesTableProps> = ({ onCaseSelect }) => {
 									className="px-3 py-2 border border-input rounded-lg focus:ring-2 focus:ring-primary dark:bg-background dark:text-white text-sm"
 								>
 									<option value="all">Todos los estatus</option>
-									<option value="Pendiente">Pendiente</option>
-									<option value="En Proceso">En Proceso</option>
 									<option value="Completado">Completado</option>
-									<option value="Cancelado">Cancelado</option>
 									<option value="Incompleto">Incompleto</option>
 								</select>
 							</div>
@@ -376,7 +381,14 @@ const CasesTable: React.FC<CasesTableProps> = ({ onCaseSelect }) => {
 										case_.treating_doctor.toLowerCase().includes(searchTerm.toLowerCase()) ||
 										case_.branch.toLowerCase().includes(searchTerm.toLowerCase()) ||
 										(case_.code && case_.code.toLowerCase().includes(searchTerm.toLowerCase()))
-									const matchesStatus = statusFilter === 'all' || case_.payment_status === statusFilter
+									
+									let matchesStatus = true
+									if (statusFilter === 'Completado') {
+										matchesStatus = case_.payment_status === 'Completado'
+									} else if (statusFilter === 'Incompleto') {
+										matchesStatus = case_.payment_status !== 'Completado'
+									}
+									
 									return matchesSearch && matchesStatus
 								}).length
 							}{' '}
@@ -606,7 +618,7 @@ const CasesTable: React.FC<CasesTableProps> = ({ onCaseSelect }) => {
 									/>
 								</div>
 
-								{/* Status Filter */}
+								{/* Status Filter - Updated with only Completado and Incompleto */}
 								<div className="flex items-center gap-2">
 									<Filter className="w-4 h-4 text-gray-400" />
 									<select
@@ -615,10 +627,7 @@ const CasesTable: React.FC<CasesTableProps> = ({ onCaseSelect }) => {
 										className="px-3 py-2 border border-input rounded-lg focus:ring-2 focus:ring-primary dark:bg-background dark:text-white text-sm"
 									>
 										<option value="all">Todos los estatus</option>
-										<option value="Pendiente">Pendiente</option>
-										<option value="En Proceso">En Proceso</option>
 										<option value="Completado">Completado</option>
-										<option value="Cancelado">Cancelado</option>
 										<option value="Incompleto">Incompleto</option>
 									</select>
 								</div>
@@ -656,7 +665,14 @@ const CasesTable: React.FC<CasesTableProps> = ({ onCaseSelect }) => {
 											case_.treating_doctor.toLowerCase().includes(searchTerm.toLowerCase()) ||
 											case_.branch.toLowerCase().includes(searchTerm.toLowerCase()) ||
 											(case_.code && case_.code.toLowerCase().includes(searchTerm.toLowerCase()))
-										const matchesStatus = statusFilter === 'all' || case_.payment_status === statusFilter
+										
+										let matchesStatus = true
+										if (statusFilter === 'Completado') {
+											matchesStatus = case_.payment_status === 'Completado'
+										} else if (statusFilter === 'Incompleto') {
+											matchesStatus = case_.payment_status !== 'Completado'
+										}
+										
 										return matchesSearch && matchesStatus
 									}).length
 								}{' '}
