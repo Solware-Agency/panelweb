@@ -90,28 +90,28 @@ function LoginForm() {
 
 	return (
 		<div className="w-screen h-screen relative overflow-hidden">
-			{/* Aurora Background */}
+			{/* Aurora Background with New Color Palette */}
 			<Aurora
-				colorStops={["#3A29FF", "#FF94B4", "#FF3232"]}
-				blend={0.5}
-				amplitude={1.0}
-				speed={0.5}
+				colorStops={["#C084FC", "#22C55E", "#0EA5E9"]}
+				blend={0.6}
+				amplitude={1.2}
+				speed={0.4}
 			/>
 			
 			{/* Login Form Container */}
-			<div className="relative z-10 w-screen h-screen bg-gradient-to-br from-black/20 via-transparent to-black/30 flex items-center justify-center">
-				<div className="flex flex-col items-center justify-center bg-white/90 dark:bg-gray-900/90 backdrop-blur-lg p-8 rounded-none md:rounded-xl w-screen h-screen md:h-auto md:w-full md:max-w-md shadow-2xl border border-white/20">
+			<div className="relative z-10 w-screen h-screen bg-gradient-to-br from-black/30 via-transparent to-black/40 flex items-center justify-center">
+				<div className="flex flex-col items-center justify-center bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl p-8 rounded-none md:rounded-xl w-screen h-screen md:h-auto md:w-full md:max-w-md shadow-2xl border border-white/30 dark:border-gray-700/30">
 					<div className="text-center mb-4 flex flex-col items-center justify-center">
-						<div className="p-4 bg-blue-500 rounded-full mb-4">
+						<div className="p-4 bg-gradient-to-r from-purple-500 to-blue-500 rounded-full mb-4 shadow-lg">
 							<CodeXml className="text-white size-12" />
 						</div>
-						<h1 className="text-2xl font-bold text-secondary-900 mb-2 text-black dark:text-white">Bienvenido, inicia sesión</h1>
-						<p className="text-secondary-600 text-black dark:text-gray-300">Inicia sesión en tu cuenta para continuar.</p>
+						<h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">Bienvenido, inicia sesión</h1>
+						<p className="text-gray-600 dark:text-gray-300">Inicia sesión en tu cuenta para continuar.</p>
 					</div>
 
 					<form className="w-full" onSubmit={handleLogin}>
 						<div className="flex flex-col gap-2 mb-4 w-full">
-							<p className="text-sm text-secondary-600 text-gray-600 dark:text-gray-400">Correo electrónico:</p>
+							<p className="text-sm text-gray-600 dark:text-gray-400">Correo electrónico:</p>
 							<input
 								type="email"
 								name="email"
@@ -120,10 +120,10 @@ function LoginForm() {
 								onChange={(e) => setEmail(e.target.value)}
 								required
 								disabled={loading || isRedirecting}
-								className="border-2 border-gray-300 dark:border-gray-600 rounded-md p-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed bg-white/80 dark:bg-gray-800/80 text-gray-900 dark:text-white"
+								className="border-2 border-gray-300 dark:border-gray-600 rounded-md p-2 w-full focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 disabled:opacity-50 disabled:cursor-not-allowed bg-white/90 dark:bg-gray-800/90 text-gray-900 dark:text-white transition-all duration-200"
 								autoComplete="email"
 							/>
-							<p className="text-sm text-secondary-600 text-gray-600 dark:text-gray-400">Contraseña:</p>
+							<p className="text-sm text-gray-600 dark:text-gray-400">Contraseña:</p>
 							<div className="relative">
 								<input
 									type={showPassword ? 'text' : 'password'}
@@ -133,35 +133,35 @@ function LoginForm() {
 									onChange={(e) => setPassword(e.target.value)}
 									required
 									disabled={loading || isRedirecting}
-									className="border-2 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-white rounded-md p-2 w-full pr-10 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed bg-white/80 dark:bg-gray-800/80"
+									className="border-2 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-white rounded-md p-2 w-full pr-10 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 disabled:opacity-50 disabled:cursor-not-allowed bg-white/90 dark:bg-gray-800/90 transition-all duration-200"
 									autoComplete="current-password"
 								/>
 								<button
 									type="button"
 									onClick={() => setShowPassword(!showPassword)}
 									disabled={loading || isRedirecting}
-									className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 disabled:opacity-50"
+									className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 disabled:opacity-50 transition-colors"
 								>
 									{showPassword ? <Eye size={20} /> : <EyeOff size={20} />}
 								</button>
 							</div>
 						</div>
 
-						{error && <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">{error}</div>}
+						{error && <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4 backdrop-blur-sm">{error}</div>}
 
 						<div className="flex items-center justify-between w-full mb-8">
 							<label className="flex items-center">
 								<input
 									type="checkbox"
 									disabled={loading || isRedirecting}
-									className="rounded border-secondary-300 text-primary-600 focus:ring-primary-500 disabled:opacity-50"
+									className="rounded border-gray-300 text-purple-600 focus:ring-purple-500 disabled:opacity-50"
 								/>
-								<span className="ml-2 text-sm text-secondary-600 text-gray-600 dark:text-gray-400">Recordarme</span>
+								<span className="ml-2 text-sm text-gray-600 dark:text-gray-400">Recordarme</span>
 							</label>
 
 							<Link
 								to="/forgot-password"
-								className={`text-sm text-blue-500 hover:text-blue-600 transition-colors ${loading || isRedirecting ? 'pointer-events-none opacity-50' : ''}`}
+								className={`text-sm text-purple-600 hover:text-purple-700 dark:text-purple-400 dark:hover:text-purple-300 transition-colors ${loading || isRedirecting ? 'pointer-events-none opacity-50' : ''}`}
 							>
 								¿Olvidaste tu contraseña?
 							</Link>
@@ -170,7 +170,7 @@ function LoginForm() {
 						<button
 							type="submit"
 							disabled={loading || isRedirecting}
-							className="w-full bg-blue-500 text-white rounded-md p-2 hover:bg-blue-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+							className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white rounded-md p-2 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-lg hover:shadow-xl transform hover:scale-[1.02] active:scale-[0.98]"
 						>
 							{loading || isRedirecting ? (
 								<>
@@ -189,7 +189,7 @@ function LoginForm() {
 							¿No tienes una cuenta?{' '}
 							<Link
 								to="/register"
-								className={`font-medium text-blue-500 hover:text-blue-600 transition-colors ${loading || isRedirecting ? 'pointer-events-none opacity-50' : ''}`}
+								className={`font-medium text-purple-600 hover:text-purple-700 dark:text-purple-400 dark:hover:text-purple-300 transition-colors ${loading || isRedirecting ? 'pointer-events-none opacity-50' : ''}`}
 							>
 								Regístrate aquí
 							</Link>
