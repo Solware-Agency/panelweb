@@ -664,7 +664,6 @@ const MainUsers: React.FC = () => {
 												</div>
 												<div>
 													<p className="text-sm font-medium text-gray-900 dark:text-gray-100">{user.email}</p>
-													<p className="text-xs text-gray-500 dark:text-gray-400">ID: {user.id.slice(-8)}</p>
 												</div>
 											</div>
 										</td>
