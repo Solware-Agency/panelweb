@@ -95,7 +95,7 @@ function LoginForm() {
 			<Aurora
 				colorStops={["hsl(330, 81%, 60%)"]}
 				blend={0.7}
-				amplitude={1.3}
+				amplitude={1.5}
 				speed={0.3}
 			/>
 			
