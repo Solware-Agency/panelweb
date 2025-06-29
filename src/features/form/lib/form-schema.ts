@@ -23,13 +23,16 @@ export const formSchema = z.object({
 		.min(1, 'El número de teléfono es requerido')
 		.max(15, 'El número de teléfono no puede tener más de 15 caracteres')
 		.regex(/^[0-9-+\s()]+$/, 'El teléfono solo puede contener números, guiones, espacios, paréntesis y el símbolo +'),
-	age: z.coerce
-		.number({ invalid_type_error: 'La edad es requerida' })
-		.int()
-		.positive('La edad debe ser un número positivo')
-		.min(1, 'La edad es requerida'),
+	dateOfBirth: z.date({ 
+		required_error: 'La fecha de nacimiento es requerida.',
+		invalid_type_error: 'Fecha de nacimiento inválida.'
+	}).refine((date) => {
+		const today = new Date()
+		const maxAge = new Date(today.getFullYear() - 150, today.getMonth(), today.getDate())
+		return date <= today && date >= maxAge
+	}, 'La fecha de nacimiento debe ser válida (no futura y no mayor a 150 años)'),
 	email: z.string().email('Correo electrónico inválido').optional().or(z.literal('')),
-	date: z.date({ required_error: 'La fecha es requerida.' }),
+	registrationDate: z.date({ required_error: 'La fecha de registro es requerida.' }),
 	examType: z.string().min(1, 'El tipo de exámen es requerido'),
 	origin: z
 		.string()

@@ -4,13 +4,14 @@ import { prepareSubmissionData } from '@features/form/lib/prepareSubmissionData'
 import { calculatePaymentDetailsFromRecord } from '@features/form/lib/payment/payment-utils'
 import type { MedicalRecordInsert } from '@shared/types/types'
 import { generateMedicalRecordCode } from '@lib/code-generator'
+import { differenceInYears, parseISO } from 'date-fns'
 
 export interface MedicalRecord {
 	id?: string
 	full_name: string
 	id_number: string
 	phone: string
-	age: number
+	date_of_birth: string // Changed from age: number to date_of_birth: string
 	email?: string | null
 	date: string
 	exam_type: string
@@ -52,6 +53,18 @@ export interface ChangeLog {
 	old_value: string | null
 	new_value: string | null
 	changed_at: string
+}
+
+// Helper function to calculate age from date of birth
+export const calculateAge = (dateOfBirth: string): number => {
+	if (!dateOfBirth) return 0
+	try {
+		const birthDate = parseISO(dateOfBirth)
+		return differenceInYears(new Date(), birthDate)
+	} catch (error) {
+		console.error('Error calculating age:', error)
+		return 0
+	}
 }
 
 // Nombre de la tabla nueva y limpia
@@ -105,7 +118,7 @@ export const insertMedicalRecord = async (
 		console.log('🔢 Generando código único...')
 		const newCode = await generateMedicalRecordCode(
 			formData.examType,
-			formData.date
+			formData.registrationDate
 		)
 		console.log(`✅ Código generado: ${newCode}`)
 
@@ -114,7 +127,7 @@ export const insertMedicalRecord = async (
 			full_name: submissionData.full_name,
 			id_number: submissionData.id_number,
 			phone: submissionData.phone,
-			age: Number(submissionData.age),
+			date_of_birth: submissionData.date_of_birth,
 			email: submissionData.email || undefined,
 			date: submissionData.date,
 			exam_type: submissionData.exam_type,

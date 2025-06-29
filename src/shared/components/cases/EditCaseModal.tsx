@@ -1,19 +1,26 @@
 import React, { useState, useEffect } from 'react'
-import { X, Save, AlertCircle, User, DollarSign, FileText } from 'lucide-react'
+import { X, Save, AlertCircle, User, DollarSign, FileText, Cake } from 'lucide-react'
 import { motion, AnimatePresence } from 'motion/react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import type { MedicalRecord } from '@lib/supabase-service'
+import { calculateAge } from '@lib/supabase-service'
 import { Button } from '@shared/components/ui/button'
 import { Input } from '@shared/components/ui/input'
 import { Textarea } from '@shared/components/ui/textarea'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@shared/components/ui/select'
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@shared/components/ui/form'
+import { Popover, PopoverContent, PopoverTrigger } from '@shared/components/ui/popover'
+import { Calendar } from '@shared/components/ui/calendar'
 import { useToast } from '@shared/hooks/use-toast'
+import { cn } from '@shared/lib/cn'
+import { format, parseISO } from 'date-fns'
+import { es } from 'date-fns/locale'
 
 // Validation schema for editing
 const editCaseSchema = z.object({
+	date_of_birth: z.date().optional().nullable(),
 	comments: z.string().optional(),
 	payment_method_1: z.string().optional(),
 	payment_amount_1: z.coerce.number().min(0).optional().nullable(),
@@ -131,11 +138,13 @@ const EditCaseModal: React.FC<EditCaseModalProps> = ({ case_, isOpen, onClose, o
 	const [isConfirmOpen, setIsConfirmOpen] = useState(false)
 	const [changes, setChanges] = useState<Change[]>([])
 	const [isSaving, setIsSaving] = useState(false)
+	const [isDateOfBirthOpen, setIsDateOfBirthOpen] = useState(false)
 	const { toast } = useToast()
 
 	const form = useForm<EditCaseFormData>({
 		resolver: zodResolver(editCaseSchema),
 		defaultValues: {
+			date_of_birth: null,
 			comments: '',
 			payment_method_1: undefined,
 			payment_amount_1: null,
@@ -155,7 +164,18 @@ const EditCaseModal: React.FC<EditCaseModalProps> = ({ case_, isOpen, onClose, o
 	// Reset form when case changes
 	useEffect(() => {
 		if (case_ && isOpen) {
+			// Parse date_of_birth string to Date object if it exists
+			let dateOfBirth = null
+			if (case_.date_of_birth) {
+				try {
+					dateOfBirth = parseISO(case_.date_of_birth)
+				} catch (error) {
+					console.error('Error parsing date of birth:', error)
+				}
+			}
+
 			form.reset({
+				date_of_birth: dateOfBirth,
 				comments: case_.comments || '',
 				payment_method_1: case_.payment_method_1 || undefined,
 				payment_amount_1: case_.payment_amount_1,
@@ -175,6 +195,7 @@ const EditCaseModal: React.FC<EditCaseModalProps> = ({ case_, isOpen, onClose, o
 
 	const getFieldLabel = (field: string): string => {
 		const labels: Record<string, string> = {
+			date_of_birth: 'Fecha de Nacimiento',
 			comments: 'Comentarios',
 			payment_method_1: 'Método de Pago 1',
 			payment_amount_1: 'Monto de Pago 1',
@@ -194,6 +215,7 @@ const EditCaseModal: React.FC<EditCaseModalProps> = ({ case_, isOpen, onClose, o
 
 	const formatValue = (value: any): string => {
 		if (value === null || value === undefined || value === '') return 'Vacío'
+		if (value instanceof Date) return format(value, 'dd/MM/yyyy', { locale: es })
 		if (typeof value === 'number') return value.toString()
 		return String(value)
 	}
@@ -205,8 +227,38 @@ const EditCaseModal: React.FC<EditCaseModalProps> = ({ case_, isOpen, onClose, o
 		const fieldsToCheck = Object.keys(formData) as (keyof EditCaseFormData)[]
 
 		fieldsToCheck.forEach((field) => {
-			const oldValue = case_[field as keyof MedicalRecord]
-			const newValue = formData[field]
+			let oldValue = case_[field as keyof MedicalRecord]
+			let newValue = formData[field]
+
+			// Special handling for date_of_birth
+			if (field === 'date_of_birth') {
+				// Convert string date to Date object for comparison
+				if (case_.date_of_birth && newValue) {
+					try {
+						oldValue = parseISO(case_.date_of_birth)
+						// If dates are different, format them as strings for the change log
+						if (oldValue.getTime() !== (newValue as Date).getTime()) {
+							detectedChanges.push({
+								field,
+								fieldLabel: getFieldLabel(field),
+								oldValue: format(oldValue, 'yyyy-MM-dd'),
+								newValue: format(newValue as Date, 'yyyy-MM-dd'),
+							})
+						}
+					} catch (error) {
+						console.error('Error comparing dates:', error)
+					}
+				} else if ((!case_.date_of_birth && newValue) || (case_.date_of_birth && !newValue)) {
+					// One is null and the other isn't
+					detectedChanges.push({
+						field,
+						fieldLabel: getFieldLabel(field),
+						oldValue: case_.date_of_birth || null,
+						newValue: newValue ? format(newValue as Date, 'yyyy-MM-dd') : null,
+					})
+				}
+				return // Skip the rest of the comparison for date_of_birth
+			}
 
 			// Special handling for payment methods - convert undefined to null for comparison
 			const normalizedOld = oldValue === null || oldValue === undefined || oldValue === '' ? null : oldValue
@@ -253,7 +305,16 @@ const EditCaseModal: React.FC<EditCaseModalProps> = ({ case_, isOpen, onClose, o
 			// Prepare updates object
 			const updates: Partial<MedicalRecord> = {}
 			changes.forEach((change) => {
-				updates[change.field as keyof MedicalRecord] = change.newValue
+				// Special handling for date_of_birth to format as string
+				if (change.field === 'date_of_birth' && change.newValue) {
+					if (change.newValue instanceof Date) {
+						updates[change.field as keyof MedicalRecord] = format(change.newValue, 'yyyy-MM-dd')
+					} else {
+						updates[change.field as keyof MedicalRecord] = change.newValue
+					}
+				} else {
+					updates[change.field as keyof MedicalRecord] = change.newValue
+				}
 			})
 
 			await onSave(case_.id!, updates, changes)
@@ -279,6 +340,11 @@ const EditCaseModal: React.FC<EditCaseModalProps> = ({ case_, isOpen, onClose, o
 	}
 
 	if (!case_) return null
+
+	// Calculate age from date of birth
+	const dateOfBirthValue = form.watch('date_of_birth')
+	const age = dateOfBirthValue ? calculateAge(format(dateOfBirthValue, 'yyyy-MM-dd')) : 
+		(case_.date_of_birth ? calculateAge(case_.date_of_birth) : 0)
 
 	return (
 		<AnimatePresence>
@@ -307,7 +373,7 @@ const EditCaseModal: React.FC<EditCaseModalProps> = ({ case_, isOpen, onClose, o
 								<div>
 									<h2 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-gray-100">Editar Caso</h2>
 									<p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-										{case_.full_name} - {case_.id?.slice(-6).toUpperCase()}
+										{case_.full_name} - {case_.code || case_.id?.slice(-6).toUpperCase()}
 									</p>
 								</div>
 								<button
@@ -356,6 +422,84 @@ const EditCaseModal: React.FC<EditCaseModalProps> = ({ case_, isOpen, onClose, o
 												</div>
 											</div>
 										</div>
+									</div>
+
+									{/* Date of Birth Section */}
+									<div className="space-y-4">
+										<div className="flex items-center gap-2">
+											<Cake className="w-5 h-5 text-pink-600 dark:text-pink-400" />
+											<h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Fecha de Nacimiento</h3>
+										</div>
+
+										<FormField
+											control={form.control}
+											name="date_of_birth"
+											render={({ field }) => (
+												<FormItem className="flex flex-col">
+													<FormLabel>Fecha de Nacimiento</FormLabel>
+													<Popover open={isDateOfBirthOpen} onOpenChange={setIsDateOfBirthOpen}>
+														<PopoverTrigger asChild>
+															<FormControl>
+																<Button
+																	variant={'outline'}
+																	className={cn(
+																		'w-full justify-start text-left font-normal',
+																		!field.value && 'text-muted-foreground'
+																	)}
+																>
+																	<Cake className="mr-2 h-4 w-4 text-pink-500" />
+																	{field.value ? (
+																		<div className="flex items-center gap-2">
+																			<span>{format(field.value, 'PPP', { locale: es })}</span>
+																			{age > 0 && (
+																				<span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">
+																					{age} años
+																				</span>
+																			)}
+																		</div>
+																	) : case_.date_of_birth ? (
+																		<div className="flex items-center gap-2">
+																			<span>{format(parseISO(case_.date_of_birth), 'PPP', { locale: es })}</span>
+																			{age > 0 && (
+																				<span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">
+																					{age} años
+																				</span>
+																			)}
+																		</div>
+																	) : (
+																		<span>Sin fecha de nacimiento</span>
+																	)}
+																</Button>
+															</FormControl>
+														</PopoverTrigger>
+														<PopoverContent className="w-auto p-0">
+															<Calendar
+																mode="single"
+																selected={field.value || undefined}
+																onSelect={(date) => {
+																	field.onChange(date)
+																	setIsDateOfBirthOpen(false)
+																}}
+																disabled={(date) => {
+																	const today = new Date()
+																	const maxAge = new Date(today.getFullYear() - 150, today.getMonth(), today.getDate())
+																	return date > today || date < maxAge
+																}}
+																initialFocus
+																locale={es}
+																defaultMonth={field.value || new Date(2000, 0, 1)}
+															/>
+														</PopoverContent>
+													</Popover>
+													{age > 0 && (
+														<p className="text-sm text-green-600 font-medium">
+															Edad calculada: {age} años
+														</p>
+													)}
+													<FormMessage />
+												</FormItem>
+											)}
+										/>
 									</div>
 
 									{/* Comments Section */}

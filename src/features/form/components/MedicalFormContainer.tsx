@@ -18,17 +18,17 @@ const getInitialFormValues = (): FormValues => ({
 	fullName: '',
 	idNumber: '',
 	phone: '',
-	age: '' as any, // Changed to empty string to show placeholder
+	dateOfBirth: new Date(2000, 0, 1), // Default to Jan 1, 2000
 	email: '',
 	examType: '',
 	origin: '',
 	treatingDoctor: '',
 	sampleType: '',
-	numberOfSamples: '' as any, // Changed to empty string to show placeholder
+	numberOfSamples: 1,
 	relationship: '',
 	branch: '',
-	date: new Date(),
-	totalAmount: '' as any, // Changed to empty string to show placeholder
+	registrationDate: new Date(),
+	totalAmount: 0,
 	payments: [{ method: '', amount: 0, reference: '' }],
 	comments: '',
 })
@@ -94,7 +94,7 @@ export function MedicalFormContainer() {
 				console.log('Registro guardado exitosamente:', insertedRecord)
 				toast({
 					title: '✅ Registro guardado exitosamente',
-					description: `El registro médico ha sido guardado con ID: ${insertedRecord.id}`,
+					description: `El registro médico ha sido guardado con código: ${insertedRecord.code || insertedRecord.id}`,
 					className: 'bg-green-100 border-green-400 text-green-800',
 				})
 				setIsSubmitted(true)

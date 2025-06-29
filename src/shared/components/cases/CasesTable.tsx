@@ -13,10 +13,11 @@ import {
 	Maximize2,
 	RefreshCw,
 	Hash,
+	Cake,
 } from 'lucide-react'
 import { useQuery } from '@tanstack/react-query'
-import { getMedicalRecords, type MedicalRecord, updateMedicalRecordWithLog } from '@lib/supabase-service'
-import { format } from 'date-fns'
+import { getMedicalRecords, type MedicalRecord, updateMedicalRecordWithLog, calculateAge } from '@lib/supabase-service'
+import { format, parseISO } from 'date-fns'
 import { es } from 'date-fns/locale'
 import { useAuth } from '@app/providers/AuthContext'
 import EditCaseModal from './EditCaseModal'
@@ -26,7 +27,7 @@ interface CasesTableProps {
 	onCaseSelect: (case_: MedicalRecord) => void
 }
 
-type SortField = 'id' | 'created_at' | 'full_name' | 'age' | 'total_amount' | 'branch' | 'code'
+type SortField = 'id' | 'created_at' | 'full_name' | 'date_of_birth' | 'total_amount' | 'branch' | 'code'
 type SortDirection = 'asc' | 'desc'
 
 const CasesTable: React.FC<CasesTableProps> = ({ onCaseSelect }) => {
@@ -139,7 +140,7 @@ const CasesTable: React.FC<CasesTableProps> = ({ onCaseSelect }) => {
 			let aValue: any = a[sortField]
 			let bValue: any = b[sortField]
 
-			if (sortField === 'created_at') {
+			if (sortField === 'created_at' || sortField === 'date_of_birth') {
 				aValue = new Date(aValue).getTime()
 				bValue = new Date(bValue).getTime()
 			}
@@ -176,85 +177,98 @@ const CasesTable: React.FC<CasesTableProps> = ({ onCaseSelect }) => {
 	}
 
 	// Mobile Card Component
-	const CaseCard = ({ case_ }: { case_: MedicalRecord }) => (
-		<div className="bg-white dark:bg-background rounded-lg p-4 border border-gray-200 dark:border-gray-700 hover:shadow-md transition-all">
-			{/* Header with status and code */}
-			<div className="flex items-center justify-between mb-3">
-				<span
-					className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(case_.payment_status)}`}
-				>
-					{case_.payment_status}
-				</span>
-				<div className="flex items-center gap-2">
-					{case_.code && (
-						<span className="inline-flex items-center gap-1 px-2 py-1 text-xs font-semibold rounded-full bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300">
-							<Hash className="w-3 h-3" />
-							{case_.code}
+	const CaseCard = ({ case_ }: { case_: MedicalRecord }) => {
+		const age = case_.date_of_birth ? calculateAge(case_.date_of_birth) : 0
+		
+		return (
+			<div className="bg-white dark:bg-background rounded-lg p-4 border border-gray-200 dark:border-gray-700 hover:shadow-md transition-all">
+				{/* Header with status and code */}
+				<div className="flex items-center justify-between mb-3">
+					<span
+						className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(case_.payment_status)}`}
+					>
+						{case_.payment_status}
+					</span>
+					<div className="flex items-center gap-2">
+						{case_.code && (
+							<span className="inline-flex items-center gap-1 px-2 py-1 text-xs font-semibold rounded-full bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300">
+								<Hash className="w-3 h-3" />
+								{case_.code}
+							</span>
+						)}
+						<span className="text-sm font-mono text-gray-600 dark:text-gray-400">{case_.id?.slice(-6).toUpperCase()}</span>
+					</div>
+				</div>
+
+				{/* Patient info */}
+				<div className="flex items-center gap-2 mb-2">
+					<User className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+					<div>
+						<p className="font-medium text-gray-900 dark:text-gray-100 text-sm">{case_.full_name}</p>
+						<div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
+							<span>{case_.id_number}</span>
+							{age > 0 && (
+								<>
+									<span>•</span>
+									<div className="flex items-center gap-1">
+										<Cake className="w-3 h-3 text-pink-500" />
+										<span>{age} años</span>
+									</div>
+								</>
+							)}
+						</div>
+					</div>
+				</div>
+
+				{/* Medical info */}
+				<div className="flex items-center gap-2 mb-2">
+					<Stethoscope className="w-4 h-4 text-green-600 dark:text-green-400" />
+					<div>
+						<p className="text-sm text-gray-900 dark:text-gray-100">{case_.exam_type}</p>
+						<p className="text-xs text-gray-500 dark:text-gray-400">{case_.treating_doctor}</p>
+					</div>
+				</div>
+
+				{/* Date and amount */}
+				<div className="flex items-center justify-between pt-2 border-t border-gray-200 dark:border-gray-700">
+					<div className="flex items-center gap-1">
+						<Calendar className="w-3 h-3 text-gray-400" />
+						<span className="text-xs text-gray-500 dark:text-gray-400">
+							{case_.created_at ? format(new Date(case_.created_at), 'dd/MM/yyyy HH:mm', { locale: es }) : 'N/A'}
 						</span>
-					)}
-					<span className="text-sm font-mono text-gray-600 dark:text-gray-400">{case_.id?.slice(-6).toUpperCase()}</span>
+					</div>
+					<div className="flex items-center gap-1">
+						<CreditCard className="w-3 h-3 text-gray-400" />
+						<span className="text-sm font-medium text-gray-900 dark:text-gray-100">
+							${case_.total_amount.toLocaleString()}
+						</span>
+					</div>
+				</div>
+
+				{case_.remaining > 0 && (
+					<div className="mt-2 text-xs text-red-600 dark:text-red-400">Faltante: ${case_.remaining.toLocaleString()}</div>
+				)}
+
+				{/* Action buttons */}
+				<div className="flex gap-1 mt-3 pt-2 border-t border-gray-200 dark:border-gray-700">
+					<button
+						onClick={() => onCaseSelect(case_)}
+						className="flex-1 inline-flex items-center justify-center gap-1 px-3 py-2 text-xs font-medium text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 bg-blue-50 dark:bg-blue-900/20 hover:bg-blue-100 dark:hover:bg-blue-900/30 rounded-lg transition-colors"
+					>
+						<Eye className="w-3 h-3" />
+						Ver
+					</button>
+					<button
+						onClick={() => handleEditCase(case_)}
+						className="flex-1 inline-flex items-center justify-center gap-1 px-3 py-2 text-xs font-medium text-green-600 dark:text-green-400 hover:text-green-800 dark:hover:text-green-300 bg-green-50 dark:bg-green-900/20 hover:bg-green-100 dark:hover:bg-green-900/30 rounded-lg transition-colors"
+					>
+						<Edit className="w-3 h-3" />
+						Editar
+					</button>
 				</div>
 			</div>
-
-			{/* Patient info */}
-			<div className="flex items-center gap-2 mb-2">
-				<User className="w-4 h-4 text-blue-600 dark:text-blue-400" />
-				<div>
-					<p className="font-medium text-gray-900 dark:text-gray-100 text-sm">{case_.full_name}</p>
-					<p className="text-xs text-gray-500 dark:text-gray-400">
-						{case_.id_number} • {case_.age} años
-					</p>
-				</div>
-			</div>
-
-			{/* Medical info */}
-			<div className="flex items-center gap-2 mb-2">
-				<Stethoscope className="w-4 h-4 text-green-600 dark:text-green-400" />
-				<div>
-					<p className="text-sm text-gray-900 dark:text-gray-100">{case_.exam_type}</p>
-					<p className="text-xs text-gray-500 dark:text-gray-400">{case_.treating_doctor}</p>
-				</div>
-			</div>
-
-			{/* Date and amount */}
-			<div className="flex items-center justify-between pt-2 border-t border-gray-200 dark:border-gray-700">
-				<div className="flex items-center gap-1">
-					<Calendar className="w-3 h-3 text-gray-400" />
-					<span className="text-xs text-gray-500 dark:text-gray-400">
-						{case_.created_at ? format(new Date(case_.created_at), 'dd/MM/yyyy HH:mm', { locale: es }) : 'N/A'}
-					</span>
-				</div>
-				<div className="flex items-center gap-1">
-					<CreditCard className="w-3 h-3 text-gray-400" />
-					<span className="text-sm font-medium text-gray-900 dark:text-gray-100">
-						${case_.total_amount.toLocaleString()}
-					</span>
-				</div>
-			</div>
-
-			{case_.remaining > 0 && (
-				<div className="mt-2 text-xs text-red-600 dark:text-red-400">Faltante: ${case_.remaining.toLocaleString()}</div>
-			)}
-
-			{/* Action buttons */}
-			<div className="flex gap-1 mt-3 pt-2 border-t border-gray-200 dark:border-gray-700">
-				<button
-					onClick={() => onCaseSelect(case_)}
-					className="flex-1 inline-flex items-center justify-center gap-1 px-3 py-2 text-xs font-medium text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 bg-blue-50 dark:bg-blue-900/20 hover:bg-blue-100 dark:hover:bg-blue-900/30 rounded-lg transition-colors"
-				>
-					<Eye className="w-3 h-3" />
-					Ver
-				</button>
-				<button
-					onClick={() => handleEditCase(case_)}
-					className="flex-1 inline-flex items-center justify-center gap-1 px-3 py-2 text-xs font-medium text-green-600 dark:text-green-400 hover:text-green-800 dark:hover:text-green-300 bg-green-50 dark:bg-green-900/20 hover:bg-green-100 dark:hover:bg-green-900/30 rounded-lg transition-colors"
-				>
-					<Edit className="w-3 h-3" />
-					Editar
-				</button>
-			</div>
-		</div>
-	)
+		)
+	}
 
 	if (isLoading) {
 		return (
@@ -426,7 +440,7 @@ const CasesTable: React.FC<CasesTableProps> = ({ onCaseSelect }) => {
 											onClick={() => handleSort('created_at')}
 											className="flex items-center gap-2 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider hover:text-gray-700 dark:hover:text-gray-200 text-left"
 										>
-											Fecha de Ingreso
+											Fecha de Registro
 											<SortIcon field="created_at" />
 										</button>
 									</th>
@@ -469,82 +483,97 @@ const CasesTable: React.FC<CasesTableProps> = ({ onCaseSelect }) => {
 								</tr>
 							</thead>
 							<tbody className="divide-y divide-gray-200 dark:divide-gray-700">
-								{filteredAndSortedCases.map((case_) => (
-									<tr key={case_.id} className="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
-										<td className="px-4 py-4">
-											<div className="space-y-1 text-left">
-												{case_.code && (
-													<div className="inline-flex items-center gap-1 px-2 py-1 text-xs font-semibold rounded-full bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300 mb-1">
-														<Hash className="w-3 h-3" />
-														{case_.code}
+								{filteredAndSortedCases.map((case_) => {
+									const age = case_.date_of_birth ? calculateAge(case_.date_of_birth) : 0
+									
+									return (
+										<tr key={case_.id} className="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
+											<td className="px-4 py-4">
+												<div className="space-y-1 text-left">
+													{case_.code && (
+														<div className="inline-flex items-center gap-1 px-2 py-1 text-xs font-semibold rounded-full bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300 mb-1">
+															<Hash className="w-3 h-3" />
+															{case_.code}
+														</div>
+													)}
+													<span
+														className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(
+															case_.payment_status,
+														)}`}
+													>
+														{case_.payment_status}
+													</span>
+													<div className="text-sm font-medium text-gray-900 dark:text-gray-100">
+														{case_.id.slice(-6).toUpperCase()}
+													</div>
+												</div>
+											</td>
+											<td className="px-4 py-4 text-sm text-gray-900 dark:text-gray-100 text-left">
+												{new Date(case_.created_at).toLocaleDateString('es-ES')}
+											</td>
+											<td className="px-4 py-4">
+												<div className="text-left">
+													<div className="text-sm font-medium text-gray-900 dark:text-gray-100">{case_.full_name}</div>
+													<div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
+														<span>{case_.id_number}</span>
+														{age > 0 && (
+															<>
+																<span>•</span>
+																<div className="flex items-center gap-1">
+																	<Cake className="w-3 h-3 text-pink-500" />
+																	<span>{age} años</span>
+																</div>
+															</>
+														)}
+													</div>
+												</div>
+											</td>
+											<td className="text-sm text-gray-900 dark:text-gray-100">
+												<div className="bg-gray-200 dark:bg-gray-900/60 hover:bg-gray-300 dark:hover:bg-gray-800/80 text-center border border-gray-500 dark:border-gray-700 rounded-lg px-1 py-1">
+													{case_.branch}
+												</div>
+											</td>
+											<td className="px-4 py-4 text-sm text-gray-900 dark:text-gray-100 text-center">
+												{case_.exam_type}
+											</td>
+											<td className="px-4 py-4 text-sm text-gray-900 dark:text-gray-100">{case_.treating_doctor}</td>
+											<td className="px-4 py-4">
+												<div className="text-sm font-medium text-gray-900 dark:text-gray-100">
+													${case_.total_amount.toLocaleString()}
+												</div>
+												{case_.remaining > 0 && (
+													<div className="text-xs text-red-600 dark:text-red-400">
+														Faltante: ${case_.remaining.toLocaleString()}
 													</div>
 												)}
-												<span
-													className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(
-														case_.payment_status,
-													)}`}
-												>
-													{case_.payment_status}
-												</span>
-												<div className="text-sm font-medium text-gray-900 dark:text-gray-100">
-													{case_.id.slice(-6).toUpperCase()}
+											</td>
+											<td className="px-4 py-4">
+												<div className="flex gap-2">
+													<button
+														onClick={(e) => {
+															e.stopPropagation()
+															onCaseSelect(case_)
+														}}
+														className="inline-flex items-center gap-1 px-3 py-1 text-xs font-medium text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 transition-colors"
+													>
+														<Eye className="w-3 h-3" />
+														Ver
+													</button>
+													<button
+														onClick={(e) => {
+															e.stopPropagation()
+															handleEditCase(case_)
+														}}
+														className="inline-flex items-center gap-1 px-3 py-1 text-xs font-medium text-green-600 dark:text-green-400 hover:text-green-800 dark:hover:text-green-300 transition-colors"
+													>
+														<Edit className="w-3 h-3" />
+														Editar
+													</button>
 												</div>
-											</div>
-										</td>
-										<td className="px-4 py-4 text-sm text-gray-900 dark:text-gray-100 text-left">
-											{new Date(case_.created_at).toLocaleDateString('es-ES')}
-										</td>
-										<td className="px-4 py-4">
-											<div className="text-left">
-												<div className="text-sm font-medium text-gray-900 dark:text-gray-100">{case_.full_name}</div>
-												<div className="text-sm text-gray-500 dark:text-gray-400">{case_.id_number}</div>
-											</div>
-										</td>
-										<td className="text-sm text-gray-900 dark:text-gray-100">
-											<div className="bg-gray-200 dark:bg-gray-900/60 hover:bg-gray-300 dark:hover:bg-gray-800/80 text-center border border-gray-500 dark:border-gray-700 rounded-lg px-1 py-1">
-												{case_.branch}
-											</div>
-										</td>
-										<td className="px-4 py-4 text-sm text-gray-900 dark:text-gray-100 text-center">
-											{case_.exam_type}
-										</td>
-										<td className="px-4 py-4 text-sm text-gray-900 dark:text-gray-100">{case_.treating_doctor}</td>
-										<td className="px-4 py-4">
-											<div className="text-sm font-medium text-gray-900 dark:text-gray-100">
-												${case_.total_amount.toLocaleString()}
-											</div>
-											{case_.remaining > 0 && (
-												<div className="text-xs text-red-600 dark:text-red-400">
-													Faltante: ${case_.remaining.toLocaleString()}
-												</div>
-											)}
-										</td>
-										<td className="px-4 py-4">
-											<div className="flex gap-2">
-												<button
-													onClick={(e) => {
-														e.stopPropagation()
-														onCaseSelect(case_)
-													}}
-													className="inline-flex items-center gap-1 px-3 py-1 text-xs font-medium text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 transition-colors"
-												>
-													<Eye className="w-3 h-3" />
-													Ver
-												</button>
-												<button
-													onClick={(e) => {
-														e.stopPropagation()
-														handleEditCase(case_)
-													}}
-													className="inline-flex items-center gap-1 px-3 py-1 text-xs font-medium text-green-600 dark:text-green-400 hover:text-green-800 dark:hover:text-green-300 transition-colors"
-												>
-													<Edit className="w-3 h-3" />
-													Editar
-												</button>
-											</div>
-										</td>
-									</tr>
-								))}
+											</td>
+										</tr>
+									)
+								})}
 							</tbody>
 						</table>
 
@@ -699,7 +728,7 @@ const CasesTable: React.FC<CasesTableProps> = ({ onCaseSelect }) => {
 													onClick={() => handleSort('created_at')}
 													className="flex items-center gap-2 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider hover:text-gray-700 dark:hover:text-gray-200 text-left"
 												>
-													Fecha de Ingreso
+													Fecha de Registro
 													<SortIcon field="created_at" />
 												</button>
 											</th>
@@ -742,84 +771,99 @@ const CasesTable: React.FC<CasesTableProps> = ({ onCaseSelect }) => {
 										</tr>
 									</thead>
 									<tbody className="divide-y divide-gray-200 dark:divide-gray-700">
-										{filteredAndSortedCases.map((case_) => (
-											<tr key={case_.id} className="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
-												<td className="px-4 py-4">
-													<div className="space-y-1 text-left">
-														{case_.code && (
-															<div className="inline-flex items-center gap-1 px-2 py-1 text-xs font-semibold rounded-full bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300 mb-1">
-																<Hash className="w-3 h-3" />
-																{case_.code}
+										{filteredAndSortedCases.map((case_) => {
+											const age = case_.date_of_birth ? calculateAge(case_.date_of_birth) : 0
+											
+											return (
+												<tr key={case_.id} className="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
+													<td className="px-4 py-4">
+														<div className="space-y-1 text-left">
+															{case_.code && (
+																<div className="inline-flex items-center gap-1 px-2 py-1 text-xs font-semibold rounded-full bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300 mb-1">
+																	<Hash className="w-3 h-3" />
+																	{case_.code}
+																</div>
+															)}
+															<span
+																className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(
+																	case_.payment_status,
+																)}`}
+															>
+																{case_.payment_status}
+															</span>
+															<div className="text-sm font-medium text-gray-900 dark:text-gray-100">
+																{case_.id.slice(-6).toUpperCase()}
+															</div>
+														</div>
+													</td>
+													<td className="px-4 py-4 text-sm text-gray-900 dark:text-gray-100 text-left">
+														{new Date(case_.created_at).toLocaleDateString('es-ES')}
+													</td>
+													<td className="px-4 py-4">
+														<div className="text-left">
+															<div className="text-sm font-medium text-gray-900 dark:text-gray-100">
+																{case_.full_name}
+															</div>
+															<div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
+																<span>{case_.id_number}</span>
+																{age > 0 && (
+																	<>
+																		<span>•</span>
+																		<div className="flex items-center gap-1">
+																			<Cake className="w-3 h-3 text-pink-500" />
+																			<span>{age} años</span>
+																		</div>
+																	</>
+																)}
+															</div>
+														</div>
+													</td>
+													<td className="text-sm text-gray-900 dark:text-gray-100">
+														<div className="bg-gray-200 dark:bg-gray-900/60 hover:bg-gray-300 dark:hover:bg-gray-800/80 text-center border border-gray-500 dark:border-gray-700 rounded-lg px-1 py-1">
+															{case_.branch}
+														</div>
+													</td>
+													<td className="px-4 py-4 text-sm text-gray-900 dark:text-gray-100 text-center">
+														{case_.exam_type}
+													</td>
+													<td className="px-4 py-4 text-sm text-gray-900 dark:text-gray-100">{case_.treating_doctor}</td>
+													<td className="px-4 py-4">
+														<div className="text-sm font-medium text-gray-900 dark:text-gray-100">
+															${case_.total_amount.toLocaleString()}
+														</div>
+														{case_.remaining > 0 && (
+															<div className="text-xs text-red-600 dark:text-red-400">
+																Faltante: ${case_.remaining.toLocaleString()}
 															</div>
 														)}
-														<span
-															className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(
-																case_.payment_status,
-															)}`}
-														>
-															{case_.payment_status}
-														</span>
-														<div className="text-sm font-medium text-gray-900 dark:text-gray-100">
-															{case_.id.slice(-6).toUpperCase()}
+													</td>
+													<td className="px-4 py-4">
+														<div className="flex gap-2">
+															<button
+																onClick={(e) => {
+																	e.stopPropagation()
+																	onCaseSelect(case_)
+																}}
+																className="inline-flex items-center gap-1 px-3 py-1 text-xs font-medium text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 transition-colors"
+															>
+																<Eye className="w-3 h-3" />
+																Ver
+															</button>
+															<button
+																onClick={(e) => {
+																	e.stopPropagation()
+																	handleEditCase(case_)
+																}}
+																className="inline-flex items-center gap-1 px-3 py-1 text-xs font-medium text-green-600 dark:text-green-400 hover:text-green-800 dark:hover:text-green-300 transition-colors"
+															>
+																<Edit className="w-3 h-3" />
+																Editar
+															</button>
 														</div>
-													</div>
-												</td>
-												<td className="px-4 py-4 text-sm text-gray-900 dark:text-gray-100 text-left">
-													{new Date(case_.created_at).toLocaleDateString('es-ES')}
-												</td>
-												<td className="px-4 py-4">
-													<div className="text-left">
-														<div className="text-sm font-medium text-gray-900 dark:text-gray-100">
-															{case_.full_name}
-														</div>
-														<div className="text-sm text-gray-500 dark:text-gray-400">{case_.id_number}</div>
-													</div>
-												</td>
-												<td className="text-sm text-gray-900 dark:text-gray-100">
-													<div className="bg-gray-200 dark:bg-gray-900/60 hover:bg-gray-300 dark:hover:bg-gray-800/80 text-center border border-gray-500 dark:border-gray-700 rounded-lg px-1 py-1">
-														{case_.branch}
-													</div>
-												</td>
-												<td className="px-4 py-4 text-sm text-gray-900 dark:text-gray-100 text-center">
-													{case_.exam_type}
-												</td>
-												<td className="px-4 py-4 text-sm text-gray-900 dark:text-gray-100">{case_.treating_doctor}</td>
-												<td className="px-4 py-4">
-													<div className="text-sm font-medium text-gray-900 dark:text-gray-100">
-														${case_.total_amount.toLocaleString()}
-													</div>
-													{case_.remaining > 0 && (
-														<div className="text-xs text-red-600 dark:text-red-400">
-															Faltante: ${case_.remaining.toLocaleString()}
-														</div>
-													)}
-												</td>
-												<td className="px-4 py-4">
-													<div className="flex gap-2">
-														<button
-															onClick={(e) => {
-																e.stopPropagation()
-																onCaseSelect(case_)
-															}}
-															className="inline-flex items-center gap-1 px-3 py-1 text-xs font-medium text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 transition-colors"
-														>
-															<Eye className="w-3 h-3" />
-															Ver
-														</button>
-														<button
-															onClick={(e) => {
-																e.stopPropagation()
-																handleEditCase(case_)
-															}}
-															className="inline-flex items-center gap-1 px-3 py-1 text-xs font-medium text-green-600 dark:text-green-400 hover:text-green-800 dark:hover:text-green-300 transition-colors"
-														>
-															<Edit className="w-3 h-3" />
-															Editar
-														</button>
-													</div>
-												</td>
-											</tr>
-										))}
+													</td>
+												</tr>
+											)
+										})}
 									</tbody>
 								</table>
 

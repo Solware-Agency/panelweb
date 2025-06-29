@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { supabase } from '@lib/supabase/config'
 import { type UseFormSetValue } from 'react-hook-form'
 import type { FormValues } from '@features/form/lib/form-schema'
+import { parseISO } from 'date-fns'
 
 export const usePatientAutofill = (setValue: UseFormSetValue<FormValues>) => {
 	const [isLoading, setIsLoading] = useState(false)
@@ -16,7 +17,7 @@ export const usePatientAutofill = (setValue: UseFormSetValue<FormValues>) => {
 			// Buscar el registro más reciente con esta cédula
 			const { data, error } = await supabase
 				.from('medical_records_clean')
-				.select('full_name, phone, age, email')
+				.select('full_name, phone, date_of_birth, email')
 				.eq('id_number', idNumber)
 				.order('created_at', { ascending: false })
 				.limit(1)
@@ -39,8 +40,17 @@ export const usePatientAutofill = (setValue: UseFormSetValue<FormValues>) => {
 					// Llenar automáticamente los campos del paciente
 					setValue('fullName', data.full_name)
 					setValue('phone', data.phone)
-					setValue('age', data.age)
 					setValue('email', data.email || '')
+					
+					// Convert date_of_birth string to Date object
+					if (data.date_of_birth) {
+						try {
+							const birthDate = parseISO(data.date_of_birth)
+							setValue('dateOfBirth', birthDate)
+						} catch (error) {
+							console.error('Error parsing date of birth:', error)
+						}
+					}
 
 					setLastFilledPatient(data.full_name)
 

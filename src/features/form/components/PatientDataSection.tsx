@@ -7,11 +7,11 @@ import { Card, CardContent, CardHeader, CardTitle } from '@shared/components/ui/
 import { Popover, PopoverContent, PopoverTrigger } from '@shared/components/ui/popover'
 import { Button } from '@shared/components/ui/button'
 import { cn } from '@shared/lib/cn'
-import { Calendar as CalendarIcon, Loader2, CheckCircle } from 'lucide-react'
-import { format } from 'date-fns'
+import { Calendar as CalendarIcon, Loader2, CheckCircle, Cake } from 'lucide-react'
+import { format, differenceInYears } from 'date-fns'
 import { es } from 'date-fns/locale'
 import { Calendar } from '@shared/components/ui/calendar'
-import { useFormContext } from 'react-hook-form'
+import { useFormContext, useWatch } from 'react-hook-form'
 import { usePatientAutofill } from '@shared/hooks/usePatientAutofill'
 import { useState } from 'react'
 
@@ -23,7 +23,19 @@ interface PatientDataSectionProps {
 export const PatientDataSection = ({ control, inputStyles }: PatientDataSectionProps) => {
 	const { setValue } = useFormContext<FormValues>()
 	const { fillPatientData, isLoading: isLoadingPatient, lastFilledPatient } = usePatientAutofill(setValue)
-	const [isCalendarOpen, setIsCalendarOpen] = useState(false)
+	const [isDateOfBirthCalendarOpen, setIsDateOfBirthCalendarOpen] = useState(false)
+	const [isRegistrationDateCalendarOpen, setIsRegistrationDateCalendarOpen] = useState(false)
+
+	// Watch date of birth to calculate age
+	const dateOfBirth = useWatch({ control, name: 'dateOfBirth' })
+
+	// Calculate age from date of birth
+	const calculateAge = (birthDate: Date): number => {
+		if (!birthDate) return 0
+		return differenceInYears(new Date(), birthDate)
+	}
+
+	const currentAge = dateOfBirth ? calculateAge(dateOfBirth) : 0
 
 	const handlePatientSelect = (idNumber: string) => {
 		fillPatientData(idNumber, true) // Silencioso
@@ -134,26 +146,67 @@ export const PatientDataSection = ({ control, inputStyles }: PatientDataSectionP
 					)}
 				/>
 
-				{/* Edad - PLACEHOLDER ACTUALIZADO */}
+				{/* Fecha de Nacimiento - CON CALENDARIO */}
 				<FormField
 					control={control}
-					name="age"
+					name="dateOfBirth"
 					render={({ field }) => (
-						<FormItem>
-							<FormLabel>Edad *</FormLabel>
-							<FormControl>
-								<Input 
-									type="number"
-									placeholder="0" 
-									{...field}
-									value={field.value === 0 ? '' : field.value}
-									onChange={(e) => {
-										const value = e.target.value
-										field.onChange(value === '' ? 0 : Number(value))
-									}}
-									className={inputStyles} 
-								/>
-							</FormControl>
+						<FormItem className="flex flex-col">
+							<FormLabel className="flex items-center gap-2">
+								<Cake className="w-4 h-4 text-pink-500" />
+								Fecha de Nacimiento *
+							</FormLabel>
+							<Popover open={isDateOfBirthCalendarOpen} onOpenChange={setIsDateOfBirthCalendarOpen}>
+								<PopoverTrigger asChild>
+									<FormControl>
+										<Button
+											variant={'outline'}
+											className={cn(
+												'w-full justify-start text-left font-normal',
+												!field.value && 'text-muted-foreground',
+												inputStyles,
+											)}
+										>
+											<CalendarIcon className="mr-2 h-4 w-4" />
+											{field.value ? (
+												<div className="flex items-center gap-2">
+													<span>{format(field.value, 'PPP', { locale: es })}</span>
+													{currentAge > 0 && (
+														<span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">
+															{currentAge} años
+														</span>
+													)}
+												</div>
+											) : (
+												<span>Selecciona fecha de nacimiento</span>
+											)}
+										</Button>
+									</FormControl>
+								</PopoverTrigger>
+								<PopoverContent className="w-auto p-0">
+									<Calendar
+										mode="single"
+										selected={field.value}
+										onSelect={(date) => {
+											field.onChange(date)
+											setIsDateOfBirthCalendarOpen(false)
+										}}
+										disabled={(date) => {
+											const today = new Date()
+											const maxAge = new Date(today.getFullYear() - 150, today.getMonth(), today.getDate())
+											return date > today || date < maxAge
+										}}
+										initialFocus
+										locale={es}
+										defaultMonth={field.value || new Date(2000, 0, 1)}
+									/>
+								</PopoverContent>
+							</Popover>
+							{currentAge > 0 && (
+								<p className="text-sm text-green-600 font-medium">
+									Edad calculada: {currentAge} años
+								</p>
+							)}
 							<FormMessage />
 						</FormItem>
 					)}
@@ -180,14 +233,14 @@ export const PatientDataSection = ({ control, inputStyles }: PatientDataSectionP
 					)}
 				/>
 
-				{/* Fecha - SIN AUTOCOMPLETADO (como solicitaste) */}
+				{/* Fecha de Registro - CON CALENDARIO */}
 				<FormField
 					control={control}
-					name="date"
+					name="registrationDate"
 					render={({ field }) => (
 						<FormItem className="flex flex-col">
-							<FormLabel>Fecha *</FormLabel>
-							<Popover open={isCalendarOpen} onOpenChange={setIsCalendarOpen}>
+							<FormLabel>Fecha de Registro *</FormLabel>
+							<Popover open={isRegistrationDateCalendarOpen} onOpenChange={setIsRegistrationDateCalendarOpen}>
 								<PopoverTrigger asChild>
 									<FormControl>
 										<Button
@@ -199,7 +252,7 @@ export const PatientDataSection = ({ control, inputStyles }: PatientDataSectionP
 											)}
 										>
 											<CalendarIcon className="mr-2 h-4 w-4" />
-											{field.value ? format(field.value, 'PPP', { locale: es }) : <span>Selecciona una fecha</span>}
+											{field.value ? format(field.value, 'PPP', { locale: es }) : <span>Selecciona fecha de registro</span>}
 										</Button>
 									</FormControl>
 								</PopoverTrigger>
@@ -209,7 +262,7 @@ export const PatientDataSection = ({ control, inputStyles }: PatientDataSectionP
 										selected={field.value}
 										onSelect={(date) => {
 											field.onChange(date)
-											setIsCalendarOpen(false) // Cerrar el calendario al seleccionar fecha
+											setIsRegistrationDateCalendarOpen(false)
 										}}
 										disabled={(date) => date > new Date()}
 										initialFocus

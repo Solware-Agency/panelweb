@@ -2,6 +2,7 @@ import { mapPaymentsToColumns } from '@features/form/lib/payment/payment-mapper'
 import { calculatePaymentDetails } from '@features/form/lib/payment/payment-utils'
 import { type FormValues } from '@features/form/lib/form-schema'
 import type { MedicalRecordInsert } from '@shared/types/types'
+import { format } from 'date-fns'
 
 export function prepareSubmissionData(data: FormValues, exchangeRate: number | undefined): MedicalRecordInsert {
 	const { paymentStatus, missingAmount } = calculatePaymentDetails(data.payments, data.totalAmount, exchangeRate)
@@ -11,7 +12,7 @@ export function prepareSubmissionData(data: FormValues, exchangeRate: number | u
 		full_name: data.fullName,
 		id_number: data.idNumber,
 		phone: data.phone,
-		age: data.age,
+		date_of_birth: format(data.dateOfBirth, 'yyyy-MM-dd'), // Format date for database
 		email: data.email,
 		exam_type: data.examType,
 		origin: data.origin,
@@ -20,7 +21,7 @@ export function prepareSubmissionData(data: FormValues, exchangeRate: number | u
 		number_of_samples: data.numberOfSamples,
 		relationship: data.relationship,
 		branch: data.branch,
-		date: data.date instanceof Date ? data.date.toISOString() : String(data.date),
+		date: data.registrationDate instanceof Date ? data.registrationDate.toISOString() : String(data.registrationDate),
 		total_amount: data.totalAmount,
 		comments: data.comments,
 		exchange_rate: exchangeRate || null,

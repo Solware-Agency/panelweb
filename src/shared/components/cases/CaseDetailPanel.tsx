@@ -1,7 +1,10 @@
 import React from 'react'
-import { X, User, Stethoscope, CreditCard, FileText, CheckCircle, Hash } from 'lucide-react'
+import { X, User, Stethoscope, CreditCard, FileText, CheckCircle, Hash, Cake } from 'lucide-react'
 import { motion, AnimatePresence } from 'motion/react'
 import type { MedicalRecord } from '@lib/supabase-service'
+import { calculateAge } from '@lib/supabase-service'
+import { format, parseISO } from 'date-fns'
+import { es } from 'date-fns/locale'
 
 interface CaseDetailPanelProps {
 	case_: MedicalRecord | null
@@ -51,6 +54,12 @@ const CaseDetailPanel: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClos
 			<span className="text-sm text-gray-900 dark:text-gray-100 sm:text-right">{value || 'N/A'}</span>
 		</div>
 	)
+
+	// Calculate age and format date of birth
+	const age = case_.date_of_birth ? calculateAge(case_.date_of_birth) : 0
+	const formattedDateOfBirth = case_.date_of_birth 
+		? format(parseISO(case_.date_of_birth), 'dd/MM/yyyy', { locale: es })
+		: 'N/A'
 
 	return (
 		<AnimatePresence>
@@ -134,7 +143,20 @@ const CaseDetailPanel: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClos
 								<div className="space-y-1">
 									<InfoRow label="Nombre completo" value={case_.full_name} />
 									<InfoRow label="Cédula" value={case_.id_number} />
-									<InfoRow label="Edad" value={`${case_.age} años`} />
+									<div className="flex flex-col sm:flex-row sm:justify-between py-2 border-b border-gray-200 dark:border-gray-700">
+										<span className="text-sm font-medium text-gray-600 dark:text-gray-400 flex items-center gap-1">
+											<Cake className="w-4 h-4 text-pink-500" />
+											Fecha de Nacimiento:
+										</span>
+										<div className="text-sm text-gray-900 dark:text-gray-100 sm:text-right">
+											<div>{formattedDateOfBirth}</div>
+											{age > 0 && (
+												<div className="text-xs text-blue-600 dark:text-blue-400 font-medium">
+													{age} años
+												</div>
+											)}
+										</div>
+									</div>
 									<InfoRow label="Teléfono" value={case_.phone} />
 									<InfoRow label="Email" value={case_.email || 'N/A'} />
 									<InfoRow label="Relación" value={case_.relationship || 'N/A'} />
@@ -151,8 +173,8 @@ const CaseDetailPanel: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClos
 									<InfoRow label="Muestra" value={case_.sample_type} />
 									<InfoRow label="Cantidad de muestras" value={case_.number_of_samples} />
 									<InfoRow
-										label="Fecha de ingreso"
-										value={new Date(case_.created_at || '').toLocaleDateString('es-ES')}
+										label="Fecha de registro"
+										value={new Date(case_.date || '').toLocaleDateString('es-ES')}
 									/>
 								</div>
 							</InfoSection>
