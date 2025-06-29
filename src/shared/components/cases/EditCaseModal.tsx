@@ -235,13 +235,13 @@ const EditCaseModal: React.FC<EditCaseModalProps> = ({ case_, isOpen, onClose, o
 				// Convert string date to Date object for comparison
 				if (case_.date_of_birth && newValue) {
 					try {
-						oldValue = parseISO(case_.date_of_birth)
+						const oldDate = parseISO(case_.date_of_birth)
 						// If dates are different, format them as strings for the change log
-						if (oldValue.getTime() !== (newValue as Date).getTime()) {
+						if (oldDate.getTime() !== (newValue as Date).getTime()) {
 							detectedChanges.push({
 								field,
 								fieldLabel: getFieldLabel(field),
-								oldValue: format(oldValue, 'yyyy-MM-dd'),
+								oldValue: format(oldDate, 'yyyy-MM-dd'),
 								newValue: format(newValue as Date, 'yyyy-MM-dd'),
 							})
 						}

@@ -17,7 +17,7 @@ import {
 } from 'lucide-react'
 import { useQuery } from '@tanstack/react-query'
 import { getMedicalRecords, type MedicalRecord, updateMedicalRecordWithLog, calculateAge } from '@lib/supabase-service'
-import { format, parseISO } from 'date-fns'
+import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
 import { useAuth } from '@app/providers/AuthContext'
 import EditCaseModal from './EditCaseModal'
