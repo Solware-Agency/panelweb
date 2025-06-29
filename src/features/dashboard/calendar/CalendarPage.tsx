@@ -5,6 +5,7 @@ import { Card } from '@shared/components/ui/card'
 const CalendarPage: React.FC = () => {
 	const [currentDate, setCurrentDate] = useState(new Date())
 	const [selectedDate, setSelectedDate] = useState(new Date())
+	const [showYearPicker, setShowYearPicker] = useState(false)
 
 	// Mock events data
 	const events = [
@@ -84,13 +85,68 @@ const CalendarPage: React.FC = () => {
 		return events.filter((event) => event.date === dateString)
 	}
 
-	// Year and Month selection handlers
-	const handleYearChange = (year: number) => {
+	// Year picker functionality
+	const currentYear = new Date().getFullYear()
+	const startYear = 1950
+	const endYear = currentYear + 10
+	
+	const handleYearSelect = (year: number) => {
 		setCurrentDate(new Date(year, currentDate.getMonth(), 1))
+		setShowYearPicker(false)
 	}
 
-	const handleMonthChange = (month: number) => {
-		setCurrentDate(new Date(currentDate.getFullYear(), month, 1))
+	const generateYearGrid = () => {
+		const years = []
+		for (let year = startYear; year <= endYear; year++) {
+			years.push(year)
+		}
+		return years
+	}
+
+	const renderYearPicker = () => {
+		const years = generateYearGrid()
+		const selectedYear = currentDate.getFullYear()
+		
+		return (
+			<div className="absolute top-0 left-0 right-0 bottom-0 bg-white dark:bg-background z-10 rounded-xl p-4">
+				<div className="flex items-center justify-between mb-4">
+					<h3 className="text-lg font-semibold text-gray-700 dark:text-gray-300">Seleccionar Año</h3>
+					<button
+						onClick={() => setShowYearPicker(false)}
+						className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
+					>
+						<ChevronLeft className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+					</button>
+				</div>
+				
+				<div className="grid grid-cols-4 gap-2 max-h-80 overflow-y-auto">
+					{years.map((year) => (
+						<button
+							key={year}
+							onClick={() => handleYearSelect(year)}
+							className={`p-3 text-sm font-medium rounded-lg transition-all duration-200 hover:scale-105 ${
+								year === selectedYear
+									? 'bg-blue-500 text-white shadow-lg'
+									: year === currentYear
+									? 'bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 border-2 border-blue-500'
+									: 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
+							}`}
+						>
+							{year}
+						</button>
+					))}
+				</div>
+				
+				<div className="mt-4 flex justify-center">
+					<button
+						onClick={() => handleYearSelect(currentYear)}
+						className="px-4 py-2 text-sm font-medium text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 bg-blue-50 dark:bg-blue-900/20 hover:bg-blue-100 dark:hover:bg-blue-900/30 rounded-lg transition-colors"
+					>
+						Ir a {currentYear}
+					</button>
+				</div>
+			</div>
+		)
 	}
 
 	const renderCalendarDays = () => {
@@ -157,62 +213,25 @@ const CalendarPage: React.FC = () => {
 
 	const selectedDateEvents = getEventsForDate(selectedDate)
 
-	// Generate year options (from 1950 to current year + 10)
-	const currentYear = new Date().getFullYear()
-	const yearOptions = []
-	for (let year = 1950; year <= currentYear + 10; year++) {
-		yearOptions.push(year)
-	}
-
-	// Month names in Spanish
-	const monthNames = [
-		'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
-		'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
-	]
-
 	return (
 		<div className="p-3 sm:p-6">
 			<div className="grid grid-cols-1 xl:grid-cols-3 gap-4 sm:gap-6">
 				{/* Calendar Grid */}
 				<Card className="xl:col-span-2 grid hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 transition-all duration-300 shadow-lg">
-					<div className="bg-white dark:bg-background rounded-xl p-3 sm:p-6 transition-colors duration-300">
-						{/* Calendar Header with Year and Month Dropdowns */}
+					<div className="bg-white dark:bg-background rounded-xl p-3 sm:p-6 transition-colors duration-300 relative">
+						{/* Show year picker overlay if active */}
+						{showYearPicker && renderYearPicker()}
+						
+						{/* Calendar Header */}
 						<div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 sm:mb-6">
-							<div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 mb-3 sm:mb-0">
-								<h2 className="text-xl sm:text-2xl font-bold text-gray-700 dark:text-gray-300">
-									Calendario
-								</h2>
-								
-								{/* Year and Month Selectors */}
-								<div className="flex items-center gap-2">
-									{/* Month Selector */}
-									<select
-										value={currentDate.getMonth()}
-										onChange={(e) => handleMonthChange(parseInt(e.target.value))}
-										className="px-3 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
-									>
-										{monthNames.map((month, index) => (
-											<option key={index} value={index}>
-												{month}
-											</option>
-										))}
-									</select>
-
-									{/* Year Selector */}
-									<select
-										value={currentDate.getFullYear()}
-										onChange={(e) => handleYearChange(parseInt(e.target.value))}
-										className="px-3 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
-									>
-										{yearOptions.map((year) => (
-											<option key={year} value={year}>
-												{year}
-											</option>
-										))}
-									</select>
-								</div>
+							<div className="flex items-center gap-3 mb-3 sm:mb-0">
+								<button
+									onClick={() => setShowYearPicker(true)}
+									className="text-xl sm:text-2xl font-bold text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors cursor-pointer"
+								>
+									{currentDate.toLocaleDateString('es-ES', { month: 'long', year: 'numeric' })}
+								</button>
 							</div>
-							
 							<div className="flex items-center gap-2">
 								<button
 									onClick={() => navigateMonth('prev')}
