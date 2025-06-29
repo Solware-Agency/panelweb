@@ -253,9 +253,9 @@ export const AutocompleteInput = React.forwardRef<
       {showSuggestions && suggestions.length > 0 && !searchTerminated && !isAutofilled && (
         <div
           ref={suggestionsRef}
-          className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-md shadow-lg max-h-60 overflow-auto"
+          className="absolute z-[9999] w-full mt-1 bg-white dark:bg-background border border-gray-200 dark:border-gray-700 rounded-md shadow-xl max-h-60 overflow-auto"
         >
-          <div className="px-3 py-2 text-xs text-gray-500 bg-gray-50 border-b flex items-center gap-2">
+          <div className="px-3 py-2 text-xs text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 flex items-center gap-2">
             {fieldName === 'idNumber' && <User className="h-3 w-3" />}
             {inputValue.length === 0 && <Shuffle className="h-3 w-3" />}
             {getSuggestionHeaderText()}
@@ -264,27 +264,27 @@ export const AutocompleteInput = React.forwardRef<
             <div
               key={`${suggestion.value}-${index}`}
               className={cn(
-                "px-3 py-2 cursor-pointer hover:bg-blue-50 flex justify-between items-center transition-colors",
-                selectedIndex === index && "bg-blue-100",
-                fieldName === 'idNumber' && "hover:bg-green-50"
+                "px-3 py-2 cursor-pointer hover:bg-blue-50 dark:hover:bg-blue-900/20 flex justify-between items-center transition-colors",
+                selectedIndex === index && "bg-blue-100 dark:bg-blue-900/30",
+                fieldName === 'idNumber' && "hover:bg-green-50 dark:hover:bg-green-900/20"
               )}
               onClick={() => handleSuggestionClick(suggestion.value)}
             >
-              <span className="text-sm text-gray-900 flex-1 truncate flex items-center gap-2">
-                {fieldName === 'idNumber' && <User className="h-3 w-3 text-green-600" />}
+              <span className="text-sm text-gray-900 dark:text-gray-100 flex-1 truncate flex items-center gap-2">
+                {fieldName === 'idNumber' && <User className="h-3 w-3 text-green-600 dark:text-green-400" />}
                 {suggestion.value}
               </span>
               <span className={cn(
                 "text-xs px-2 py-1 rounded-full ml-2 flex-shrink-0",
                 fieldName === 'idNumber' 
-                  ? "text-green-700 bg-green-200" 
-                  : "text-gray-500 bg-gray-200"
+                  ? "text-green-700 dark:text-green-300 bg-green-200 dark:bg-green-900/30" 
+                  : "text-gray-500 dark:text-gray-400 bg-gray-200 dark:bg-gray-700"
               )}>
                 {suggestion.count}
               </span>
             </div>
           ))}
-          <div className="px-3 py-2 text-xs text-gray-400 bg-gray-50 border-t">
+          <div className="px-3 py-2 text-xs text-gray-400 dark:text-gray-500 bg-gray-50 dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700">
             {inputValue.length === 0 
               ? "Sugerencias aleatorias - Escribe para filtrar" 
               : "Usa ↑↓ para navegar, Enter para seleccionar"
