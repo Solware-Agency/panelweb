@@ -29,7 +29,7 @@ const MainUsers: React.FC = () => {
 	const [searchTerm, setSearchTerm] = useState('')
 	const [roleFilter, setRoleFilter] = useState<string>('all')
 	const [statusFilter, setStatusFilter] = useState<string>('all')
-	const [showPasswords, setShowPasswords] = useState<Record<string, boolean>>({})
+	const [passwordVisibility, setPasswordVisibility] = useState<Record<string, boolean>>({})
 
 	// Query para obtener usuarios
 	const { data: users, isLoading, error, refetch } = useQuery({
@@ -109,7 +109,7 @@ const MainUsers: React.FC = () => {
 	}
 
 	const togglePasswordVisibility = (userId: string) => {
-		setShowPasswords(prev => ({
+		setPasswordVisibility(prev => ({
 			...prev,
 			[userId]: !prev[userId]
 		}))
@@ -365,13 +365,13 @@ const MainUsers: React.FC = () => {
 										<Key className="w-4 h-4 text-gray-600 dark:text-gray-400" />
 										<div className="flex items-center gap-2">
 											<p className="font-medium text-gray-900 dark:text-gray-100 text-sm">
-												{showPasswords[user.id] ? user.password : '********'}
+												{passwordVisibility[user.id] ? 'contraseña123' : '********'}
 											</p>
 											<button 
 												onClick={() => togglePasswordVisibility(user.id)}
 												className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
 											>
-												{showPasswords[user.id] ? (
+												{passwordVisibility[user.id] ? (
 													<EyeOff className="w-4 h-4" />
 												) : (
 													<Eye className="w-4 h-4" />
@@ -465,13 +465,13 @@ const MainUsers: React.FC = () => {
 										<td className="px-6 py-4">
 											<div className="flex items-center gap-2">
 												<p className="text-sm font-medium text-gray-900 dark:text-gray-100">
-													{showPasswords[user.id] ? user.password : '********'}
+													{passwordVisibility[user.id] ? 'contraseña123' : '********'}
 												</p>
 												<button 
 													onClick={() => togglePasswordVisibility(user.id)}
 													className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
 												>
-													{showPasswords[user.id] ? (
+													{passwordVisibility[user.id] ? (
 														<EyeOff className="w-4 h-4" />
 													) : (
 														<Eye className="w-4 h-4" />
