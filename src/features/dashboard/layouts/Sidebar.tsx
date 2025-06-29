@@ -1,6 +1,5 @@
 import React from 'react'
 import {
-	Code2,
 	Home,
 	PieChart,
 	Calendar as CalendarIcon,
@@ -16,6 +15,7 @@ import {
 } from 'lucide-react'
 import { NavLink, useNavigate } from 'react-router-dom'
 import { signOut } from '@lib/supabase/auth'
+import FavIcon from '@shared/components/icons/favIcon'
 
 interface SidebarProps {
 	onClose?: () => void
@@ -44,17 +44,17 @@ const Sidebar: React.FC<SidebarProps> = ({
 	}
 
 	return (
-		<aside className="bg-white/80 dark:bg-background/50 shadow-lg hover:shadow-primary/50 backdrop-blur-[10px] flex flex-col justify-between h-screen py-8 px-5 gap-4 border-gray-600 text-gray-700 dark:text-gray-300 transition-all duration-300 ease-in-out overflow-hidden border-r border-input">
+		<aside className="bg-white/80 dark:bg-background/50 shadow-lg hover:shadow-primary/50 backdrop-blur-[10px] flex flex-col justify-between h-screen py-8 px-5 gap-4 border-gray-600 text-gray-700 dark:text-white transition-all duration-300 ease-in-out overflow-hidden border-r border-input">
 			<div className="flex flex-col items-start gap-6">
 				<div className="flex justify-between items-center w-full mb-5">
 					<div className="flex items-center gap-3">
-						<Code2 className="size-8 shrink-0 -ml-1" />
+						<FavIcon fill='#e82084' className='size-8 shrink-0 -ml-1'/>
 						<p
 							className={`text-2xl font-bold whitespace-nowrap transition-all duration-300 ${
 								showFullContent ? 'opacity-100 w-auto' : 'opacity-0 w-0 overflow-hidden'
 							}`}
 						>
-							Solware
+							Conspat
 						</p>
 					</div>
 					{/* Close button for mobile */}
