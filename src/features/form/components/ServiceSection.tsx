@@ -12,7 +12,7 @@ interface ServiceSectionProps {
 }
 
 export const ServiceSection = ({ control, inputStyles }: ServiceSectionProps) => (
-	<Card className="transition-all duration-300 hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20">
+	<Card className="transition-all duration-300 hover:border-primary hover:shadow-lg hover:shadow-primary/20">
 		<CardHeader>
 			<CardTitle>Servicio</CardTitle>
 			<div className="w-20 h-1 bg-primary mt-1 rounded-full" />

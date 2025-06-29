@@ -5,7 +5,7 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import type { MedicalRecord } from '@lib/supabase-service'
-import { calculateAge, getAgeDisplay } from '@lib/supabase-service'
+import { getAgeDisplay } from '@lib/supabase-service'
 import { Button } from '@shared/components/ui/button'
 import { Input } from '@shared/components/ui/input'
 import { Textarea } from '@shared/components/ui/textarea'
@@ -306,15 +306,13 @@ const EditCaseModal: React.FC<EditCaseModalProps> = ({ case_, isOpen, onClose, o
 			const updates: Partial<MedicalRecord> = {}
 			changes.forEach((change) => {
 				// Special handling for date_of_birth to format as string
-				if (change.field === 'date_of_birth' && change.newValue) {
-					if (change.newValue instanceof Date) {
-						updates[change.field as keyof MedicalRecord] = format(change.newValue, 'yyyy-MM-dd')
-					} else {
-						updates[change.field as keyof MedicalRecord] = change.newValue
-					}
-				} else {
-					updates[change.field as keyof MedicalRecord] = change.newValue
-				}
+				if (change.newValue instanceof Date) {
+					updates[change.field as keyof MedicalRecord] = format(change.newValue, 'yyyy-MM-dd') as any
+			} else if (typeof change.newValue === 'string' || change.newValue === null) {
+					updates[change.field as keyof MedicalRecord] = change.newValue as any
+			} else {
+					updates[change.field as keyof MedicalRecord] = undefined
+			}
 			})
 
 			await onSave(case_.id!, updates, changes)

@@ -15,7 +15,7 @@ function Calendar({ className, classNames, showOutsideDays = true, ...props }: C
 	const currentYear = new Date().getFullYear()
 	const startYear = 1900 // Allow selection from 1900
 	const endYear = currentYear + 10
-	
+
 	const handleYearSelect = (year: number) => {
 		const newDate = new Date(year, currentMonth.getMonth(), 1)
 		setCurrentMonth(newDate)
@@ -32,10 +32,23 @@ function Calendar({ className, classNames, showOutsideDays = true, ...props }: C
 		return years.reverse() // Show newest years first
 	}
 
+	// Funciones para cambiar de mes
+	const handlePrevMonth = () => {
+		const prevMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1, 1)
+		setCurrentMonth(prevMonth)
+		props.onMonthChange?.(prevMonth)
+	}
+
+	const handleNextMonth = () => {
+		const nextMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 1)
+		setCurrentMonth(nextMonth)
+		props.onMonthChange?.(nextMonth)
+	}
+
 	const renderYearPicker = () => {
 		const years = generateYearGrid()
 		const selectedYear = currentMonth.getFullYear()
-		
+
 		return (
 			<div className="absolute top-0 left-0 right-0 bottom-0 bg-white dark:bg-background z-50 rounded-md border shadow-lg p-4">
 				<div className="flex items-center justify-between mb-4">
@@ -47,7 +60,7 @@ function Calendar({ className, classNames, showOutsideDays = true, ...props }: C
 						<ChevronLeft className="w-4 h-4 text-gray-600 dark:text-gray-400" />
 					</button>
 				</div>
-				
+
 				<div className="grid grid-cols-4 gap-2 max-h-64 overflow-y-auto">
 					{years.map((year) => (
 						<button
@@ -65,7 +78,7 @@ function Calendar({ className, classNames, showOutsideDays = true, ...props }: C
 						</button>
 					))}
 				</div>
-				
+
 				<div className="mt-4 flex justify-center gap-2">
 					<button
 						onClick={() => handleYearSelect(currentYear)}
@@ -84,15 +97,29 @@ function Calendar({ className, classNames, showOutsideDays = true, ...props }: C
 		)
 	}
 
-	// Custom caption component with year picker
+	// Custom caption component with year picker y flechas de mes
 	const CustomCaption = ({ displayMonth }: { displayMonth: Date }) => {
 		return (
-			<div className="flex justify-center pt-1 relative items-center">
+			<div className="flex justify-center pt-1 relative items-center gap-2">
+				<button
+					onClick={handlePrevMonth}
+					className="absolute left-0 p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-800"
+					aria-label="Mes anterior"
+				>
+					<ChevronLeft className="w-4 h-4" />
+				</button>
 				<button
 					onClick={() => setShowYearPicker(true)}
 					className="text-sm font-medium hover:text-primary transition-colors cursor-pointer px-2 py-1 rounded hover:bg-gray-100 dark:hover:bg-gray-800"
 				>
 					{displayMonth.toLocaleDateString('es-ES', { month: 'long', year: 'numeric' })}
+				</button>
+				<button
+					onClick={handleNextMonth}
+					className="absolute right-0 p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-800"
+					aria-label="Mes siguiente"
+				>
+					<ChevronRight className="w-4 h-4" />
 				</button>
 			</div>
 		)

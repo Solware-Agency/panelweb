@@ -56,10 +56,10 @@ const CaseDetailPanel: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClos
 	)
 
 	// Format date of birth and get age display
-	const formattedDateOfBirth = case_.date_of_birth 
+	const formattedDateOfBirth = case_.date_of_birth
 		? format(parseISO(case_.date_of_birth), 'dd/MM/yyyy', { locale: es })
 		: 'N/A'
-	
+
 	const ageDisplay = case_.date_of_birth ? getAgeDisplay(case_.date_of_birth) : ''
 
 	return (
@@ -68,7 +68,7 @@ const CaseDetailPanel: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClos
 				<>
 					{/* Backdrop */}
 					<motion.div
-						viewport={{ margin: '0px' }} 
+						viewport={{ margin: '0px' }}
 						initial={{ opacity: 0 }}
 						animate={{ opacity: 1 }}
 						exit={{ opacity: 0 }}
@@ -89,10 +89,7 @@ const CaseDetailPanel: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClos
 						<div className="sticky top-0 bg-white dark:bg-background border-b border-gray-200 dark:border-gray-700 p-4 sm:p-6 z-10">
 							<div className="flex items-center justify-between">
 								<div>
-									<h2 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-gray-100">
-										{case_.code || `Caso ${case_.id?.slice(-6).toUpperCase()}`}
-									</h2>
-									<p className="text-sm text-gray-600 dark:text-gray-400 mt-1">{case_.full_name}</p>
+									<h2 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-gray-100">{case_.full_name}</h2>
 								</div>
 								<button
 									onClick={onClose}
@@ -117,7 +114,6 @@ const CaseDetailPanel: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClos
 								</span>
 								{case_.code && (
 									<span className="inline-flex items-center gap-1 px-3 py-1 text-sm font-semibold rounded-full bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300">
-										<Hash className="w-3 h-3" />
 										{case_.code}
 									</span>
 								)}
@@ -130,10 +126,13 @@ const CaseDetailPanel: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClos
 							{case_.code && (
 								<InfoSection title="Código del Caso" icon={Hash}>
 									<div className="space-y-1">
-										<InfoRow label="Código único" value={case_.code} />
 										<div className="text-xs text-gray-500 dark:text-gray-400 mt-2 p-2 bg-gray-50 dark:bg-gray-800 rounded">
-											<p><strong>Formato:</strong> [Tipo][Año][Contador][Mes]</p>
-											<p><strong>Ejemplo:</strong> 1 = Citología, 25 = 2025, 001 = Primer caso, A = Enero</p>
+											<p>
+												<strong>Formato:</strong> [Tipo][Año][Contador][Mes]
+											</p>
+											<p>
+												<strong>Ejemplo:</strong> 1 = Citología, 25 = 2025, 001 = Primer caso, A = Enero
+											</p>
 										</div>
 									</div>
 								</InfoSection>
@@ -152,9 +151,7 @@ const CaseDetailPanel: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClos
 										<div className="text-sm text-gray-900 dark:text-gray-100 sm:text-right">
 											<div>{formattedDateOfBirth}</div>
 											{ageDisplay && (
-												<div className="text-xs text-blue-600 dark:text-blue-400 font-medium">
-													{ageDisplay}
-												</div>
+												<div className="text-xs text-blue-600 dark:text-blue-400 font-medium">{ageDisplay}</div>
 											)}
 										</div>
 									</div>
@@ -173,10 +170,7 @@ const CaseDetailPanel: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClos
 									<InfoRow label="Sede" value={case_.branch} />
 									<InfoRow label="Muestra" value={case_.sample_type} />
 									<InfoRow label="Cantidad de muestras" value={case_.number_of_samples} />
-									<InfoRow
-										label="Fecha de registro"
-										value={new Date(case_.date || '').toLocaleDateString('es-ES')}
-									/>
+									<InfoRow label="Fecha de registro" value={new Date(case_.date || '').toLocaleDateString('es-ES')} />
 								</div>
 							</InfoSection>
 
