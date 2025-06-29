@@ -6,15 +6,10 @@ import {
 	DollarSign,
 	Users,
 	Award,
-	Activity,
-	Heart,
-	Eye,
 	Clock,
 	AlertCircle,
 	CheckCircle,
 	XCircle,
-	User,
-	MapPin,
 	Download
 } from 'lucide-react'
 import { Card } from '@shared/components/ui/card'
