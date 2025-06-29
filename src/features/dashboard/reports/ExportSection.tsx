@@ -292,47 +292,12 @@ const ExportSection: React.FC = () => {
         ])
       }
       
-      // Generate the PDF
-      const doc = new jsPDF({
-        orientation: 'portrait',
-        unit: 'mm',
-        format: 'a4',
-      })
-      
-      // @ts-ignore - jspdf-autotable types
-      doc.autoTable({
-        body: reportData,
-        theme: 'grid',
-        styles: {
-          fontSize: 10,
-          cellPadding: 5,
-          lineColor: [200, 200, 200],
-          lineWidth: 0.1,
-        },
-        headStyles: {
-          fillColor: [128, 0, 128],
-          textColor: [255, 255, 255],
-          fontStyle: 'bold',
-        },
-        alternateRowStyles: {
-          fillColor: [245, 245, 245],
-        },
-        margin: { top: 20 },
-      })
-      
-      // Add footer
-      const pageCount = doc.internal.getNumberOfPages()
-      for (let i = 1; i <= pageCount; i++) {
-        doc.setPage(i)
-        const footerY = doc.internal.pageSize.getHeight() - 10
-        doc.setFontSize(8)
-        doc.setTextColor(100, 100, 100)
-        doc.text('Generado por el sistema de registros médicos', 14, footerY)
-        doc.text(`Página ${i} de ${pageCount}`, doc.internal.pageSize.getWidth() - 30, footerY)
-      }
-      
-      // Save the PDF
-      doc.save(`reporte-ingresos-${format(new Date(), 'yyyy-MM-dd')}.pdf`)
+      // Use the imported exportTableToPdf utility function
+      await exportTableToPdf(
+        reportData,
+        `reporte-ingresos-${format(new Date(), 'yyyy-MM-dd')}.pdf`,
+        'REPORTE COMPLETO DE INGRESOS'
+      )
       
       toast({
         title: '✅ Reporte exportado',
