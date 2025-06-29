@@ -226,7 +226,7 @@ const CasesTable: React.FC<CasesTableProps> = ({ onCaseSelect }) => {
 			)}
 
 			{/* Action buttons */}
-			<div className="flex gap-2 mt-3 pt-2 border-t border-gray-200 dark:border-gray-700">
+			<div className="flex gap-1 mt-3 pt-2 border-t border-gray-200 dark:border-gray-700">
 				<button
 					onClick={() => onCaseSelect(case_)}
 					className="flex-1 inline-flex items-center justify-center gap-1 px-3 py-2 text-xs font-medium text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 bg-blue-50 dark:bg-blue-900/20 hover:bg-blue-100 dark:hover:bg-blue-900/30 rounded-lg transition-colors"
@@ -502,13 +502,13 @@ const CasesTable: React.FC<CasesTableProps> = ({ onCaseSelect }) => {
 											)}
 										</td>
 										<td className="px-4 py-4">
-											<div className="flex px-3 py-1 gap-4">
+											<div className="flex gap-2">
 												<button
 													onClick={(e) => {
 														e.stopPropagation()
 														onCaseSelect(case_)
 													}}
-													className="inline-flex items-center gap-1 text-xs font-medium text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 transition-colors"
+													className="inline-flex items-center gap-1 px-3 py-1 text-xs font-medium text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 transition-colors"
 												>
 													<Eye className="w-3 h-3" />
 													Ver
@@ -518,7 +518,7 @@ const CasesTable: React.FC<CasesTableProps> = ({ onCaseSelect }) => {
 														e.stopPropagation()
 														handleEditCase(case_)
 													}}
-													className="inline-flex items-center gap-1 text-xs font-medium text-green-600 dark:text-green-400 hover:text-green-800 dark:hover:text-green-300 transition-colors"
+													className="inline-flex items-center gap-1 px-3 py-1 text-xs font-medium text-green-600 dark:text-green-400 hover:text-green-800 dark:hover:text-green-300 transition-colors"
 												>
 													<Edit className="w-3 h-3" />
 													Editar
@@ -567,7 +567,7 @@ const CasesTable: React.FC<CasesTableProps> = ({ onCaseSelect }) => {
 
 							{/* Status Filter */}
 							<div className="flex items-center gap-2">
-								<Filter className="size-4 text-gray-400" />
+								<Filter className="w-4 h-4 text-gray-400" />
 								<select
 									value={statusFilter}
 									onChange={(e) => setStatusFilter(e.target.value)}
@@ -580,13 +580,6 @@ const CasesTable: React.FC<CasesTableProps> = ({ onCaseSelect }) => {
 									<option value="Cancelado">Cancelado</option>
 									<option value="Incompleto">Incompleto</option>
 								</select>
-								<button
-									onClick={handleRefresh}
-									disabled={isLoading}
-									className="lg:hidden flex items-center gap-2 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:text-white text-sm hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors disabled:opacity-50"
-								>
-									<RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
-								</button>
 							</div>
 							<button
 								onClick={() => setIsFullscreen(true)}
@@ -598,7 +591,7 @@ const CasesTable: React.FC<CasesTableProps> = ({ onCaseSelect }) => {
 							<button
 								onClick={handleRefresh}
 								disabled={isLoading}
-								className="hidden lg:flex items-center gap-2 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:text-white text-sm hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors disabled:opacity-50"
+								className="flex items-center gap-2 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:text-white text-sm hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors disabled:opacity-50"
 							>
 								<RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
 							</button>
@@ -774,13 +767,13 @@ const CasesTable: React.FC<CasesTableProps> = ({ onCaseSelect }) => {
 												)}
 											</td>
 											<td className="px-4 py-4">
-												<div className="flex px-3 py-1 gap-4">
+												<div className="flex gap-2">
 													<button
 														onClick={(e) => {
 															e.stopPropagation()
 															onCaseSelect(case_)
 														}}
-														className="inline-flex items-center gap-1 text-xs font-medium text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 transition-colors"
+														className="inline-flex items-center gap-1 px-3 py-1 text-xs font-medium text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 transition-colors"
 													>
 														<Eye className="w-3 h-3" />
 														Ver
@@ -790,7 +783,7 @@ const CasesTable: React.FC<CasesTableProps> = ({ onCaseSelect }) => {
 															e.stopPropagation()
 															handleEditCase(case_)
 														}}
-														className="inline-flex items-center gap-1 text-xs font-medium text-green-600 dark:text-green-400 hover:text-green-800 dark:hover:text-green-300 transition-colors"
+														className="inline-flex items-center gap-1 px-3 py-1 text-xs font-medium text-green-600 dark:text-green-400 hover:text-green-800 dark:hover:text-green-300 transition-colors"
 													>
 														<Edit className="w-3 h-3" />
 														Editar
