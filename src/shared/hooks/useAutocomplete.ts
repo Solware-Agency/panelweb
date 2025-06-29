@@ -6,17 +6,23 @@ interface AutocompleteOption {
 	count: number
 }
 
-export const useAutocomplete = (fieldName: string, minLength: number = 2) => {
+export const useAutocomplete = (fieldName: string, minLength: number = 0) => {
 	const [suggestions, setSuggestions] = useState<AutocompleteOption[]>([])
 	const [isLoading, setIsLoading] = useState(false)
 	const abortControllerRef = useRef<AbortController | null>(null)
-	const lastSearchTermRef = useRef<string>('')
 	const [allFieldValues, setAllFieldValues] = useState<AutocompleteOption[]>([])
+	const [hasPreloadedData, setHasPreloadedData] = useState(false)
 
-	// Preload all values for the field when the hook initializes
+	// Preload all values for the field when the hook initializes - ONLY ONCE
 	useEffect(() => {
+		let isMounted = true
+
 		const preloadFieldValues = async () => {
+			if (hasPreloadedData) return // Prevent multiple loads
+
 			try {
+				setIsLoading(true)
+
 				const fieldMapping: Record<string, string> = {
 					// Datos del paciente
 					fullName: 'full_name',
@@ -49,6 +55,8 @@ export const useAutocomplete = (fieldName: string, minLength: number = 2) => {
 					return
 				}
 
+				if (!isMounted) return
+
 				// Count frequency of each value
 				const valueCounts: Record<string, number> = {}
 				data?.forEach((record: any) => {
@@ -64,13 +72,22 @@ export const useAutocomplete = (fieldName: string, minLength: number = 2) => {
 					.sort((a, b) => b.count - a.count)
 
 				setAllFieldValues(allValues)
+				setHasPreloadedData(true)
 			} catch (error) {
 				console.error('Error preloading field values:', error)
+			} finally {
+				if (isMounted) {
+					setIsLoading(false)
+				}
 			}
 		}
 
 		preloadFieldValues()
-	}, [fieldName])
+
+		return () => {
+			isMounted = false
+		}
+	}, [fieldName]) // Only depend on fieldName, not hasPreloadedData
 
 	// Function to get random suggestions from all values
 	const getRandomSuggestions = (count: number = 8): AutocompleteOption[] => {
@@ -121,126 +138,22 @@ export const useAutocomplete = (fieldName: string, minLength: number = 2) => {
 		}).slice(0, 8)
 	}
 
-	const getSuggestions = async (searchTerm: string = '') => {
-		// Cancel previous search if exists
+	// FIXED: getSuggestions now only processes preloaded data, no async calls
+	const getSuggestions = (searchTerm: string = '') => {
+		// Cancel any previous abort controller
 		if (abortControllerRef.current) {
 			abortControllerRef.current.abort()
 		}
 
-		// Create new AbortController for this search
-		abortControllerRef.current = new AbortController()
-		const signal = abortControllerRef.current.signal
-
-		setIsLoading(true)
-		lastSearchTermRef.current = searchTerm
-
-		try {
-			// If we have preloaded values, use them for instant results
-			if (allFieldValues.length > 0) {
-				const filteredSuggestions = getFilteredSuggestions(searchTerm)
-				
-				// Check if search was cancelled
-				if (!signal.aborted) {
-					setSuggestions(filteredSuggestions)
-				}
-			} else {
-				// Fallback to database query if preloaded values aren't ready
-				const fieldMapping: Record<string, string> = {
-					// Datos del paciente
-					fullName: 'full_name',
-					idNumber: 'id_number',
-					phone: 'phone',
-					email: 'email',
-
-					// Datos del servicio
-					examType: 'exam_type',
-					origin: 'origin',
-					treatingDoctor: 'treating_doctor',
-					sampleType: 'sample_type',
-					relationship: 'relationship',
-
-					// Otros campos
-					branch: 'branch',
-					comments: 'comments',
-				}
-
-				const dbFieldName = fieldMapping[fieldName] || fieldName
-
-				let query = supabase
-					.from('medical_records_clean')
-					.select(dbFieldName)
-					.not(dbFieldName, 'is', null)
-					.not(dbFieldName, 'eq', '')
-					.limit(50)
-					.abortSignal(signal)
-
-				// If there's a search term, filter by it
-				if (searchTerm && searchTerm.length > 0) {
-					query = query.ilike(dbFieldName, `%${searchTerm}%`)
-				}
-
-				const { data, error } = await query
-
-				// Check if search was cancelled
-				if (signal.aborted) {
-					return
-				}
-
-				if (error) {
-					console.error('Error fetching autocomplete suggestions:', error)
-					setSuggestions([])
-					return
-				}
-
-				// Count frequency and process results
-				const valueCounts: Record<string, number> = {}
-				data?.forEach((record: any) => {
-					const value = record[dbFieldName]?.trim()
-					if (value && (!searchTerm || value.toLowerCase().includes(searchTerm.toLowerCase()))) {
-						valueCounts[value] = (valueCounts[value] || 0) + 1
-					}
-				})
-
-				// Convert to array and sort
-				let sortedSuggestions = Object.entries(valueCounts)
-					.map(([value, count]) => ({ value, count }))
-
-				if (searchTerm && searchTerm.length > 0) {
-					// Sort by relevance for search
-					sortedSuggestions.sort((a, b) => {
-						const aStartsWith = a.value.toLowerCase().startsWith(searchTerm.toLowerCase())
-						const bStartsWith = b.value.toLowerCase().startsWith(searchTerm.toLowerCase())
-
-						if (aStartsWith && !bStartsWith) return -1
-						if (!aStartsWith && bStartsWith) return 1
-
-						return b.count - a.count
-					})
-				} else {
-					// Random order for initial suggestions
-					sortedSuggestions = sortedSuggestions
-						.sort(() => Math.random() - 0.5)
-						.sort((a, b) => b.count - a.count) // Still prefer more frequent items
-				}
-
-				// Only update if search wasn't cancelled
-				if (!signal.aborted) {
-					setSuggestions(sortedSuggestions.slice(0, 8))
-				}
-			}
-		} catch (error: any) {
-			// Ignore cancellation errors
-			if (error.name === 'AbortError') {
-				return
-			}
-			console.error('Error in autocomplete:', error)
+		// Only process if we have preloaded data
+		if (!hasPreloadedData || allFieldValues.length === 0) {
 			setSuggestions([])
-		} finally {
-			// Only update loading if search wasn't cancelled
-			if (!signal.aborted) {
-				setIsLoading(false)
-			}
+			return
 		}
+
+		// Process suggestions synchronously from preloaded data
+		const filteredSuggestions = getFilteredSuggestions(searchTerm)
+		setSuggestions(filteredSuggestions)
 	}
 
 	// Clean up AbortController on unmount
@@ -256,6 +169,6 @@ export const useAutocomplete = (fieldName: string, minLength: number = 2) => {
 		suggestions,
 		isLoading,
 		getSuggestions,
-		hasPreloadedData: allFieldValues.length > 0,
+		hasPreloadedData,
 	}
 }

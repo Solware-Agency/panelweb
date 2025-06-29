@@ -25,6 +25,7 @@ export const AutocompleteInput = React.forwardRef<
   const inputRef = React.useRef<HTMLInputElement>(null);
   const suggestionsRef = React.useRef<HTMLDivElement>(null);
   const debounceTimeoutRef = React.useRef<NodeJS.Timeout | null>(null);
+  const lastSearchTermRef = React.useRef<string>('');
 
   // Combine refs
   React.useImperativeHandle(ref, () => inputRef.current!);
@@ -63,30 +64,38 @@ export const AutocompleteInput = React.forwardRef<
     };
   }, []);
 
-  // Debounced search effect
+  // FIXED: Debounced search effect - prevent infinite loops
   React.useEffect(() => {
     // Clear previous timeout
     if (debounceTimeoutRef.current) {
       clearTimeout(debounceTimeoutRef.current);
     }
 
-    // Don't search if terminated, autofilled, or if we haven't focused yet
-    if (searchTerminated || isAutofilled || !hasFocused) {
+    // Don't search if terminated, autofilled, haven't focused, or no preloaded data
+    if (searchTerminated || isAutofilled || !hasFocused || !hasPreloadedData) {
       return;
     }
 
-    // Always search when focused (even with empty input for random suggestions)
+    // Prevent duplicate searches
+    if (lastSearchTermRef.current === inputValue) {
+      return;
+    }
+
+    // Update last search term
+    lastSearchTermRef.current = inputValue;
+
+    // Search with debounce for typing, immediate for empty input
     debounceTimeoutRef.current = setTimeout(() => {
       getSuggestions(inputValue);
       setShowSuggestions(true);
-    }, inputValue.length === 0 ? 0 : 300); // Immediate for empty, debounced for typing
+    }, inputValue.length === 0 ? 0 : 300);
 
     return () => {
       if (debounceTimeoutRef.current) {
         clearTimeout(debounceTimeoutRef.current);
       }
     };
-  }, [inputValue, getSuggestions, searchTerminated, isAutofilled, hasFocused]);
+  }, [inputValue, getSuggestions, searchTerminated, isAutofilled, hasFocused, hasPreloadedData]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
@@ -106,6 +115,7 @@ export const AutocompleteInput = React.forwardRef<
     setSelectedIndex(-1);
     setSearchTerminated(true);
     setIsAutofilled(false); // Not autofill, manual selection
+    lastSearchTermRef.current = suggestion; // Update last search term
     onValueChange?.(suggestion);
     
     // If it's ID number field, trigger patient selection silently
@@ -177,16 +187,15 @@ export const AutocompleteInput = React.forwardRef<
     setHasFocused(true);
     
     // Show suggestions immediately on focus if not terminated and not autofilled
-    if (!searchTerminated && !isAutofilled) {
-      // If we have preloaded data or there are existing suggestions, show them
-      if (hasPreloadedData || suggestions.length > 0) {
+    if (!searchTerminated && !isAutofilled && hasPreloadedData) {
+      // Reset last search term to force new search
+      lastSearchTermRef.current = '';
+      
+      // Trigger search for suggestions (random if input is empty)
+      setTimeout(() => {
+        getSuggestions(inputValue);
         setShowSuggestions(true);
-      }
-      // Trigger search for random suggestions if input is empty
-      if (inputValue.length === 0) {
-        getSuggestions('');
-        setShowSuggestions(true);
-      }
+      }, 0);
     }
     props.onFocus?.(e);
   };
