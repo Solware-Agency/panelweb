@@ -311,9 +311,9 @@ const CasesTable: React.FC<CasesTableProps> = ({ onCaseSelect }) => {
 			<div className="fixed inset-0 z-[999999] bg-white dark:bg-background h-screen flex flex-col">
 				{/* Fixed Header with Controls */}
 				<div className="flex-shrink-0 p-4 sm:p-6 border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-background">
-					<div className="flex flex-col gap-4">
+					<div className="flex flex-wrap items-center gap-4">
 						{/* Search and Status Filter Row */}
-						<div className="flex flex-col sm:flex-row gap-4">
+						<div className="flex flex-col sm:flex-row gap-4 flex-1">
 							{/* Search - Acortada */}
 							<div className="w-full sm:max-w-md relative">
 								<Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
@@ -358,44 +358,42 @@ const CasesTable: React.FC<CasesTableProps> = ({ onCaseSelect }) => {
 						</div>
 
 						{/* Row Limit Selector */}
-						<div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-							<div className="flex items-center gap-2">
-								<label htmlFor="rowLimit" className="text-sm font-medium text-gray-700 dark:text-gray-300">
-									Mostrar:
-								</label>
-								<select
-									id="rowLimit"
-									value={rowLimit}
-									onChange={(e) => setRowLimit(Number(e.target.value))}
-									className="px-3 py-1 border border-input rounded-lg focus:ring-2 focus:ring-primary dark:bg-background dark:text-white text-sm"
-								>
-									<option value={5}>Últimos 5 casos</option>
-									<option value={10}>Últimos 10 casos</option>
-									<option value={20}>Últimos 20 casos</option>
-									<option value={50}>Últimos 50 casos</option>
-									<option value={0}>Todos los casos</option>
-								</select>
-							</div>
+						<div className="flex items-center gap-2">
+							<label htmlFor="rowLimit" className="text-sm font-medium text-gray-700 dark:text-gray-300">
+								Mostrar:
+							</label>
+							<select
+								id="rowLimit"
+								value={rowLimit}
+								onChange={(e) => setRowLimit(Number(e.target.value))}
+								className="px-3 py-1 border border-input rounded-lg focus:ring-2 focus:ring-primary dark:bg-background dark:text-white text-sm"
+							>
+								<option value={5}>Últimos 5 casos</option>
+								<option value={10}>Últimos 10 casos</option>
+								<option value={20}>Últimos 20 casos</option>
+								<option value={50}>Últimos 50 casos</option>
+								<option value={0}>Todos los casos</option>
+							</select>
+						</div>
 
-							{/* Results count */}
-							<div className="text-sm text-gray-600 dark:text-gray-400">
-								Mostrando {filteredAndSortedCases.length} de{' '}
-								{
-									cases.filter((case_) => {
-										const matchesSearch =
-											case_.full_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-											case_.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-											case_.id_number.toLowerCase().includes(searchTerm.toLowerCase()) ||
-											case_.exam_type.toLowerCase().includes(searchTerm.toLowerCase()) ||
-											case_.treating_doctor.toLowerCase().includes(searchTerm.toLowerCase()) ||
-											case_.branch.toLowerCase().includes(searchTerm.toLowerCase()) ||
-											(case_.code && case_.code.toLowerCase().includes(searchTerm.toLowerCase()))
-										const matchesStatus = statusFilter === 'all' || case_.payment_status === statusFilter
-										return matchesSearch && matchesStatus
-									}).length
-								}{' '}
-								casos
-							</div>
+						{/* Results count */}
+						<div className="text-sm text-gray-600 dark:text-gray-400">
+							Mostrando {filteredAndSortedCases.length} de{' '}
+							{
+								cases.filter((case_) => {
+									const matchesSearch =
+										case_.full_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+										case_.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
+										case_.id_number.toLowerCase().includes(searchTerm.toLowerCase()) ||
+										case_.exam_type.toLowerCase().includes(searchTerm.toLowerCase()) ||
+										case_.treating_doctor.toLowerCase().includes(searchTerm.toLowerCase()) ||
+										case_.branch.toLowerCase().includes(searchTerm.toLowerCase()) ||
+										(case_.code && case_.code.toLowerCase().includes(searchTerm.toLowerCase()))
+									const matchesStatus = statusFilter === 'all' || case_.payment_status === statusFilter
+									return matchesSearch && matchesStatus
+								}).length
+							}{' '}
+							casos
 						</div>
 					</div>
 				</div>
@@ -591,9 +589,9 @@ const CasesTable: React.FC<CasesTableProps> = ({ onCaseSelect }) => {
 				<div className="bg-white dark:bg-background rounded-xl transition-colors duration-300 h-full">
 					{/* Search and Filter Controls */}
 					<div className="p-4 sm:p-6 border-b border-gray-200 dark:border-gray-700">
-						<div className="flex flex-col gap-4">
+						<div className="flex flex-wrap items-center gap-4">
 							{/* Search and Status Filter Row */}
-							<div className="flex flex-col sm:flex-row gap-4">
+							<div className="flex flex-col sm:flex-row gap-4 flex-1">
 								{/* Search - Acortada */}
 								<div className="w-full sm:max-w-md relative">
 									<Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
@@ -639,44 +637,42 @@ const CasesTable: React.FC<CasesTableProps> = ({ onCaseSelect }) => {
 							</div>
 
 							{/* Row Limit Selector */}
-							<div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-								<div className="flex items-center gap-2">
-									<label htmlFor="rowLimit" className="text-sm font-medium text-gray-700 dark:text-gray-300">
-										Mostrar:
-									</label>
-									<select
-										id="rowLimit"
-										value={rowLimit}
-										onChange={(e) => setRowLimit(Number(e.target.value))}
-										className="px-3 py-1 border border-input rounded-lg focus:ring-2 focus:ring-primary dark:bg-background dark:text-white text-sm"
-									>
-										<option value={5}>Últimos 5 casos</option>
-										<option value={10}>Últimos 10 casos</option>
-										<option value={20}>Últimos 20 casos</option>
-										<option value={50}>Últimos 50 casos</option>
-										<option value={0}>Todos los casos</option>
-									</select>
-								</div>
+							<div className="flex items-center gap-2">
+								<label htmlFor="rowLimit" className="text-sm font-medium text-gray-700 dark:text-gray-300">
+									Mostrar:
+								</label>
+								<select
+									id="rowLimit"
+									value={rowLimit}
+									onChange={(e) => setRowLimit(Number(e.target.value))}
+									className="px-3 py-1 border border-input rounded-lg focus:ring-2 focus:ring-primary dark:bg-background dark:text-white text-sm"
+								>
+									<option value={5}>Últimos 5 casos</option>
+									<option value={10}>Últimos 10 casos</option>
+									<option value={20}>Últimos 20 casos</option>
+									<option value={50}>Últimos 50 casos</option>
+									<option value={0}>Todos los casos</option>
+								</select>
+							</div>
 
-								{/* Results count */}
-								<div className="text-sm text-gray-600 dark:text-gray-400">
-									Mostrando {filteredAndSortedCases.length} de{' '}
-									{
-										cases.filter((case_) => {
-											const matchesSearch =
-												case_.full_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-												case_.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-												case_.id_number.toLowerCase().includes(searchTerm.toLowerCase()) ||
-												case_.exam_type.toLowerCase().includes(searchTerm.toLowerCase()) ||
-												case_.treating_doctor.toLowerCase().includes(searchTerm.toLowerCase()) ||
-												case_.branch.toLowerCase().includes(searchTerm.toLowerCase()) ||
-												(case_.code && case_.code.toLowerCase().includes(searchTerm.toLowerCase()))
-											const matchesStatus = statusFilter === 'all' || case_.payment_status === statusFilter
-											return matchesSearch && matchesStatus
-										}).length
-									}{' '}
-									casos
-								</div>
+							{/* Results count */}
+							<div className="text-sm text-gray-600 dark:text-gray-400">
+								Mostrando {filteredAndSortedCases.length} de{' '}
+								{
+									cases.filter((case_) => {
+										const matchesSearch =
+											case_.full_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+											case_.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
+											case_.id_number.toLowerCase().includes(searchTerm.toLowerCase()) ||
+											case_.exam_type.toLowerCase().includes(searchTerm.toLowerCase()) ||
+											case_.treating_doctor.toLowerCase().includes(searchTerm.toLowerCase()) ||
+											case_.branch.toLowerCase().includes(searchTerm.toLowerCase()) ||
+											(case_.code && case_.code.toLowerCase().includes(searchTerm.toLowerCase()))
+										const matchesStatus = statusFilter === 'all' || case_.payment_status === statusFilter
+										return matchesSearch && matchesStatus
+									}).length
+								}{' '}
+								casos
 							</div>
 						</div>
 					</div>
