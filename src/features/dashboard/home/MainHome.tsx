@@ -1,5 +1,5 @@
 import EyeTrackingComponent from '@features/dashboard/home/RobotTraking'
-import { TrendingUp, Users, DollarSign, Calendar, ArrowRight, BarChart3, AlertTriangle, Clock, Stethoscope } from 'lucide-react'
+import { TrendingUp, Users, DollarSign, ArrowRight, BarChart3, AlertTriangle, Clock, Stethoscope } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { useDashboardStats } from '@shared/hooks/useDashboardStats'
 import { YearSelector } from '@shared/components/ui/year-selector'
