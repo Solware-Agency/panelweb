@@ -292,11 +292,14 @@ const ExportSection: React.FC = () => {
         ])
       }
       
-      // Use the imported exportTableToPdf utility function
+      // Use the imported exportTableToPdf utility function with correct argument order
       await exportTableToPdf(
-        reportData,
-        `reporte-ingresos-${format(new Date(), 'yyyy-MM-dd')}.pdf`,
-        'REPORTE COMPLETO DE INGRESOS'
+        [], // headers - empty array since structure is embedded in reportData
+        reportData, // data - the actual report content
+        {
+          filename: `reporte-ingresos-${format(new Date(), 'yyyy-MM-dd')}.pdf`,
+          title: 'REPORTE COMPLETO DE INGRESOS'
+        }
       )
       
       toast({
