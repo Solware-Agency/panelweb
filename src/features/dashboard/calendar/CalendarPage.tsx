@@ -84,6 +84,15 @@ const CalendarPage: React.FC = () => {
 		return events.filter((event) => event.date === dateString)
 	}
 
+	// Year and Month selection handlers
+	const handleYearChange = (year: number) => {
+		setCurrentDate(new Date(year, currentDate.getMonth(), 1))
+	}
+
+	const handleMonthChange = (month: number) => {
+		setCurrentDate(new Date(currentDate.getFullYear(), month, 1))
+	}
+
 	const renderCalendarDays = () => {
 		const daysInMonth = getDaysInMonth(currentDate)
 		const firstDay = getFirstDayOfMonth(currentDate)
@@ -148,17 +157,62 @@ const CalendarPage: React.FC = () => {
 
 	const selectedDateEvents = getEventsForDate(selectedDate)
 
+	// Generate year options (from 1950 to current year + 10)
+	const currentYear = new Date().getFullYear()
+	const yearOptions = []
+	for (let year = 1950; year <= currentYear + 10; year++) {
+		yearOptions.push(year)
+	}
+
+	// Month names in Spanish
+	const monthNames = [
+		'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
+		'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
+	]
+
 	return (
 		<div className="p-3 sm:p-6">
 			<div className="grid grid-cols-1 xl:grid-cols-3 gap-4 sm:gap-6">
 				{/* Calendar Grid */}
 				<Card className="xl:col-span-2 grid hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 transition-all duration-300 shadow-lg">
 					<div className="bg-white dark:bg-background rounded-xl p-3 sm:p-6 transition-colors duration-300">
-						{/* Calendar Header */}
+						{/* Calendar Header with Year and Month Dropdowns */}
 						<div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 sm:mb-6">
-							<h2 className="text-xl sm:text-2xl font-bold text-gray-700 dark:text-gray-300 mb-3 sm:mb-0">
-								{currentDate.toLocaleDateString('es-ES', { month: 'long', year: 'numeric' })}
-							</h2>
+							<div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 mb-3 sm:mb-0">
+								<h2 className="text-xl sm:text-2xl font-bold text-gray-700 dark:text-gray-300">
+									Calendario
+								</h2>
+								
+								{/* Year and Month Selectors */}
+								<div className="flex items-center gap-2">
+									{/* Month Selector */}
+									<select
+										value={currentDate.getMonth()}
+										onChange={(e) => handleMonthChange(parseInt(e.target.value))}
+										className="px-3 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+									>
+										{monthNames.map((month, index) => (
+											<option key={index} value={index}>
+												{month}
+											</option>
+										))}
+									</select>
+
+									{/* Year Selector */}
+									<select
+										value={currentDate.getFullYear()}
+										onChange={(e) => handleYearChange(parseInt(e.target.value))}
+										className="px-3 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+									>
+										{yearOptions.map((year) => (
+											<option key={year} value={year}>
+												{year}
+											</option>
+										))}
+									</select>
+								</div>
+							</div>
+							
 							<div className="flex items-center gap-2">
 								<button
 									onClick={() => navigateMonth('prev')}
