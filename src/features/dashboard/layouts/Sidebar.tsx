@@ -43,7 +43,7 @@ const Sidebar: React.FC<SidebarProps> = ({
 	}
 
 	return (
-		<aside className="bg-white/80 dark:bg-gray-900 flex flex-col justify-between h-screen py-8 px-5 gap-4 border-gray-600 text-gray-700 dark:text-gray-300 transition-all duration-300 ease-in-out overflow-hidden">
+		<aside className="bg-white/80 dark:bg-background/50 shadow-lg hover:shadow-primary/50 backdrop-blur-[10px] flex flex-col justify-between h-screen py-8 px-5 gap-4 border-gray-600 text-gray-700 dark:text-gray-300 transition-all duration-300 ease-in-out overflow-hidden border-r border-input">
 			<div className="flex flex-col items-start gap-6">
 				<div className="flex justify-between items-center w-full mb-5">
 					<div className="flex items-center gap-3">
@@ -71,7 +71,7 @@ const Sidebar: React.FC<SidebarProps> = ({
 					to="/dashboard/home"
 					className={({ isActive }) =>
 						`flex justify-between items-center gap-3 cursor-pointer transition w-full ${
-							isActive ? 'text-blue-500 border-blue-500' : 'hover:text-blue-500'
+							isActive ? 'text-primary border-primary' : 'hover:text-primary'
 						}`
 					}
 					onClick={onClose}
@@ -93,7 +93,7 @@ const Sidebar: React.FC<SidebarProps> = ({
 					to="/dashboard/stats"
 					className={({ isActive }) =>
 						`flex justify-between items-center gap-3 cursor-pointer transition w-full ${
-							isActive ? 'text-blue-500 border-blue-500' : 'hover:text-blue-500'
+							isActive ? 'text-primary border-primary' : 'hover:text-primary'
 						}`
 					}
 					onClick={onClose}
@@ -115,7 +115,7 @@ const Sidebar: React.FC<SidebarProps> = ({
 					to="/dashboard/calendar"
 					className={({ isActive }) =>
 						`flex justify-between items-center gap-3 cursor-pointer transition w-full ${
-							isActive ? 'text-blue-500 border-blue-500' : 'hover:text-blue-500'
+							isActive ? 'text-primary border-primary' : 'hover:text-primary'
 						}`
 					}
 					onClick={onClose}
@@ -137,7 +137,7 @@ const Sidebar: React.FC<SidebarProps> = ({
 					to="/dashboard/reports"
 					className={({ isActive }) =>
 						`flex justify-between items-center gap-3 cursor-pointer transition w-full ${
-							isActive ? 'text-blue-500 border-blue-500' : 'hover:text-blue-500'
+							isActive ? 'text-primary border-primary' : 'hover:text-primary'
 						}`
 					}
 					onClick={onClose}
@@ -159,7 +159,7 @@ const Sidebar: React.FC<SidebarProps> = ({
 					to="/dashboard/cases"
 					className={({ isActive }) =>
 						`flex justify-between items-center gap-3 cursor-pointer transition w-full ${
-							isActive ? 'text-blue-500 border-blue-500' : 'hover:text-blue-500'
+							isActive ? 'text-primary border-primary' : 'hover:text-primary'
 						}`
 					}
 					onClick={onClose}
@@ -195,7 +195,7 @@ const Sidebar: React.FC<SidebarProps> = ({
 				<div
 					onClick={handleLogout}
 					title={!showFullContent ? 'Fecha' : undefined}
-					className="flex items-center gap-3 cursor-pointer hover:text-blue-500 transition"
+					className="flex items-center gap-3 cursor-pointer hover:text-primary transition"
 				>
 					<Clock className="stroke-2 size-5 shrink-0" />
 					<p
@@ -209,7 +209,7 @@ const Sidebar: React.FC<SidebarProps> = ({
 				<div
 					onClick={toggleDarkMode}
 					title={!showFullContent ? 'Cambiar color' : undefined}
-					className="flex items-center gap-3 cursor-pointer hover:text-blue-500 transition"
+					className="flex items-center gap-3 cursor-pointer hover:text-primary transition"
 					aria-label={isDark ? 'Activar modo claro' : 'Activar modo oscuro'}
 				>
 					{isDark ? <Sun className="stroke-2 size-5 shrink-0" /> : <Moon className="stroke-2 size-5 shrink-0" />}

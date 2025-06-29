@@ -36,7 +36,7 @@ const CaseDetailPanel: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClos
 		icon: React.ComponentType<{ className?: string }>
 		children: React.ReactNode
 	}) => (
-		<div className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-4">
+		<div className="bg-white dark:bg-background rounded-lg p-4 border border-input transition-all duration-300">
 			<div className="flex items-center gap-2 mb-3">
 				<Icon className="w-5 h-5 text-blue-600 dark:text-blue-400" />
 				<h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">{title}</h3>
@@ -73,10 +73,10 @@ const CaseDetailPanel: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClos
 						animate={{ x: 0 }}
 						exit={{ x: '100%' }}
 						transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-						className="fixed right-0 top-0 h-full w-full sm:w-2/3 lg:w-1/2 xl:w-2/5 bg-white dark:bg-gray-900 shadow-2xl z-[9999999] overflow-y-auto rounded-lg"
+						className="fixed right-0 top-0 h-full w-full sm:w-2/3 lg:w-1/2 xl:w-2/5 bg-white dark:bg-background shadow-2xl z-[9999999] overflow-y-auto rounded-lg border-l border-input"
 					>
 						{/* Header */}
-						<div className="sticky top-0 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 p-4 sm:p-6 z-10">
+						<div className="sticky top-0 bg-white dark:bg-background border-b border-gray-200 dark:border-gray-700 p-4 sm:p-6 z-10">
 							<div className="flex items-center justify-between">
 								<div>
 									<h2 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-gray-100">
@@ -151,7 +151,7 @@ const CaseDetailPanel: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClos
 									<h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Formas de Pago:</h4>
 									<div className="space-y-2">
 										{case_.payment_method_1 && (
-											<div className="bg-white dark:bg-gray-800 p-3 rounded border">
+											<div className="bg-white dark:bg-background p-3 rounded border">
 												<div className="flex justify-between items-center">
 													<span className="text-sm font-medium">{case_.payment_method_1}</span>
 													<span className="text-sm">${case_.payment_amount_1?.toLocaleString()}</span>
@@ -165,7 +165,7 @@ const CaseDetailPanel: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClos
 										)}
 
 										{case_.payment_method_2 && (
-											<div className="bg-white dark:bg-gray-800 p-3 rounded border">
+											<div className="bg-white dark:bg-background p-3 rounded border">
 												<div className="flex justify-between items-center">
 													<span className="text-sm font-medium">{case_.payment_method_2}</span>
 													<span className="text-sm">${case_.payment_amount_2?.toLocaleString()}</span>
@@ -179,7 +179,7 @@ const CaseDetailPanel: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClos
 										)}
 
 										{case_.payment_method_3 && (
-											<div className="bg-white dark:bg-gray-800 p-3 rounded border">
+											<div className="bg-white dark:bg-background p-3 rounded border">
 												<div className="flex justify-between items-center">
 													<span className="text-sm font-medium">{case_.payment_method_3}</span>
 													<span className="text-sm">${case_.payment_amount_3?.toLocaleString()}</span>
@@ -193,7 +193,7 @@ const CaseDetailPanel: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClos
 										)}
 
 										{case_.payment_method_4 && (
-											<div className="bg-white dark:bg-gray-800 p-3 rounded border">
+											<div className="bg-white dark:bg-background p-3 rounded border">
 												<div className="flex justify-between items-center">
 													<span className="text-sm font-medium">{case_.payment_method_4}</span>
 													<span className="text-sm">${case_.payment_amount_4?.toLocaleString()}</span>
@@ -223,7 +223,7 @@ const CaseDetailPanel: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClos
 									{case_.comments && (
 										<div className="py-2">
 											<span className="text-sm font-medium text-gray-600 dark:text-gray-400">Comentarios:</span>
-											<p className="text-sm text-gray-900 dark:text-gray-100 mt-1 p-3 bg-white dark:bg-gray-800 rounded border">
+											<p className="text-sm text-gray-900 dark:text-gray-100 mt-1 p-3 bg-white dark:bg-background rounded border">
 												{case_.comments}
 											</p>
 										</div>

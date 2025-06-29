@@ -13,15 +13,15 @@ import {
 	Bot,
 	Lightbulb,
 } from 'lucide-react'
-import { BackgroundGradient } from '@shared/components/ui/background-gradient'
+import { Card } from '@shared/components/ui/card'
 
 const ReportsPage: React.FC = () => {
 	return (
 		<div className="p-3 sm:p-6">
 			{/* Quick Actions */}
 			<div className="grid grid-cols-2 gap-3 sm:gap-4 mb-6 sm:mb-8">
-				<BackgroundGradient containerClassName="col-span-1 grid" className="grid">
-					<button className="bg-white/80 dark:bg-gray-900 rounded-xl p-3 sm:p-4 transition-colors duration-300 flex items-center gap-2 sm:gap-3">
+				<Card className="col-span-1 grid hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 transition-all duration-300 shadow-lg">
+					<button className="bg-white dark:bg-background rounded-xl p-3 sm:p-4 transition-colors duration-300 flex items-center gap-2 sm:gap-3">
 						<div className="p-1.5 sm:p-2 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
 							<Download className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600 dark:text-blue-400" />
 						</div>
@@ -30,9 +30,9 @@ const ReportsPage: React.FC = () => {
 							<p className="text-xs text-gray-500 dark:text-gray-400 hidden sm:block">Reporte mensual</p>
 						</div>
 					</button>
-				</BackgroundGradient>
-				<BackgroundGradient containerClassName="col-span-1 grid" className="grid">
-					<button className="bg-white/80 dark:bg-gray-900 rounded-xl p-3 sm:p-4 transition-colors duration-300 flex items-center gap-2 sm:gap-3">
+				</Card>
+				<Card className="col-span-1 grid hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 transition-all duration-300 shadow-lg">
+					<button className="bg-white dark:bg-background rounded-xl p-3 sm:p-4 transition-colors duration-300 flex items-center gap-2 sm:gap-3">
 						<div className="p-1.5 sm:p-2 bg-green-100 dark:bg-green-900/30 rounded-lg">
 							<FileText className="w-4 h-4 sm:w-5 sm:h-5 text-green-600 dark:text-green-400" />
 						</div>
@@ -41,14 +41,14 @@ const ReportsPage: React.FC = () => {
 							<p className="text-xs text-gray-500 dark:text-gray-400 hidden sm:block">Datos completos</p>
 						</div>
 					</button>
-				</BackgroundGradient>
+				</Card>
 			</div>
 
 			{/* Services Performance */}
 			<div className="grid grid-cols-1 xl:grid-cols-2 gap-4 sm:gap-6 mb-6 sm:mb-8">
 				{/* Top Services Detailed */}
-				<BackgroundGradient containerClassName="col-span-1 grid" className="grid">
-					<div className="bg-white/80 dark:bg-gray-900 rounded-xl p-4 sm:p-6 transition-colors duration-300">
+				<Card className="col-span-1 grid hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 transition-all duration-300 shadow-lg">
+					<div className="bg-white dark:bg-background rounded-xl p-4 sm:p-6 transition-colors duration-300">
 						<div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 sm:mb-6">
 							<h3 className="text-lg sm:text-xl font-bold text-gray-700 dark:text-gray-300 mb-2 sm:mb-0">
 								Servicios Más Vendidos
@@ -167,11 +167,11 @@ const ReportsPage: React.FC = () => {
 							))}
 						</div>
 					</div>
-				</BackgroundGradient>
+				</Card>
 
 				{/* Revenue Breakdown */}
-				<BackgroundGradient containerClassName="col-span-1 grid" className="grid">
-					<div className="bg-white/80 dark:bg-gray-900 rounded-xl p-4 sm:p-6 transition-colors duration-300">
+				<Card className="col-span-1 grid hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 transition-all duration-300 shadow-lg">
+					<div className="bg-white dark:bg-background rounded-xl p-4 sm:p-6 transition-colors duration-300">
 						<h3 className="text-lg sm:text-xl font-bold text-gray-700 dark:text-gray-300 mb-4 sm:mb-6">
 							Desglose de Ingresos
 						</h3>
@@ -269,14 +269,14 @@ const ReportsPage: React.FC = () => {
 							))}
 						</div>
 					</div>
-				</BackgroundGradient>
+				</Card>
 			</div>
 
 			{/* Client Analysis */}
 			<div className="grid grid-cols-1 xl:grid-cols-3 gap-4 sm:gap-6 mb-6 sm:mb-8">
 				{/* Top Clients */}
-				<BackgroundGradient containerClassName="xl:col-span-2 grid" className="grid">
-					<div className=" bg-white/80 dark:bg-gray-900 rounded-xl p-4 sm:p-6 transition-colors duration-300">
+				<Card className="xl:col-span-2 grid hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 transition-all duration-300 shadow-lg">
+					<div className="bg-white dark:bg-background rounded-xl p-4 sm:p-6 transition-colors duration-300">
 						<div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 sm:mb-6">
 							<h3 className="text-lg sm:text-xl font-bold text-gray-700 dark:text-gray-300 mb-2 sm:mb-0">
 								Análisis de Clientes
@@ -399,10 +399,10 @@ const ReportsPage: React.FC = () => {
 							</table>
 						</div>
 					</div>
-				</BackgroundGradient>
+				</Card>
 				{/* Client Metrics */}
-				<BackgroundGradient containerClassName="grid" className="grid">
-					<div className="bg-white/80 dark:bg-gray-900 rounded-xl p-4 sm:p-6 transition-colors duration-300">
+				<Card className="grid hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 transition-all duration-300 shadow-lg">
+					<div className="bg-white dark:bg-background rounded-xl p-4 sm:p-6 transition-colors duration-300">
 						<h3 className="text-base sm:text-lg font-bold text-gray-700 dark:text-gray-300 mb-4 sm:mb-6">
 							Métricas de Cliente
 						</h3>
@@ -447,12 +447,12 @@ const ReportsPage: React.FC = () => {
 							</div>
 						</div>
 					</div>
-				</BackgroundGradient>
+				</Card>
 			</div>
 
 			{/* Performance Summary */}
-			<BackgroundGradient containerClassName="col-span-1 grid" className="grid">
-				<div className="bg-white/80 dark:bg-gray-900 rounded-xl p-4 sm:p-6 transition-colors duration-300">
+			<Card className="col-span-1 grid hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 transition-all duration-300 shadow-lg">
+				<div className="bg-white dark:bg-background rounded-xl p-4 sm:p-6 transition-colors duration-300">
 					<h3 className="text-lg sm:text-xl font-bold text-gray-700 dark:text-gray-300 mb-4 sm:mb-6">
 						Resumen de Rendimiento
 					</h3>
@@ -502,7 +502,7 @@ const ReportsPage: React.FC = () => {
 						))}
 					</div>
 				</div>
-			</BackgroundGradient>
+			</Card>
 		</div>
 	)
 }

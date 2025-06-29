@@ -19,6 +19,7 @@ import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
 import { useAuth } from '@app/providers/AuthContext'
 import EditCaseModal from './EditCaseModal'
+import { Card } from '@shared/components/ui/card'
 
 interface CasesTableProps {
 	onCaseSelect: (case_: MedicalRecord) => void
@@ -174,7 +175,7 @@ const CasesTable: React.FC<CasesTableProps> = ({ onCaseSelect }) => {
 
 	// Mobile Card Component
 	const CaseCard = ({ case_ }: { case_: MedicalRecord }) => (
-		<div className="bg-white dark:bg-gray-800 rounded-lg p-4 border border-gray-200 dark:border-gray-700 hover:shadow-md transition-all">
+		<div className="bg-white dark:bg-background rounded-lg p-4 border border-gray-200 dark:border-gray-700 hover:shadow-md transition-all">
 			{/* Header with status and code */}
 			<div className="flex items-center justify-between mb-3">
 				<span
@@ -247,7 +248,7 @@ const CasesTable: React.FC<CasesTableProps> = ({ onCaseSelect }) => {
 
 	if (isLoading) {
 		return (
-			<div className="bg-white/80 dark:bg-gray-900 rounded-xl transition-colors duration-300 h-full">
+			<div className="bg-white dark:bg-background rounded-xl transition-colors duration-300 h-full">
 				<div className="p-4 sm:p-6 border-b border-gray-200 dark:border-gray-700">
 					<div className="flex items-center justify-center py-12">
 						<div className="flex items-center gap-3">
@@ -262,7 +263,7 @@ const CasesTable: React.FC<CasesTableProps> = ({ onCaseSelect }) => {
 
 	if (error) {
 		return (
-			<div className="bg-white/80 dark:bg-gray-900 rounded-xl transition-colors duration-300 h-full">
+			<div className="bg-white dark:bg-background rounded-xl transition-colors duration-300 h-full">
 				<div className="p-4 sm:p-6 border-b border-gray-200 dark:border-gray-700">
 					<div className="text-center py-12">
 						<div className="text-red-500 dark:text-red-400">
@@ -283,9 +284,9 @@ const CasesTable: React.FC<CasesTableProps> = ({ onCaseSelect }) => {
 
 	if (isFullscreen) {
 		return (
-			<div className="fixed inset-0 z-[999999] bg-white dark:bg-gray-900 h-screen flex flex-col">
+			<div className="fixed inset-0 z-[999999] bg-white dark:bg-background h-screen flex flex-col">
 				{/* Fixed Header with Controls */}
-				<div className="flex-shrink-0 p-4 sm:p-6 border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900">
+				<div className="flex-shrink-0 p-4 sm:p-6 border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-background">
 					<div className="flex flex-col gap-4">
 						{/* Search and Status Filter Row */}
 						<div className="flex flex-col sm:flex-row gap-4">
@@ -297,7 +298,7 @@ const CasesTable: React.FC<CasesTableProps> = ({ onCaseSelect }) => {
 									placeholder="Buscar por nombre, código, cédula, estudio o médico..."
 									value={searchTerm}
 									onChange={(e) => setSearchTerm(e.target.value)}
-									className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:text-white text-sm"
+									className="w-full pl-10 pr-4 py-2 border border-input rounded-lg focus:ring-2 focus:ring-primary dark:bg-background dark:text-white text-sm"
 								/>
 							</div>
 
@@ -307,7 +308,7 @@ const CasesTable: React.FC<CasesTableProps> = ({ onCaseSelect }) => {
 								<select
 									value={statusFilter}
 									onChange={(e) => setStatusFilter(e.target.value)}
-									className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:text-white text-sm"
+									className="px-3 py-2 border border-input rounded-lg focus:ring-2 focus:ring-primary dark:bg-background dark:text-white text-sm"
 								>
 									<option value="all">Todos los estatus</option>
 									<option value="Pendiente">Pendiente</option>
@@ -320,7 +321,7 @@ const CasesTable: React.FC<CasesTableProps> = ({ onCaseSelect }) => {
 							<button
 								onClick={handleRefresh}
 								disabled={isLoading}
-								className="flex items-center gap-2 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:text-white text-sm hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors disabled:opacity-50"
+								className="flex items-center gap-2 px-3 py-2 border border-input rounded-lg focus:ring-2 focus:ring-primary dark:bg-background dark:text-white text-sm hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors disabled:opacity-50"
 							>
 								<RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
 							</button>
@@ -342,7 +343,7 @@ const CasesTable: React.FC<CasesTableProps> = ({ onCaseSelect }) => {
 									id="rowLimit"
 									value={rowLimit}
 									onChange={(e) => setRowLimit(Number(e.target.value))}
-									className="px-3 py-1 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:text-white text-sm"
+									className="px-3 py-1 border border-input rounded-lg focus:ring-2 focus:ring-primary dark:bg-background dark:text-white text-sm"
 								>
 									<option value={5}>Últimos 5 casos</option>
 									<option value={10}>Últimos 10 casos</option>
@@ -398,7 +399,7 @@ const CasesTable: React.FC<CasesTableProps> = ({ onCaseSelect }) => {
 					{/* Desktop View - Table */}
 					<div className="hidden lg:block h-full overflow-y-auto">
 						<table className="w-full">
-							<thead className="bg-gray-50/50 dark:bg-gray-800/50 backdrop-blur-[10px] sticky top-0 z-50">
+							<thead className="bg-gray-50/50 dark:bg-background/50 backdrop-blur-[10px] sticky top-0 z-50">
 								<tr>
 									<th className="px-4 py-3 text-left">
 										<button
@@ -547,253 +548,105 @@ const CasesTable: React.FC<CasesTableProps> = ({ onCaseSelect }) => {
 
 	return (
 		<>
-			<div className="bg-white/80 dark:bg-gray-900 rounded-xl transition-colors duration-300 h-full">
-				{/* Search and Filter Controls */}
-				<div className="p-4 sm:p-6 border-b border-gray-200 dark:border-gray-700">
-					<div className="flex flex-col gap-4">
-						{/* Search and Status Filter Row */}
-						<div className="flex flex-col sm:flex-row gap-4">
-							{/* Search */}
-							<div className="flex-1 relative">
-								<Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
-								<input
-									type="text"
-									placeholder="Buscar por nombre, código, cédula, estudio o médico..."
-									value={searchTerm}
-									onChange={(e) => setSearchTerm(e.target.value)}
-									className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:text-white text-sm"
-								/>
-							</div>
+			<Card className="hover:border-primary hover:shadow-lg hover:shadow-primary/20 transition-all duration-300 shadow-lg">
+				<div className="bg-white dark:bg-background rounded-xl transition-colors duration-300 h-full">
+					{/* Search and Filter Controls */}
+					<div className="p-4 sm:p-6 border-b border-gray-200 dark:border-gray-700">
+						<div className="flex flex-col gap-4">
+							{/* Search and Status Filter Row */}
+							<div className="flex flex-col sm:flex-row gap-4">
+								{/* Search */}
+								<div className="flex-1 relative">
+									<Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+									<input
+										type="text"
+										placeholder="Buscar por nombre, código, cédula, estudio o médico..."
+										value={searchTerm}
+										onChange={(e) => setSearchTerm(e.target.value)}
+										className="w-full pl-10 pr-4 py-2 border border-input rounded-lg focus:ring-2 focus:ring-primary dark:bg-background dark:text-white text-sm"
+									/>
+								</div>
 
-							{/* Status Filter */}
-							<div className="flex items-center gap-2">
-								<Filter className="w-4 h-4 text-gray-400" />
-								<select
-									value={statusFilter}
-									onChange={(e) => setStatusFilter(e.target.value)}
-									className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:text-white text-sm"
+								{/* Status Filter */}
+								<div className="flex items-center gap-2">
+									<Filter className="w-4 h-4 text-gray-400" />
+									<select
+										value={statusFilter}
+										onChange={(e) => setStatusFilter(e.target.value)}
+										className="px-3 py-2 border border-input rounded-lg focus:ring-2 focus:ring-primary dark:bg-background dark:text-white text-sm"
+									>
+										<option value="all">Todos los estatus</option>
+										<option value="Pendiente">Pendiente</option>
+										<option value="En Proceso">En Proceso</option>
+										<option value="Completado">Completado</option>
+										<option value="Cancelado">Cancelado</option>
+										<option value="Incompleto">Incompleto</option>
+									</select>
+								</div>
+								<button
+									onClick={() => setIsFullscreen(true)}
+									className="hidden lg:flex px-3 py-2 border border-input rounded-lg focus:ring-2 focus:ring-primary dark:bg-background dark:text-white text-sm items-center gap-2"
 								>
-									<option value="all">Todos los estatus</option>
-									<option value="Pendiente">Pendiente</option>
-									<option value="En Proceso">En Proceso</option>
-									<option value="Completado">Completado</option>
-									<option value="Cancelado">Cancelado</option>
-									<option value="Incompleto">Incompleto</option>
-								</select>
-							</div>
-							<button
-								onClick={() => setIsFullscreen(true)}
-								className="hidden lg:flex px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:text-white text-sm items-center gap-2"
-							>
-								<Maximize2 className="size-3" />
-								Expandir
-							</button>
-							<button
-								onClick={handleRefresh}
-								disabled={isLoading}
-								className="flex items-center gap-2 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:text-white text-sm hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors disabled:opacity-50"
-							>
-								<RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
-							</button>
-						</div>
-
-						{/* Row Limit Selector */}
-						<div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-							<div className="flex items-center gap-2">
-								<label htmlFor="rowLimit" className="text-sm font-medium text-gray-700 dark:text-gray-300">
-									Mostrar:
-								</label>
-								<select
-									id="rowLimit"
-									value={rowLimit}
-									onChange={(e) => setRowLimit(Number(e.target.value))}
-									className="px-3 py-1 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:text-white text-sm"
+									<Maximize2 className="size-3" />
+									Expandir
+								</button>
+								<button
+									onClick={handleRefresh}
+									disabled={isLoading}
+									className="flex items-center gap-2 px-3 py-2 border border-input rounded-lg focus:ring-2 focus:ring-primary dark:bg-background dark:text-white text-sm hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors disabled:opacity-50"
 								>
-									<option value={5}>Últimos 5 casos</option>
-									<option value={10}>Últimos 10 casos</option>
-									<option value={20}>Últimos 20 casos</option>
-									<option value={50}>Últimos 50 casos</option>
-									<option value={0}>Todos los casos</option>
-								</select>
+									<RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
+								</button>
 							</div>
 
-							{/* Results count */}
-							<div className="text-sm text-gray-600 dark:text-gray-400">
-								Mostrando {filteredAndSortedCases.length} de{' '}
-								{
-									cases.filter((case_) => {
-										const matchesSearch =
-											case_.full_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-											case_.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-											case_.id_number.toLowerCase().includes(searchTerm.toLowerCase()) ||
-											case_.exam_type.toLowerCase().includes(searchTerm.toLowerCase()) ||
-											case_.treating_doctor.toLowerCase().includes(searchTerm.toLowerCase()) ||
-											case_.branch.toLowerCase().includes(searchTerm.toLowerCase())
-										const matchesStatus = statusFilter === 'all' || case_.payment_status === statusFilter
-										return matchesSearch && matchesStatus
-									}).length
-								}{' '}
-								casos
-							</div>
-						</div>
-					</div>
-				</div>
+							{/* Row Limit Selector */}
+							<div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+								<div className="flex items-center gap-2">
+									<label htmlFor="rowLimit" className="text-sm font-medium text-gray-700 dark:text-gray-300">
+										Mostrar:
+									</label>
+									<select
+										id="rowLimit"
+										value={rowLimit}
+										onChange={(e) => setRowLimit(Number(e.target.value))}
+										className="px-3 py-1 border border-input rounded-lg focus:ring-2 focus:ring-primary dark:bg-background dark:text-white text-sm"
+									>
+										<option value={5}>Últimos 5 casos</option>
+										<option value={10}>Últimos 10 casos</option>
+										<option value={20}>Últimos 20 casos</option>
+										<option value={50}>Últimos 50 casos</option>
+										<option value={0}>Todos los casos</option>
+									</select>
+								</div>
 
-				{/* Mobile View - Cards */}
-				<div className="block lg:hidden">
-					<div className="p-4 space-y-4 max-h-[60vh] overflow-y-auto">
-						{filteredAndSortedCases.map((case_) => (
-							<CaseCard key={case_.id} case_={case_} />
-						))}
-
-						{filteredAndSortedCases.length === 0 && (
-							<div className="text-center py-12">
-								<div className="text-gray-500 dark:text-gray-400">
-									<Search className="w-12 h-12 mx-auto mb-4 opacity-50" />
-									<p className="text-lg font-medium">No se encontraron casos</p>
-									<p className="text-sm">Intenta ajustar los filtros de búsqueda</p>
+								{/* Results count */}
+								<div className="text-sm text-gray-600 dark:text-gray-400">
+									Mostrando {filteredAndSortedCases.length} de{' '}
+									{
+										cases.filter((case_) => {
+											const matchesSearch =
+												case_.full_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+												case_.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
+												case_.id_number.toLowerCase().includes(searchTerm.toLowerCase()) ||
+												case_.exam_type.toLowerCase().includes(searchTerm.toLowerCase()) ||
+												case_.treating_doctor.toLowerCase().includes(searchTerm.toLowerCase()) ||
+												case_.branch.toLowerCase().includes(searchTerm.toLowerCase())
+											const matchesStatus = statusFilter === 'all' || case_.payment_status === statusFilter
+											return matchesSearch && matchesStatus
+										}).length
+									}{' '}
+									casos
 								</div>
 							</div>
-						)}
+						</div>
 					</div>
-				</div>
 
-				{/* Desktop View - Table */}
-				<div className="hidden lg:block">
-					<div className="overflow-x-auto">
-						<div className="max-h-[60vh] overflow-y-auto">
-							<table className="w-full">
-								<thead className="bg-gray-50/50 dark:bg-gray-800/50 backdrop-blur-[10px] sticky top-0 z-50">
-									<tr>
-										<th className="px-4 py-3 text-left">
-											<button
-												onClick={() => handleSort('id')}
-												className="flex items-center gap-2 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider hover:text-gray-700 dark:hover:text-gray-200 text-left"
-											>
-												Estatus / Código
-												<SortIcon field="id" />
-											</button>
-										</th>
-										<th className="px-4 py-3 text-left">
-											<button
-												onClick={() => handleSort('created_at')}
-												className="flex items-center gap-2 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider hover:text-gray-700 dark:hover:text-gray-200 text-left"
-											>
-												Fecha de Ingreso
-												<SortIcon field="created_at" />
-											</button>
-										</th>
-										<th className="px-4 py-3 text-left">
-											<button
-												onClick={() => handleSort('full_name')}
-												className="flex items-center gap-2 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider hover:text-gray-700 dark:hover:text-gray-200 text-left"
-											>
-												Paciente
-												<SortIcon field="full_name" />
-											</button>
-										</th>
-										<th className="px-3 py-3 text-center">
-											<button
-												onClick={() => handleSort('branch')}
-												className="flex items-center gap-2 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider hover:text-gray-700 dark:hover:text-gray-200 text-center"
-											>
-												Sede
-												<SortIcon field="branch" />
-											</button>
-										</th>
-										<th className="px-4 py-3 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider text-center">
-											Estudio
-										</th>
-										<th className="px-4 py-3 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider text-left">
-											Médico Tratante
-										</th>
-										<th className="px-4 py-3 text-left">
-											<button
-												onClick={() => handleSort('total_amount')}
-												className="flex items-center gap-2 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider hover:text-gray-700 dark:hover:text-gray-200 text-left"
-											>
-												Monto Total
-												<SortIcon field="total_amount" />
-											</button>
-										</th>
-										<th className="px-4 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-											Acciones
-										</th>
-									</tr>
-								</thead>
-								<tbody className="divide-y divide-gray-200 dark:divide-gray-700">
-									{filteredAndSortedCases.map((case_) => (
-										<tr key={case_.id} className="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
-											<td className="px-4 py-4">
-												<div className="space-y-1 text-left">
-													<span
-														className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(
-															case_.payment_status,
-														)}`}
-													>
-														{case_.payment_status}
-													</span>
-													<div className="text-sm font-medium text-gray-900 dark:text-gray-100">
-														{case_.id.slice(-6).toUpperCase()}
-													</div>
-												</div>
-											</td>
-											<td className="px-4 py-4 text-sm text-gray-900 dark:text-gray-100 text-left">
-												{new Date(case_.created_at).toLocaleDateString('es-ES')}
-											</td>
-											<td className="px-4 py-4">
-												<div className="text-left">
-													<div className="text-sm font-medium text-gray-900 dark:text-gray-100">{case_.full_name}</div>
-													<div className="text-sm text-gray-500 dark:text-gray-400">{case_.id_number}</div>
-												</div>
-											</td>
-											<td className="text-sm text-gray-900 dark:text-gray-100">
-												<div className="bg-gray-200 dark:bg-gray-900/60 hover:bg-gray-300 dark:hover:bg-gray-800/80 text-center border border-gray-500 dark:border-gray-700 rounded-lg px-1 py-1">
-													{case_.branch}
-												</div>
-											</td>
-											<td className="px-4 py-4 text-sm text-gray-900 dark:text-gray-100 text-center">
-												{case_.exam_type}
-											</td>
-											<td className="px-4 py-4 text-sm text-gray-900 dark:text-gray-100">{case_.treating_doctor}</td>
-											<td className="px-4 py-4">
-												<div className="text-sm font-medium text-gray-900 dark:text-gray-100">
-													${case_.total_amount.toLocaleString()}
-												</div>
-												{case_.remaining > 0 && (
-													<div className="text-xs text-red-600 dark:text-red-400">
-														Faltante: ${case_.remaining.toLocaleString()}
-													</div>
-												)}
-											</td>
-											<td className="px-4 py-4">
-												<div className="flex gap-2">
-													<button
-														onClick={(e) => {
-															e.stopPropagation()
-															onCaseSelect(case_)
-														}}
-														className="inline-flex items-center gap-1 px-3 py-1 text-xs font-medium text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 transition-colors"
-													>
-														<Eye className="w-3 h-3" />
-														Ver
-													</button>
-													<button
-														onClick={(e) => {
-															e.stopPropagation()
-															handleEditCase(case_)
-														}}
-														className="inline-flex items-center gap-1 px-3 py-1 text-xs font-medium text-green-600 dark:text-green-400 hover:text-green-800 dark:hover:text-green-300 transition-colors"
-													>
-														<Edit className="w-3 h-3" />
-														Editar
-													</button>
-												</div>
-											</td>
-										</tr>
-									))}
-								</tbody>
-							</table>
+					{/* Mobile View - Cards */}
+					<div className="block lg:hidden">
+						<div className="p-4 space-y-4 max-h-[60vh] overflow-y-auto">
+							{filteredAndSortedCases.map((case_) => (
+								<CaseCard key={case_.id} case_={case_} />
+							))}
 
 							{filteredAndSortedCases.length === 0 && (
 								<div className="text-center py-12">
@@ -806,8 +659,160 @@ const CasesTable: React.FC<CasesTableProps> = ({ onCaseSelect }) => {
 							)}
 						</div>
 					</div>
+
+					{/* Desktop View - Table */}
+					<div className="hidden lg:block">
+						<div className="overflow-x-auto">
+							<div className="max-h-[60vh] overflow-y-auto">
+								<table className="w-full">
+									<thead className="bg-gray-50/50 dark:bg-background/50 backdrop-blur-[10px] sticky top-0 z-50">
+										<tr>
+											<th className="px-4 py-3 text-left">
+												<button
+													onClick={() => handleSort('id')}
+													className="flex items-center gap-2 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider hover:text-gray-700 dark:hover:text-gray-200 text-left"
+												>
+													Estatus / Código
+													<SortIcon field="id" />
+												</button>
+											</th>
+											<th className="px-4 py-3 text-left">
+												<button
+													onClick={() => handleSort('created_at')}
+													className="flex items-center gap-2 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider hover:text-gray-700 dark:hover:text-gray-200 text-left"
+												>
+													Fecha de Ingreso
+													<SortIcon field="created_at" />
+												</button>
+											</th>
+											<th className="px-4 py-3 text-left">
+												<button
+													onClick={() => handleSort('full_name')}
+													className="flex items-center gap-2 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider hover:text-gray-700 dark:hover:text-gray-200 text-left"
+												>
+													Paciente
+													<SortIcon field="full_name" />
+												</button>
+											</th>
+											<th className="px-3 py-3 text-center">
+												<button
+													onClick={() => handleSort('branch')}
+													className="flex items-center gap-2 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider hover:text-gray-700 dark:hover:text-gray-200 text-center"
+												>
+													Sede
+													<SortIcon field="branch" />
+												</button>
+											</th>
+											<th className="px-4 py-3 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider text-center">
+												Estudio
+											</th>
+											<th className="px-4 py-3 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider text-left">
+												Médico Tratante
+											</th>
+											<th className="px-4 py-3 text-left">
+												<button
+													onClick={() => handleSort('total_amount')}
+													className="flex items-center gap-2 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider hover:text-gray-700 dark:hover:text-gray-200 text-left"
+												>
+													Monto Total
+													<SortIcon field="total_amount" />
+												</button>
+											</th>
+											<th className="px-4 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+												Acciones
+											</th>
+										</tr>
+									</thead>
+									<tbody className="divide-y divide-gray-200 dark:divide-gray-700">
+										{filteredAndSortedCases.map((case_) => (
+											<tr key={case_.id} className="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
+												<td className="px-4 py-4">
+													<div className="space-y-1 text-left">
+														<span
+															className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(
+																case_.payment_status,
+															)}`}
+														>
+															{case_.payment_status}
+														</span>
+														<div className="text-sm font-medium text-gray-900 dark:text-gray-100">
+															{case_.id.slice(-6).toUpperCase()}
+														</div>
+													</div>
+												</td>
+												<td className="px-4 py-4 text-sm text-gray-900 dark:text-gray-100 text-left">
+													{new Date(case_.created_at).toLocaleDateString('es-ES')}
+												</td>
+												<td className="px-4 py-4">
+													<div className="text-left">
+														<div className="text-sm font-medium text-gray-900 dark:text-gray-100">
+															{case_.full_name}
+														</div>
+														<div className="text-sm text-gray-500 dark:text-gray-400">{case_.id_number}</div>
+													</div>
+												</td>
+												<td className="text-sm text-gray-900 dark:text-gray-100">
+													<div className="bg-gray-200 dark:bg-gray-900/60 hover:bg-gray-300 dark:hover:bg-gray-800/80 text-center border border-gray-500 dark:border-gray-700 rounded-lg px-1 py-1">
+														{case_.branch}
+													</div>
+												</td>
+												<td className="px-4 py-4 text-sm text-gray-900 dark:text-gray-100 text-center">
+													{case_.exam_type}
+												</td>
+												<td className="px-4 py-4 text-sm text-gray-900 dark:text-gray-100">{case_.treating_doctor}</td>
+												<td className="px-4 py-4">
+													<div className="text-sm font-medium text-gray-900 dark:text-gray-100">
+														${case_.total_amount.toLocaleString()}
+													</div>
+													{case_.remaining > 0 && (
+														<div className="text-xs text-red-600 dark:text-red-400">
+															Faltante: ${case_.remaining.toLocaleString()}
+														</div>
+													)}
+												</td>
+												<td className="px-4 py-4">
+													<div className="flex gap-2">
+														<button
+															onClick={(e) => {
+																e.stopPropagation()
+																onCaseSelect(case_)
+															}}
+															className="inline-flex items-center gap-1 px-3 py-1 text-xs font-medium text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 transition-colors"
+														>
+															<Eye className="w-3 h-3" />
+															Ver
+														</button>
+														<button
+															onClick={(e) => {
+																e.stopPropagation()
+																handleEditCase(case_)
+															}}
+															className="inline-flex items-center gap-1 px-3 py-1 text-xs font-medium text-green-600 dark:text-green-400 hover:text-green-800 dark:hover:text-green-300 transition-colors"
+														>
+															<Edit className="w-3 h-3" />
+															Editar
+														</button>
+													</div>
+												</td>
+											</tr>
+										))}
+									</tbody>
+								</table>
+
+								{filteredAndSortedCases.length === 0 && (
+									<div className="text-center py-12">
+										<div className="text-gray-500 dark:text-gray-400">
+											<Search className="w-12 h-12 mx-auto mb-4 opacity-50" />
+											<p className="text-lg font-medium">No se encontraron casos</p>
+											<p className="text-sm">Intenta ajustar los filtros de búsqueda</p>
+										</div>
+									</div>
+								)}
+							</div>
+						</div>
+					</div>
 				</div>
-			</div>
+			</Card>
 
 			{/* Edit Modal */}
 			<EditCaseModal

@@ -1,11 +1,11 @@
 import React, { useState } from 'react'
 import { Download, RefreshCw } from 'lucide-react'
-import { BackgroundGradient } from '@shared/components/ui/background-gradient'
 import CasesTable from '@shared/components/cases/CasesTable'
 import CaseDetailPanel from '@shared/components/cases/CaseDetailPanel'
 import type { MedicalRecord } from '@lib/supabase-service'
 import { useQuery } from '@tanstack/react-query'
 import { getMedicalRecords } from '@lib/supabase-service'
+import { Card } from '@shared/components/ui/card'
 
 const MainCases: React.FC = () => {
 	const [selectedCase, setSelectedCase] = useState<MedicalRecord | null>(null)
@@ -37,8 +37,8 @@ const MainCases: React.FC = () => {
 		<div className="p-3 sm:p-6">
 			{/* Action Buttons */}
 			<div className="grid grid-cols-2 gap-3 sm:gap-4 mb-6 sm:mb-8">
-				<BackgroundGradient containerClassName="col-span-1 grid" className="grid">
-					<button className="bg-white/80 dark:bg-gray-900 rounded-xl p-3 sm:p-4 transition-colors duration-300 flex items-center gap-2 sm:gap-3 hover:bg-white dark:hover:bg-gray-800">
+				<Card className="col-span-1 grid hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 transition-all duration-300 shadow-lg">
+					<button className="bg-white dark:bg-background rounded-xl p-3 sm:p-4 transition-colors duration-300 flex items-center gap-2 sm:gap-3">
 						<div className="p-1.5 sm:p-2 bg-green-100 dark:bg-green-900/30 rounded-lg">
 							<Download className="w-4 h-4 sm:w-5 sm:h-5 text-green-600 dark:text-green-400" />
 						</div>
@@ -47,16 +47,20 @@ const MainCases: React.FC = () => {
 							<p className="text-xs text-gray-500 dark:text-gray-400 hidden sm:block">Descargar datos</p>
 						</div>
 					</button>
-				</BackgroundGradient>
+				</Card>
 
-				<BackgroundGradient containerClassName="col-span-1 grid" className="grid">
-					<button 
+				<Card className="col-span-1 grid hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 transition-all duration-300 shadow-lg">
+					<button
 						onClick={handleRefresh}
 						disabled={isLoading}
-						className="bg-white/80 dark:bg-gray-900 rounded-xl p-3 sm:p-4 transition-colors duration-300 flex items-center gap-2 sm:gap-3 hover:bg-white dark:hover:bg-gray-800 disabled:opacity-50"
+						className="bg-white dark:bg-background rounded-xl p-3 sm:p-4 transition-colors duration-300 flex items-center gap-2 sm:gap-3"
 					>
 						<div className="p-1.5 sm:p-2 bg-orange-100 dark:bg-orange-900/30 rounded-lg">
-							<RefreshCw className={`w-4 h-4 sm:w-5 sm:h-5 text-orange-600 dark:text-orange-400 ${isLoading ? 'animate-spin' : ''}`} />
+							<RefreshCw
+								className={`w-4 h-4 sm:w-5 sm:h-5 text-orange-600 dark:text-orange-400 ${
+									isLoading ? 'animate-spin' : ''
+								}`}
+							/>
 						</div>
 						<div className="text-left">
 							<p className="text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300">
@@ -65,13 +69,12 @@ const MainCases: React.FC = () => {
 							<p className="text-xs text-gray-500 dark:text-gray-400 hidden sm:block">Recargar datos</p>
 						</div>
 					</button>
-				</BackgroundGradient>
+				</Card>
 			</div>
 
 			{/* Cases Table */}
-			<BackgroundGradient containerClassName="grid" className="grid">
-				<CasesTable onCaseSelect={handleCaseSelect} />
-			</BackgroundGradient>
+
+			<CasesTable onCaseSelect={handleCaseSelect} />
 
 			{/* Case Detail Panel */}
 			<CaseDetailPanel case_={selectedCase} isOpen={isPanelOpen} onClose={handlePanelClose} />

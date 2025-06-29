@@ -1,10 +1,10 @@
 import React, { useState } from 'react'
 import { Users, DollarSign, ShoppingCart, ArrowUpRight, AlertTriangle, Clock } from 'lucide-react'
-import { BackgroundGradient } from '@shared/components/ui/background-gradient'
 import { useDashboardStats } from '@shared/hooks/useDashboardStats'
 import { YearSelector } from '@shared/components/ui/year-selector'
 import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
+import { Card } from '@shared/components/ui/card'
 
 const StatsPage: React.FC = () => {
 	const [selectedMonth, setSelectedMonth] = useState<Date>(new Date())
@@ -49,8 +49,8 @@ const StatsPage: React.FC = () => {
 			{/* KPI Cards Grid */}
 			<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6 sm:mb-8">
 				{/* Total Revenue Card */}
-				<BackgroundGradient containerClassName="col-span-1 grid" className="grid">
-					<div className="bg-white/80 dark:bg-gray-900 rounded-xl p-4 sm:p-6 transition-colors duration-300">
+				<Card className="col-span-1 grid hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 transition-all duration-300 shadow-lg">
+					<div className="bg-white dark:bg-background rounded-xl p-4 sm:p-6 transition-colors duration-300">
 						<div className="flex items-center justify-between mb-4">
 							<div className="p-2 sm:p-3 bg-green-100 dark:bg-green-900/30 rounded-lg">
 								<DollarSign className="w-5 h-5 sm:w-6 sm:h-6 text-green-600 dark:text-green-400" />
@@ -70,13 +70,13 @@ const StatsPage: React.FC = () => {
 							</p>
 						</div>
 					</div>
-				</BackgroundGradient>
+				</Card>
 
 				{/* Active Users Card */}
-				<BackgroundGradient containerClassName="col-span-1 grid" className="grid">
-					<div className="bg-white/80 dark:bg-gray-900 rounded-xl p-4 sm:p-6 transition-colors duration-300">
+				<Card className="col-span-1 grid hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 transition-all duration-300 shadow-lg">
+					<div className="bg-white dark:bg-background rounded-xl p-4 sm:p-6 transition-colors duration-300">
 						<div className="flex items-center justify-between mb-4">
-							<div className="p-2 sm:p-3 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
+							<div className="p-2 sm:p-3 rounded-lg">
 								<Users className="w-5 h-5 sm:w-6 sm:h-6 text-blue-600 dark:text-blue-400" />
 							</div>
 							<div className="flex items-center text-blue-600 dark:text-blue-400">
@@ -96,13 +96,13 @@ const StatsPage: React.FC = () => {
 							</p>
 						</div>
 					</div>
-				</BackgroundGradient>
+				</Card>
 
 				{/* Completed Projects Card */}
-				<BackgroundGradient containerClassName="col-span-1 grid" className="grid">
-					<div className="bg-white/80 dark:bg-gray-900 rounded-xl p-4 sm:p-6 transition-colors duration-300">
+				<Card className="col-span-1 grid hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 transition-all duration-300 shadow-lg">
+					<div className="bg-white dark:bg-background rounded-xl p-4 sm:p-6 transition-colors duration-300">
 						<div className="flex items-center justify-between mb-4">
-							<div className="p-2 sm:p-3 bg-purple-100 dark:bg-purple-900/30 rounded-lg">
+							<div className="p-2 sm:p-3 rounded-lg">
 								<ShoppingCart className="w-5 h-5 sm:w-6 sm:h-6 text-purple-600 dark:text-purple-400" />
 							</div>
 							<div className="flex items-center text-purple-600 dark:text-purple-400">
@@ -122,13 +122,13 @@ const StatsPage: React.FC = () => {
 							</p>
 						</div>
 					</div>
-				</BackgroundGradient>
+				</Card>
 
 				{/* Incomplete Cases Card */}
-				<BackgroundGradient containerClassName="col-span-1 grid" className="grid">
-					<div className="bg-white/80 dark:bg-gray-900 rounded-xl p-4 sm:p-6 transition-colors duration-300">
+				<Card className="col-span-1 grid hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 transition-all duration-300 shadow-lg">
+					<div className="bg-white dark:bg-background rounded-xl p-4 sm:p-6 transition-colors duration-300">
 						<div className="flex items-center justify-between mb-4">
-							<div className="p-2 sm:p-3 bg-orange-100 dark:bg-orange-900/30 rounded-lg">
+							<div className="p-2 sm:p-3 rounded-lg">
 								<AlertTriangle className="w-5 h-5 sm:w-6 sm:h-6 text-orange-600 dark:text-orange-400" />
 							</div>
 							<div className="flex items-center text-orange-600 dark:text-orange-400">
@@ -146,14 +146,14 @@ const StatsPage: React.FC = () => {
 							</p>
 						</div>
 					</div>
-				</BackgroundGradient>
+				</Card>
 			</div>
 
 			{/* Charts Section */}
 			<div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 mb-6 sm:mb-8">
 				{/* 12-Month Revenue Trend Chart with Interactive Bars */}
-				<BackgroundGradient containerClassName="col-span-1 grid" className="grid">
-					<div className="bg-white/80 dark:bg-gray-900 rounded-xl p-4 sm:p-6 transition-colors duration-300">
+				<Card className="col-span-1 grid hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 transition-all duration-300 shadow-lg">
+					<div className="bg-white dark:bg-background rounded-xl p-4 sm:p-6 transition-colors duration-300">
 						<div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 sm:mb-6">
 							<h3 className="text-lg sm:text-xl font-bold text-gray-700 dark:text-gray-300 mb-2 sm:mb-0">
 								Tendencia de Ingresos
@@ -208,11 +208,11 @@ const StatsPage: React.FC = () => {
 							<p className="text-sm text-gray-600 dark:text-gray-400">Haz clic en una barra para seleccionar el mes</p>
 						</div>
 					</div>
-				</BackgroundGradient>
+				</Card>
 
 				{/* Service Distribution by Branch */}
-				<BackgroundGradient containerClassName="col-span-1 grid" className="grid">
-					<div className="bg-white/80 dark:bg-gray-900 rounded-xl p-4 sm:p-6 transition-colors duration-300">
+				<Card className="col-span-1 grid hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 transition-all duration-300 shadow-lg">
+					<div className="bg-white dark:bg-background rounded-xl p-4 sm:p-6 transition-colors duration-300">
 						<h3 className="text-lg sm:text-xl font-bold text-gray-700 dark:text-gray-300 mb-4 sm:mb-6">
 							Distribución por Sede
 						</h3>
@@ -286,14 +286,14 @@ const StatsPage: React.FC = () => {
 							)}
 						</div>
 					</div>
-				</BackgroundGradient>
+				</Card>
 			</div>
 
 			{/* Detailed Tables */}
 			<div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
 				{/* Performance Metrics by Exam Type (Normalized) */}
-				<BackgroundGradient containerClassName="col-span-1 grid" className="grid">
-					<div className="bg-white/80 dark:bg-gray-900 rounded-xl p-4 sm:p-6 transition-colors duration-300">
+				<Card className="col-span-1 grid hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 transition-all duration-300 shadow-lg">
+					<div className="bg-white dark:bg-background rounded-xl p-4 sm:p-6 transition-colors duration-300">
 						<h3 className="text-lg sm:text-xl font-bold text-gray-700 dark:text-gray-300 mb-4 sm:mb-6">
 							Métricas por Tipo de Estudio
 						</h3>
@@ -332,11 +332,11 @@ const StatsPage: React.FC = () => {
 							</table>
 						</div>
 					</div>
-				</BackgroundGradient>
+				</Card>
 
 				{/* Performance Metrics */}
-				<BackgroundGradient containerClassName="col-span-1 grid" className="grid">
-					<div className="bg-white/80 dark:bg-gray-900 rounded-xl p-4 sm:p-6 transition-colors duration-300">
+				<Card className="col-span-1 grid hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 transition-all duration-300 shadow-lg">
+					<div className="bg-white dark:bg-background rounded-xl p-4 sm:p-6 transition-colors duration-300">
 						<h3 className="text-lg sm:text-xl font-bold text-gray-700 dark:text-gray-300 mb-4 sm:mb-6">
 							Métricas de Rendimiento
 						</h3>
@@ -406,7 +406,7 @@ const StatsPage: React.FC = () => {
 							</div>
 						</div>
 					</div>
-				</BackgroundGradient>
+				</Card>
 			</div>
 		</div>
 	)
