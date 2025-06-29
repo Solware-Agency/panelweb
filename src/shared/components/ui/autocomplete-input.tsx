@@ -2,7 +2,7 @@ import * as React from "react";
 import { Input } from "@shared/components/ui/input";
 import { cn } from "@shared/lib/cn";
 import { useAutocomplete } from "@shared/hooks/useAutocomplete";
-import { Loader2, Search, User } from "lucide-react";
+import { Loader2, Search, User, Shuffle } from "lucide-react";
 
 interface AutocompleteInputProps extends React.ComponentProps<typeof Input> {
   fieldName: string;
@@ -14,27 +14,28 @@ interface AutocompleteInputProps extends React.ComponentProps<typeof Input> {
 export const AutocompleteInput = React.forwardRef<
   HTMLInputElement,
   AutocompleteInputProps
->(({ className, fieldName, onValueChange, onPatientSelect, minSearchLength = 2, ...props }, ref) => {
+>(({ className, fieldName, onValueChange, onPatientSelect, minSearchLength = 0, ...props }, ref) => {
   const [inputValue, setInputValue] = React.useState(String(props.value || ""));
   const [showSuggestions, setShowSuggestions] = React.useState(false);
   const [selectedIndex, setSelectedIndex] = React.useState(-1);
   const [searchTerminated, setSearchTerminated] = React.useState(false);
   const [isAutofilled, setIsAutofilled] = React.useState(false);
-  const { suggestions, isLoading, getSuggestions } = useAutocomplete(fieldName, minSearchLength);
+  const [hasFocused, setHasFocused] = React.useState(false);
+  const { suggestions, isLoading, getSuggestions, hasPreloadedData } = useAutocomplete(fieldName, minSearchLength);
   const inputRef = React.useRef<HTMLInputElement>(null);
   const suggestionsRef = React.useRef<HTMLDivElement>(null);
   const debounceTimeoutRef = React.useRef<NodeJS.Timeout | null>(null);
 
-  // Combinar refs
+  // Combine refs
   React.useImperativeHandle(ref, () => inputRef.current!);
 
-  // Sincronizar con el valor externo
+  // Sync with external value
   React.useEffect(() => {
     if (props.value !== inputValue) {
       const newValue = String(props.value || "");
       setInputValue(newValue);
       
-      // Si el valor cambió externamente (autofill), marcar como autofilled
+      // If value changed externally (autofill), mark as autofilled
       if (newValue && newValue !== inputValue) {
         setIsAutofilled(true);
         setSearchTerminated(true);
@@ -46,7 +47,7 @@ export const AutocompleteInput = React.forwardRef<
     }
   }, [props.value, inputValue]);
 
-  // Event listener para ocultar TODAS las sugerencias cuando se autollenan datos del paciente
+  // Event listener to hide ALL suggestions when patient data is autofilled
   React.useEffect(() => {
     const handleHideAllAutocompleteSuggestions = () => {
       setShowSuggestions(false);
@@ -62,45 +63,40 @@ export const AutocompleteInput = React.forwardRef<
     };
   }, []);
 
-  // Debounce mejorado para las búsquedas
+  // Debounced search effect
   React.useEffect(() => {
-    // Limpiar timeout anterior
+    // Clear previous timeout
     if (debounceTimeoutRef.current) {
       clearTimeout(debounceTimeoutRef.current);
     }
 
-    // No buscar si la búsqueda ya terminó, si el input está vacío, o si fue autofilled
-    if (searchTerminated || inputValue.length === 0 || isAutofilled) {
-      setShowSuggestions(false);
+    // Don't search if terminated, autofilled, or if we haven't focused yet
+    if (searchTerminated || isAutofilled || !hasFocused) {
       return;
     }
 
-    // Solo buscar si cumple con la longitud mínima
-    if (inputValue.length >= minSearchLength) {
-      debounceTimeoutRef.current = setTimeout(() => {
-        getSuggestions(inputValue);
-        setShowSuggestions(true);
-      }, 300);
-    } else {
-      setShowSuggestions(false);
-    }
+    // Always search when focused (even with empty input for random suggestions)
+    debounceTimeoutRef.current = setTimeout(() => {
+      getSuggestions(inputValue);
+      setShowSuggestions(true);
+    }, inputValue.length === 0 ? 0 : 300); // Immediate for empty, debounced for typing
 
     return () => {
       if (debounceTimeoutRef.current) {
         clearTimeout(debounceTimeoutRef.current);
       }
     };
-  }, [inputValue, minSearchLength, getSuggestions, searchTerminated, isAutofilled]);
+  }, [inputValue, getSuggestions, searchTerminated, isAutofilled, hasFocused]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setInputValue(value);
     setSelectedIndex(-1);
     setSearchTerminated(false);
-    setIsAutofilled(false); // Resetear autofill cuando el usuario escribe manualmente
+    setIsAutofilled(false); // Reset autofill when user types manually
     onValueChange?.(value);
     
-    // Llamar al onChange original si existe
+    // Call original onChange if exists
     props.onChange?.(e);
   };
 
@@ -109,23 +105,23 @@ export const AutocompleteInput = React.forwardRef<
     setShowSuggestions(false);
     setSelectedIndex(-1);
     setSearchTerminated(true);
-    setIsAutofilled(false); // No es autofill, es selección manual
+    setIsAutofilled(false); // Not autofill, manual selection
     onValueChange?.(suggestion);
     
-    // Si es el campo de cédula, disparar el evento de selección de paciente de forma silenciosa
+    // If it's ID number field, trigger patient selection silently
     if (fieldName === 'idNumber' && onPatientSelect) {
       setTimeout(() => {
         onPatientSelect(suggestion);
       }, 100);
     }
     
-    // Crear evento sintético para mantener compatibilidad
+    // Create synthetic event for compatibility
     const syntheticEvent = {
       target: { value: suggestion }
     } as React.ChangeEvent<HTMLInputElement>;
     props.onChange?.(syntheticEvent);
     
-    // Enfocar el input después de seleccionar
+    // Focus input after selection
     inputRef.current?.focus();
   };
 
@@ -178,14 +174,24 @@ export const AutocompleteInput = React.forwardRef<
   };
 
   const handleFocus = (e: React.FocusEvent<HTMLInputElement>) => {
-    // Solo mostrar sugerencias si la búsqueda no ha terminado, hay sugerencias, y no fue autofilled
-    if (!searchTerminated && !isAutofilled && inputValue.length >= minSearchLength && suggestions.length > 0) {
-      setShowSuggestions(true);
+    setHasFocused(true);
+    
+    // Show suggestions immediately on focus if not terminated and not autofilled
+    if (!searchTerminated && !isAutofilled) {
+      // If we have preloaded data or there are existing suggestions, show them
+      if (hasPreloadedData || suggestions.length > 0) {
+        setShowSuggestions(true);
+      }
+      // Trigger search for random suggestions if input is empty
+      if (inputValue.length === 0) {
+        getSuggestions('');
+        setShowSuggestions(true);
+      }
     }
     props.onFocus?.(e);
   };
 
-  // Determinar el icono según el campo
+  // Determine the icon based on field and state
   const getIcon = () => {
     if (isLoading && !searchTerminated && !isAutofilled) {
       return <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />;
@@ -195,11 +201,23 @@ export const AutocompleteInput = React.forwardRef<
       return <User className="h-4 w-4 text-muted-foreground" />;
     }
     
-    if (inputValue.length >= minSearchLength && !searchTerminated && !isAutofilled) {
+    if (showSuggestions && inputValue.length === 0 && !searchTerminated && !isAutofilled) {
+      return <Shuffle className="h-4 w-4 text-muted-foreground" />;
+    }
+    
+    if (hasFocused && !searchTerminated && !isAutofilled) {
       return <Search className="h-4 w-4 text-muted-foreground" />;
     }
     
     return null;
+  };
+
+  // Determine suggestion header text
+  const getSuggestionHeaderText = () => {
+    if (inputValue.length === 0) {
+      return `${suggestions.length} sugerencia${suggestions.length !== 1 ? 's' : ''} aleatoria${suggestions.length !== 1 ? 's' : ''}`;
+    }
+    return `${suggestions.length} sugerencia${suggestions.length !== 1 ? 's' : ''} encontrada${suggestions.length !== 1 ? 's' : ''}`;
   };
 
   return (
@@ -230,7 +248,8 @@ export const AutocompleteInput = React.forwardRef<
         >
           <div className="px-3 py-2 text-xs text-gray-500 bg-gray-50 border-b flex items-center gap-2">
             {fieldName === 'idNumber' && <User className="h-3 w-3" />}
-            {suggestions.length} sugerencia{suggestions.length !== 1 ? 's' : ''} encontrada{suggestions.length !== 1 ? 's' : ''}
+            {inputValue.length === 0 && <Shuffle className="h-3 w-3" />}
+            {getSuggestionHeaderText()}
           </div>
           {suggestions.map((suggestion, index) => (
             <div
@@ -257,7 +276,10 @@ export const AutocompleteInput = React.forwardRef<
             </div>
           ))}
           <div className="px-3 py-2 text-xs text-gray-400 bg-gray-50 border-t">
-            Usa ↑↓ para navegar, Enter para seleccionar
+            {inputValue.length === 0 
+              ? "Sugerencias aleatorias - Escribe para filtrar" 
+              : "Usa ↑↓ para navegar, Enter para seleccionar"
+            }
           </div>
         </div>
       )}
