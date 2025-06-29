@@ -12,7 +12,6 @@ import {
 	CreditCard,
 	Maximize2,
 	RefreshCw,
-	Cake,
 } from 'lucide-react'
 import { useQuery } from '@tanstack/react-query'
 import { getMedicalRecords, type MedicalRecord, updateMedicalRecordWithLog, getAgeDisplay } from '@lib/supabase-service'
@@ -212,10 +211,7 @@ const CasesTable: React.FC<CasesTableProps> = ({ onCaseSelect }) => {
 							{ageDisplay && (
 								<>
 									<span>•</span>
-									<div className="flex items-center gap-1">
-										<Cake className="w-3 h-3 text-pink-500" />
-										<span>{ageDisplay}</span>
-									</div>
+									<span>{ageDisplay}</span>
 								</>
 							)}
 						</div>
@@ -519,10 +515,7 @@ const CasesTable: React.FC<CasesTableProps> = ({ onCaseSelect }) => {
 														{ageDisplay && (
 															<>
 																<span>•</span>
-																<div className="flex items-center gap-1">
-																	<Cake className="w-3 h-3 text-pink-500" />
-																	<span>{ageDisplay}</span>
-																</div>
+																<span>{ageDisplay}</span>
 															</>
 														)}
 													</div>
@@ -805,9 +798,7 @@ const CasesTable: React.FC<CasesTableProps> = ({ onCaseSelect }) => {
 																{ageDisplay && (
 																	<>
 																		<span>•</span>
-																		<div className="flex items-center gap-1">
-																			<span>{ageDisplay}</span>
-																		</div>
+																		<span>{ageDisplay}</span>
 																	</>
 																)}
 															</div>
