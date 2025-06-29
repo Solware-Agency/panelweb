@@ -25,13 +25,15 @@ interface CasesTableProps {
 	onCaseSelect: (case_: MedicalRecord) => void
 }
 
-type SortField = 'id' | 'created_at' | 'full_name' | 'date_of_birth' | 'total_amount' | 'branch' | 'code'
+type SortField = 'id' | 'created_at' | 'full_name' | 'date_of_birth' | 'total_amount' | 'code'
 type SortDirection = 'asc' | 'desc'
 
 const CasesTable: React.FC<CasesTableProps> = ({ onCaseSelect }) => {
 	const { user } = useAuth()
 	const [searchTerm, setSearchTerm] = useState('')
 	const [statusFilter, setStatusFilter] = useState<string>('all')
+	const [branchFilter, setBranchFilter] = useState<string>('all')
+	const [examTypeFilter, setExamTypeFilter] = useState<string>('all')
 	const [sortField, setSortField] = useState<SortField>('created_at')
 	const [sortDirection, setSortDirection] = useState<SortDirection>('desc')
 	const [rowLimit, setRowLimit] = useState<number>(20)
@@ -139,7 +141,13 @@ const CasesTable: React.FC<CasesTableProps> = ({ onCaseSelect }) => {
 			}
 			// If statusFilter is 'all', matchesStatus remains true
 
-			return matchesSearch && matchesStatus
+			// Branch filter
+			const matchesBranch = branchFilter === 'all' || case_.branch === branchFilter
+
+			// Exam type filter
+			const matchesExamType = examTypeFilter === 'all' || case_.exam_type === examTypeFilter
+
+			return matchesSearch && matchesStatus && matchesBranch && matchesExamType
 		})
 
 		filtered.sort((a, b) => {
@@ -169,7 +177,7 @@ const CasesTable: React.FC<CasesTableProps> = ({ onCaseSelect }) => {
 		}
 
 		return filtered
-	}, [cases, searchTerm, statusFilter, sortField, sortDirection, rowLimit])
+	}, [cases, searchTerm, statusFilter, branchFilter, examTypeFilter, sortField, sortDirection, rowLimit])
 
 	const SortIcon = ({ field }: { field: SortField }) => {
 		if (sortField !== field) {
@@ -320,7 +328,7 @@ const CasesTable: React.FC<CasesTableProps> = ({ onCaseSelect }) => {
 				{/* Fixed Header with Controls */}
 				<div className="flex-shrink-0 p-4 sm:p-6 border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-background">
 					<div className="flex flex-wrap items-center gap-4">
-						{/* Search and Status Filter Row */}
+						{/* Search and Filters Row */}
 						<div className="flex flex-col sm:flex-row gap-4 flex-1">
 							{/* Search - Acortada */}
 							<div className="w-full sm:max-w-md relative">
@@ -345,6 +353,36 @@ const CasesTable: React.FC<CasesTableProps> = ({ onCaseSelect }) => {
 									<option value="all">Todos los estatus</option>
 									<option value="Completado">Completado</option>
 									<option value="Incompleto">Incompleto</option>
+								</select>
+							</div>
+
+							{/* Branch Filter */}
+							<div className="flex items-center gap-2">
+								<select
+									value={branchFilter}
+									onChange={(e) => setBranchFilter(e.target.value)}
+									className="px-3 py-2 border border-input rounded-lg focus:ring-2 focus:ring-primary dark:bg-background dark:text-white text-sm"
+								>
+									<option value="all">Todas las sedes</option>
+									<option value="PMG">PMG</option>
+									<option value="CPC">CPC</option>
+									<option value="CNX">CNX</option>
+									<option value="STX">STX</option>
+									<option value="MCY">MCY</option>
+								</select>
+							</div>
+
+							{/* Exam Type Filter */}
+							<div className="flex items-center gap-2">
+								<select
+									value={examTypeFilter}
+									onChange={(e) => setExamTypeFilter(e.target.value)}
+									className="px-3 py-2 border border-input rounded-lg focus:ring-2 focus:ring-primary dark:bg-background dark:text-white text-sm"
+								>
+									<option value="all">Todos los estudios</option>
+									<option value="inmunohistoquimica">Inmunohistoquímica</option>
+									<option value="biopsia">Biopsia</option>
+									<option value="citologia">Citología</option>
 								</select>
 							</div>
 						</div>
@@ -388,8 +426,11 @@ const CasesTable: React.FC<CasesTableProps> = ({ onCaseSelect }) => {
 									} else if (statusFilter === 'Incompleto') {
 										matchesStatus = case_.payment_status !== 'Completado'
 									}
+
+									const matchesBranch = branchFilter === 'all' || case_.branch === branchFilter
+									const matchesExamType = examTypeFilter === 'all' || case_.exam_type === examTypeFilter
 									
-									return matchesSearch && matchesStatus
+									return matchesSearch && matchesStatus && matchesBranch && matchesExamType
 								}).length
 							}{' '}
 							casos
@@ -466,13 +507,9 @@ const CasesTable: React.FC<CasesTableProps> = ({ onCaseSelect }) => {
 										</button>
 									</th>
 									<th className="px-3 py-3 text-center">
-										<button
-											onClick={() => handleSort('branch')}
-											className="flex items-center gap-2 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider hover:text-gray-700 dark:hover:text-gray-200 text-center"
-										>
+										<span className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
 											Sede
-											<SortIcon field="branch" />
-										</button>
+										</span>
 									</th>
 									<th className="px-4 py-3 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider text-center">
 										Estudio
@@ -604,7 +641,7 @@ const CasesTable: React.FC<CasesTableProps> = ({ onCaseSelect }) => {
 					{/* Search and Filter Controls */}
 					<div className="p-4 sm:p-6 border-b border-gray-200 dark:border-gray-700">
 						<div className="flex flex-wrap items-center gap-4">
-							{/* Search and Status Filter Row */}
+							{/* Search and Filters Row */}
 							<div className="flex flex-col sm:flex-row gap-4 flex-1">
 								{/* Search - Acortada */}
 								<div className="w-full sm:max-w-md relative">
@@ -629,6 +666,36 @@ const CasesTable: React.FC<CasesTableProps> = ({ onCaseSelect }) => {
 										<option value="all">Todos los estatus</option>
 										<option value="Completado">Completado</option>
 										<option value="Incompleto">Incompleto</option>
+									</select>
+								</div>
+
+								{/* Branch Filter */}
+								<div className="flex items-center gap-2">
+									<select
+										value={branchFilter}
+										onChange={(e) => setBranchFilter(e.target.value)}
+										className="px-3 py-2 border border-input rounded-lg focus:ring-2 focus:ring-primary dark:bg-background dark:text-white text-sm"
+									>
+										<option value="all">Todas las sedes</option>
+										<option value="PMG">PMG</option>
+										<option value="CPC">CPC</option>
+										<option value="CNX">CNX</option>
+										<option value="STX">STX</option>
+										<option value="MCY">MCY</option>
+									</select>
+								</div>
+
+								{/* Exam Type Filter */}
+								<div className="flex items-center gap-2">
+									<select
+										value={examTypeFilter}
+										onChange={(e) => setExamTypeFilter(e.target.value)}
+										className="px-3 py-2 border border-input rounded-lg focus:ring-2 focus:ring-primary dark:bg-background dark:text-white text-sm"
+									>
+										<option value="all">Todos los estudios</option>
+										<option value="inmunohistoquimica">Inmunohistoquímica</option>
+										<option value="biopsia">Biopsia</option>
+										<option value="citologia">Citología</option>
 									</select>
 								</div>
 							</div>
@@ -672,8 +739,11 @@ const CasesTable: React.FC<CasesTableProps> = ({ onCaseSelect }) => {
 										} else if (statusFilter === 'Incompleto') {
 											matchesStatus = case_.payment_status !== 'Completado'
 										}
+
+										const matchesBranch = branchFilter === 'all' || case_.branch === branchFilter
+										const matchesExamType = examTypeFilter === 'all' || case_.exam_type === examTypeFilter
 										
-										return matchesSearch && matchesStatus
+										return matchesSearch && matchesStatus && matchesBranch && matchesExamType
 									}).length
 								}{' '}
 								casos
@@ -751,13 +821,9 @@ const CasesTable: React.FC<CasesTableProps> = ({ onCaseSelect }) => {
 												</button>
 											</th>
 											<th className="px-3 py-3 text-center">
-												<button
-													onClick={() => handleSort('branch')}
-													className="flex items-center gap-2 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider hover:text-gray-700 dark:hover:text-gray-200 text-center"
-												>
+												<span className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
 													Sede
-													<SortIcon field="branch" />
-												</button>
+												</span>
 											</th>
 											<th className="px-4 py-3 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider text-center">
 												Estudio
