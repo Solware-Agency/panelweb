@@ -5,6 +5,7 @@ import { signIn } from '@lib/supabase/auth'
 import { useAuth } from '@app/providers/AuthContext'
 import { useSecureRedirect } from '@shared/hooks/useSecureRedirect'
 import Aurora from '@shared/components/ui/Aurora'
+import FadeContent from '@shared/components/ui/FadeContent'
 
 function LoginForm() {
 	const [email, setEmail] = useState('')
@@ -98,104 +99,113 @@ function LoginForm() {
 				speed={0.3}
 			/>
 			
-			{/* Login Form Container */}
+			{/* Login Form Container with FadeContent Animation */}
 			<div className="relative z-10 w-screen h-screen bg-gradient-to-br from-slate-900/20 via-transparent to-purple-900/30 flex items-center justify-center">
-				<div className="flex flex-col items-center justify-center bg-slate-800/90 backdrop-blur-xl p-8 rounded-none md:rounded-xl w-screen h-screen md:h-auto md:w-full md:max-w-md shadow-2xl border border-slate-700/50">
-					<div className="text-center mb-4 flex flex-col items-center justify-center">
-						<div className="p-4 bg-gradient-to-r from-purple-500 to-blue-500 rounded-full mb-4 shadow-lg">
-							<CodeXml className="text-white size-12" />
+				<FadeContent 
+					blur={true} 
+					duration={1000} 
+					easing="ease-out" 
+					initialOpacity={0}
+					delay={200}
+					className="w-full h-full flex items-center justify-center"
+				>
+					<div className="flex flex-col items-center justify-center bg-slate-800/90 backdrop-blur-xl p-8 rounded-none md:rounded-xl w-screen h-screen md:h-auto md:w-full md:max-w-md shadow-2xl border border-slate-700/50">
+						<div className="text-center mb-4 flex flex-col items-center justify-center">
+							<div className="p-4 bg-gradient-to-r from-purple-500 to-blue-500 rounded-full mb-4 shadow-lg">
+								<CodeXml className="text-white size-12" />
+							</div>
+							<h1 className="text-2xl font-bold text-white mb-2">Bienvenido, inicia sesión</h1>
+							<p className="text-slate-300">Inicia sesión en tu cuenta para continuar.</p>
 						</div>
-						<h1 className="text-2xl font-bold text-white mb-2">Bienvenido, inicia sesión</h1>
-						<p className="text-slate-300">Inicia sesión en tu cuenta para continuar.</p>
-					</div>
 
-					<form className="w-full" onSubmit={handleLogin}>
-						<div className="flex flex-col gap-2 mb-4 w-full">
-							<p className="text-sm text-slate-400">Correo electrónico:</p>
-							<input
-								type="email"
-								name="email"
-								placeholder="tu@email.com"
-								value={email}
-								onChange={(e) => setEmail(e.target.value)}
-								required
-								disabled={loading || isRedirecting}
-								className="border-2 border-slate-600 rounded-md p-2 w-full focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 disabled:opacity-50 disabled:cursor-not-allowed bg-slate-700/80 text-white placeholder-slate-400 transition-all duration-200"
-								autoComplete="email"
-							/>
-							<p className="text-sm text-slate-400">Contraseña:</p>
-							<div className="relative">
+						<form className="w-full" onSubmit={handleLogin}>
+							<div className="flex flex-col gap-2 mb-4 w-full">
+								<p className="text-sm text-slate-400">Correo electrónico:</p>
 								<input
-									type={showPassword ? 'text' : 'password'}
-									name="password"
-									placeholder="••••••••"
-									value={password}
-									onChange={(e) => setPassword(e.target.value)}
+									type="email"
+									name="email"
+									placeholder="tu@email.com"
+									value={email}
+									onChange={(e) => setEmail(e.target.value)}
 									required
 									disabled={loading || isRedirecting}
-									className="border-2 border-slate-600 text-white rounded-md p-2 w-full pr-10 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 disabled:opacity-50 disabled:cursor-not-allowed bg-slate-700/80 placeholder-slate-400 transition-all duration-200"
-									autoComplete="current-password"
+									className="border-2 border-slate-600 rounded-md p-2 w-full focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 disabled:opacity-50 disabled:cursor-not-allowed bg-slate-700/80 text-white placeholder-slate-400 transition-all duration-200"
+									autoComplete="email"
 								/>
-								<button
-									type="button"
-									onClick={() => setShowPassword(!showPassword)}
-									disabled={loading || isRedirecting}
-									className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-white disabled:opacity-50 transition-colors"
-								>
-									{showPassword ? <Eye size={20} /> : <EyeOff size={20} />}
-								</button>
+								<p className="text-sm text-slate-400">Contraseña:</p>
+								<div className="relative">
+									<input
+										type={showPassword ? 'text' : 'password'}
+										name="password"
+										placeholder="••••••••"
+										value={password}
+										onChange={(e) => setPassword(e.target.value)}
+										required
+										disabled={loading || isRedirecting}
+										className="border-2 border-slate-600 text-white rounded-md p-2 w-full pr-10 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 disabled:opacity-50 disabled:cursor-not-allowed bg-slate-700/80 placeholder-slate-400 transition-all duration-200"
+										autoComplete="current-password"
+									/>
+									<button
+										type="button"
+										onClick={() => setShowPassword(!showPassword)}
+										disabled={loading || isRedirecting}
+										className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-white disabled:opacity-50 transition-colors"
+									>
+										{showPassword ? <Eye size={20} /> : <EyeOff size={20} />}
+									</button>
+								</div>
 							</div>
-						</div>
 
-						{error && <div className="bg-red-900/80 border border-red-700 text-red-200 px-4 py-3 rounded mb-4 backdrop-blur-sm">{error}</div>}
+							{error && <div className="bg-red-900/80 border border-red-700 text-red-200 px-4 py-3 rounded mb-4 backdrop-blur-sm">{error}</div>}
 
-						<div className="flex items-center justify-between w-full mb-8">
-							<label className="flex items-center">
-								<input
-									type="checkbox"
-									disabled={loading || isRedirecting}
-									className="rounded border-slate-600 bg-slate-700 text-purple-600 focus:ring-purple-500 disabled:opacity-50"
-								/>
-								<span className="ml-2 text-sm text-slate-400">Recordarme</span>
-							</label>
+							<div className="flex items-center justify-between w-full mb-8">
+								<label className="flex items-center">
+									<input
+										type="checkbox"
+										disabled={loading || isRedirecting}
+										className="rounded border-slate-600 bg-slate-700 text-purple-600 focus:ring-purple-500 disabled:opacity-50"
+									/>
+									<span className="ml-2 text-sm text-slate-400">Recordarme</span>
+								</label>
 
-							<Link
-								to="/forgot-password"
-								className={`text-sm text-purple-400 hover:text-purple-300 transition-colors ${loading || isRedirecting ? 'pointer-events-none opacity-50' : ''}`}
+								<Link
+									to="/forgot-password"
+									className={`text-sm text-purple-400 hover:text-purple-300 transition-colors ${loading || isRedirecting ? 'pointer-events-none opacity-50' : ''}`}
+								>
+									¿Olvidaste tu contraseña?
+								</Link>
+							</div>
+
+							<button
+								type="submit"
+								disabled={loading || isRedirecting}
+								className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white rounded-md p-2 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-lg hover:shadow-xl transform hover:scale-[1.02] active:scale-[0.98]"
 							>
-								¿Olvidaste tu contraseña?
-							</Link>
+								{loading || isRedirecting ? (
+									<>
+										<div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+										{isRedirecting ? 'Redirigiendo...' : 'Iniciando sesión...'}
+									</>
+								) : (
+									'Iniciar sesión'
+								)}
+							</button>
+						</form>
+
+						{/* Footer */}
+						<div className="mt-6 text-center">
+							<p className="text-sm text-slate-400">
+								¿No tienes una cuenta?{' '}
+								<Link
+									to="/register"
+									className={`font-medium text-purple-400 hover:text-purple-300 transition-colors ${loading || isRedirecting ? 'pointer-events-none opacity-50' : ''}`}
+								>
+									Regístrate aquí
+								</Link>
+							</p>
 						</div>
-
-						<button
-							type="submit"
-							disabled={loading || isRedirecting}
-							className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white rounded-md p-2 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-lg hover:shadow-xl transform hover:scale-[1.02] active:scale-[0.98]"
-						>
-							{loading || isRedirecting ? (
-								<>
-									<div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-									{isRedirecting ? 'Redirigiendo...' : 'Iniciando sesión...'}
-								</>
-							) : (
-								'Iniciar sesión'
-							)}
-						</button>
-					</form>
-
-					{/* Footer */}
-					<div className="mt-6 text-center">
-						<p className="text-sm text-slate-400">
-							¿No tienes una cuenta?{' '}
-							<Link
-								to="/register"
-								className={`font-medium text-purple-400 hover:text-purple-300 transition-colors ${loading || isRedirecting ? 'pointer-events-none opacity-50' : ''}`}
-							>
-								Regístrate aquí
-							</Link>
-						</p>
 					</div>
-				</div>
+				</FadeContent>
 			</div>
 		</div>
 	)
