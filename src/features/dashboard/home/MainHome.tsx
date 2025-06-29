@@ -231,7 +231,7 @@ function MainHome() {
 						</div>
 					</Card>
 
-					{/* Grid 4 - KPI Card: Registered Users */}
+					{/* Grid 4 - KPI Card: Total de Casos */}
 					<Card
 						className="col-span-1 sm:col-span-1 lg:col-span-2 row-span-1 lg:row-span-2 dark:bg-background bg-white rounded-xl py-4 sm:py-5 px-4 sm:px-6 transition-all duration-300 flex flex-col justify-between cursor-pointer shadow-lg hover:bg-white/90 group h-full hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20"
 					>
@@ -251,11 +251,11 @@ function MainHome() {
 								</div>
 							</div>
 							<div>
-								<h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">Pacientes Registrados</h3>
+								<h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">Total de Casos</h3>
 								<p className="text-xl sm:text-2xl font-bold text-gray-700 dark:text-gray-300">
-									{isLoading ? '...' : stats?.uniquePatients || 0}
+									{isLoading ? '...' : stats?.totalCases || 0}
 								</p>
-								<p className="text-xs text-gray-500 dark:text-gray-400 mt-1">pacientes únicos</p>
+								<p className="text-xs text-gray-500 dark:text-gray-400 mt-1">casos registrados</p>
 							</div>
 						</div>
 					</Card>
