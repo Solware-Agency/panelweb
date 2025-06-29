@@ -18,8 +18,6 @@ import {
 	XCircle,
 	User,
 	MapPin,
-	Building,
-	Map,
 } from 'lucide-react'
 import { Card } from '@shared/components/ui/card'
 import { useDashboardStats } from '@shared/hooks/useDashboardStats'
@@ -159,7 +157,7 @@ const ReportsPage: React.FC = () => {
 				</div>
 			</Card>
 
-			{/* Origin Revenue Section - NEW SECTION */}
+			{/* Origin Revenue Section - UPDATED SECTION WITHOUT ICONS */}
 			<Card className="col-span-1 grid hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 transition-all duration-300 shadow-lg mb-6 sm:mb-8">
 				<div className="bg-white dark:bg-background rounded-xl p-4 sm:p-6 transition-colors duration-300">
 					<div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 sm:mb-6">
@@ -193,20 +191,7 @@ const ReportsPage: React.FC = () => {
 									stats.revenueByOrigin.map((origin, index) => (
 										<tr key={index} className="border-b border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800/50">
 											<td className="py-4">
-												<div className="flex items-center gap-2">
-													<div className="w-8 h-8 bg-purple-100 dark:bg-purple-900/30 rounded-full flex items-center justify-center">
-														{index % 3 === 0 ? (
-															<Building className="w-4 h-4 text-purple-600 dark:text-purple-400" />
-														) : index % 3 === 1 ? (
-															<Map className="w-4 h-4 text-purple-600 dark:text-purple-400" />
-														) : (
-															<MapPin className="w-4 h-4 text-purple-600 dark:text-purple-400" />
-														)}
-													</div>
-													<div>
-														<p className="font-medium text-gray-700 dark:text-gray-300 text-sm">{origin.origin}</p>
-													</div>
-												</div>
+												<p className="font-medium text-gray-700 dark:text-gray-300 text-sm">{origin.origin}</p>
 											</td>
 											<td className="py-4 text-center">
 												<span className="inline-flex items-center justify-center px-2 py-1 text-xs font-medium rounded-full bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300">
