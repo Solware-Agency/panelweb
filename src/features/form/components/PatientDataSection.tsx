@@ -146,10 +146,10 @@ export const PatientDataSection = ({ control, inputStyles }: PatientDataSectionP
 									type="number"
 									placeholder="0" 
 									{...field}
-									value={field.value === 0 || field.value === '' ? '' : field.value}
+									value={field.value === 0 ? '' : field.value}
 									onChange={(e) => {
 										const value = e.target.value
-										field.onChange(value === '' ? '' : Number(value))
+										field.onChange(value === '' ? 0 : Number(value))
 									}}
 									className={inputStyles} 
 								/>
