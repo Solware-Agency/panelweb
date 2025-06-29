@@ -16,6 +16,7 @@ export interface DashboardStats {
   salesTrendByMonth: Array<{ month: string; revenue: number; isSelected?: boolean; monthIndex: number }>
   topExamTypes: Array<{ examType: string; count: number; revenue: number }>
   topTreatingDoctors: Array<{ doctor: string; cases: number; revenue: number }>
+  revenueByOrigin: Array<{ origin: string; revenue: number; cases: number; percentage: number }>
   totalCases: number
 }
 
@@ -195,8 +196,31 @@ export const useDashboardStats = (selectedMonth?: Date, selectedYear?: number) =
             cases: stats.cases,
             revenue: stats.revenue
           }))
-          .sort((a, b) => b.cases - a.cases) // Sort by number of cases
+          .sort((a, b) => b.revenue - a.revenue) // Sort by revenue
           .slice(0, 5) // Top 5 doctors
+
+        // Calculate revenue by origin (procedencia)
+        const originStats = new Map<string, { cases: number; revenue: number }>()
+        allRecords?.forEach(record => {
+          const origin = record.origin?.trim()
+          if (origin) {
+            const current = originStats.get(origin) || { cases: 0, revenue: 0 }
+            originStats.set(origin, {
+              cases: current.cases + 1,
+              revenue: current.revenue + (record.total_amount || 0)
+            })
+          }
+        })
+
+        const revenueByOrigin = Array.from(originStats.entries())
+          .map(([origin, stats]) => ({
+            origin,
+            cases: stats.cases,
+            revenue: stats.revenue,
+            percentage: totalRevenue > 0 ? (stats.revenue / totalRevenue) * 100 : 0
+          }))
+          .sort((a, b) => b.revenue - a.revenue) // Sort by revenue
+          .slice(0, 5) // Top 5 origins
 
         return {
           totalRevenue,
@@ -211,6 +235,7 @@ export const useDashboardStats = (selectedMonth?: Date, selectedYear?: number) =
           salesTrendByMonth,
           topExamTypes,
           topTreatingDoctors,
+          revenueByOrigin,
           totalCases
         }
       } catch (error) {
