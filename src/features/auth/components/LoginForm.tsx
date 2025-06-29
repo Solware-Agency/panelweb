@@ -93,7 +93,7 @@ function LoginForm() {
 		<div className="w-screen h-screen relative overflow-hidden bg-gradient-to-br from-black via-black to-black">
 			{/* Aurora Background with New Color Palette */}
 			<Aurora
-				colorStops={["hsl(330, 81%, 60%)"]}
+				colorStops={["hsl(330, 81%, 60%)", "hsl(330, 81%, 60%)", "hsl(330, 81%, 60%)"]}
 				blend={0.7}
 				amplitude={1.3}
 				speed={0.3}
