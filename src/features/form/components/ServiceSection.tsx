@@ -120,7 +120,7 @@ export const ServiceSection = ({ control, inputStyles }: ServiceSectionProps) =>
 				)}
 			/>
 
-			{/* Cantidad de Muestras - SIN AUTOCOMPLETADO (es numérico) */}
+			{/* Cantidad de Muestras - SIN AUTOCOMPLETADO (es numérico) - PLACEHOLDER ACTUALIZADO */}
 			<FormField
 				control={control}
 				name="numberOfSamples"
@@ -128,7 +128,7 @@ export const ServiceSection = ({ control, inputStyles }: ServiceSectionProps) =>
 					<FormItem>
 						<FormLabel>Cantidad de Muestras *</FormLabel>
 						<FormControl>
-							<Input type="number" placeholder="Cantidad" {...field} className={inputStyles} />
+							<Input type="number" placeholder="0" {...field} className={inputStyles} />
 						</FormControl>
 						<FormMessage />
 					</FormItem>

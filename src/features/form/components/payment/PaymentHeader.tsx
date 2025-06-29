@@ -61,7 +61,7 @@ export const PaymentHeader = ({ control, inputStyles, exchangeRate, isLoadingRat
 					<FormItem>
 						<FormLabel>Monto Total ($) *</FormLabel>
 						<FormControl>
-							<Input type="number" step="0.01" placeholder="Monto Total en USD" {...field} className={inputStyles} />
+							<Input type="number" step="0.01" placeholder="0" {...field} className={inputStyles} />
 						</FormControl>
 						{totalInVes && <p className="text-sm font-bold text-green-600">{totalInVes} VES</p>}
 						<p className="text-xs text-muted-foreground">

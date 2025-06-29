@@ -134,7 +134,7 @@ export const PatientDataSection = ({ control, inputStyles }: PatientDataSectionP
 					)}
 				/>
 
-				{/* Edad - SIN AUTOCOMPLETADO (como solicitaste) */}
+				{/* Edad - SIN AUTOCOMPLETADO (como solicitaste) - PLACEHOLDER ACTUALIZADO */}
 				<FormField
 					control={control}
 					name="age"
@@ -142,7 +142,7 @@ export const PatientDataSection = ({ control, inputStyles }: PatientDataSectionP
 						<FormItem>
 							<FormLabel>Edad *</FormLabel>
 							<FormControl>
-								<Input placeholder="Edad del paciente" {...field} className={inputStyles} />
+								<Input placeholder="0" {...field} className={inputStyles} />
 							</FormControl>
 							<FormMessage />
 						</FormItem>
