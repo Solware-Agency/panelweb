@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Users, DollarSign, ShoppingCart, ArrowUpRight, AlertTriangle, Clock } from 'lucide-react'
+import { Users, DollarSign, ShoppingCart, ArrowUpRight, AlertTriangle, Clock, CheckCircle, XCircle } from 'lucide-react'
 import { useDashboardStats } from '@shared/hooks/useDashboardStats'
 import { YearSelector } from '@shared/components/ui/year-selector'
 import { format } from 'date-fns'
@@ -39,6 +39,7 @@ const StatsPage: React.FC = () => {
 	// Calculate some additional metrics
 	const averageRevenuePerCase = stats?.totalCases ? stats.totalRevenue / stats.totalCases : 0
 	const completionRate = stats?.totalCases ? (stats.completedCases / stats.totalCases) * 100 : 0
+	const incompleteRate = stats?.totalCases ? (stats.incompleteCases / stats.totalCases) * 100 : 0
 
 	return (
 		<div className="p-3 sm:p-6">
@@ -334,27 +335,71 @@ const StatsPage: React.FC = () => {
 					</div>
 				</Card>
 
-				{/* Performance Metrics */}
+				{/* Status Metrics - UPDATED SECTION */}
 				<Card className="col-span-1 grid hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 transition-all duration-300 shadow-lg">
 					<div className="bg-white dark:bg-background rounded-xl p-4 sm:p-6 transition-colors duration-300">
 						<h3 className="text-lg sm:text-xl font-bold text-gray-700 dark:text-gray-300 mb-4 sm:mb-6">
-							Métricas de Rendimiento
+							Estatus
 						</h3>
 						<div className="space-y-4 sm:space-y-6">
-							{/* Completion Rate */}
+							{/* Completed Cases */}
 							<div>
 								<div className="flex items-center justify-between mb-2">
-									<span className="text-sm font-medium text-gray-600 dark:text-gray-400">Tasa de Finalización</span>
-									<span className="text-sm font-bold text-gray-700 dark:text-gray-300">
+									<div className="flex items-center gap-2">
+										<CheckCircle className="w-4 h-4 text-green-600 dark:text-green-400" />
+										<span className="text-sm font-medium text-gray-600 dark:text-gray-400">Casos Completados</span>
+									</div>
+									<span className="text-sm font-bold text-green-700 dark:text-green-300">
 										{isLoading ? '...' : `${completionRate.toFixed(1)}%`}
 									</span>
 								</div>
-								<div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+								<div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-3">
 									<div
-										className="bg-green-500 h-2 rounded-full transition-all duration-500"
+										className="bg-green-500 h-3 rounded-full transition-all duration-500 flex items-center justify-end pr-2"
 										style={{ width: `${completionRate}%` }}
-									></div>
+									>
+										{completionRate > 15 && (
+											<span className="text-xs text-white font-medium">
+												{stats?.completedCases || 0}
+											</span>
+										)}
+									</div>
 								</div>
+								{completionRate <= 15 && (
+									<div className="text-xs text-gray-600 dark:text-gray-400 mt-1">
+										{stats?.completedCases || 0} casos completados
+									</div>
+								)}
+							</div>
+
+							{/* Incomplete Cases */}
+							<div>
+								<div className="flex items-center justify-between mb-2">
+									<div className="flex items-center gap-2">
+										<XCircle className="w-4 h-4 text-red-600 dark:text-red-400" />
+										<span className="text-sm font-medium text-gray-600 dark:text-gray-400">Casos Incompletos</span>
+									</div>
+									<span className="text-sm font-bold text-red-700 dark:text-red-300">
+										{isLoading ? '...' : `${incompleteRate.toFixed(1)}%`}
+									</span>
+								</div>
+								<div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-3">
+									<div
+										className="bg-red-500 h-3 rounded-full transition-all duration-500 flex items-center justify-end pr-2"
+										style={{ width: `${incompleteRate}%` }}
+									>
+										{incompleteRate > 15 && (
+											<span className="text-xs text-white font-medium">
+												{stats?.incompleteCases || 0}
+											</span>
+										)}
+									</div>
+								</div>
+								{incompleteRate <= 15 && (
+									<div className="text-xs text-gray-600 dark:text-gray-400 mt-1">
+										{stats?.incompleteCases || 0} casos incompletos
+									</div>
+								)}
 							</div>
 
 							{/* Revenue per Case */}
