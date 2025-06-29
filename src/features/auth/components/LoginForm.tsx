@@ -89,29 +89,29 @@ function LoginForm() {
 	}
 
 	return (
-		<div className="w-screen h-screen relative overflow-hidden">
+		<div className="w-screen h-screen relative overflow-hidden bg-gradient-to-br from-slate-900 via-purple-900 to-slate-800">
 			{/* Aurora Background with New Color Palette */}
 			<Aurora
 				colorStops={["#C084FC", "#22C55E", "#0EA5E9"]}
-				blend={0.6}
-				amplitude={1.2}
-				speed={0.4}
+				blend={0.7}
+				amplitude={1.3}
+				speed={0.3}
 			/>
 			
 			{/* Login Form Container */}
-			<div className="relative z-10 w-screen h-screen bg-gradient-to-br from-black/30 via-transparent to-black/40 flex items-center justify-center">
-				<div className="flex flex-col items-center justify-center bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl p-8 rounded-none md:rounded-xl w-screen h-screen md:h-auto md:w-full md:max-w-md shadow-2xl border border-white/30 dark:border-gray-700/30">
+			<div className="relative z-10 w-screen h-screen bg-gradient-to-br from-slate-900/20 via-transparent to-purple-900/30 flex items-center justify-center">
+				<div className="flex flex-col items-center justify-center bg-slate-800/90 backdrop-blur-xl p-8 rounded-none md:rounded-xl w-screen h-screen md:h-auto md:w-full md:max-w-md shadow-2xl border border-slate-700/50">
 					<div className="text-center mb-4 flex flex-col items-center justify-center">
 						<div className="p-4 bg-gradient-to-r from-purple-500 to-blue-500 rounded-full mb-4 shadow-lg">
 							<CodeXml className="text-white size-12" />
 						</div>
-						<h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">Bienvenido, inicia sesión</h1>
-						<p className="text-gray-600 dark:text-gray-300">Inicia sesión en tu cuenta para continuar.</p>
+						<h1 className="text-2xl font-bold text-white mb-2">Bienvenido, inicia sesión</h1>
+						<p className="text-slate-300">Inicia sesión en tu cuenta para continuar.</p>
 					</div>
 
 					<form className="w-full" onSubmit={handleLogin}>
 						<div className="flex flex-col gap-2 mb-4 w-full">
-							<p className="text-sm text-gray-600 dark:text-gray-400">Correo electrónico:</p>
+							<p className="text-sm text-slate-400">Correo electrónico:</p>
 							<input
 								type="email"
 								name="email"
@@ -120,10 +120,10 @@ function LoginForm() {
 								onChange={(e) => setEmail(e.target.value)}
 								required
 								disabled={loading || isRedirecting}
-								className="border-2 border-gray-300 dark:border-gray-600 rounded-md p-2 w-full focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 disabled:opacity-50 disabled:cursor-not-allowed bg-white/90 dark:bg-gray-800/90 text-gray-900 dark:text-white transition-all duration-200"
+								className="border-2 border-slate-600 rounded-md p-2 w-full focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 disabled:opacity-50 disabled:cursor-not-allowed bg-slate-700/80 text-white placeholder-slate-400 transition-all duration-200"
 								autoComplete="email"
 							/>
-							<p className="text-sm text-gray-600 dark:text-gray-400">Contraseña:</p>
+							<p className="text-sm text-slate-400">Contraseña:</p>
 							<div className="relative">
 								<input
 									type={showPassword ? 'text' : 'password'}
@@ -133,35 +133,35 @@ function LoginForm() {
 									onChange={(e) => setPassword(e.target.value)}
 									required
 									disabled={loading || isRedirecting}
-									className="border-2 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-white rounded-md p-2 w-full pr-10 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 disabled:opacity-50 disabled:cursor-not-allowed bg-white/90 dark:bg-gray-800/90 transition-all duration-200"
+									className="border-2 border-slate-600 text-white rounded-md p-2 w-full pr-10 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 disabled:opacity-50 disabled:cursor-not-allowed bg-slate-700/80 placeholder-slate-400 transition-all duration-200"
 									autoComplete="current-password"
 								/>
 								<button
 									type="button"
 									onClick={() => setShowPassword(!showPassword)}
 									disabled={loading || isRedirecting}
-									className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 disabled:opacity-50 transition-colors"
+									className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-white disabled:opacity-50 transition-colors"
 								>
 									{showPassword ? <Eye size={20} /> : <EyeOff size={20} />}
 								</button>
 							</div>
 						</div>
 
-						{error && <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4 backdrop-blur-sm">{error}</div>}
+						{error && <div className="bg-red-900/80 border border-red-700 text-red-200 px-4 py-3 rounded mb-4 backdrop-blur-sm">{error}</div>}
 
 						<div className="flex items-center justify-between w-full mb-8">
 							<label className="flex items-center">
 								<input
 									type="checkbox"
 									disabled={loading || isRedirecting}
-									className="rounded border-gray-300 text-purple-600 focus:ring-purple-500 disabled:opacity-50"
+									className="rounded border-slate-600 bg-slate-700 text-purple-600 focus:ring-purple-500 disabled:opacity-50"
 								/>
-								<span className="ml-2 text-sm text-gray-600 dark:text-gray-400">Recordarme</span>
+								<span className="ml-2 text-sm text-slate-400">Recordarme</span>
 							</label>
 
 							<Link
 								to="/forgot-password"
-								className={`text-sm text-purple-600 hover:text-purple-700 dark:text-purple-400 dark:hover:text-purple-300 transition-colors ${loading || isRedirecting ? 'pointer-events-none opacity-50' : ''}`}
+								className={`text-sm text-purple-400 hover:text-purple-300 transition-colors ${loading || isRedirecting ? 'pointer-events-none opacity-50' : ''}`}
 							>
 								¿Olvidaste tu contraseña?
 							</Link>
@@ -185,11 +185,11 @@ function LoginForm() {
 
 					{/* Footer */}
 					<div className="mt-6 text-center">
-						<p className="text-sm text-gray-600 dark:text-gray-400">
+						<p className="text-sm text-slate-400">
 							¿No tienes una cuenta?{' '}
 							<Link
 								to="/register"
-								className={`font-medium text-purple-600 hover:text-purple-700 dark:text-purple-400 dark:hover:text-purple-300 transition-colors ${loading || isRedirecting ? 'pointer-events-none opacity-50' : ''}`}
+								className={`font-medium text-purple-400 hover:text-purple-300 transition-colors ${loading || isRedirecting ? 'pointer-events-none opacity-50' : ''}`}
 							>
 								Regístrate aquí
 							</Link>
