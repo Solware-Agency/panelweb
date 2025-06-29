@@ -493,7 +493,7 @@ const EditCaseModal: React.FC<EditCaseModalProps> = ({ case_, isOpen, onClose, o
 													</Popover>
 													{age > 0 && (
 														<p className="text-sm text-green-600 font-medium">
-															Edad calculada: {age} años
+															{age} años
 														</p>
 													)}
 													<FormMessage />

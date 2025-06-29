@@ -203,7 +203,7 @@ export const PatientDataSection = ({ control, inputStyles }: PatientDataSectionP
 							</Popover>
 							{currentAge > 0 && (
 								<p className="text-sm text-green-600 font-medium">
-									Edad calculada: {currentAge} años
+									{currentAge} años
 								</p>
 							)}
 							<FormMessage />
