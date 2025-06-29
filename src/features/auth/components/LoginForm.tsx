@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom'
 import { signIn } from '@lib/supabase/auth'
 import { useAuth } from '@app/providers/AuthContext'
 import { useSecureRedirect } from '@shared/hooks/useSecureRedirect'
+import Aurora from '@shared/components/ui/Aurora'
 
 function LoginForm() {
 	const [email, setEmail] = useState('')
@@ -88,101 +89,112 @@ function LoginForm() {
 	}
 
 	return (
-		<div className="w-screen h-screen bg-dark flex items-center justify-center">
-			<div className="flex flex-col items-center justify-center bg-white p-8 rounded-none md:rounded-lg w-screen h-screen md:h-auto md:w-full md:max-w-md shadow-2xl shadow-black/60">
-				<div className="text-center mb-4 flex flex-col items-center justify-center">
-					<div className="p-4 bg-blue-500 rounded-full mb-4">
-						<CodeXml className="text-white size-12" />
+		<div className="w-screen h-screen relative overflow-hidden">
+			{/* Aurora Background */}
+			<Aurora
+				colorStops={["#3A29FF", "#FF94B4", "#FF3232"]}
+				blend={0.5}
+				amplitude={1.0}
+				speed={0.5}
+			/>
+			
+			{/* Login Form Container */}
+			<div className="relative z-10 w-screen h-screen bg-gradient-to-br from-black/20 via-transparent to-black/30 flex items-center justify-center">
+				<div className="flex flex-col items-center justify-center bg-white/90 dark:bg-gray-900/90 backdrop-blur-lg p-8 rounded-none md:rounded-xl w-screen h-screen md:h-auto md:w-full md:max-w-md shadow-2xl border border-white/20">
+					<div className="text-center mb-4 flex flex-col items-center justify-center">
+						<div className="p-4 bg-blue-500 rounded-full mb-4">
+							<CodeXml className="text-white size-12" />
+						</div>
+						<h1 className="text-2xl font-bold text-secondary-900 mb-2 text-black dark:text-white">Bienvenido, inicia sesión</h1>
+						<p className="text-secondary-600 text-black dark:text-gray-300">Inicia sesión en tu cuenta para continuar.</p>
 					</div>
-					<h1 className="text-2xl font-bold text-secondary-900 mb-2 text-black">Bienvenido, inicia sesión</h1>
-					<p className="text-secondary-600 text-black">Inicia sesión en tu cuenta para continuar.</p>
-				</div>
 
-				<form className="w-full" onSubmit={handleLogin}>
-					<div className="flex flex-col gap-2 mb-4 w-full">
-						<p className="text-sm text-secondary-600 text-gray-600">Correo electrónico:</p>
-						<input
-							type="email"
-							name="email"
-							placeholder="tu@email.com"
-							value={email}
-							onChange={(e) => setEmail(e.target.value)}
-							required
-							disabled={loading || isRedirecting}
-							className="border-2 border-dark rounded-md p-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
-							autoComplete="email"
-						/>
-						<p className="text-sm text-secondary-600 text-gray-600">Contraseña:</p>
-						<div className="relative">
+					<form className="w-full" onSubmit={handleLogin}>
+						<div className="flex flex-col gap-2 mb-4 w-full">
+							<p className="text-sm text-secondary-600 text-gray-600 dark:text-gray-400">Correo electrónico:</p>
 							<input
-								type={showPassword ? 'text' : 'password'}
-								name="password"
-								placeholder="••••••••"
-								value={password}
-								onChange={(e) => setPassword(e.target.value)}
+								type="email"
+								name="email"
+								placeholder="tu@email.com"
+								value={email}
+								onChange={(e) => setEmail(e.target.value)}
 								required
 								disabled={loading || isRedirecting}
-								className="border-2 border-dark text-gray-700 rounded-md p-2 w-full pr-10 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
-								autoComplete="current-password"
+								className="border-2 border-gray-300 dark:border-gray-600 rounded-md p-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed bg-white/80 dark:bg-gray-800/80 text-gray-900 dark:text-white"
+								autoComplete="email"
 							/>
-							<button
-								type="button"
-								onClick={() => setShowPassword(!showPassword)}
-								disabled={loading || isRedirecting}
-								className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-600 hover:text-gray-900 disabled:opacity-50"
-							>
-								{showPassword ? <Eye size={20} /> : <EyeOff size={20} />}
-							</button>
+							<p className="text-sm text-secondary-600 text-gray-600 dark:text-gray-400">Contraseña:</p>
+							<div className="relative">
+								<input
+									type={showPassword ? 'text' : 'password'}
+									name="password"
+									placeholder="••••••••"
+									value={password}
+									onChange={(e) => setPassword(e.target.value)}
+									required
+									disabled={loading || isRedirecting}
+									className="border-2 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-white rounded-md p-2 w-full pr-10 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed bg-white/80 dark:bg-gray-800/80"
+									autoComplete="current-password"
+								/>
+								<button
+									type="button"
+									onClick={() => setShowPassword(!showPassword)}
+									disabled={loading || isRedirecting}
+									className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 disabled:opacity-50"
+								>
+									{showPassword ? <Eye size={20} /> : <EyeOff size={20} />}
+								</button>
+							</div>
 						</div>
-					</div>
 
-					{error && <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">{error}</div>}
+						{error && <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">{error}</div>}
 
-					<div className="flex items-center justify-between w-full mb-8">
-						<label className="flex items-center">
-							<input
-								type="checkbox"
-								disabled={loading || isRedirecting}
-								className="rounded border-secondary-300 text-primary-600 focus:ring-primary-500 disabled:opacity-50"
-							/>
-							<span className="ml-2 text-sm text-secondary-600 text-gray-600">Recordarme</span>
-						</label>
+						<div className="flex items-center justify-between w-full mb-8">
+							<label className="flex items-center">
+								<input
+									type="checkbox"
+									disabled={loading || isRedirecting}
+									className="rounded border-secondary-300 text-primary-600 focus:ring-primary-500 disabled:opacity-50"
+								/>
+								<span className="ml-2 text-sm text-secondary-600 text-gray-600 dark:text-gray-400">Recordarme</span>
+							</label>
 
-						<Link
-							to="/forgot-password"
-							className={`text-sm text-blue-500 hover:text-blue-600 transition-colors ${loading || isRedirecting ? 'pointer-events-none opacity-50' : ''}`}
+							<Link
+								to="/forgot-password"
+								className={`text-sm text-blue-500 hover:text-blue-600 transition-colors ${loading || isRedirecting ? 'pointer-events-none opacity-50' : ''}`}
+							>
+								¿Olvidaste tu contraseña?
+							</Link>
+						</div>
+
+						<button
+							type="submit"
+							disabled={loading || isRedirecting}
+							className="w-full bg-blue-500 text-white rounded-md p-2 hover:bg-blue-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
 						>
-							¿Olvidaste tu contraseña?
-						</Link>
+							{loading || isRedirecting ? (
+								<>
+									<div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+									{isRedirecting ? 'Redirigiendo...' : 'Iniciando sesión...'}
+								</>
+							) : (
+								'Iniciar sesión'
+							)}
+						</button>
+					</form>
+
+					{/* Footer */}
+					<div className="mt-6 text-center">
+						<p className="text-sm text-gray-600 dark:text-gray-400">
+							¿No tienes una cuenta?{' '}
+							<Link
+								to="/register"
+								className={`font-medium text-blue-500 hover:text-blue-600 transition-colors ${loading || isRedirecting ? 'pointer-events-none opacity-50' : ''}`}
+							>
+								Regístrate aquí
+							</Link>
+						</p>
 					</div>
-
-					<button
-						type="submit"
-						disabled={loading || isRedirecting}
-						className="w-full bg-blue-500 text-white rounded-md p-2 hover:bg-blue-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-					>
-						{loading || isRedirecting ? (
-							<>
-								<div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-								{isRedirecting ? 'Redirigiendo...' : 'Iniciando sesión...'}
-							</>
-						) : (
-							'Iniciar sesión'
-						)}
-					</button>
-				</form>
-
-				{/* Footer */}
-				<div className="mt-6 text-center">
-					<p className="text-sm text-gray-600">
-						¿No tienes una cuenta?{' '}
-						<Link
-							to="/register"
-							className={`font-medium text-blue-500 hover:text-blue-600 transition-colors ${loading || isRedirecting ? 'pointer-events-none opacity-50' : ''}`}
-						>
-							Regístrate aquí
-						</Link>
-					</p>
 				</div>
 			</div>
 		</div>
