@@ -17,8 +17,6 @@ import {
 	XCircle,
 	User,
 	MapPin,
-	Printer,
-	Building,
 	Download
 } from 'lucide-react'
 import { Card } from '@shared/components/ui/card'
@@ -29,13 +27,13 @@ import DoctorRevenueReport from './DoctorRevenueReport'
 import OriginRevenueReport from './OriginRevenueReport'
 import ExamTypeReport from './ExamTypeReport'
 import BranchRevenueReport from './BranchRevenueReport'
+import ExportSection from './ExportSection'
 import { exportElementToPdf } from '@shared/components/ui/pdf-export'
 
 const ReportsPage: React.FC = () => {
 	const { data: stats, isLoading } = useDashboardStats()
 	const { toast } = useToast()
 	const reportRef = useRef<HTMLDivElement>(null)
-	const [isPrinting, setIsPrinting] = useState(false)
 	const [isExporting, setIsExporting] = useState(false)
 
 	const formatCurrency = (amount: number) => {
@@ -52,74 +50,10 @@ const ReportsPage: React.FC = () => {
 		? (stats.pendingPayments / stats.totalRevenue) * 100 
 		: 0
 
-	const handleExportPDF = async () => {
-		setIsExporting(true)
-		try {
-			if (reportRef.current) {
-				const success = await exportElementToPdf(reportRef.current, {
-					title: 'Reporte Completo de Ingresos',
-					subtitle: 'Estadísticas y análisis de ingresos por médico, procedencia, tipo de examen y sede',
-					orientation: 'portrait',
-					filename: 'reporte-completo-ingresos',
-				})
-
-				if (success) {
-					toast({
-						title: '✅ Reporte exportado',
-						description: 'El reporte ha sido exportado como PDF exitosamente.',
-						className: 'bg-green-100 border-green-400 text-green-800',
-					})
-				} else {
-					throw new Error('Error al exportar el reporte')
-				}
-			}
-		} catch (error) {
-			console.error('Error exporting to PDF:', error)
-			toast({
-				title: '❌ Error al exportar',
-				description: 'Hubo un problema al generar el PDF. Inténtalo de nuevo.',
-				variant: 'destructive',
-			})
-		} finally {
-			setIsExporting(false)
-		}
-	}
-
 	return (
 		<div className="p-3 sm:p-6" ref={reportRef}>
-			{/* Quick Actions */}
-			<div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 mb-6 sm:mb-8 print:hidden">
-				<Card className="col-span-1 grid hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 transition-all duration-300 shadow-lg">
-					<Button 
-						className="bg-blue-600 hover:bg-blue-700 text-white flex items-center gap-2 py-3 sm:p-4 transition-colors duration-300"
-						onClick={handleExportPDF}
-						disabled={isExporting}
-					>
-						{isExporting ? (
-							<>
-								<div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-								Exportando PDF...
-							</>
-						) : (
-							<>
-								<Download className="mr-2 h-4 w-4" />
-								Exportar PDF
-							</>
-						)}
-					</Button>
-				</Card>
-				
-				<Card className="col-span-1 sm:col-span-2 grid hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 transition-all duration-300 shadow-lg">
-					<div className="bg-white dark:bg-background rounded-xl p-3 sm:p-4 transition-colors duration-300">
-						<div className="text-center">
-							<h3 className="text-base font-semibold text-gray-700 dark:text-gray-300 mb-1">Reporte Completo de Ingresos</h3>
-							<p className="text-xs text-gray-500 dark:text-gray-400 mb-2">
-								Exporta o imprime el reporte completo con todos los datos y estadísticas
-							</p>
-						</div>
-					</div>
-				</Card>
-			</div>
+			{/* Export Section */}
+			<ExportSection />
 
 			{/* Main Reports */}
 			<div className="space-y-6">
