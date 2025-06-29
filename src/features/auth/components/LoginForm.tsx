@@ -90,17 +90,17 @@ function LoginForm() {
 	}
 
 	return (
-		<div className="w-screen h-screen relative overflow-hidden bg-gradient-to-br from-slate-900 via-purple-900 to-slate-800">
+		<div className="w-screen h-screen relative overflow-hidden bg-gradient-to-br from-black via-black to-slate-900">
 			{/* Aurora Background with New Color Palette */}
 			<Aurora
-				colorStops={["#C084FC", "#22C55E", "#0EA5E9"]}
+				colorStops={["hsl(330, 81%, 60%)", "hsl(330, 81%, 60%)", "hsl(330, 81%, 60%)"]}
 				blend={0.7}
 				amplitude={1.3}
 				speed={0.3}
 			/>
 			
 			{/* Login Form Container with FadeContent Animation */}
-			<div className="relative z-10 w-screen h-screen bg-gradient-to-br from-slate-900/20 via-transparent to-purple-900/30 flex items-center justify-center">
+			<div className="relative z-10 w-screen h-screen bg-gradient-to-br from-black/20 via-transparent to-black/30 flex items-center justify-center">
 				<FadeContent 
 					blur={true} 
 					duration={1000} 
