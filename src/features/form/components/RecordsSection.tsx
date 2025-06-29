@@ -4,9 +4,25 @@ import CasesTable from '@shared/components/cases/CasesTable'
 import CaseDetailPanel from '@shared/components/cases/CaseDetailPanel'
 import { Users } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@shared/components/ui/card'
-import { getClientes, searchClientes, type MedicalRecord } from '@lib/supabase-service'
+import { searchClientes, type MedicalRecord } from '@lib/supabase-service'
 
-export const RecordsSection: React.FC = () => {
+interface RecordsSectionProps {
+	cases: MedicalRecord[]
+	isLoading: boolean
+	error: any
+	refetch: () => void
+	isFullscreen: boolean
+	setIsFullscreen: (value: boolean) => void
+}
+
+export const RecordsSection: React.FC<RecordsSectionProps> = ({
+	cases,
+	isLoading,
+	error,
+	refetch,
+	isFullscreen,
+	setIsFullscreen,
+}) => {
 	const [searchTerm] = useState('')
 	const [selectedCase, setSelectedCase] = useState<MedicalRecord | null>(null)
 	const [isPanelOpen, setIsPanelOpen] = useState(false)
@@ -22,14 +38,7 @@ export const RecordsSection: React.FC = () => {
 		setTimeout(() => setSelectedCase(null), 300)
 	}
 
-	// Query for all records (when no search term)
-	const { data: allRecords } = useQuery({
-		queryKey: ['clientes'],
-		queryFn: () => getClientes(50, 0),
-		enabled: !searchTerm,
-	})
-
-	// Query for search results
+	// Query for search results (if needed for separate search functionality)
 	const { data: searchResults } = useQuery({
 		queryKey: ['clientes-search', searchTerm],
 		queryFn: () => searchClientes(searchTerm),
@@ -37,7 +46,7 @@ export const RecordsSection: React.FC = () => {
 	})
 
 	// Determine which data to use
-	const records = searchTerm ? searchResults?.data : allRecords?.data
+	const records = searchTerm ? searchResults?.data : cases
 
 	// Calculate statistics
 	const stats = React.useMemo(() => {
@@ -90,7 +99,15 @@ export const RecordsSection: React.FC = () => {
 			)}
 
 			{/* Cases Table */}
-			<CasesTable onCaseSelect={handleCaseSelect} />
+			<CasesTable
+				onCaseSelect={handleCaseSelect}
+				cases={cases}
+				isLoading={isLoading}
+				error={error}
+				refetch={refetch}
+				isFullscreen={isFullscreen}
+				setIsFullscreen={setIsFullscreen}
+			/>
 
 			{/* Case Detail Panel */}
 			<CaseDetailPanel case_={selectedCase} isOpen={isPanelOpen} onClose={handlePanelClose} />

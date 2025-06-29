@@ -10,11 +10,8 @@ import {
 	User,
 	Stethoscope,
 	CreditCard,
-	Maximize2,
-	RefreshCw,
 } from 'lucide-react'
-import { useQuery } from '@tanstack/react-query'
-import { getMedicalRecords, type MedicalRecord, updateMedicalRecordWithLog, getAgeDisplay } from '@lib/supabase-service'
+import { type MedicalRecord, updateMedicalRecordWithLog, getAgeDisplay } from '@lib/supabase-service'
 import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
 import { useAuth } from '@app/providers/AuthContext'
@@ -23,12 +20,26 @@ import { Card } from '@shared/components/ui/card'
 
 interface CasesTableProps {
 	onCaseSelect: (case_: MedicalRecord) => void
+	cases: MedicalRecord[]
+	isLoading: boolean
+	error: any
+	refetch: () => void
+	isFullscreen: boolean
+	setIsFullscreen: (value: boolean) => void
 }
 
 type SortField = 'id' | 'created_at' | 'full_name' | 'date_of_birth' | 'total_amount' | 'code'
 type SortDirection = 'asc' | 'desc'
 
-const CasesTable: React.FC<CasesTableProps> = ({ onCaseSelect }) => {
+const CasesTable: React.FC<CasesTableProps> = ({ 
+	onCaseSelect, 
+	cases, 
+	isLoading, 
+	error, 
+	refetch,
+	isFullscreen,
+	setIsFullscreen 
+}) => {
 	const { user } = useAuth()
 	const [searchTerm, setSearchTerm] = useState('')
 	const [statusFilter, setStatusFilter] = useState<string>('all')
@@ -37,23 +48,8 @@ const CasesTable: React.FC<CasesTableProps> = ({ onCaseSelect }) => {
 	const [sortField, setSortField] = useState<SortField>('created_at')
 	const [sortDirection, setSortDirection] = useState<SortDirection>('desc')
 	const [rowLimit, setRowLimit] = useState<number>(20)
-	const [isFullscreen, setIsFullscreen] = useState(false)
 	const [editingCase, setEditingCase] = useState<MedicalRecord | null>(null)
 	const [isEditModalOpen, setIsEditModalOpen] = useState(false)
-
-	// Fetch data from Supabase
-	const {
-		data: casesData,
-		isLoading,
-		error,
-		refetch,
-	} = useQuery({
-		queryKey: ['medical-cases'],
-		queryFn: () => getMedicalRecords(100, 0), // Fetch more records to allow proper filtering
-		staleTime: 1000 * 60 * 5, // 5 minutes
-	})
-
-	const cases = casesData?.data || []
 
 	const getStatusColor = (status: string) => {
 		switch (status) {
@@ -114,10 +110,6 @@ const CasesTable: React.FC<CasesTableProps> = ({ onCaseSelect }) => {
 		refetch()
 
 		return data
-	}
-
-	const handleRefresh = () => {
-		refetch()
 	}
 
 	const filteredAndSortedCases = useMemo(() => {
@@ -436,14 +428,7 @@ const CasesTable: React.FC<CasesTableProps> = ({ onCaseSelect }) => {
 							casos
 						</div>
 
-						{/* Botones al final */}
-						<button
-							onClick={handleRefresh}
-							disabled={isLoading}
-							className="flex items-center gap-2 px-3 py-2 border border-input rounded-lg focus:ring-2 focus:ring-primary dark:bg-background dark:text-white text-sm hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors disabled:opacity-50"
-						>
-							<RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
-						</button>
+						{/* Close button */}
 						<button
 							onClick={() => setIsFullscreen(false)}
 							className="text-gray-500 dark:text-gray-300 hover:text-red-500 dark:hover:text-red-400 text-sm border px-3 py-1 rounded-md"
@@ -748,22 +733,6 @@ const CasesTable: React.FC<CasesTableProps> = ({ onCaseSelect }) => {
 								}{' '}
 								casos
 							</div>
-
-							{/* Botones al final */}
-							<button
-								onClick={() => setIsFullscreen(true)}
-								className="hidden lg:flex px-3 py-2 border border-input rounded-lg focus:ring-2 focus:ring-primary dark:bg-background dark:text-white text-sm items-center gap-2"
-							>
-								<Maximize2 className="size-3" />
-								Expandir
-							</button>
-							<button
-								onClick={handleRefresh}
-								disabled={isLoading}
-								className="flex items-center gap-2 px-3 py-2 border border-input rounded-lg focus:ring-2 focus:ring-primary dark:bg-background dark:text-white text-sm hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors disabled:opacity-50"
-							>
-								<RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
-							</button>
 						</div>
 					</div>
 
