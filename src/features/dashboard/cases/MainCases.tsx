@@ -10,9 +10,10 @@ import { Card } from '@shared/components/ui/card'
 const MainCases: React.FC = () => {
 	const [selectedCase, setSelectedCase] = useState<MedicalRecord | null>(null)
 	const [isPanelOpen, setIsPanelOpen] = useState(false)
+	const [isFullscreen, setIsFullscreen] = useState(false)
 
 	// Query for refreshing data
-	const { refetch, isLoading } = useQuery({
+	const { data: cases = [], refetch, isLoading, error } = useQuery({
 		queryKey: ['medical-cases'],
 		queryFn: () => getMedicalRecords(100, 0),
 		staleTime: 1000 * 60 * 5, // 5 minutes
@@ -73,8 +74,15 @@ const MainCases: React.FC = () => {
 			</div>
 
 			{/* Cases Table */}
-
-			<CasesTable onCaseSelect={handleCaseSelect} />
+			<CasesTable 
+				onCaseSelect={handleCaseSelect}
+				cases={cases}
+				isLoading={isLoading}
+				error={error}
+				refetch={refetch}
+				isFullscreen={isFullscreen}
+				setIsFullscreen={setIsFullscreen}
+			/>
 
 			{/* Case Detail Panel */}
 			<CaseDetailPanel case_={selectedCase} isOpen={isPanelOpen} onClose={handlePanelClose} />

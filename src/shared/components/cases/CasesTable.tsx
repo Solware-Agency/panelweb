@@ -116,7 +116,7 @@ const CasesTable: React.FC<CasesTableProps> = ({
 		let filtered = cases.filter((case_) => {
 			const matchesSearch =
 				case_.full_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-				case_.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
+				(case_.id || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
 				case_.id_number.toLowerCase().includes(searchTerm.toLowerCase()) ||
 				case_.exam_type.toLowerCase().includes(searchTerm.toLowerCase()) ||
 				case_.treating_doctor.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -405,7 +405,7 @@ const CasesTable: React.FC<CasesTableProps> = ({
 								cases.filter((case_) => {
 									const matchesSearch =
 										case_.full_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-										case_.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
+										(case_.id || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
 										case_.id_number.toLowerCase().includes(searchTerm.toLowerCase()) ||
 										case_.exam_type.toLowerCase().includes(searchTerm.toLowerCase()) ||
 										case_.treating_doctor.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -711,7 +711,7 @@ const CasesTable: React.FC<CasesTableProps> = ({
 									cases.filter((case_) => {
 										const matchesSearch =
 											case_.full_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-											case_.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
+											(case_.id || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
 											case_.id_number.toLowerCase().includes(searchTerm.toLowerCase()) ||
 											case_.exam_type.toLowerCase().includes(searchTerm.toLowerCase()) ||
 											case_.treating_doctor.toLowerCase().includes(searchTerm.toLowerCase()) ||
