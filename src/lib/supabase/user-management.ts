@@ -24,15 +24,21 @@ export const updateUserRole = async (userId: string, newRole: 'owner' | 'employe
 			})
 			.eq('id', userId)
 			.select()
-			.single()
 
 		if (error) {
 			console.error('Error updating user role:', error)
 			throw error
 		}
 
-		console.log('User role updated successfully:', data)
-		return { data, error: null }
+		// Check if any rows were updated
+		if (!data || data.length === 0) {
+			const noProfileError = new Error(`No profile found for user ID: ${userId}`)
+			console.error('No profile found for update:', noProfileError)
+			return { data: null, error: noProfileError }
+		}
+
+		console.log('User role updated successfully:', data[0])
+		return { data: data[0], error: null }
 	} catch (error) {
 		console.error('Unexpected error updating user role:', error)
 		return { data: null, error }
@@ -54,15 +60,21 @@ export const updateUserBranch = async (userId: string, branch: string | null) =>
 			})
 			.eq('id', userId)
 			.select()
-			.single()
 
 		if (error) {
 			console.error('Error updating user branch:', error)
 			throw error
 		}
 
-		console.log('User branch updated successfully:', data)
-		return { data, error: null }
+		// Check if any rows were updated
+		if (!data || data.length === 0) {
+			const noProfileError = new Error(`No profile found for user ID: ${userId}`)
+			console.error('No profile found for update:', noProfileError)
+			return { data: null, error: noProfileError }
+		}
+
+		console.log('User branch updated successfully:', data[0])
+		return { data: data[0], error: null }
 	} catch (error) {
 		console.error('Unexpected error updating user branch:', error)
 		return { data: null, error }
