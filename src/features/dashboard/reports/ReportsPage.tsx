@@ -19,6 +19,7 @@ import {
 	MapPin,
 	Printer,
 	Building,
+	Download
 } from 'lucide-react'
 import { Card } from '@shared/components/ui/card'
 import { useDashboardStats } from '@shared/hooks/useDashboardStats'
@@ -28,12 +29,14 @@ import DoctorRevenueReport from './DoctorRevenueReport'
 import OriginRevenueReport from './OriginRevenueReport'
 import ExamTypeReport from './ExamTypeReport'
 import BranchRevenueReport from './BranchRevenueReport'
+import { exportElementToPdf } from '@shared/components/ui/pdf-export'
 
 const ReportsPage: React.FC = () => {
 	const { data: stats, isLoading } = useDashboardStats()
 	const { toast } = useToast()
 	const reportRef = useRef<HTMLDivElement>(null)
 	const [isPrinting, setIsPrinting] = useState(false)
+	const [isExporting, setIsExporting] = useState(false)
 
 	const formatCurrency = (amount: number) => {
 		return new Intl.NumberFormat('es-VE', {
@@ -49,27 +52,37 @@ const ReportsPage: React.FC = () => {
 		? (stats.pendingPayments / stats.totalRevenue) * 100 
 		: 0
 
-	const handlePrint = () => {
-		setIsPrinting(true)
-		setTimeout(() => {
-			try {
-				window.print()
-				toast({
-					title: '✅ Impresión iniciada',
-					description: 'Se ha enviado el reporte a la impresora.',
-					className: 'bg-green-100 border-green-400 text-green-800',
+	const handleExportPDF = async () => {
+		setIsExporting(true)
+		try {
+			if (reportRef.current) {
+				const success = await exportElementToPdf(reportRef.current, {
+					title: 'Reporte Completo de Ingresos',
+					subtitle: 'Estadísticas y análisis de ingresos por médico, procedencia, tipo de examen y sede',
+					orientation: 'portrait',
+					filename: 'reporte-completo-ingresos',
 				})
-			} catch (error) {
-				console.error('Error printing:', error)
-				toast({
-					title: '❌ Error al imprimir',
-					description: 'Hubo un problema al enviar el reporte a la impresora.',
-					variant: 'destructive',
-				})
-			} finally {
-				setIsPrinting(false)
+
+				if (success) {
+					toast({
+						title: '✅ Reporte exportado',
+						description: 'El reporte ha sido exportado como PDF exitosamente.',
+						className: 'bg-green-100 border-green-400 text-green-800',
+					})
+				} else {
+					throw new Error('Error al exportar el reporte')
+				}
 			}
-		}, 100)
+		} catch (error) {
+			console.error('Error exporting to PDF:', error)
+			toast({
+				title: '❌ Error al exportar',
+				description: 'Hubo un problema al generar el PDF. Inténtalo de nuevo.',
+				variant: 'destructive',
+			})
+		} finally {
+			setIsExporting(false)
+		}
 	}
 
 	return (
@@ -79,18 +92,18 @@ const ReportsPage: React.FC = () => {
 				<Card className="col-span-1 grid hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 transition-all duration-300 shadow-lg">
 					<Button 
 						className="bg-blue-600 hover:bg-blue-700 text-white flex items-center gap-2 py-3 sm:p-4 transition-colors duration-300"
-						onClick={handlePrint}
-						disabled={isPrinting}
+						onClick={handleExportPDF}
+						disabled={isExporting}
 					>
-						{isPrinting ? (
+						{isExporting ? (
 							<>
 								<div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-								Imprimiendo...
+								Exportando PDF...
 							</>
 						) : (
 							<>
-								<Printer className="mr-2 h-4 w-4" />
-								Imprimir Reporte
+								<Download className="mr-2 h-4 w-4" />
+								Exportar PDF
 							</>
 						)}
 					</Button>

@@ -2,7 +2,6 @@ import React from 'react'
 import { Card } from '@shared/components/ui/card'
 import { Building } from 'lucide-react'
 import { useDashboardStats } from '@shared/hooks/useDashboardStats'
-import ReportExportButton from './ReportExportButton'
 
 const BranchRevenueReport: React.FC = () => {
   const { data: stats, isLoading } = useDashboardStats()
@@ -15,22 +14,6 @@ const BranchRevenueReport: React.FC = () => {
       maximumFractionDigits: 0,
     }).format(amount)
   }
-
-  // Prepare data for PDF export
-  const prepareTableData = () => {
-    if (!stats?.revenueByBranch) return { headers: [], data: [] }
-
-    const headers = ['Sede', 'Monto Total', '% del Total']
-    const data = stats.revenueByBranch.map(branch => [
-      branch.branch,
-      formatCurrency(branch.revenue),
-      branch.percentage.toFixed(1) + '%'
-    ])
-
-    return { headers, data }
-  }
-
-  const { headers, data } = prepareTableData()
 
   const getBranchColor = (index: number) => {
     const colors = [
@@ -51,13 +34,6 @@ const BranchRevenueReport: React.FC = () => {
             <Building className="w-5 h-5 text-blue-500" />
             Ingreso por Sede
           </h3>
-          <ReportExportButton
-            title="Reporte de Ingresos por Sede"
-            subtitle="Detalle de ingresos generados por cada sede"
-            headers={headers}
-            data={data}
-            isLoading={isLoading}
-          />
         </div>
 
         <div className="flex items-center justify-center mb-6">

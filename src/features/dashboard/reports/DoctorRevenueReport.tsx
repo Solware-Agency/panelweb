@@ -2,7 +2,6 @@ import React from 'react'
 import { Card } from '@shared/components/ui/card'
 import { User } from 'lucide-react'
 import { useDashboardStats } from '@shared/hooks/useDashboardStats'
-import ReportExportButton from './ReportExportButton'
 
 const DoctorRevenueReport: React.FC = () => {
   const { data: stats, isLoading } = useDashboardStats()
@@ -16,23 +15,6 @@ const DoctorRevenueReport: React.FC = () => {
     }).format(amount)
   }
 
-  // Prepare data for PDF export
-  const prepareTableData = () => {
-    if (!stats?.topTreatingDoctors) return { headers: [], data: [] }
-
-    const headers = ['Médico Tratante', 'Casos', 'Monto Total', '% del Total']
-    const data = stats.topTreatingDoctors.map(doctor => [
-      doctor.doctor,
-      doctor.cases.toString(),
-      formatCurrency(doctor.revenue),
-      ((doctor.revenue / stats.totalRevenue) * 100).toFixed(1) + '%'
-    ])
-
-    return { headers, data }
-  }
-
-  const { headers, data } = prepareTableData()
-
   return (
     <Card className="col-span-1 grid hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 transition-all duration-300 shadow-lg mb-6">
       <div className="bg-white dark:bg-background rounded-xl p-4 sm:p-6 transition-colors duration-300">
@@ -41,13 +23,6 @@ const DoctorRevenueReport: React.FC = () => {
             <User className="w-5 h-5 text-blue-500" />
             Ingreso por Médico Tratante
           </h3>
-          <ReportExportButton
-            title="Reporte de Ingresos por Médico"
-            subtitle="Detalle de ingresos generados por cada médico tratante"
-            headers={headers}
-            data={data}
-            isLoading={isLoading}
-          />
         </div>
 
         <div className="overflow-x-auto">

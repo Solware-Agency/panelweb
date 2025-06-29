@@ -2,7 +2,6 @@ import React from 'react'
 import { Card } from '@shared/components/ui/card'
 import { MapPin } from 'lucide-react'
 import { useDashboardStats } from '@shared/hooks/useDashboardStats'
-import ReportExportButton from './ReportExportButton'
 
 const OriginRevenueReport: React.FC = () => {
   const { data: stats, isLoading } = useDashboardStats()
@@ -16,23 +15,6 @@ const OriginRevenueReport: React.FC = () => {
     }).format(amount)
   }
 
-  // Prepare data for PDF export
-  const prepareTableData = () => {
-    if (!stats?.revenueByOrigin) return { headers: [], data: [] }
-
-    const headers = ['Procedencia', 'Casos', 'Monto Total', '% del Total']
-    const data = stats.revenueByOrigin.map(origin => [
-      origin.origin,
-      origin.cases.toString(),
-      formatCurrency(origin.revenue),
-      origin.percentage.toFixed(1) + '%'
-    ])
-
-    return { headers, data }
-  }
-
-  const { headers, data } = prepareTableData()
-
   return (
     <Card className="col-span-1 grid hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 transition-all duration-300 shadow-lg mb-6">
       <div className="bg-white dark:bg-background rounded-xl p-4 sm:p-6 transition-colors duration-300">
@@ -41,13 +23,6 @@ const OriginRevenueReport: React.FC = () => {
             <MapPin className="w-5 h-5 text-purple-500" />
             Ingreso por Procedencia
           </h3>
-          <ReportExportButton
-            title="Reporte de Ingresos por Procedencia"
-            subtitle="Detalle de ingresos generados por cada procedencia"
-            headers={headers}
-            data={data}
-            isLoading={isLoading}
-          />
         </div>
 
         <div className="overflow-x-auto">

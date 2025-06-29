@@ -2,7 +2,6 @@ import React from 'react'
 import { Card } from '@shared/components/ui/card'
 import { Stethoscope, Activity, Heart, Eye } from 'lucide-react'
 import { useDashboardStats } from '@shared/hooks/useDashboardStats'
-import ReportExportButton from './ReportExportButton'
 
 const ExamTypeReport: React.FC = () => {
   const { data: stats, isLoading } = useDashboardStats()
@@ -29,23 +28,6 @@ const ExamTypeReport: React.FC = () => {
     return <Stethoscope className="w-4 h-4 text-white" />
   }
 
-  // Prepare data for PDF export
-  const prepareTableData = () => {
-    if (!stats?.revenueByExamType) return { headers: [], data: [] }
-
-    const headers = ['Tipo de Examen', 'Casos', 'Monto Total', '% del Total']
-    const data = stats.revenueByExamType.map(exam => [
-      exam.examType,
-      exam.count.toString(),
-      formatCurrency(exam.revenue),
-      ((exam.revenue / stats.totalRevenue) * 100).toFixed(1) + '%'
-    ])
-
-    return { headers, data }
-  }
-
-  const { headers, data } = prepareTableData()
-
   return (
     <Card className="col-span-1 grid hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 transition-all duration-300 shadow-lg mb-6">
       <div className="bg-white dark:bg-background rounded-xl p-4 sm:p-6 transition-colors duration-300">
@@ -53,13 +35,6 @@ const ExamTypeReport: React.FC = () => {
           <h3 className="text-lg sm:text-xl font-bold text-gray-700 dark:text-gray-300 mb-2 sm:mb-0">
             Tipos de Exámenes Más Solicitados
           </h3>
-          <ReportExportButton
-            title="Reporte de Tipos de Exámenes"
-            subtitle="Detalle de ingresos generados por cada tipo de examen"
-            headers={headers}
-            data={data}
-            isLoading={isLoading}
-          />
         </div>
         <div className="space-y-3 sm:space-y-4">
           {isLoading ? (
