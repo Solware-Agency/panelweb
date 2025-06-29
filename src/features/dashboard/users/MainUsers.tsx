@@ -1,15 +1,16 @@
 import React, { useState } from 'react'
-import { Users, Mail, Calendar, Search, Filter, UserCheck, UserX, Crown, Briefcase, Eye, EyeOff, Key } from 'lucide-react'
+import { Users, Mail, Calendar, Search, Filter, UserCheck, UserX, Crown, Briefcase, Eye, EyeOff, Key, MapPin } from 'lucide-react'
 import { Card } from '@shared/components/ui/card'
 import { Input } from '@shared/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@shared/components/ui/select'
 import { useQuery } from '@tanstack/react-query'
 import { supabase } from '@lib/supabase/config'
-import { updateUserRole, canManageUsers } from '@lib/supabase/user-management'
+import { updateUserRole, updateUserBranch, canManageUsers, getUserByEmail } from '@lib/supabase/user-management'
 import { useAuth } from '@app/providers/AuthContext'
 import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
 import { useToast } from '@shared/hooks/use-toast'
+import { Button } from '@shared/components/ui/button'
 
 interface UserProfile {
 	id: string
@@ -20,6 +21,7 @@ interface UserProfile {
 	email_confirmed_at?: string
 	last_sign_in_at?: string
 	password?: string // Campo para almacenar la contraseña (solo para visualización)
+	assigned_branch?: string | null
 }
 
 const MainUsers: React.FC = () => {
@@ -28,7 +30,10 @@ const MainUsers: React.FC = () => {
 	const [searchTerm, setSearchTerm] = useState('')
 	const [roleFilter, setRoleFilter] = useState<string>('all')
 	const [statusFilter, setStatusFilter] = useState<string>('all')
+	const [branchFilter, setbranchFilter] = useState<string>('all')
 	const [passwordVisibility, setPasswordVisibility] = useState<Record<string, boolean>>({})
+	const [searchEmail, setSearchEmail] = useState('')
+	const [isSearching, setIsSearching] = useState(false)
 
 	// Query para obtener usuarios
 	const { data: users, isLoading, error, refetch } = useQuery({
@@ -71,6 +76,49 @@ const MainUsers: React.FC = () => {
 		enabled: !!currentUser?.id,
 	})
 
+	const handleSearchUser = async () => {
+		if (!searchEmail.trim()) {
+			toast({
+				title: '❌ Email requerido',
+				description: 'Por favor ingresa un email para buscar.',
+				variant: 'destructive',
+			})
+			return
+		}
+
+		setIsSearching(true)
+		try {
+			const { data, error } = await getUserByEmail(searchEmail.trim())
+			
+			if (error || !data) {
+				toast({
+					title: '❌ Usuario no encontrado',
+					description: 'No se encontró ningún usuario con ese email.',
+					variant: 'destructive',
+				})
+				return
+			}
+
+			// Si se encuentra, actualizar la lista filtrando solo ese usuario
+			setSearchTerm(searchEmail.trim())
+			
+			toast({
+				title: '✅ Usuario encontrado',
+				description: `Se encontró el usuario ${data.email}.`,
+				className: 'bg-green-100 border-green-400 text-green-800',
+			})
+		} catch (error) {
+			console.error('Error searching user:', error)
+			toast({
+				title: '❌ Error en la búsqueda',
+				description: 'Hubo un problema al buscar el usuario. Inténtalo de nuevo.',
+				variant: 'destructive',
+			})
+		} finally {
+			setIsSearching(false)
+		}
+	}
+
 	const getRoleIcon = (role: string) => {
 		switch (role) {
 			case 'owner':
@@ -105,6 +153,25 @@ const MainUsers: React.FC = () => {
 			return 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300'
 		}
 		return 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300'
+	}
+
+	const getBranchColor = (branch: string | null | undefined) => {
+		if (!branch) return 'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-300'
+		
+		switch (branch) {
+			case 'PMG':
+				return 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300'
+			case 'CPC':
+				return 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300'
+			case 'CNX':
+				return 'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300'
+			case 'STX':
+				return 'bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-300'
+			case 'MCY':
+				return 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300'
+			default:
+				return 'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-300'
+		}
 	}
 
 	const togglePasswordVisibility = (userId: string) => {
@@ -160,6 +227,44 @@ const MainUsers: React.FC = () => {
 		}
 	}
 
+	const handleBranchChange = async (userId: string, branch: string | null) => {
+		// Verificar permisos antes de permitir edición
+		if (!canManage) {
+			toast({
+				title: '❌ Sin permisos',
+				description: 'No tienes permisos para editar usuarios.',
+				variant: 'destructive',
+			})
+			return
+		}
+
+		try {
+			const { error } = await updateUserBranch(userId, branch === 'none' ? null : branch)
+			
+			if (error) {
+				throw error
+			}
+
+			toast({
+				title: '✅ Sede actualizada',
+				description: branch === 'none' 
+					? 'Se ha eliminado la restricción de sede para este usuario.' 
+					: `La sede del usuario ha sido cambiada a ${branch}.`,
+				className: 'bg-green-100 border-green-400 text-green-800',
+			})
+
+			// Refrescar la lista de usuarios
+			refetch()
+		} catch (error) {
+			console.error('Error updating user branch:', error)
+			toast({
+				title: '❌ Error al actualizar',
+				description: 'Hubo un problema al cambiar la sede del usuario. Inténtalo de nuevo.',
+				variant: 'destructive',
+			})
+		}
+	}
+
 	// Filtrar usuarios
 	const filteredUsers = users?.filter(user => {
 		const matchesSearch = user.email.toLowerCase().includes(searchTerm.toLowerCase())
@@ -167,8 +272,12 @@ const MainUsers: React.FC = () => {
 		const matchesStatus = statusFilter === 'all' || 
 			(statusFilter === 'verified' && user.email_confirmed_at) ||
 			(statusFilter === 'unverified' && !user.email_confirmed_at)
+		const matchesBranch = branchFilter === 'all' || 
+			(branchFilter === 'assigned' && user.assigned_branch) ||
+			(branchFilter === 'unassigned' && !user.assigned_branch) ||
+			user.assigned_branch === branchFilter
 		
-		return matchesSearch && matchesRole && matchesStatus
+		return matchesSearch && matchesRole && matchesStatus && matchesBranch
 	}) || []
 
 	// Estadísticas
@@ -177,6 +286,7 @@ const MainUsers: React.FC = () => {
 		owners: users?.filter(u => u.role === 'owner').length || 0,
 		employees: users?.filter(u => u.role === 'employee').length || 0,
 		verified: users?.filter(u => u.email_confirmed_at).length || 0,
+		withBranch: users?.filter(u => u.assigned_branch).length || 0,
 	}
 
 	if (isLoading) {
@@ -267,18 +377,57 @@ const MainUsers: React.FC = () => {
 					<div className="bg-white dark:bg-background rounded-xl p-4 sm:p-6 transition-colors duration-300">
 						<div className="flex items-center justify-between mb-4">
 							<div className="p-2 sm:p-3 bg-green-100 dark:bg-green-900/30 rounded-lg">
-								<UserCheck className="w-5 h-5 sm:w-6 sm:h-6 text-green-600 dark:text-green-400" />
+								<MapPin className="w-5 h-5 sm:w-6 sm:h-6 text-green-600 dark:text-green-400" />
 							</div>
 						</div>
 						<div>
-							<h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">Verificados</h3>
+							<h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">Con Sede Asignada</h3>
 							<p className="text-2xl sm:text-3xl font-bold text-gray-700 dark:text-gray-300">
-								{stats.verified}
+								{stats.withBranch}
 							</p>
 						</div>
 					</div>
 				</Card>
 			</div>
+
+			{/* Búsqueda por email específico */}
+			<Card className="hover:border-primary hover:shadow-lg hover:shadow-primary/20 transition-all duration-300 shadow-lg mb-6">
+				<div className="bg-white dark:bg-background rounded-xl p-4 sm:p-6 transition-colors duration-300">
+					<h3 className="text-lg font-semibold text-gray-700 dark:text-gray-300 mb-4">Buscar Usuario Específico</h3>
+					<div className="flex flex-col sm:flex-row gap-4">
+						<div className="flex-1 relative">
+							<Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+							<Input
+								type="email"
+								placeholder="Ingresa el email exacto del usuario..."
+								value={searchEmail}
+								onChange={(e) => setSearchEmail(e.target.value)}
+								className="pl-10"
+							/>
+						</div>
+						<Button 
+							onClick={handleSearchUser}
+							disabled={isSearching}
+							className="bg-primary hover:bg-primary/80"
+						>
+							{isSearching ? (
+								<>
+									<div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+									Buscando...
+								</>
+							) : (
+								<>
+									<Search className="w-4 h-4 mr-2" />
+									Buscar Usuario
+								</>
+							)}
+						</Button>
+					</div>
+					<div className="mt-2 text-xs text-gray-500 dark:text-gray-400">
+						Ejemplo: andreoneuge@gmail.com
+					</div>
+				</div>
+			</Card>
 
 			{/* Filtros y búsqueda */}
 			<Card className="hover:border-primary hover:shadow-lg hover:shadow-primary/20 transition-all duration-300 shadow-lg mb-6">
@@ -324,6 +473,25 @@ const MainUsers: React.FC = () => {
 								</SelectContent>
 							</Select>
 						</div>
+
+						{/* Filtro por sede */}
+						<div className="flex items-center gap-2">
+							<Select value={branchFilter} onValueChange={setbranchFilter}>
+								<SelectTrigger className="w-40">
+									<SelectValue placeholder="Filtrar por sede" />
+								</SelectTrigger>
+								<SelectContent>
+									<SelectItem value="all">Todas las sedes</SelectItem>
+									<SelectItem value="assigned">Con sede asignada</SelectItem>
+									<SelectItem value="unassigned">Sin sede asignada</SelectItem>
+									<SelectItem value="PMG">PMG</SelectItem>
+									<SelectItem value="CPC">CPC</SelectItem>
+									<SelectItem value="CNX">CNX</SelectItem>
+									<SelectItem value="STX">STX</SelectItem>
+									<SelectItem value="MCY">MCY</SelectItem>
+								</SelectContent>
+							</Select>
+						</div>
 					</div>
 
 					{/* Contador de resultados */}
@@ -357,6 +525,20 @@ const MainUsers: React.FC = () => {
 									<div className="flex items-center gap-2 mb-2">
 										<Mail className="w-4 h-4 text-gray-600 dark:text-gray-400" />
 										<p className="font-medium text-gray-900 dark:text-gray-100 text-sm">{user.email}</p>
+									</div>
+
+									{/* Sede asignada */}
+									<div className="flex items-center gap-2 mb-2">
+										<MapPin className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+										<div className="flex items-center gap-2">
+											{user.assigned_branch ? (
+												<span className={`inline-flex items-center gap-1 px-2 py-1 text-xs font-semibold rounded-full ${getBranchColor(user.assigned_branch)}`}>
+													{user.assigned_branch}
+												</span>
+											) : (
+												<span className="text-sm text-gray-500 dark:text-gray-400">Sin sede asignada</span>
+											)}
+										</div>
 									</div>
 
 									{/* Contraseña */}
@@ -417,6 +599,31 @@ const MainUsers: React.FC = () => {
 											</Select>
 										</div>
 									)}
+
+									{/* Selector de sede */}
+									{canManage && (
+										<div className="mt-3">
+											<label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+												Asignar Sede:
+											</label>
+											<Select 
+												defaultValue={user.assigned_branch || 'none'} 
+												onValueChange={(value) => handleBranchChange(user.id, value === 'none' ? null : value)}
+											>
+												<SelectTrigger className="w-full">
+													<SelectValue placeholder="Seleccionar sede" />
+												</SelectTrigger>
+												<SelectContent>
+													<SelectItem value="none">Sin restricción de sede</SelectItem>
+													<SelectItem value="PMG">PMG</SelectItem>
+													<SelectItem value="CPC">CPC</SelectItem>
+													<SelectItem value="CNX">CNX</SelectItem>
+													<SelectItem value="STX">STX</SelectItem>
+													<SelectItem value="MCY">MCY</SelectItem>
+												</SelectContent>
+											</Select>
+										</div>
+									)}
 								</div>
 							))}
 						</div>
@@ -437,13 +644,13 @@ const MainUsers: React.FC = () => {
 										Rol
 									</th>
 									<th className="px-6 py-4 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+										Sede Asignada
+									</th>
+									<th className="px-6 py-4 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
 										Estado
 									</th>
 									<th className="px-6 py-4 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
 										Fecha de Registro
-									</th>
-									<th className="px-6 py-4 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-										Última Actualización
 									</th>
 								</tr>
 							</thead>
@@ -510,6 +717,35 @@ const MainUsers: React.FC = () => {
 											)}
 										</td>
 										<td className="px-6 py-4">
+											{canManage ? (
+												<Select 
+													defaultValue={user.assigned_branch || 'none'} 
+													onValueChange={(value) => handleBranchChange(user.id, value === 'none' ? null : value)}
+												>
+													<SelectTrigger className="w-40">
+														<SelectValue placeholder="Seleccionar sede" />
+													</SelectTrigger>
+													<SelectContent>
+														<SelectItem value="none">Sin restricción</SelectItem>
+														<SelectItem value="PMG">PMG</SelectItem>
+														<SelectItem value="CPC">CPC</SelectItem>
+														<SelectItem value="CNX">CNX</SelectItem>
+														<SelectItem value="STX">STX</SelectItem>
+														<SelectItem value="MCY">MCY</SelectItem>
+													</SelectContent>
+												</Select>
+											) : (
+												user.assigned_branch ? (
+													<span className={`inline-flex items-center gap-1 px-2 py-1 text-xs font-semibold rounded-full ${getBranchColor(user.assigned_branch)}`}>
+														<MapPin className="w-3 h-3" />
+														{user.assigned_branch}
+													</span>
+												) : (
+													<span className="text-sm text-gray-500 dark:text-gray-400">Sin restricción</span>
+												)
+											)}
+										</td>
+										<td className="px-6 py-4">
 											<span className={`inline-flex items-center gap-1 px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(user)}`}>
 												{getStatusIcon(user)}
 												{user.email_confirmed_at ? 'Verificado' : 'No verificado'}
@@ -517,9 +753,6 @@ const MainUsers: React.FC = () => {
 										</td>
 										<td className="px-6 py-4 text-sm text-gray-900 dark:text-gray-100">
 											{format(new Date(user.created_at), 'dd/MM/yyyy HH:mm', { locale: es })}
-										</td>
-										<td className="px-6 py-4 text-sm text-gray-900 dark:text-gray-100">
-											{format(new Date(user.updated_at), 'dd/MM/yyyy HH:mm', { locale: es })}
 										</td>
 									</tr>
 								))}
@@ -539,6 +772,25 @@ const MainUsers: React.FC = () => {
 					)}
 				</div>
 			</Card>
+
+			{/* Instrucciones */}
+			<div className="mt-6 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
+				<h3 className="text-lg font-semibold text-blue-800 dark:text-blue-300 mb-2">Instrucciones de Uso</h3>
+				<ul className="list-disc list-inside space-y-2 text-sm text-blue-700 dark:text-blue-400">
+					<li>
+						<strong>Asignación de Sede:</strong> Los empleados con una sede asignada solo podrán ver los casos médicos de esa sede.
+					</li>
+					<li>
+						<strong>Sin Restricción:</strong> Los empleados sin sede asignada pueden ver todos los casos.
+					</li>
+					<li>
+						<strong>Propietarios:</strong> Los usuarios con rol de propietario siempre pueden ver todos los casos, independientemente de la sede asignada.
+					</li>
+					<li>
+						<strong>Ejemplo:</strong> El usuario andreoneuge@gmail.com con sede asignada CPC solo podrá ver los casos de la sede CPC.
+					</li>
+				</ul>
+			</div>
 		</div>
 	)
 }

@@ -6,6 +6,7 @@ export interface UserProfile {
 	role: 'owner' | 'employee'
 	created_at: string
 	updated_at: string
+	assigned_branch?: string | null
 }
 
 /**
@@ -34,6 +35,36 @@ export const updateUserRole = async (userId: string, newRole: 'owner' | 'employe
 		return { data, error: null }
 	} catch (error) {
 		console.error('Unexpected error updating user role:', error)
+		return { data: null, error }
+	}
+}
+
+/**
+ * Update user assigned branch
+ */
+export const updateUserBranch = async (userId: string, branch: string | null) => {
+	try {
+		console.log(`Updating user ${userId} branch to ${branch || 'none'}`)
+
+		const { data, error } = await supabase
+			.from('profiles')
+			.update({ 
+				assigned_branch: branch,
+				updated_at: new Date().toISOString()
+			})
+			.eq('id', userId)
+			.select()
+			.single()
+
+		if (error) {
+			console.error('Error updating user branch:', error)
+			throw error
+		}
+
+		console.log('User branch updated successfully:', data)
+		return { data, error: null }
+	} catch (error) {
+		console.error('Unexpected error updating user branch:', error)
 		return { data: null, error }
 	}
 }
@@ -114,7 +145,7 @@ export const getUserStats = async () => {
 	try {
 		const { data, error } = await supabase
 			.from('profiles')
-			.select('role')
+			.select('role, assigned_branch')
 
 		if (error) {
 			console.error('Error fetching user stats:', error)
@@ -125,11 +156,35 @@ export const getUserStats = async () => {
 			total: data?.length || 0,
 			owners: data?.filter(u => u.role === 'owner').length || 0,
 			employees: data?.filter(u => u.role === 'employee').length || 0,
+			withBranch: data?.filter(u => u.assigned_branch).length || 0,
 		}
 
 		return { data: stats, error: null }
 	} catch (error) {
 		console.error('Unexpected error fetching user stats:', error)
+		return { data: null, error }
+	}
+}
+
+/**
+ * Get user by email
+ */
+export const getUserByEmail = async (email: string): Promise<{ data: UserProfile | null; error: any }> => {
+	try {
+		const { data, error } = await supabase
+			.from('profiles')
+			.select('*')
+			.eq('email', email)
+			.single()
+
+		if (error) {
+			console.error('Error fetching user by email:', error)
+			throw error
+		}
+
+		return { data, error: null }
+	} catch (error) {
+		console.error('Unexpected error fetching user by email:', error)
 		return { data: null, error }
 	}
 }

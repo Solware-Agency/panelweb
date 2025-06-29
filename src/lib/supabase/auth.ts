@@ -12,6 +12,7 @@ export interface UserProfile {
 	role: 'owner' | 'employee'
 	created_at: string
 	updated_at: string
+	assigned_branch?: string | null
 }
 
 // Sign up with email and password - ENHANCED WITH PROPER EMAIL VERIFICATION

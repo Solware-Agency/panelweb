@@ -4,6 +4,8 @@ import { type FormValues } from '@features/form/lib/form-schema'
 import { FormField, FormItem, FormLabel, FormControl, FormMessage } from '@shared/components/ui/form'
 import { Input } from '@shared/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@shared/components/ui/select'
+import { useUserProfile } from '@shared/hooks/useUserProfile'
+import { useEffect } from 'react'
 
 interface PaymentHeaderProps {
 	control: Control<FormValues>
@@ -13,10 +15,26 @@ interface PaymentHeaderProps {
 }
 
 export const PaymentHeader = ({ control, inputStyles, exchangeRate, isLoadingRate }: PaymentHeaderProps) => {
+	const { profile } = useUserProfile()
 	const totalAmount = useWatch({
 		control,
 		name: 'totalAmount',
 	})
+	const branch = useWatch({
+		control,
+		name: 'branch',
+	})
+
+	// Auto-set branch if user has an assigned branch
+	useEffect(() => {
+		if (profile?.assigned_branch && !branch) {
+			// Set the branch to the user's assigned branch
+			const setValue = control._options.context?.setValue
+			if (setValue) {
+				setValue('branch', profile.assigned_branch)
+			}
+		}
+	}, [profile, branch, control])
 
 	const totalInVes = React.useMemo(() => {
 		if (exchangeRate && totalAmount) {
@@ -36,20 +54,35 @@ export const PaymentHeader = ({ control, inputStyles, exchangeRate, isLoadingRat
 				render={({ field }) => (
 					<FormItem>
 						<FormLabel>Sede *</FormLabel>
-						<Select onValueChange={field.onChange} defaultValue={field.value}>
+						<Select 
+							onValueChange={field.onChange} 
+							value={field.value}
+							disabled={!!profile?.assigned_branch} // Disable if user has assigned branch
+						>
 							<FormControl>
 								<SelectTrigger className={inputStyles}>
 									<SelectValue placeholder="Seleccione una sede" />
 								</SelectTrigger>
 							</FormControl>
 							<SelectContent>
-								<SelectItem value="PMG">PMG</SelectItem>
-								<SelectItem value="CPC">CPC</SelectItem>
-								<SelectItem value="CNX">CNX</SelectItem>
-								<SelectItem value="STX">STX</SelectItem>
-								<SelectItem value="MCY">MCY</SelectItem>
+								{!profile?.assigned_branch ? (
+									<>
+										<SelectItem value="PMG">PMG</SelectItem>
+										<SelectItem value="CPC">CPC</SelectItem>
+										<SelectItem value="CNX">CNX</SelectItem>
+										<SelectItem value="STX">STX</SelectItem>
+										<SelectItem value="MCY">MCY</SelectItem>
+									</>
+								) : (
+									<SelectItem value={profile.assigned_branch}>{profile.assigned_branch}</SelectItem>
+								)}
 							</SelectContent>
 						</Select>
+						{profile?.assigned_branch && (
+							<p className="text-xs text-muted-foreground mt-1">
+								Tu cuenta está limitada a la sede {profile.assigned_branch}
+							</p>
+						)}
 						<FormMessage />
 					</FormItem>
 				)}
