@@ -134,7 +134,7 @@ export const PatientDataSection = ({ control, inputStyles }: PatientDataSectionP
 					)}
 				/>
 
-				{/* Edad - SIN AUTOCOMPLETADO (como solicitaste) - PLACEHOLDER ACTUALIZADO */}
+				{/* Edad - PLACEHOLDER ACTUALIZADO */}
 				<FormField
 					control={control}
 					name="age"
@@ -142,7 +142,17 @@ export const PatientDataSection = ({ control, inputStyles }: PatientDataSectionP
 						<FormItem>
 							<FormLabel>Edad *</FormLabel>
 							<FormControl>
-								<Input placeholder="0" {...field} className={inputStyles} />
+								<Input 
+									type="number"
+									placeholder="0" 
+									{...field}
+									value={field.value === 0 || field.value === '' ? '' : field.value}
+									onChange={(e) => {
+										const value = e.target.value
+										field.onChange(value === '' ? '' : Number(value))
+									}}
+									className={inputStyles} 
+								/>
 							</FormControl>
 							<FormMessage />
 						</FormItem>

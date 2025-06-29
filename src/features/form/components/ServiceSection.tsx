@@ -120,7 +120,7 @@ export const ServiceSection = ({ control, inputStyles }: ServiceSectionProps) =>
 				)}
 			/>
 
-			{/* Cantidad de Muestras - SIN AUTOCOMPLETADO (es numérico) - PLACEHOLDER ACTUALIZADO */}
+			{/* Cantidad de Muestras - PLACEHOLDER ACTUALIZADO */}
 			<FormField
 				control={control}
 				name="numberOfSamples"
@@ -128,7 +128,17 @@ export const ServiceSection = ({ control, inputStyles }: ServiceSectionProps) =>
 					<FormItem>
 						<FormLabel>Cantidad de Muestras *</FormLabel>
 						<FormControl>
-							<Input type="number" placeholder="0" {...field} className={inputStyles} />
+							<Input 
+								type="number" 
+								placeholder="0" 
+								{...field}
+								value={field.value === 0 || field.value === '' ? '' : field.value}
+								onChange={(e) => {
+									const value = e.target.value
+									field.onChange(value === '' ? '' : Number(value))
+								}}
+								className={inputStyles} 
+							/>
 						</FormControl>
 						<FormMessage />
 					</FormItem>

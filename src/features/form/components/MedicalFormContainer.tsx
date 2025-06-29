@@ -18,17 +18,17 @@ const getInitialFormValues = (): FormValues => ({
 	fullName: '',
 	idNumber: '',
 	phone: '',
-	age: 0,
+	age: '' as any, // Changed to empty string to show placeholder
 	email: '',
 	examType: '',
 	origin: '',
 	treatingDoctor: '',
 	sampleType: '',
-	numberOfSamples: 0,
+	numberOfSamples: '' as any, // Changed to empty string to show placeholder
 	relationship: '',
 	branch: '',
 	date: new Date(),
-	totalAmount: 0,
+	totalAmount: '' as any, // Changed to empty string to show placeholder
 	payments: [{ method: '', amount: 0, reference: '' }],
 	comments: '',
 })
