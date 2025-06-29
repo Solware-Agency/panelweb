@@ -60,7 +60,18 @@ export const PaymentMethodItem = ({ control, index, remove, inputStyles, fieldsL
 								<span className="absolute inset-y-0 left-0 flex items-center pl-3 text-muted-foreground pointer-events-none">
 									{currencySymbol}
 								</span>
-								<Input type="number" step="0.01" placeholder="Monto" {...field} className={`${inputStyles} pl-9`} />
+								<Input 
+									type="number" 
+									step="0.01" 
+									placeholder="0" 
+									{...field}
+									value={field.value === 0 || field.value === '' ? '' : field.value}
+									onChange={(e) => {
+										const value = e.target.value
+										field.onChange(value === '' ? '' : Number(value))
+									}}
+									className={`${inputStyles} pl-9`} 
+								/>
 							</div>
 						</FormControl>
 						<FormMessage />
