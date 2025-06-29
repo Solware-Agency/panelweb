@@ -1,12 +1,17 @@
 import React, { useState } from 'react'
-import { Users, Mail, Calendar, Shield, Search, Filter, UserCheck, UserX, Crown, Briefcase } from 'lucide-react'
+import { Users, Mail, Calendar, Shield, Search, Filter, UserCheck, UserX, Crown, Briefcase, Edit } from 'lucide-react'
 import { Card } from '@shared/components/ui/card'
 import { Input } from '@shared/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@shared/components/ui/select'
+import { Button } from '@shared/components/ui/button'
 import { useQuery } from '@tanstack/react-query'
 import { supabase } from '@lib/supabase/config'
+import { updateUserRole, canManageUsers } from '@lib/supabase/user-management'
+import { useAuth } from '@app/providers/AuthContext'
 import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
+import EditUserModal from '@shared/components/users/EditUserModal'
+import { useToast } from '@shared/hooks/use-toast'
 
 interface UserProfile {
 	id: string
@@ -19,9 +24,13 @@ interface UserProfile {
 }
 
 const MainUsers: React.FC = () => {
+	const { user: currentUser } = useAuth()
+	const { toast } = useToast()
 	const [searchTerm, setSearchTerm] = useState('')
 	const [roleFilter, setRoleFilter] = useState<string>('all')
 	const [statusFilter, setStatusFilter] = useState<string>('all')
+	const [editingUser, setEditingUser] = useState<UserProfile | null>(null)
+	const [isEditModalOpen, setIsEditModalOpen] = useState(false)
 
 	// Query para obtener usuarios
 	const { data: users, isLoading, error, refetch } = useQuery({
@@ -51,6 +60,16 @@ const MainUsers: React.FC = () => {
 			}
 		},
 		staleTime: 1000 * 60 * 5, // 5 minutos
+	})
+
+	// Query para verificar permisos del usuario actual
+	const { data: canManage } = useQuery({
+		queryKey: ['can-manage-users', currentUser?.id],
+		queryFn: async () => {
+			if (!currentUser?.id) return false
+			return await canManageUsers(currentUser.id)
+		},
+		enabled: !!currentUser?.id,
 	})
 
 	const getRoleIcon = (role: string) => {
@@ -87,6 +106,47 @@ const MainUsers: React.FC = () => {
 			return 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300'
 		}
 		return 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300'
+	}
+
+	const handleEditUser = (user: UserProfile) => {
+		// Verificar permisos antes de permitir edición
+		if (!canManage) {
+			toast({
+				title: '❌ Sin permisos',
+				description: 'No tienes permisos para editar usuarios.',
+				variant: 'destructive',
+			})
+			return
+		}
+
+		// No permitir que un usuario se edite a sí mismo
+		if (user.id === currentUser?.id) {
+			toast({
+				title: '❌ Acción no permitida',
+				description: 'No puedes cambiar tu propio rol.',
+				variant: 'destructive',
+			})
+			return
+		}
+
+		setEditingUser(user)
+		setIsEditModalOpen(true)
+	}
+
+	const handleSaveUser = async (userId: string, newRole: 'owner' | 'employee') => {
+		try {
+			const { error } = await updateUserRole(userId, newRole)
+			
+			if (error) {
+				throw error
+			}
+
+			// Refrescar la lista de usuarios
+			refetch()
+		} catch (error) {
+			console.error('Error updating user role:', error)
+			throw error
+		}
 	}
 
 	// Filtrar usuarios
@@ -289,12 +349,25 @@ const MainUsers: React.FC = () => {
 									</div>
 
 									{/* Fecha de registro */}
-									<div className="flex items-center gap-2">
+									<div className="flex items-center gap-2 mb-3">
 										<Calendar className="w-4 h-4 text-gray-600 dark:text-gray-400" />
 										<p className="text-xs text-gray-500 dark:text-gray-400">
 											Registrado: {format(new Date(user.created_at), 'dd/MM/yyyy HH:mm', { locale: es })}
 										</p>
 									</div>
+
+									{/* Botón de editar */}
+									{canManage && user.id !== currentUser?.id && (
+										<Button
+											onClick={() => handleEditUser(user)}
+											size="sm"
+											variant="outline"
+											className="w-full"
+										>
+											<Edit className="w-3 h-3 mr-2" />
+											Editar Rol
+										</Button>
+									)}
 								</div>
 							))}
 						</div>
@@ -320,6 +393,11 @@ const MainUsers: React.FC = () => {
 									<th className="px-6 py-4 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
 										Última Actualización
 									</th>
+									{canManage && (
+										<th className="px-6 py-4 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+											Acciones
+										</th>
+									)}
 								</tr>
 							</thead>
 							<tbody className="divide-y divide-gray-200 dark:divide-gray-700">
@@ -354,6 +432,24 @@ const MainUsers: React.FC = () => {
 										<td className="px-6 py-4 text-sm text-gray-900 dark:text-gray-100">
 											{format(new Date(user.updated_at), 'dd/MM/yyyy HH:mm', { locale: es })}
 										</td>
+										{canManage && (
+											<td className="px-6 py-4 text-center">
+												{user.id !== currentUser?.id ? (
+													<Button
+														onClick={() => handleEditUser(user)}
+														size="sm"
+														variant="outline"
+													>
+														<Edit className="w-3 h-3 mr-2" />
+														Editar
+													</Button>
+												) : (
+													<span className="text-xs text-gray-500 dark:text-gray-400">
+														(Tú mismo)
+													</span>
+												)}
+											</td>
+										)}
 									</tr>
 								))}
 							</tbody>
@@ -372,6 +468,17 @@ const MainUsers: React.FC = () => {
 					)}
 				</div>
 			</Card>
+
+			{/* Modal de edición */}
+			<EditUserModal
+				user={editingUser}
+				isOpen={isEditModalOpen}
+				onClose={() => {
+					setIsEditModalOpen(false)
+					setEditingUser(null)
+				}}
+				onSave={handleSaveUser}
+			/>
 		</div>
 	)
 }
