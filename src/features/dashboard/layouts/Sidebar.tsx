@@ -12,6 +12,7 @@ import {
 	Moon,
 	Sun,
 	Clock,
+	Users,
 } from 'lucide-react'
 import { NavLink, useNavigate } from 'react-router-dom'
 import { signOut } from '@lib/supabase/auth'
@@ -151,6 +152,28 @@ const Sidebar: React.FC<SidebarProps> = ({
 							}`}
 						>
 							Reportes
+						</p>
+					</div>
+				</NavLink>
+
+				<NavLink
+					to="/dashboard/users"
+					className={({ isActive }) =>
+						`flex justify-between items-center gap-3 cursor-pointer transition w-full ${
+							isActive ? 'text-primary border-primary' : 'hover:text-primary'
+						}`
+					}
+					onClick={onClose}
+					title={!showFullContent ? 'Usuarios' : undefined}
+				>
+					<div className="flex gap-3 items-center min-w-0">
+						<Users className="stroke-2 size-5 shrink-0" />
+						<p
+							className={`text-md whitespace-nowrap transition-all duration-300 ${
+								showFullContent ? 'opacity-100 w-auto' : 'opacity-0 w-0 overflow-hidden'
+							}`}
+						>
+							Usuarios
 						</p>
 					</div>
 				</NavLink>

@@ -9,6 +9,7 @@ import HomePage from '@features/dashboard/home/HomePage'
 import CalendarPage from '@features/dashboard/calendar/CalendarPage'
 import StatsPage from '@features/dashboard/stats/StatsPage'
 import ReportsPage from '@features/dashboard/reports/ReportsPage'
+import UsersPage from '@features/dashboard/users/UsersPage'
 import CasesPage from '@features/dashboard/cases/CasesPage'
 import Form from '@features/form/pages/Form'
 import FormRoute from '@app/routes/FormRoute'
@@ -62,6 +63,7 @@ function App() {
 						<Route path="calendar" element={<CalendarPage />} />
 						<Route path="stats" element={<StatsPage />} />
 						<Route path="reports" element={<ReportsPage />} />
+						<Route path="users" element={<UsersPage />} />
 						<Route path="cases" element={<CasesPage />} />
 					</Route>
 				</Routes>
