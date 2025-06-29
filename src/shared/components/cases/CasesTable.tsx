@@ -12,6 +12,7 @@ import {
 	CreditCard,
 	Maximize2,
 	RefreshCw,
+	Hash,
 } from 'lucide-react'
 import { useQuery } from '@tanstack/react-query'
 import { getMedicalRecords, type MedicalRecord, updateMedicalRecordWithLog } from '@lib/supabase-service'
@@ -25,7 +26,7 @@ interface CasesTableProps {
 	onCaseSelect: (case_: MedicalRecord) => void
 }
 
-type SortField = 'id' | 'created_at' | 'full_name' | 'age' | 'total_amount' | 'branch'
+type SortField = 'id' | 'created_at' | 'full_name' | 'age' | 'total_amount' | 'branch' | 'code'
 type SortDirection = 'asc' | 'desc'
 
 const CasesTable: React.FC<CasesTableProps> = ({ onCaseSelect }) => {
@@ -126,7 +127,8 @@ const CasesTable: React.FC<CasesTableProps> = ({ onCaseSelect }) => {
 				case_.id_number.toLowerCase().includes(searchTerm.toLowerCase()) ||
 				case_.exam_type.toLowerCase().includes(searchTerm.toLowerCase()) ||
 				case_.treating_doctor.toLowerCase().includes(searchTerm.toLowerCase()) ||
-				case_.branch.toLowerCase().includes(searchTerm.toLowerCase())
+				case_.branch.toLowerCase().includes(searchTerm.toLowerCase()) ||
+				(case_.code && case_.code.toLowerCase().includes(searchTerm.toLowerCase()))
 
 			const matchesStatus = statusFilter === 'all' || case_.payment_status === statusFilter
 
@@ -183,7 +185,15 @@ const CasesTable: React.FC<CasesTableProps> = ({ onCaseSelect }) => {
 				>
 					{case_.payment_status}
 				</span>
-				<span className="text-sm font-mono text-gray-600 dark:text-gray-400">{case_.id?.slice(-6).toUpperCase()}</span>
+				<div className="flex items-center gap-2">
+					{case_.code && (
+						<span className="inline-flex items-center gap-1 px-2 py-1 text-xs font-semibold rounded-full bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300">
+							<Hash className="w-3 h-3" />
+							{case_.code}
+						</span>
+					)}
+					<span className="text-sm font-mono text-gray-600 dark:text-gray-400">{case_.id?.slice(-6).toUpperCase()}</span>
+				</div>
 			</div>
 
 			{/* Patient info */}
@@ -364,7 +374,8 @@ const CasesTable: React.FC<CasesTableProps> = ({ onCaseSelect }) => {
 											case_.id_number.toLowerCase().includes(searchTerm.toLowerCase()) ||
 											case_.exam_type.toLowerCase().includes(searchTerm.toLowerCase()) ||
 											case_.treating_doctor.toLowerCase().includes(searchTerm.toLowerCase()) ||
-											case_.branch.toLowerCase().includes(searchTerm.toLowerCase())
+											case_.branch.toLowerCase().includes(searchTerm.toLowerCase()) ||
+											(case_.code && case_.code.toLowerCase().includes(searchTerm.toLowerCase()))
 										const matchesStatus = statusFilter === 'all' || case_.payment_status === statusFilter
 										return matchesSearch && matchesStatus
 									}).length
@@ -403,11 +414,11 @@ const CasesTable: React.FC<CasesTableProps> = ({ onCaseSelect }) => {
 								<tr>
 									<th className="px-4 py-3 text-left">
 										<button
-											onClick={() => handleSort('id')}
+											onClick={() => handleSort('code')}
 											className="flex items-center gap-2 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider hover:text-gray-700 dark:hover:text-gray-200 text-left"
 										>
-											Estatus / Código
-											<SortIcon field="id" />
+											Código / Estatus
+											<SortIcon field="code" />
 										</button>
 									</th>
 									<th className="px-4 py-3 text-left">
@@ -462,6 +473,12 @@ const CasesTable: React.FC<CasesTableProps> = ({ onCaseSelect }) => {
 									<tr key={case_.id} className="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
 										<td className="px-4 py-4">
 											<div className="space-y-1 text-left">
+												{case_.code && (
+													<div className="inline-flex items-center gap-1 px-2 py-1 text-xs font-semibold rounded-full bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300 mb-1">
+														<Hash className="w-3 h-3" />
+														{case_.code}
+													</div>
+												)}
 												<span
 													className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(
 														case_.payment_status,
@@ -630,7 +647,8 @@ const CasesTable: React.FC<CasesTableProps> = ({ onCaseSelect }) => {
 												case_.id_number.toLowerCase().includes(searchTerm.toLowerCase()) ||
 												case_.exam_type.toLowerCase().includes(searchTerm.toLowerCase()) ||
 												case_.treating_doctor.toLowerCase().includes(searchTerm.toLowerCase()) ||
-												case_.branch.toLowerCase().includes(searchTerm.toLowerCase())
+												case_.branch.toLowerCase().includes(searchTerm.toLowerCase()) ||
+												(case_.code && case_.code.toLowerCase().includes(searchTerm.toLowerCase()))
 											const matchesStatus = statusFilter === 'all' || case_.payment_status === statusFilter
 											return matchesSearch && matchesStatus
 										}).length
@@ -669,11 +687,11 @@ const CasesTable: React.FC<CasesTableProps> = ({ onCaseSelect }) => {
 										<tr>
 											<th className="px-4 py-3 text-left">
 												<button
-													onClick={() => handleSort('id')}
+													onClick={() => handleSort('code')}
 													className="flex items-center gap-2 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider hover:text-gray-700 dark:hover:text-gray-200 text-left"
 												>
-													Estatus / Código
-													<SortIcon field="id" />
+													Código / Estatus
+													<SortIcon field="code" />
 												</button>
 											</th>
 											<th className="px-4 py-3 text-left">
@@ -728,6 +746,12 @@ const CasesTable: React.FC<CasesTableProps> = ({ onCaseSelect }) => {
 											<tr key={case_.id} className="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
 												<td className="px-4 py-4">
 													<div className="space-y-1 text-left">
+														{case_.code && (
+															<div className="inline-flex items-center gap-1 px-2 py-1 text-xs font-semibold rounded-full bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300 mb-1">
+																<Hash className="w-3 h-3" />
+																{case_.code}
+															</div>
+														)}
 														<span
 															className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(
 																case_.payment_status,

@@ -153,6 +153,7 @@ export type Database = {
 					payment_amount_4: number | null
 					payment_reference_4: string | null
 					comments: string | null
+					code: string | null
 					created_at: string
 					updated_at: string
 				}
@@ -188,6 +189,7 @@ export type Database = {
 					payment_amount_4?: number | null
 					payment_reference_4?: string | null
 					comments?: string | null
+					code?: string | null
 					created_at?: string
 					updated_at?: string
 				}
@@ -223,6 +225,7 @@ export type Database = {
 					payment_amount_4?: number | null
 					payment_reference_4?: string | null
 					comments?: string | null
+					code?: string | null
 					created_at?: string
 					updated_at?: string
 				}

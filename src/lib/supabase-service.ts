@@ -3,6 +3,7 @@ import { type FormValues } from '@features/form/lib/form-schema'
 import { prepareSubmissionData } from '@features/form/lib/prepareSubmissionData'
 import { calculatePaymentDetailsFromRecord } from '@features/form/lib/payment/payment-utils'
 import type { MedicalRecordInsert } from '@shared/types/types'
+import { generateMedicalRecordCode } from '@lib/code-generator'
 
 export interface MedicalRecord {
 	id?: string
@@ -36,6 +37,7 @@ export interface MedicalRecord {
 	payment_amount_4?: number | null
 	payment_reference_4?: string | null
 	comments?: string | null
+	code?: string | null
 	created_at?: string
 	updated_at?: string
 }
@@ -99,6 +101,14 @@ export const insertMedicalRecord = async (
 		const submissionData = prepareSubmissionData(formData, exchangeRate)
 		console.log(`📋 Datos preparados para ${TABLE_NAME}:`, submissionData)
 
+		// Generar el código único ANTES de la inserción
+		console.log('🔢 Generando código único...')
+		const newCode = await generateMedicalRecordCode(
+			formData.examType,
+			formData.date
+		)
+		console.log(`✅ Código generado: ${newCode}`)
+
 		// Convertir los datos preparados para que coincidan con el esquema de la base de datos
 		const recordData: MedicalRecordInsert = {
 			full_name: submissionData.full_name,
@@ -131,6 +141,7 @@ export const insertMedicalRecord = async (
 			payment_amount_4: submissionData.payment_amount_4,
 			payment_reference_4: submissionData.payment_reference_4,
 			comments: submissionData.comments || undefined,
+			code: newCode, // ✨ Añadir el código generado
 		}
 
 		console.log(`💾 Insertando datos en tabla ${TABLE_NAME}:`, recordData)
@@ -174,9 +185,22 @@ export const insertMedicalRecord = async (
 				}
 			}
 
+			// Check for unique constraint violation on code
+			if (error.code === '23505' && error.message.includes('code')) {
+				return {
+					data: null,
+					error: {
+						message: 'Error: Se generó un código duplicado. Inténtalo de nuevo.',
+						code: 'DUPLICATE_CODE',
+						details: error,
+					},
+				}
+			}
+
 			return { data: null, error }
 		}
 		console.log(`✅ Registro médico insertado exitosamente en ${TABLE_NAME}:`, data)
+		console.log(`🎯 Código asignado: ${data.code}`)
 		return { data: data as MedicalRecord, error: null }
 	} catch (error) {
 		console.error(`❌ Error inesperado insertando en ${TABLE_NAME}:`, error)
@@ -228,7 +252,7 @@ export const searchMedicalRecords = async (searchTerm: string) => {
 		const { data, error } = await supabase
 			.from(TABLE_NAME)
 			.select('*')
-			.or(`full_name.ilike.%${searchTerm}%,id_number.ilike.%${searchTerm}%,phone.ilike.%${searchTerm}%`)
+			.or(`full_name.ilike.%${searchTerm}%,id_number.ilike.%${searchTerm}%,phone.ilike.%${searchTerm}%,code.ilike.%${searchTerm}%`)
 			.order('created_at', { ascending: false })
 
 		return { data, error }

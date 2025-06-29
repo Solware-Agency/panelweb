@@ -1,5 +1,5 @@
 import React from 'react'
-import { X, User, Stethoscope, CreditCard, FileText, CheckCircle } from 'lucide-react'
+import { X, User, Stethoscope, CreditCard, FileText, CheckCircle, Hash } from 'lucide-react'
 import { motion, AnimatePresence } from 'motion/react'
 import type { MedicalRecord } from '@lib/supabase-service'
 
@@ -80,7 +80,7 @@ const CaseDetailPanel: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClos
 							<div className="flex items-center justify-between">
 								<div>
 									<h2 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-gray-100">
-										Caso {case_.id?.slice(-6).toUpperCase()}
+										{case_.code || `Caso ${case_.id?.slice(-6).toUpperCase()}`}
 									</h2>
 									<p className="text-sm text-gray-600 dark:text-gray-400 mt-1">{case_.full_name}</p>
 								</div>
@@ -105,11 +105,30 @@ const CaseDetailPanel: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClos
 									<CheckCircle className="w-3 h-3" />
 									{case_.branch}
 								</span>
+								{case_.code && (
+									<span className="inline-flex items-center gap-1 px-3 py-1 text-sm font-semibold rounded-full bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300">
+										<Hash className="w-3 h-3" />
+										{case_.code}
+									</span>
+								)}
 							</div>
 						</div>
 
 						{/* Content */}
 						<div className="p-4 sm:p-6 space-y-6">
+							{/* Case Code Section */}
+							{case_.code && (
+								<InfoSection title="Código del Caso" icon={Hash}>
+									<div className="space-y-1">
+										<InfoRow label="Código único" value={case_.code} />
+										<div className="text-xs text-gray-500 dark:text-gray-400 mt-2 p-2 bg-gray-50 dark:bg-gray-800 rounded">
+											<p><strong>Formato:</strong> [Tipo][Año][Contador][Mes]</p>
+											<p><strong>Ejemplo:</strong> 1 = Citología, 25 = 2025, 001 = Primer caso, A = Enero</p>
+										</div>
+									</div>
+								</InfoSection>
+							)}
+
 							{/* Patient Information */}
 							<InfoSection title="Información del Paciente" icon={User}>
 								<div className="space-y-1">
