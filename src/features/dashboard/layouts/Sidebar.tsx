@@ -15,7 +15,7 @@ import {
 } from 'lucide-react'
 import { NavLink, useNavigate } from 'react-router-dom'
 import { signOut } from '@lib/supabase/auth'
-import FavIcon from '@shared/components/icons/favIcon'
+import FavIcon from '@shared/components/icons/FavIcon'
 
 interface SidebarProps {
 	onClose?: () => void

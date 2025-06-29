@@ -6,7 +6,7 @@ import { useAuth } from '@app/providers/AuthContext'
 import { useSecureRedirect } from '@shared/hooks/useSecureRedirect'
 import Aurora from '@shared/components/ui/Aurora'
 import FadeContent from '@shared/components/ui/FadeContent'
-import FavIcon from '@shared/components/icons/favIcon'
+import FavIcon from '@shared/components/icons/FavIcon'
 
 function LoginForm() {
 	const [email, setEmail] = useState('')
