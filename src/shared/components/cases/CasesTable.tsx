@@ -314,8 +314,8 @@ const CasesTable: React.FC<CasesTableProps> = ({ onCaseSelect }) => {
 					<div className="flex flex-col gap-4">
 						{/* Search and Status Filter Row */}
 						<div className="flex flex-col sm:flex-row gap-4">
-							{/* Search */}
-							<div className="flex-1 relative">
+							{/* Search - Acortada */}
+							<div className="w-full sm:max-w-md relative">
 								<Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
 								<input
 									type="text"
@@ -594,8 +594,8 @@ const CasesTable: React.FC<CasesTableProps> = ({ onCaseSelect }) => {
 						<div className="flex flex-col gap-4">
 							{/* Search and Status Filter Row */}
 							<div className="flex flex-col sm:flex-row gap-4">
-								{/* Search */}
-								<div className="flex-1 relative">
+								{/* Search - Acortada */}
+								<div className="w-full sm:max-w-md relative">
 									<Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
 									<input
 										type="text"
