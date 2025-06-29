@@ -11,7 +11,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@shared/components/ui/
 import { useNavigate } from 'react-router-dom'
 import { signOut } from '@lib/supabase/auth'
 import { getMedicalRecords } from '@lib/supabase-service'
-import { RefreshCw, Maximize2, MapPin } from 'lucide-react'
+import { RefreshCw, Maximize2 } from 'lucide-react'
 import { useUserProfile } from '@shared/hooks/useUserProfile'
 
 const queryClient = new QueryClient()
@@ -94,21 +94,6 @@ function FormContent() {
 						<h2 className="text-2xl font-semibold text-foreground mb-2">Sistema de Registros Médicos</h2>
 						<div className="w-24 h-1 bg-primary mt-3 rounded-full" />
 					</div>
-
-					{/* Branch indicator */}
-					{profile?.assigned_branch && (
-						<div className="mb-6 flex items-center gap-2 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-3">
-							<MapPin className="w-5 h-5 text-blue-600 dark:text-blue-400" />
-							<div>
-								<span className="font-medium text-blue-800 dark:text-blue-300">
-									Sede Asignada: {profile.assigned_branch}
-								</span>
-								<p className="text-xs text-blue-700 dark:text-blue-400 mt-1">
-									Solo puedes ver y registrar casos para la sede {profile.assigned_branch}
-								</p>
-							</div>
-						</div>
-					)}
 
 					<Tabs defaultValue="form" value={activeTab} onValueChange={setActiveTab}>
 						<TabsList className="mb-6">
