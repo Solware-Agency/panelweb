@@ -772,7 +772,6 @@ const CasesTable: React.FC<CasesTableProps> = ({ onCaseSelect }) => {
 									</thead>
 									<tbody className="divide-y divide-gray-200 dark:divide-gray-700">
 										{filteredAndSortedCases.map((case_) => {
-											const ageDisplay = case_.date_of_birth ? getAgeDisplay(case_.date_of_birth) : ''
 
 											return (
 												<tr key={case_.id} className="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
@@ -802,15 +801,6 @@ const CasesTable: React.FC<CasesTableProps> = ({ onCaseSelect }) => {
 															</div>
 															<div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
 																<span>{case_.id_number}</span>
-																{ageDisplay && (
-																	<>
-																		<span>•</span>
-																		<div className="flex items-center gap-1">
-																			<Cake className="w-3 h-3 text-pink-500" />
-																			<span>{ageDisplay}</span>
-																		</div>
-																	</>
-																)}
 															</div>
 														</div>
 													</td>
