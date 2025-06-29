@@ -15,6 +15,7 @@ export interface DashboardStats {
   revenueByExamType: Array<{ examType: string; revenue: number; count: number }>
   salesTrendByMonth: Array<{ month: string; revenue: number; isSelected?: boolean; monthIndex: number }>
   topExamTypes: Array<{ examType: string; count: number; revenue: number }>
+  topTreatingDoctors: Array<{ doctor: string; cases: number; revenue: number }>
   totalCases: number
 }
 
@@ -175,6 +176,28 @@ export const useDashboardStats = (selectedMonth?: Date, selectedYear?: number) =
           .sort((a, b) => b.count - a.count)
           .slice(0, 5) // Top 5
 
+        // Calculate top treating doctors
+        const doctorStats = new Map<string, { cases: number; revenue: number }>()
+        allRecords?.forEach(record => {
+          const doctor = record.treating_doctor?.trim()
+          if (doctor) {
+            const current = doctorStats.get(doctor) || { cases: 0, revenue: 0 }
+            doctorStats.set(doctor, {
+              cases: current.cases + 1,
+              revenue: current.revenue + (record.total_amount || 0)
+            })
+          }
+        })
+
+        const topTreatingDoctors = Array.from(doctorStats.entries())
+          .map(([doctor, stats]) => ({
+            doctor,
+            cases: stats.cases,
+            revenue: stats.revenue
+          }))
+          .sort((a, b) => b.cases - a.cases) // Sort by number of cases
+          .slice(0, 5) // Top 5 doctors
+
         return {
           totalRevenue,
           uniquePatients,
@@ -187,6 +210,7 @@ export const useDashboardStats = (selectedMonth?: Date, selectedYear?: number) =
           revenueByExamType,
           salesTrendByMonth,
           topExamTypes,
+          topTreatingDoctors,
           totalCases
         }
       } catch (error) {

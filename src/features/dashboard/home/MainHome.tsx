@@ -1,5 +1,5 @@
 import EyeTrackingComponent from '@features/dashboard/home/RobotTraking'
-import { TrendingUp, Users, DollarSign, Calendar, ArrowRight, BarChart3, AlertTriangle, Clock } from 'lucide-react'
+import { TrendingUp, Users, DollarSign, Calendar, ArrowRight, BarChart3, AlertTriangle, Clock, Stethoscope } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { useDashboardStats } from '@shared/hooks/useDashboardStats'
 import { YearSelector } from '@shared/components/ui/year-selector'
@@ -260,43 +260,51 @@ function MainHome() {
 						</div>
 					</Card>
 
-					{/* Grid 5 - Calendar Preview (unchanged) */}
+					{/* Grid 5 - Médicos Tratantes */}
 					<Card
 						className="col-span-1 sm:col-span-2 lg:col-span-2 row-span-1 lg:row-span-4 dark:bg-background bg-white rounded-xl py-4 sm:py-5 px-4 sm:px-6 transition-all duration-300 flex flex-col cursor-pointer shadow-lg hover:bg-white/90 group h-full hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20"
 					>
-						<div className="h-full flex flex-col" onClick={() => navigate('/dashboard/calendar')}>
+						<div className="h-full flex flex-col" onClick={() => navigate('/dashboard/reports')}>
 							<div className="flex items-center justify-between mb-4">
 								<div className="flex items-center gap-2 sm:gap-3">
 									<div className="p-2 bg-purple-100 dark:bg-purple-900/30 rounded-lg">
-										<Calendar className="w-5 h-5 sm:w-6 sm:h-6 text-purple-600 dark:text-purple-400" />
+										<Stethoscope className="w-5 h-5 sm:w-6 sm:h-6 text-purple-600 dark:text-purple-400" />
 									</div>
-									<h3 className="text-base sm:text-lg font-bold text-gray-700 dark:text-gray-300">Próximos Eventos</h3>
+									<h3 className="text-base sm:text-lg font-bold text-gray-700 dark:text-gray-300">Médicos Tratantes</h3>
 								</div>
 								<ArrowRight className="w-3 h-3 sm:w-4 sm:h-4 text-gray-400 group-hover:text-blue-500 transition-colors" />
 							</div>
 
 							<div className="space-y-3 flex-1">
-								<div className="flex items-center gap-2 sm:gap-3 p-2 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
-									<div className="w-3 h-3 bg-blue-500 rounded-full"></div>
-									<div className="flex-1">
-										<p className="text-sm font-medium text-gray-700 dark:text-gray-300">Reunión con cliente</p>
-										<p className="text-xs text-gray-500 dark:text-gray-400">Hoy, 2:00 PM</p>
+								{isLoading ? (
+									<div className="space-y-3">
+										{[1, 2, 3].map((i) => (
+											<div key={i} className="animate-pulse bg-gray-200 dark:bg-gray-700 h-12 rounded-lg"></div>
+										))}
 									</div>
-								</div>
-								<div className="flex items-center gap-2 sm:gap-3 p-2 bg-green-50 dark:bg-green-900/20 rounded-lg">
-									<div className="w-3 h-3 bg-green-500 rounded-full"></div>
-									<div className="flex-1">
-										<p className="text-sm font-medium text-gray-700 dark:text-gray-300">Entrega de proyecto</p>
-										<p className="text-xs text-gray-500 dark:text-gray-400">Mañana, 10:00 AM</p>
+								) : stats?.topTreatingDoctors && stats.topTreatingDoctors.length > 0 ? (
+									stats.topTreatingDoctors.slice(0, 3).map((doctor, index) => {
+										const colors = ['bg-blue-500', 'bg-green-500', 'bg-orange-500']
+										return (
+											<div key={doctor.doctor} className="flex items-center gap-2 sm:gap-3 p-2 sm:p-3 hover:bg-gray-50 dark:hover:bg-gray-800/50 rounded-lg transition">
+												<div className={`w-3 h-3 rounded-full ${colors[index % colors.length]}`}></div>
+												<div className="flex-1 min-w-0">
+													<p className="text-sm font-medium text-gray-700 dark:text-gray-300 truncate">{doctor.doctor}</p>
+													<p className="text-xs text-gray-500 dark:text-gray-400">
+														{doctor.cases} caso{doctor.cases !== 1 ? 's' : ''} • {formatCurrency(doctor.revenue)}
+													</p>
+												</div>
+											</div>
+										)
+									})
+								) : (
+									<div className="flex items-center justify-center h-full">
+										<div className="text-center">
+											<Stethoscope className="w-8 h-8 text-gray-300 dark:text-gray-600 mx-auto mb-2" />
+											<p className="text-sm text-gray-500 dark:text-gray-400">No hay datos de médicos</p>
+										</div>
 									</div>
-								</div>
-								<div className="flex items-center gap-2 sm:gap-3 p-2 bg-orange-50 dark:bg-orange-900/20 rounded-lg">
-									<div className="w-3 h-3 bg-orange-500 rounded-full"></div>
-									<div className="flex-1">
-										<p className="text-sm font-medium text-gray-700 dark:text-gray-300">Revisión semanal</p>
-										<p className="text-xs text-gray-500 dark:text-gray-400">Viernes, 4:00 PM</p>
-									</div>
-								</div>
+								)}
 							</div>
 						</div>
 					</Card>
