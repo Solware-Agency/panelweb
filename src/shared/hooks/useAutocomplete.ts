@@ -23,6 +23,7 @@ export const useAutocomplete = (fieldName: string) => {
 			try {
 				setIsLoading(true)
 
+				// Updated field mapping to match the actual database schema
 				const fieldMapping: Record<string, string> = {
 					// Datos del paciente
 					fullName: 'full_name',
@@ -40,9 +41,35 @@ export const useAutocomplete = (fieldName: string) => {
 					// Otros campos
 					branch: 'branch',
 					comments: 'comments',
+
+					// Additional fields that might be used
+					paymentMethod1: 'payment_method_1',
+					paymentMethod2: 'payment_method_2',
+					paymentMethod3: 'payment_method_3',
+					paymentMethod4: 'payment_method_4',
+					paymentReference1: 'payment_reference_1',
+					paymentReference2: 'payment_reference_2',
+					paymentReference3: 'payment_reference_3',
+					paymentReference4: 'payment_reference_4',
+					paymentStatus: 'payment_status',
 				}
 
 				const dbFieldName = fieldMapping[fieldName] || fieldName
+
+				// Verify the field exists in the database schema before querying
+				const validFields = [
+					'full_name', 'id_number', 'phone', 'email', 'exam_type', 'origin', 
+					'treating_doctor', 'sample_type', 'relationship', 'branch', 'comments',
+					'payment_method_1', 'payment_method_2', 'payment_method_3', 'payment_method_4',
+					'payment_reference_1', 'payment_reference_2', 'payment_reference_3', 'payment_reference_4',
+					'payment_status'
+				]
+
+				if (!validFields.includes(dbFieldName)) {
+					console.warn(`Field '${dbFieldName}' is not a valid field in medical_records_clean table`)
+					setIsLoading(false)
+					return
+				}
 
 				const { data, error } = await supabase
 					.from('medical_records_clean')
@@ -60,7 +87,7 @@ export const useAutocomplete = (fieldName: string) => {
 				// Count frequency of each value
 				const valueCounts: Record<string, number> = {}
 				data?.forEach((record: any) => {
-					const value = record[dbFieldName]?.trim()
+					const value = record[dbFieldName]?.toString()?.trim()
 					if (value) {
 						valueCounts[value] = (valueCounts[value] || 0) + 1
 					}
