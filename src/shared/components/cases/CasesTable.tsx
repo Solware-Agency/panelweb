@@ -147,13 +147,13 @@ const CasesTable: React.FC<CasesTableProps> = ({
 			let bValue: any = b[sortField]
 
 			if (sortField === 'created_at' || sortField === 'date_of_birth') {
-				aValue = new Date(aValue).getTime()
-				bValue = new Date(bValue).getTime()
+				aValue = new Date(aValue as string).getTime()
+				bValue = new Date(bValue as string).getTime()
 			}
 
 			if (typeof aValue === 'string') {
 				aValue = aValue.toLowerCase()
-				bValue = bValue.toLowerCase()
+				bValue = (bValue as string).toLowerCase()
 			}
 
 			if (sortDirection === 'asc') {
@@ -539,7 +539,7 @@ const CasesTable: React.FC<CasesTableProps> = ({
 												</div>
 											</td>
 											<td className="px-4 py-4 text-sm text-gray-900 dark:text-gray-100 text-left">
-												{new Date(case_.created_at).toLocaleDateString('es-ES')}
+												{case_.created_at ? new Date(case_.created_at).toLocaleDateString('es-ES') : 'N/A'}
 											</td>
 											<td className="px-4 py-4">
 												<div className="text-left">
@@ -837,7 +837,7 @@ const CasesTable: React.FC<CasesTableProps> = ({
 														</div>
 													</td>
 													<td className="px-4 py-4 text-sm text-gray-900 dark:text-gray-100 text-left">
-														{new Date(case_.created_at).toLocaleDateString('es-ES')}
+														{case_.created_at ? new Date(case_.created_at).toLocaleDateString('es-ES') : 'N/A'}
 													</td>
 													<td className="px-4 py-4">
 														<div className="text-left">

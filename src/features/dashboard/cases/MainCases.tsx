@@ -13,11 +13,15 @@ const MainCases: React.FC = () => {
 	const [isFullscreen, setIsFullscreen] = useState(false)
 
 	// Query for refreshing data
-	const { data: cases = [], refetch, isLoading, error } = useQuery({
+	const casesQueryResult = useQuery({
 		queryKey: ['medical-cases'],
 		queryFn: () => getMedicalRecords(100, 0),
 		staleTime: 1000 * 60 * 5, // 5 minutes
 	})
+
+	const { refetch, isLoading } = casesQueryResult
+	const cases: MedicalRecord[] = casesQueryResult.data?.data || []
+	const error = casesQueryResult.error
 
 	const handleCaseSelect = (case_: MedicalRecord) => {
 		setSelectedCase(case_)
