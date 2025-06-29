@@ -33,7 +33,48 @@ function AuthCallback() {
 				console.log('Search params:', Object.fromEntries(searchParams.entries()))
 				console.log('Hash:', window.location.hash)
 
-				// Check for error parameters first
+				// PRIORITY 1: Check for password recovery first
+				const type = searchParams.get('type')
+				const accessToken = searchParams.get('access_token')
+				const refreshToken = searchParams.get('refresh_token')
+
+				console.log('Callback type:', type)
+				console.log('Has access token:', !!accessToken)
+				console.log('Has refresh token:', !!refreshToken)
+
+				// Handle password recovery with highest priority
+				if (type === 'recovery' || type === 'password_recovery') {
+					console.log('Password recovery flow detected - handling with priority')
+
+					if (accessToken && refreshToken) {
+						console.log('Setting session with recovery tokens...')
+						// Set the session with the tokens from URL
+						const { error: setSessionError } = await supabase.auth.setSession({
+							access_token: accessToken,
+							refresh_token: refreshToken,
+						})
+
+						if (setSessionError) {
+							console.error('Error setting session for password recovery:', setSessionError)
+							setStatus('error')
+							setMessage('Error al procesar el enlace de recuperación. El enlace puede haber expirado.')
+							return
+						}
+
+						console.log('Session set successfully for password recovery')
+						setStatus('password_reset')
+						setShowPasswordForm(true)
+						setMessage('Por favor, ingresa tu nueva contraseña.')
+						return
+					} else {
+						console.error('Password recovery link missing required tokens')
+						setStatus('error')
+						setMessage('Enlace de recuperación inválido o expirado.')
+						return
+					}
+				}
+
+				// PRIORITY 2: Check for general errors
 				const error = searchParams.get('error')
 				const errorDescription = searchParams.get('error_description')
 				const errorCode = searchParams.get('error_code')
@@ -53,6 +94,9 @@ function AuthCallback() {
 					return
 				}
 
+				// PRIORITY 3: Handle email confirmation (only if not password recovery)
+				console.log('Not a password recovery, checking for email confirmation...')
+
 				// Check for session from URL hash or query params
 				const { data, error: sessionError } = await supabase.auth.getSession()
 
@@ -61,43 +105,6 @@ function AuthCallback() {
 					setStatus('error')
 					setMessage('Error al verificar la sesión. Inténtalo de nuevo.')
 					return
-				}
-
-				// Check if this is a password recovery flow
-				const type = searchParams.get('type')
-				const accessToken = searchParams.get('access_token')
-				const refreshToken = searchParams.get('refresh_token')
-
-				console.log('Callback type:', type)
-				console.log('Has access token:', !!accessToken)
-				console.log('Has refresh token:', !!refreshToken)
-
-				if (type === 'recovery' || type === 'password_recovery') {
-					console.log('Password recovery flow detected')
-
-					if (accessToken && refreshToken) {
-						// Set the session with the tokens from URL
-						const { error: setSessionError } = await supabase.auth.setSession({
-							access_token: accessToken,
-							refresh_token: refreshToken,
-						})
-
-						if (setSessionError) {
-							console.error('Error setting session for password recovery:', setSessionError)
-							setStatus('error')
-							setMessage('Error al procesar el enlace de recuperación. El enlace puede haber expirado.')
-							return
-						}
-
-						setStatus('password_reset')
-						setShowPasswordForm(true)
-						setMessage('Por favor, ingresa tu nueva contraseña.')
-						return
-					} else {
-						setStatus('error')
-						setMessage('Enlace de recuperación inválido o expirado.')
-						return
-					}
 				}
 
 				// Handle email confirmation
@@ -189,13 +196,16 @@ function AuthCallback() {
 			setPasswordError('')
 			setPasswordLoading(true)
 
+			console.log('Updating password...')
 			const { error } = await updatePassword(newPassword)
 
 			if (error) {
+				console.error('Password update error:', error)
 				setPasswordError('Error al actualizar la contraseña. Inténtalo de nuevo.')
 				return
 			}
 
+			console.log('Password updated successfully')
 			setStatus('success')
 			setMessage('¡Contraseña actualizada exitosamente! Redirigiendo...')
 			setShowPasswordForm(false)
