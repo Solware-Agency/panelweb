@@ -5,6 +5,7 @@ import { calculatePaymentDetailsFromRecord } from '@features/form/lib/payment/pa
 import type { MedicalRecordInsert } from '@shared/types/types'
 import { generateMedicalRecordCode } from '@lib/code-generator'
 import { differenceInYears, differenceInMonths, parseISO } from 'date-fns'
+import { useAuth } from '@app/providers/AuthContext'
 
 export interface MedicalRecord {
 	id?: string
@@ -41,6 +42,8 @@ export interface MedicalRecord {
 	code?: string | null
 	created_at?: string
 	updated_at?: string
+	created_by?: string | null
+	created_by_display_name?: string | null
 }
 
 export interface ChangeLog {
@@ -144,6 +147,21 @@ export const insertMedicalRecord = async (
 		)
 		console.log(`✅ Código generado: ${newCode}`)
 
+		// Get current user info for tracking who created the record
+		const { data: { user } } = await supabase.auth.getUser()
+		
+		// Get user's display name from profiles
+		let displayName = null
+		if (user) {
+			const { data: profileData } = await supabase
+				.from('profiles')
+				.select('display_name')
+				.eq('id', user.id)
+				.single()
+				
+			displayName = profileData?.display_name
+		}
+
 		// Convertir los datos preparados para que coincidan con el esquema de la base de datos
 		const recordData: MedicalRecordInsert = {
 			full_name: submissionData.full_name,
@@ -177,6 +195,8 @@ export const insertMedicalRecord = async (
 			payment_reference_4: submissionData.payment_reference_4,
 			comments: submissionData.comments || undefined,
 			code: newCode, // ✨ Añadir el código generado
+			created_by: user?.id || null,
+			created_by_display_name: displayName || null,
 		}
 
 		console.log(`💾 Insertando datos en tabla ${TABLE_NAME}:`, recordData)
@@ -236,6 +256,27 @@ export const insertMedicalRecord = async (
 		}
 		console.log(`✅ Registro médico insertado exitosamente en ${TABLE_NAME}:`, data)
 		console.log(`🎯 Código asignado: ${data.code}`)
+		
+		// If user is available, log the creation in change_logs
+		if (user) {
+			try {
+				await saveChangeLog(
+					data.id,
+					user.id,
+					user.email || 'unknown@email.com',
+					[{
+						field: 'created_record',
+						fieldLabel: 'Registro Creado',
+						oldValue: null,
+						newValue: `Registro médico creado: ${data.code || data.id}`
+					}]
+				)
+			} catch (logError) {
+				console.error('Error logging record creation:', logError)
+				// Continue even if logging fails
+			}
+		}
+		
 		return { data: data as MedicalRecord, error: null }
 	} catch (error) {
 		console.error(`❌ Error inesperado insertando en ${TABLE_NAME}:`, error)

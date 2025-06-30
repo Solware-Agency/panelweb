@@ -1,10 +1,12 @@
 import React from 'react'
-import { X, User, Stethoscope, CreditCard, FileText, CheckCircle, Hash, Cake } from 'lucide-react'
+import { X, User, Stethoscope, CreditCard, FileText, CheckCircle, Hash, Cake, UserCheck } from 'lucide-react'
 import { motion, AnimatePresence } from 'motion/react'
 import type { MedicalRecord } from '@lib/supabase-service'
 import { getAgeDisplay } from '@lib/supabase-service'
 import { format, parseISO } from 'date-fns'
 import { es } from 'date-fns/locale'
+import { useQuery } from '@tanstack/react-query'
+import { supabase } from '@lib/supabase/config'
 
 interface CaseDetailPanelProps {
 	case_: MedicalRecord | null
@@ -14,6 +16,42 @@ interface CaseDetailPanelProps {
 
 const CaseDetailPanel: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClose }) => {
 	if (!case_) return null
+
+	// Query to get the user who created the record
+	const { data: creatorData } = useQuery({
+		queryKey: ['record-creator', case_.id],
+		queryFn: async () => {
+			// Get the change log for the creation of this record
+			const { data, error } = await supabase
+				.from('change_logs')
+				.select('user_id, user_email')
+				.eq('medical_record_id', case_.id)
+				.order('changed_at', { ascending: true })
+				.limit(1)
+
+			if (error) {
+				console.error('Error fetching record creator:', error)
+				return null
+			}
+
+			if (data && data.length > 0) {
+				// Get the user profile to get the display name
+				const { data: profileData } = await supabase
+					.from('profiles')
+					.select('display_name')
+					.eq('id', data[0].user_id)
+					.single()
+
+				return {
+					email: data[0].user_email,
+					displayName: profileData?.display_name || null
+				}
+			}
+
+			return null
+		},
+		enabled: !!case_.id && isOpen,
+	})
 
 	const getStatusColor = (status: string) => {
 		switch (status) {
@@ -122,6 +160,23 @@ const CaseDetailPanel: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClos
 
 						{/* Content */}
 						<div className="p-4 sm:p-6 space-y-6">
+							{/* Registered By Section */}
+							{creatorData && (
+								<InfoSection title="Registrado por" icon={UserCheck}>
+									<div className="space-y-1">
+										<InfoRow 
+											label="Nombre" 
+											value={creatorData.displayName || 'Usuario del sistema'} 
+										/>
+										<InfoRow label="Email" value={creatorData.email} />
+										<InfoRow 
+											label="Fecha de registro" 
+											value={case_.created_at ? format(new Date(case_.created_at), 'dd/MM/yyyy HH:mm', { locale: es }) : 'N/A'} 
+										/>
+									</div>
+								</InfoSection>
+							)}
+
 							{/* Case Code Section */}
 							{case_.code && (
 								<InfoSection title="Código del Caso" icon={Hash}>

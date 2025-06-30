@@ -16,6 +16,7 @@ import {
 import { NavLink, useNavigate } from 'react-router-dom'
 import { signOut } from '@lib/supabase/auth'
 import FavIcon from '@shared/components/icons/FavIcon'
+import { useUserProfile } from '@shared/hooks/useUserProfile'
 
 interface SidebarProps {
 	onClose?: () => void
@@ -37,6 +38,7 @@ const Sidebar: React.FC<SidebarProps> = ({
 	// For mobile, always show full sidebar. For desktop, use isExpanded state
 	const showFullContent = isMobile || isExpanded
 	const navigate = useNavigate()
+	const { profile } = useUserProfile()
 
 	const handleLogout = async () => {
 		await signOut()
@@ -67,6 +69,15 @@ const Sidebar: React.FC<SidebarProps> = ({
 						</button>
 					)}
 				</div>
+
+				{/* Welcome message with display name */}
+				{profile?.display_name && (
+					<div className={`text-sm text-primary font-medium mb-2 transition-all duration-300 ${
+						showFullContent ? 'opacity-100 w-auto' : 'opacity-0 w-0 overflow-hidden'
+					}`}>
+						Bienvenido, {profile.display_name}
+					</div>
+				)}
 
 				<NavLink
 					to="/dashboard/home"
