@@ -1,7 +1,7 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Lock, Eye, EyeOff, AlertCircle, CheckCircle } from 'lucide-react'
-import { updatePassword } from '@lib/supabase/auth'
+import { Lock, Eye, EyeOff, AlertCircle, CheckCircle, ShieldCheck } from 'lucide-react'
+import { updatePassword, supabase } from '@lib/supabase/auth'
 import Aurora from '@shared/components/ui/Aurora'
 import FadeContent from '@shared/components/ui/FadeContent'
 
@@ -13,10 +13,48 @@ function NewPasswordForm() {
 	const [error, setError] = useState('')
 	const [message, setMessage] = useState('')
 	const [loading, setLoading] = useState(false)
+	const [sessionChecked, setSessionChecked] = useState(false)
 	const navigate = useNavigate()
+
+	// Check if user has an active session
+	useEffect(() => {
+		const checkSession = async () => {
+			try {
+				const { data, error } = await supabase.auth.getSession()
+				
+				if (error) {
+					console.error('Session check error:', error)
+					setError('Error al verificar la sesión. Por favor, solicita un nuevo enlace de restablecimiento.')
+					setTimeout(() => navigate('/reset-password'), 3000)
+					return
+				}
+				
+				if (!data.session) {
+					console.log('No active session found for password reset')
+					setError('No hay una sesión activa. Por favor, solicita un nuevo enlace de restablecimiento.')
+					setTimeout(() => navigate('/reset-password'), 3000)
+					return
+				}
+				
+				console.log('Active session found for password reset')
+				setSessionChecked(true)
+			} catch (err) {
+				console.error('Unexpected error checking session:', err)
+				setError('Error inesperado. Por favor, intenta de nuevo.')
+				setTimeout(() => navigate('/reset-password'), 3000)
+			}
+		}
+		
+		checkSession()
+	}, [navigate])
 
 	const handlePasswordUpdate = async (e: React.FormEvent) => {
 		e.preventDefault()
+
+		if (!sessionChecked) {
+			setError('Verificando sesión. Por favor, espera un momento.')
+			return
+		}
 
 		if (newPassword !== confirmPassword) {
 			setError('Las contraseñas no coinciden.')
@@ -81,89 +119,99 @@ function NewPasswordForm() {
 							</p>
 						</div>
 
-						<form onSubmit={handlePasswordUpdate} className="w-full">
-							<div className="flex flex-col gap-4 mb-4">
-								<div>
-									<label htmlFor="newPassword" className="block text-sm font-medium text-slate-300 mb-1">
-										Nueva Contraseña:
-									</label>
-									<div className="relative">
-										<input
-											type={showPassword ? 'text' : 'password'}
-											id="newPassword"
-											value={newPassword}
-											onChange={(e) => setNewPassword(e.target.value)}
-											required
-											className="w-full border-2 border-slate-600 bg-slate-700/80 text-white rounded-md p-2 pr-10 focus:outline-none focus:ring-2 focus:ring-primary"
-											placeholder="••••••••"
-										/>
-										<button
-											type="button"
-											onClick={() => setShowPassword(!showPassword)}
-											className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-white"
-										>
-											{showPassword ? <Eye size={20} /> : <EyeOff size={20} />}
-										</button>
-									</div>
-								</div>
-
-								<div>
-									<label htmlFor="confirmPassword" className="block text-sm font-medium text-slate-300 mb-1">
-										Confirmar Contraseña:
-									</label>
-									<div className="relative">
-										<input
-											type={showConfirmPassword ? 'text' : 'password'}
-											id="confirmPassword"
-											value={confirmPassword}
-											onChange={(e) => setConfirmPassword(e.target.value)}
-											required
-											className="w-full border-2 border-slate-600 bg-slate-700/80 text-white rounded-md p-2 pr-10 focus:outline-none focus:ring-2 focus:ring-primary"
-											placeholder="••••••••"
-										/>
-										<button
-											type="button"
-											onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-											className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-white"
-										>
-											{showConfirmPassword ? <Eye size={20} /> : <EyeOff size={20} />}
-										</button>
-									</div>
-								</div>
+						{!sessionChecked ? (
+							<div className="w-full flex flex-col items-center justify-center">
+								<div className="animate-spin rounded-full h-10 w-10 border-b-2 border-primary mb-4"></div>
+								<p className="text-slate-300">Verificando sesión...</p>
 							</div>
+						) : (
+							<form onSubmit={handlePasswordUpdate} className="w-full">
+								<div className="flex flex-col gap-4 mb-4">
+									<div>
+										<label htmlFor="newPassword" className="block text-sm font-medium text-slate-300 mb-1">
+											Nueva Contraseña:
+										</label>
+										<div className="relative">
+											<input
+												type={showPassword ? 'text' : 'password'}
+												id="newPassword"
+												value={newPassword}
+												onChange={(e) => setNewPassword(e.target.value)}
+												required
+												className="w-full border-2 border-slate-600 bg-slate-700/80 text-white rounded-md p-2 pr-10 focus:outline-none focus:ring-2 focus:ring-primary"
+												placeholder="••••••••"
+											/>
+											<button
+												type="button"
+												onClick={() => setShowPassword(!showPassword)}
+												className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-white"
+											>
+												{showPassword ? <Eye size={20} /> : <EyeOff size={20} />}
+											</button>
+										</div>
+									</div>
 
-							{error && (
-								<div className="bg-red-900/80 border border-red-700 text-red-200 px-4 py-3 rounded mb-4 flex items-center gap-2">
-									<AlertCircle className="size-5 flex-shrink-0" />
-									<span>{error}</span>
+									<div>
+										<label htmlFor="confirmPassword" className="block text-sm font-medium text-slate-300 mb-1">
+											Confirmar Contraseña:
+										</label>
+										<div className="relative">
+											<input
+												type={showConfirmPassword ? 'text' : 'password'}
+												id="confirmPassword"
+												value={confirmPassword}
+												onChange={(e) => setConfirmPassword(e.target.value)}
+												required
+												className="w-full border-2 border-slate-600 bg-slate-700/80 text-white rounded-md p-2 pr-10 focus:outline-none focus:ring-2 focus:ring-primary"
+												placeholder="••••••••"
+											/>
+											<button
+												type="button"
+												onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+												className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-white"
+											>
+												{showConfirmPassword ? <Eye size={20} /> : <EyeOff size={20} />}
+											</button>
+										</div>
+									</div>
 								</div>
-							)}
 
-							{message && (
-								<div className="bg-green-900/80 border border-green-700 text-green-200 px-4 py-3 rounded mb-4 flex items-center gap-2">
-									<CheckCircle className="size-5 flex-shrink-0" />
-									<span>{message}</span>
-								</div>
-							)}
-
-							<button
-								type="submit"
-								disabled={loading}
-								className="w-full bg-transparent border border-primary hover:shadow-sm hover:shadow-primary text-white rounded-md p-2 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-lg transform hover:scale-[1.02] active:scale-[0.98]"
-							>
-								{loading ? (
-									<>
-										<div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-										Actualizando...
-									</>
-								) : (
-									'Actualizar Contraseña'
+								{error && (
+									<div className="bg-red-900/80 border border-red-700 text-red-200 px-4 py-3 rounded mb-4 flex items-center gap-2">
+										<AlertCircle className="size-5 flex-shrink-0" />
+										<span>{error}</span>
+									</div>
 								)}
-							</button>
-						</form>
+
+								{message && (
+									<div className="bg-green-900/80 border border-green-700 text-green-200 px-4 py-3 rounded mb-4 flex items-center gap-2">
+										<CheckCircle className="size-5 flex-shrink-0" />
+										<span>{message}</span>
+									</div>
+								)}
+
+								<button
+									type="submit"
+									disabled={loading}
+									className="w-full bg-transparent border border-primary hover:shadow-sm hover:shadow-primary text-white rounded-md p-2 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-lg transform hover:scale-[1.02] active:scale-[0.98]"
+								>
+									{loading ? (
+										<>
+											<div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+											Actualizando...
+										</>
+									) : (
+										'Actualizar Contraseña'
+									)}
+								</button>
+							</form>
+						)}
 
 						<div className="mt-4 text-xs text-slate-400">
-							<p>La contraseña debe tener al menos 6 caracteres.</p>
+							<div className="flex items-center gap-2 justify-center">
+								<ShieldCheck className="size-4 text-primary" />
+								<p>Tu contraseña debe tener al menos 6 caracteres.</p>
+							</div>
 						</div>
 					</div>
 				</FadeContent>

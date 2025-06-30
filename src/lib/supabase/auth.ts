@@ -120,7 +120,7 @@ export const signOut = async (): Promise<{ error: AuthError | null }> => {
 export const resetPassword = async (email: string): Promise<{ error: AuthError | null }> => {
 	try {
 		console.log('Sending password reset email to:', email)
-		console.log('Using redirect URL:', `${REDIRECT_URL}/auth/callback`)
+		console.log('Using redirect URL:', `${REDIRECT_URL}/auth/callback?type=recovery`)
 
 		const { error } = await supabase.auth.resetPasswordForEmail(email, {
 			redirectTo: `${REDIRECT_URL}/auth/callback?type=recovery`,
@@ -321,3 +321,6 @@ export const adminDeleteUser = async (email: string): Promise<{ error: AuthError
 		}
 	}
 }
+
+// Export supabase for direct access in components that need it
+export { supabase }

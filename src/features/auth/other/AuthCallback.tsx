@@ -1,22 +1,14 @@
 import { useEffect, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { supabase } from '@lib/supabase/config'
-import { updatePassword } from '@lib/supabase/auth'
 import { useSecureRedirect } from '@shared/hooks/useSecureRedirect'
-import { CheckCircle, AlertCircle, RefreshCw, Lock, Eye, EyeOff } from 'lucide-react'
+import { CheckCircle, AlertCircle, RefreshCw } from 'lucide-react'
 import Aurora from '@shared/components/ui/Aurora'
 import FadeContent from '@shared/components/ui/FadeContent'
 
 function AuthCallback() {
-	const [status, setStatus] = useState<'loading' | 'success' | 'error' | 'password_reset'>('loading')
+	const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading')
 	const [message, setMessage] = useState('')
-	const [showPasswordForm, setShowPasswordForm] = useState(false)
-	const [newPassword, setNewPassword] = useState('')
-	const [confirmPassword, setConfirmPassword] = useState('')
-	const [showPassword, setShowPassword] = useState(false)
-	const [showConfirmPassword, setShowConfirmPassword] = useState(false)
-	const [passwordError, setPasswordError] = useState('')
-	const [passwordLoading, setPasswordLoading] = useState(false)
 	const navigate = useNavigate()
 	const [searchParams] = useSearchParams()
 
@@ -37,41 +29,36 @@ function AuthCallback() {
 
 				// PRIORITY 1: Check for password recovery first
 				const type = searchParams.get('type')
-				const accessToken = searchParams.get('access_token')
-				const refreshToken = searchParams.get('refresh_token')
+				const code = searchParams.get('code')
 
 				console.log('Callback type:', type)
-				console.log('Has access token:', !!accessToken)
-				console.log('Has refresh token:', !!refreshToken)
+				console.log('Has code:', !!code)
 
 				// Handle password recovery with highest priority
-				if (type === 'recovery' || type === 'password_recovery') {
+				if (type === 'recovery' && code) {
 					console.log('Password recovery flow detected - handling with priority')
-
-					if (accessToken && refreshToken) {
-						console.log('Setting session with recovery tokens...')
-						// Set the session with the tokens from URL
-						const { error: setSessionError } = await supabase.auth.setSession({
-							access_token: accessToken,
-							refresh_token: refreshToken,
-						})
-
-						if (setSessionError) {
-							console.error('Error setting session for password recovery:', setSessionError)
+					
+					try {
+						// Exchange the code for a session
+						const { data, error } = await supabase.auth.exchangeCodeForSession(code)
+						
+						if (error) {
+							console.error('Error exchanging code for session:', error)
 							setStatus('error')
 							setMessage('Error al procesar el enlace de recuperación. El enlace puede haber expirado.')
 							return
 						}
-
-						console.log('Session set successfully for password recovery')
-						setStatus('password_reset')
-						setShowPasswordForm(true)
-						setMessage('Por favor, ingresa tu nueva contraseña.')
-						return
-					} else {
-						console.error('Password recovery link missing required tokens')
+						
+						if (data.session) {
+							console.log('Session established successfully for password recovery')
+							// Redirect to password reset page
+							navigate('/new-password', { replace: true })
+							return
+						}
+					} catch (err) {
+						console.error('Error in recovery flow:', err)
 						setStatus('error')
-						setMessage('Enlace de recuperación inválido o expirado.')
+						setMessage('Error al procesar el enlace de recuperación.')
 						return
 					}
 				}
@@ -181,48 +168,6 @@ function AuthCallback() {
 		handleAuthCallback()
 	}, [navigate, searchParams, redirectUser])
 
-	const handlePasswordUpdate = async (e: React.FormEvent) => {
-		e.preventDefault()
-
-		if (newPassword !== confirmPassword) {
-			setPasswordError('Las contraseñas no coinciden.')
-			return
-		}
-
-		if (newPassword.length < 6) {
-			setPasswordError('La contraseña debe tener al menos 6 caracteres.')
-			return
-		}
-
-		try {
-			setPasswordError('')
-			setPasswordLoading(true)
-
-			console.log('Updating password...')
-			const { error } = await updatePassword(newPassword)
-
-			if (error) {
-				console.error('Password update error:', error)
-				setPasswordError('Error al actualizar la contraseña. Inténtalo de nuevo.')
-				return
-			}
-
-			console.log('Password updated successfully')
-			setStatus('success')
-			setMessage('¡Contraseña actualizada exitosamente! Redirigiendo...')
-			setShowPasswordForm(false)
-
-			setTimeout(() => {
-				navigate('/')
-			}, 2000)
-		} catch (err) {
-			console.error('Password update error:', err)
-			setPasswordError('Error inesperado al actualizar la contraseña.')
-		} finally {
-			setPasswordLoading(false)
-		}
-	}
-
 	return (
 		<div className="w-screen h-screen relative overflow-hidden bg-gradient-to-br from-black via-black to-black">
 			{/* Aurora Background with New Color Palette */}
@@ -239,133 +184,43 @@ function AuthCallback() {
 					className="w-full h-full flex items-center justify-center"
 				>
 					<div className="flex flex-col items-center justify-center bg-slate-800/90 backdrop-blur-xl p-8 rounded-none md:rounded-xl w-screen h-screen md:h-auto md:w-full md:max-w-md shadow-2xl border border-slate-700/50">
-						{!showPasswordForm ? (
-							<>
-								<div className="text-center mb-6 flex flex-col items-center justify-center">
-									<div
-										className={`p-4 rounded-full mb-4 ${
-											status === 'loading' ? 'bg-blue-500' : status === 'success' ? 'bg-green-500' : 'bg-red-500'
-										}`}
-									>
-										{status === 'loading' && <RefreshCw className="text-white size-12 animate-spin" />}
-										{status === 'success' && <CheckCircle className="text-white size-12" />}
-										{status === 'error' && <AlertCircle className="text-white size-12" />}
-									</div>
+						<div className="text-center mb-6 flex flex-col items-center justify-center">
+							<div
+								className={`p-4 rounded-full mb-4 ${
+									status === 'loading' ? 'bg-blue-500' : status === 'success' ? 'bg-green-500' : 'bg-red-500'
+								}`}
+							>
+								{status === 'loading' && <RefreshCw className="text-white size-12 animate-spin" />}
+								{status === 'success' && <CheckCircle className="text-white size-12" />}
+								{status === 'error' && <AlertCircle className="text-white size-12" />}
+							</div>
 
-									<h1 className="text-2xl font-bold text-white mb-2">
-										{status === 'loading' && 'Verificando...'}
-										{status === 'success' && '¡Verificación Exitosa!'}
-										{status === 'error' && 'Error de Verificación'}
-									</h1>
+							<h1 className="text-2xl font-bold text-white mb-2">
+								{status === 'loading' && 'Verificando...'}
+								{status === 'success' && '¡Verificación Exitosa!'}
+								{status === 'error' && 'Error de Verificación'}
+							</h1>
 
-									<p className="text-slate-300 text-center">{message || 'Procesando verificación...'}</p>
+							<p className="text-slate-300 text-center">{message || 'Procesando verificación...'}</p>
+						</div>
+
+						{status === 'loading' && (
+							<div className="w-full">
+								<div className="bg-blue-900/50 border border-blue-700/50 text-blue-200 px-4 py-3 rounded">
+									<p className="text-sm text-center">Por favor espera mientras procesamos tu solicitud...</p>
 								</div>
+							</div>
+						)}
 
-								{status === 'loading' && (
-									<div className="w-full">
-										<div className="bg-blue-900/50 border border-blue-700/50 text-blue-200 px-4 py-3 rounded">
-											<p className="text-sm text-center">Por favor espera mientras procesamos tu solicitud...</p>
-										</div>
-									</div>
-								)}
-
-								{status === 'error' && (
-									<div className="w-full">
-										<button
-											onClick={() => navigate('/')}
-											className="w-full bg-transparent border border-primary hover:shadow-sm hover:shadow-primary text-white rounded-md p-2 transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98]"
-										>
-											Ir al Login
-										</button>
-									</div>
-								)}
-							</>
-						) : (
-							<>
-								<div className="text-center mb-6 flex flex-col items-center justify-center">
-									<div className="p-4 bg-[#9e1157] rounded-full mb-4 shadow-lg">
-										<Lock className="text-white size-12" />
-									</div>
-									<h1 className="text-2xl font-bold text-white mb-2">Nueva Contraseña</h1>
-									<p className="text-slate-300 text-center">
-										Ingresa tu nueva contraseña para completar el restablecimiento.
-									</p>
-								</div>
-
-								<form onSubmit={handlePasswordUpdate} className="w-full">
-									<div className="flex flex-col gap-4 mb-4">
-										<div>
-											<label htmlFor="newPassword" className="block text-sm font-medium text-slate-300 mb-1">
-												Nueva Contraseña:
-											</label>
-											<div className="relative">
-												<input
-													type={showPassword ? 'text' : 'password'}
-													id="newPassword"
-													value={newPassword}
-													onChange={(e) => setNewPassword(e.target.value)}
-													required
-													className="w-full border-2 border-slate-600 bg-slate-700/80 text-white rounded-md p-2 pr-10 focus:outline-none focus:ring-2 focus:ring-primary"
-													placeholder="••••••••"
-												/>
-												<button
-													type="button"
-													onClick={() => setShowPassword(!showPassword)}
-													className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-white"
-												>
-													{showPassword ? <Eye size={20} /> : <EyeOff size={20} />}
-												</button>
-											</div>
-										</div>
-
-										<div>
-											<label htmlFor="confirmPassword" className="block text-sm font-medium text-slate-300 mb-1">
-												Confirmar Contraseña:
-											</label>
-											<div className="relative">
-												<input
-													type={showConfirmPassword ? 'text' : 'password'}
-													id="confirmPassword"
-													value={confirmPassword}
-													onChange={(e) => setConfirmPassword(e.target.value)}
-													required
-													className="w-full border-2 border-slate-600 bg-slate-700/80 text-white rounded-md p-2 pr-10 focus:outline-none focus:ring-2 focus:ring-primary"
-													placeholder="••••••••"
-												/>
-												<button
-													type="button"
-													onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-													className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-white"
-												>
-													{showConfirmPassword ? <Eye size={20} /> : <EyeOff size={20} />}
-												</button>
-											</div>
-										</div>
-									</div>
-
-									{passwordError && (
-										<div className="bg-red-900/80 border border-red-700 text-red-200 px-4 py-3 rounded mb-4 flex items-center gap-2">
-											<AlertCircle className="size-5 flex-shrink-0" />
-											<span>{passwordError}</span>
-										</div>
-									)}
-
-									<button
-										type="submit"
-										disabled={passwordLoading}
-										className="w-full bg-transparent border border-primary hover:shadow-sm hover:shadow-primary text-white rounded-md p-2 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-lg transform hover:scale-[1.02] active:scale-[0.98]"
-									>
-										{passwordLoading ? (
-											<>
-												<div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-												Actualizando...
-											</>
-										) : (
-											'Actualizar Contraseña'
-										)}
-									</button>
-								</form>
-							</>
+						{status === 'error' && (
+							<div className="w-full">
+								<button
+									onClick={() => navigate('/')}
+									className="w-full bg-transparent border border-primary hover:shadow-sm hover:shadow-primary text-white rounded-md p-2 transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98]"
+								>
+									Ir al Login
+								</button>
+							</div>
 						)}
 					</div>
 				</FadeContent>
