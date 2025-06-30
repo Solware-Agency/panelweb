@@ -53,7 +53,7 @@ function App() {
 
 					{/* Protected dashboard routes (owner only) */}
 					<Route
-						path="/dashboard"
+						path="/dashboard/home"
 						element={
 							<PrivateRoute>
 								<Layout />

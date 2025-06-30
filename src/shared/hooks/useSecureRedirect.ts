@@ -26,7 +26,7 @@ interface UseSecureRedirectReturn {
 export const useSecureRedirect = (options: UseSecureRedirectOptions = {}): UseSecureRedirectReturn => {
   const {
     redirectOnMount = true,
-    ownerPath = '/dashboard',
+    ownerPath = '/dashboard/home',
     employeePath = '/form',
     onRedirect,
   } = options

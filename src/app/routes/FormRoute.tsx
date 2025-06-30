@@ -67,7 +67,7 @@ const FormRoute = ({ children }: { children: JSX.Element }) => {
 	// If user is the owner, redirect to dashboard
 	if (profile.role === 'owner') {
 		console.log('Owner user accessing form route, redirecting to dashboard')
-		return <Navigate to="/dashboard" replace />
+		return <Navigate to="/dashboard/home" replace />
 	}
 
 	// Allow access for employees and other roles

@@ -75,7 +75,7 @@ const PrivateRoute = ({ children, requiredRole = 'owner' }: PrivateRouteProps) =
 		
 		// Redirect based on actual user role
 		if (profile.role === 'owner') {
-			return <Navigate to="/dashboard" replace />
+			return <Navigate to="/dashboard/home" replace />
 		} else {
 			return <Navigate to="/form" replace />
 		}
