@@ -64,7 +64,7 @@ function PasswordResetForm() {
 					delay={200}
 					className="w-full h-full flex items-center justify-center"
 				>
-					<div className="flex flex-col items-center justify-center bg-slate-800/90 backdrop-blur-xl p-8 rounded-none md:rounded-xl w-screen h-screen md:h-auto md:w-full md:max-w-md shadow-2xl border border-slate-700/50">
+					<div className="flex flex-col items-center justify-center bg-background p-8 rounded-none md:rounded-xl w-screen h-screen md:h-auto md:w-full md:max-w-md shadow-2xl border border-slate-700/50">
 						<div className="text-center mb-4 flex flex-col items-center justify-center">
 							<div className="p-4 bg-[#9e1157] rounded-full mb-4 shadow-lg">
 								<Lock className="text-white size-16" />
@@ -86,7 +86,7 @@ function PasswordResetForm() {
 										onChange={(e) => setEmail(e.target.value)}
 										required
 										disabled={loading}
-										className="border-2 border-slate-600 rounded-md p-2 pl-10 w-full focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary disabled:opacity-50 disabled:cursor-not-allowed bg-slate-700/80 text-white placeholder-slate-400 transition-all duration-200"
+										className="border-2 border-slate-600 rounded-md p-2 pl-10 w-full focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary disabled:opacity-50 disabled:cursor-not-allowed bg-slate-900 text-white placeholder-slate-400 transition-all duration-200"
 										autoComplete="email"
 									/>
 								</div>
@@ -126,7 +126,7 @@ function PasswordResetForm() {
 						<div className="mt-6 text-center">
 							<button
 								onClick={() => navigate('/')}
-								className={`flex items-center justify-center gap-2 text-sm text-purple-400 hover:text-purple-300 transition-colors ${
+								className={`flex items-center justify-center gap-2 text-sm text-blue-500 hover:text-blue-400 transition-colors ${
 									loading ? 'pointer-events-none opacity-50' : ''
 								}`}
 							>
