@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Users, Mail, Calendar, Search, Filter, UserCheck, UserX, Crown, Briefcase, Eye, EyeOff, Key, MapPin, CheckCircle, XCircle, Clock } from 'lucide-react'
+import { Users, Mail, Calendar, Search, Filter, UserCheck, UserX, Crown, Briefcase, Eye, EyeOff, Key, MapPin, CheckCircle, XCircle, Clock, User } from 'lucide-react'
 import { Card } from '@shared/components/ui/card'
 import { Input } from '@shared/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@shared/components/ui/select'
