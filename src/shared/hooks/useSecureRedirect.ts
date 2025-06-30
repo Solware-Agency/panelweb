@@ -71,7 +71,7 @@ export const useSecureRedirect = (options: UseSecureRedirectOptions = {}): UseSe
     if (profile.estado !== 'aprobado') {
       console.log('User not approved, redirecting to pending approval page')
       setIsRedirecting(true)
-      navigate('/', { replace: true })
+      navigate('/pending-approval', { replace: true })
       setTimeout(() => setIsRedirecting(false), 500)
       return
     }
