@@ -15,6 +15,7 @@ function MainHome() {
 	const [selectedYear, setSelectedYear] = useState<number>(new Date().getFullYear())
 	const { data: stats, isLoading, error } = useDashboardStats(selectedMonth, selectedYear)
 	const { profile } = useUserProfile()
+	const [hoveredBranch, setHoveredBranch] = useState<number | null>(null)
 
 	if (error) {
 		console.error('Error loading dashboard stats:', error)
@@ -101,7 +102,7 @@ function MainHome() {
 								</div>
 							</div>
 
-							<div className="flex flex-col lg:flex-row gap-4 lg:gap-8 items-center justify-center flex-1">
+							<div className="flex flex-col lg:flex-row gap-4 lg:gap-8 items-center justify-center flex-1 relative">
 								<div className="relative">
 									<div className="relative size-32 sm:size-36 lg:size-44">
 										<svg className="size-full -rotate-90" viewBox="0 0 36 36">
@@ -164,31 +165,41 @@ function MainHome() {
 													border: 'border-blue-200 dark:border-blue-800/30',
 													text: 'text-blue-600 dark:text-blue-400',
 													dot: 'bg-blue-500',
+													hover: 'hover:bg-blue-100/80 dark:hover:bg-blue-900/40',
+													tooltip: 'bg-blue-600 dark:bg-blue-500',
 												},
 												{
 													bg: 'from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20',
 													border: 'border-green-200 dark:border-green-800/30',
 													text: 'text-green-600 dark:text-green-400',
 													dot: 'bg-green-500',
+													hover: 'hover:bg-green-100/80 dark:hover:bg-green-900/40',
+													tooltip: 'bg-green-600 dark:bg-green-500',
 												},
 												{
 													bg: 'from-orange-50 to-orange-100 dark:from-orange-900/20 dark:to-orange-800/20',
 													border: 'border-orange-200 dark:border-orange-800/30',
 													text: 'text-orange-600 dark:text-orange-400',
 													dot: 'bg-orange-500',
+													hover: 'hover:bg-orange-100/80 dark:hover:bg-orange-900/40',
+													tooltip: 'bg-orange-600 dark:bg-orange-500',
 												},
 												{
 													bg: 'from-red-50 to-red-100 dark:from-red-900/20 dark:to-red-800/20',
 													border: 'border-red-200 dark:border-red-800/30',
 													text: 'text-red-600 dark:text-red-400',
 													dot: 'bg-red-500',
+													hover: 'hover:bg-red-100/80 dark:hover:bg-red-900/40',
+													tooltip: 'bg-red-600 dark:bg-red-500',
 												},
 											]
 											const color = colors[index % colors.length]
 											return (
 												<div
 													key={branch.branch}
-													className={`flex items-center justify-between p-2 sm:p-3 bg-gradient-to-r ${color.bg} rounded-xl border ${color.border}`}
+													className={`flex items-center justify-between p-2 sm:p-3 bg-gradient-to-r ${color.bg} rounded-xl border ${color.border} relative ${color.hover} transition-all duration-300`}
+													onMouseEnter={() => setHoveredBranch(index)}
+													onMouseLeave={() => setHoveredBranch(null)}
 												>
 													<div className="flex items-center gap-2 sm:gap-3">
 														<div className={`w-3 h-3 sm:w-4 sm:h-4 ${color.dot} rounded-full shadow-lg`}></div>
@@ -203,6 +214,31 @@ function MainHome() {
 															{formatCurrency(branch.revenue)}
 														</span>
 													</div>
+													
+													{/* Interactive Tooltip */}
+													{hoveredBranch === index && (
+														<div className={`absolute z-10 -top-24 left-1/2 transform -translate-x-1/2 ${color.tooltip} text-white rounded-lg p-3 shadow-lg min-w-[200px] animate-fade-in`}>
+															<div className="text-center mb-2">
+																<h3 className="font-bold">{branch.branch}</h3>
+																<div className="w-full h-0.5 bg-white/30 my-1"></div>
+															</div>
+															<div className="grid grid-cols-2 gap-2 text-sm">
+																<div>
+																	<p className="text-white/70">Ingresos:</p>
+																	<p className="font-bold">{formatCurrency(branch.revenue)}</p>
+																</div>
+																<div>
+																	<p className="text-white/70">Porcentaje:</p>
+																	<p className="font-bold">{branch.percentage.toFixed(1)}%</p>
+																</div>
+																<div className="col-span-2">
+																	<p className="text-white/70">Período:</p>
+																	<p className="font-bold">{format(selectedMonth, 'MMMM yyyy', { locale: es })}</p>
+																</div>
+															</div>
+															<div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 w-4 h-4 rotate-45 bg-inherit"></div>
+														</div>
+													)}
 												</div>
 											)
 										})
