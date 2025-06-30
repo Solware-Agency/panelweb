@@ -104,7 +104,7 @@ function LoginForm() {
 					delay={200}
 					className="w-full h-full flex items-center justify-center"
 				>
-					<div className="flex flex-col items-center justify-center bg-slate-800/90 backdrop-blur-xl p-8 rounded-none md:rounded-xl w-screen h-screen md:h-auto md:w-full md:max-w-md shadow-2xl border border-slate-700/50">
+					<div className="flex flex-col items-center justify-center bg-background p-8 rounded-none md:rounded-xl w-screen h-screen md:h-auto md:w-full md:max-w-md shadow-2xl border border-slate-700/50">
 						<div className="text-center mb-4 flex flex-col items-center justify-center">
 							<div className="p-4 bg-[#9e1157] rounded-full mb-4 shadow-lg">
 								<FavIcon fill="#fff" className="size-16" />
@@ -124,7 +124,7 @@ function LoginForm() {
 									onChange={(e) => setEmail(e.target.value)}
 									required
 									disabled={loading || isRedirecting}
-									className="border-2 border-slate-600 rounded-md p-2 w-full focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary disabled:opacity-50 disabled:cursor-not-allowed bg-slate-700/80 text-white placeholder-slate-400 transition-all duration-200"
+									className="border-2 border-slate-600 rounded-md p-2 w-full focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary disabled:opacity-50 disabled:cursor-not-allowed bg-slate-900 text-white placeholder-slate-400 transition-all duration-200"
 									autoComplete="email"
 								/>
 								<p className="text-sm text-slate-400">Contraseña:</p>
@@ -132,12 +132,12 @@ function LoginForm() {
 									<input
 										type={showPassword ? 'text' : 'password'}
 										name="password"
-										placeholder="••••••••"
+										placeholder="••••••••••••••"
 										value={password}
 										onChange={(e) => setPassword(e.target.value)}
 										required
 										disabled={loading || isRedirecting}
-										className="border-2 border-slate-600 text-white rounded-md p-2 w-full pr-10 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary disabled:opacity-50 disabled:cursor-not-allowed bg-slate-700/80 placeholder-slate-400 transition-all duration-200"
+										className="border-2 border-slate-600 text-white rounded-md p-2 w-full pr-10 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary disabled:opacity-50 disabled:cursor-not-allowed bg-slate-900 placeholder-slate-400 transition-all duration-200"
 										autoComplete="current-password"
 									/>
 									<button
@@ -162,14 +162,14 @@ function LoginForm() {
 									<input
 										type="checkbox"
 										disabled={loading || isRedirecting}
-										className="rounded border-slate-600 bg-slate-700 text-purple-600 focus:ring-primary disabled:opacity-50"
+										className="rounded border-slate-600 bg-slate-700 text-blue-500 focus:ring-primary disabled:opacity-50"
 									/>
 									<span className="ml-2 text-sm text-slate-400">Recordarme</span>
 								</label>
 
 								<Link
 									to="/forgot-password"
-									className={`text-sm text-purple-400 hover:text-purple-300 transition-colors ${
+									className={`text-sm text-blue-500 hover:text-blue-400 transition-colors ${
 										loading || isRedirecting ? 'pointer-events-none opacity-50' : ''
 									}`}
 								>
@@ -180,7 +180,7 @@ function LoginForm() {
 							<button
 								type="submit"
 								disabled={loading || isRedirecting}
-								className="w-full bg-transparent border border-primary hover:shadow-sm hover:shadow-primary text-white rounded-md p-2 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-lg  transform hover:scale-[1.02] active:scale-[0.98]"
+								className="w-full bg-transparent border border-primary hover:shadow-primary text-white rounded-md p-2 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-sm transform hover:scale-[1.02] active:scale-[0.98]"
 							>
 								{loading || isRedirecting ? (
 									<>
@@ -199,7 +199,7 @@ function LoginForm() {
 								¿No tienes una cuenta?{' '}
 								<Link
 									to="/register"
-									className={`font-medium text-purple-400 hover:text-purple-300 transition-colors ${
+									className={`font-medium text-blue-500 hover:text-blue-400 transition-colors ${
 										loading || isRedirecting ? 'pointer-events-none opacity-50' : ''
 									}`}
 								>

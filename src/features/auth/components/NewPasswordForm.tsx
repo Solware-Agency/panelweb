@@ -163,7 +163,7 @@ function NewPasswordForm() {
 					delay={200}
 					className="w-full h-full flex items-center justify-center"
 				>
-					<div className="flex flex-col items-center justify-center bg-slate-800/90 backdrop-blur-xl p-8 rounded-none md:rounded-xl w-screen h-screen md:h-auto md:w-full md:max-w-md shadow-2xl border border-slate-700/50">
+					<div className="flex flex-col items-center justify-center bg-background p-8 rounded-none md:rounded-xl w-screen h-screen md:h-auto md:w-full md:max-w-md shadow-2xl border border-slate-700/50">
 						<div className="text-center mb-6 flex flex-col items-center justify-center">
 							<div className="p-4 bg-[#9e1157] rounded-full mb-4 shadow-lg">
 								<Lock className="text-white size-12" />
@@ -203,8 +203,8 @@ function NewPasswordForm() {
 												value={newPassword}
 												onChange={(e) => setNewPassword(e.target.value)}
 												required
-												className="w-full border-2 border-slate-600 bg-slate-700/80 text-white rounded-md p-2 pr-10 focus:outline-none focus:ring-2 focus:ring-primary"
-												placeholder="••••••••"
+												className="w-full border-2 border-slate-600 bg-slate-90ext-white rounded-md p-2 pr-10 focus:outline-none focus:ring-2 focus:ring-primary"
+												placeholder="••••••••••••••••••••"
 											/>
 											<button
 												type="button"
@@ -227,8 +227,8 @@ function NewPasswordForm() {
 												value={confirmPassword}
 												onChange={(e) => setConfirmPassword(e.target.value)}
 												required
-												className="w-full border-2 border-slate-600 bg-slate-700/80 text-white rounded-md p-2 pr-10 focus:outline-none focus:ring-2 focus:ring-primary"
-												placeholder="••••••••"
+												className="w-full border-2 border-slate-600 bg-slate-900 text-white rounded-md p-2 pr-10 focus:outline-none focus:ring-2 focus:ring-primary"
+												placeholder="••••••••••••••••••••"
 											/>
 											<button
 												type="button"
