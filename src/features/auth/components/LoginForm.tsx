@@ -56,7 +56,7 @@ function LoginForm() {
 				} else if (signInError.message.includes('Invalid email')) {
 					setError('Correo electrónico inválido.')
 				} else if (signInError.message.includes('User account is pending approval')) {
-					setError('Su cuenta no está activada. Por favor, hable con el administrador.')
+					setError('Su cuenta necesita ser aprobada')
 				} else {
 					setError('Error al iniciar sesión. Verifica tus credenciales.')
 				}
