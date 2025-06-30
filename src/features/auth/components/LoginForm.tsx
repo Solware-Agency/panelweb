@@ -106,18 +106,18 @@ function LoginForm() {
 					delay={200}
 					className="w-full h-full flex items-center justify-center"
 				>
-					<div className="flex flex-col items-center justify-center bg-white dark:bg-background p-8 rounded-none md:rounded-xl w-screen h-screen md:h-auto md:w-full md:max-w-md shadow-2xl border border-slate-700/50">
+					<div className="flex flex-col items-center justify-center bg-background p-8 rounded-none md:rounded-xl w-screen h-screen md:h-auto md:w-full md:max-w-md shadow-2xl border border-slate-700/50">
 						<div className="text-center mb-4 flex flex-col items-center justify-center">
 							<div className="p-4 bg-[#9e1157] rounded-full mb-4 shadow-lg">
 								<FavIcon fill="#fff" className="size-16" />
 							</div>
-							<h1 className="text-2xl font-bold text-black dark:text-white mb-2">Bienvenido, inicia sesión</h1>
-							<p className="text-slate-800 dark:text-slate-400">Ingresa a tu cuenta para continuar.</p>
+							<h1 className="text-2xl font-bold text-white mb-2">Bienvenido, inicia sesión</h1>
+							<p className="text-slate-400">Ingresa a tu cuenta para continuar.</p>
 						</div>
 
 						<form className="w-full" onSubmit={handleLogin}>
 							<div className="flex flex-col gap-2 mb-4 w-full">
-									<p className="text-sm text-black dark:text-slate-400">Correo electrónico:</p>
+									<p className="text-sm text-slate-400">Correo electrónico:</p>
 									<input
 									type="email"
 									name="email"
@@ -126,10 +126,10 @@ function LoginForm() {
 									onChange={(e) => setEmail(e.target.value)}
 									required
 									disabled={loading || isRedirecting}
-									className="border-2 border-slate-600 rounded-md p-2 w-full focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary disabled:opacity-50 disabled:cursor-not-allowed bg-slate-900 text-black dark:text-white placeholder-slate-400 transition-all duration-200"
+									className="border-2 border-slate-600 rounded-md p-2 w-full focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary disabled:opacity-50 disabled:cursor-not-allowed bg-slate-900 text-white placeholder-slate-400 transition-all duration-200"
 									autoComplete="email"
 								/>
-								<p className="text-sm text-black dark:text-slate-400">Contraseña:</p>
+								<p className="text-sm text-slate-400">Contraseña:</p>
 								<div className="relative">
 									<input
 										type={showPassword ? 'text' : 'password'}
@@ -139,14 +139,14 @@ function LoginForm() {
 										onChange={(e) => setPassword(e.target.value)}
 										required
 										disabled={loading || isRedirecting}
-										className="border-2 border-slate-600 text-black dark:text-white rounded-md p-2 w-full pr-10 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary disabled:opacity-50 disabled:cursor-not-allowed bg-slate-900 placeholder-slate-400 transition-all duration-200"
+										className="border-2 border-slate-600 text-white rounded-md p-2 w-full pr-10 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary disabled:opacity-50 disabled:cursor-not-allowed bg-slate-900 placeholder-slate-400 transition-all duration-200"
 										autoComplete="current-password"
 									/>
 									<button
 										type="button"
 										onClick={() => setShowPassword(!showPassword)}
 										disabled={loading || isRedirecting}
-										className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 dark:text-slate-400 hover:text-white disabled:opacity-50 transition-colors"
+										className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-white disabled:opacity-50 transition-colors"
 									>
 										{showPassword ? <Eye size={20} /> : <EyeOff size={20} />}
 									</button>
@@ -154,7 +154,7 @@ function LoginForm() {
 							</div>
 
 							{error && (
-								<div className="bg-red-900/80 border border-red-700 text-red-200 dark:text-red-200 px-4 py-3 rounded mb-4 backdrop-blur-sm">
+								<div className="bg-red-900/80 border border-red-700 text-red-200 px-4 py-3 rounded mb-4 backdrop-blur-sm">
 									{error}
 								</div>
 							)}
@@ -164,14 +164,14 @@ function LoginForm() {
 									<input
 										type="checkbox"
 										disabled={loading || isRedirecting}
-										className="rounded border-slate-600 bg-slate-700 text-blue-500 dark:text-blue-500 focus:ring-primary disabled:opacity-50"
+										className="rounded border-slate-600 bg-slate-700text-blue-500 focus:ring-primary disabled:opacity-50"
 									/>
-									<span className="ml-2 text-sm text-slate-800 dark:text-slate-400">Recordarme</span>
+									<span className="ml-2 text-sm text-slate-400">Recordarme</span>
 								</label>
 
 								<Link
 									to="/forgot-password"
-									className={`text-sm text-blue-500 dark:text-blue-500 hover:text-blue-400 transition-colors ${
+									className={`text-smtext-blue-500 hover:text-blue-400 transition-colors ${
 										loading || isRedirecting ? 'pointer-events-none opacity-50' : ''
 									}`}
 								>
@@ -182,7 +182,7 @@ function LoginForm() {
 							<button
 								type="submit"
 								disabled={loading || isRedirecting}
-								className="w-full bg-transparent border border-primary hover:shadow-primary text-black dark:text-white rounded-md p-2 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-sm transform hover:scale-[1.02] active:scale-[0.98]"
+								className="w-full bg-transparent border border-primary hover:shadow-primary text-white rounded-md p-2 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-sm transform hover:scale-[1.02] active:scale-[0.98]"
 							>
 								{loading || isRedirecting ? (
 									<>
@@ -197,7 +197,7 @@ function LoginForm() {
 
 						{/* Footer */}
 						<div className="mt-6 text-center flex flex-col gap-2">
-							<p className="text-sm text-black dark:text-slate-400">
+							<p className="text-sm text-slate-400">
 								¿No tienes una cuenta?{' '}
 								<Link
 									to="/register"
@@ -208,7 +208,7 @@ function LoginForm() {
 									Regístrate aquí
 								</Link>
 							</p>
-							<p className="text-black dark:text-white text-sm">
+							<p className="text-white text-sm">
 								Desarrollado por{' '}
 								<a href="https://www.solware.agency/" className="text-blue-500">
 									Solware
