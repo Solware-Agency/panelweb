@@ -204,7 +204,7 @@ const Sidebar: React.FC<SidebarProps> = ({
 
 			<div className="flex flex-col justify-center gap-4">
 				<NavLink
-					to="/dashboard/settings"
+					to="/dashboard/home/settings"
 					className={({ isActive }) =>
 						`flex justify-between items-center gap-3 cursor-pointer transition w-full ${
 							isActive ? 'text-primary border-primary' : 'hover:text-primary'
