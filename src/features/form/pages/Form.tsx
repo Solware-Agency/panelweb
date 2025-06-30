@@ -6,6 +6,7 @@ import { Button } from '@shared/components/ui/button'
 import { QueryClient, QueryClientProvider, useQuery } from '@tanstack/react-query'
 import { MedicalForm } from '@features/form/components/MedicalForm'
 import { RecordsSection } from '@features/form/components/RecordsSection'
+import { SettingsSection } from '@features/form/components/SettingsSection'
 import { useState } from 'react'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@shared/components/ui/tabs'
 import { useNavigate } from 'react-router-dom'
@@ -97,6 +98,7 @@ function FormContent() {
 						<TabsList className="mb-6">
 							<TabsTrigger value="form">Formulario</TabsTrigger>
 							<TabsTrigger value="records">Registros</TabsTrigger>
+							<TabsTrigger value="settings">Ajustes</TabsTrigger>
 						</TabsList>
 
 						<TabsContent value="form">
@@ -112,6 +114,10 @@ function FormContent() {
 								isFullscreen={isFullscreen}
 								setIsFullscreen={setIsFullscreen}
 							/>
+						</TabsContent>
+
+						<TabsContent value="settings">
+							<SettingsSection />
 						</TabsContent>
 					</Tabs>
 				</main>
