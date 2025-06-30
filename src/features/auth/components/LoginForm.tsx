@@ -56,7 +56,7 @@ function LoginForm() {
 				} else if (signInError.message.includes('Invalid email')) {
 					setError('Correo electrónico inválido.')
 				} else if (signInError.message.includes('User account is pending approval')) {
-					setError('Tu cuenta está pendiente de aprobación por un administrador. Por favor, contacta con el administrador para activar tu acceso.')
+					setError('Tu cuenta está pendiente de aprobación por un administrador. Por favor, contacta con el administrador para activar tu acceso. Si necesitas asistencia inmediata, puedes comunicarte a través de nuestro correo electrónico de soporte.')
 				} else {
 					setError('Error al iniciar sesión. Verifica tus credenciales.')
 				}
