@@ -143,15 +143,16 @@ function AuthCallback() {
 								.eq('id', user.id)
 								.single()
 
-							if (profileData && profileData.estado === 'aprobado') {
-								// User is approved, use secure redirect for role-based navigation
-								setTimeout(() => {
-									redirectUser()
-								}, 2000)
-							} else {
+							// FIXED: Only check for explicit "pendiente" status
+							if (profileData && profileData.estado === 'pendiente') {
 								// User is not approved, redirect to pending approval page
 								setTimeout(() => {
 									navigate('/pending-approval')
+								}, 2000)
+							} else {
+								// User is approved or estado is null/undefined/anything else, use secure redirect for role-based navigation
+								setTimeout(() => {
+									redirectUser()
 								}, 2000)
 							}
 						} catch (profileError) {
@@ -200,15 +201,16 @@ function AuthCallback() {
 									.eq('id', user.id)
 									.single()
 
-								if (profileData && profileData.estado === 'aprobado') {
-									// User is approved, use secure redirect for role-based navigation
-									setTimeout(() => {
-										redirectUser()
-									}, 2000)
-								} else {
+								// FIXED: Only check for explicit "pendiente" status
+								if (profileData && profileData.estado === 'pendiente') {
 									// User is not approved, redirect to pending approval page
 									setTimeout(() => {
 										navigate('/pending-approval')
+									}, 2000)
+								} else {
+									// User is approved or estado is null/undefined/anything else, use secure redirect for role-based navigation
+									setTimeout(() => {
+										redirectUser()
 									}, 2000)
 								}
 							} catch (profileError) {

@@ -67,8 +67,8 @@ export const useSecureRedirect = (options: UseSecureRedirectOptions = {}): UseSe
       return
     }
 
-    // Check if user is approved
-    if (profile.estado !== 'aprobado') {
+    // Check if user is approved - FIXED: Only redirect to pending approval if estado is explicitly "pendiente"
+    if (profile.estado === 'pendiente') {
       console.log('User not approved, redirecting to pending approval page')
       setIsRedirecting(true)
       navigate('/pending-approval', { replace: true })
@@ -98,7 +98,12 @@ export const useSecureRedirect = (options: UseSecureRedirectOptions = {}): UseSe
    * Checks if user can access a specific role-protected route
    */
   const canAccess = (requiredRole?: 'owner' | 'employee'): boolean => {
-    if (!user || !profile || !user.email_confirmed_at || profileError || profile.estado !== 'aprobado') {
+    if (!user || !profile || !user.email_confirmed_at || profileError) {
+      return false
+    }
+    
+    // FIXED: Only block access if estado is explicitly "pendiente"
+    if (profile.estado === 'pendiente') {
       return false
     }
 

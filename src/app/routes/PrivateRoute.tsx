@@ -42,8 +42,8 @@ const PrivateRoute = ({ children, requiredRole = 'owner' }: PrivateRouteProps) =
 		return <Navigate to="/email-verification-notice" replace />
 	}
 
-	// Check if user is approved
-	if (profile?.estado !== 'aprobado') {
+	// Check if user is approved - FIXED: Only redirect to pending approval if estado is explicitly "pendiente"
+	if (profile?.estado === 'pendiente') {
 		console.log('User not approved, redirecting to pending approval page')
 		return <Navigate to="/pending-approval" replace />
 	}
