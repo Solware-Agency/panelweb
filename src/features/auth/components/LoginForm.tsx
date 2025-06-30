@@ -58,7 +58,7 @@ function LoginForm() {
 				} else if (signInError.message.includes('User account is pending approval')) {
 					setError('Su cuenta necesita ser aprobada')
 				} else {
-					setError('Error al iniciar sesión. Verifica tus credenciales.')
+					setError('Error al iniciar sesión. Su cuenta necesita ser aprobada.')
 				}
 				return
 			}
