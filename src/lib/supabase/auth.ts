@@ -14,6 +14,7 @@ export interface UserProfile {
 	updated_at: string
 	assigned_branch?: string | null
 	display_name?: string | null
+	estado?: string
 }
 
 // Sign up with email and password - ENHANCED WITH PROPER EMAIL VERIFICATION
@@ -211,7 +212,7 @@ export const updateUserMetadata = async (metadata: { [key: string]: any }): Prom
 		console.log('Attempting to update user metadata:', metadata)
 
 		const { error } = await supabase.auth.updateUser({
-			data: metadata
+			data: metadata,
 		})
 
 		if (error) {
@@ -250,21 +251,17 @@ export const getUserProfile = async (userId: string): Promise<UserProfile | null
 	try {
 		console.log('Fetching profile for user ID:', userId)
 
-		const { data, error } = await supabase
-			.from('profiles')
-			.select('*')
-			.eq('id', userId)
-			.single()
+		const { data, error } = await supabase.from('profiles').select('*').eq('id', userId).single()
 
 		if (error) {
 			console.error('Error fetching user profile:', error)
-			
+
 			// If profile doesn't exist, this might be a new user
 			if (error.code === 'PGRST116') {
 				console.warn('Profile not found for user:', userId)
 				return null
 			}
-			
+
 			// For other errors, throw to be handled by the calling code
 			throw error
 		}
@@ -292,21 +289,21 @@ export const updateUserProfile = async (
 
 		if (profileError) {
 			console.error('Error updating profile:', profileError)
-			return { error: profileError as AuthError }
+			return { error: profileError as unknown as AuthError }
 		}
 
 		// If display_name is being updated, also update it in auth.users metadata
 		if (updates.display_name !== undefined) {
 			// Get current user metadata
 			const { data: userData } = await supabase.auth.getUser()
-			
+
 			if (userData?.user) {
 				// Update the display_name in user metadata
 				const { error: metadataError } = await updateUserMetadata({
 					...userData.user.user_metadata,
-					display_name: updates.display_name
+					display_name: updates.display_name,
 				})
-				
+
 				if (metadataError) {
 					console.error('Error updating user metadata:', metadataError)
 					return { error: metadataError }

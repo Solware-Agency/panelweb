@@ -194,8 +194,8 @@ export const insertMedicalRecord = async (
 			payment_reference_4: submissionData.payment_reference_4,
 			comments: submissionData.comments || undefined,
 			code: newCode, // ✨ Añadir el código generado
-			created_by: user?.id || null,
-			created_by_display_name: displayName || null,
+			created_by: user?.id || undefined,
+			created_by_display_name: displayName || undefined,
 		}
 
 		console.log(`💾 Insertando datos en tabla ${TABLE_NAME}:`, recordData)

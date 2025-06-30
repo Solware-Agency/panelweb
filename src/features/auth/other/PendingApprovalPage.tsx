@@ -1,4 +1,3 @@
-import React from 'react'
 import { Clock, ArrowLeft } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { signOut } from '@lib/supabase/auth'

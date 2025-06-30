@@ -50,22 +50,17 @@ function MainHome() {
 					{/* Grid 1 - Enhanced Welcome Section */}
 					<Card className="col-span-1 sm:col-span-2 lg:col-span-3 row-span-1 lg:row-span-2 dark:bg-background bg-white rounded-xl py-4 sm:py-6 px-4 sm:px-8 flex flex-col sm:flex-row items-center justify-between shadow-lg h-full cursor-pointer transition-all duration-300 hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20">
 						<div className="flex-1 text-center sm:text-left mb-4 sm:mb-0 ">
-							<div className="flex flex-col sm:flex-row items-center sm:items-start gap-3 mb-3">
+							<div className="flex flex-col sm:flex-row items-center sm:items-start gap-3 mb-2">
 								<div>
 									<h1 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 bg-clip-text text-transparent">
 										¡Bienvenido a Conspat!
 									</h1>
-									<div className="flex items-center justify-center sm:justify-start gap-2 mt-1">
-										{profile?.display_name ? (
-											<span className="text-sm text-green-600 dark:text-green-400 font-medium">
+									<div className="flex items-center justify-center sm:justify-start gap-2 mt-1 font-semibold">
+										{profile?.display_name && (
+											<span className="text-md text-primary">
 												{profile.display_name}
 											</span>
-										) : (
-											<>
-												<div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-												<span className="text-sm text-green-600 dark:text-green-400 font-medium">Sistema activo</span>
-											</>
-										)}
+										)} 
 									</div>
 								</div>
 							</div>

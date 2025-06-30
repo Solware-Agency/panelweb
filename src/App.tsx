@@ -10,7 +10,6 @@ import PendingApprovalPage from '@features/auth/other/PendingApprovalPage'
 import AuthCallback from '@features/auth/other/AuthCallback'
 import Layout from '@features/dashboard/layouts/Layout'
 import HomePage from '@features/dashboard/home/HomePage'
-import CalendarPage from '@features/dashboard/calendar/CalendarPage'
 import StatsPage from '@features/dashboard/stats/StatsPage'
 import ReportsPage from '@features/dashboard/reports/ReportsPage'
 import UsersPage from '@features/dashboard/users/UsersPage'
@@ -66,7 +65,6 @@ function App() {
 						{/* Nested routes that will render in the Outlet */}
 						<Route index element={<HomePage />} />
 						<Route path="home" element={<HomePage />} />
-						<Route path="calendar" element={<CalendarPage />} />
 						<Route path="stats" element={<StatsPage />} />
 						<Route path="reports" element={<ReportsPage />} />
 						<Route path="users" element={<UsersPage />} />
