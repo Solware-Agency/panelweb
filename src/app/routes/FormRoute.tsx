@@ -37,6 +37,32 @@ const FormRoute = ({ children }: { children: JSX.Element }) => {
 		return <Navigate to="/email-verification-notice" replace />
 	}
 
+	// Check if user is approved
+	if (profile?.estado !== 'aprobado') {
+		console.log('User not approved, redirecting to pending approval page')
+		return (
+			<div className="w-screen h-screen bg-background flex items-center justify-center">
+				<div className="bg-background p-8 rounded-lg max-w-md text-center">
+					<div className="text-orange-500 mb-4">
+						<svg className="w-12 h-12 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+							<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+						</svg>
+					</div>
+					<h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">Cuenta Pendiente de Aprobación</h3>
+					<p className="text-gray-600 dark:text-gray-400 mb-4">
+						Tu cuenta está pendiente de aprobación por un administrador. Por favor, espera a que tu cuenta sea aprobada para acceder al sistema.
+					</p>
+					<button
+						onClick={() => window.location.href = '/'}
+						className="bg-primary text-white px-4 py-2 rounded hover:bg-primary/80 transition-colors"
+					>
+						Volver al Inicio
+					</button>
+				</div>
+			</div>
+		)
+	}
+
 	// Handle profile loading errors or missing profile
 	if (profileError || !profile) {
 		console.warn('Profile issue for user:', user.id, 'Error:', profileError)

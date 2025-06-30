@@ -67,6 +67,15 @@ export const useSecureRedirect = (options: UseSecureRedirectOptions = {}): UseSe
       return
     }
 
+    // Check if user is approved
+    if (profile.estado !== 'aprobado') {
+      console.log('User not approved, redirecting to pending approval page')
+      setIsRedirecting(true)
+      navigate('/', { replace: true })
+      setTimeout(() => setIsRedirecting(false), 500)
+      return
+    }
+
     setIsRedirecting(true)
 
     // Determine redirect path based on role
@@ -89,7 +98,7 @@ export const useSecureRedirect = (options: UseSecureRedirectOptions = {}): UseSe
    * Checks if user can access a specific role-protected route
    */
   const canAccess = (requiredRole?: 'owner' | 'employee'): boolean => {
-    if (!user || !profile || !user.email_confirmed_at || profileError) {
+    if (!user || !profile || !user.email_confirmed_at || profileError || profile.estado !== 'aprobado') {
       return false
     }
 

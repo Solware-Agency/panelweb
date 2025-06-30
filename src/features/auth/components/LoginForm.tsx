@@ -55,6 +55,8 @@ function LoginForm() {
 					setError('Demasiados intentos. Espera un momento antes de intentar de nuevo.')
 				} else if (signInError.message.includes('Invalid email')) {
 					setError('Correo electrónico inválido.')
+				} else if (signInError.message.includes('User account is pending approval')) {
+					setError('Tu cuenta está pendiente de aprobación por un administrador.')
 				} else {
 					setError('Error al iniciar sesión. Verifica tus credenciales.')
 				}

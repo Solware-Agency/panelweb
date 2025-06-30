@@ -1,11 +1,11 @@
 import React, { useState } from 'react'
-import { Users, Mail, Calendar, Search, Filter, UserCheck, UserX, Crown, Briefcase, Eye, EyeOff, Key, MapPin } from 'lucide-react'
+import { Users, Mail, Calendar, Search, Filter, UserCheck, UserX, Crown, Briefcase, Eye, EyeOff, Key, MapPin, CheckCircle, XCircle, Clock } from 'lucide-react'
 import { Card } from '@shared/components/ui/card'
 import { Input } from '@shared/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@shared/components/ui/select'
 import { useQuery } from '@tanstack/react-query'
 import { supabase } from '@lib/supabase/config'
-import { updateUserRole, updateUserBranch, canManageUsers, getUserByEmail } from '@lib/supabase/user-management'
+import { updateUserRole, updateUserBranch, canManageUsers, getUserByEmail, updateUserApprovalStatus } from '@lib/supabase/user-management'
 import { useAuth } from '@app/providers/AuthContext'
 import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
@@ -22,6 +22,8 @@ interface UserProfile {
 	last_sign_in_at?: string
 	password?: string // Campo para almacenar la contraseña (solo para visualización)
 	assigned_branch?: string | null
+	display_name?: string | null
+	estado?: 'pendiente' | 'aprobado'
 }
 
 const MainUsers: React.FC = () => {
@@ -31,6 +33,7 @@ const MainUsers: React.FC = () => {
 	const [roleFilter, setRoleFilter] = useState<string>('all')
 	const [statusFilter, setStatusFilter] = useState<string>('all')
 	const [branchFilter, setbranchFilter] = useState<string>('all')
+	const [approvalFilter, setApprovalFilter] = useState<string>('all')
 	const [passwordVisibility, setPasswordVisibility] = useState<Record<string, boolean>>({})
 	const [searchEmail, setSearchEmail] = useState('')
 	const [isSearching, setIsSearching] = useState(false)
@@ -155,6 +158,28 @@ const MainUsers: React.FC = () => {
 		return 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300'
 	}
 
+	const getApprovalIcon = (estado?: string) => {
+		switch (estado) {
+			case 'aprobado':
+				return <CheckCircle className="w-4 h-4 text-green-600 dark:text-green-400" />
+			case 'pendiente':
+				return <Clock className="w-4 h-4 text-orange-600 dark:text-orange-400" />
+			default:
+				return <Clock className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+		}
+	}
+
+	const getApprovalColor = (estado?: string) => {
+		switch (estado) {
+			case 'aprobado':
+				return 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300'
+			case 'pendiente':
+				return 'bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-300'
+			default:
+				return 'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-300'
+		}
+	}
+
 	const getBranchColor = (branch: string | null | undefined) => {
 		if (!branch) return 'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-300'
 		
@@ -265,9 +290,60 @@ const MainUsers: React.FC = () => {
 		}
 	}
 
+	const handleApprovalChange = async (userId: string, newStatus: 'pendiente' | 'aprobado') => {
+		// Verificar permisos antes de permitir edición
+		if (!canManage) {
+			toast({
+				title: '❌ Sin permisos',
+				description: 'No tienes permisos para aprobar usuarios.',
+				variant: 'destructive',
+			})
+			return
+		}
+
+		// No permitir que un usuario se edite a sí mismo
+		if (userId === currentUser?.id) {
+			toast({
+				title: '❌ Acción no permitida',
+				description: 'No puedes cambiar tu propio estado de aprobación.',
+				variant: 'destructive',
+			})
+			return
+		}
+
+		try {
+			const { error } = await updateUserApprovalStatus(userId, newStatus)
+			
+			if (error) {
+				throw error
+			}
+
+			toast({
+				title: newStatus === 'aprobado' ? '✅ Usuario aprobado' : '⏱️ Usuario pendiente',
+				description: newStatus === 'aprobado' 
+					? 'El usuario ha sido aprobado y ahora puede acceder al sistema.' 
+					: 'El usuario ha sido marcado como pendiente y no podrá acceder al sistema.',
+				className: newStatus === 'aprobado' 
+					? 'bg-green-100 border-green-400 text-green-800' 
+					: 'bg-orange-100 border-orange-400 text-orange-800',
+			})
+
+			// Refrescar la lista de usuarios
+			refetch()
+		} catch (error) {
+			console.error('Error updating user approval status:', error)
+			toast({
+				title: '❌ Error al actualizar',
+				description: 'Hubo un problema al cambiar el estado de aprobación. Inténtalo de nuevo.',
+				variant: 'destructive',
+			})
+		}
+	}
+
 	// Filtrar usuarios
 	const filteredUsers = users?.filter(user => {
-		const matchesSearch = user.email.toLowerCase().includes(searchTerm.toLowerCase())
+		const matchesSearch = user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+			(user.display_name || '').toLowerCase().includes(searchTerm.toLowerCase())
 		const matchesRole = roleFilter === 'all' || user.role === roleFilter
 		const matchesStatus = statusFilter === 'all' || 
 			(statusFilter === 'verified' && user.email_confirmed_at) ||
@@ -276,8 +352,11 @@ const MainUsers: React.FC = () => {
 			(branchFilter === 'assigned' && user.assigned_branch) ||
 			(branchFilter === 'unassigned' && !user.assigned_branch) ||
 			user.assigned_branch === branchFilter
+		const matchesApproval = approvalFilter === 'all' ||
+			(approvalFilter === 'aprobado' && user.estado === 'aprobado') ||
+			(approvalFilter === 'pendiente' && user.estado === 'pendiente')
 		
-		return matchesSearch && matchesRole && matchesStatus && matchesBranch
+		return matchesSearch && matchesRole && matchesStatus && matchesBranch && matchesApproval
 	}) || []
 
 	// Estadísticas
@@ -287,6 +366,8 @@ const MainUsers: React.FC = () => {
 		employees: users?.filter(u => u.role === 'employee').length || 0,
 		verified: users?.filter(u => u.email_confirmed_at).length || 0,
 		withBranch: users?.filter(u => u.assigned_branch).length || 0,
+		approved: users?.filter(u => u.estado === 'aprobado').length || 0,
+		pending: users?.filter(u => u.estado === 'pendiente').length || 0,
 	}
 
 	if (isLoading) {
@@ -377,14 +458,19 @@ const MainUsers: React.FC = () => {
 					<div className="bg-white dark:bg-background rounded-xl p-4 sm:p-6 transition-colors duration-300">
 						<div className="flex items-center justify-between mb-4">
 							<div className="p-2 sm:p-3 bg-green-100 dark:bg-green-900/30 rounded-lg">
-								<MapPin className="w-5 h-5 sm:w-6 sm:h-6 text-green-600 dark:text-green-400" />
+								<CheckCircle className="w-5 h-5 sm:w-6 sm:h-6 text-green-600 dark:text-green-400" />
 							</div>
 						</div>
 						<div>
-							<h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">Con Sede Asignada</h3>
+							<h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">Usuarios Aprobados</h3>
 							<p className="text-2xl sm:text-3xl font-bold text-gray-700 dark:text-gray-300">
-								{stats.withBranch}
+								{stats.approved}
 							</p>
+							{stats.pending > 0 && (
+								<p className="text-sm text-orange-500 dark:text-orange-400 mt-1">
+									{stats.pending} pendiente{stats.pending !== 1 ? 's' : ''}
+								</p>
+							)}
 						</div>
 					</div>
 				</Card>
@@ -438,7 +524,7 @@ const MainUsers: React.FC = () => {
 							<Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
 							<Input
 								type="text"
-								placeholder="Buscar por email..."
+								placeholder="Buscar por email o nombre..."
 								value={searchTerm}
 								onChange={(e) => setSearchTerm(e.target.value)}
 								className="pl-10"
@@ -470,6 +556,20 @@ const MainUsers: React.FC = () => {
 									<SelectItem value="all">Todos los estados</SelectItem>
 									<SelectItem value="verified">Verificados</SelectItem>
 									<SelectItem value="unverified">No verificados</SelectItem>
+								</SelectContent>
+							</Select>
+						</div>
+
+						{/* Filtro por aprobación */}
+						<div className="flex items-center gap-2">
+							<Select value={approvalFilter} onValueChange={setApprovalFilter}>
+								<SelectTrigger className="w-40">
+									<SelectValue placeholder="Filtrar por aprobación" />
+								</SelectTrigger>
+								<SelectContent>
+									<SelectItem value="all">Todos</SelectItem>
+									<SelectItem value="aprobado">Aprobados</SelectItem>
+									<SelectItem value="pendiente">Pendientes</SelectItem>
 								</SelectContent>
 							</Select>
 						</div>
@@ -527,6 +627,22 @@ const MainUsers: React.FC = () => {
 										<p className="font-medium text-gray-900 dark:text-gray-100 text-sm">{user.email}</p>
 									</div>
 
+									{/* Display Name */}
+									{user.display_name && (
+										<div className="flex items-center gap-2 mb-2">
+											<User className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+											<p className="font-medium text-gray-900 dark:text-gray-100 text-sm">{user.display_name}</p>
+										</div>
+									)}
+
+									{/* Estado de aprobación */}
+									<div className="flex items-center gap-2 mb-2">
+										{getApprovalIcon(user.estado)}
+										<span className={`inline-flex items-center gap-1 px-2 py-1 text-xs font-semibold rounded-full ${getApprovalColor(user.estado)}`}>
+											{user.estado === 'aprobado' ? 'Aprobado' : 'Pendiente de aprobación'}
+										</span>
+									</div>
+
 									{/* Sede asignada */}
 									<div className="flex items-center gap-2 mb-2">
 										<MapPin className="w-4 h-4 text-gray-600 dark:text-gray-400" />
@@ -568,6 +684,37 @@ const MainUsers: React.FC = () => {
 											Registrado: {format(new Date(user.created_at), 'dd/MM/yyyy HH:mm', { locale: es })}
 										</p>
 									</div>
+
+									{/* Selector de aprobación */}
+									{canManage && user.id !== currentUser?.id && (
+										<div className="mt-3">
+											<label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+												Estado de Aprobación:
+											</label>
+											<Select 
+												defaultValue={user.estado || 'pendiente'} 
+												onValueChange={(value: 'pendiente' | 'aprobado') => handleApprovalChange(user.id, value)}
+											>
+												<SelectTrigger className="w-full">
+													<SelectValue placeholder="Seleccionar estado" />
+												</SelectTrigger>
+												<SelectContent>
+													<SelectItem value="aprobado">
+														<div className="flex items-center gap-2">
+															<CheckCircle className="w-4 h-4 text-green-600 dark:text-green-400" />
+															<span>Aprobado</span>
+														</div>
+													</SelectItem>
+													<SelectItem value="pendiente">
+														<div className="flex items-center gap-2">
+															<Clock className="w-4 h-4 text-orange-600 dark:text-orange-400" />
+															<span>Pendiente</span>
+														</div>
+													</SelectItem>
+												</SelectContent>
+											</Select>
+										</div>
+									)}
 
 									{/* Selector de rol */}
 									{canManage && user.id !== currentUser?.id && (
@@ -650,6 +797,9 @@ const MainUsers: React.FC = () => {
 										Estado
 									</th>
 									<th className="px-6 py-4 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+										Aprobación
+									</th>
+									<th className="px-6 py-4 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
 										Fecha de Registro
 									</th>
 								</tr>
@@ -664,6 +814,9 @@ const MainUsers: React.FC = () => {
 												</div>
 												<div>
 													<p className="text-sm font-medium text-gray-900 dark:text-gray-100">{user.email}</p>
+													{user.display_name && (
+														<p className="text-xs text-gray-500 dark:text-gray-400">{user.display_name}</p>
+													)}
 												</div>
 											</div>
 										</td>
@@ -750,6 +903,37 @@ const MainUsers: React.FC = () => {
 												{user.email_confirmed_at ? 'Verificado' : 'No verificado'}
 											</span>
 										</td>
+										<td className="px-6 py-4">
+											{canManage && user.id !== currentUser?.id ? (
+												<Select 
+													defaultValue={user.estado || 'pendiente'} 
+													onValueChange={(value: 'pendiente' | 'aprobado') => handleApprovalChange(user.id, value)}
+												>
+													<SelectTrigger className="w-40">
+														<SelectValue placeholder="Seleccionar estado" />
+													</SelectTrigger>
+													<SelectContent>
+														<SelectItem value="aprobado">
+															<div className="flex items-center gap-2">
+																<CheckCircle className="w-4 h-4 text-green-600 dark:text-green-400" />
+																<span>Aprobado</span>
+															</div>
+														</SelectItem>
+														<SelectItem value="pendiente">
+															<div className="flex items-center gap-2">
+																<Clock className="w-4 h-4 text-orange-600 dark:text-orange-400" />
+																<span>Pendiente</span>
+															</div>
+														</SelectItem>
+													</SelectContent>
+												</Select>
+											) : (
+												<span className={`inline-flex items-center gap-1 px-2 py-1 text-xs font-semibold rounded-full ${getApprovalColor(user.estado)}`}>
+													{getApprovalIcon(user.estado)}
+													{user.estado === 'aprobado' ? 'Aprobado' : 'Pendiente'}
+												</span>
+											)}
+										</td>
 										<td className="px-6 py-4 text-sm text-gray-900 dark:text-gray-100">
 											{format(new Date(user.created_at), 'dd/MM/yyyy HH:mm', { locale: es })}
 										</td>
@@ -777,6 +961,9 @@ const MainUsers: React.FC = () => {
 				<h3 className="text-lg font-semibold text-blue-800 dark:text-blue-300 mb-2">Instrucciones de Uso</h3>
 				<ul className="list-disc list-inside space-y-2 text-sm text-blue-700 dark:text-blue-400">
 					<li>
+						<strong>Aprobación de Usuarios:</strong> Los nuevos usuarios se crean con estado "Pendiente" y deben ser aprobados por un propietario antes de poder acceder al sistema.
+					</li>
+					<li>
 						<strong>Asignación de Sede:</strong> Los empleados con una sede asignada solo podrán ver los casos médicos de esa sede.
 					</li>
 					<li>
@@ -784,9 +971,6 @@ const MainUsers: React.FC = () => {
 					</li>
 					<li>
 						<strong>Propietarios:</strong> Los usuarios con rol de propietario siempre pueden ver todos los casos, independientemente de la sede asignada.
-					</li>
-					<li>
-						<strong>Ejemplo:</strong> El usuario andreoneuge@gmail.com con sede asignada CPC solo podrá ver los casos de la sede CPC.
 					</li>
 				</ul>
 			</div>

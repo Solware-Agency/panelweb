@@ -6,6 +6,7 @@ import PasswordResetPage from '@features/auth/pages/PasswordResetPage'
 import NewPasswordPage from '@features/auth/pages/NewPasswordPage'
 import PrivateRoute from '@app/routes/PrivateRoute'
 import EmailVerificationNotice from '@features/auth/other/EmailVerificationNotice'
+import PendingApprovalPage from '@features/auth/other/PendingApprovalPage'
 import AuthCallback from '@features/auth/other/AuthCallback'
 import Layout from '@features/dashboard/layouts/Layout'
 import HomePage from '@features/dashboard/home/HomePage'
@@ -35,6 +36,7 @@ function App() {
 					<Route path="/reset-password" element={<PasswordResetPage />} />
 					<Route path="/new-password" element={<NewPasswordPage />} />
 					<Route path="/email-verification-notice" element={<EmailVerificationNotice />} />
+					<Route path="/pending-approval" element={<PendingApprovalPage />} />
 
 					{/* Auth callback route for email verification and password reset */}
 					<Route path="/auth/callback" element={<AuthCallback />} />

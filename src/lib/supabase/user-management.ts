@@ -7,6 +7,8 @@ export interface UserProfile {
 	created_at: string
 	updated_at: string
 	assigned_branch?: string | null
+	display_name?: string | null
+	estado?: 'pendiente' | 'aprobado'
 }
 
 /**
@@ -77,6 +79,42 @@ export const updateUserBranch = async (userId: string, branch: string | null) =>
 		return { data: data[0], error: null }
 	} catch (error) {
 		console.error('Unexpected error updating user branch:', error)
+		return { data: null, error }
+	}
+}
+
+/**
+ * Update user approval status
+ */
+export const updateUserApprovalStatus = async (userId: string, estado: 'pendiente' | 'aprobado') => {
+	try {
+		console.log(`Updating user ${userId} approval status to ${estado}`)
+
+		const { data, error } = await supabase
+			.from('profiles')
+			.update({ 
+				estado: estado,
+				updated_at: new Date().toISOString()
+			})
+			.eq('id', userId)
+			.select()
+
+		if (error) {
+			console.error('Error updating user approval status:', error)
+			throw error
+		}
+
+		// Check if any rows were updated
+		if (!data || data.length === 0) {
+			const noProfileError = new Error(`No profile found for user ID: ${userId}`)
+			console.error('No profile found for update:', noProfileError)
+			return { data: null, error: noProfileError }
+		}
+
+		console.log('User approval status updated successfully:', data[0])
+		return { data: data[0], error: null }
+	} catch (error) {
+		console.error('Unexpected error updating user approval status:', error)
 		return { data: null, error }
 	}
 }
@@ -157,7 +195,7 @@ export const getUserStats = async () => {
 	try {
 		const { data, error } = await supabase
 			.from('profiles')
-			.select('role, assigned_branch')
+			.select('role, assigned_branch, estado')
 
 		if (error) {
 			console.error('Error fetching user stats:', error)
@@ -169,6 +207,8 @@ export const getUserStats = async () => {
 			owners: data?.filter(u => u.role === 'owner').length || 0,
 			employees: data?.filter(u => u.role === 'employee').length || 0,
 			withBranch: data?.filter(u => u.assigned_branch).length || 0,
+			approved: data?.filter(u => u.estado === 'aprobado').length || 0,
+			pending: data?.filter(u => u.estado === 'pendiente').length || 0,
 		}
 
 		return { data: stats, error: null }

@@ -135,10 +135,32 @@ function AuthCallback() {
 						setStatus('success')
 						setMessage('¡Email verificado exitosamente! Redirigiendo...')
 
-						// Use secure redirect for role-based navigation
-						setTimeout(() => {
-							redirectUser()
-						}, 2000)
+						// Check if user is approved before redirecting
+						try {
+							const { data: profileData } = await supabase
+								.from('profiles')
+								.select('estado')
+								.eq('id', user.id)
+								.single()
+
+							if (profileData && profileData.estado === 'aprobado') {
+								// User is approved, use secure redirect for role-based navigation
+								setTimeout(() => {
+									redirectUser()
+								}, 2000)
+							} else {
+								// User is not approved, redirect to pending approval page
+								setTimeout(() => {
+									navigate('/pending-approval')
+								}, 2000)
+							}
+						} catch (profileError) {
+							console.error('Error checking user approval status:', profileError)
+							// Default to secure redirect if we can't check approval status
+							setTimeout(() => {
+								redirectUser()
+							}, 2000)
+						}
 					} else {
 						setStatus('error')
 						setMessage('El email aún no está verificado. Revisa tu correo.')
@@ -170,10 +192,32 @@ function AuthCallback() {
 							setStatus('success')
 							setMessage('¡Email verificado exitosamente! Redirigiendo...')
 
-							// Use secure redirect for role-based navigation
-							setTimeout(() => {
-								redirectUser()
-							}, 2000)
+							// Check if user is approved before redirecting
+							try {
+								const { data: profileData } = await supabase
+									.from('profiles')
+									.select('estado')
+									.eq('id', user.id)
+									.single()
+
+								if (profileData && profileData.estado === 'aprobado') {
+									// User is approved, use secure redirect for role-based navigation
+									setTimeout(() => {
+										redirectUser()
+									}, 2000)
+								} else {
+									// User is not approved, redirect to pending approval page
+									setTimeout(() => {
+										navigate('/pending-approval')
+									}, 2000)
+								}
+							} catch (profileError) {
+								console.error('Error checking user approval status:', profileError)
+								// Default to secure redirect if we can't check approval status
+								setTimeout(() => {
+									redirectUser()
+								}, 2000)
+							}
 						} else {
 							setStatus('error')
 							setMessage('No se pudo verificar la sesión. Redirigiendo al login...')
