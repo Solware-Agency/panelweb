@@ -15,7 +15,7 @@ function MainHome() {
 	const [selectedYear, setSelectedYear] = useState<number>(new Date().getFullYear())
 	const { data: stats, isLoading, error } = useDashboardStats(selectedMonth, selectedYear)
 	const { profile } = useUserProfile()
-	const [hoveredBranch, setHoveredBranch] = useState<number | null>(null)
+	const [hoveredBranchIndex, setHoveredBranchIndex] = useState<number | null>(null)
 
 	if (error) {
 		console.error('Error loading dashboard stats:', error)
@@ -135,6 +135,9 @@ function MainHome() {
 														strokeDasharray={`${branch.percentage} ${100 - branch.percentage}`}
 														strokeDashoffset={-offset}
 														strokeLinecap="round"
+														onMouseEnter={() => setHoveredBranchIndex(index)}
+														onMouseLeave={() => setHoveredBranchIndex(null)}
+														style={{ cursor: 'pointer' }}
 													></circle>
 												)
 											})}
@@ -147,6 +150,39 @@ function MainHome() {
 												<p className="text-xs text-gray-500 dark:text-gray-400">Total</p>
 											</div>
 										</div>
+										
+										{/* Tooltip for pie chart */}
+										{hoveredBranchIndex !== null && stats?.revenueByBranch[hoveredBranchIndex] && (
+											<div className="absolute -top-28 left-1/2 transform -translate-x-1/2 z-10 bg-white dark:bg-gray-800 rounded-lg p-3 shadow-lg min-w-[180px] border border-gray-200 dark:border-gray-700 animate-fade-in">
+												<div className="text-center mb-2">
+													<h3 className="font-bold text-gray-900 dark:text-gray-100">
+														{stats.revenueByBranch[hoveredBranchIndex].branch}
+													</h3>
+													<div className="w-full h-0.5 bg-gray-200 dark:bg-gray-700 my-1"></div>
+												</div>
+												<div className="grid grid-cols-2 gap-2 text-sm">
+													<div>
+														<p className="text-gray-500 dark:text-gray-400">Ingresos:</p>
+														<p className="font-bold text-gray-900 dark:text-gray-100">
+															{formatCurrency(stats.revenueByBranch[hoveredBranchIndex].revenue)}
+														</p>
+													</div>
+													<div>
+														<p className="text-gray-500 dark:text-gray-400">Porcentaje:</p>
+														<p className="font-bold text-gray-900 dark:text-gray-100">
+															{stats.revenueByBranch[hoveredBranchIndex].percentage.toFixed(1)}%
+														</p>
+													</div>
+													<div className="col-span-2">
+														<p className="text-gray-500 dark:text-gray-400">Período:</p>
+														<p className="font-bold text-gray-900 dark:text-gray-100">
+															{format(selectedMonth, 'MMMM yyyy', { locale: es })}
+														</p>
+													</div>
+												</div>
+												<div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 w-4 h-4 rotate-45 bg-white dark:bg-gray-800 border-r border-b border-gray-200 dark:border-gray-700"></div>
+											</div>
+										)}
 									</div>
 								</div>
 
@@ -198,8 +234,8 @@ function MainHome() {
 												<div
 													key={branch.branch}
 													className={`flex items-center justify-between p-2 sm:p-3 bg-gradient-to-r ${color.bg} rounded-xl border ${color.border} relative ${color.hover} transition-all duration-300`}
-													onMouseEnter={() => setHoveredBranch(index)}
-													onMouseLeave={() => setHoveredBranch(null)}
+													onMouseEnter={() => setHoveredBranchIndex(index)}
+													onMouseLeave={() => setHoveredBranchIndex(null)}
 												>
 													<div className="flex items-center gap-2 sm:gap-3">
 														<div className={`w-3 h-3 sm:w-4 sm:h-4 ${color.dot} rounded-full shadow-lg`}></div>
@@ -216,7 +252,7 @@ function MainHome() {
 													</div>
 													
 													{/* Interactive Tooltip */}
-													{hoveredBranch === index && (
+													{hoveredBranchIndex === index && (
 														<div className={`absolute z-10 -top-24 left-1/2 transform -translate-x-1/2 ${color.tooltip} text-white rounded-lg p-3 shadow-lg min-w-[200px] animate-fade-in`}>
 															<div className="text-center mb-2">
 																<h3 className="font-bold">{branch.branch}</h3>
