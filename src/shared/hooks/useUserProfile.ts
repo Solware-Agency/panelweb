@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { getUserProfile, type UserProfile } from '@lib/supabase/auth'
 import { useAuth } from '@app/providers/AuthContext'
+import { supabase } from '@lib/supabase/config'
 
 interface UseUserProfileReturn {
   profile: UserProfile | null
@@ -40,6 +41,39 @@ export const useUserProfile = (): UseUserProfileReturn => {
       
       if (userProfile) {
         console.log('Profile fetched successfully:', userProfile)
+        
+        // Check if user metadata has display_name but profile doesn't
+        if (user.user_metadata?.display_name && !userProfile.display_name) {
+          console.log('Syncing display_name from user metadata to profile')
+          
+          // Update profile with display_name from user metadata
+          const { error: updateError } = await supabase
+            .from('profiles')
+            .update({ display_name: user.user_metadata.display_name })
+            .eq('id', user.id)
+            
+          if (updateError) {
+            console.error('Error syncing display_name to profile:', updateError)
+          } else {
+            // Update local profile object
+            userProfile.display_name = user.user_metadata.display_name
+          }
+        }
+        
+        // Check if profile has display_name but user metadata doesn't
+        if (userProfile.display_name && (!user.user_metadata?.display_name || user.user_metadata.display_name !== userProfile.display_name)) {
+          console.log('Syncing display_name from profile to user metadata')
+          
+          // Update user metadata with display_name from profile
+          const { error: updateError } = await supabase.auth.updateUser({
+            data: { display_name: userProfile.display_name }
+          })
+          
+          if (updateError) {
+            console.error('Error syncing display_name to user metadata:', updateError)
+          }
+        }
+        
         setProfile(userProfile)
         setError(null)
       } else {

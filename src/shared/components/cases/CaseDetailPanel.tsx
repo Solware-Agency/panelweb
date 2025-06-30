@@ -21,7 +21,16 @@ const CaseDetailPanel: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClos
 	const { data: creatorData } = useQuery({
 		queryKey: ['record-creator', case_.id],
 		queryFn: async () => {
-			// Get the change log for the creation of this record
+			// First try to get creator info from the record itself (for new records)
+			if (case_.created_by && case_.created_by_display_name) {
+				return {
+					id: case_.created_by,
+					email: '',  // We don't have the email in the record
+					displayName: case_.created_by_display_name
+				}
+			}
+			
+			// If not available, try to get from change logs
 			const { data, error } = await supabase
 				.from('change_logs')
 				.select('user_id, user_email')
@@ -43,6 +52,7 @@ const CaseDetailPanel: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClos
 					.single()
 
 				return {
+					id: data[0].user_id,
 					email: data[0].user_email,
 					displayName: profileData?.display_name || null
 				}
@@ -161,14 +171,16 @@ const CaseDetailPanel: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClos
 						{/* Content */}
 						<div className="p-4 sm:p-6 space-y-6">
 							{/* Registered By Section */}
-							{creatorData && (
+							{(creatorData || case_.created_by_display_name) && (
 								<InfoSection title="Registrado por" icon={UserCheck}>
 									<div className="space-y-1">
 										<InfoRow 
 											label="Nombre" 
-											value={creatorData.displayName || 'Usuario del sistema'} 
+											value={creatorData?.displayName || case_.created_by_display_name || 'Usuario del sistema'} 
 										/>
-										<InfoRow label="Email" value={creatorData.email} />
+										{creatorData?.email && (
+											<InfoRow label="Email" value={creatorData.email} />
+										)}
 										<InfoRow 
 											label="Fecha de registro" 
 											value={case_.created_at ? format(new Date(case_.created_at), 'dd/MM/yyyy HH:mm', { locale: es }) : 'N/A'} 

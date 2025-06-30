@@ -5,7 +5,6 @@ import { calculatePaymentDetailsFromRecord } from '@features/form/lib/payment/pa
 import type { MedicalRecordInsert } from '@shared/types/types'
 import { generateMedicalRecordCode } from '@lib/code-generator'
 import { differenceInYears, differenceInMonths, parseISO } from 'date-fns'
-import { useAuth } from '@app/providers/AuthContext'
 
 export interface MedicalRecord {
 	id?: string
@@ -159,7 +158,7 @@ export const insertMedicalRecord = async (
 				.eq('id', user.id)
 				.single()
 				
-			displayName = profileData?.display_name
+			displayName = profileData?.display_name || user.user_metadata?.display_name || null
 		}
 
 		// Convertir los datos preparados para que coincidan con el esquema de la base de datos

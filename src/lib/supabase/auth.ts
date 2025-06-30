@@ -205,6 +205,33 @@ export const updatePassword = async (newPassword: string): Promise<{ error: Auth
 	}
 }
 
+// Update user metadata including display name
+export const updateUserMetadata = async (metadata: { [key: string]: any }): Promise<{ error: AuthError | null }> => {
+	try {
+		console.log('Attempting to update user metadata:', metadata)
+
+		const { error } = await supabase.auth.updateUser({
+			data: metadata
+		})
+
+		if (error) {
+			console.error('Update user metadata error:', error)
+		} else {
+			console.log('User metadata updated successfully')
+		}
+
+		return { error }
+	} catch (err) {
+		console.error('Unexpected update user metadata error:', err)
+		return {
+			error: {
+				message: 'An unexpected error occurred while updating user metadata',
+				name: 'UnexpectedError',
+			} as AuthError,
+		}
+	}
+}
+
 // Get current user
 export const getCurrentUser = async (): Promise<User | null> => {
 	try {
@@ -257,12 +284,37 @@ export const updateUserProfile = async (
 	updates: Partial<Omit<UserProfile, 'id' | 'created_at'>>,
 ): Promise<{ error: AuthError | null }> => {
 	try {
-		const { error } = await supabase
+		// First update the profile in the profiles table
+		const { error: profileError } = await supabase
 			.from('profiles')
 			.update({ ...updates, updated_at: new Date().toISOString() })
 			.eq('id', userId)
 
-		return { error: error as AuthError | null }
+		if (profileError) {
+			console.error('Error updating profile:', profileError)
+			return { error: profileError as AuthError }
+		}
+
+		// If display_name is being updated, also update it in auth.users metadata
+		if (updates.display_name !== undefined) {
+			// Get current user metadata
+			const { data: userData } = await supabase.auth.getUser()
+			
+			if (userData?.user) {
+				// Update the display_name in user metadata
+				const { error: metadataError } = await updateUserMetadata({
+					...userData.user.user_metadata,
+					display_name: updates.display_name
+				})
+				
+				if (metadataError) {
+					console.error('Error updating user metadata:', metadataError)
+					return { error: metadataError }
+				}
+			}
+		}
+
+		return { error: null }
 	} catch (err) {
 		console.error('Unexpected error updating profile:', err)
 		return {

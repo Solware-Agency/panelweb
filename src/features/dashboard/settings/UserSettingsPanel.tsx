@@ -5,7 +5,7 @@ import { Input } from '@shared/components/ui/input'
 import { Label } from '@shared/components/ui/label'
 import { useAuth } from '@app/providers/AuthContext'
 import { useUserProfile } from '@shared/hooks/useUserProfile'
-import { updatePassword, updateUserProfile } from '@lib/supabase/auth'
+import { updatePassword, updateUserProfile, updateUserMetadata } from '@lib/supabase/auth'
 import { useToast } from '@shared/hooks/use-toast'
 import { Eye, EyeOff, User, Mail, Key, Save, Loader2, CheckCircle, AlertCircle } from 'lucide-react'
 
@@ -37,9 +37,15 @@ const UserSettingsPanel: React.FC = () => {
   useEffect(() => {
     if (user) {
       setEmail(user.email || '')
+      // Check if display_name exists in user metadata
+      const userDisplayName = user.user_metadata?.display_name
+      if (userDisplayName && (!profile?.display_name || userDisplayName !== displayName)) {
+        setDisplayName(userDisplayName)
+      }
     }
-    if (profile) {
-      setDisplayName(profile.display_name || '')
+    
+    if (profile?.display_name && profile.display_name !== displayName) {
+      setDisplayName(profile.display_name)
     }
   }, [user, profile])
 
@@ -53,13 +59,23 @@ const UserSettingsPanel: React.FC = () => {
     setIsUpdatingProfile(true)
     
     try {
-      // Update profile in Supabase
+      // Update profile in Supabase - this will trigger the synchronization
       const { error } = await updateUserProfile(user.id, {
         display_name: displayName
       })
       
       if (error) {
         throw error
+      }
+      
+      // Also update the user metadata directly to ensure both are in sync
+      const { error: metadataError } = await updateUserMetadata({
+        display_name: displayName
+      })
+      
+      if (metadataError) {
+        console.warn('Warning: User metadata update failed, but profile was updated:', metadataError)
+        // Continue anyway since the database trigger should handle the sync
       }
       
       // Refresh user data
@@ -189,6 +205,7 @@ const UserSettingsPanel: React.FC = () => {
                     placeholder="Tu nombre para mostrar"
                   />
                 </div>
+                <p className="text-xs text-gray-500 mt-1">Este nombre se mostrará en toda la aplicación.</p>
               </div>
               
               {profileError && (
