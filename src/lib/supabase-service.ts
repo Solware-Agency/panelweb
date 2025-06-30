@@ -386,11 +386,46 @@ export const updateMedicalRecord = async (id: string, updates: Partial<MedicalRe
 
 export const deleteMedicalRecord = async (id: string) => {
 	try {
+		console.log(`🗑️ Deleting medical record ${id} from ${TABLE_NAME}`)
+		
+		// Log the deletion action first
+		try {
+			const { data: { user } } = await supabase.auth.getUser()
+			if (user) {
+				// Get record details before deleting for the log
+				const { data: recordToDelete } = await getMedicalRecordById(id)
+				
+				if (recordToDelete) {
+					await saveChangeLog(
+						id,
+						user.id,
+						user.email || 'unknown@email.com',
+						[{
+							field: 'deleted_record',
+							fieldLabel: 'Registro Eliminado',
+							oldValue: `${recordToDelete.code || id} - ${recordToDelete.full_name}`,
+							newValue: null
+						}]
+					)
+				}
+			}
+		} catch (logError) {
+			console.error('Error logging record deletion:', logError)
+			// Continue with deletion even if logging fails
+		}
+		
+		// Perform the actual deletion
 		const { data, error } = await supabase.from(TABLE_NAME).delete().eq('id', id).select().single()
 
-		return { data, error }
+		if (error) {
+			console.error(`❌ Error deleting record from ${TABLE_NAME}:`, error)
+			return { data: null, error }
+		}
+
+		console.log(`✅ Medical record deleted successfully from ${TABLE_NAME}:`, data)
+		return { data, error: null }
 	} catch (error) {
-		console.error(`Error deleting record from ${TABLE_NAME}:`, error)
+		console.error(`❌ Error deleting record from ${TABLE_NAME}:`, error)
 		return { data: null, error }
 	}
 }
