@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { Lock, Eye, EyeOff, AlertCircle, CheckCircle, ShieldCheck } from 'lucide-react'
+import { useNavigate, useLocation } from 'react-router-dom'
+import { Lock, Eye, EyeOff, AlertCircle, CheckCircle, ShieldCheck, RefreshCw } from 'lucide-react'
 import { updatePassword, supabase } from '@lib/supabase/auth'
 import Aurora from '@shared/components/ui/Aurora'
 import FadeContent from '@shared/components/ui/FadeContent'
@@ -13,46 +13,93 @@ function NewPasswordForm() {
 	const [error, setError] = useState('')
 	const [message, setMessage] = useState('')
 	const [loading, setLoading] = useState(false)
-	const [sessionChecked, setSessionChecked] = useState(false)
+	const [sessionStatus, setSessionStatus] = useState<'checking' | 'valid' | 'invalid'>('checking')
 	const navigate = useNavigate()
+	const location = useLocation()
+	
+	// Get recovery data from location state if available
+	const recoveryMode = location.state?.recoveryMode
+	const recoveryCode = location.state?.recoveryCode
 
 	// Check if user has an active session
 	useEffect(() => {
 		const checkSession = async () => {
 			try {
+				console.log('Checking session for password reset...')
 				const { data, error } = await supabase.auth.getSession()
 				
 				if (error) {
 					console.error('Session check error:', error)
-					setError('Error al verificar la sesión. Por favor, solicita un nuevo enlace de restablecimiento.')
-					setTimeout(() => navigate('/reset-password'), 3000)
+					setError('Error al verificar la sesión.')
+					setSessionStatus('invalid')
 					return
 				}
 				
-				if (!data.session) {
-					console.log('No active session found for password reset')
-					setError('No hay una sesión activa. Por favor, solicita un nuevo enlace de restablecimiento.')
-					setTimeout(() => navigate('/reset-password'), 3000)
+				if (data.session) {
+					console.log('Active session found for password reset')
+					setSessionStatus('valid')
 					return
 				}
 				
-				console.log('Active session found for password reset')
-				setSessionChecked(true)
+				// If no session but we have a recovery code, try to exchange it
+				if (recoveryMode && recoveryCode) {
+					console.log('No session found, but recovery code is available. Attempting to exchange...')
+					try {
+						const { data: exchangeData, error: exchangeError } = await supabase.auth.exchangeCodeForSession(recoveryCode)
+						
+						if (exchangeError) {
+							console.error('Error exchanging recovery code for session:', exchangeError)
+							setError('Error al procesar el código de recuperación. Por favor, solicita un nuevo enlace.')
+							setSessionStatus('invalid')
+							return
+						}
+						
+						if (exchangeData.session) {
+							console.log('Successfully exchanged recovery code for session')
+							setSessionStatus('valid')
+							return
+						}
+						
+						console.error('No session returned after code exchange')
+						setError('No se pudo establecer una sesión. Por favor, solicita un nuevo enlace.')
+						setSessionStatus('invalid')
+					} catch (err) {
+						console.error('Unexpected error exchanging code:', err)
+						setError('Error inesperado. Por favor, solicita un nuevo enlace de restablecimiento.')
+						setSessionStatus('invalid')
+					}
+					return
+				}
+				
+				console.log('No active session found and no recovery code available')
+				setError('No hay una sesión activa. Por favor, solicita un nuevo enlace de restablecimiento.')
+				setSessionStatus('invalid')
 			} catch (err) {
 				console.error('Unexpected error checking session:', err)
 				setError('Error inesperado. Por favor, intenta de nuevo.')
-				setTimeout(() => navigate('/reset-password'), 3000)
+				setSessionStatus('invalid')
 			}
 		}
 		
 		checkSession()
-	}, [navigate])
+	}, [recoveryMode, recoveryCode])
+
+	// Redirect to reset password page if session is invalid
+	useEffect(() => {
+		if (sessionStatus === 'invalid') {
+			const timer = setTimeout(() => {
+				navigate('/reset-password', { replace: true })
+			}, 3000)
+			
+			return () => clearTimeout(timer)
+		}
+	}, [sessionStatus, navigate])
 
 	const handlePasswordUpdate = async (e: React.FormEvent) => {
 		e.preventDefault()
 
-		if (!sessionChecked) {
-			setError('Verificando sesión. Por favor, espera un momento.')
+		if (sessionStatus !== 'valid') {
+			setError('No hay una sesión válida para actualizar la contraseña.')
 			return
 		}
 
@@ -68,6 +115,7 @@ function NewPasswordForm() {
 
 		try {
 			setError('')
+			setMessage('')
 			setLoading(true)
 
 			console.log('Updating password...')
@@ -75,6 +123,11 @@ function NewPasswordForm() {
 
 			if (error) {
 				console.error('Password update error:', error)
+				if (error.message.includes('Auth session missing')) {
+					setError('La sesión ha expirado. Por favor, solicita un nuevo enlace de restablecimiento.')
+					setSessionStatus('invalid')
+					return
+				}
 				setError('Error al actualizar la contraseña. Inténtalo de nuevo.')
 				return
 			}
@@ -82,8 +135,10 @@ function NewPasswordForm() {
 			console.log('Password updated successfully')
 			setMessage('¡Contraseña actualizada exitosamente! Redirigiendo...')
 
-			setTimeout(() => {
-				navigate('/')
+			// Sign out the user after successful password reset
+			setTimeout(async () => {
+				await supabase.auth.signOut()
+				navigate('/', { replace: true })
 			}, 2000)
 		} catch (err) {
 			console.error('Password update error:', err)
@@ -119,10 +174,20 @@ function NewPasswordForm() {
 							</p>
 						</div>
 
-						{!sessionChecked ? (
+						{sessionStatus === 'checking' ? (
 							<div className="w-full flex flex-col items-center justify-center">
-								<div className="animate-spin rounded-full h-10 w-10 border-b-2 border-primary mb-4"></div>
+								<RefreshCw className="text-primary size-12 animate-spin mb-4" />
 								<p className="text-slate-300">Verificando sesión...</p>
+							</div>
+						) : sessionStatus === 'invalid' ? (
+							<div className="w-full">
+								<div className="bg-red-900/80 border border-red-700 text-red-200 px-4 py-3 rounded mb-4 flex items-center gap-2">
+									<AlertCircle className="size-5 flex-shrink-0" />
+									<span>{error || 'No hay una sesión válida. Redirigiendo...'}</span>
+								</div>
+								<div className="w-full flex justify-center">
+									<div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary"></div>
+								</div>
 							</div>
 						) : (
 							<form onSubmit={handlePasswordUpdate} className="w-full">

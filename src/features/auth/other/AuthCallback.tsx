@@ -40,10 +40,27 @@ function AuthCallback() {
 					
 					try {
 						// Exchange the code for a session
+						console.log('Exchanging code for session...')
 						const { data, error } = await supabase.auth.exchangeCodeForSession(code)
 						
 						if (error) {
 							console.error('Error exchanging code for session:', error)
+							
+							// Special handling for PKCE errors
+							if (error.message.includes('code verifier') || error.message.includes('PKCE')) {
+								console.log('PKCE error detected, redirecting to password reset page anyway')
+								// Even with PKCE error, redirect to password reset page
+								// The component will handle session validation
+								navigate('/new-password', { 
+									replace: true,
+									state: { 
+										recoveryMode: true,
+										recoveryCode: code
+									}
+								})
+								return
+							}
+							
 							setStatus('error')
 							setMessage('Error al procesar el enlace de recuperación. El enlace puede haber expirado.')
 							return
@@ -53,6 +70,17 @@ function AuthCallback() {
 							console.log('Session established successfully for password recovery')
 							// Redirect to password reset page
 							navigate('/new-password', { replace: true })
+							return
+						} else {
+							console.log('No session data returned, but no error either')
+							// Still try to redirect to password reset page
+							navigate('/new-password', { 
+								replace: true,
+								state: { 
+									recoveryMode: true,
+									recoveryCode: code
+								}
+							})
 							return
 						}
 					} catch (err) {
@@ -122,34 +150,40 @@ function AuthCallback() {
 					console.log('No session found, checking if this was a confirmation link')
 
 					// Try to exchange the URL for a session (for email confirmation)
-					const { data: exchangeData, error: exchangeError } = await supabase.auth.exchangeCodeForSession(
-						window.location.search,
-					)
+					if (code) {
+						const { data: exchangeData, error: exchangeError } = await supabase.auth.exchangeCodeForSession(code)
 
-					if (exchangeError) {
-						console.error('Error exchanging code for session:', exchangeError)
-						setStatus('error')
-						setMessage('Error al verificar el email. El enlace puede haber expirado.')
-						setTimeout(() => {
-							navigate('/')
-						}, 3000)
-						return
-					}
+						if (exchangeError) {
+							console.error('Error exchanging code for session:', exchangeError)
+							setStatus('error')
+							setMessage('Error al verificar el email. El enlace puede haber expirado.')
+							setTimeout(() => {
+								navigate('/')
+							}, 3000)
+							return
+						}
 
-					if (exchangeData.session?.user) {
-						const user = exchangeData.session.user
-						console.log('Email confirmed via code exchange:', user.email)
+						if (exchangeData.session?.user) {
+							const user = exchangeData.session.user
+							console.log('Email confirmed via code exchange:', user.email)
 
-						setStatus('success')
-						setMessage('¡Email verificado exitosamente! Redirigiendo...')
+							setStatus('success')
+							setMessage('¡Email verificado exitosamente! Redirigiendo...')
 
-						// Use secure redirect for role-based navigation
-						setTimeout(() => {
-							redirectUser()
-						}, 2000)
+							// Use secure redirect for role-based navigation
+							setTimeout(() => {
+								redirectUser()
+							}, 2000)
+						} else {
+							setStatus('error')
+							setMessage('No se pudo verificar la sesión. Redirigiendo al login...')
+							setTimeout(() => {
+								navigate('/')
+							}, 3000)
+						}
 					} else {
 						setStatus('error')
-						setMessage('No se pudo verificar la sesión. Redirigiendo al login...')
+						setMessage('No se encontró un código de verificación. Redirigiendo al login...')
 						setTimeout(() => {
 							navigate('/')
 						}, 3000)

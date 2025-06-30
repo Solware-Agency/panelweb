@@ -29,7 +29,7 @@ const getRedirectUrl = () => {
 
 export const REDIRECT_URL = getRedirectUrl()
 
-// Create Supabase client with STRICT email confirmation settings
+// Create Supabase client with PKCE flow type
 export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
 	auth: {
 		autoRefreshToken: true,
