@@ -12,6 +12,7 @@ import {
 	Sun,
 	Clock,
 	Users,
+	Settings,
 } from 'lucide-react'
 import { NavLink, useNavigate } from 'react-router-dom'
 import { signOut } from '@lib/supabase/auth'
@@ -202,19 +203,27 @@ const Sidebar: React.FC<SidebarProps> = ({
 			</div>
 
 			<div className="flex flex-col justify-center gap-4">
-				{/* <div
-					className="flex items-center gap-3 cursor-pointer hover:text-blue-500 transition"
-					title={!showFullContent ? 'Configuraciones' : undefined}
+				<NavLink
+					to="/dashboard/settings"
+					className={({ isActive }) =>
+						`flex justify-between items-center gap-3 cursor-pointer transition w-full ${
+							isActive ? 'text-primary border-primary' : 'hover:text-primary'
+						}`
+					}
+					onClick={onClose}
+					title={!showFullContent ? 'Ajustes' : undefined}
 				>
-					<Settings className="stroke-2 size-5 shrink-0" />
-					<p
-						className={`text-md whitespace-nowrap transition-all duration-300 ${
-							showFullContent ? 'opacity-100 w-auto' : 'opacity-0 w-0 overflow-hidden'
-						}`}
-					>
-						Configuraciones
-					</p>
-				</div> */}
+					<div className="flex gap-3 items-center min-w-0">
+						<Settings className="stroke-2 size-5 shrink-0" />
+						<p
+							className={`text-md whitespace-nowrap transition-all duration-300 ${
+								showFullContent ? 'opacity-100 w-auto' : 'opacity-0 w-0 overflow-hidden'
+							}`}
+						>
+							Ajustes
+						</p>
+					</div>
+				</NavLink>
 				<div
 					onClick={handleLogout}
 					title={!showFullContent ? 'Fecha' : undefined}

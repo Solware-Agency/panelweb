@@ -13,6 +13,7 @@ export interface UserProfile {
 	created_at: string
 	updated_at: string
 	assigned_branch?: string | null
+	display_name?: string | null
 }
 
 // Sign up with email and password - ENHANCED WITH PROPER EMAIL VERIFICATION
