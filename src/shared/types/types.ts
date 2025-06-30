@@ -154,6 +154,8 @@ export type Database = {
 					payment_reference_4: string | null
 					comments: string | null
 					code: string | null
+					created_by: string
+					created_by_display_name: string
 					created_at: string
 					updated_at: string
 				}
@@ -190,6 +192,8 @@ export type Database = {
 					payment_reference_4?: string | null
 					comments?: string | null
 					code?: string | null
+					created_by?: string
+					created_by_display_name?: string
 					created_at?: string
 					updated_at?: string
 				}
@@ -226,6 +230,8 @@ export type Database = {
 					payment_reference_4?: string | null
 					comments?: string | null
 					code?: string | null
+					created_by?: string
+					created_by_display_name?: string
 					created_at?: string
 					updated_at?: string
 				}

@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Users, Mail, Calendar, Search, Filter, UserCheck, UserX, Crown, Briefcase, Eye, EyeOff, Key, MapPin, CheckCircle, XCircle, Clock, User } from 'lucide-react'
+import { Users, Mail, Calendar, Search, Filter, Crown, Briefcase, MapPin, CheckCircle, Clock, User } from 'lucide-react'
 import { Card } from '@shared/components/ui/card'
 import { Input } from '@shared/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@shared/components/ui/select'
@@ -34,7 +34,6 @@ const MainUsers: React.FC = () => {
 	const [statusFilter, setStatusFilter] = useState<string>('all')
 	const [branchFilter, setbranchFilter] = useState<string>('all')
 	const [approvalFilter, setApprovalFilter] = useState<string>('all')
-	const [passwordVisibility, setPasswordVisibility] = useState<Record<string, boolean>>({})
 	const [searchEmail, setSearchEmail] = useState('')
 	const [isSearching, setIsSearching] = useState(false)
 
@@ -144,20 +143,6 @@ const MainUsers: React.FC = () => {
 		}
 	}
 
-	const getStatusIcon = (user: UserProfile) => {
-		if (user.email_confirmed_at) {
-			return <UserCheck className="w-4 h-4 text-green-600 dark:text-green-400" />
-		}
-		return <UserX className="w-4 h-4 text-red-600 dark:text-red-400" />
-	}
-
-	const getStatusColor = (user: UserProfile) => {
-		if (user.email_confirmed_at) {
-			return 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300'
-		}
-		return 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300'
-	}
-
 	const getApprovalIcon = (estado?: string) => {
 		switch (estado) {
 			case 'aprobado':
@@ -197,13 +182,6 @@ const MainUsers: React.FC = () => {
 			default:
 				return 'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-300'
 		}
-	}
-
-	const togglePasswordVisibility = (userId: string) => {
-		setPasswordVisibility(prev => ({
-			...prev,
-			[userId]: !prev[userId]
-		}))
 	}
 
 	const handleRoleChange = async (userId: string, newRole: 'owner' | 'employee') => {
@@ -615,10 +593,6 @@ const MainUsers: React.FC = () => {
 											{getRoleIcon(user.role)}
 											{user.role === 'owner' ? 'Propietario' : 'Empleado'}
 										</span>
-										<span className={`inline-flex items-center gap-1 px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(user)}`}>
-											{getStatusIcon(user)}
-											{user.email_confirmed_at ? 'Verificado' : 'No verificado'}
-										</span>
 									</div>
 
 									{/* Email */}
@@ -654,26 +628,6 @@ const MainUsers: React.FC = () => {
 											) : (
 												<span className="text-sm text-gray-500 dark:text-gray-400">Sin sede asignada</span>
 											)}
-										</div>
-									</div>
-
-									{/* Contraseña */}
-									<div className="flex items-center gap-2 mb-2">
-										<Key className="w-4 h-4 text-gray-600 dark:text-gray-400" />
-										<div className="flex items-center gap-2">
-											<p className="font-medium text-gray-900 dark:text-gray-100 text-sm">
-												{passwordVisibility[user.id] ? 'contraseña123' : '********'}
-											</p>
-											<button 
-												onClick={() => togglePasswordVisibility(user.id)}
-												className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
-											>
-												{passwordVisibility[user.id] ? (
-													<EyeOff className="w-4 h-4" />
-												) : (
-													<Eye className="w-4 h-4" />
-												)}
-											</button>
 										</div>
 									</div>
 
@@ -785,16 +739,10 @@ const MainUsers: React.FC = () => {
 										Usuario
 									</th>
 									<th className="px-6 py-4 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-										Contraseña
-									</th>
-									<th className="px-6 py-4 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
 										Rol
 									</th>
 									<th className="px-6 py-4 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
 										Sede Asignada
-									</th>
-									<th className="px-6 py-4 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-										Estado
 									</th>
 									<th className="px-6 py-4 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
 										Aprobación
@@ -818,23 +766,6 @@ const MainUsers: React.FC = () => {
 														<p className="text-xs text-gray-500 dark:text-gray-400">{user.display_name}</p>
 													)}
 												</div>
-											</div>
-										</td>
-										<td className="px-6 py-4">
-											<div className="flex items-center gap-2">
-												<p className="text-sm font-medium text-gray-900 dark:text-gray-100">
-													{passwordVisibility[user.id] ? 'contraseña123' : '********'}
-												</p>
-												<button 
-													onClick={() => togglePasswordVisibility(user.id)}
-													className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
-												>
-													{passwordVisibility[user.id] ? (
-														<EyeOff className="w-4 h-4" />
-													) : (
-														<Eye className="w-4 h-4" />
-													)}
-												</button>
 											</div>
 										</td>
 										<td className="px-6 py-4">
@@ -875,9 +806,9 @@ const MainUsers: React.FC = () => {
 													onValueChange={(value) => handleBranchChange(user.id, value === 'none' ? null : value)}
 												>
 													<SelectTrigger className="w-40">
-														<SelectValue placeholder="Seleccionar sede" />
+														<SelectValue placeholder="Seleccionar sede" className='text-white' />
 													</SelectTrigger>
-													<SelectContent>
+													<SelectContent className='bg-white dark:bg-background'>
 														<SelectItem value="none">Sin restricción</SelectItem>
 														<SelectItem value="PMG">PMG</SelectItem>
 														<SelectItem value="CPC">CPC</SelectItem>
@@ -896,12 +827,6 @@ const MainUsers: React.FC = () => {
 													<span className="text-sm text-gray-500 dark:text-gray-400">Sin restricción</span>
 												)
 											)}
-										</td>
-										<td className="px-6 py-4">
-											<span className={`inline-flex items-center gap-1 px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(user)}`}>
-												{getStatusIcon(user)}
-												{user.email_confirmed_at ? 'Verificado' : 'No verificado'}
-											</span>
 										</td>
 										<td className="px-6 py-4">
 											{canManage && user.id !== currentUser?.id ? (

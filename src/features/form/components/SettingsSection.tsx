@@ -16,11 +16,9 @@ export const SettingsSection: React.FC = () => {
   
   const [email, setEmail] = useState('')
   const [displayName, setDisplayName] = useState('')
-  const [currentPassword, setCurrentPassword] = useState('')
   const [newPassword, setNewPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
   
-  const [showCurrentPassword, setShowCurrentPassword] = useState(false)
   const [showNewPassword, setShowNewPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   
@@ -136,7 +134,6 @@ export const SettingsSection: React.FC = () => {
       setPasswordUpdateSuccess(true)
       setNewPassword('')
       setConfirmPassword('')
-      setCurrentPassword('')
       
       toast({
         title: '✅ Contraseña actualizada',
