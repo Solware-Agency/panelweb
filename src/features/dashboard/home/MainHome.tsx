@@ -7,12 +7,14 @@ import { Card } from '@shared/components/ui/card'
 import { useState } from 'react'
 import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
+import { useUserProfile } from '@shared/hooks/useUserProfile'
 
 function MainHome() {
 	const navigate = useNavigate()
 	const [selectedMonth, setSelectedMonth] = useState<Date>(new Date())
 	const [selectedYear, setSelectedYear] = useState<number>(new Date().getFullYear())
 	const { data: stats, isLoading, error } = useDashboardStats(selectedMonth, selectedYear)
+	const { profile } = useUserProfile()
 
 	if (error) {
 		console.error('Error loading dashboard stats:', error)
@@ -53,8 +55,16 @@ function MainHome() {
 										¡Bienvenido a Conspat!
 									</h1>
 									<div className="flex items-center justify-center sm:justify-start gap-2 mt-1">
-										<div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-										<span className="text-sm text-green-600 dark:text-green-400 font-medium">Sistema activo</span>
+										{profile?.display_name ? (
+											<span className="text-sm text-green-600 dark:text-green-400 font-medium">
+												{profile.display_name}
+											</span>
+										) : (
+											<>
+												<div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+												<span className="text-sm text-green-600 dark:text-green-400 font-medium">Sistema activo</span>
+											</>
+										)}
 									</div>
 								</div>
 							</div>
