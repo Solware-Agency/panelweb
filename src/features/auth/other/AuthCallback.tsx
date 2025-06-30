@@ -4,6 +4,8 @@ import { supabase } from '@lib/supabase/config'
 import { updatePassword } from '@lib/supabase/auth'
 import { useSecureRedirect } from '@shared/hooks/useSecureRedirect'
 import { CheckCircle, AlertCircle, RefreshCw, Lock, Eye, EyeOff } from 'lucide-react'
+import Aurora from '@shared/components/ui/Aurora'
+import FadeContent from '@shared/components/ui/FadeContent'
 
 function AuthCallback() {
 	const [status, setStatus] = useState<'loading' | 'success' | 'error' | 'password_reset'>('loading')
@@ -222,128 +224,151 @@ function AuthCallback() {
 	}
 
 	return (
-		<div className="w-screen h-screen bg-dark flex items-center justify-center">
-			<div className="flex flex-col items-center justify-center bg-white p-8 rounded-none md:rounded-lg w-screen h-screen md:h-auto md:w-full md:max-w-md shadow-2xl shadow-black/60">
-				{!showPasswordForm ? (
-					<>
-						<div className="text-center mb-6 flex flex-col items-center justify-center">
-							<div
-								className={`p-4 rounded-full mb-4 ${
-									status === 'loading' ? 'bg-blue-500' : status === 'success' ? 'bg-green-500' : 'bg-red-500'
-								}`}
-							>
-								{status === 'loading' && <RefreshCw className="text-white size-12 animate-spin" />}
-								{status === 'success' && <CheckCircle className="text-white size-12" />}
-								{status === 'error' && <AlertCircle className="text-white size-12" />}
-							</div>
+		<div className="w-screen h-screen relative overflow-hidden bg-gradient-to-br from-black via-black to-black">
+			{/* Aurora Background with New Color Palette */}
+			<Aurora colorStops={['#ec4699', '#750c41', '#ec4699']} blend={0.7} amplitude={1.3} speed={0.3} />
 
-							<h1 className="text-2xl font-bold text-gray-900 mb-2">
-								{status === 'loading' && 'Verificando...'}
-								{status === 'success' && '¡Verificación Exitosa!'}
-								{status === 'error' && 'Error de Verificación'}
-							</h1>
+			{/* Content Container with FadeContent Animation */}
+			<div className="relative z-10 w-screen h-screen bg-gradient-to-br from-black/20 via-transparent to-black/30 flex items-center justify-center">
+				<FadeContent
+					blur={true}
+					duration={1000}
+					easing="ease-out"
+					initialOpacity={0}
+					delay={200}
+					className="w-full h-full flex items-center justify-center"
+				>
+					<div className="flex flex-col items-center justify-center bg-slate-800/90 backdrop-blur-xl p-8 rounded-none md:rounded-xl w-screen h-screen md:h-auto md:w-full md:max-w-md shadow-2xl border border-slate-700/50">
+						{!showPasswordForm ? (
+							<>
+								<div className="text-center mb-6 flex flex-col items-center justify-center">
+									<div
+										className={`p-4 rounded-full mb-4 ${
+											status === 'loading' ? 'bg-blue-500' : status === 'success' ? 'bg-green-500' : 'bg-red-500'
+										}`}
+									>
+										{status === 'loading' && <RefreshCw className="text-white size-12 animate-spin" />}
+										{status === 'success' && <CheckCircle className="text-white size-12" />}
+										{status === 'error' && <AlertCircle className="text-white size-12" />}
+									</div>
 
-							<p className="text-gray-600 text-center">{message || 'Procesando verificación...'}</p>
-						</div>
+									<h1 className="text-2xl font-bold text-white mb-2">
+										{status === 'loading' && 'Verificando...'}
+										{status === 'success' && '¡Verificación Exitosa!'}
+										{status === 'error' && 'Error de Verificación'}
+									</h1>
 
-						{status === 'loading' && (
-							<div className="w-full">
-								<div className="bg-blue-50 border border-blue-200 text-blue-700 px-4 py-3 rounded">
-									<p className="text-sm text-center">Por favor espera mientras procesamos tu solicitud...</p>
+									<p className="text-slate-300 text-center">{message || 'Procesando verificación...'}</p>
 								</div>
-							</div>
-						)}
 
-						{status === 'error' && (
-							<div className="w-full">
-								<button
-									onClick={() => navigate('/')}
-									className="w-full bg-blue-500 text-white rounded-md p-2 hover:bg-blue-600 transition-colors"
-								>
-									Ir al Login
-								</button>
-							</div>
-						)}
-					</>
-				) : (
-					<>
-						<div className="text-center mb-6 flex flex-col items-center justify-center">
-							<div className="p-4 bg-blue-500 rounded-full mb-4">
-								<Lock className="text-white size-12" />
-							</div>
-							<h1 className="text-2xl font-bold text-gray-900 mb-2">Nueva Contraseña</h1>
-							<p className="text-gray-600 text-center">
-								Ingresa tu nueva contraseña para completar el restablecimiento.
-							</p>
-						</div>
+								{status === 'loading' && (
+									<div className="w-full">
+										<div className="bg-blue-900/50 border border-blue-700/50 text-blue-200 px-4 py-3 rounded">
+											<p className="text-sm text-center">Por favor espera mientras procesamos tu solicitud...</p>
+										</div>
+									</div>
+								)}
 
-						<form onSubmit={handlePasswordUpdate} className="w-full">
-							<div className="flex flex-col gap-4 mb-4">
-								<div>
-									<label htmlFor="newPassword" className="block text-sm font-medium text-gray-700 mb-1">
-										Nueva Contraseña:
-									</label>
-									<div className="relative">
-										<input
-											type={showPassword ? 'text' : 'password'}
-											id="newPassword"
-											value={newPassword}
-											onChange={(e) => setNewPassword(e.target.value)}
-											required
-											className="w-full border-2 border-gray-300 rounded-md p-2 pr-10 focus:outline-none focus:ring-2 focus:ring-blue-500"
-											placeholder="••••••••"
-										/>
+								{status === 'error' && (
+									<div className="w-full">
 										<button
-											type="button"
-											onClick={() => setShowPassword(!showPassword)}
-											className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-600 hover:text-gray-900"
+											onClick={() => navigate('/')}
+											className="w-full bg-transparent border border-primary hover:shadow-sm hover:shadow-primary text-white rounded-md p-2 transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98]"
 										>
-											{showPassword ? <Eye size={20} /> : <EyeOff size={20} />}
+											Ir al Login
 										</button>
 									</div>
-								</div>
-
-								<div>
-									<label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-1">
-										Confirmar Contraseña:
-									</label>
-									<div className="relative">
-										<input
-											type={showConfirmPassword ? 'text' : 'password'}
-											id="confirmPassword"
-											value={confirmPassword}
-											onChange={(e) => setConfirmPassword(e.target.value)}
-											required
-											className="w-full border-2 border-gray-300 rounded-md p-2 pr-10 focus:outline-none focus:ring-2 focus:ring-blue-500"
-											placeholder="••••••••"
-										/>
-										<button
-											type="button"
-											onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-											className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-600 hover:text-gray-900"
-										>
-											{showConfirmPassword ? <Eye size={20} /> : <EyeOff size={20} />}
-										</button>
+								)}
+							</>
+						) : (
+							<>
+								<div className="text-center mb-6 flex flex-col items-center justify-center">
+									<div className="p-4 bg-[#9e1157] rounded-full mb-4 shadow-lg">
+										<Lock className="text-white size-12" />
 									</div>
+									<h1 className="text-2xl font-bold text-white mb-2">Nueva Contraseña</h1>
+									<p className="text-slate-300 text-center">
+										Ingresa tu nueva contraseña para completar el restablecimiento.
+									</p>
 								</div>
-							</div>
 
-							{passwordError && (
-								<div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-									{passwordError}
-								</div>
-							)}
+								<form onSubmit={handlePasswordUpdate} className="w-full">
+									<div className="flex flex-col gap-4 mb-4">
+										<div>
+											<label htmlFor="newPassword" className="block text-sm font-medium text-slate-300 mb-1">
+												Nueva Contraseña:
+											</label>
+											<div className="relative">
+												<input
+													type={showPassword ? 'text' : 'password'}
+													id="newPassword"
+													value={newPassword}
+													onChange={(e) => setNewPassword(e.target.value)}
+													required
+													className="w-full border-2 border-slate-600 bg-slate-700/80 text-white rounded-md p-2 pr-10 focus:outline-none focus:ring-2 focus:ring-primary"
+													placeholder="••••••••"
+												/>
+												<button
+													type="button"
+													onClick={() => setShowPassword(!showPassword)}
+													className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-white"
+												>
+													{showPassword ? <Eye size={20} /> : <EyeOff size={20} />}
+												</button>
+											</div>
+										</div>
 
-							<button
-								type="submit"
-								disabled={passwordLoading}
-								className="w-full bg-blue-500 text-white rounded-md p-2 hover:bg-blue-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-							>
-								{passwordLoading ? 'Actualizando...' : 'Actualizar Contraseña'}
-							</button>
-						</form>
-					</>
-				)}
+										<div>
+											<label htmlFor="confirmPassword" className="block text-sm font-medium text-slate-300 mb-1">
+												Confirmar Contraseña:
+											</label>
+											<div className="relative">
+												<input
+													type={showConfirmPassword ? 'text' : 'password'}
+													id="confirmPassword"
+													value={confirmPassword}
+													onChange={(e) => setConfirmPassword(e.target.value)}
+													required
+													className="w-full border-2 border-slate-600 bg-slate-700/80 text-white rounded-md p-2 pr-10 focus:outline-none focus:ring-2 focus:ring-primary"
+													placeholder="••••••••"
+												/>
+												<button
+													type="button"
+													onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+													className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-white"
+												>
+													{showConfirmPassword ? <Eye size={20} /> : <EyeOff size={20} />}
+												</button>
+											</div>
+										</div>
+									</div>
+
+									{passwordError && (
+										<div className="bg-red-900/80 border border-red-700 text-red-200 px-4 py-3 rounded mb-4 flex items-center gap-2">
+											<AlertCircle className="size-5 flex-shrink-0" />
+											<span>{passwordError}</span>
+										</div>
+									)}
+
+									<button
+										type="submit"
+										disabled={passwordLoading}
+										className="w-full bg-transparent border border-primary hover:shadow-sm hover:shadow-primary text-white rounded-md p-2 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-lg transform hover:scale-[1.02] active:scale-[0.98]"
+									>
+										{passwordLoading ? (
+											<>
+												<div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+												Actualizando...
+											</>
+										) : (
+											'Actualizar Contraseña'
+										)}
+									</button>
+								</form>
+							</>
+						)}
+					</div>
+				</FadeContent>
 			</div>
 		</div>
 	)

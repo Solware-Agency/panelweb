@@ -1,0 +1,175 @@
+import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { Lock, Eye, EyeOff, AlertCircle, CheckCircle } from 'lucide-react'
+import { updatePassword } from '@lib/supabase/auth'
+import Aurora from '@shared/components/ui/Aurora'
+import FadeContent from '@shared/components/ui/FadeContent'
+
+function NewPasswordForm() {
+	const [newPassword, setNewPassword] = useState('')
+	const [confirmPassword, setConfirmPassword] = useState('')
+	const [showPassword, setShowPassword] = useState(false)
+	const [showConfirmPassword, setShowConfirmPassword] = useState(false)
+	const [error, setError] = useState('')
+	const [message, setMessage] = useState('')
+	const [loading, setLoading] = useState(false)
+	const navigate = useNavigate()
+
+	const handlePasswordUpdate = async (e: React.FormEvent) => {
+		e.preventDefault()
+
+		if (newPassword !== confirmPassword) {
+			setError('Las contraseñas no coinciden.')
+			return
+		}
+
+		if (newPassword.length < 6) {
+			setError('La contraseña debe tener al menos 6 caracteres.')
+			return
+		}
+
+		try {
+			setError('')
+			setLoading(true)
+
+			console.log('Updating password...')
+			const { error } = await updatePassword(newPassword)
+
+			if (error) {
+				console.error('Password update error:', error)
+				setError('Error al actualizar la contraseña. Inténtalo de nuevo.')
+				return
+			}
+
+			console.log('Password updated successfully')
+			setMessage('¡Contraseña actualizada exitosamente! Redirigiendo...')
+
+			setTimeout(() => {
+				navigate('/')
+			}, 2000)
+		} catch (err) {
+			console.error('Password update error:', err)
+			setError('Error inesperado al actualizar la contraseña.')
+		} finally {
+			setLoading(false)
+		}
+	}
+
+	return (
+		<div className="w-screen h-screen relative overflow-hidden bg-gradient-to-br from-black via-black to-black">
+			{/* Aurora Background with New Color Palette */}
+			<Aurora colorStops={['#ec4699', '#750c41', '#ec4699']} blend={0.7} amplitude={1.3} speed={0.3} />
+
+			{/* Content Container with FadeContent Animation */}
+			<div className="relative z-10 w-screen h-screen bg-gradient-to-br from-black/20 via-transparent to-black/30 flex items-center justify-center">
+				<FadeContent
+					blur={true}
+					duration={1000}
+					easing="ease-out"
+					initialOpacity={0}
+					delay={200}
+					className="w-full h-full flex items-center justify-center"
+				>
+					<div className="flex flex-col items-center justify-center bg-slate-800/90 backdrop-blur-xl p-8 rounded-none md:rounded-xl w-screen h-screen md:h-auto md:w-full md:max-w-md shadow-2xl border border-slate-700/50">
+						<div className="text-center mb-6 flex flex-col items-center justify-center">
+							<div className="p-4 bg-[#9e1157] rounded-full mb-4 shadow-lg">
+								<Lock className="text-white size-12" />
+							</div>
+							<h1 className="text-2xl font-bold text-white mb-2">Nueva Contraseña</h1>
+							<p className="text-slate-300 text-center">
+								Ingresa tu nueva contraseña para completar el restablecimiento.
+							</p>
+						</div>
+
+						<form onSubmit={handlePasswordUpdate} className="w-full">
+							<div className="flex flex-col gap-4 mb-4">
+								<div>
+									<label htmlFor="newPassword" className="block text-sm font-medium text-slate-300 mb-1">
+										Nueva Contraseña:
+									</label>
+									<div className="relative">
+										<input
+											type={showPassword ? 'text' : 'password'}
+											id="newPassword"
+											value={newPassword}
+											onChange={(e) => setNewPassword(e.target.value)}
+											required
+											className="w-full border-2 border-slate-600 bg-slate-700/80 text-white rounded-md p-2 pr-10 focus:outline-none focus:ring-2 focus:ring-primary"
+											placeholder="••••••••"
+										/>
+										<button
+											type="button"
+											onClick={() => setShowPassword(!showPassword)}
+											className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-white"
+										>
+											{showPassword ? <Eye size={20} /> : <EyeOff size={20} />}
+										</button>
+									</div>
+								</div>
+
+								<div>
+									<label htmlFor="confirmPassword" className="block text-sm font-medium text-slate-300 mb-1">
+										Confirmar Contraseña:
+									</label>
+									<div className="relative">
+										<input
+											type={showConfirmPassword ? 'text' : 'password'}
+											id="confirmPassword"
+											value={confirmPassword}
+											onChange={(e) => setConfirmPassword(e.target.value)}
+											required
+											className="w-full border-2 border-slate-600 bg-slate-700/80 text-white rounded-md p-2 pr-10 focus:outline-none focus:ring-2 focus:ring-primary"
+											placeholder="••••••••"
+										/>
+										<button
+											type="button"
+											onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+											className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-white"
+										>
+											{showConfirmPassword ? <Eye size={20} /> : <EyeOff size={20} />}
+										</button>
+									</div>
+								</div>
+							</div>
+
+							{error && (
+								<div className="bg-red-900/80 border border-red-700 text-red-200 px-4 py-3 rounded mb-4 flex items-center gap-2">
+									<AlertCircle className="size-5 flex-shrink-0" />
+									<span>{error}</span>
+								</div>
+							)}
+
+							{message && (
+								<div className="bg-green-900/80 border border-green-700 text-green-200 px-4 py-3 rounded mb-4 flex items-center gap-2">
+									<CheckCircle className="size-5 flex-shrink-0" />
+									<span>{message}</span>
+								</div>
+							)}
+
+							<button
+								type="submit"
+								disabled={loading}
+								className="w-full bg-transparent border border-primary hover:shadow-sm hover:shadow-primary text-white rounded-md p-2 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-lg transform hover:scale-[1.02] active:scale-[0.98]"
+							>
+								{loading ? (
+									<>
+										<div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+										Actualizando...
+									</>
+								) : (
+									'Actualizar Contraseña'
+								)}
+							</button>
+						</form>
+
+						<div className="mt-4 text-xs text-slate-400">
+							<p>La contraseña debe tener al menos 6 caracteres.</p>
+						</div>
+					</div>
+				</FadeContent>
+			</div>
+		</div>
+	)
+}
+
+export default NewPasswordForm

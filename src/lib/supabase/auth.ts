@@ -123,7 +123,7 @@ export const resetPassword = async (email: string): Promise<{ error: AuthError |
 		console.log('Using redirect URL:', `${REDIRECT_URL}/auth/callback`)
 
 		const { error } = await supabase.auth.resetPasswordForEmail(email, {
-			redirectTo: `${REDIRECT_URL}/auth/callback`,
+			redirectTo: `${REDIRECT_URL}/auth/callback?type=recovery`,
 		})
 
 		if (error) {

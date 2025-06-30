@@ -1,15 +1,16 @@
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { Lock, ArrowLeft, Mail, AlertCircle, CheckCircle } from 'lucide-react'
-import { Link } from 'react-router-dom'
 import { resetPassword } from '@lib/supabase/auth'
 import Aurora from '@shared/components/ui/Aurora'
 import FadeContent from '@shared/components/ui/FadeContent'
 
-function ForgotPassword() {
+function PasswordResetForm() {
 	const [email, setEmail] = useState('')
 	const [message, setMessage] = useState('')
 	const [error, setError] = useState('')
 	const [loading, setLoading] = useState(false)
+	const navigate = useNavigate()
 
 	const handleResetPassword = async (event: React.FormEvent<HTMLFormElement>) => {
 		event.preventDefault()
@@ -31,6 +32,8 @@ function ForgotPassword() {
 					setError('Por seguridad, solo se puede enviar un correo de restablecimiento cada 60 segundos.')
 				} else if (resetError.message.includes('Email rate limit exceeded')) {
 					setError('Demasiados intentos. Espera un momento antes de intentar de nuevo.')
+				} else if (resetError.message.includes('User not found')) {
+					setError('No existe una cuenta con este correo electrónico.')
 				} else {
 					setError('Error al enviar el correo de restablecimiento. Inténtalo de nuevo.')
 				}
@@ -42,7 +45,6 @@ function ForgotPassword() {
 			console.error('Reset password error:', err)
 			setError('Error al enviar el correo de restablecimiento. Inténtalo de nuevo.')
 		} finally {
-			// CRITICAL: Always reset loading state
 			setLoading(false)
 		}
 	}
@@ -122,15 +124,15 @@ function ForgotPassword() {
 
 						{/* Footer */}
 						<div className="mt-6 text-center">
-							<Link
-								to="/"
+							<button
+								onClick={() => navigate('/')}
 								className={`flex items-center justify-center gap-2 text-sm text-purple-400 hover:text-purple-300 transition-colors ${
 									loading ? 'pointer-events-none opacity-50' : ''
 								}`}
 							>
 								<ArrowLeft size={16} />
 								Volver al inicio de sesión
-							</Link>
+							</button>
 						</div>
 					</div>
 				</FadeContent>
@@ -139,4 +141,4 @@ function ForgotPassword() {
 	)
 }
 
-export default ForgotPassword
+export default PasswordResetForm
