@@ -9,6 +9,7 @@ function RegisterForm() {
 	const [email, setEmail] = useState('')
 	const [password, setPassword] = useState('')
 	const [confirmPassword, setConfirmPassword] = useState('')
+	const [displayName, setDisplayName] = useState('')
 	const [showPassword, setShowPassword] = useState(false)
 	const [showConfirmPassword, setShowConfirmPassword] = useState(false)
 	const [error, setError] = useState('')
@@ -55,7 +56,7 @@ function RegisterForm() {
 
 			console.log('Attempting to register user:', email)
 
-			const { user, error: signUpError } = await signUp(email, password)
+			const { user, error: signUpError } = await signUp(email, password, displayName)
 
 			if (signUpError) {
 				console.error('Registration error:', signUpError)
@@ -168,6 +169,19 @@ function RegisterForm() {
 									disabled={loading || rateLimitError}
 									className="border-2 border-slate-600 rounded-md p-2 w-full focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary disabled:opacity-50 disabled:cursor-not-allowed bg-slate-900 text-white placeholder-slate-400 transition-all duration-200"
 									autoComplete="email"
+								/>
+
+								<p className="text-sm text-slate-400">Nombre para mostrar:</p>
+								<input
+									type="text"
+									name="displayName"
+									placeholder="Tu nombre"
+									value={displayName}
+									onChange={(e) => setDisplayName(e.target.value)}
+									required
+									disabled={loading || rateLimitError}
+									className="border-2 border-slate-600 rounded-md p-2 w-full focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary disabled:opacity-50 disabled:cursor-not-allowed bg-slate-900 text-white placeholder-slate-400 transition-all duration-200"
+									autoComplete="name"
 								/>
 
 								<p className="text-sm text-slate-400">Contraseña:</p>

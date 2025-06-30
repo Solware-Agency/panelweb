@@ -17,7 +17,7 @@ export interface UserProfile {
 }
 
 // Sign up with email and password - ENHANCED WITH PROPER EMAIL VERIFICATION
-export const signUp = async (email: string, password: string): Promise<AuthResponse> => {
+export const signUp = async (email: string, password: string, displayName?: string): Promise<AuthResponse> => {
 	try {
 		console.log('Attempting to sign up user:', email)
 		console.log('Using redirect URL:', `${REDIRECT_URL}/auth/callback`)
@@ -30,6 +30,7 @@ export const signUp = async (email: string, password: string): Promise<AuthRespo
 				emailRedirectTo: `${REDIRECT_URL}/auth/callback`,
 				data: {
 					email_confirm: true,
+					display_name: displayName || null,
 				},
 			},
 		})
