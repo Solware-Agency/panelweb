@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Search, Loader2, ArrowLeft, FileText, BookCopy, AlertCircle } from 'lucide-react';
+import { Search, Loader2, ArrowLeft, FileText, BookCopy, AlertCircle, Microscope } from 'lucide-react';
 import { Input } from '@shared/components/ui/input';
 import { Button } from '@shared/components/ui/button';
 import { Card } from '@shared/components/ui/card';
@@ -9,10 +9,12 @@ import { supabase } from '@lib/supabase/config';
 import { useToast } from '@shared/hooks/use-toast';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
+import { useUserProfile } from '@shared/hooks/useUserProfile';
 
 const CaseSelectionPage: React.FC = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { profile } = useUserProfile();
   const [searchTerm, setSearchTerm] = useState('');
   const [isSearching, setIsSearching] = useState(false);
 
@@ -21,12 +23,19 @@ const CaseSelectionPage: React.FC = () => {
     queryKey: ['biopsia-records'],
     queryFn: async () => {
       try {
-        const { data, error } = await supabase
+        // Build the query
+        let query = supabase
           .from('medical_records_clean')
-          .select('id, code, full_name, exam_type')
+          .select('id, code, full_name, exam_type, branch, date, id_number, material_remitido, diagnostico')
           .ilike('exam_type', '%biopsia%') // Case-insensitive search
-          .order('created_at', { ascending: false })
-          .limit(50);
+          .order('created_at', { ascending: false });
+        
+        // If user has assigned branch, filter by that branch
+        if (profile?.assigned_branch) {
+          query = query.eq('branch', profile.assigned_branch);
+        }
+        
+        const { data, error } = await query.limit(50);
 
         if (error) throw error;
         console.log('Loaded biopsia records:', data?.length || 0);
@@ -40,6 +49,24 @@ const CaseSelectionPage: React.FC = () => {
     retry: 2,
   });
 
+  // Filter cases based on search term
+  const filteredCases = React.useMemo(() => {
+    if (!biopsiaRecords) return [];
+    
+    if (!searchTerm.trim()) return biopsiaRecords;
+    
+    return biopsiaRecords.filter(record => 
+      record.full_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (record.code && record.code.toLowerCase().includes(searchTerm.toLowerCase())) ||
+      record.id_number.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  }, [biopsiaRecords, searchTerm]);
+
+  // Update search term when typing
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchTerm(e.target.value);
+  };
+
   const handleSearch = async () => {
     if (!searchTerm.trim()) {
       toast({
@@ -52,13 +79,19 @@ const CaseSelectionPage: React.FC = () => {
 
     setIsSearching(true);
     try {
-      const { data, error } = await supabase
+      // Build the query
+      let query = supabase
         .from('medical_records_clean')
-        .select('id, code, full_name, exam_type')
+        .select('id, code, full_name, exam_type, branch, date, id_number, material_remitido, diagnostico')
         .ilike('exam_type', '%biopsia%') // Case-insensitive search
-        .or(`code.ilike.%${searchTerm}%,id_number.ilike.%${searchTerm}%,full_name.ilike.%${searchTerm}%`)
-        .order('created_at', { ascending: false })
-        .limit(20);
+        .or(`code.ilike.%${searchTerm}%,id_number.ilike.%${searchTerm}%,full_name.ilike.%${searchTerm}%`);
+      
+      // If user has assigned branch, filter by that branch
+      if (profile?.assigned_branch) {
+        query = query.eq('branch', profile.assigned_branch);
+      }
+      
+      const { data, error } = await query.order('created_at', { ascending: false }).limit(20);
 
       if (error) throw error;
 
@@ -136,7 +169,7 @@ const CaseSelectionPage: React.FC = () => {
   return (
     <div className="container mx-auto py-10 px-4">
       <div className="flex items-center justify-between mb-4">
-        <h1 className="text-2xl font-bold">Generar Caso</h1>
+        <h1 className="text-2xl font-bold">Generar Caso de Biopsia</h1>
         <Button 
           onClick={handleBackToForm} 
           variant="outline"
@@ -147,23 +180,42 @@ const CaseSelectionPage: React.FC = () => {
         </Button>
       </div>
       
+      {/* Sede asignada indicator */}
+      {profile?.assigned_branch && (
+        <div className="mb-6 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
+          <div className="flex items-center gap-2">
+            <div className="p-2 bg-blue-100 dark:bg-blue-800/50 rounded-full">
+              <Microscope className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+            </div>
+            <div>
+              <h3 className="text-lg font-semibold text-blue-800 dark:text-blue-300">
+                Sede: {profile.assigned_branch}
+              </h3>
+              <p className="text-sm text-blue-700 dark:text-blue-400">
+                Solo se muestran casos de biopsia de tu sede asignada
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+      
       <Card className="mb-6 p-6 hover:border-primary hover:shadow-lg hover:shadow-primary/20 transition-all duration-300">
         <div className="flex items-center gap-2 mb-4">
           <BookCopy className="text-primary size-5" />
-          <h2 className="text-lg font-semibold">Buscar caso por número, paciente o tipo de examen</h2>
+          <h2 className="text-lg font-semibold">Buscar caso de biopsia</h2>
         </div>
         <div className="mb-4">
           <p className="text-gray-600 dark:text-gray-400 mb-4">
-            Ingresa el número del caso, nombre del paciente o tipo de examen para generar el caso.
+            Ingresa el número del caso, nombre del paciente o cédula para generar el caso de biopsia.
           </p>
         </div>
         
         <div className="flex gap-2">
           <div className="relative flex-1 group">
             <Input 
-              placeholder="Ingresa el número de caso..."
+              placeholder="Buscar por número de caso, nombre o cédula..."
               value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
+              onChange={handleSearchChange}
               className="pr-10 focus:border-primary transition-all text-lg py-6"
               onKeyDown={(e) => {
                 if (e.key === 'Enter') {
@@ -201,7 +253,7 @@ const CaseSelectionPage: React.FC = () => {
               Resultados de casos
             </h2>
             <p className="text-sm text-gray-500">
-              {!isLoading && biopsiaRecords ? `${biopsiaRecords.length} casos encontrados` : ''}
+              {!isLoading && filteredCases ? `${filteredCases.length} casos encontrados` : ''}
             </p>
           </div>
           
@@ -210,19 +262,20 @@ const CaseSelectionPage: React.FC = () => {
               <Loader2 className="w-8 h-8 animate-spin text-primary mr-2" />
               <span>Cargando casos de biopsia...</span>
             </div>
-          ) : biopsiaRecords && biopsiaRecords.length > 0 ? (
+          ) : filteredCases && filteredCases.length > 0 ? (
             <div className="space-y-2 max-h-[600px] overflow-y-auto">
               <table className="w-full border-collapse">
                 <thead>
                   <tr className="bg-gray-50 dark:bg-gray-800/50 text-left">
                     <th className="p-3 text-gray-500 dark:text-gray-400 font-medium">NÚMERO DE CASO</th>
-                    <th className="p-3 text-gray-500 dark:text-gray-400 font-medium">TIPO DE EXAMEN</th>
                     <th className="p-3 text-gray-500 dark:text-gray-400 font-medium">PACIENTE</th>
+                    <th className="p-3 text-gray-500 dark:text-gray-400 font-medium">FECHA</th>
+                    <th className="p-3 text-gray-500 dark:text-gray-400 font-medium">SEDE</th>
                     <th className="p-3 text-gray-500 dark:text-gray-400 font-medium text-right">ACCIÓN</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
-                  {biopsiaRecords.map((record) => (
+                  {filteredCases.map((record) => (
                     <tr 
                       key={record.id}
                       className="hover:bg-gray-50 dark:hover:bg-gray-800/50 cursor-pointer"
@@ -233,8 +286,15 @@ const CaseSelectionPage: React.FC = () => {
                           {record.code || 'N/A'}
                         </span>
                       </td>
-                      <td className="p-3 text-sm">{record.exam_type}</td>
                       <td className="p-3 font-medium">{record.full_name}</td>
+                      <td className="p-3 text-sm">
+                        {record.date ? format(new Date(record.date), 'dd/MM/yyyy', { locale: es }) : 'N/A'}
+                      </td>
+                      <td className="p-3 text-sm">
+                        <span className="bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300 px-2 py-1 rounded-full text-xs">
+                          {record.branch}
+                        </span>
+                      </td>
                       <td className="p-3 text-right">
                         <Button 
                           size="sm" 
@@ -245,7 +305,7 @@ const CaseSelectionPage: React.FC = () => {
                           }}
                         >
                           <FileText className="w-4 h-4 mr-2" />
-                          Generar
+                          {record.material_remitido || record.diagnostico ? 'Editar Caso' : 'Generar Caso'}
                         </Button>
                       </td>
                     </tr>
@@ -258,8 +318,8 @@ const CaseSelectionPage: React.FC = () => {
               <Search className="w-12 h-12 text-gray-300 mx-auto mb-4" />
               <p className="text-gray-500">
                 {searchTerm ?
-                  'No se encontraron casos con ese número' :
-                  'Ingresa el número del caso para buscar'
+                  'No se encontraron casos con ese criterio de búsqueda' :
+                  'Ingresa un término de búsqueda para encontrar casos'
                 }
               </p>
             </div>
@@ -276,9 +336,9 @@ const CaseSelectionPage: React.FC = () => {
                 <Loader2 className="w-8 h-8 animate-spin text-primary mr-2" />
                 <span>Cargando casos de biopsia...</span>
               </div>
-            ) : biopsiaRecords && biopsiaRecords.length > 0 ? (
+            ) : filteredCases && filteredCases.length > 0 ? (
               <div className="space-y-3">
-                {biopsiaRecords.map((record) => (
+                {filteredCases.map((record) => (
                   <div
                     key={record.id}
                     className="p-3 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800/50 cursor-pointer"
@@ -288,16 +348,24 @@ const CaseSelectionPage: React.FC = () => {
                       <div>
                         <div className="font-medium text-gray-900 dark:text-gray-100">{record.full_name}</div>
                         <div className="flex items-center gap-2 mt-1">
-                          <span className="text-sm text-gray-500 dark:text-gray-400">{record.exam_type}</span>
+                          <span className="text-sm text-gray-500 dark:text-gray-400">
+                            {record.id_number}
+                          </span>
+                          <span className="text-xs bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300 px-2 py-0.5 rounded-full">
+                            {record.branch}
+                          </span>
                         </div>
                       </div>
                       <div className="flex items-center gap-2">
                         {record.code && (
                           <span className="text-xs bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300 px-2 py-1 rounded-full">
-                            Caso #{record.code}
+                            {record.code}
                           </span>
                         )}
                       </div>
+                    </div>
+                    <div className="mt-2 text-xs text-gray-500 dark:text-gray-400">
+                      Fecha: {record.date ? format(new Date(record.date), 'dd/MM/yyyy', { locale: es }) : 'N/A'}
                     </div>
                     <Button 
                       size="sm"
@@ -308,7 +376,7 @@ const CaseSelectionPage: React.FC = () => {
                       }}
                     >
                       <FileText className="w-4 h-4 mr-1" />
-                      Generar Caso
+                      {record.material_remitido || record.diagnostico ? 'Editar Caso' : 'Generar Caso'}
                     </Button>
                   </div>
                 ))}
@@ -319,7 +387,7 @@ const CaseSelectionPage: React.FC = () => {
                 <p className="text-gray-500 text-sm">
                   {searchTerm ? 
                     'No se encontraron casos que coincidan con tu búsqueda' : 
-                    'Busca por número de caso, paciente o tipo de examen'
+                    'Busca por número de caso, paciente o cédula'
                   }
                 </p>
               </div>

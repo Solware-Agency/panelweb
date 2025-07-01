@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { Card } from '@shared/components/ui/card';
 import { Button } from '@shared/components/ui/button';
 import { Textarea } from '@shared/components/ui/textarea';
-import { ArrowLeft, Loader2 } from 'lucide-react';
+import { ArrowLeft, Loader2, AlertCircle, Save } from 'lucide-react';
 import { supabase } from '@lib/supabase/config';
 import { useToast } from '@shared/hooks/use-toast';
 import { format, parseISO, differenceInYears } from 'date-fns';
@@ -20,6 +20,7 @@ interface MedicalRecord {
   treating_doctor: string;
   origin: string;
   exam_type: string;
+  branch: string;
   material_remitido?: string | null;
   informacion_clinica?: string | null;
   descripcion_macroscopica?: string | null;
@@ -114,6 +115,17 @@ const GenerateCasePage: React.FC = () => {
   const handleSave = async () => {
     if (!record || !id || !user) return;
 
+    // Validate required fields
+    if (!formData.material_remitido || !formData.informacion_clinica || 
+        !formData.descripcion_macroscopica || !formData.diagnostico) {
+      toast({
+        title: '❌ Campos requeridos',
+        description: 'Todos los campos son obligatorios excepto el comentario.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
     setIsSaving(true);
     try {
       // Prepare the update data
@@ -154,6 +166,11 @@ const GenerateCasePage: React.FC = () => {
         description: 'Los datos del caso han sido guardados correctamente.',
         className: 'bg-green-100 border-green-400 text-green-800',
       });
+      
+      // Navigate back to case selection after successful save
+      setTimeout(() => {
+        navigate('/cases-selection');
+      }, 1500);
     } catch (error) {
       console.error('Error saving case:', error);
       toast({
@@ -223,43 +240,44 @@ const GenerateCasePage: React.FC = () => {
         </Button>
       </div>
 
-      <Card className="p-6 mb-6 bg-gray-900 text-gray-200 font-mono">
-        <div className="grid grid-cols-2 gap-x-4 gap-y-2">
+      <Card className="p-6 mb-6 bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-200 font-mono">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-2">
           <div className="col-span-1">
-            <span className="text-gray-400">NOMBRE:</span>
-            <span className="ml-12">{record.full_name}</span>
+            <span className="text-gray-500 dark:text-gray-400">NOMBRE:</span>
+            <span className="ml-2 font-semibold">{record.full_name}</span>
           </div>
           <div className="col-span-1">
-            <span className="text-gray-400">FECHA:</span>
-            <span className="ml-12">{format(new Date(record.date), 'dd/MM/yyyy', { locale: es })}</span>
+            <span className="text-gray-500 dark:text-gray-400">FECHA:</span>
+            <span className="ml-2 font-semibold">{format(new Date(record.date), 'dd/MM/yyyy', { locale: es })}</span>
           </div>
           
           <div className="col-span-1">
-            <span className="text-gray-400">EDAD:</span>
-            <span className="ml-12">{calculateAge(record.date_of_birth)}</span>
+            <span className="text-gray-500 dark:text-gray-400">EDAD:</span>
+            <span className="ml-2 font-semibold">{calculateAge(record.date_of_birth)}</span>
           </div>
           <div className="col-span-1">
-            <span className="text-gray-400">INFORME N.º</span>
+            <span className="text-gray-500 dark:text-gray-400">INFORME N.º</span>
             <span className="ml-2">
-              <a href="#" className="text-blue-400 hover:underline">{record.code || 'N/A'}</a>
+              <span className="text-blue-600 dark:text-blue-400 font-semibold">{record.code || 'N/A'}</span>
             </span>
           </div>
           
           <div className="col-span-1">
-            <span className="text-gray-400">CI/ N.º HISTORIA:</span>
-            <span className="ml-2">{record.id_number}</span>
+            <span className="text-gray-500 dark:text-gray-400">CI/ N.º HISTORIA:</span>
+            <span className="ml-2 font-semibold">{record.id_number}</span>
           </div>
-          <div className="col-span-1"></div>
+          <div className="col-span-1">
+            <span className="text-gray-500 dark:text-gray-400">SEDE:</span>
+            <span className="ml-2 font-semibold">{record.branch}</span>
+          </div>
           
           <div className="col-span-1">
-            <span className="text-gray-400">DOCTOR(A):</span>
-            <span className="ml-8">{record.treating_doctor}</span>
+            <span className="text-gray-500 dark:text-gray-400">DOCTOR(A):</span>
+            <span className="ml-2 font-semibold">{record.treating_doctor}</span>
           </div>
-          <div className="col-span-1"></div>
-          
           <div className="col-span-1">
-            <span className="text-gray-400">PROCEDENCIA:</span>
-            <span className="ml-4">{record.origin}</span>
+            <span className="text-gray-500 dark:text-gray-400">PROCEDENCIA:</span>
+            <span className="ml-2 font-semibold">{record.origin}</span>
           </div>
         </div>
       </Card>
@@ -268,46 +286,50 @@ const GenerateCasePage: React.FC = () => {
 
       <div className="space-y-6">
         <div>
-          <label className="block text-sm font-medium mb-2">Material remitido:</label>
+          <label className="block text-sm font-medium mb-2">Material remitido: <span className="text-red-500">*</span></label>
           <Textarea 
             name="material_remitido"
             value={formData.material_remitido}
             onChange={handleInputChange}
             className="min-h-[100px]"
             placeholder="Descripción del material remitido..."
+            required
           />
         </div>
 
         <div>
-          <label className="block text-sm font-medium mb-2">Información clínica:</label>
+          <label className="block text-sm font-medium mb-2">Información clínica: <span className="text-red-500">*</span></label>
           <Textarea 
             name="informacion_clinica"
             value={formData.informacion_clinica}
             onChange={handleInputChange}
             className="min-h-[100px]"
             placeholder="Información clínica relevante..."
+            required
           />
         </div>
 
         <div>
-          <label className="block text-sm font-medium mb-2">Descripción macroscópica:</label>
+          <label className="block text-sm font-medium mb-2">Descripción macroscópica: <span className="text-red-500">*</span></label>
           <Textarea 
             name="descripcion_macroscopica"
             value={formData.descripcion_macroscopica}
             onChange={handleInputChange}
             className="min-h-[150px]"
             placeholder="Descripción macroscópica de la muestra..."
+            required
           />
         </div>
 
         <div>
-          <label className="block text-sm font-medium mb-2">Diagnóstico:</label>
+          <label className="block text-sm font-medium mb-2">Diagnóstico: <span className="text-red-500">*</span></label>
           <Textarea 
             name="diagnostico"
             value={formData.diagnostico}
             onChange={handleInputChange}
             className="min-h-[150px]"
             placeholder="Diagnóstico del caso..."
+            required
           />
         </div>
 
@@ -318,8 +340,18 @@ const GenerateCasePage: React.FC = () => {
             value={formData.comentario}
             onChange={handleInputChange}
             className="min-h-[100px]"
-            placeholder="Comentarios adicionales..."
+            placeholder="Comentarios adicionales (opcional)..."
           />
+        </div>
+
+        <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4 mb-6">
+          <div className="flex items-center gap-2 mb-2">
+            <AlertCircle className="text-yellow-600 dark:text-yellow-400 h-5 w-5" />
+            <p className="font-medium text-yellow-800 dark:text-yellow-300">Campos requeridos</p>
+          </div>
+          <p className="text-sm text-yellow-700 dark:text-yellow-400">
+            Todos los campos marcados con <span className="text-red-500">*</span> son obligatorios para generar el caso.
+          </p>
         </div>
 
         <Button 
@@ -334,7 +366,8 @@ const GenerateCasePage: React.FC = () => {
             </>
           ) : (
             <>
-              Generar Caso
+              <Save className="mr-2 h-4 w-4" />
+              Guardar Caso
             </>
           )}
         </Button>
