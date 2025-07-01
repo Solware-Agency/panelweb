@@ -73,6 +73,16 @@ function App() {
 						<Route path="generate-case" element={<GenerateCasePage />} />
 						<Route path="settings" element={<SettingsPage />} />
 					</Route>
+
+					{/* New route for generating cases */}
+					<Route
+						path="/generar-caso"
+						element={
+							<PrivateRoute>
+								<GenerateCasePage />
+							</PrivateRoute>
+						}
+					/>
 				</Routes>
 			</div>
 		</BrowserRouter>

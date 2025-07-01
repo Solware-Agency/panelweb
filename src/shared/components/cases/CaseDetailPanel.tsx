@@ -127,9 +127,10 @@ const CaseDetailPanel: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClos
 	const isBiopsyCase = case_.exam_type?.toLowerCase() === 'biopsia'
 
 	// Handle generate biopsy case button click
-	const handleGenerateBiopsyCase = () => {
-		// Navigate to the generate case page with the case data
-		navigate('/dashboard/generate-case', { state: { case_ } })
+	const handleGenerateBiopsyCase = (e: React.MouseEvent) => {
+		e.preventDefault()
+		// Navigate to the generar-caso route with the case data
+		navigate('/generar-caso', { state: { case_ } })
 	}
 
 	return (

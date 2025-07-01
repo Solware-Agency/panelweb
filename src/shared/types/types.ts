@@ -1,4 +1,4 @@
-export type Json = string | number | boolean | null | { [key: string]: Json | undefined } | Json[]
+import { type Json } from '@supabase/supabase-js'
 
 export type Database = {
 	public: {
@@ -154,10 +154,10 @@ export type Database = {
 					payment_reference_4: string | null
 					comments: string | null
 					code: string | null
-					created_by: string
-					created_by_display_name: string
 					created_at: string
 					updated_at: string
+					created_by: string | null
+					created_by_display_name: string | null
 					material_remitido: string | null
 					informacion_clinica: string | null
 					descripcion_macroscopica: string | null
@@ -197,10 +197,10 @@ export type Database = {
 					payment_reference_4?: string | null
 					comments?: string | null
 					code?: string | null
-					created_by?: string
-					created_by_display_name?: string
 					created_at?: string
 					updated_at?: string
+					created_by?: string | null
+					created_by_display_name?: string | null
 					material_remitido?: string | null
 					informacion_clinica?: string | null
 					descripcion_macroscopica?: string | null
@@ -240,10 +240,10 @@ export type Database = {
 					payment_reference_4?: string | null
 					comments?: string | null
 					code?: string | null
-					created_by?: string
-					created_by_display_name?: string
 					created_at?: string
 					updated_at?: string
+					created_by?: string | null
+					created_by_display_name?: string | null
 					material_remitido?: string | null
 					informacion_clinica?: string | null
 					descripcion_macroscopica?: string | null

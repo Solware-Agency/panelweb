@@ -239,6 +239,9 @@ const GenerateCasePage: React.FC = () => {
         </div>
       </div>
 
+      {/* Horizontal separator */}
+      <div className="border-b border-gray-300 dark:border-gray-700 mb-6"></div>
+
       {/* Biopsy Case Form */}
       <div className="bg-white dark:bg-background rounded-lg border border-gray-200 dark:border-gray-700 p-6">
         <Form {...form}>
@@ -350,7 +353,7 @@ const GenerateCasePage: React.FC = () => {
                 ) : (
                   <>
                     <Save className="mr-2 h-4 w-4" />
-                    Guardar Caso
+                    Guardar
                   </>
                 )}
               </Button>
