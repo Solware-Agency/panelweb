@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Button } from '@shared/components/ui/button';
 import { FileText, Search, Loader2 } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@shared/components/ui/dialog';
 import { Input } from '@shared/components/ui/input';
@@ -95,13 +94,13 @@ const GenerateCaseButton: React.FC = () => {
 
   return (
     <>
-      <Button 
+      <button
         onClick={handleButtonClick}
-        className="bg-gradient-to-r from-green-500 to-teal-600 hover:from-green-600 hover:to-teal-700 text-white transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98]"
+        className="inline-flex items-center justify-center whitespace-nowrap rounded-sm px-3 py-1.5 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-green-600 text-white hover:bg-green-700 ml-2"
       >
         <FileText className="mr-2 h-4 w-4" />
         Generar/Editar Caso
-      </Button>
+      </button>
 
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogContent className="sm:max-w-md">
@@ -138,7 +137,11 @@ const GenerateCaseButton: React.FC = () => {
                   )}
                 </button>
               </div>
-              <Button onClick={handleSearch} disabled={isSearching}>
+              <button 
+                onClick={handleSearch} 
+                disabled={isSearching}
+                className="px-4 py-2 bg-primary text-white rounded-md hover:bg-primary/80 transition-colors"
+              >
                 {isSearching ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -147,7 +150,7 @@ const GenerateCaseButton: React.FC = () => {
                 ) : (
                   'Buscar'
                 )}
-              </Button>
+              </button>
             </div>
 
             <div className="max-h-[300px] overflow-y-auto border rounded-md">

@@ -16,6 +16,7 @@ import { RefreshCw, Maximize2 } from 'lucide-react'
 import { useUserProfile } from '@shared/hooks/useUserProfile'
 import GenerateCaseButton from '@features/form/components/GenerateCaseButton'
 
+// Create a client instance
 const queryClient = new QueryClient()
 
 function FormContent() {
@@ -98,38 +99,33 @@ function FormContent() {
 						<h3 className='text-md text-primary font-semibold mt-4'>Bienvenido, {profile?.display_name}</h3>
 					</div>
 
-					<div className="flex flex-col md:flex-row justify-between items-center mb-6">
-						<Tabs defaultValue="form" value={activeTab} onValueChange={setActiveTab} className="w-full">
-							<div className="flex flex-col md:flex-row justify-between items-center gap-4">
-								<TabsList>
-									<TabsTrigger value="form">Formulario</TabsTrigger>
-									<TabsTrigger value="records">Registros</TabsTrigger>
-									<TabsTrigger value="settings">Ajustes</TabsTrigger>
-								</TabsList>
-								
-								<GenerateCaseButton />
-							</div>
-							
-							<TabsContent value="form" className="mt-6">
-								<MedicalForm />
-							</TabsContent>
+					<Tabs defaultValue="form" value={activeTab} onValueChange={setActiveTab}>
+						<TabsList className="mb-6">
+							<TabsTrigger value="form">Formulario</TabsTrigger>
+							<TabsTrigger value="records">Registros</TabsTrigger>
+							<TabsTrigger value="settings">Ajustes</TabsTrigger>
+							<GenerateCaseButton />
+						</TabsList>
 
-							<TabsContent value="records" className="mt-6">
-								<RecordsSection
-									cases={casesData?.data || []}
-									isLoading={casesLoading}
-									error={casesError}
-									refetch={refetchCases}
-									isFullscreen={isFullscreen}
-									setIsFullscreen={setIsFullscreen}
-								/>
-							</TabsContent>
+						<TabsContent value="form" className="mt-6">
+							<MedicalForm />
+						</TabsContent>
 
-							<TabsContent value="settings" className="mt-6">
-								<SettingsSection />
-							</TabsContent>
-						</Tabs>
-					</div>
+						<TabsContent value="records" className="mt-6">
+							<RecordsSection
+								cases={casesData?.data || []}
+								isLoading={casesLoading}
+								error={casesError}
+								refetch={refetchCases}
+								isFullscreen={isFullscreen}
+								setIsFullscreen={setIsFullscreen}
+							/>
+						</TabsContent>
+
+						<TabsContent value="settings" className="mt-6">
+							<SettingsSection />
+						</TabsContent>
+					</Tabs>
 				</main>
 			</div>
 		</>
