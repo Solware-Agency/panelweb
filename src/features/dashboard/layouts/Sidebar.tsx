@@ -12,6 +12,7 @@ import {
 	Users,
 	Settings,
 	Stethoscope,
+	ShieldCheck,
 } from 'lucide-react'
 import { NavLink, useNavigate } from 'react-router-dom'
 import { signOut } from '@lib/supabase/auth'
