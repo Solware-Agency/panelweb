@@ -59,9 +59,12 @@ function FormContent() {
 			<Sonner />
 			<div className="fixed top-4 right-4 z-50 flex items-center gap-2">
 				{activeTab === 'form' && (
-					<Button variant="outline" onClick={handleClearForm} className="shadow-xl dark:shadow-black shadow-black/40">
-						Limpiar
-					</Button>
+					<>
+						<GenerateCaseButton />
+						<Button variant="outline" onClick={handleClearForm} className="shadow-xl dark:shadow-black shadow-black/40">
+							Limpiar
+						</Button>
+					</>
 				)}
 				{activeTab === 'records' && (
 					<>
@@ -99,16 +102,11 @@ function FormContent() {
 					</div>
 
 					<Tabs defaultValue="form" value={activeTab} onValueChange={setActiveTab}>
-						<div className="flex justify-between items-center mb-6">
-							<TabsList>
-								<TabsTrigger value="form">Formulario</TabsTrigger>
-								<TabsTrigger value="records">Registros</TabsTrigger>
-								<TabsTrigger value="settings">Ajustes</TabsTrigger>
-							</TabsList>
-							
-							{/* Generate Case Button */}
-							<GenerateCaseButton />
-						</div>
+						<TabsList className="mb-6">
+							<TabsTrigger value="form">Formulario</TabsTrigger>
+							<TabsTrigger value="records">Registros</TabsTrigger>
+							<TabsTrigger value="settings">Ajustes</TabsTrigger>
+						</TabsList>
 
 						<TabsContent value="form">
 							<MedicalForm />

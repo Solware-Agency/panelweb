@@ -51,6 +51,16 @@ function App() {
 						}
 					/>
 
+					{/* Generate Case Page */}
+					<Route
+						path="/generar-caso/:id"
+						element={
+							<PrivateRoute>
+								<GenerateCasePage />
+							</PrivateRoute>
+						}
+					/>
+
 					{/* Default route */}
 					<Route path="/" element={<LoginPage />} />
 
@@ -70,19 +80,8 @@ function App() {
 						<Route path="reports" element={<ReportsPage />} />
 						<Route path="users" element={<UsersPage />} />
 						<Route path="cases" element={<CasesPage />} />
-						<Route path="generate-case" element={<GenerateCasePage />} />
 						<Route path="settings" element={<SettingsPage />} />
 					</Route>
-
-					{/* New route for generating cases */}
-					<Route
-						path="/generar-caso"
-						element={
-							<PrivateRoute>
-								<GenerateCasePage />
-							</PrivateRoute>
-						}
-					/>
 				</Routes>
 			</div>
 		</BrowserRouter>
