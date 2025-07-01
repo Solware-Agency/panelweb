@@ -84,31 +84,23 @@ export const RecordsSection: React.FC<RecordsSectionProps> = ({
 			{/* Header with search and refresh */}
 			<div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
 				<div>
-					<h2 className="text-2xl font-bold text-foreground">Registros de Clientes</h2>
+					<div className="flex items-center gap-3">
+						<h2 className="text-2xl font-bold text-foreground">Registros de Clientes</h2>
+						{profile?.role === 'employee' && profile?.assigned_branch && (
+							<div className="flex items-center gap-2 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg px-3 py-1">
+								<MapPin className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+								<span className="text-sm font-medium text-blue-800 dark:text-blue-300">
+									Sede: {profile.assigned_branch}
+								</span>
+							</div>
+						)}
+					</div>
 					<p className="text-muted-foreground">
 						{searchTerm ? `Resultados de búsqueda para "${searchTerm}"` : 
 						 profile?.assigned_branch ? `Registros de la sede ${profile.assigned_branch}` : 'Todos los registros médicos'}
 					</p>
 				</div>
 			</div>
-
-			{/* Branch restriction notice */}
-			{profile?.role === 'employee' && profile?.assigned_branch && (
-				<div className="mb-6 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
-					<div className="flex items-center gap-2 mb-2">
-						<div className="p-2 bg-blue-100 dark:bg-blue-800/50 rounded-full">
-							<MapPin className="w-4 h-4 text-blue-600 dark:text-blue-400" />
-						</div>
-						<h3 className="text-lg font-semibold text-blue-800 dark:text-blue-300">
-							Acceso Restringido a Sede: {profile.assigned_branch}
-						</h3>
-					</div>
-					<p className="text-sm text-blue-700 dark:text-blue-400">
-						Tu cuenta está configurada para ver únicamente los registros de la sede {profile.assigned_branch}.
-						Si necesitas acceso a otras sedes, contacta al administrador del sistema.
-					</p>
-				</div>
-			)}
 
 			{/* Statistics cards */}
 			{!searchTerm && records && (
