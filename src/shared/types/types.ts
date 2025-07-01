@@ -1,4 +1,4 @@
-import type { Database } from '@supabase/supabase-js'
+import type { Database as SupabaseDatabase } from '@supabase/supabase-js'
 
 export type Database = {
 	public: {

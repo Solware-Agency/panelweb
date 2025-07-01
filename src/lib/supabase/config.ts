@@ -1,4 +1,5 @@
 import { createClient } from '@supabase/supabase-js'
+import type { Database } from '@shared/types/types'
 
 // Validate required environment variables
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL
@@ -46,37 +47,6 @@ export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABL
 		},
 	},
 })
-
-// Database types (you can generate these with Supabase CLI)
-export interface Database {
-	public: {
-		Tables: {
-			profiles: {
-				Row: {
-					id: string
-					email: string
-					role: 'owner' | 'employee'
-					created_at: string
-					updated_at: string
-				}
-				Insert: {
-					id: string
-					email: string
-					role?: 'owner' | 'employee'
-					created_at?: string
-					updated_at?: string
-				}
-				Update: {
-					id?: string
-					email?: string
-					role?: 'owner' | 'employee'
-					created_at?: string
-					updated_at?: string
-				}
-			}
-		}
-	}
-}
 
 supabase
 	.from('medical_records_clean')
