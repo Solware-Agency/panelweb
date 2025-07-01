@@ -20,6 +20,7 @@ import { useAuth } from '@app/providers/AuthContext'
 import EditCaseModal from './EditCaseModal'
 import { Card } from '@shared/components/ui/card'
 import { useToast } from '@shared/hooks/use-toast'
+import { useUserProfile } from '@shared/hooks/useUserProfile'
 
 interface CasesTableProps {
 	onCaseSelect: (case_: MedicalRecord) => void
@@ -44,10 +45,11 @@ const CasesTable: React.FC<CasesTableProps> = ({
 	setIsFullscreen 
 }) => {
 	const { user } = useAuth()
+	const { profile } = useUserProfile()
 	const { toast } = useToast()
 	const [searchTerm, setSearchTerm] = useState('')
 	const [statusFilter, setStatusFilter] = useState<string>('all')
-	const [branchFilter, setBranchFilter] = useState<string>('all')
+	const [branchFilter, setBranchFilter] = useState<string>(profile?.assigned_branch || 'all')
 	const [examTypeFilter, setExamTypeFilter] = useState<string>('all')
 	const [sortField, setSortField] = useState<SortField>('created_at')
 	const [sortDirection, setSortDirection] = useState<SortDirection>('desc')
@@ -57,6 +59,13 @@ const CasesTable: React.FC<CasesTableProps> = ({
 	const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
 	const [caseToDelete, setCaseToDelete] = useState<MedicalRecord | null>(null)
 	const [isDeleting, setIsDeleting] = useState(false)
+
+	// Set branch filter to user's assigned branch if they have one
+	React.useEffect(() => {
+		if (profile?.assigned_branch) {
+			setBranchFilter(profile.assigned_branch)
+		}
+	}, [profile?.assigned_branch])
 
 	const getStatusColor = (status: string) => {
 		switch (status) {
@@ -397,21 +406,23 @@ const CasesTable: React.FC<CasesTableProps> = ({
 								</select>
 							</div>
 
-							{/* Branch Filter */}
-							<div className="flex items-center gap-2">
-								<select
-									value={branchFilter}
-									onChange={(e) => setBranchFilter(e.target.value)}
-									className="px-3 py-2 border border-input rounded-lg focus:ring-2 focus:ring-primary dark:bg-background dark:text-white text-sm"
-								>
-									<option value="all">Todas las sedes</option>
-									<option value="PMG">PMG</option>
-									<option value="CPC">CPC</option>
-									<option value="CNX">CNX</option>
-									<option value="STX">STX</option>
-									<option value="MCY">MCY</option>
-								</select>
-							</div>
+							{/* Branch Filter - Only show if user doesn't have assigned branch */}
+							{(!profile?.assigned_branch) && (
+								<div className="flex items-center gap-2">
+									<select
+										value={branchFilter}
+										onChange={(e) => setBranchFilter(e.target.value)}
+										className="px-3 py-2 border border-input rounded-lg focus:ring-2 focus:ring-primary dark:bg-background dark:text-white text-sm"
+									>
+										<option value="all">Todas las sedes</option>
+										<option value="PMG">PMG</option>
+										<option value="CPC">CPC</option>
+										<option value="CNX">CNX</option>
+										<option value="STX">STX</option>
+										<option value="MCY">MCY</option>
+									</select>
+								</div>
+							)}
 
 							{/* Exam Type Filter */}
 							<div className="flex items-center gap-2">
@@ -713,21 +724,23 @@ const CasesTable: React.FC<CasesTableProps> = ({
 									</select>
 								</div>
 
-								{/* Branch Filter */}
-								<div className="flex items-center gap-2">
-									<select
-										value={branchFilter}
-										onChange={(e) => setBranchFilter(e.target.value)}
-										className="px-3 py-2 border border-input rounded-lg focus:ring-2 focus:ring-primary dark:bg-background dark:text-white text-sm"
-									>
-										<option value="all">Todas las sedes</option>
-										<option value="PMG">PMG</option>
-										<option value="CPC">CPC</option>
-										<option value="CNX">CNX</option>
-										<option value="STX">STX</option>
-										<option value="MCY">MCY</option>
-									</select>
-								</div>
+								{/* Branch Filter - Only show if user doesn't have assigned branch */}
+								{(!profile?.assigned_branch) && (
+									<div className="flex items-center gap-2">
+										<select
+											value={branchFilter}
+											onChange={(e) => setBranchFilter(e.target.value)}
+											className="px-3 py-2 border border-input rounded-lg focus:ring-2 focus:ring-primary dark:bg-background dark:text-white text-sm"
+										>
+											<option value="all">Todas las sedes</option>
+											<option value="PMG">PMG</option>
+											<option value="CPC">CPC</option>
+											<option value="CNX">CNX</option>
+											<option value="STX">STX</option>
+											<option value="MCY">MCY</option>
+										</select>
+									</div>
+								)}
 
 								{/* Exam Type Filter */}
 								<div className="flex items-center gap-2">
@@ -900,9 +913,7 @@ const CasesTable: React.FC<CasesTableProps> = ({
 													</td>
 													<td className="px-4 py-4">
 														<div className="text-left">
-															<div className="text-sm font-medium text-gray-900 dark:text-gray-100">
-																{case_.full_name}
-															</div>
+															<div className="text-sm font-medium text-gray-900 dark:text-gray-100">{case_.full_name}</div>
 															<div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
 																<span>{case_.id_number}</span>
 																{ageDisplay && (
@@ -922,9 +933,7 @@ const CasesTable: React.FC<CasesTableProps> = ({
 													<td className="px-4 py-4 text-sm text-gray-900 dark:text-gray-100 text-center">
 														{case_.exam_type}
 													</td>
-													<td className="px-4 py-4 text-sm text-gray-900 dark:text-gray-100">
-														{case_.treating_doctor}
-													</td>
+													<td className="px-4 py-4 text-sm text-gray-900 dark:text-gray-100">{case_.treating_doctor}</td>
 													<td className="px-4 py-4">
 														<div className="text-sm font-medium text-gray-900 dark:text-gray-100">
 															${case_.total_amount.toLocaleString()}
