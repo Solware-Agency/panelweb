@@ -80,7 +80,7 @@ const PrivateRoute = ({ children, requiredRole = 'owner' }: PrivateRouteProps) =
 		console.log(`User role "${profile.role}" does not match required role "owner"`)
 		
 		// Redirect based on actual user role
-		if (profile.role === 'doctor') {
+		if (profile.role === 'admin') {
 			return <Navigate to="/dashboard/cases" replace />
 		} else if (profile.role === 'employee') {
 			return <Navigate to="/form" replace />

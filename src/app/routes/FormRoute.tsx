@@ -70,8 +70,8 @@ const FormRoute = ({ children }: { children: JSX.Element }) => {
 		)
 	}
 
-	// If user is the owner or doctor, redirect to dashboard
-	if (profile.role === 'owner' || profile.role === 'doctor') {
+	// If user is the owner or admin, redirect to dashboard
+	if (profile.role === 'owner' || profile.role === 'admin') {
 		console.log(`${profile.role} user accessing form route, redirecting to dashboard`)
 		return <Navigate to="/dashboard/cases" replace />
 	}

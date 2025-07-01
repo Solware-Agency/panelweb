@@ -45,8 +45,8 @@ const Sidebar: React.FC<SidebarProps> = ({
 		navigate('/')
 	}
 
-	// Determine if user is doctor role
-	const isDoctor = profile?.role === 'doctor'
+	// Determine if user is admin role
+	const isAdmin = profile?.role === 'admin'
 
 	return (
 		<aside className="bg-white/80 dark:bg-background/50 shadow-lg hover:shadow-primary/50 backdrop-blur-[10px] flex flex-col justify-between h-screen py-8 px-5 gap-4 border-gray-600 text-gray-700 dark:text-white transition-all duration-300 ease-in-out overflow-hidden border-r border-input">
@@ -83,8 +83,8 @@ const Sidebar: React.FC<SidebarProps> = ({
 				)}
 
 				{/* Show different menu items based on role */}
-				{isDoctor ? (
-					// Doctor menu items
+				{isAdmin ? (
+					// Admin menu items
 					<>
 						<NavLink
 							to="/dashboard/cases"

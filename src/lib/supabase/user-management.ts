@@ -244,9 +244,9 @@ export const getUserByEmail = async (email: string): Promise<{ data: UserProfile
 }
 
 /**
- * Update user role to doctor for specific user
+ * Update user role to admin for specific user
  */
-export const updateUserToDoctor = async (email: string): Promise<{ success: boolean; error: any }> => {
+export const updateUserToAdmin = async (email: string): Promise<{ success: boolean; error: any }> => {
 	try {
 		// First get the user by email
 		const { data: user, error: userError } = await getUserByEmail(email)
@@ -256,18 +256,18 @@ export const updateUserToDoctor = async (email: string): Promise<{ success: bool
 			return { success: false, error: userError || new Error('User not found') }
 		}
 		
-		// Update the user's role to doctor
-		const { error: updateError } = await updateUserRole(user.id, 'doctor')
+		// Update the user's role to admin
+		const { error: updateError } = await updateUserRole(user.id, 'admin')
 		
 		if (updateError) {
-			console.error('Error updating user to doctor role:', updateError)
+			console.error('Error updating user to admin role:', updateError)
 			return { success: false, error: updateError }
 		}
 		
-		console.log(`User ${email} successfully updated to doctor role`)
+		console.log(`User ${email} successfully updated to admin role`)
 		return { success: true, error: null }
 	} catch (error) {
-		console.error('Unexpected error updating user to doctor:', error)
+		console.error('Unexpected error updating user to admin:', error)
 		return { success: false, error }
 	}
 }
