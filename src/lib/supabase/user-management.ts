@@ -3,7 +3,7 @@ import { supabase } from './config'
 export interface UserProfile {
 	id: string
 	email: string
-	role: 'owner' | 'employee' | 'admin'
+	role: 'owner' | 'employee' | 'admin' | 'doctor'
 	created_at: string
 	updated_at: string
 	assigned_branch?: string | null
@@ -14,7 +14,7 @@ export interface UserProfile {
 /**
  * Update user role in the profiles table
  */
-export const updateUserRole = async (userId: string, newRole: 'owner' | 'employee' | 'admin') => {
+export const updateUserRole = async (userId: string, newRole: 'owner' | 'employee' | 'admin' | 'doctor') => {
 	try {
 		console.log(`Updating user ${userId} role to ${newRole}`)
 
@@ -207,6 +207,7 @@ export const getUserStats = async () => {
 			owners: data?.filter(u => u.role === 'owner').length || 0,
 			employees: data?.filter(u => u.role === 'employee').length || 0,
 			admins: data?.filter(u => u.role === 'admin').length || 0,
+			doctors: data?.filter(u => u.role === 'doctor').length || 0,
 			withBranch: data?.filter(u => u.assigned_branch).length || 0,
 			approved: data?.filter(u => u.estado === 'aprobado').length || 0,
 			pending: data?.filter(u => u.estado === 'pendiente').length || 0,
@@ -239,5 +240,34 @@ export const getUserByEmail = async (email: string): Promise<{ data: UserProfile
 	} catch (error) {
 		console.error('Unexpected error fetching user by email:', error)
 		return { data: null, error }
+	}
+}
+
+/**
+ * Update user role to doctor for specific user
+ */
+export const updateUserToDoctor = async (email: string): Promise<{ success: boolean; error: any }> => {
+	try {
+		// First get the user by email
+		const { data: user, error: userError } = await getUserByEmail(email)
+		
+		if (userError || !user) {
+			console.error('Error finding user by email:', userError)
+			return { success: false, error: userError || new Error('User not found') }
+		}
+		
+		// Update the user's role to doctor
+		const { error: updateError } = await updateUserRole(user.id, 'doctor')
+		
+		if (updateError) {
+			console.error('Error updating user to doctor role:', updateError)
+			return { success: false, error: updateError }
+		}
+		
+		console.log(`User ${email} successfully updated to doctor role`)
+		return { success: true, error: null }
+	} catch (error) {
+		console.error('Unexpected error updating user to doctor:', error)
+		return { success: false, error }
 	}
 }

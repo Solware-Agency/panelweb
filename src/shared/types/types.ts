@@ -256,7 +256,7 @@ export type Database = {
 				Row: {
 					id: string
 					email: string
-					role: 'owner' | 'employee' | 'admin'
+					role: 'owner' | 'employee' | 'admin' | 'doctor'
 					created_at: string
 					updated_at: string
 					assigned_branch: string | null
@@ -266,7 +266,7 @@ export type Database = {
 				Insert: {
 					id: string
 					email: string
-					role?: 'owner' | 'employee' | 'admin'
+					role?: 'owner' | 'employee' | 'admin' | 'doctor'
 					created_at?: string
 					updated_at?: string
 					assigned_branch?: string | null
@@ -276,7 +276,7 @@ export type Database = {
 				Update: {
 					id?: string
 					email?: string
-					role?: 'owner' | 'employee' | 'admin'
+					role?: 'owner' | 'employee' | 'admin' | 'doctor'
 					created_at?: string
 					updated_at?: string
 					assigned_branch?: string | null

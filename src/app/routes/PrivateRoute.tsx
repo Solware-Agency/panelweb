@@ -5,7 +5,7 @@ import type { JSX } from 'react'
 
 interface PrivateRouteProps {
 	children: JSX.Element
-	requiredRole?: 'owner' | 'employee'
+	requiredRole?: 'owner' | 'employee' | 'admin' | 'doctor'
 }
 
 /**
@@ -76,12 +76,14 @@ const PrivateRoute = ({ children, requiredRole = 'owner' }: PrivateRouteProps) =
 	}
 
 	// Check role permissions
-	if (profile.role !== requiredRole) {
-		console.log(`User role "${profile.role}" does not match required role "${requiredRole}"`)
+	if (requiredRole === 'owner' && profile.role !== 'owner') {
+		console.log(`User role "${profile.role}" does not match required role "owner"`)
 		
 		// Redirect based on actual user role
-		if (profile.role === 'owner') {
-			return <Navigate to="/dashboard/home" replace />
+		if (profile.role === 'doctor') {
+			return <Navigate to="/dashboard/cases" replace />
+		} else if (profile.role === 'employee') {
+			return <Navigate to="/form" replace />
 		} else {
 			return <Navigate to="/form" replace />
 		}

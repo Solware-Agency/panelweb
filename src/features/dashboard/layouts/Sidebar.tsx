@@ -11,11 +11,12 @@ import {
 	Clock,
 	Users,
 	Settings,
+	Stethoscope,
 } from 'lucide-react'
 import { NavLink, useNavigate } from 'react-router-dom'
 import { signOut } from '@lib/supabase/auth'
 import FavIcon from '@shared/components/icons/FavIcon'
-// import { useUserProfile } from '@shared/hooks/useUserProfile'
+import { useUserProfile } from '@shared/hooks/useUserProfile'
 
 interface SidebarProps {
 	onClose?: () => void
@@ -37,12 +38,15 @@ const Sidebar: React.FC<SidebarProps> = ({
 	// For mobile, always show full sidebar. For desktop, use isExpanded state
 	const showFullContent = isMobile || isExpanded
 	const navigate = useNavigate()
-	// const { profile } = useUserProfile()
+	const { profile } = useUserProfile()
 
 	const handleLogout = async () => {
 		await signOut()
 		navigate('/')
 	}
+
+	// Determine if user is doctor role
+	const isDoctor = profile?.role === 'doctor'
 
 	return (
 		<aside className="bg-white/80 dark:bg-background/50 shadow-lg hover:shadow-primary/50 backdrop-blur-[10px] flex flex-col justify-between h-screen py-8 px-5 gap-4 border-gray-600 text-gray-700 dark:text-white transition-all duration-300 ease-in-out overflow-hidden border-r border-input">
@@ -70,123 +74,198 @@ const Sidebar: React.FC<SidebarProps> = ({
 				</div>
 
 				{/* Welcome message with display name */}
-				{/* {profile?.display_name && (
+				{profile?.display_name && (
 					<div className={`text-sm text-primary font-medium mb-2 transition-all duration-300 ${
 						showFullContent ? 'opacity-100 w-auto' : 'opacity-0 w-0 overflow-hidden'
 					}`}>
 						Bienvenido, {profile.display_name}
 					</div>
-				)} */}
+				)}
 
-				<NavLink
-					to="/dashboard/home"
-					className={({ isActive }) =>
-						`flex justify-between items-center gap-3 cursor-pointer transition w-full ${
-							isActive ? 'text-primary border-primary' : 'hover:text-primary'
-						}`
-					}
-					onClick={onClose}
-					title={!showFullContent ? 'Inicio' : undefined}
-				>
-					<div className="flex gap-3 items-center min-w-0">
-						<Home className="stroke-2 size-5 shrink-0" />
-						<p
-							className={`text-md whitespace-nowrap transition-all duration-300 ${
-								showFullContent ? 'opacity-100 w-auto' : 'opacity-0 w-0 overflow-hidden'
-							}`}
+				{/* Show different menu items based on role */}
+				{isDoctor ? (
+					// Doctor menu items
+					<>
+						<NavLink
+							to="/dashboard/cases"
+							className={({ isActive }) =>
+								`flex justify-between items-center gap-3 cursor-pointer transition w-full ${
+									isActive ? 'text-primary border-primary' : 'hover:text-primary'
+								}`
+							}
+							onClick={onClose}
+							title={!showFullContent ? 'Registros' : undefined}
 						>
-							Inicio
-						</p>
-					</div>
-				</NavLink>
+							<div className="flex gap-3 items-center min-w-0">
+								<FolderInput className="stroke-2 size-5 shrink-0" />
+								<p
+									className={`text-md whitespace-nowrap transition-all duration-300 ${
+										showFullContent ? 'opacity-100 w-auto' : 'opacity-0 w-0 overflow-hidden'
+									}`}
+								>
+									Registros
+								</p>
+							</div>
+						</NavLink>
 
-				<NavLink
-					to="/dashboard/stats"
-					className={({ isActive }) =>
-						`flex justify-between items-center gap-3 cursor-pointer transition w-full ${
-							isActive ? 'text-primary border-primary' : 'hover:text-primary'
-						}`
-					}
-					onClick={onClose}
-					title={!showFullContent ? 'Estadisticas' : undefined}
-				>
-					<div className="flex gap-3 items-center min-w-0">
-						<PieChart className="stroke-2 size-5 shrink-0" />
-						<p
-							className={`text-md whitespace-nowrap transition-all duration-300 ${
-								showFullContent ? 'opacity-100 w-auto' : 'opacity-0 w-0 overflow-hidden'
-							}`}
+						<NavLink
+							to="/cases-selection"
+							className={({ isActive }) =>
+								`flex justify-between items-center gap-3 cursor-pointer transition w-full ${
+									isActive ? 'text-primary border-primary' : 'hover:text-primary'
+								}`
+							}
+							onClick={onClose}
+							title={!showFullContent ? 'Casos Generados' : undefined}
 						>
-							Estadisticas
-						</p>
-					</div>
-				</NavLink>
+							<div className="flex gap-3 items-center min-w-0">
+								<Stethoscope className="stroke-2 size-5 shrink-0" />
+								<p
+									className={`text-md whitespace-nowrap transition-all duration-300 ${
+										showFullContent ? 'opacity-100 w-auto' : 'opacity-0 w-0 overflow-hidden'
+									}`}
+								>
+									Casos Generados
+								</p>
+							</div>
+						</NavLink>
 
-				<NavLink
-					to="/dashboard/reports"
-					className={({ isActive }) =>
-						`flex justify-between items-center gap-3 cursor-pointer transition w-full ${
-							isActive ? 'text-primary border-primary' : 'hover:text-primary'
-						}`
-					}
-					onClick={onClose}
-					title={!showFullContent ? 'Reportes' : undefined}
-				>
-					<div className="flex gap-3 items-center min-w-0">
-						<FileText className="stroke-2 size-5 shrink-0" />
-						<p
-							className={`text-md whitespace-nowrap transition-all duration-300 ${
-								showFullContent ? 'opacity-100 w-auto' : 'opacity-0 w-0 overflow-hidden'
-							}`}
+						<NavLink
+							to="/dashboard/users"
+							className={({ isActive }) =>
+								`flex justify-between items-center gap-3 cursor-pointer transition w-full ${
+									isActive ? 'text-primary border-primary' : 'hover:text-primary'
+								}`
+							}
+							onClick={onClose}
+							title={!showFullContent ? 'Médicos' : undefined}
 						>
-							Reportes
-						</p>
-					</div>
-				</NavLink>
+							<div className="flex gap-3 items-center min-w-0">
+								<Users className="stroke-2 size-5 shrink-0" />
+								<p
+									className={`text-md whitespace-nowrap transition-all duration-300 ${
+										showFullContent ? 'opacity-100 w-auto' : 'opacity-0 w-0 overflow-hidden'
+									}`}
+								>
+									Médicos
+								</p>
+							</div>
+						</NavLink>
+					</>
+				) : (
+					// Regular menu items for owner/employee
+					<>
+						<NavLink
+							to="/dashboard/home"
+							className={({ isActive }) =>
+								`flex justify-between items-center gap-3 cursor-pointer transition w-full ${
+									isActive ? 'text-primary border-primary' : 'hover:text-primary'
+								}`
+							}
+							onClick={onClose}
+							title={!showFullContent ? 'Inicio' : undefined}
+						>
+							<div className="flex gap-3 items-center min-w-0">
+								<Home className="stroke-2 size-5 shrink-0" />
+								<p
+									className={`text-md whitespace-nowrap transition-all duration-300 ${
+										showFullContent ? 'opacity-100 w-auto' : 'opacity-0 w-0 overflow-hidden'
+									}`}
+								>
+									Inicio
+								</p>
+							</div>
+						</NavLink>
 
-				<NavLink
-					to="/dashboard/users"
-					className={({ isActive }) =>
-						`flex justify-between items-center gap-3 cursor-pointer transition w-full ${
-							isActive ? 'text-primary border-primary' : 'hover:text-primary'
-						}`
-					}
-					onClick={onClose}
-					title={!showFullContent ? 'Usuarios' : undefined}
-				>
-					<div className="flex gap-3 items-center min-w-0">
-						<Users className="stroke-2 size-5 shrink-0" />
-						<p
-							className={`text-md whitespace-nowrap transition-all duration-300 ${
-								showFullContent ? 'opacity-100 w-auto' : 'opacity-0 w-0 overflow-hidden'
-							}`}
+						<NavLink
+							to="/dashboard/stats"
+							className={({ isActive }) =>
+								`flex justify-between items-center gap-3 cursor-pointer transition w-full ${
+									isActive ? 'text-primary border-primary' : 'hover:text-primary'
+								}`
+							}
+							onClick={onClose}
+							title={!showFullContent ? 'Estadisticas' : undefined}
 						>
-							Usuarios
-						</p>
-					</div>
-				</NavLink>
+							<div className="flex gap-3 items-center min-w-0">
+								<PieChart className="stroke-2 size-5 shrink-0" />
+								<p
+									className={`text-md whitespace-nowrap transition-all duration-300 ${
+										showFullContent ? 'opacity-100 w-auto' : 'opacity-0 w-0 overflow-hidden'
+									}`}
+								>
+									Estadisticas
+								</p>
+							</div>
+						</NavLink>
 
-				<NavLink
-					to="/dashboard/cases"
-					className={({ isActive }) =>
-						`flex justify-between items-center gap-3 cursor-pointer transition w-full ${
-							isActive ? 'text-primary border-primary' : 'hover:text-primary'
-						}`
-					}
-					onClick={onClose}
-					title={!showFullContent ? 'Casos' : undefined}
-				>
-					<div className="flex gap-3 items-center min-w-0">
-						<FolderInput className="stroke-2 size-5 shrink-0" />
-						<p
-							className={`text-md whitespace-nowrap transition-all duration-300 ${
-								showFullContent ? 'opacity-100 w-auto' : 'opacity-0 w-0 overflow-hidden'
-							}`}
+						<NavLink
+							to="/dashboard/reports"
+							className={({ isActive }) =>
+								`flex justify-between items-center gap-3 cursor-pointer transition w-full ${
+									isActive ? 'text-primary border-primary' : 'hover:text-primary'
+								}`
+							}
+							onClick={onClose}
+							title={!showFullContent ? 'Reportes' : undefined}
 						>
-							Casos
-						</p>
-					</div>
-				</NavLink>
+							<div className="flex gap-3 items-center min-w-0">
+								<FileText className="stroke-2 size-5 shrink-0" />
+								<p
+									className={`text-md whitespace-nowrap transition-all duration-300 ${
+										showFullContent ? 'opacity-100 w-auto' : 'opacity-0 w-0 overflow-hidden'
+									}`}
+								>
+									Reportes
+								</p>
+							</div>
+						</NavLink>
+
+						<NavLink
+							to="/dashboard/users"
+							className={({ isActive }) =>
+								`flex justify-between items-center gap-3 cursor-pointer transition w-full ${
+									isActive ? 'text-primary border-primary' : 'hover:text-primary'
+								}`
+							}
+							onClick={onClose}
+							title={!showFullContent ? 'Usuarios' : undefined}
+						>
+							<div className="flex gap-3 items-center min-w-0">
+								<Users className="stroke-2 size-5 shrink-0" />
+								<p
+									className={`text-md whitespace-nowrap transition-all duration-300 ${
+										showFullContent ? 'opacity-100 w-auto' : 'opacity-0 w-0 overflow-hidden'
+									}`}
+								>
+									Usuarios
+								</p>
+							</div>
+						</NavLink>
+
+						<NavLink
+							to="/dashboard/cases"
+							className={({ isActive }) =>
+								`flex justify-between items-center gap-3 cursor-pointer transition w-full ${
+									isActive ? 'text-primary border-primary' : 'hover:text-primary'
+								}`
+							}
+							onClick={onClose}
+							title={!showFullContent ? 'Casos' : undefined}
+						>
+							<div className="flex gap-3 items-center min-w-0">
+								<FolderInput className="stroke-2 size-5 shrink-0" />
+								<p
+									className={`text-md whitespace-nowrap transition-all duration-300 ${
+										showFullContent ? 'opacity-100 w-auto' : 'opacity-0 w-0 overflow-hidden'
+									}`}
+								>
+									Casos
+								</p>
+							</div>
+						</NavLink>
+					</>
+				)}
 			</div>
 
 			<div className="flex flex-col justify-center gap-4">

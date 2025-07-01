@@ -52,21 +52,21 @@ function App() {
 						}
 					/>
 
-					{/* Case Selection Page */}
+					{/* Case Selection Page - accessible by owners, doctors and employees */}
 					<Route
 						path="/cases-selection"
 						element={
-							<PrivateRoute>
+							<PrivateRoute requiredRole={undefined}>
 								<CaseSelectionPage />
 							</PrivateRoute>
 						}
 					/>
 
-					{/* Generate Case Page */}
+					{/* Generate Case Page - accessible by owners, doctors and employees */}
 					<Route
 						path="/generar-caso/:id"
 						element={
-							<PrivateRoute>
+							<PrivateRoute requiredRole={undefined}>
 								<GenerateCasePage />
 							</PrivateRoute>
 						}
@@ -75,11 +75,11 @@ function App() {
 					{/* Default route */}
 					<Route path="/" element={<LoginPage />} />
 
-					{/* Protected dashboard routes (owner only) */}
+					{/* Protected dashboard routes */}
 					<Route
 						path="/dashboard"
 						element={
-							<PrivateRoute>
+							<PrivateRoute requiredRole={undefined}>
 								<Layout />
 							</PrivateRoute>
 						}

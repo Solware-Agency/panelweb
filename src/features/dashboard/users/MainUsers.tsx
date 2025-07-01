@@ -1,11 +1,11 @@
 import React, { useState } from 'react'
-import { Users, Mail, Calendar, Search, Filter, Crown, Briefcase, MapPin, CheckCircle, Clock, User } from 'lucide-react'
+import { Users, Mail, Calendar, Search, Filter, Crown, Briefcase, MapPin, CheckCircle, Clock, User, Stethoscope } from 'lucide-react'
 import { Card } from '@shared/components/ui/card'
 import { Input } from '@shared/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@shared/components/ui/select'
 import { useQuery } from '@tanstack/react-query'
 import { supabase } from '@lib/supabase/config'
-import { updateUserRole, updateUserBranch, canManageUsers, getUserByEmail, updateUserApprovalStatus } from '@lib/supabase/user-management'
+import { updateUserRole, updateUserBranch, canManageUsers, getUserByEmail, updateUserApprovalStatus, updateUserToDoctor } from '@lib/supabase/user-management'
 import { useAuth } from '@app/providers/AuthContext'
 import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
@@ -15,7 +15,7 @@ import { Button } from '@shared/components/ui/button'
 interface UserProfile {
 	id: string
 	email: string
-	role: 'owner' | 'employee'
+	role: 'owner' | 'employee' | 'doctor'
 	created_at: string
 	updated_at: string
 	email_confirmed_at?: string
@@ -36,6 +36,7 @@ const MainUsers: React.FC = () => {
 	const [approvalFilter, setApprovalFilter] = useState<string>('all')
 	const [searchEmail, setSearchEmail] = useState('')
 	const [isSearching, setIsSearching] = useState(false)
+	const [isUpdatingJesus, setIsUpdatingJesus] = useState(false)
 
 	// Query para obtener usuarios
 	const { data: users, isLoading, error, refetch } = useQuery({
@@ -121,12 +122,43 @@ const MainUsers: React.FC = () => {
 		}
 	}
 
+	const handleUpdateJesusToDoctor = async () => {
+		setIsUpdatingJesus(true)
+		try {
+			const { success, error } = await updateUserToDoctor('jesus@email.com')
+			
+			if (error || !success) {
+				throw error || new Error('No se pudo actualizar el usuario')
+			}
+			
+			toast({
+				title: '✅ Rol actualizado',
+				description: 'El usuario "jesus" ahora tiene el rol de médico.',
+				className: 'bg-green-100 border-green-400 text-green-800',
+			})
+			
+			// Refrescar la lista de usuarios
+			refetch()
+		} catch (error) {
+			console.error('Error updating Jesus to doctor:', error)
+			toast({
+				title: '❌ Error al actualizar',
+				description: 'Hubo un problema al cambiar el rol del usuario. Inténtalo de nuevo.',
+				variant: 'destructive',
+			})
+		} finally {
+			setIsUpdatingJesus(false)
+		}
+	}
+
 	const getRoleIcon = (role: string) => {
 		switch (role) {
 			case 'owner':
 				return <Crown className="w-4 h-4 text-yellow-600 dark:text-yellow-400" />
 			case 'employee':
 				return <Briefcase className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+			case 'doctor':
+				return <Stethoscope className="w-4 h-4 text-green-600 dark:text-green-400" />
 			default:
 				return <Users className="w-4 h-4 text-gray-600 dark:text-gray-400" />
 		}
@@ -138,6 +170,8 @@ const MainUsers: React.FC = () => {
 				return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300'
 			case 'employee':
 				return 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300'
+			case 'doctor':
+				return 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300'
 			default:
 				return 'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-300'
 		}
@@ -184,7 +218,7 @@ const MainUsers: React.FC = () => {
 		}
 	}
 
-	const handleRoleChange = async (userId: string, newRole: 'owner' | 'employee') => {
+	const handleRoleChange = async (userId: string, newRole: 'owner' | 'employee' | 'doctor') => {
 		// Verificar permisos antes de permitir edición
 		if (!canManage) {
 			toast({
@@ -214,7 +248,9 @@ const MainUsers: React.FC = () => {
 
 			toast({
 				title: '✅ Rol actualizado',
-				description: `El rol del usuario ha sido cambiado a ${newRole === 'owner' ? 'Propietario' : 'Empleado'}.`,
+				description: `El rol del usuario ha sido cambiado a ${
+					newRole === 'owner' ? 'Propietario' : newRole === 'doctor' ? 'Médico' : 'Empleado'
+				}.`,
 				className: 'bg-green-100 border-green-400 text-green-800',
 			})
 
@@ -342,6 +378,7 @@ const MainUsers: React.FC = () => {
 		total: users?.length || 0,
 		owners: users?.filter(u => u.role === 'owner').length || 0,
 		employees: users?.filter(u => u.role === 'employee').length || 0,
+		doctors: users?.filter(u => u.role === 'doctor').length || 0,
 		verified: users?.filter(u => u.email_confirmed_at).length || 0,
 		withBranch: users?.filter(u => u.assigned_branch).length || 0,
 		approved: users?.filter(u => u.estado === 'aprobado').length || 0,
@@ -436,23 +473,54 @@ const MainUsers: React.FC = () => {
 					<div className="bg-white dark:bg-background rounded-xl p-4 sm:p-6 transition-colors duration-300">
 						<div className="flex items-center justify-between mb-4">
 							<div className="p-2 sm:p-3 bg-green-100 dark:bg-green-900/30 rounded-lg">
-								<CheckCircle className="w-5 h-5 sm:w-6 sm:h-6 text-green-600 dark:text-green-400" />
+								<Stethoscope className="w-5 h-5 sm:w-6 sm:h-6 text-green-600 dark:text-green-400" />
 							</div>
 						</div>
 						<div>
-							<h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">Usuarios Aprobados</h3>
+							<h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">Médicos</h3>
 							<p className="text-2xl sm:text-3xl font-bold text-gray-700 dark:text-gray-300">
-								{stats.approved}
+								{stats.doctors}
 							</p>
-							{stats.pending > 0 && (
-								<p className="text-sm text-orange-500 dark:text-orange-400 mt-1">
-									{stats.pending} pendiente{stats.pending !== 1 ? 's' : ''}
-								</p>
-							)}
 						</div>
 					</div>
 				</Card>
 			</div>
+
+			{/* Botón para actualizar a Jesus como médico */}
+			<Card className="hover:border-primary hover:shadow-lg hover:shadow-primary/20 transition-all duration-300 shadow-lg mb-6">
+				<div className="bg-white dark:bg-background rounded-xl p-4 sm:p-6 transition-colors duration-300">
+					<h3 className="text-lg font-semibold text-gray-700 dark:text-gray-300 mb-4">Actualizar Usuario Jesus</h3>
+					<div className="flex flex-col sm:flex-row gap-4">
+						<div className="flex-1">
+							<p className="text-gray-600 dark:text-gray-400 mb-2">
+								Actualiza el usuario "jesus@email.com" al rol de médico con permisos especiales.
+							</p>
+							<div className="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg border border-blue-200 dark:border-blue-800">
+								<p className="text-sm text-blue-800 dark:text-blue-300">
+									Este rol tendrá acceso a: Registros, Casos Generados, Médicos y Ajustes.
+								</p>
+							</div>
+						</div>
+						<Button 
+							onClick={handleUpdateJesusToDoctor}
+							disabled={isUpdatingJesus}
+							className="bg-green-600 hover:bg-green-700 text-white"
+						>
+							{isUpdatingJesus ? (
+								<>
+									<div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+									Actualizando...
+								</>
+							) : (
+								<>
+									<Stethoscope className="w-4 h-4 mr-2" />
+									Actualizar a Médico
+								</>
+							)}
+						</Button>
+					</div>
+				</div>
+			</Card>
 
 			{/* Búsqueda por email específico */}
 			<Card className="hover:border-primary hover:shadow-lg hover:shadow-primary/20 transition-all duration-300 shadow-lg mb-6">
@@ -520,6 +588,7 @@ const MainUsers: React.FC = () => {
 									<SelectItem value="all">Todos los roles</SelectItem>
 									<SelectItem value="owner">Propietarios</SelectItem>
 									<SelectItem value="employee">Empleados</SelectItem>
+									<SelectItem value="doctor">Médicos</SelectItem>
 								</SelectContent>
 							</Select>
 						</div>
@@ -591,7 +660,7 @@ const MainUsers: React.FC = () => {
 									<div className="flex items-center justify-between mb-3">
 										<span className={`inline-flex items-center gap-1 px-2 py-1 text-xs font-semibold rounded-full ${getRoleColor(user.role)}`}>
 											{getRoleIcon(user.role)}
-											{user.role === 'owner' ? 'Propietario' : 'Empleado'}
+											{user.role === 'owner' ? 'Propietario' : user.role === 'doctor' ? 'Médico' : 'Empleado'}
 										</span>
 									</div>
 
@@ -678,7 +747,7 @@ const MainUsers: React.FC = () => {
 											</label>
 											<Select 
 												defaultValue={user.role} 
-												onValueChange={(value: 'owner' | 'employee') => handleRoleChange(user.id, value)}
+												onValueChange={(value: 'owner' | 'employee' | 'doctor') => handleRoleChange(user.id, value)}
 											>
 												<SelectTrigger className="w-full">
 													<SelectValue placeholder="Seleccionar rol" />
@@ -694,6 +763,12 @@ const MainUsers: React.FC = () => {
 														<div className="flex items-center gap-2">
 															<Briefcase className="w-4 h-4 text-blue-600 dark:text-blue-400" />
 															<span>Empleado</span>
+														</div>
+													</SelectItem>
+													<SelectItem value="doctor">
+														<div className="flex items-center gap-2">
+															<Stethoscope className="w-4 h-4 text-green-600 dark:text-green-400" />
+															<span>Médico</span>
 														</div>
 													</SelectItem>
 												</SelectContent>
@@ -772,7 +847,7 @@ const MainUsers: React.FC = () => {
 											{canManage && user.id !== currentUser?.id ? (
 												<Select 
 													defaultValue={user.role} 
-													onValueChange={(value: 'owner' | 'employee') => handleRoleChange(user.id, value)}
+													onValueChange={(value: 'owner' | 'employee' | 'doctor') => handleRoleChange(user.id, value)}
 												>
 													<SelectTrigger className="w-40">
 														<SelectValue placeholder="Seleccionar rol" />
@@ -790,12 +865,18 @@ const MainUsers: React.FC = () => {
 																<span>Empleado</span>
 															</div>
 														</SelectItem>
+														<SelectItem value="doctor">
+															<div className="flex items-center gap-2">
+																<Stethoscope className="w-4 h-4 text-green-600 dark:text-green-400" />
+																<span>Médico</span>
+															</div>
+														</SelectItem>
 													</SelectContent>
 												</Select>
 											) : (
 												<span className={`inline-flex items-center gap-1 px-2 py-1 text-xs font-semibold rounded-full ${getRoleColor(user.role)}`}>
 													{getRoleIcon(user.role)}
-													{user.role === 'owner' ? 'Propietario' : 'Empleado'}
+													{user.role === 'owner' ? 'Propietario' : user.role === 'doctor' ? 'Médico' : 'Empleado'}
 												</span>
 											)}
 										</td>
@@ -896,6 +977,9 @@ const MainUsers: React.FC = () => {
 					</li>
 					<li>
 						<strong>Propietarios:</strong> Los usuarios con rol de propietario siempre pueden ver todos los casos, independientemente de la sede asignada.
+					</li>
+					<li>
+						<strong>Médicos:</strong> Los usuarios con rol de médico tienen acceso a registros, casos generados, médicos y ajustes.
 					</li>
 				</ul>
 			</div>
