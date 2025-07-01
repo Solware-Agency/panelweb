@@ -46,7 +46,6 @@ function LoginForm() {
 					if (user) {
 						await refreshUser()
 						// Note: The useSecureRedirect hook will handle the redirect to verification notice
-						// if email is not confirmed
 						return
 					} else {
 						setError('Por favor confirma tu email antes de iniciar sesión.')
@@ -55,10 +54,8 @@ function LoginForm() {
 					setError('Demasiados intentos. Espera un momento antes de intentar de nuevo.')
 				} else if (signInError.message.includes('Invalid email')) {
 					setError('Correo electrónico inválido.')
-				} else if (signInError.message.includes('User account is pending approval')) {
-					setError('Su cuenta necesita ser aprobada')
 				} else {
-					setError('Error al iniciar sesión. Su cuenta necesita ser aprobada.')
+					setError('Error al iniciar sesión. Verifica tus credenciales.')
 				}
 				return
 			}
@@ -80,8 +77,7 @@ function LoginForm() {
 			// Refresh user data and let the secure redirect handle the navigation
 			await refreshUser()
 
-			// The useSecureRedirect hook will automatically handle role-based redirection
-			// after the user profile is loaded
+			// No mostrar ningún error ni mensaje aquí. El hook useSecureRedirect se encargará de la redirección.
 		} catch (err: any) {
 			console.error('Login error:', err)
 			setError('Error al iniciar sesión. Verifica tus credenciales o crea una cuenta.')
@@ -106,7 +102,7 @@ function LoginForm() {
 					delay={200}
 					className="w-full h-full flex items-center justify-center"
 				>
-					<div className="flex flex-col items-center justify-center bg-background p-8 rounded-none md:rounded-xl w-screen h-screen md:h-auto md:w-full md:max-w-md shadow-2xl border border-slate-700/50">
+					<div className="flex flex-col items-center justify-center dark:bg-background bg-slate-950 p-8 rounded-none md:rounded-xl w-screen h-screen md:h-auto md:w-full md:max-w-md shadow-2xl border border-slate-700/50">
 						<div className="text-center mb-4 flex flex-col items-center justify-center">
 							<div className="p-4 bg-[#9e1157] rounded-full mb-4 shadow-lg">
 								<FavIcon fill="#fff" className="size-16" />
@@ -117,8 +113,8 @@ function LoginForm() {
 
 						<form className="w-full" onSubmit={handleLogin}>
 							<div className="flex flex-col gap-2 mb-4 w-full">
-									<p className="text-sm text-slate-400">Correo electrónico:</p>
-									<input
+								<p className="text-sm text-slate-400">Correo electrónico:</p>
+								<input
 									type="email"
 									name="email"
 									placeholder="tu@email.com"
@@ -160,18 +156,9 @@ function LoginForm() {
 							)}
 
 							<div className="flex items-center justify-between w-full mb-8">
-								<label className="flex items-center">
-									<input
-										type="checkbox"
-										disabled={loading || isRedirecting}
-										className="rounded border-slate-600 bg-slate-700text-blue-500 focus:ring-primary disabled:opacity-50"
-									/>
-									<span className="ml-2 text-sm text-slate-400">Recordarme</span>
-								</label>
-
 								<Link
 									to="/forgot-password"
-									className={`text-smtext-blue-500 hover:text-blue-400 transition-colors ${
+									className={`text-sm text-blue-500 hover:text-blue-400 transition-colors ${
 										loading || isRedirecting ? 'pointer-events-none opacity-50' : ''
 									}`}
 								>
