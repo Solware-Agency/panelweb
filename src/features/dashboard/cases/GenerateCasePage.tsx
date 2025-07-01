@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { Card } from '@shared/components/ui/card';
 import { Button } from '@shared/components/ui/button';
 import { Textarea } from '@shared/components/ui/textarea';
@@ -30,6 +30,7 @@ interface MedicalRecord {
 const GenerateCasePage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const location = useLocation();
   const { toast } = useToast();
   const { user } = useAuth();
   const [record, setRecord] = useState<MedicalRecord | null>(null);
@@ -60,6 +61,7 @@ const GenerateCasePage: React.FC = () => {
         }
 
         if (data) {
+          console.log('Loaded record data:', data);
           // Verify this is a biopsia record
           if (data.exam_type !== 'biopsia') {
             toast({
@@ -67,7 +69,7 @@ const GenerateCasePage: React.FC = () => {
               description: 'Esta funcionalidad solo está disponible para casos de biopsia.',
               variant: 'destructive',
             });
-            navigate(-1);
+            navigate('/cases-selection');
             return;
           }
 
@@ -214,6 +216,13 @@ const GenerateCasePage: React.FC = () => {
           <ArrowLeft className="mr-2 h-4 w-4" />
           Volver
         </Button>
+        <Button 
+          onClick={() => navigate('/cases-selection')} 
+          variant="outline"
+          className="ml-2"
+        >
+          Seleccionar otro caso
+        </Button>
       </div>
 
       <Card className="p-6 mb-6 bg-gray-900 text-gray-200 font-mono">
@@ -326,10 +335,7 @@ const GenerateCasePage: React.FC = () => {
               Guardando...
             </>
           ) : (
-            <>
-              <Save className="mr-2 h-4 w-4" />
-              Guardar
-            </>
+            'Guardar'
           )}
         </Button>
       </div>

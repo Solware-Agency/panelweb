@@ -18,6 +18,7 @@ import SettingsPage from '@features/dashboard/settings/SettingsPage'
 import GenerateCasePage from '@features/dashboard/cases/GenerateCasePage'
 import Form from '@features/form/pages/Form'
 import FormRoute from '@app/routes/FormRoute'
+import CaseSelectionPage from '@features/form/pages/CaseSelectionPage'
 
 function App() {
 	return (
@@ -48,6 +49,16 @@ function App() {
 							<FormRoute>
 								<Form />
 							</FormRoute>
+						}
+					/>
+
+					{/* Case Selection Page */}
+					<Route
+						path="/cases-selection"
+						element={
+							<PrivateRoute>
+								<CaseSelectionPage />
+							</PrivateRoute>
 						}
 					/>
 
