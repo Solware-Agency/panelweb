@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Users, Mail, Calendar, Search, Filter, Crown, Briefcase, MapPin, CheckCircle, Clock, User, Stethoscope, ShieldCheck } from 'lucide-react'
+import { Users, Mail, Calendar, Search, Filter, Crown, Briefcase, MapPin, CheckCircle, Clock, User, ShieldCheck } from 'lucide-react'
 import { Card } from '@shared/components/ui/card'
 import { Input } from '@shared/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@shared/components/ui/select'
@@ -11,11 +11,12 @@ import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
 import { useToast } from '@shared/hooks/use-toast'
 import { Button } from '@shared/components/ui/button'
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@shared/components/ui/dialog'
 
 interface UserProfile {
 	id: string
 	email: string
-	role: 'owner' | 'employee' | 'admin' | 'doctor'
+	role: 'owner' | 'employee' | 'admin'
 	created_at: string
 	updated_at: string
 	email_confirmed_at?: string
@@ -36,6 +37,8 @@ const MainUsers: React.FC = () => {
 	const [approvalFilter, setApprovalFilter] = useState<string>('all')
 	const [searchEmail, setSearchEmail] = useState('')
 	const [isSearching, setIsSearching] = useState(false)
+	const [confirmDialogOpen, setConfirmDialogOpen] = useState(false)
+	const [userToUpdate, setUserToUpdate] = useState<{id: string, email: string, newRole: 'owner' | 'employee' | 'admin'} | null>(null)
 
 	// Query para obtener usuarios
 	const { data: users, isLoading, error, refetch } = useQuery({
@@ -127,8 +130,6 @@ const MainUsers: React.FC = () => {
 				return <Crown className="w-4 h-4 text-yellow-600 dark:text-yellow-400" />
 			case 'employee':
 				return <Briefcase className="w-4 h-4 text-blue-600 dark:text-blue-400" />
-			case 'doctor':
-				return <Stethoscope className="w-4 h-4 text-green-600 dark:text-green-400" />
 			case 'admin':
 				return <ShieldCheck className="w-4 h-4 text-purple-600 dark:text-purple-400" />
 			default:
@@ -142,8 +143,6 @@ const MainUsers: React.FC = () => {
 				return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300'
 			case 'employee':
 				return 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300'
-			case 'doctor':
-				return 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300'
 			case 'admin':
 				return 'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300'
 			default:
@@ -192,7 +191,7 @@ const MainUsers: React.FC = () => {
 		}
 	}
 
-	const handleRoleChange = async (userId: string, newRole: 'owner' | 'employee' | 'admin' | 'doctor') => {
+	const handleRoleChange = async (userId: string, newRole: 'owner' | 'employee' | 'admin') => {
 		// Verificar permisos antes de permitir edición
 		if (!canManage) {
 			toast({
@@ -213,6 +212,29 @@ const MainUsers: React.FC = () => {
 			return
 		}
 
+		// Obtener el usuario que se va a actualizar
+		const userToEdit = users?.find(u => u.id === userId)
+		if (!userToEdit) {
+			toast({
+				title: '❌ Usuario no encontrado',
+				description: 'No se pudo encontrar el usuario para editar.',
+				variant: 'destructive',
+			})
+			return
+		}
+
+		// Si el nuevo rol es admin, mostrar diálogo de confirmación
+		if (newRole === 'admin') {
+			setUserToUpdate({
+				id: userId,
+				email: userToEdit.email,
+				newRole: newRole
+			})
+			setConfirmDialogOpen(true)
+			return
+		}
+
+		// Para otros roles, proceder directamente
 		try {
 			const { error } = await updateUserRole(userId, newRole)
 			
@@ -223,7 +245,7 @@ const MainUsers: React.FC = () => {
 			toast({
 				title: '✅ Rol actualizado',
 				description: `El rol del usuario ha sido cambiado a ${
-					newRole === 'owner' ? 'Propietario' : newRole === 'admin' ? 'Administrador' : newRole === 'doctor' ? 'Médico' : 'Empleado'
+					newRole === 'owner' ? 'Propietario' : newRole === 'admin' ? 'Administrador' : 'Empleado'
 				}.`,
 				className: 'bg-green-100 border-green-400 text-green-800',
 			})
@@ -237,6 +259,37 @@ const MainUsers: React.FC = () => {
 				description: 'Hubo un problema al cambiar el rol del usuario. Inténtalo de nuevo.',
 				variant: 'destructive',
 			})
+		}
+	}
+
+	const confirmRoleChange = async () => {
+		if (!userToUpdate) return
+
+		try {
+			const { error } = await updateUserRole(userToUpdate.id, userToUpdate.newRole)
+			
+			if (error) {
+				throw error
+			}
+
+			toast({
+				title: '✅ Rol actualizado',
+				description: `El rol del usuario ha sido cambiado a Administrador.`,
+				className: 'bg-green-100 border-green-400 text-green-800',
+			})
+
+			// Refrescar la lista de usuarios
+			refetch()
+		} catch (error) {
+			console.error('Error updating user role:', error)
+			toast({
+				title: '❌ Error al actualizar',
+				description: 'Hubo un problema al cambiar el rol del usuario. Inténtalo de nuevo.',
+				variant: 'destructive',
+			})
+		} finally {
+			setConfirmDialogOpen(false)
+			setUserToUpdate(null)
 		}
 	}
 
@@ -353,7 +406,6 @@ const MainUsers: React.FC = () => {
 		owners: users?.filter(u => u.role === 'owner').length || 0,
 		employees: users?.filter(u => u.role === 'employee').length || 0,
 		admins: users?.filter(u => u.role === 'admin').length || 0,
-		doctors: users?.filter(u => u.role === 'doctor').length || 0,
 		verified: users?.filter(u => u.email_confirmed_at).length || 0,
 		withBranch: users?.filter(u => u.assigned_branch).length || 0,
 		approved: users?.filter(u => u.estado === 'aprobado').length || 0,
@@ -528,7 +580,6 @@ const MainUsers: React.FC = () => {
 									<SelectItem value="owner">Propietarios</SelectItem>
 									<SelectItem value="employee">Empleados</SelectItem>
 									<SelectItem value="admin">Administradores</SelectItem>
-									<SelectItem value="doctor">Médicos</SelectItem>
 								</SelectContent>
 							</Select>
 						</div>
@@ -600,7 +651,7 @@ const MainUsers: React.FC = () => {
 									<div className="flex items-center justify-between mb-3">
 										<span className={`inline-flex items-center gap-1 px-2 py-1 text-xs font-semibold rounded-full ${getRoleColor(user.role)}`}>
 											{getRoleIcon(user.role)}
-											{user.role === 'owner' ? 'Propietario' : user.role === 'admin' ? 'Administrador' : user.role === 'doctor' ? 'Médico' : 'Empleado'}
+											{user.role === 'owner' ? 'Propietario' : user.role === 'admin' ? 'Administrador' : 'Empleado'}
 										</span>
 									</div>
 
@@ -687,7 +738,7 @@ const MainUsers: React.FC = () => {
 											</label>
 											<Select 
 												defaultValue={user.role} 
-												onValueChange={(value: 'owner' | 'employee' | 'admin' | 'doctor') => handleRoleChange(user.id, value)}
+												onValueChange={(value: 'owner' | 'employee' | 'admin') => handleRoleChange(user.id, value)}
 											>
 												<SelectTrigger className="w-full">
 													<SelectValue placeholder="Seleccionar rol" />
@@ -709,12 +760,6 @@ const MainUsers: React.FC = () => {
 														<div className="flex items-center gap-2">
 															<ShieldCheck className="w-4 h-4 text-purple-600 dark:text-purple-400" />
 															<span>Administrador</span>
-														</div>
-													</SelectItem>
-													<SelectItem value="doctor">
-														<div className="flex items-center gap-2">
-															<Stethoscope className="w-4 h-4 text-green-600 dark:text-green-400" />
-															<span>Médico</span>
 														</div>
 													</SelectItem>
 												</SelectContent>
@@ -793,7 +838,7 @@ const MainUsers: React.FC = () => {
 											{canManage && user.id !== currentUser?.id ? (
 												<Select 
 													defaultValue={user.role} 
-													onValueChange={(value: 'owner' | 'employee' | 'admin' | 'doctor') => handleRoleChange(user.id, value)}
+													onValueChange={(value: 'owner' | 'employee' | 'admin') => handleRoleChange(user.id, value)}
 												>
 													<SelectTrigger className="w-40">
 														<SelectValue placeholder="Seleccionar rol" />
@@ -817,18 +862,12 @@ const MainUsers: React.FC = () => {
 																<span>Administrador</span>
 															</div>
 														</SelectItem>
-														<SelectItem value="doctor">
-															<div className="flex items-center gap-2">
-																<Stethoscope className="w-4 h-4 text-green-600 dark:text-green-400" />
-																<span>Médico</span>
-															</div>
-														</SelectItem>
 													</SelectContent>
 												</Select>
 											) : (
 												<span className={`inline-flex items-center gap-1 px-2 py-1 text-xs font-semibold rounded-full ${getRoleColor(user.role)}`}>
 													{getRoleIcon(user.role)}
-													{user.role === 'owner' ? 'Propietario' : user.role === 'admin' ? 'Administrador' : user.role === 'doctor' ? 'Médico' : 'Empleado'}
+													{user.role === 'owner' ? 'Propietario' : user.role === 'admin' ? 'Administrador' : 'Empleado'}
 												</span>
 											)}
 										</td>
@@ -935,6 +974,26 @@ const MainUsers: React.FC = () => {
 					</li>
 				</ul>
 			</div>
+
+			{/* Diálogo de confirmación para cambio a admin */}
+			<Dialog open={confirmDialogOpen} onOpenChange={setConfirmDialogOpen}>
+				<DialogContent>
+					<DialogHeader>
+						<DialogTitle>Confirmar cambio de rol</DialogTitle>
+						<DialogDescription>
+							¿Está seguro que desea cambiar el rol del usuario {userToUpdate?.email} a Administrador? Este cambio modificará los permisos y accesos del usuario en el sistema.
+						</DialogDescription>
+					</DialogHeader>
+					<DialogFooter>
+						<Button variant="outline" onClick={() => setConfirmDialogOpen(false)}>
+							Cancelar
+						</Button>
+						<Button onClick={confirmRoleChange}>
+							Confirmar
+						</Button>
+					</DialogFooter>
+				</DialogContent>
+			</Dialog>
 		</div>
 	)
 }

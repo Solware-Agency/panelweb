@@ -5,7 +5,7 @@ import type { JSX } from 'react'
 
 interface PrivateRouteProps {
 	children: JSX.Element
-	requiredRole?: 'owner' | 'employee' | 'admin' | 'doctor'
+	requiredRole?: 'owner' | 'employee' | 'admin'
 }
 
 /**

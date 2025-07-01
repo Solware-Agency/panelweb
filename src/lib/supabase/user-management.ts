@@ -3,7 +3,7 @@ import { supabase } from './config'
 export interface UserProfile {
 	id: string
 	email: string
-	role: 'owner' | 'employee' | 'admin' | 'doctor'
+	role: 'owner' | 'employee' | 'admin'
 	created_at: string
 	updated_at: string
 	assigned_branch?: string | null
@@ -14,7 +14,7 @@ export interface UserProfile {
 /**
  * Update user role in the profiles table
  */
-export const updateUserRole = async (userId: string, newRole: 'owner' | 'employee' | 'admin' | 'doctor') => {
+export const updateUserRole = async (userId: string, newRole: 'owner' | 'employee' | 'admin') => {
 	try {
 		console.log(`Updating user ${userId} role to ${newRole}`)
 
@@ -207,7 +207,6 @@ export const getUserStats = async () => {
 			owners: data?.filter(u => u.role === 'owner').length || 0,
 			employees: data?.filter(u => u.role === 'employee').length || 0,
 			admins: data?.filter(u => u.role === 'admin').length || 0,
-			doctors: data?.filter(u => u.role === 'doctor').length || 0,
 			withBranch: data?.filter(u => u.assigned_branch).length || 0,
 			approved: data?.filter(u => u.estado === 'aprobado').length || 0,
 			pending: data?.filter(u => u.estado === 'pendiente').length || 0,
