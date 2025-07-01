@@ -1,21 +1,10 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Search, Loader2, File } from 'lucide-react';
-import { Input } from '@shared/components/ui/input';
-import { Button } from '@shared/components/ui/button';
-import { useQuery } from '@tanstack/react-query';
-import { supabase } from '@lib/supabase/config';
-import { useToast } from '@shared/hooks/use-toast';
 
 const GenerateCaseButton: React.FC = () => {
   const navigate = useNavigate();
-  const { toast } = useToast();
-  const [searchTerm, setSearchTerm] = useState('');
-  const [isSearching, setIsSearching] = useState(false);
 
-  // Query for fetching biopsia cases
   const handleButtonClick = () => {
-    // Navigate directly to the case selection page
     navigate('/cases-selection');
   };
 

@@ -28,7 +28,7 @@ const CaseSelectionPage: React.FC = () => {
         .limit(20);
 
       if (error) throw error;
-      return data;
+      return data || [];
     },
   });
 
@@ -59,7 +59,7 @@ const CaseSelectionPage: React.FC = () => {
         if (data.length === 1) {
           navigate(`/generar-caso/${data[0].id}`);
         } else {
-          // Otherwise, update the results
+          // Otherwise, update the results via refetch
           refetch();
         }
       } else {
