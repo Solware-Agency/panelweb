@@ -51,7 +51,7 @@ const GenerateCaseModal: React.FC<GenerateCaseModalProps> = ({ isOpen, onClose }
 
   // Handle case selection
   const handleSelectCase = (case_: MedicalRecord) => {
-    // Navigate to the generar-caso route with the case data
+    // Navigate to the generar-caso route with the case ID
     navigate(`/generar-caso/${case_.id}`)
     onClose()
   }

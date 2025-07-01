@@ -9,12 +9,12 @@ export interface AuthResponse {
 export interface UserProfile {
 	id: string
 	email: string
-	role: 'owner' | 'employee'
+	role: 'owner' | 'employee' | 'admin'
 	created_at: string
 	updated_at: string
 	assigned_branch?: string | null
 	display_name?: string | null
-	estado?: string
+	estado?: 'pendiente' | 'aprobado'
 }
 
 // Sign up with email and password - ENHANCED WITH PROPER EMAIL VERIFICATION
@@ -49,7 +49,7 @@ export const signUp = async (email: string, password: string, displayName?: stri
 		// No need to manually create profile here
 
 		return { user: data.user, error: null }
-	} catch (err) {
+	} catch (err: any) {
 		console.error('Unexpected signup error:', err)
 		return {
 			user: null,
@@ -324,7 +324,7 @@ export const updateUserProfile = async (
 }
 
 // Check if user has specific role
-export const hasRole = async (userId: string, role: 'owner' | 'employee'): Promise<boolean> => {
+export const hasRole = async (userId: string, role: 'owner' | 'employee' | 'admin'): Promise<boolean> => {
 	try {
 		const profile = await getUserProfile(userId)
 		return profile?.role === role || false
@@ -342,6 +342,11 @@ export const isOwner = async (userId: string): Promise<boolean> => {
 // Check if user is employee
 export const isEmployee = async (userId: string): Promise<boolean> => {
 	return hasRole(userId, 'employee')
+}
+
+// Check if user is admin
+export const isAdmin = async (userId: string): Promise<boolean> => {
+	return hasRole(userId, 'admin')
 }
 
 // Admin function to completely delete a user (for development/testing)

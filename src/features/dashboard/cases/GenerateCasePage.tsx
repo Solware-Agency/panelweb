@@ -16,15 +16,15 @@ interface MedicalRecord {
   id_number: string;
   date_of_birth?: string;
   date: string;
-  code?: string;
+  code?: string | null;
   treating_doctor: string;
   origin: string;
   exam_type: string;
-  material_remitido?: string;
-  informacion_clinica?: string;
-  descripcion_macroscopica?: string;
-  diagnostico?: string;
-  comentario?: string;
+  material_remitido?: string | null;
+  informacion_clinica?: string | null;
+  descripcion_macroscopica?: string | null;
+  diagnostico?: string | null;
+  comentario?: string | null;
 }
 
 const GenerateCasePage: React.FC = () => {

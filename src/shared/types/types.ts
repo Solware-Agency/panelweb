@@ -252,6 +252,39 @@ export type Database = {
 				}
 				Relationships: []
 			}
+			profiles: {
+				Row: {
+					id: string
+					email: string
+					role: 'owner' | 'employee' | 'admin'
+					created_at: string
+					updated_at: string
+					assigned_branch: string | null
+					display_name: string | null
+					estado: 'pendiente' | 'aprobado'
+				}
+				Insert: {
+					id: string
+					email: string
+					role?: 'owner' | 'employee' | 'admin'
+					created_at?: string
+					updated_at?: string
+					assigned_branch?: string | null
+					display_name?: string | null
+					estado?: 'pendiente' | 'aprobado'
+				}
+				Update: {
+					id?: string
+					email?: string
+					role?: 'owner' | 'employee' | 'admin'
+					created_at?: string
+					updated_at?: string
+					assigned_branch?: string | null
+					display_name?: string | null
+					estado?: 'pendiente' | 'aprobado'
+				}
+				Relationships: []
+			}
 			registration_submissions: {
 				Row: {
 					age: string | null
@@ -333,6 +366,45 @@ export type Database = {
 					id?: number
 					'ID del artículo'?: string | null
 					'Tip generado'?: string | null
+				}
+				Relationships: []
+			}
+			change_logs: {
+				Row: {
+					id: string
+					medical_record_id: string
+					user_id: string
+					user_email: string
+					field_name: string
+					field_label: string
+					old_value: string | null
+					new_value: string | null
+					changed_at: string
+					created_at: string | null
+				}
+				Insert: {
+					id?: string
+					medical_record_id: string
+					user_id: string
+					user_email: string
+					field_name: string
+					field_label: string
+					old_value?: string | null
+					new_value?: string | null
+					changed_at?: string
+					created_at?: string | null
+				}
+				Update: {
+					id?: string
+					medical_record_id?: string
+					user_id?: string
+					user_email?: string
+					field_name?: string
+					field_label?: string
+					old_value?: string | null
+					new_value?: string | null
+					changed_at?: string
+					created_at?: string | null
 				}
 				Relationships: []
 			}
