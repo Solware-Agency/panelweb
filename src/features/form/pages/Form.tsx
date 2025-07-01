@@ -15,6 +15,7 @@ import { getMedicalRecords } from '@lib/supabase-service'
 import { RefreshCw, Maximize2 } from 'lucide-react'
 import { useUserProfile } from '@shared/hooks/useUserProfile'
 import GenerateCaseButton from '@features/form/components/GenerateCaseButton'
+import { DoctorsSection } from '@features/form/components/DoctorsSection'
 
 // Create a client instance
 const queryClient = new QueryClient()
@@ -104,6 +105,7 @@ function FormContent() {
 							<TabsTrigger value="form">Formulario</TabsTrigger>
 							<TabsTrigger value="records">Registros</TabsTrigger>
 							<GenerateCaseButton />
+							<TabsTrigger value="doctors">Médicos</TabsTrigger>
 							<TabsTrigger value="settings">Ajustes</TabsTrigger>
 						</TabsList>
 
@@ -124,6 +126,10 @@ function FormContent() {
 
 						<TabsContent value="settings" className="mt-6">
 							<SettingsSection />
+						</TabsContent>
+
+						<TabsContent value="doctors" className="mt-6">
+							<DoctorsSection />
 						</TabsContent>
 					</Tabs>
 				</main>
