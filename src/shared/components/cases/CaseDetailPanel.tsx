@@ -1,6 +1,7 @@
-import React, { useState } from 'react'
+import React from 'react'
 import { X, User, Stethoscope, CreditCard, FileText, CheckCircle, Hash, Cake, UserCheck, FileText as FileText2 } from 'lucide-react'
 import { motion, AnimatePresence } from 'motion/react'
+import { useNavigate } from 'react-router-dom'
 import type { MedicalRecord } from '@lib/supabase-service'
 import { getAgeDisplay } from '@lib/supabase-service'
 import { format, parseISO } from 'date-fns'
@@ -8,7 +9,6 @@ import { es } from 'date-fns/locale'
 import { useQuery } from '@tanstack/react-query'
 import { supabase } from '@lib/supabase/config'
 import { Button } from '@shared/components/ui/button'
-import GenerateBiopsyCaseModal from './GenerateBiopsyCaseModal'
 
 interface CaseDetailPanelProps {
 	case_: MedicalRecord | null
@@ -17,7 +17,7 @@ interface CaseDetailPanelProps {
 }
 
 const CaseDetailPanel: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClose }) => {
-	const [isGenerateBiopsyCaseModalOpen, setIsGenerateBiopsyCaseModalOpen] = useState(false)
+	const navigate = useNavigate()
 	
 	// Query to get the user who created the record
 	const { data: creatorData } = useQuery({
@@ -128,12 +128,8 @@ const CaseDetailPanel: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClos
 
 	// Handle generate biopsy case button click
 	const handleGenerateBiopsyCase = () => {
-		setIsGenerateBiopsyCaseModalOpen(true)
-	}
-
-	// Handle biopsy case generation success
-	const handleBiopsyCaseSuccess = () => {
-		// Refresh the case data or perform any other necessary actions
+		// Navigate to the generate case page with the case data
+		navigate('/dashboard/generate-case', { state: { case_ } })
 	}
 
 	return (
@@ -426,16 +422,6 @@ const CaseDetailPanel: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClos
 					</>
 				)}
 			</AnimatePresence>
-
-			{/* Generate Biopsy Case Modal */}
-			{case_ && (
-				<GenerateBiopsyCaseModal
-					case_={case_}
-					isOpen={isGenerateBiopsyCaseModalOpen}
-					onClose={() => setIsGenerateBiopsyCaseModalOpen(false)}
-					onSuccess={handleBiopsyCaseSuccess}
-				/>
-			)}
 		</>
 	)
 }
