@@ -46,7 +46,11 @@ const GenerateCasePage: React.FC = () => {
 
   useEffect(() => {
     const fetchRecord = async () => {
-      if (!id) return;
+      if (!id) {
+        console.error('No ID provided for case generation');
+        navigate('/cases-selection');
+        return;
+      }
 
       try {
         setIsLoading(true);
@@ -62,8 +66,9 @@ const GenerateCasePage: React.FC = () => {
 
         if (data) {
           console.log('Loaded record data:', data);
+          
           // Verify this is a biopsia record
-          if (data.exam_type !== 'biopsia') {
+          if (data.exam_type.toLowerCase() !== 'biopsia') {
             toast({
               title: '❌ Tipo de examen incorrecto',
               description: 'Esta funcionalidad solo está disponible para casos de biopsia.',
@@ -189,18 +194,19 @@ const GenerateCasePage: React.FC = () => {
   if (!record) {
     return (
       <div className="p-8">
-        <div className="bg-red-100 dark:bg-red-900/30 border border-red-400 dark:border-red-800 text-red-700 dark:text-red-300 px-4 py-3 rounded">
-          <p className="font-bold">Error</p>
-          <p>No se pudo encontrar el caso solicitado.</p>
+        <div className="text-center py-12">
+          <div className="text-red-500 dark:text-red-400">
+            <p className="text-lg font-bold">Error</p>
+            <p className="mb-4">No se pudo encontrar el caso solicitado.</p>
+            <Button 
+              onClick={() => navigate('/cases-selection')} 
+              className="mt-4"
+              variant="outline"
+            >
+              Seleccionar otro caso
+            </Button>
+          </div>
         </div>
-        <Button 
-          onClick={() => navigate(-1)} 
-          className="mt-4"
-          variant="outline"
-        >
-          <ArrowLeft className="mr-2 h-4 w-4" />
-          Volver
-        </Button>
       </div>
     );
   }
@@ -210,11 +216,11 @@ const GenerateCasePage: React.FC = () => {
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold">Generar Caso de Biopsia</h1>
         <Button 
-          onClick={() => navigate(-1)} 
+          onClick={() => navigate('/cases-selection')} 
           variant="outline"
         >
           <ArrowLeft className="mr-2 h-4 w-4" />
-          Volver
+          Seleccionar otro caso
         </Button>
         <Button 
           onClick={() => navigate('/cases-selection')} 
@@ -335,7 +341,9 @@ const GenerateCasePage: React.FC = () => {
               Guardando...
             </>
           ) : (
-            'Guardar'
+            <>
+              Generar Caso
+            </>
           )}
         </Button>
       </div>
