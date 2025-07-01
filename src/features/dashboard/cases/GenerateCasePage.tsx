@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate, useLocation } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { Card } from '@shared/components/ui/card';
 import { Button } from '@shared/components/ui/button';
 import { Textarea } from '@shared/components/ui/textarea';
-import { ArrowLeft, Save, Loader2, CheckCircle } from 'lucide-react';
+import { ArrowLeft, Loader2 } from 'lucide-react';
 import { supabase } from '@lib/supabase/config';
 import { useToast } from '@shared/hooks/use-toast';
 import { format, parseISO, differenceInYears } from 'date-fns';
@@ -30,7 +30,6 @@ interface MedicalRecord {
 const GenerateCasePage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const location = useLocation();
   const { toast } = useToast();
   const { user } = useAuth();
   const [record, setRecord] = useState<MedicalRecord | null>(null);
@@ -220,13 +219,6 @@ const GenerateCasePage: React.FC = () => {
           variant="outline"
         >
           <ArrowLeft className="mr-2 h-4 w-4" />
-          Seleccionar otro caso
-        </Button>
-        <Button 
-          onClick={() => navigate('/cases-selection')} 
-          variant="outline"
-          className="ml-2"
-        >
           Seleccionar otro caso
         </Button>
       </div>

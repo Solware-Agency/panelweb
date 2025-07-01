@@ -4,8 +4,6 @@ import { X, Search, FileText, Loader2, ArrowRight } from 'lucide-react'
 import { useQuery } from '@tanstack/react-query'
 import { getMedicalRecords } from '@lib/supabase-service'
 import { Input } from '@shared/components/ui/input'
-import { Button } from '@shared/components/ui/button'
-import { useToast } from '@shared/hooks/use-toast'
 import { useNavigate } from 'react-router-dom'
 import type { MedicalRecord } from '@lib/supabase-service'
 import { format } from 'date-fns'
@@ -19,7 +17,6 @@ interface GenerateCaseModalProps {
 const GenerateCaseModal: React.FC<GenerateCaseModalProps> = ({ isOpen, onClose }) => {
   const [searchTerm, setSearchTerm] = useState('')
   const navigate = useNavigate()
-  const { toast } = useToast()
   
   // Query for medical records data - only biopsy type
   const {
@@ -55,7 +52,7 @@ const GenerateCaseModal: React.FC<GenerateCaseModalProps> = ({ isOpen, onClose }
   // Handle case selection
   const handleSelectCase = (case_: MedicalRecord) => {
     // Navigate to the generar-caso route with the case data
-    navigate('/generar-caso', { state: { case_ } })
+    navigate(`/generar-caso/${case_.id}`)
     onClose()
   }
 

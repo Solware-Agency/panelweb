@@ -6,10 +6,7 @@ import { Button } from '@shared/components/ui/button';
 import { Card } from '@shared/components/ui/card';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@lib/supabase/config';
-import { getMedicalRecords } from '@lib/supabase-service';
 import { useToast } from '@shared/hooks/use-toast';
-import { format } from 'date-fns';
-import { es } from 'date-fns/locale';
 
 const CaseSelectionPage: React.FC = () => {
   const navigate = useNavigate();

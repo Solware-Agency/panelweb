@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { motion, AnimatePresence } from 'motion/react'
-import { X, Save, FileText, Microscope, Loader2 } from 'lucide-react'
+import { X, FileText, Microscope, Loader2 } from 'lucide-react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
@@ -129,7 +129,7 @@ const GenerateBiopsyCaseModal: React.FC<GenerateBiopsyCaseModalProps> = ({
       }
 
       // Update record with changes
-      const { data: updatedRecord, error } = await updateMedicalRecordWithLog(
+      const { error } = await updateMedicalRecordWithLog(
         case_.id!,
         data,
         changes,

@@ -1,4 +1,4 @@
-import { type Json } from '@supabase/supabase-js'
+import type { Database } from '@supabase/supabase-js'
 
 export type Database = {
 	public: {
@@ -6,21 +6,21 @@ export type Database = {
 			a_usuarios: {
 				Row: {
 					automatizaciones_sugeridas: string[] | null
-					historial: Json | null
+					historial: any | null
 					nombre_cliente: string | null
 					tipo_negocio: string | null
 					user_id: string
 				}
 				Insert: {
 					automatizaciones_sugeridas?: string[] | null
-					historial?: Json | null
+					historial?: any | null
 					nombre_cliente?: string | null
 					tipo_negocio?: string | null
 					user_id: string
 				}
 				Update: {
 					automatizaciones_sugeridas?: string[] | null
-					historial?: Json | null
+					historial?: any | null
 					nombre_cliente?: string | null
 					tipo_negocio?: string | null
 					user_id?: string

@@ -1,14 +1,12 @@
 import React from 'react'
 import { X, User, Stethoscope, CreditCard, FileText, CheckCircle, Hash, Cake, UserCheck, FileText as FileText2 } from 'lucide-react'
 import { motion, AnimatePresence } from 'motion/react'
-import { useNavigate } from 'react-router-dom'
 import type { MedicalRecord } from '@lib/supabase-service'
 import { getAgeDisplay } from '@lib/supabase-service'
 import { format, parseISO } from 'date-fns'
 import { es } from 'date-fns/locale'
 import { useQuery } from '@tanstack/react-query'
 import { supabase } from '@lib/supabase/config'
-import { Button } from '@shared/components/ui/button'
 
 interface CaseDetailPanelProps {
 	case_: MedicalRecord | null
@@ -17,8 +15,6 @@ interface CaseDetailPanelProps {
 }
 
 const CaseDetailPanel: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClose }) => {
-	const navigate = useNavigate()
-	
 	// Query to get the user who created the record
 	const { data: creatorData } = useQuery({
 		queryKey: ['record-creator', case_?.id],
@@ -125,8 +121,6 @@ const CaseDetailPanel: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClos
 
 	// Check if this is a biopsy case
 	const isBiopsyCase = case_.exam_type?.toLowerCase() === 'biopsia'
-
-	// Handle generate biopsy case button click
 
 	return (
 		<>
