@@ -231,11 +231,12 @@ const CaseSelectionPage: React.FC = () => {
               </div>
             ) : biopsiaRecords && biopsiaRecords.length > 0 ? (
               <div className="space-y-3">
-                <div
-                  key={record.id}
+                {biopsiaRecords.map((record) => (
+                  <div
+                    key={record.id}
                     className="p-3 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800/50 cursor-pointer"
                     onClick={() => handleCaseSelect(record.id)}
-                >
+                  >
                     <div className="flex justify-between items-center">
                       <div>
                         <div className="font-medium text-gray-900 dark:text-gray-100">{record.full_name}</div>
@@ -279,15 +280,6 @@ const CaseSelectionPage: React.FC = () => {
           </div>
         </Card>
       </div>
-    </div>
-  );
-};
-
-export default CaseSelectionPage;
-            </div>
-          )}
-        </div>
-      </Card>
     </div>
   );
 };
