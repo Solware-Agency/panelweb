@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import CasesTable from '@shared/components/cases/CasesTable'
 import CaseDetailPanel from '@shared/components/cases/CaseDetailPanel'
-import { Users, MapPin } from 'lucide-react'
+import { Users, MapPin, Microscope, FileText, Activity } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@shared/components/ui/card'
 import { searchClientes, type MedicalRecord } from '@lib/supabase-service'
 import { useUserProfile } from '@shared/hooks/useUserProfile'
@@ -30,6 +30,7 @@ export const RecordsSection: React.FC<RecordsSectionProps> = ({
 	const { profile } = useUserProfile()
 	const [filteredCases, setFilteredCases] = useState<MedicalRecord[]>(cases)
 	const [showPendingOnly, setShowPendingOnly] = useState(false)
+	const [selectedExamType, setSelectedExamType] = useState<string | null>(null)
 
 	// Filter cases by assigned branch if user is an employee with assigned branch
 	useEffect(() => {
@@ -50,8 +51,15 @@ export const RecordsSection: React.FC<RecordsSectionProps> = ({
 			filtered = filtered.filter(c => c.payment_status !== 'Completado')
 		}
 
+		// If an exam type is selected, filter by that type
+		if (selectedExamType) {
+			filtered = filtered.filter(c => 
+				c.exam_type.toLowerCase() === selectedExamType.toLowerCase()
+			)
+		}
+
 		setFilteredCases(filtered)
-	}, [cases, profile, showPendingOnly])
+	}, [cases, profile, showPendingOnly, selectedExamType])
 
 	const handleCaseSelect = (case_: MedicalRecord) => {
 		setSelectedCase(case_)
@@ -76,18 +84,68 @@ export const RecordsSection: React.FC<RecordsSectionProps> = ({
 
 	// Calculate statistics
 	const stats = React.useMemo(() => {
-		if (!records) return { total: 0, totalAmount: 0, completed: 0 }
+		if (!records) return { total: 0, totalAmount: 0, completed: 0, examTypes: {} }
 
 		const total = records.length
 		const totalAmount = records.reduce((sum: number, record: MedicalRecord) => sum + record.total_amount, 0)
 		const completed = records.filter((record: MedicalRecord) => record.payment_status === 'Completado').length
 
-		return { total, totalAmount, completed }
+		// Count cases by exam type
+		const examTypes: Record<string, number> = {}
+		records.forEach((record: MedicalRecord) => {
+			const type = record.exam_type.toLowerCase()
+			examTypes[type] = (examTypes[type] || 0) + 1
+		})
+
+		return { total, totalAmount, completed, examTypes }
 	}, [records])
 
 	// Toggle pending cases filter
 	const handleTogglePendingFilter = () => {
 		setShowPendingOnly(!showPendingOnly)
+		setSelectedExamType(null) // Clear exam type filter when toggling pending filter
+	}
+
+	// Toggle exam type filter
+	const handleExamTypeFilter = (examType: string) => {
+		if (selectedExamType === examType.toLowerCase()) {
+			setSelectedExamType(null) // Clear filter if already selected
+		} else {
+			setSelectedExamType(examType.toLowerCase())
+			setShowPendingOnly(false) // Clear pending filter when selecting exam type
+		}
+	}
+
+	// Get exam type counts from all cases (not just filtered)
+	const examTypeCounts = React.useMemo(() => {
+		const counts: Record<string, number> = {
+			'biopsia': 0,
+			'citologia': 0,
+			'inmunohistoquimica': 0
+		}
+		
+		cases?.forEach((record: MedicalRecord) => {
+			const type = record.exam_type.toLowerCase()
+			if (counts[type] !== undefined) {
+				counts[type]++
+			}
+		})
+		
+		return counts
+	}, [cases])
+
+	// Get exam type icon
+	const getExamTypeIcon = (examType: string) => {
+		switch (examType.toLowerCase()) {
+			case 'biopsia':
+				return <Activity className="h-4 w-4" />
+			case 'citologia':
+				return <FileText className="h-4 w-4" />
+			case 'inmunohistoquimica':
+				return <Microscope className="h-4 w-4" />
+			default:
+				return <FileText className="h-4 w-4" />
+		}
 	}
 
 	return (
@@ -114,9 +172,10 @@ export const RecordsSection: React.FC<RecordsSectionProps> = ({
 
 			{/* Statistics cards */}
 			{!searchTerm && records && (
-				<div className="flex justify-center gap-4 mb-6 w-full">
+				<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+					{/* Pending Cases Card */}
 					<Card 
-						className={`w-full max-w-[370px] transition-all duration-300 hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 group cursor-pointer ${
+						className={`transition-all duration-300 hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 group cursor-pointer ${
 							showPendingOnly ? 'border-primary shadow-lg shadow-primary/20' : ''
 						}`}
 						onClick={handleTogglePendingFilter}
@@ -134,6 +193,69 @@ export const RecordsSection: React.FC<RecordsSectionProps> = ({
 							</p>
 						</CardContent>
 					</Card>
+
+					{/* Biopsia Card */}
+					<Card 
+						className={`transition-all duration-300 hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 group cursor-pointer ${
+							selectedExamType === 'biopsia' ? 'border-primary shadow-lg shadow-primary/20' : ''
+						}`}
+						onClick={() => handleExamTypeFilter('biopsia')}
+					>
+						<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+							<CardTitle className="text-sm font-medium">Biopsias</CardTitle>
+							<Activity className={`h-4 w-4 ${selectedExamType === 'biopsia' ? 'text-primary' : 'text-muted-foreground group-hover:text-primary/80'}`} />
+						</CardHeader>
+						<CardContent>
+							<div className="text-2xl font-bold">
+								{examTypeCounts['biopsia'] || 0}
+							</div>
+							<p className="text-xs text-muted-foreground">
+								casos de biopsia
+							</p>
+						</CardContent>
+					</Card>
+
+					{/* Citología Card */}
+					<Card 
+						className={`transition-all duration-300 hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 group cursor-pointer ${
+							selectedExamType === 'citologia' ? 'border-primary shadow-lg shadow-primary/20' : ''
+						}`}
+						onClick={() => handleExamTypeFilter('citologia')}
+					>
+						<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+							<CardTitle className="text-sm font-medium">Citologías</CardTitle>
+							<FileText className={`h-4 w-4 ${selectedExamType === 'citologia' ? 'text-primary' : 'text-muted-foreground group-hover:text-primary/80'}`} />
+						</CardHeader>
+						<CardContent>
+							<div className="text-2xl font-bold">
+								{examTypeCounts['citologia'] || 0}
+							</div>
+							<p className="text-xs text-muted-foreground">
+								casos de citología
+							</p>
+						</CardContent>
+					</Card>
+
+					{/* Inmunohistoquímica Card */}
+					<Card 
+						className={`transition-all duration-300 hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 group cursor-pointer ${
+							selectedExamType === 'inmunohistoquimica' ? 'border-primary shadow-lg shadow-primary/20' : ''
+						}`}
+						onClick={() => handleExamTypeFilter('inmunohistoquimica')}
+					>
+						<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+							<CardTitle className="text-sm font-medium">Inmunohistoquímica</CardTitle>
+							<Microscope className={`h-4 w-4 ${selectedExamType === 'inmunohistoquimica' ? 'text-primary' : 'text-muted-foreground group-hover:text-primary/80'}`} />
+						</CardHeader>
+						<CardContent>
+							<div className="text-2xl font-bold">
+								{examTypeCounts['inmunohistoquimica'] || 0}
+							</div>
+							<p className="text-xs text-muted-foreground">
+								casos de inmunohistoquímica
+							</p>
+						</CardContent>
+					</Card>
 				</div>
 			)}
 
@@ -144,14 +266,26 @@ export const RecordsSection: React.FC<RecordsSectionProps> = ({
 				</div>
 			)}
 
-			{/* Filter indicator */}
-			{showPendingOnly && (
-				<div className="mb-4 px-4 py-2 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg inline-block">
-					<span className="text-sm font-medium text-blue-800 dark:text-blue-300">
-						Mostrando solo casos pendientes
-					</span>
-				</div>
-			)}
+			{/* Active filters indicators */}
+			<div className="flex flex-wrap gap-2 mb-4">
+				{showPendingOnly && (
+					<div className="px-4 py-2 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg inline-block">
+						<span className="text-sm font-medium text-blue-800 dark:text-blue-300 flex items-center gap-2">
+							<Users className="w-4 h-4" />
+							Mostrando solo casos pendientes
+						</span>
+					</div>
+				)}
+				
+				{selectedExamType && (
+					<div className="px-4 py-2 bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800 rounded-lg inline-block">
+						<span className="text-sm font-medium text-purple-800 dark:text-purple-300 flex items-center gap-2">
+							{getExamTypeIcon(selectedExamType)}
+							Filtrando por: {selectedExamType.charAt(0).toUpperCase() + selectedExamType.slice(1)}
+						</span>
+					</div>
+				)}
+			</div>
 
 			{/* Cases Table */}
 			<CasesTable
