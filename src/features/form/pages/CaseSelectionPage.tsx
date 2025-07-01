@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Search, Loader2, ArrowLeft, FileText } from 'lucide-react';
+import { Search, Loader2, ArrowLeft, FileText, BookCopy } from 'lucide-react';
 import { Input } from '@shared/components/ui/input';
 import { Button } from '@shared/components/ui/button';
 import { Card } from '@shared/components/ui/card';
@@ -95,8 +95,8 @@ const CaseSelectionPage: React.FC = () => {
 
   return (
     <div className="container mx-auto py-10 px-4">
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold">Buscar Caso para Generar</h1>
+      <div className="flex items-center justify-between mb-4">
+        <h1 className="text-2xl font-bold">Generar Caso</h1>
         <Button 
           onClick={handleBackToForm} 
           variant="outline"
@@ -108,19 +108,23 @@ const CaseSelectionPage: React.FC = () => {
       </div>
       
       <Card className="mb-6 p-6 hover:border-primary hover:shadow-lg hover:shadow-primary/20 transition-all duration-300">
-        <div className="mb-2">
+        <div className="flex items-center gap-2 mb-4">
+          <BookCopy className="text-primary size-5" />
+          <h2 className="text-lg font-semibold">Buscar caso por número, paciente o tipo de examen</h2>
+        </div>
+        <div className="mb-4">
           <p className="text-gray-600 dark:text-gray-400 mb-4">
-            Ingresa el número del caso, nombre del paciente o tipo de examen para buscar.
+            Ingresa el número del caso, nombre del paciente o tipo de examen para generar el caso.
           </p>
         </div>
         
         <div className="flex gap-2">
           <div className="relative flex-1 group">
             <Input 
-              placeholder="Número de caso, paciente o tipo de examen..."
+              placeholder="Ingresa el número de caso..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="pr-10 focus:border-primary transition-all"
+              className="pr-10 focus:border-primary transition-all text-lg py-6"
               onKeyDown={(e) => {
                 if (e.key === 'Enter') {
                   handleSearch();
@@ -152,7 +156,10 @@ const CaseSelectionPage: React.FC = () => {
       <Card className="hover:border-primary hover:shadow-lg hover:shadow-primary/20 transition-all duration-300">
         <div className="p-4">
           <div className="flex items-center justify-between mb-4 px-2">
-            <h2 className="text-xl font-semibold">Resultados</h2>
+            <h2 className="text-xl font-semibold flex items-center gap-2">
+              <Search className="text-primary size-5" /> 
+              Resultados de casos
+            </h2>
             <p className="text-sm text-gray-500">
               {!isLoading && biopsiaRecords ? `${biopsiaRecords.length} casos encontrados` : ''}
             </p>
@@ -168,10 +175,10 @@ const CaseSelectionPage: React.FC = () => {
               <table className="w-full border-collapse">
                 <thead>
                   <tr className="bg-gray-50 dark:bg-gray-800/50 text-left">
-                    <th className="p-3 text-gray-500 dark:text-gray-400 font-medium text-sm">Número de Caso</th>
-                    <th className="p-3 text-gray-500 dark:text-gray-400 font-medium text-sm">Tipo de Examen</th>
-                    <th className="p-3 text-gray-500 dark:text-gray-400 font-medium text-sm">Paciente</th>
-                    <th className="p-3 text-gray-500 dark:text-gray-400 font-medium text-sm text-right">Acción</th>
+                    <th className="p-3 text-gray-500 dark:text-gray-400 font-medium">NÚMERO DE CASO</th>
+                    <th className="p-3 text-gray-500 dark:text-gray-400 font-medium">TIPO DE EXAMEN</th>
+                    <th className="p-3 text-gray-500 dark:text-gray-400 font-medium">PACIENTE</th>
+                    <th className="p-3 text-gray-500 dark:text-gray-400 font-medium text-right">ACCIÓN</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
@@ -181,8 +188,8 @@ const CaseSelectionPage: React.FC = () => {
                       className="hover:bg-gray-50 dark:hover:bg-gray-800/50 cursor-pointer"
                       onClick={() => handleCaseSelect(record.id)}
                     >
-                      <td className="p-3">
-                        <span className="font-mono bg-purple-50 dark:bg-purple-900/20 text-purple-700 dark:text-purple-300 px-2 py-1 rounded text-sm">
+                      <td className="p-3 font-medium">
+                        <span className="font-mono bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-300 px-3 py-1 rounded-full">
                           {record.code || 'N/A'}
                         </span>
                       </td>
@@ -197,7 +204,7 @@ const CaseSelectionPage: React.FC = () => {
                             handleCaseSelect(record.id);
                           }}
                         >
-                          <FileText className="w-4 h-4 mr-1" />
+                          <FileText className="w-4 h-4 mr-2" />
                           Generar
                         </Button>
                       </td>
@@ -210,9 +217,9 @@ const CaseSelectionPage: React.FC = () => {
             <div className="text-center py-10 border rounded-lg">
               <Search className="w-12 h-12 text-gray-300 mx-auto mb-4" />
               <p className="text-gray-500">
-                {searchTerm ? 
-                  'No se encontraron casos que coincidan con tu búsqueda' : 
-                  'Busca por número de caso, paciente o tipo de examen'
+                {searchTerm ?
+                  'No se encontraron casos con ese número' :
+                  'Ingresa el número del caso para buscar'
                 }
               </p>
             </div>
@@ -247,7 +254,7 @@ const CaseSelectionPage: React.FC = () => {
                       <div className="flex items-center gap-2">
                         {record.code && (
                           <span className="text-xs bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300 px-2 py-1 rounded-full">
-                            {record.code}
+                            Caso #{record.code}
                           </span>
                         )}
                       </div>
