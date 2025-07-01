@@ -43,6 +43,11 @@ export interface MedicalRecord {
 	updated_at?: string
 	created_by?: string | null
 	created_by_display_name?: string | null
+	material_remitido?: string | null
+	informacion_clinica?: string | null
+	descripcion_macroscopica?: string | null
+	diagnostico?: string | null
+	comentario?: string | null
 }
 
 export interface ChangeLog {

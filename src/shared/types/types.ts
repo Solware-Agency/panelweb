@@ -158,6 +158,11 @@ export type Database = {
 					created_by_display_name: string
 					created_at: string
 					updated_at: string
+					material_remitido: string | null
+					informacion_clinica: string | null
+					descripcion_macroscopica: string | null
+					diagnostico: string | null
+					comentario: string | null
 				}
 				Insert: {
 					id?: string
@@ -196,6 +201,11 @@ export type Database = {
 					created_by_display_name?: string
 					created_at?: string
 					updated_at?: string
+					material_remitido?: string | null
+					informacion_clinica?: string | null
+					descripcion_macroscopica?: string | null
+					diagnostico?: string | null
+					comentario?: string | null
 				}
 				Update: {
 					id?: string
@@ -234,6 +244,11 @@ export type Database = {
 					created_by_display_name?: string
 					created_at?: string
 					updated_at?: string
+					material_remitido?: string | null
+					informacion_clinica?: string | null
+					descripcion_macroscopica?: string | null
+					diagnostico?: string | null
+					comentario?: string | null
 				}
 				Relationships: []
 			}

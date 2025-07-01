@@ -1,5 +1,5 @@
-import React from 'react'
-import { X, User, Stethoscope, CreditCard, FileText, CheckCircle, Hash, Cake, UserCheck } from 'lucide-react'
+import React, { useState } from 'react'
+import { X, User, Stethoscope, CreditCard, FileText, CheckCircle, Hash, Cake, UserCheck, FileText2 } from 'lucide-react'
 import { motion, AnimatePresence } from 'motion/react'
 import type { MedicalRecord } from '@lib/supabase-service'
 import { getAgeDisplay } from '@lib/supabase-service'
@@ -7,6 +7,8 @@ import { format, parseISO } from 'date-fns'
 import { es } from 'date-fns/locale'
 import { useQuery } from '@tanstack/react-query'
 import { supabase } from '@lib/supabase/config'
+import { Button } from '@shared/components/ui/button'
+import GenerateBiopsyCaseModal from './GenerateBiopsyCaseModal'
 
 interface CaseDetailPanelProps {
 	case_: MedicalRecord | null
@@ -15,6 +17,8 @@ interface CaseDetailPanelProps {
 }
 
 const CaseDetailPanel: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClose }) => {
+	const [isGenerateBiopsyCaseModalOpen, setIsGenerateBiopsyCaseModalOpen] = useState(false)
+	
 	if (!case_) return null
 
 	// Query to get the user who created the record
@@ -117,244 +121,318 @@ const CaseDetailPanel: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClos
 		return bolivares.includes(method) ? 'Bs' : '$'
 	}
 
+	// Check if this is a biopsy case
+	const isBiopsyCase = case_.exam_type?.toLowerCase() === 'biopsia'
+
+	// Handle generate biopsy case button click
+	const handleGenerateBiopsyCase = () => {
+		setIsGenerateBiopsyCaseModalOpen(true)
+	}
+
+	// Handle biopsy case generation success
+	const handleBiopsyCaseSuccess = () => {
+		// Refresh the case data or perform any other necessary actions
+	}
+
 	return (
-		<AnimatePresence>
-			{isOpen && (
-				<>
-					{/* Backdrop */}
-					<motion.div
-						viewport={{ margin: '0px' }}
-						initial={{ opacity: 0 }}
-						animate={{ opacity: 1 }}
-						exit={{ opacity: 0 }}
-						onClick={onClose}
-						className="fixed inset-0 bg-black/50 z-[9999999]"
-					/>
+		<>
+			<AnimatePresence>
+				{isOpen && (
+					<>
+						{/* Backdrop */}
+						<motion.div
+							viewport={{ margin: '0px' }}
+							initial={{ opacity: 0 }}
+							animate={{ opacity: 1 }}
+							exit={{ opacity: 0 }}
+							onClick={onClose}
+							className="fixed inset-0 bg-black/50 z-[9999999]"
+						/>
 
-					{/* Panel */}
-					<motion.div
-						viewport={{ margin: '0px' }}
-						initial={{ x: '100%' }}
-						animate={{ x: 0 }}
-						exit={{ x: '100%' }}
-						transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-						className="fixed right-0 top-0 h-full w-full sm:w-2/3 lg:w-1/2 xl:w-2/5 bg-white dark:bg-background shadow-2xl z-[9999999] overflow-y-auto rounded-lg border-l border-input"
-					>
-						{/* Header */}
-						<div className="sticky top-0 bg-white dark:bg-background border-b border-gray-200 dark:border-gray-700 p-4 sm:p-6 z-10">
-							<div className="flex items-center justify-between">
-								<div>
-									<h2 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-gray-100">{case_.full_name}</h2>
+						{/* Panel */}
+						<motion.div
+							viewport={{ margin: '0px' }}
+							initial={{ x: '100%' }}
+							animate={{ x: 0 }}
+							exit={{ x: '100%' }}
+							transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+							className="fixed right-0 top-0 h-full w-full sm:w-2/3 lg:w-1/2 xl:w-2/5 bg-white dark:bg-background shadow-2xl z-[9999999] overflow-y-auto rounded-lg border-l border-input"
+						>
+							{/* Header */}
+							<div className="sticky top-0 bg-white dark:bg-background border-b border-gray-200 dark:border-gray-700 p-4 sm:p-6 z-10">
+								<div className="flex items-center justify-between">
+									<div>
+										<h2 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-gray-100">{case_.full_name}</h2>
+									</div>
+									<button
+										onClick={onClose}
+										className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
+									>
+										<X className="w-5 h-5 text-gray-500 dark:text-gray-400" />
+									</button>
 								</div>
-								<button
-									onClick={onClose}
-									className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
-								>
-									<X className="w-5 h-5 text-gray-500 dark:text-gray-400" />
-								</button>
-							</div>
 
-							{/* Status badges */}
-							<div className="flex flex-wrap gap-2 mt-4">
-								<span
-									className={`inline-flex px-3 py-1 text-sm font-semibold rounded-full ${getStatusColor(
-										case_.payment_status,
-									)}`}
-								>
-									{case_.payment_status}
-								</span>
-								<span className="inline-flex items-center gap-1 px-3 py-1 text-sm font-semibold rounded-full bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300">
-									<CheckCircle size={16} />
-									{case_.branch}
-								</span>
-								{case_.code && (
-									<span className="inline-flex items-center gap-1 px-3 py-1 text-sm font-semibold rounded-full bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300">
-										{case_.code}
+								{/* Status badges */}
+								<div className="flex flex-wrap gap-2 mt-4">
+									<span
+										className={`inline-flex px-3 py-1 text-sm font-semibold rounded-full ${getStatusColor(
+											case_.payment_status,
+										)}`}
+									>
+										{case_.payment_status}
 									</span>
-								)}
-							</div>
-						</div>
-
-						{/* Content */}
-						<div className="p-4 sm:p-6 space-y-6">
-							{/* Registered By Section */}
-							{(creatorData || case_.created_by_display_name) && (
-								<InfoSection title="Registrado por" icon={UserCheck}>
-									<div className="space-y-1">
-										<InfoRow
-											label="Nombre"
-											value={creatorData?.displayName || case_.created_by_display_name || 'Usuario del sistema'}
-										/>
-										{creatorData?.email && <InfoRow label="Email" value={creatorData.email} />}
-										<InfoRow
-											label="Fecha de registro"
-											value={
-												case_.created_at
-													? format(new Date(case_.created_at), 'dd/MM/yyyy HH:mm', { locale: es })
-													: 'N/A'
-											}
-										/>
-									</div>
-								</InfoSection>
-							)}
-
-							{/* Case Code Section */}
-							{case_.code && (
-								<InfoSection title="Código del Caso" icon={Hash}>
-									<div className="space-y-1">
-										<div className="text-xs text-gray-500 dark:text-gray-400 mt-2 p-2 bg-gray-50 dark:bg-gray-800 rounded">
-											<p>
-												<strong>Formato:</strong> [Tipo][Año][Contador][Mes]
-											</p>
-											<p>
-												<strong>Ejemplo:</strong> 1 = Citología, 25 = 2025, 001 = Primer caso, A = Enero
-											</p>
-										</div>
-									</div>
-								</InfoSection>
-							)}
-
-							{/* Patient Information */}
-							<InfoSection title="Información del Paciente" icon={User}>
-								<div className="space-y-1">
-									<InfoRow label="Nombre completo" value={case_.full_name} />
-									<InfoRow label="Cédula" value={case_.id_number} />
-									<div className="flex flex-col sm:flex-row sm:justify-between py-2 border-b border-gray-200 dark:border-gray-700">
-										<span className="text-sm font-medium text-gray-600 dark:text-gray-400 flex items-center gap-1">
-											<Cake className="w-4 h-4 text-pink-500" />
-											Fecha de Nacimiento:
+									<span className="inline-flex items-center gap-1 px-3 py-1 text-sm font-semibold rounded-full bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300">
+										<CheckCircle size={16} />
+										{case_.branch}
+									</span>
+									{case_.code && (
+										<span className="inline-flex items-center gap-1 px-3 py-1 text-sm font-semibold rounded-full bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300">
+											{case_.code}
 										</span>
-										<div className="text-sm text-gray-900 dark:text-gray-100 sm:text-right">
-											<div>{formattedDateOfBirth}</div>
-											{ageDisplay && (
-												<div className="text-xs text-blue-600 dark:text-blue-400 font-medium">{ageDisplay}</div>
+									)}
+									
+									{/* Generate Biopsy Case Button - Only show for biopsy exam type */}
+									{isBiopsyCase && (
+										<Button
+											onClick={handleGenerateBiopsyCase}
+											variant="outline"
+											size="sm"
+											className="flex items-center gap-1 bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300 hover:bg-green-200 dark:hover:bg-green-900/50 border-green-300 dark:border-green-800"
+										>
+											<FileText2 size={16} />
+											Generar caso
+										</Button>
+									)}
+								</div>
+							</div>
+
+							{/* Content */}
+							<div className="p-4 sm:p-6 space-y-6">
+								{/* Registered By Section */}
+								{(creatorData || case_.created_by_display_name) && (
+									<InfoSection title="Registrado por" icon={UserCheck}>
+										<div className="space-y-1">
+											<InfoRow
+												label="Nombre"
+												value={creatorData?.displayName || case_.created_by_display_name || 'Usuario del sistema'}
+											/>
+											{creatorData?.email && <InfoRow label="Email" value={creatorData.email} />}
+											<InfoRow
+												label="Fecha de registro"
+												value={
+													case_.created_at
+														? format(new Date(case_.created_at), 'dd/MM/yyyy HH:mm', { locale: es })
+														: 'N/A'
+												}
+											/>
+										</div>
+									</InfoSection>
+								)}
+
+								{/* Case Code Section */}
+								{case_.code && (
+									<InfoSection title="Código del Caso" icon={Hash}>
+										<div className="space-y-1">
+											<div className="text-xs text-gray-500 dark:text-gray-400 mt-2 p-2 bg-gray-50 dark:bg-gray-800 rounded">
+												<p>
+													<strong>Formato:</strong> [Tipo][Año][Contador][Mes]
+												</p>
+												<p>
+													<strong>Ejemplo:</strong> 1 = Citología, 25 = 2025, 001 = Primer caso, A = Enero
+												</p>
+											</div>
+										</div>
+									</InfoSection>
+								)}
+
+								{/* Patient Information */}
+								<InfoSection title="Información del Paciente" icon={User}>
+									<div className="space-y-1">
+										<InfoRow label="Nombre completo" value={case_.full_name} />
+										<InfoRow label="Cédula" value={case_.id_number} />
+										<div className="flex flex-col sm:flex-row sm:justify-between py-2 border-b border-gray-200 dark:border-gray-700">
+											<span className="text-sm font-medium text-gray-600 dark:text-gray-400 flex items-center gap-1">
+												<Cake className="w-4 h-4 text-pink-500" />
+												Fecha de Nacimiento:
+											</span>
+											<div className="text-sm text-gray-900 dark:text-gray-100 sm:text-right">
+												<div>{formattedDateOfBirth}</div>
+												{ageDisplay && (
+													<div className="text-xs text-blue-600 dark:text-blue-400 font-medium">{ageDisplay}</div>
+												)}
+											</div>
+										</div>
+										<InfoRow label="Teléfono" value={case_.phone} />
+										<InfoRow label="Email" value={case_.email || 'N/A'} />
+										<InfoRow label="Relación" value={case_.relationship || 'N/A'} />
+									</div>
+								</InfoSection>
+
+								{/* Medical Information */}
+								<InfoSection title="Información Médica" icon={Stethoscope}>
+									<div className="space-y-1">
+										<InfoRow label="Estudio" value={case_.exam_type} />
+										<InfoRow label="Médico tratante" value={case_.treating_doctor} />
+										<InfoRow label="Procedencia" value={case_.origin} />
+										<InfoRow label="Sede" value={case_.branch} />
+										<InfoRow label="Muestra" value={case_.sample_type} />
+										<InfoRow label="Cantidad de muestras" value={case_.number_of_samples} />
+										<InfoRow label="Fecha de registro" value={new Date(case_.date || '').toLocaleDateString('es-ES')} />
+									</div>
+								</InfoSection>
+
+								{/* Biopsy Case Information - Only show if it's a biopsy and has data */}
+								{isBiopsyCase && (case_.material_remitido || case_.informacion_clinica || case_.descripcion_macroscopica || case_.diagnostico) && (
+									<InfoSection title="Información del Caso de Biopsia" icon={FileText2}>
+										<div className="space-y-1">
+											{case_.material_remitido && (
+												<div className="py-2 border-b border-gray-200 dark:border-gray-700">
+													<span className="text-sm font-medium text-gray-600 dark:text-gray-400">Material Remitido:</span>
+													<p className="text-sm text-gray-900 dark:text-gray-100 mt-1 whitespace-pre-line">{case_.material_remitido}</p>
+												</div>
+											)}
+											{case_.informacion_clinica && (
+												<div className="py-2 border-b border-gray-200 dark:border-gray-700">
+													<span className="text-sm font-medium text-gray-600 dark:text-gray-400">Información Clínica:</span>
+													<p className="text-sm text-gray-900 dark:text-gray-100 mt-1 whitespace-pre-line">{case_.informacion_clinica}</p>
+												</div>
+											)}
+											{case_.descripcion_macroscopica && (
+												<div className="py-2 border-b border-gray-200 dark:border-gray-700">
+													<span className="text-sm font-medium text-gray-600 dark:text-gray-400">Descripción Macroscópica:</span>
+													<p className="text-sm text-gray-900 dark:text-gray-100 mt-1 whitespace-pre-line">{case_.descripcion_macroscopica}</p>
+												</div>
+											)}
+											{case_.diagnostico && (
+												<div className="py-2 border-b border-gray-200 dark:border-gray-700">
+													<span className="text-sm font-medium text-gray-600 dark:text-gray-400">Diagnóstico:</span>
+													<p className="text-sm text-gray-900 dark:text-gray-100 mt-1 whitespace-pre-line">{case_.diagnostico}</p>
+												</div>
+											)}
+											{case_.comentario && (
+												<div className="py-2">
+													<span className="text-sm font-medium text-gray-600 dark:text-gray-400">Comentario:</span>
+													<p className="text-sm text-gray-900 dark:text-gray-100 mt-1 whitespace-pre-line">{case_.comentario}</p>
+												</div>
+											)}
+										</div>
+									</InfoSection>
+								)}
+
+								{/* Financial Information */}
+								<InfoSection title="Información Financiera" icon={CreditCard}>
+									<div className="space-y-1">
+										<InfoRow label="Monto total" value={`$${case_.total_amount.toLocaleString()}`} />
+										<InfoRow label="Monto faltante" value={`$${case_.remaining.toLocaleString()}`} />
+										<InfoRow label="Tasa de cambio" value={case_.exchange_rate?.toFixed(2)} />
+									</div>
+
+									{/* Payment Methods */}
+									<div className="mt-4">
+										<h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Formas de Pago:</h4>
+										<div className="space-y-2">
+											{case_.payment_method_1 && (
+												<div className="bg-white dark:bg-background p-3 rounded border">
+													<div className="flex justify-between items-center">
+														<span className="text-sm font-medium">{case_.payment_method_1}</span>
+														<span className="text-sm">
+															{getPaymentSymbol(case_.payment_method_1)} {case_.payment_amount_1?.toLocaleString()}
+														</span>
+													</div>
+													{case_.payment_reference_1 && (
+														<div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+															Ref: {case_.payment_reference_1}
+														</div>
+													)}
+												</div>
+											)}
+
+											{case_.payment_method_2 && (
+												<div className="bg-white dark:bg-background p-3 rounded border">
+													<div className="flex justify-between items-center">
+														<span className="text-sm font-medium">{case_.payment_method_2}</span>
+														<span className="text-sm">
+															{getPaymentSymbol(case_.payment_method_2)} {case_.payment_amount_2?.toLocaleString()}
+														</span>
+													</div>
+													{case_.payment_reference_2 && (
+														<div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+															Ref: {case_.payment_reference_2}
+														</div>
+													)}
+												</div>
+											)}
+
+											{case_.payment_method_3 && (
+												<div className="bg-white dark:bg-background p-3 rounded border">
+													<div className="flex justify-between items-center">
+														<span className="text-sm font-medium">{case_.payment_method_3}</span>
+														<span className="text-sm">
+															{getPaymentSymbol(case_.payment_method_3)} {case_.payment_amount_3?.toLocaleString()}
+														</span>
+													</div>
+													{case_.payment_reference_3 && (
+														<div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+															Ref: {case_.payment_reference_3}
+														</div>
+													)}
+												</div>
+											)}
+
+											{case_.payment_method_4 && (
+												<div className="bg-white dark:bg-background p-3 rounded border">
+													<div className="flex justify-between items-center">
+														<span className="text-sm font-medium">{case_.payment_method_4}</span>
+														<span className="text-sm">
+															{getPaymentSymbol(case_.payment_method_4)} {case_.payment_amount_4?.toLocaleString()}
+														</span>
+													</div>
+													{case_.payment_reference_4 && (
+														<div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+															Ref: {case_.payment_reference_4}
+														</div>
+													)}
+												</div>
 											)}
 										</div>
 									</div>
-									<InfoRow label="Teléfono" value={case_.phone} />
-									<InfoRow label="Email" value={case_.email || 'N/A'} />
-									<InfoRow label="Relación" value={case_.relationship || 'N/A'} />
-								</div>
-							</InfoSection>
+								</InfoSection>
 
-							{/* Medical Information */}
-							<InfoSection title="Información Médica" icon={Stethoscope}>
-								<div className="space-y-1">
-									<InfoRow label="Estudio" value={case_.exam_type} />
-									<InfoRow label="Médico tratante" value={case_.treating_doctor} />
-									<InfoRow label="Procedencia" value={case_.origin} />
-									<InfoRow label="Sede" value={case_.branch} />
-									<InfoRow label="Muestra" value={case_.sample_type} />
-									<InfoRow label="Cantidad de muestras" value={case_.number_of_samples} />
-									<InfoRow label="Fecha de registro" value={new Date(case_.date || '').toLocaleDateString('es-ES')} />
-								</div>
-							</InfoSection>
-
-							{/* Financial Information */}
-							<InfoSection title="Información Financiera" icon={CreditCard}>
-								<div className="space-y-1">
-									<InfoRow label="Monto total" value={`$${case_.total_amount.toLocaleString()}`} />
-									<InfoRow label="Monto faltante" value={`$${case_.remaining.toLocaleString()}`} />
-									<InfoRow label="Tasa de cambio" value={case_.exchange_rate?.toFixed(2)} />
-								</div>
-
-								{/* Payment Methods */}
-								<div className="mt-4">
-									<h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Formas de Pago:</h4>
-									<div className="space-y-2">
-										{case_.payment_method_1 && (
-											<div className="bg-white dark:bg-background p-3 rounded border">
-												<div className="flex justify-between items-center">
-													<span className="text-sm font-medium">{case_.payment_method_1}</span>
-													<span className="text-sm">
-														{getPaymentSymbol(case_.payment_method_1)} {case_.payment_amount_1?.toLocaleString()}
-													</span>
-												</div>
-												{case_.payment_reference_1 && (
-													<div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-														Ref: {case_.payment_reference_1}
-													</div>
-												)}
-											</div>
-										)}
-
-										{case_.payment_method_2 && (
-											<div className="bg-white dark:bg-background p-3 rounded border">
-												<div className="flex justify-between items-center">
-													<span className="text-sm font-medium">{case_.payment_method_2}</span>
-													<span className="text-sm">
-														{getPaymentSymbol(case_.payment_method_2)} {case_.payment_amount_2?.toLocaleString()}
-													</span>
-												</div>
-												{case_.payment_reference_2 && (
-													<div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-														Ref: {case_.payment_reference_2}
-													</div>
-												)}
-											</div>
-										)}
-
-										{case_.payment_method_3 && (
-											<div className="bg-white dark:bg-background p-3 rounded border">
-												<div className="flex justify-between items-center">
-													<span className="text-sm font-medium">{case_.payment_method_3}</span>
-													<span className="text-sm">
-														{getPaymentSymbol(case_.payment_method_3)} {case_.payment_amount_3?.toLocaleString()}
-													</span>
-												</div>
-												{case_.payment_reference_3 && (
-													<div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-														Ref: {case_.payment_reference_3}
-													</div>
-												)}
-											</div>
-										)}
-
-										{case_.payment_method_4 && (
-											<div className="bg-white dark:bg-background p-3 rounded border">
-												<div className="flex justify-between items-center">
-													<span className="text-sm font-medium">{case_.payment_method_4}</span>
-													<span className="text-sm">
-														{getPaymentSymbol(case_.payment_method_4)} {case_.payment_amount_4?.toLocaleString()}
-													</span>
-												</div>
-												{case_.payment_reference_4 && (
-													<div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-														Ref: {case_.payment_reference_4}
-													</div>
-												)}
+								{/* Additional Information */}
+								<InfoSection title="Información Adicional" icon={FileText}>
+									<div className="space-y-1">
+										<InfoRow
+											label="Fecha de creación"
+											value={new Date(case_.created_at || '').toLocaleDateString('es-ES')}
+										/>
+										<InfoRow
+											label="Última actualización"
+											value={new Date(case_.updated_at || '').toLocaleDateString('es-ES')}
+										/>
+										{case_.comments && (
+											<div className="py-2">
+												<span className="text-sm font-medium text-gray-600 dark:text-gray-400">Comentarios:</span>
+												<p className="text-sm text-gray-900 dark:text-gray-100 mt-1 p-3 bg-white dark:bg-background rounded border">
+													{case_.comments}
+												</p>
 											</div>
 										)}
 									</div>
-								</div>
-							</InfoSection>
+								</InfoSection>
+							</div>
+						</motion.div>
+					</>
+				)}
+			</AnimatePresence>
 
-							{/* Additional Information */}
-							<InfoSection title="Información Adicional" icon={FileText}>
-								<div className="space-y-1">
-									<InfoRow
-										label="Fecha de creación"
-										value={new Date(case_.created_at || '').toLocaleDateString('es-ES')}
-									/>
-									<InfoRow
-										label="Última actualización"
-										value={new Date(case_.updated_at || '').toLocaleDateString('es-ES')}
-									/>
-									{case_.comments && (
-										<div className="py-2">
-											<span className="text-sm font-medium text-gray-600 dark:text-gray-400">Comentarios:</span>
-											<p className="text-sm text-gray-900 dark:text-gray-100 mt-1 p-3 bg-white dark:bg-background rounded border">
-												{case_.comments}
-											</p>
-										</div>
-									)}
-								</div>
-							</InfoSection>
-						</div>
-					</motion.div>
-				</>
-			)}
-		</AnimatePresence>
+			{/* Generate Biopsy Case Modal */}
+			<GenerateBiopsyCaseModal
+				case_={case_}
+				isOpen={isGenerateBiopsyCaseModalOpen}
+				onClose={() => setIsGenerateBiopsyCaseModalOpen(false)}
+				onSuccess={handleBiopsyCaseSuccess}
+			/>
+		</>
 	)
 }
 
