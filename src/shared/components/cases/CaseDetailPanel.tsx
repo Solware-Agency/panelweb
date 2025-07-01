@@ -426,12 +426,14 @@ const CaseDetailPanel: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClos
 			</AnimatePresence>
 
 			{/* Generate Biopsy Case Modal */}
-			<GenerateBiopsyCaseModal
-				case_={case_}
-				isOpen={isGenerateBiopsyCaseModalOpen}
-				onClose={() => setIsGenerateBiopsyCaseModalOpen(false)}
-				onSuccess={handleBiopsyCaseSuccess}
-			/>
+			{case_ && (
+				<GenerateBiopsyCaseModal
+					case_={case_}
+					isOpen={isGenerateBiopsyCaseModalOpen}
+					onClose={() => setIsGenerateBiopsyCaseModalOpen(false)}
+					onSuccess={handleBiopsyCaseSuccess}
+				/>
+			)}
 		</>
 	)
 }
