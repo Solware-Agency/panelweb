@@ -103,8 +103,8 @@ function FormContent() {
 						<TabsList className="mb-6">
 							<TabsTrigger value="form">Formulario</TabsTrigger>
 							<TabsTrigger value="records">Registros</TabsTrigger>
-							<TabsTrigger value="settings">Ajustes</TabsTrigger>
 							<GenerateCaseButton />
+							<TabsTrigger value="settings">Ajustes</TabsTrigger>
 						</TabsList>
 
 						<TabsContent value="form" className="mt-6">
