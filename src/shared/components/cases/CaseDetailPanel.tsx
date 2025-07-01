@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { X, User, Stethoscope, CreditCard, FileText, CheckCircle, Hash, Cake, UserCheck, FileText2 } from 'lucide-react'
+import { X, User, Stethoscope, CreditCard, FileText, CheckCircle, Hash, Cake, UserCheck, FileText as FileText2 } from 'lucide-react'
 import { motion, AnimatePresence } from 'motion/react'
 import type { MedicalRecord } from '@lib/supabase-service'
 import { getAgeDisplay } from '@lib/supabase-service'
