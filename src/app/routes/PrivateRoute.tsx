@@ -12,7 +12,7 @@ interface PrivateRouteProps {
  * Protected route component that checks authentication, email verification, and role permissions
  * Only allows access to users with verified emails and appropriate roles
  */
-const PrivateRoute = ({ children, requiredRole = 'owner' }: PrivateRouteProps) => {
+const PrivateRoute = ({ children, requiredRole }: PrivateRouteProps) => {
 	const { user, loading: authLoading } = useAuth()
 	const { profile, isLoading: profileLoading, error: profileError } = useUserProfile()
 
@@ -75,7 +75,7 @@ const PrivateRoute = ({ children, requiredRole = 'owner' }: PrivateRouteProps) =
 		)
 	}
 
-	// Check role permissions
+	// Check role permissions if a specific role is required
 	if (requiredRole === 'owner' && profile.role !== 'owner') {
 		console.log(`User role "${profile.role}" does not match required role "owner"`)
 		
