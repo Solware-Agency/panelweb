@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Search, Loader2, ArrowLeft, FileText, BookCopy } from 'lucide-react';
+import { Search, Loader2, ArrowLeft, FileText, BookCopy, AlertCircle } from 'lucide-react';
 import { Input } from '@shared/components/ui/input';
 import { Button } from '@shared/components/ui/button';
 import { Card } from '@shared/components/ui/card';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@lib/supabase/config';
 import { useToast } from '@shared/hooks/use-toast';
+import { format } from 'date-fns';
+import { es } from 'date-fns/locale';
 
 const CaseSelectionPage: React.FC = () => {
   const navigate = useNavigate();
@@ -15,19 +17,24 @@ const CaseSelectionPage: React.FC = () => {
   const [isSearching, setIsSearching] = useState(false);
 
   // Query for fetching biopsia cases
-  const { data: biopsiaRecords, isLoading, refetch } = useQuery({
+  const { data: biopsiaRecords, isLoading, error, refetch } = useQuery({
     queryKey: ['biopsia-records'],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('medical_records_clean')
-        .select('id, code, full_name, exam_type')
-        .ilike('exam_type', '%biopsia%') // Changed to case-insensitive search
-        .order('created_at', { ascending: false })
-        .limit(50);
+      try {
+        const { data, error } = await supabase
+          .from('medical_records_clean')
+          .select('id, code, full_name, exam_type')
+          .ilike('exam_type', '%biopsia%') // Case-insensitive search
+          .order('created_at', { ascending: false })
+          .limit(50);
 
-      if (error) throw error;
-      console.log('Loaded biopsia records:', data?.length || 0);
-      return data || [];
+        if (error) throw error;
+        console.log('Loaded biopsia records:', data?.length || 0);
+        return data || [];
+      } catch (err) {
+        console.error('Error fetching biopsia records:', err);
+        throw err;
+      }
     },
     staleTime: 0, // Always refetch
     retry: 2,
@@ -48,7 +55,7 @@ const CaseSelectionPage: React.FC = () => {
       const { data, error } = await supabase
         .from('medical_records_clean')
         .select('id, code, full_name, exam_type')
-        .ilike('exam_type', '%biopsia%') // Changed to case-insensitive search
+        .ilike('exam_type', '%biopsia%') // Case-insensitive search
         .or(`code.ilike.%${searchTerm}%,id_number.ilike.%${searchTerm}%,full_name.ilike.%${searchTerm}%`)
         .order('created_at', { ascending: false })
         .limit(20);
@@ -89,6 +96,42 @@ const CaseSelectionPage: React.FC = () => {
   const handleBackToForm = () => {
     navigate('/form');
   };
+
+  // Render error state if there's an error fetching data
+  if (error) {
+    return (
+      <div className="container mx-auto py-10 px-4">
+        <div className="flex items-center justify-between mb-4">
+          <h1 className="text-2xl font-bold">Generar Caso</h1>
+          <Button 
+            onClick={handleBackToForm} 
+            variant="outline"
+            className="flex items-center gap-2"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            Volver
+          </Button>
+        </div>
+        
+        <Card className="p-8 text-center">
+          <div className="flex flex-col items-center justify-center gap-4">
+            <AlertCircle className="text-red-500 size-12" />
+            <h2 className="text-xl font-semibold">Error al cargar los casos</h2>
+            <p className="text-gray-600 dark:text-gray-400 max-w-md mx-auto">
+              Hubo un problema al cargar los casos de biopsia. Por favor intenta de nuevo.
+            </p>
+            <Button 
+              onClick={() => refetch()} 
+              className="mt-4 bg-primary hover:bg-primary/80"
+            >
+              <Loader2 className={`mr-2 h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
+              Reintentar
+            </Button>
+          </div>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="container mx-auto py-10 px-4">
