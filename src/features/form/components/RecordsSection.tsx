@@ -96,8 +96,7 @@ export const RecordsSection: React.FC<RecordsSectionProps> = ({
 						)}
 					</div>
 					<p className="text-muted-foreground">
-						{searchTerm ? `Resultados de búsqueda para "${searchTerm}"` : 
-						 profile?.assigned_branch ? `Registros de la sede ${profile.assigned_branch}` : 'Todos los registros médicos'}
+						{searchTerm ? `Resultados de búsqueda para "${searchTerm}"` : ''}
 					</p>
 				</div>
 			</div>
