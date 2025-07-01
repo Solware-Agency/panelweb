@@ -19,12 +19,12 @@ interface CaseDetailPanelProps {
 const CaseDetailPanel: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClose }) => {
 	const [isGenerateBiopsyCaseModalOpen, setIsGenerateBiopsyCaseModalOpen] = useState(false)
 	
-	if (!case_) return null
-
 	// Query to get the user who created the record
 	const { data: creatorData } = useQuery({
-		queryKey: ['record-creator', case_.id],
+		queryKey: ['record-creator', case_?.id],
 		queryFn: async () => {
+			if (!case_) return null;
+			
 			// First try to get creator info from the record itself (for new records)
 			if (case_.created_by && case_.created_by_display_name) {
 				return {
@@ -64,8 +64,10 @@ const CaseDetailPanel: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClos
 
 			return null
 		},
-		enabled: !!case_.id && isOpen,
+		enabled: !!case_?.id && isOpen,
 	})
+
+	if (!case_) return null
 
 	const getStatusColor = (status: string) => {
 		switch (status) {
