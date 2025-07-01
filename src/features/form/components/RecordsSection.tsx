@@ -24,11 +24,12 @@ export const RecordsSection: React.FC<RecordsSectionProps> = ({
 	isFullscreen,
 	setIsFullscreen,
 }) => {
-	const [searchTerm] = useState('')
+	const [searchTerm, setSearchTerm] = useState('')
 	const [selectedCase, setSelectedCase] = useState<MedicalRecord | null>(null)
 	const [isPanelOpen, setIsPanelOpen] = useState(false)
 	const { profile } = useUserProfile()
 	const [filteredCases, setFilteredCases] = useState<MedicalRecord[]>(cases)
+	const [showPendingOnly, setShowPendingOnly] = useState(false)
 
 	// Filter cases by assigned branch if user is an employee with assigned branch
 	useEffect(() => {
@@ -37,15 +38,20 @@ export const RecordsSection: React.FC<RecordsSectionProps> = ({
 			return
 		}
 
+		let filtered = [...cases]
+
 		// If user is an employee with assigned branch, filter cases
 		if (profile?.role === 'employee' && profile?.assigned_branch) {
-			const filtered = cases.filter(c => c.branch === profile.assigned_branch)
-			setFilteredCases(filtered)
-		} else {
-			// Otherwise show all cases
-			setFilteredCases(cases)
+			filtered = filtered.filter(c => c.branch === profile.assigned_branch)
 		}
-	}, [cases, profile])
+
+		// If showPendingOnly is true, filter to show only incomplete cases
+		if (showPendingOnly) {
+			filtered = filtered.filter(c => c.payment_status !== 'Completado')
+		}
+
+		setFilteredCases(filtered)
+	}, [cases, profile, showPendingOnly])
 
 	const handleCaseSelect = (case_: MedicalRecord) => {
 		setSelectedCase(case_)
@@ -79,6 +85,11 @@ export const RecordsSection: React.FC<RecordsSectionProps> = ({
 		return { total, totalAmount, completed }
 	}, [records])
 
+	// Toggle pending cases filter
+	const handleTogglePendingFilter = () => {
+		setShowPendingOnly(!showPendingOnly)
+	}
+
 	return (
 		<div>
 			{/* Header with search and refresh */}
@@ -104,10 +115,15 @@ export const RecordsSection: React.FC<RecordsSectionProps> = ({
 			{/* Statistics cards */}
 			{!searchTerm && records && (
 				<div className="flex justify-center gap-4 mb-6 w-full">
-					<Card className="w-full max-w-[370px] transition-all duration-300 hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 group">
+					<Card 
+						className={`w-full max-w-[370px] transition-all duration-300 hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 group cursor-pointer ${
+							showPendingOnly ? 'border-primary shadow-lg shadow-primary/20' : ''
+						}`}
+						onClick={handleTogglePendingFilter}
+					>
 						<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
 							<CardTitle className="text-sm font-medium">Casos Pendientes</CardTitle>
-							<Users className="h-4 w-4 text-muted-foreground group-hover:text-primary/80" />
+							<Users className={`h-4 w-4 ${showPendingOnly ? 'text-primary' : 'text-muted-foreground group-hover:text-primary/80'}`} />
 						</CardHeader>
 						<CardContent>
 							<div className="text-2xl font-bold">
@@ -125,6 +141,15 @@ export const RecordsSection: React.FC<RecordsSectionProps> = ({
 			{searchTerm && records && (
 				<div className="text-sm text-muted-foreground">
 					Se encontraron {records.length} resultado{records.length !== 1 ? 's' : ''}
+				</div>
+			)}
+
+			{/* Filter indicator */}
+			{showPendingOnly && (
+				<div className="mb-4 px-4 py-2 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg inline-block">
+					<span className="text-sm font-medium text-blue-800 dark:text-blue-300">
+						Mostrando solo casos pendientes
+					</span>
 				</div>
 			)}
 
