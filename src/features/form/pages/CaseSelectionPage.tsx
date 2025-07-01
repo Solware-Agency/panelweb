@@ -119,11 +119,11 @@ const CaseSelectionPage: React.FC = () => {
             <Input
               placeholder="Buscar por código, cédula o nombre..."
               value={searchTerm}
-            <Search className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+              onChange={(e) => setSearchTerm(e.target.value)}
               onKeyDown={(e) => {
                 if (e.key === 'Enter') {
-                'No se encontraron casos que coincidan con tu búsqueda.' : 
-                'Busca por código, cédula o nombre para encontrar casos de biopsia.'
+                  handleSearch();
+                }
               }}
             />
             <p className="text-gray-500 mt-2">
