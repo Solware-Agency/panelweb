@@ -25,11 +25,11 @@ const CaseDetailPanel: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClos
 			if (case_.created_by && case_.created_by_display_name) {
 				return {
 					id: case_.created_by,
-					email: '',  // We don't have the email in the record
-					displayName: case_.created_by_display_name
+					email: '', // We don't have the email in the record
+					displayName: case_.created_by_display_name,
 				}
 			}
-			
+
 			// If not available, try to get from change logs
 			const { data, error } = await supabase
 				.from('change_logs')
@@ -54,7 +54,7 @@ const CaseDetailPanel: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClos
 				return {
 					id: data[0].user_id,
 					email: data[0].user_email,
-					displayName: profileData?.display_name || null
+					displayName: profileData?.display_name || null,
 				}
 			}
 
@@ -109,6 +109,13 @@ const CaseDetailPanel: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClos
 		: 'N/A'
 
 	const ageDisplay = case_.date_of_birth ? getAgeDisplay(case_.date_of_birth) : ''
+
+	// Función auxiliar para mostrar el símbolo correcto según el método
+	const getPaymentSymbol = (method?: string) => {
+		if (!method) return ''
+		const bolivares = ['Punto de venta', 'Pago móvil', 'Bs en efectivo']
+		return bolivares.includes(method) ? 'Bs' : '$'
+	}
 
 	return (
 		<AnimatePresence>
@@ -174,16 +181,18 @@ const CaseDetailPanel: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClos
 							{(creatorData || case_.created_by_display_name) && (
 								<InfoSection title="Registrado por" icon={UserCheck}>
 									<div className="space-y-1">
-										<InfoRow 
-											label="Nombre" 
-											value={creatorData?.displayName || case_.created_by_display_name || 'Usuario del sistema'} 
+										<InfoRow
+											label="Nombre"
+											value={creatorData?.displayName || case_.created_by_display_name || 'Usuario del sistema'}
 										/>
-										{creatorData?.email && (
-											<InfoRow label="Email" value={creatorData.email} />
-										)}
-										<InfoRow 
-											label="Fecha de registro" 
-											value={case_.created_at ? format(new Date(case_.created_at), 'dd/MM/yyyy HH:mm', { locale: es }) : 'N/A'} 
+										{creatorData?.email && <InfoRow label="Email" value={creatorData.email} />}
+										<InfoRow
+											label="Fecha de registro"
+											value={
+												case_.created_at
+													? format(new Date(case_.created_at), 'dd/MM/yyyy HH:mm', { locale: es })
+													: 'N/A'
+											}
 										/>
 									</div>
 								</InfoSection>
@@ -257,7 +266,9 @@ const CaseDetailPanel: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClos
 											<div className="bg-white dark:bg-background p-3 rounded border">
 												<div className="flex justify-between items-center">
 													<span className="text-sm font-medium">{case_.payment_method_1}</span>
-													<span className="text-sm">${case_.payment_amount_1?.toLocaleString()}</span>
+													<span className="text-sm">
+														{getPaymentSymbol(case_.payment_method_1)} {case_.payment_amount_1?.toLocaleString()}
+													</span>
 												</div>
 												{case_.payment_reference_1 && (
 													<div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
@@ -271,7 +282,9 @@ const CaseDetailPanel: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClos
 											<div className="bg-white dark:bg-background p-3 rounded border">
 												<div className="flex justify-between items-center">
 													<span className="text-sm font-medium">{case_.payment_method_2}</span>
-													<span className="text-sm">${case_.payment_amount_2?.toLocaleString()}</span>
+													<span className="text-sm">
+														{getPaymentSymbol(case_.payment_method_2)} {case_.payment_amount_2?.toLocaleString()}
+													</span>
 												</div>
 												{case_.payment_reference_2 && (
 													<div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
@@ -285,7 +298,9 @@ const CaseDetailPanel: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClos
 											<div className="bg-white dark:bg-background p-3 rounded border">
 												<div className="flex justify-between items-center">
 													<span className="text-sm font-medium">{case_.payment_method_3}</span>
-													<span className="text-sm">${case_.payment_amount_3?.toLocaleString()}</span>
+													<span className="text-sm">
+														{getPaymentSymbol(case_.payment_method_3)} {case_.payment_amount_3?.toLocaleString()}
+													</span>
 												</div>
 												{case_.payment_reference_3 && (
 													<div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
@@ -299,7 +314,9 @@ const CaseDetailPanel: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClos
 											<div className="bg-white dark:bg-background p-3 rounded border">
 												<div className="flex justify-between items-center">
 													<span className="text-sm font-medium">{case_.payment_method_4}</span>
-													<span className="text-sm">${case_.payment_amount_4?.toLocaleString()}</span>
+													<span className="text-sm">
+														{getPaymentSymbol(case_.payment_method_4)} {case_.payment_amount_4?.toLocaleString()}
+													</span>
 												</div>
 												{case_.payment_reference_4 && (
 													<div className="text-xs text-gray-500 dark:text-gray-400 mt-1">

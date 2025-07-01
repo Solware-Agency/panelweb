@@ -136,9 +136,7 @@ const PatientInfoSection = React.memo(({ control }: { control: any }) => (
 	<div className="bg-white dark:bg-background rounded-lg p-4 border border-input">
 		<div className="flex items-center gap-2 mb-3">
 			<User className="w-5 h-5 text-blue-600 dark:text-blue-400" />
-			<h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
-				Información del Paciente
-			</h3>
+			<h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Información del Paciente</h3>
 		</div>
 		<div className="space-y-4">
 			{/* Full Name */}
@@ -149,11 +147,7 @@ const PatientInfoSection = React.memo(({ control }: { control: any }) => (
 					<FormItem>
 						<FormLabel>Nombre Completo</FormLabel>
 						<FormControl>
-							<Input 
-								placeholder="Nombre y Apellido" 
-								{...field} 
-								className="focus:border-primary focus:ring-primary"
-							/>
+							<Input placeholder="Nombre y Apellido" {...field} className="focus:border-primary focus:ring-primary" />
 						</FormControl>
 						<FormMessage />
 					</FormItem>
@@ -167,11 +161,7 @@ const PatientInfoSection = React.memo(({ control }: { control: any }) => (
 					<FormItem>
 						<FormLabel>Cédula</FormLabel>
 						<FormControl>
-							<Input 
-								placeholder="12345678" 
-								{...field} 
-								className="focus:border-primary focus:ring-primary"
-							/>
+							<Input placeholder="12345678" {...field} className="focus:border-primary focus:ring-primary" />
 						</FormControl>
 						<FormMessage />
 					</FormItem>
@@ -188,11 +178,7 @@ const PatientInfoSection = React.memo(({ control }: { control: any }) => (
 							Teléfono
 						</FormLabel>
 						<FormControl>
-							<Input 
-								placeholder="0412-1234567" 
-								{...field} 
-								className="focus:border-primary focus:ring-primary"
-							/>
+							<Input placeholder="0412-1234567" {...field} className="focus:border-primary focus:ring-primary" />
 						</FormControl>
 						<FormMessage />
 					</FormItem>
@@ -209,10 +195,10 @@ const PatientInfoSection = React.memo(({ control }: { control: any }) => (
 							Correo Electrónico
 						</FormLabel>
 						<FormControl>
-							<Input 
+							<Input
 								type="email"
-								placeholder="correo@ejemplo.com" 
-								{...field} 
+								placeholder="correo@ejemplo.com"
+								{...field}
 								value={field.value || ''}
 								className="focus:border-primary focus:ring-primary"
 							/>
@@ -240,11 +226,7 @@ const CommentsSectionMemo = React.memo(({ control }: { control: any }) => (
 				<FormItem>
 					<FormLabel>Comentarios del caso</FormLabel>
 					<FormControl>
-						<Textarea
-							placeholder="Agregar comentarios adicionales..."
-							className="min-h-[100px]"
-							{...field}
-						/>
+						<Textarea placeholder="Agregar comentarios adicionales..." className="min-h-[100px]" {...field} />
 					</FormControl>
 					<FormMessage />
 				</FormItem>
@@ -421,6 +403,34 @@ const EditCaseModal: React.FC<EditCaseModalProps> = ({ case_, isOpen, onClose, o
 	}
 
 	const handleSubmit = (formData: EditCaseFormData) => {
+		// Validación: no permitir guardar si el monto total de pagos excede el monto total del caso
+		const exchangeRate = case_?.exchange_rate || 0
+		const bolivaresMethods = ['Punto de venta', 'Pago móvil', 'Bs en efectivo']
+		let totalPagosUSD = 0
+		for (let i = 1; i <= 4; i++) {
+			const method = formData[`payment_method_${i}` as keyof EditCaseFormData] as string | undefined
+			let amountRaw = formData[`payment_amount_${i}` as keyof EditCaseFormData]
+			let amount = typeof amountRaw === 'number' ? amountRaw : parseFloat(String(amountRaw))
+			if (!method || isNaN(amount) || typeof amount !== 'number') continue
+			if (bolivaresMethods.includes(method)) {
+				if (exchangeRate > 0) {
+					totalPagosUSD += amount / exchangeRate
+				}
+			} else {
+				totalPagosUSD += amount
+			}
+		}
+		const montoTotal = case_?.total_amount || 0
+		if (totalPagosUSD > montoTotal + 0.01) {
+			toast({
+				title: 'Error en pagos',
+				description:
+					'La suma de los pagos (convertidos a USD) excede el monto total del caso. Corrige los montos antes de guardar.',
+				variant: 'destructive',
+			})
+			return
+		}
+
 		const detectedChanges = detectChanges(formData)
 
 		if (detectedChanges.length === 0) {
@@ -447,7 +457,11 @@ const EditCaseModal: React.FC<EditCaseModalProps> = ({ case_, isOpen, onClose, o
 				// Special handling for date_of_birth to format as string
 				if (change.field === 'date_of_birth' && change.newValue instanceof Date) {
 					updates[change.field as keyof MedicalRecord] = format(change.newValue, 'yyyy-MM-dd') as any
-				} else if (typeof change.newValue === 'string' || typeof change.newValue === 'number' || change.newValue === null) {
+				} else if (
+					typeof change.newValue === 'string' ||
+					typeof change.newValue === 'number' ||
+					change.newValue === null
+				) {
 					updates[change.field as keyof MedicalRecord] = change.newValue as any
 				} else {
 					updates[change.field as keyof MedicalRecord] = undefined
@@ -480,9 +494,11 @@ const EditCaseModal: React.FC<EditCaseModalProps> = ({ case_, isOpen, onClose, o
 
 	// Get age display from date of birth
 	const dateOfBirthValue = form.watch('date_of_birth')
-	const ageDisplay = dateOfBirthValue 
-		? getAgeDisplay(format(dateOfBirthValue, 'yyyy-MM-dd')) 
-		: (case_.date_of_birth ? getAgeDisplay(case_.date_of_birth) : '')
+	const ageDisplay = dateOfBirthValue
+		? getAgeDisplay(format(dateOfBirthValue, 'yyyy-MM-dd'))
+		: case_.date_of_birth
+		? getAgeDisplay(case_.date_of_birth)
+		: ''
 
 	return (
 		<AnimatePresence>
@@ -510,9 +526,16 @@ const EditCaseModal: React.FC<EditCaseModalProps> = ({ case_, isOpen, onClose, o
 							<div className="flex items-center justify-between">
 								<div>
 									<h2 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-gray-100">Editar Caso</h2>
-									<p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-										{case_.code || case_.id?.slice(-6).toUpperCase()}
-									</p>
+									<div className="flex items-center gap-5 mt-2">
+										<p className="text-sm text-gray-600 dark:text-gray-400">
+											{case_.code || case_.id?.slice(-6).toUpperCase()}
+										</p>
+										{case_.remaining > 0 && (
+											<div className="text-sm text-red-600 dark:text-red-400">
+												Faltante: ${case_.remaining.toLocaleString()}
+											</div>
+										)}
+									</div>
 								</div>
 								<button
 									onClick={onClose}
@@ -550,7 +573,7 @@ const EditCaseModal: React.FC<EditCaseModalProps> = ({ case_, isOpen, onClose, o
 																	variant={'outline'}
 																	className={cn(
 																		'w-full justify-start text-left font-normal',
-																		!field.value && 'text-muted-foreground'
+																		!field.value && 'text-muted-foreground',
 																	)}
 																>
 																	<Cake className="mr-2 h-4 w-4 text-pink-500" />
