@@ -36,7 +36,6 @@ const MainUsers: React.FC = () => {
 	const [approvalFilter, setApprovalFilter] = useState<string>('all')
 	const [searchEmail, setSearchEmail] = useState('')
 	const [isSearching, setIsSearching] = useState(false)
-	const [isUpdatingJesus, setIsUpdatingJesus] = useState(false)
 
 	// Query para obtener usuarios
 	const { data: users, isLoading, error, refetch } = useQuery({
@@ -119,35 +118,6 @@ const MainUsers: React.FC = () => {
 			})
 		} finally {
 			setIsSearching(false)
-		}
-	}
-
-	const handleUpdateJesusToAdmin = async () => {
-		setIsUpdatingJesus(true)
-		try {
-			const { success, error } = await updateUserToAdmin('jesus@email.com')
-			
-			if (error || !success) {
-				throw error || new Error('No se pudo actualizar el usuario')
-			}
-			
-			toast({
-				title: '✅ Rol actualizado',
-				description: 'El usuario "jesus" ahora tiene el rol de administrador.',
-				className: 'bg-green-100 border-green-400 text-green-800',
-			})
-			
-			// Refrescar la lista de usuarios
-			refetch()
-		} catch (error) {
-			console.error('Error updating Jesus to admin:', error)
-			toast({
-				title: '❌ Error al actualizar',
-				description: 'Hubo un problema al cambiar el rol del usuario. Inténtalo de nuevo.',
-				variant: 'destructive',
-			})
-		} finally {
-			setIsUpdatingJesus(false)
 		}
 	}
 
@@ -490,42 +460,6 @@ const MainUsers: React.FC = () => {
 					</div>
 				</Card>
 			</div>
-
-			{/* Botón para actualizar a Jesus como administrador */}
-			<Card className="hover:border-primary hover:shadow-lg hover:shadow-primary/20 transition-all duration-300 shadow-lg mb-6">
-				<div className="bg-white dark:bg-background rounded-xl p-4 sm:p-6 transition-colors duration-300">
-					<h3 className="text-lg font-semibold text-gray-700 dark:text-gray-300 mb-4">Actualizar Usuario Jesus</h3>
-					<div className="flex flex-col sm:flex-row gap-4">
-						<div className="flex-1">
-							<p className="text-gray-600 dark:text-gray-400 mb-2">
-								Actualiza el usuario "jesus@email.com" al rol de administrador con permisos especiales.
-							</p>
-							<div className="bg-purple-50 dark:bg-purple-900/20 p-3 rounded-lg border border-purple-200 dark:border-purple-800">
-								<p className="text-sm text-purple-800 dark:text-purple-300">
-									Este rol tendrá acceso a: Registros, Casos Generados, Médicos y Ajustes.
-								</p>
-							</div>
-						</div>
-						<Button 
-							onClick={handleUpdateJesusToAdmin}
-							disabled={isUpdatingJesus}
-							className="bg-purple-600 hover:bg-purple-700 text-white"
-						>
-							{isUpdatingJesus ? (
-								<>
-									<div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-									Actualizando...
-								</>
-							) : (
-								<>
-									<ShieldCheck className="w-4 h-4 mr-2" />
-									Actualizar a Administrador
-								</>
-							)}
-						</Button>
-					</div>
-				</div>
-			</Card>
 
 			{/* Búsqueda por email específico */}
 			<Card className="hover:border-primary hover:shadow-lg hover:shadow-primary/20 transition-all duration-300 shadow-lg mb-6">
