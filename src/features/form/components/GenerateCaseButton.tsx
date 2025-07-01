@@ -4,7 +4,8 @@ import { useNavigate } from 'react-router-dom';
 const GenerateCaseButton: React.FC = () => {
   const navigate = useNavigate();
 
-  const handleButtonClick = () => {
+  const handleButtonClick = (e: React.MouseEvent) => {
+    e.preventDefault(); // Prevent default form submission
     navigate('/cases-selection');
   };
 

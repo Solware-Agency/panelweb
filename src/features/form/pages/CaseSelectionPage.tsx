@@ -6,6 +6,7 @@ import { Button } from '@shared/components/ui/button';
 import { Card } from '@shared/components/ui/card';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@lib/supabase/config';
+import { getMedicalRecords } from '@lib/supabase-service';
 import { useToast } from '@shared/hooks/use-toast';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
@@ -23,13 +24,16 @@ const CaseSelectionPage: React.FC = () => {
       const { data, error } = await supabase
         .from('medical_records_clean')
         .select('id, code, full_name, id_number, exam_type, date, created_at')
-        .eq('exam_type', 'biopsia')
+        .ilike('exam_type', '%biopsia%') // Changed to case-insensitive search
         .order('created_at', { ascending: false })
         .limit(20);
 
       if (error) throw error;
+      console.log('Loaded biopsia records:', data?.length || 0);
       return data || [];
     },
+    staleTime: 0, // Always refetch
+    retry: 2,
   });
 
   const handleSearch = async () => {
@@ -47,7 +51,7 @@ const CaseSelectionPage: React.FC = () => {
       const { data, error } = await supabase
         .from('medical_records_clean')
         .select('id, code, full_name, id_number, exam_type, date, created_at')
-        .eq('exam_type', 'biopsia')
+        .ilike('exam_type', '%biopsia%') // Changed to case-insensitive search
         .or(`code.ilike.%${searchTerm}%,id_number.ilike.%${searchTerm}%,full_name.ilike.%${searchTerm}%`)
         .order('created_at', { ascending: false })
         .limit(20);
@@ -115,13 +119,16 @@ const CaseSelectionPage: React.FC = () => {
             <Input
               placeholder="Buscar por código, cédula o nombre..."
               value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
+            <Search className="w-12 h-12 text-gray-400 mx-auto mb-4" />
               onKeyDown={(e) => {
                 if (e.key === 'Enter') {
-                  handleSearch();
-                }
+                'No se encontraron casos que coincidan con tu búsqueda.' : 
+                'Busca por código, cédula o nombre para encontrar casos de biopsia.'
               }}
             />
+            <p className="text-gray-500 mt-2">
+              Solo se mostrarán casos del tipo "biopsia".
+            </p>
           </div>
           <Button 
             onClick={handleSearch} 
