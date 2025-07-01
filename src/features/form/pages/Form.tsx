@@ -14,6 +14,7 @@ import { signOut } from '@lib/supabase/auth'
 import { getMedicalRecords } from '@lib/supabase-service'
 import { RefreshCw, Maximize2 } from 'lucide-react'
 import { useUserProfile } from '@shared/hooks/useUserProfile'
+import GenerateCaseButton from '@features/form/components/GenerateCaseButton'
 
 const queryClient = new QueryClient()
 
@@ -98,11 +99,16 @@ function FormContent() {
 					</div>
 
 					<Tabs defaultValue="form" value={activeTab} onValueChange={setActiveTab}>
-						<TabsList className="mb-6">
-							<TabsTrigger value="form">Formulario</TabsTrigger>
-							<TabsTrigger value="records">Registros</TabsTrigger>
-							<TabsTrigger value="settings">Ajustes</TabsTrigger>
-						</TabsList>
+						<div className="flex justify-between items-center mb-6">
+							<TabsList>
+								<TabsTrigger value="form">Formulario</TabsTrigger>
+								<TabsTrigger value="records">Registros</TabsTrigger>
+								<TabsTrigger value="settings">Ajustes</TabsTrigger>
+							</TabsList>
+							
+							{/* Generate Case Button */}
+							<GenerateCaseButton />
+						</div>
 
 						<TabsContent value="form">
 							<MedicalForm />
