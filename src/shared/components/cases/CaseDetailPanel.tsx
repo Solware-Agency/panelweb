@@ -127,11 +127,6 @@ const CaseDetailPanel: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClos
 	const isBiopsyCase = case_.exam_type?.toLowerCase() === 'biopsia'
 
 	// Handle generate biopsy case button click
-	const handleGenerateBiopsyCase = (e: React.MouseEvent) => {
-		e.preventDefault()
-		// Navigate to the generar-caso route with the case data
-		navigate('/generar-caso', { state: { case_ } })
-	}
 
 	return (
 		<>
@@ -188,19 +183,6 @@ const CaseDetailPanel: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClos
 										<span className="inline-flex items-center gap-1 px-3 py-1 text-sm font-semibold rounded-full bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300">
 											{case_.code}
 										</span>
-									)}
-									
-									{/* Generate Biopsy Case Button - Only show for biopsy exam type */}
-									{isBiopsyCase && (
-										<Button
-											onClick={handleGenerateBiopsyCase}
-											variant="outline"
-											size="sm"
-											className="flex items-center gap-1 bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300 hover:bg-green-200 dark:hover:bg-green-900/50 border-green-300 dark:border-green-800"
-										>
-											<FileText2 size={16} />
-											Generar caso
-										</Button>
 									)}
 								</div>
 							</div>
