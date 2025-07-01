@@ -99,7 +99,7 @@ const GenerateCaseButton: React.FC = () => {
         className="inline-flex items-center justify-center whitespace-nowrap rounded-sm px-3 py-1.5 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-green-600 text-white hover:bg-green-700 ml-2"
       >
         <FileText className="mr-2 h-4 w-4" />
-        Generar/Editar Caso
+        Generar Caso
       </button>
 
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
