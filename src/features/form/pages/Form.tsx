@@ -59,12 +59,9 @@ function FormContent() {
 			<Sonner />
 			<div className="fixed top-4 right-4 z-50 flex items-center gap-2">
 				{activeTab === 'form' && (
-					<>
-						<GenerateCaseButton />
-						<Button variant="outline" onClick={handleClearForm} className="shadow-xl dark:shadow-black shadow-black/40">
-							Limpiar
-						</Button>
-					</>
+					<Button variant="outline" onClick={handleClearForm} className="shadow-xl dark:shadow-black shadow-black/40">
+						Limpiar
+					</Button>
 				)}
 				{activeTab === 'records' && (
 					<>
@@ -101,32 +98,38 @@ function FormContent() {
 						<h3 className='text-md text-primary font-semibold mt-4'>Bienvenido, {profile?.display_name}</h3>
 					</div>
 
-					<Tabs defaultValue="form" value={activeTab} onValueChange={setActiveTab}>
-						<TabsList className="mb-6">
-							<TabsTrigger value="form">Formulario</TabsTrigger>
-							<TabsTrigger value="records">Registros</TabsTrigger>
-							<TabsTrigger value="settings">Ajustes</TabsTrigger>
-						</TabsList>
+					<div className="flex flex-col md:flex-row justify-between items-center mb-6">
+						<Tabs defaultValue="form" value={activeTab} onValueChange={setActiveTab} className="w-full">
+							<div className="flex flex-col md:flex-row justify-between items-center gap-4">
+								<TabsList>
+									<TabsTrigger value="form">Formulario</TabsTrigger>
+									<TabsTrigger value="records">Registros</TabsTrigger>
+									<TabsTrigger value="settings">Ajustes</TabsTrigger>
+								</TabsList>
+								
+								<GenerateCaseButton />
+							</div>
+							
+							<TabsContent value="form" className="mt-6">
+								<MedicalForm />
+							</TabsContent>
 
-						<TabsContent value="form">
-							<MedicalForm />
-						</TabsContent>
+							<TabsContent value="records" className="mt-6">
+								<RecordsSection
+									cases={casesData?.data || []}
+									isLoading={casesLoading}
+									error={casesError}
+									refetch={refetchCases}
+									isFullscreen={isFullscreen}
+									setIsFullscreen={setIsFullscreen}
+								/>
+							</TabsContent>
 
-						<TabsContent value="records">
-							<RecordsSection
-								cases={casesData?.data || []}
-								isLoading={casesLoading}
-								error={casesError}
-								refetch={refetchCases}
-								isFullscreen={isFullscreen}
-								setIsFullscreen={setIsFullscreen}
-							/>
-						</TabsContent>
-
-						<TabsContent value="settings">
-							<SettingsSection />
-						</TabsContent>
-					</Tabs>
+							<TabsContent value="settings" className="mt-6">
+								<SettingsSection />
+							</TabsContent>
+						</Tabs>
+					</div>
 				</main>
 			</div>
 		</>
