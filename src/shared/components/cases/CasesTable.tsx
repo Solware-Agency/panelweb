@@ -18,6 +18,7 @@ import { useAuth } from '@app/providers/AuthContext'
 import { Card } from '@shared/components/ui/card'
 import { useToast } from '@shared/hooks/use-toast'
 import { useUserProfile } from '@shared/hooks/useUserProfile'
+import GenerateBiopsyModal from './GenerateBiopsyModal'
 
 interface CasesTableProps {
 	onCaseSelect: (case_: MedicalRecord) => void
@@ -51,6 +52,8 @@ const CasesTable: React.FC<CasesTableProps> = ({
 	const [sortField, setSortField] = useState<SortField>('created_at')
 	const [sortDirection, setSortDirection] = useState<SortDirection>('desc')
 	const [rowLimit, setRowLimit] = useState<number>(20)
+	const [selectedCaseForGenerate, setSelectedCaseForGenerate] = useState<MedicalRecord | null>(null)
+	const [isGenerateModalOpen, setIsGenerateModalOpen] = useState(false)
 
 	// Set branch filter to user's assigned branch if they have one
 	React.useEffect(() => {
@@ -81,6 +84,21 @@ const CasesTable: React.FC<CasesTableProps> = ({
 			setSortField(field)
 			setSortDirection('asc')
 		}
+	}
+
+	const handleGenerateCase = (case_: MedicalRecord) => {
+		// Check if this is a biopsy case
+		if (case_.exam_type?.toLowerCase() !== 'biopsia') {
+			toast({
+				title: '❌ Tipo de examen incorrecto',
+				description: 'La generación de casos solo está disponible para biopsias.',
+				variant: 'destructive',
+			})
+			return
+		}
+		
+		setSelectedCaseForGenerate(case_)
+		setIsGenerateModalOpen(true)
 	}
 
 	const filteredAndSortedCases = useMemo(() => {
@@ -164,6 +182,7 @@ const CasesTable: React.FC<CasesTableProps> = ({
 	// Mobile Card Component
 	const CaseCard = ({ case_ }: { case_: MedicalRecord }) => {
 		const ageDisplay = case_.date_of_birth ? getAgeDisplay(case_.date_of_birth) : ''
+		const isBiopsyCase = case_.exam_type?.toLowerCase() === 'biopsia'
 
 		return (
 			<div className="bg-white dark:bg-background rounded-lg p-4 border border-gray-200 dark:border-gray-700 hover:shadow-md transition-all">
@@ -243,8 +262,9 @@ const CasesTable: React.FC<CasesTableProps> = ({
 						Ver
 					</button>
 					<button
-						onClick={() => onCaseSelect(case_)}
+						onClick={() => handleGenerateCase(case_)}
 						className="flex-1 inline-flex items-center justify-center gap-1 px-3 py-2 text-xs font-medium text-green-600 dark:text-green-400 hover:text-green-800 dark:hover:text-green-300 bg-green-50 dark:bg-green-900/20 hover:bg-green-100 dark:hover:bg-green-900/30 rounded-lg transition-colors"
+						disabled={!isBiopsyCase}
 					>
 						<FileText className="w-3 h-3" />
 						Generar
@@ -502,6 +522,7 @@ const CasesTable: React.FC<CasesTableProps> = ({
 							<tbody className="divide-y divide-gray-200 dark:divide-gray-700">
 								{filteredAndSortedCases.map((case_) => {
 									const ageDisplay = case_.date_of_birth ? getAgeDisplay(case_.date_of_birth) : ''
+									const isBiopsyCase = case_.exam_type?.toLowerCase() === 'biopsia'
 
 									return (
 										<tr key={case_.id} className="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
@@ -572,9 +593,10 @@ const CasesTable: React.FC<CasesTableProps> = ({
 													<button
 														onClick={(e) => {
 															e.stopPropagation()
-															onCaseSelect(case_)
+															handleGenerateCase(case_)
 														}}
 														className="inline-flex items-center gap-1 px-3 py-1 text-xs font-medium text-green-600 dark:text-green-400 hover:text-green-800 dark:hover:text-green-300 transition-colors"
+														disabled={!isBiopsyCase}
 													>
 														<FileText className="w-3 h-3" />
 														Generar
@@ -804,6 +826,7 @@ const CasesTable: React.FC<CasesTableProps> = ({
 									<tbody className="divide-y divide-gray-200 dark:divide-gray-700">
 										{filteredAndSortedCases.map((case_) => {
 											const ageDisplay = case_.date_of_birth ? getAgeDisplay(case_.date_of_birth) : ''
+											const isBiopsyCase = case_.exam_type?.toLowerCase() === 'biopsia'
 
 											return (
 												<tr key={case_.id} className="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
@@ -874,9 +897,10 @@ const CasesTable: React.FC<CasesTableProps> = ({
 															<button
 																onClick={(e) => {
 																	e.stopPropagation()
-																	onCaseSelect(case_)
+																	handleGenerateCase(case_)
 																}}
 																className="inline-flex items-center gap-1 px-3 py-1 text-xs font-medium text-green-600 dark:text-green-400 hover:text-green-800 dark:hover:text-green-300 transition-colors"
+																disabled={!isBiopsyCase}
 															>
 																<FileText className="w-3 h-3" />
 																Generar
@@ -903,6 +927,19 @@ const CasesTable: React.FC<CasesTableProps> = ({
 					</div>
 				</div>
 			</Card>
+
+			{/* Generate Biopsy Modal */}
+			<GenerateBiopsyModal
+				case_={selectedCaseForGenerate}
+				isOpen={isGenerateModalOpen}
+				onClose={() => {
+					setIsGenerateModalOpen(false);
+					setSelectedCaseForGenerate(null);
+				}}
+				onSuccess={() => {
+					refetch();
+				}}
+			/>
 		</>
 	)
 }
