@@ -387,6 +387,7 @@ const CasesTable: React.FC<CasesTableProps> = ({
 					'VALLES DEL TUY: Edificio Multioficinas Conex / CARACAS: Policlínica Méndez Gimón – Clínica Sanatrix – Torre Centro Caracas / MARACAY: Centro Profesional Plaza',
 					14,
 					doc.internal.pageSize.getHeight() - 25
+          { align: 'center' }
 				)
 				
 				// Third line - contact info
