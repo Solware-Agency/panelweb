@@ -32,6 +32,8 @@ import GenerateBiopsyModal from './GenerateBiopsyModal'
 import { jsPDF } from 'jspdf'
 import 'jspdf-autotable'
 import logoBase64 from '@assets/img/logo_conspat_base64.txt?raw'
+import html2canvas from 'html2canvas'
+import html2pdf from 'html2pdf.js'
 
 interface CasesTableProps {
 	onCaseSelect: (case_: MedicalRecord) => void
@@ -67,6 +69,7 @@ const CasesTable: React.FC<CasesTableProps> = ({
 	const [selectedCaseForGenerate, setSelectedCaseForGenerate] = useState<MedicalRecord | null>(null)
 	const [isGenerateModalOpen, setIsGenerateModalOpen] = useState(false)
 	const [isDownloading, setIsDownloading] = useState<string | null>(null)
+	const [pdfContentRef] = useState(React.createRef<HTMLDivElement>())
 
 	const getStatusColor = (status: string) => {
 		switch (status) {
@@ -107,6 +110,120 @@ const CasesTable: React.FC<CasesTableProps> = ({
 		setIsGenerateModalOpen(true)
 	}
 
+	// New function to create PDF content element
+	const createPdfContent = (case_: MedicalRecord) => {
+		// Create a hidden div to render the PDF content
+		const pdfContent = document.createElement('div')
+		pdfContent.style.width = '800px'
+		pdfContent.style.padding = '40px'
+		pdfContent.style.fontFamily = 'Arial, sans-serif'
+		pdfContent.style.position = 'absolute'
+		pdfContent.style.left = '-9999px'
+		pdfContent.style.backgroundColor = 'white'
+		
+		// Clean the base64 string by removing all whitespace
+		const cleanedBase64 = logoBase64.replace(/\s/g, '')
+		const fullDataUrl = `data:image/png;base64,${cleanedBase64}`
+		
+		// Create the content HTML
+		pdfContent.innerHTML = `
+			<div style="text-align: center; margin-bottom: 20px;">
+				<img src="${fullDataUrl}" style="max-width: 300px; max-height: 100px;" />
+				<h1 style="font-size: 24px; margin-top: 20px; color: #333;">INFORME DE BIOPSIA</h1>
+			</div>
+			
+			<div style="margin-bottom: 30px;">
+				<h2 style="font-size: 18px; margin-bottom: 10px; color: #444;">Información del Paciente</h2>
+				<table style="width: 100%; border-collapse: collapse;">
+					<tr>
+						<td style="padding: 5px; font-weight: bold; width: 150px;">Nombre:</td>
+						<td style="padding: 5px;">${case_.full_name}</td>
+					</tr>
+					<tr>
+						<td style="padding: 5px; font-weight: bold;">Cédula:</td>
+						<td style="padding: 5px;">${case_.id_number}</td>
+					</tr>
+					<tr>
+						<td style="padding: 5px; font-weight: bold;">Fecha de Nacimiento:</td>
+						<td style="padding: 5px;">${case_.date_of_birth ? format(parseISO(case_.date_of_birth), 'dd/MM/yyyy', { locale: es }) : 'N/A'}</td>
+					</tr>
+					<tr>
+						<td style="padding: 5px; font-weight: bold;">Edad:</td>
+						<td style="padding: 5px;">${case_.date_of_birth ? getAgeDisplay(case_.date_of_birth) : 'N/A'}</td>
+					</tr>
+					<tr>
+						<td style="padding: 5px; font-weight: bold;">Teléfono:</td>
+						<td style="padding: 5px;">${case_.phone}</td>
+					</tr>
+					<tr>
+						<td style="padding: 5px; font-weight: bold;">Email:</td>
+						<td style="padding: 5px;">${case_.email || 'N/A'}</td>
+					</tr>
+				</table>
+			</div>
+			
+			<div style="margin-bottom: 30px;">
+				<h2 style="font-size: 18px; margin-bottom: 10px; color: #444;">Información del Caso</h2>
+				<table style="width: 100%; border-collapse: collapse;">
+					<tr>
+						<td style="padding: 5px; font-weight: bold; width: 150px;">Código:</td>
+						<td style="padding: 5px;">${case_.code || 'N/A'}</td>
+					</tr>
+					<tr>
+						<td style="padding: 5px; font-weight: bold;">Fecha:</td>
+						<td style="padding: 5px;">${format(new Date(case_.date), 'dd/MM/yyyy', { locale: es })}</td>
+					</tr>
+					<tr>
+						<td style="padding: 5px; font-weight: bold;">Tipo de Examen:</td>
+						<td style="padding: 5px;">${case_.exam_type}</td>
+					</tr>
+					<tr>
+						<td style="padding: 5px; font-weight: bold;">Médico Tratante:</td>
+						<td style="padding: 5px;">${case_.treating_doctor}</td>
+					</tr>
+					<tr>
+						<td style="padding: 5px; font-weight: bold;">Procedencia:</td>
+						<td style="padding: 5px;">${case_.origin}</td>
+					</tr>
+					<tr>
+						<td style="padding: 5px; font-weight: bold;">Sede:</td>
+						<td style="padding: 5px;">${case_.branch}</td>
+					</tr>
+				</table>
+			</div>
+			
+			<div style="margin-bottom: 20px;">
+				<h2 style="font-size: 18px; margin-bottom: 10px; color: #444;">Informe de Biopsia</h2>
+				
+				<h3 style="font-size: 16px; margin-top: 15px; margin-bottom: 5px; color: #555;">Material Remitido:</h3>
+				<p style="margin: 0 0 15px 0; line-height: 1.5;">${case_.material_remitido || 'N/A'}</p>
+				
+				<h3 style="font-size: 16px; margin-top: 15px; margin-bottom: 5px; color: #555;">Información Clínica:</h3>
+				<p style="margin: 0 0 15px 0; line-height: 1.5;">${case_.informacion_clinica || 'N/A'}</p>
+				
+				<h3 style="font-size: 16px; margin-top: 15px; margin-bottom: 5px; color: #555;">Descripción Macroscópica:</h3>
+				<p style="margin: 0 0 15px 0; line-height: 1.5;">${case_.descripcion_macroscopica || 'N/A'}</p>
+				
+				<h3 style="font-size: 16px; margin-top: 15px; margin-bottom: 5px; color: #555;">Diagnóstico:</h3>
+				<p style="margin: 0 0 15px 0; line-height: 1.5;">${case_.diagnostico || 'N/A'}</p>
+				
+				${case_.comentario ? `
+					<h3 style="font-size: 16px; margin-top: 15px; margin-bottom: 5px; color: #555;">Comentario:</h3>
+					<p style="margin: 0 0 15px 0; line-height: 1.5;">${case_.comentario}</p>
+				` : ''}
+			</div>
+			
+			<div style="margin-top: 40px; font-size: 10px; color: #666; border-top: 1px solid #ddd; padding-top: 10px;">
+				<p style="margin: 0 0 5px 0;">DIRECCIÓN:</p>
+				<p style="margin: 0 0 5px 0;">VALLES DEL TUY: Edificio Multioficinas Conex / CARACAS: Policlínica Méndez Gimón – Clínica Sanatrix – Torre Centro Caracas / MARACAY: Centro Profesional Plaza</p>
+				<p style="margin: 0 0 5px 0;">CONTACTO: (0212) 889822 / (0414) 4861289 / (0424) 1425562</p>
+				<p style="margin: 0 0 5px 0;">Resultados@conspat.com</p>
+			</div>
+		`
+		
+		return pdfContent
+	}
+
 	const handleDownloadCase = async (case_: MedicalRecord) => {
 		// Check if this case has a diagnosis
 		if (!case_.diagnostico) {
@@ -120,258 +237,33 @@ const CasesTable: React.FC<CasesTableProps> = ({
 
 		setIsDownloading(case_.id)
 		try {
-			// Create a new PDF document
-			const doc = new jsPDF()
+			// Create the PDF content element
+			const pdfContent = createPdfContent(case_)
+			document.body.appendChild(pdfContent)
 			
-			// Clean the base64 string by removing all whitespace
-			const cleanedBase64 = logoBase64.replace(/\s/g, '')
-			const fullDataUrl = `data:image/png;base64,${cleanedBase64}`
-			
-			try {
-				// Add the logo to the PDF
-				doc.addImage(fullDataUrl, 'PNG', 70, 10, 70, 25)
-			} catch (error) {
-				console.error('Error adding logo to PDF:', error)
-				// Continue with PDF generation even if logo fails
+			// Generate PDF using html2pdf with proper options
+			const options = {
+				margin: [10, 10, 10, 10],
+				filename: `biopsia_${case_.code || case_.id}_${case_.full_name.replace(/\s+/g, '_')}.pdf`,
+				image: { type: 'jpeg', quality: 0.98 },
+				html2canvas: { 
+					scale: 2, // Higher scale for better quality
+					useCORS: true, // Enable CORS for external images
+					logging: false, // Disable logging
+					letterRendering: true
+				},
+				jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
 			}
 			
-			// Add header
-			doc.setFontSize(18)
-			doc.setTextColor(33, 33, 33)
-			doc.text('INFORME DE BIOPSIA', 105, 45, { align: 'center' })
+			// Generate and download the PDF
+			await html2pdf().from(pdfContent).set(options).save()
 			
-			// Add patient information
-			doc.setFontSize(14)
-			doc.setFont('helvetica', 'bold')
-			doc.text('Información del Paciente', 14, 55)
-			doc.setFont('helvetica', 'normal')
-			doc.setFontSize(10)
-			
-			// Create a table for patient info
-			const patientData = [
-				['Nombre:', case_.full_name],
-				['Cédula:', case_.id_number],
-				['Fecha de Nacimiento:', case_.date_of_birth ? format(parseISO(case_.date_of_birth), 'dd/MM/yyyy', { locale: es }) : 'N/A'],
-				['Edad:', case_.date_of_birth ? getAgeDisplay(case_.date_of_birth) : 'N/A'],
-				['Teléfono:', case_.phone],
-				['Email:', case_.email || 'N/A'],
-			]
-			
-			doc.autoTable({
-				startY: 60,
-				head: [],
-				body: patientData,
-				theme: 'plain',
-				styles: {
-					cellPadding: 2,
-					fontSize: 10,
-				},
-				columnStyles: {
-					0: { cellWidth: 40, fontStyle: 'bold' },
-					1: { cellWidth: 100 },
-				},
-			})
-			
-			// Add case details
-			doc.setFontSize(14)
-			doc.setFont('helvetica', 'bold')
-			doc.text('Información del Caso', 14, doc.autoTable.previous.finalY + 10)
-			doc.setFont('helvetica', 'normal')
-			doc.setFontSize(10)
-			
-			// Create a table for case info
-			const caseData = [
-				['Código:', case_.code || 'N/A'],
-				['Fecha:', format(new Date(case_.date), 'dd/MM/yyyy', { locale: es })],
-				['Tipo de Examen:', case_.exam_type],
-				['Médico Tratante:', case_.treating_doctor],
-				['Procedencia:', case_.origin],
-				['Sede:', case_.branch],
-			]
-			
-			doc.autoTable({
-				startY: doc.autoTable.previous.finalY + 15,
-				head: [],
-				body: caseData,
-				theme: 'plain',
-				styles: {
-					cellPadding: 2,
-					fontSize: 10,
-				},
-				columnStyles: {
-					0: { cellWidth: 40, fontStyle: 'bold' },
-					1: { cellWidth: 100 },
-				},
-			})
-			
-			// Add biopsy information
-			doc.setFontSize(14)
-			doc.setFont('helvetica', 'bold')
-			doc.text('Informe de Biopsia', 14, doc.autoTable.previous.finalY + 10)
-			doc.setFont('helvetica', 'normal')
-			doc.setFontSize(10)
-			
-			// Material Remitido
-			doc.setFontSize(12)
-			doc.setFont('helvetica', 'bold')
-			doc.text('Material Remitido:', 14, doc.autoTable.previous.finalY + 15)
-			doc.setFont('helvetica', 'normal')
-			doc.setFontSize(10)
-			
-			const splitMaterial = doc.splitTextToSize(case_.material_remitido || 'N/A', 180)
-			doc.text(splitMaterial, 14, doc.autoTable.previous.finalY + 20)
-			
-			// Información Clínica
-			doc.setFontSize(12)
-			doc.setFont('helvetica', 'bold')
-			doc.text('Información Clínica:', 14, doc.getTextDimensions(splitMaterial).h + doc.autoTable.previous.finalY + 25)
-			doc.setFont('helvetica', 'normal')
-			doc.setFontSize(10)
-			
-			const splitClinica = doc.splitTextToSize(case_.informacion_clinica || 'N/A', 180)
-			doc.text(splitClinica, 14, doc.getTextDimensions(splitMaterial).h + doc.autoTable.previous.finalY + 30)
-			
-			// Descripción Macroscópica
-			const clinicaY = doc.getTextDimensions(splitClinica).h + doc.getTextDimensions(splitMaterial).h + doc.autoTable.previous.finalY + 35
-			
-			// Check if we need a new page
-			if (clinicaY > 250) {
-				doc.addPage()
-				doc.setFontSize(12)
-				doc.setFont('helvetica', 'bold')
-				doc.text('Descripción Macroscópica:', 14, 20)
-				doc.setFont('helvetica', 'normal')
-				doc.setFontSize(10)
-				
-				const splitMacro = doc.splitTextToSize(case_.descripcion_macroscopica || 'N/A', 180)
-				doc.text(splitMacro, 14, 25)
-				
-				// Diagnóstico
-				doc.setFontSize(12)
-				doc.setFont('helvetica', 'bold')
-				doc.text('Diagnóstico:', 14, doc.getTextDimensions(splitMacro).h + 30)
-				doc.setFont('helvetica', 'normal')
-				doc.setFontSize(10)
-				
-				const splitDiag = doc.splitTextToSize(case_.diagnostico || 'N/A', 180)
-				doc.text(splitDiag, 14, doc.getTextDimensions(splitMacro).h + 35)
-				
-				// Comentario (if exists)
-				if (case_.comentario) {
-					const diagY = doc.getTextDimensions(splitDiag).h + doc.getTextDimensions(splitMacro).h + 40
-					
-					doc.setFontSize(12)
-					doc.setFont('helvetica', 'bold')
-					doc.text('Comentario:', 14, diagY)
-					doc.setFont('helvetica', 'normal')
-					doc.setFontSize(10)
-					
-					const splitComment = doc.splitTextToSize(case_.comentario, 180)
-					doc.text(splitComment, 14, diagY + 5)
-				}
-			} else {
-				doc.setFontSize(12)
-				doc.setFont('helvetica', 'bold')
-				doc.text('Descripción Macroscópica:', 14, clinicaY)
-				doc.setFont('helvetica', 'normal')
-				doc.setFontSize(10)
-				
-				const splitMacro = doc.splitTextToSize(case_.descripcion_macroscopica || 'N/A', 180)
-				doc.text(splitMacro, 14, clinicaY + 5)
-				
-				// Diagnóstico
-				const macroY = doc.getTextDimensions(splitMacro).h + clinicaY + 10
-				
-				doc.setFontSize(12)
-				doc.setFont('helvetica', 'bold')
-				doc.text('Diagnóstico:', 14, macroY)
-				doc.setFont('helvetica', 'normal')
-				doc.setFontSize(10)
-				
-				const splitDiag = doc.splitTextToSize(case_.diagnostico || 'N/A', 180)
-				doc.text(splitDiag, 14, macroY + 5)
-				
-				// Comentario (if exists)
-				if (case_.comentario) {
-					const diagY = doc.getTextDimensions(splitDiag).h + macroY + 10
-					
-					// Check if we need a new page
-					if (diagY > 250) {
-						doc.addPage()
-						doc.setFontSize(12)
-						doc.setFont('helvetica', 'bold')
-						doc.text('Comentario:', 14, 20)
-						doc.setFont('helvetica', 'normal')
-						doc.setFontSize(10)
-						
-						const splitComment = doc.splitTextToSize(case_.comentario, 180)
-						doc.text(splitComment, 14, 25)
-					} else {
-						doc.setFontSize(12)
-						doc.setFont('helvetica', 'bold')
-						doc.text('Comentario:', 14, diagY)
-						doc.setFont('helvetica', 'normal')
-						doc.setFontSize(10)
-						
-						const splitComment = doc.splitTextToSize(case_.comentario, 180)
-						doc.text(splitComment, 14, diagY + 5)
-					}
-				}
-			}
-			
-			// Add footer
-			const pageCount = doc.getNumberOfPages()
-			for (let i = 1; i <= pageCount; i++) {
-				doc.setPage(i)
-				
-				// Add the custom footer text
-				doc.setFontSize(8)
-				doc.setTextColor(100, 100, 100)
-				
-				// First line of footer
-				doc.text(
-					'DIRECCIÓN:',
-					14,
-					doc.internal.pageSize.getHeight() - 30
-				)
-				
-				// Second line - addresses
-				doc.text(
-					'VALLES DEL TUY: Edificio Multioficinas Conex / CARACAS: Policlínica Méndez Gimón – Clínica Sanatrix – Torre Centro Caracas / MARACAY: Centro Profesional Plaza',
-					14,
-					doc.internal.pageSize.getHeight() - 25
-				)
-				
-				// Third line - contact info
-				doc.text(
-					'CONTACTO: (0212) 889822 / (0414) 4861289 / (0424) 1425562',
-					14,
-					doc.internal.pageSize.getHeight() - 20
-				)
-				
-				// Fourth line - email
-				doc.text(
-					'Resultados@conspat.com',
-					14,
-					doc.internal.pageSize.getHeight() - 15
-				)
-				
-				// Page number and generation date at the bottom
-				doc.text(
-					`Página ${i} de ${pageCount} - Generado el ${format(new Date(), 'dd/MM/yyyy HH:mm', { locale: es })}`,
-					doc.internal.pageSize.getWidth() / 2,
-					doc.internal.pageSize.getHeight() - 10,
-					{ align: 'center' }
-				)
-			}
-			
-			// Save the PDF
-			const fileName = `biopsia_${case_.code || case_.id}_${case_.full_name.replace(/\s+/g, '_')}.pdf`
-			doc.save(fileName)
+			// Remove the temporary element
+			document.body.removeChild(pdfContent)
 			
 			toast({
 				title: '✅ PDF generado exitosamente',
-				description: `El informe ha sido descargado como ${fileName}`,
+				description: `El informe ha sido descargado correctamente.`,
 				className: 'bg-green-100 border-green-400 text-green-800',
 			})
 		} catch (error) {
@@ -1288,6 +1180,11 @@ const CasesTable: React.FC<CasesTableProps> = ({
 					refetch();
 				}}
 			/>
+			
+			{/* Hidden div for PDF content */}
+			<div style={{ display: 'none' }}>
+				<div ref={pdfContentRef} id="pdf-content"></div>
+			</div>
 		</>
 	)
 }
