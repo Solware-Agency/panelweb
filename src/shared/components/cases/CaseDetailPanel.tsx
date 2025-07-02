@@ -1,5 +1,5 @@
 import React from 'react'
-import { X, User, Stethoscope, CreditCard, FileText, CheckCircle, Hash, Cake, UserCheck, FileText as FileText2 } from 'lucide-react'
+import { X, User, Stethoscope, CreditCard, FileText, CheckCircle, Hash, Cake, UserCheck } from 'lucide-react'
 import { motion, AnimatePresence } from 'motion/react'
 import type { MedicalRecord } from '@lib/supabase-service'
 import { getAgeDisplay } from '@lib/supabase-service'
@@ -118,9 +118,6 @@ const CaseDetailPanel: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClos
 		const bolivares = ['Punto de venta', 'Pago móvil', 'Bs en efectivo']
 		return bolivares.includes(method) ? 'Bs' : '$'
 	}
-
-	// Check if this is a biopsy case
-	const isBiopsyCase = case_.exam_type?.toLowerCase() === 'biopsia'
 
 	return (
 		<>
@@ -255,44 +252,6 @@ const CaseDetailPanel: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClos
 										<InfoRow label="Fecha de registro" value={new Date(case_.date || '').toLocaleDateString('es-ES')} />
 									</div>
 								</InfoSection>
-
-								{/* Biopsy Case Information - Only show if it's a biopsy and has data */}
-								{isBiopsyCase && (case_.material_remitido || case_.informacion_clinica || case_.descripcion_macroscopica || case_.diagnostico) && (
-									<InfoSection title="Información del Caso de Biopsia" icon={FileText2}>
-										<div className="space-y-1">
-											{case_.material_remitido && (
-												<div className="py-2 border-b border-gray-200 dark:border-gray-700">
-													<span className="text-sm font-medium text-gray-600 dark:text-gray-400">Material Remitido:</span>
-													<p className="text-sm text-gray-900 dark:text-gray-100 mt-1 whitespace-pre-line">{case_.material_remitido}</p>
-												</div>
-											)}
-											{case_.informacion_clinica && (
-												<div className="py-2 border-b border-gray-200 dark:border-gray-700">
-													<span className="text-sm font-medium text-gray-600 dark:text-gray-400">Información Clínica:</span>
-													<p className="text-sm text-gray-900 dark:text-gray-100 mt-1 whitespace-pre-line">{case_.informacion_clinica}</p>
-												</div>
-											)}
-											{case_.descripcion_macroscopica && (
-												<div className="py-2 border-b border-gray-200 dark:border-gray-700">
-													<span className="text-sm font-medium text-gray-600 dark:text-gray-400">Descripción Macroscópica:</span>
-													<p className="text-sm text-gray-900 dark:text-gray-100 mt-1 whitespace-pre-line">{case_.descripcion_macroscopica}</p>
-												</div>
-											)}
-											{case_.diagnostico && (
-												<div className="py-2 border-b border-gray-200 dark:border-gray-700">
-													<span className="text-sm font-medium text-gray-600 dark:text-gray-400">Diagnóstico:</span>
-													<p className="text-sm text-gray-900 dark:text-gray-100 mt-1 whitespace-pre-line">{case_.diagnostico}</p>
-												</div>
-											)}
-											{case_.comentario && (
-												<div className="py-2">
-													<span className="text-sm font-medium text-gray-600 dark:text-gray-400">Comentario:</span>
-													<p className="text-sm text-gray-900 dark:text-gray-100 mt-1 whitespace-pre-line">{case_.comentario}</p>
-												</div>
-											)}
-										</div>
-									</InfoSection>
-								)}
 
 								{/* Financial Information */}
 								<InfoSection title="Información Financiera" icon={CreditCard}>

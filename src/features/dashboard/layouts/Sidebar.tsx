@@ -11,7 +11,6 @@ import {
 	Clock,
 	Users,
 	Settings,
-	Stethoscope,
 	ShieldCheck,
 } from 'lucide-react'
 import { NavLink, useNavigate } from 'react-router-dom'
@@ -105,28 +104,6 @@ const Sidebar: React.FC<SidebarProps> = ({
 									}`}
 								>
 									Registros
-								</p>
-							</div>
-						</NavLink>
-
-						<NavLink
-							to="/cases-selection"
-							className={({ isActive }) =>
-								`flex justify-between items-center gap-3 cursor-pointer transition w-full ${
-									isActive ? 'text-primary border-primary' : 'hover:text-primary'
-								}`
-							}
-							onClick={onClose}
-							title={!showFullContent ? 'Casos Generados' : undefined}
-						>
-							<div className="flex gap-3 items-center min-w-0">
-								<Stethoscope className="stroke-2 size-5 shrink-0" />
-								<p
-									className={`text-md whitespace-nowrap transition-all duration-300 ${
-										showFullContent ? 'opacity-100 w-auto' : 'opacity-0 w-0 overflow-hidden'
-									}`}
-								>
-									Casos Generados
 								</p>
 							</div>
 						</NavLink>

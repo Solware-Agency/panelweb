@@ -16,10 +16,8 @@ import ReportsPage from '@features/dashboard/reports/ReportsPage'
 import UsersPage from '@features/dashboard/users/UsersPage'
 import CasesPage from '@features/dashboard/cases/CasesPage'
 import SettingsPage from '@features/dashboard/settings/SettingsPage'
-import GenerateCasePage from '@features/dashboard/cases/GenerateCasePage'
 import Form from '@features/form/pages/Form'
 import FormRoute from '@app/routes/FormRoute'
-import CaseSelectionPage from '@features/form/pages/CaseSelectionPage'
 
 // Create a client instance
 const queryClient = new QueryClient()
@@ -54,26 +52,6 @@ function App() {
 								<FormRoute>
 									<Form />
 								</FormRoute>
-							}
-						/>
-
-						{/* Case Selection Page - accessible by owners, doctors and employees */}
-						<Route
-							path="/cases-selection"
-							element={
-								<PrivateRoute requiredRole={undefined}>
-									<CaseSelectionPage />
-								</PrivateRoute>
-							}
-						/>
-
-						{/* Generate Case Page - accessible by owners, doctors and employees */}
-						<Route
-							path="/generar-caso/:id"
-							element={
-								<PrivateRoute requiredRole={undefined}>
-									<GenerateCasePage />
-								</PrivateRoute>
 							}
 						/>
 

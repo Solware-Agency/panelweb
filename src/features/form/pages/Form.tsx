@@ -14,7 +14,6 @@ import { signOut } from '@lib/supabase/auth'
 import { getMedicalRecords } from '@lib/supabase-service'
 import { RefreshCw, Maximize2 } from 'lucide-react'
 import { useUserProfile } from '@shared/hooks/useUserProfile'
-import GenerateCaseButton from '@features/form/components/GenerateCaseButton'
 import { DoctorsSection } from '@features/form/components/DoctorsSection'
 
 function FormContent() {
@@ -101,7 +100,6 @@ function FormContent() {
 						<TabsList className="mb-6">
 							<TabsTrigger value="form">Formulario</TabsTrigger>
 							<TabsTrigger value="records">Registros</TabsTrigger>
-							<GenerateCaseButton />
 							<TabsTrigger value="doctors">Médicos</TabsTrigger>
 							<TabsTrigger value="settings">Ajustes</TabsTrigger>
 						</TabsList>
