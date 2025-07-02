@@ -28,7 +28,7 @@ const getInitialFormValues = (): FormValues => ({
 	relationship: '',
 	branch: '',
 	registrationDate: new Date(),
-	totalAmount: 0,
+	totalAmount: 0.01, // Changed from 0 to 0.01 to comply with database constraint
 	payments: [],
 	comments: '',
 })
@@ -92,6 +92,24 @@ export function MedicalFormContainer() {
 					toast({
 						title: '❌ Tabla no encontrada',
 						description: 'La tabla de registros médicos no existe. Contacta al administrador del sistema.',
+						variant: 'destructive',
+					})
+				} else if (error.code === 'TOTAL_AMOUNT_CONSTRAINT') {
+					toast({
+						title: '❌ Error en el monto total',
+						description: error.message,
+						variant: 'destructive',
+					})
+				} else if (error.code === 'VALIDATION_ERROR') {
+					toast({
+						title: '❌ Error de validación',
+						description: 'Verifica que todos los campos cumplan las restricciones. El monto total debe ser mayor a cero.',
+						variant: 'destructive',
+					})
+				} else if (error.code === 'NETWORK_ERROR') {
+					toast({
+						title: '❌ Error de conexión',
+						description: 'Verifica tu conexión a internet e inténtalo de nuevo.',
 						variant: 'destructive',
 					})
 				} else {

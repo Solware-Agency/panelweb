@@ -56,7 +56,7 @@ export const formSchema = z.object({
 	branch: z.string().min(1, 'La sede es requerida'),
 	totalAmount: z.coerce
 		.number({ invalid_type_error: 'El monto total es requerido' })
-		.min(0, 'El monto total debe ser 0 o positivo'),
+		.min(0.01, 'El monto total debe ser mayor a cero'),
 	payments: z
 		.array(paymentSchema)
 		.optional()

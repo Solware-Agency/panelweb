@@ -143,6 +143,12 @@ export const insertMedicalRecord = async (
 		const submissionData = prepareSubmissionData(formData, exchangeRate)
 		console.log(`📋 Datos preparados para ${TABLE_NAME}:`, submissionData)
 
+		// Ensure total_amount is at least 0.01 to comply with database constraint
+		if (submissionData.total_amount <= 0) {
+			submissionData.total_amount = 0.01
+			console.log('⚠️ Total amount was 0 or negative, adjusted to 0.01 to comply with database constraint')
+		}
+
 		// Generar el código único ANTES de la inserción
 		console.log('🔢 Generando código único...')
 		const newCode = await generateMedicalRecordCode(
@@ -239,6 +245,18 @@ export const insertMedicalRecord = async (
 			}
 
 			if (error.code === '23514') {
+				// Check if it's specifically the total_amount constraint
+				if (error.message.includes('medical_records_clean_total_amount_check')) {
+					return {
+						data: null,
+						error: {
+							message: 'Error: El monto total debe ser mayor a cero. Por favor ingresa un valor válido.',
+							code: 'TOTAL_AMOUNT_CONSTRAINT',
+							details: error,
+						},
+					}
+				}
+				
 				return {
 					data: null,
 					error: {
