@@ -73,15 +73,6 @@ const Sidebar: React.FC<SidebarProps> = ({
 					)}
 				</div>
 
-				{/* Welcome message with display name */}
-				{profile?.display_name && (
-					<div className={`text-sm text-primary font-medium mb-2 transition-all duration-300 ${
-						showFullContent ? 'opacity-100 w-auto' : 'opacity-0 w-0 overflow-hidden'
-					}`}>
-						Bienvenido, {profile.display_name}
-					</div>
-				)}
-
 				{/* Show different menu items based on role */}
 				{isAdmin ? (
 					// Admin menu items
