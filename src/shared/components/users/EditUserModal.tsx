@@ -55,7 +55,7 @@ const EditUserModal: React.FC<EditUserModalProps> = ({ user, isOpen, onClose, on
 
 			toast({
 				title: '✅ Rol actualizado',
-				description: `El rol de ${user.email} ha sido cambiado a ${selectedRole === 'owner' ? 'Propietario' : 'Empleado'}.`,
+				description: `El rol de ${user.email} ha sido cambiado a ${selectedRole === 'owner' ? 'Propietario' : 'Recepcionista'}.`,
 				className: 'bg-green-100 border-green-400 text-green-800',
 			})
 
@@ -142,7 +142,7 @@ const EditUserModal: React.FC<EditUserModalProps> = ({ user, isOpen, onClose, on
 									<div className={`inline-flex items-center gap-2 px-3 py-2 rounded-lg ${getRoleColor(user.role)}`}>
 										{getRoleIcon(user.role)}
 										<span className="font-medium">
-											{user.role === 'owner' ? 'Propietario' : 'Empleado'}
+											{user.role === 'owner' ? 'Propietario' : 'Recepcionista'}
 										</span>
 									</div>
 								</div>
@@ -166,7 +166,7 @@ const EditUserModal: React.FC<EditUserModalProps> = ({ user, isOpen, onClose, on
 											<SelectItem value="employee">
 												<div className="flex items-center gap-2">
 													<Briefcase className="w-4 h-4 text-blue-600 dark:text-blue-400" />
-													<span>Empleado</span>
+													<span>Recepcionista</span>
 												</div>
 											</SelectItem>
 										</SelectContent>
@@ -188,7 +188,7 @@ const EditUserModal: React.FC<EditUserModalProps> = ({ user, isOpen, onClose, on
 									<div className="p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
 										<div className="flex items-center gap-2 mb-1">
 											<Briefcase className="w-4 h-4 text-blue-600 dark:text-blue-400" />
-											<span className="font-medium text-blue-800 dark:text-blue-300">Empleado</span>
+											<span className="font-medium text-blue-800 dark:text-blue-300">Recepcionista</span>
 										</div>
 										<p className="text-xs text-blue-700 dark:text-blue-400">
 											Acceso al formulario de registro de casos médicos y visualización de registros.
@@ -238,11 +238,11 @@ const EditUserModal: React.FC<EditUserModalProps> = ({ user, isOpen, onClose, on
 											<p className="text-gray-600 dark:text-gray-400 mb-4">
 												¿Estás seguro de que quieres cambiar el rol de <strong>{user.email}</strong> de{' '}
 												<span className="font-medium">
-													{user.role === 'owner' ? 'Propietario' : 'Empleado'}
+													{user.role === 'owner' ? 'Propietario' : 'Recepcionista'}
 												</span>{' '}
 												a{' '}
 												<span className="font-medium">
-													{selectedRole === 'owner' ? 'Propietario' : 'Empleado'}
+													{selectedRole === 'owner' ? 'Propietario' : 'Recepcionista'}
 												</span>?
 											</p>
 
