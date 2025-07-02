@@ -5,25 +5,23 @@ import {
 	Search,
 	Filter,
 	Eye,
+	Edit,
 	Calendar,
 	User,
 	Stethoscope,
 	CreditCard,
-	FileText,
-	Download,
+	Trash2,
+	AlertCircle,
 } from 'lucide-react'
 import { type MedicalRecord, updateMedicalRecordWithLog, getAgeDisplay, deleteMedicalRecord } from '@lib/supabase-service'
-import { format, parseISO } from 'date-fns'
+import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
 import { useAuth } from '@app/providers/AuthContext'
+import EditCaseModal from './EditCaseModal'
 import { Card } from '@shared/components/ui/card'
 import { useToast } from '@shared/hooks/use-toast'
 import { useUserProfile } from '@shared/hooks/useUserProfile'
 import GenerateBiopsyModal from './GenerateBiopsyModal'
-import { jsPDF } from 'jspdf'
-import 'jspdf-autotable'
-// Import the logo
-import logoImage from '@assets/img/logo_conspat.png'
 
 interface CasesTableProps {
 	onCaseSelect: (case_: MedicalRecord) => void
@@ -57,9 +55,13 @@ const CasesTable: React.FC<CasesTableProps> = ({
 	const [sortField, setSortField] = useState<SortField>('created_at')
 	const [sortDirection, setSortDirection] = useState<SortDirection>('desc')
 	const [rowLimit, setRowLimit] = useState<number>(20)
-	const [selectedCaseForGenerate, setSelectedCaseForGenerate] = useState<MedicalRecord | null>(null)
-	const [isGenerateModalOpen, setIsGenerateModalOpen] = useState(false)
-	const [isDownloading, setIsDownloading] = useState<string | null>(null)
+	const [editingCase, setEditingCase] = useState<MedicalRecord | null>(null)
+	const [isEditModalOpen, setIsEditModalOpen] = useState(false)
+	const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
+	const [caseToDelete, setCaseToDelete] = useState<MedicalRecord | null>(null)
+	const [isDeleting, setIsDeleting] = useState(false)
+	const [biopsyCase, setBiopsyCase] = useState<MedicalRecord | null>(null)
+	const [isBiopsyModalOpen, setIsBiopsyModalOpen] = useState(false)
 
 	// Set branch filter to user's assigned branch if they have one
 	React.useEffect(() => {
@@ -92,345 +94,94 @@ const CasesTable: React.FC<CasesTableProps> = ({
 		}
 	}
 
-	const handleGenerateCase = (case_: MedicalRecord) => {
+	const handleEditCase = (case_: MedicalRecord) => {
+		setEditingCase(case_)
+		setIsEditModalOpen(true)
+	}
+
+	const handleDeleteCase = (case_: MedicalRecord) => {
+		setCaseToDelete(case_)
+		setIsDeleteModalOpen(true)
+	}
+	
+	const handleGenerateBiopsyCase = (case_: MedicalRecord) => {
 		// Check if this is a biopsy case
 		if (case_.exam_type?.toLowerCase() !== 'biopsia') {
 			toast({
 				title: '❌ Tipo de examen incorrecto',
-				description: 'La generación de casos solo está disponible para biopsias.',
+				description: 'Esta funcionalidad solo está disponible para casos de biopsia.',
 				variant: 'destructive',
 			})
 			return
 		}
 		
-		setSelectedCaseForGenerate(case_)
-		setIsGenerateModalOpen(true)
+		setBiopsyCase(case_)
+		setIsBiopsyModalOpen(true)
 	}
 
-	const handleDownloadCase = async (case_: MedicalRecord) => {
-		// Check if this case has a diagnosis
-		if (!case_.diagnostico) {
-			toast({
-				title: '❌ Sin diagnóstico',
-				description: 'Este caso no tiene un diagnóstico. Primero debe generar el caso.',
-				variant: 'destructive',
-			})
-			return
-		}
-
-		setIsDownloading(case_.id)
+	const confirmDelete = async () => {
+		if (!caseToDelete) return
+		
+		setIsDeleting(true)
 		try {
-			// Create a new PDF document
-			const doc = new jsPDF()
+			const { error } = await deleteMedicalRecord(caseToDelete.id!)
 			
-			// Get the number of pages that will be generated
-			let totalPages = doc.getNumberOfPages()
-			
-			// For each page, add the header with logo and title
-			for (let i = 1; i <= totalPages + 1; i++) { // +1 to ensure we handle any new pages that might be added
-				doc.setPage(i > totalPages ? totalPages : i)
-				
-				// Add logo at the top
-				doc.addImage(logoImage, 'PNG', 10, 10, 40, 20)
-				
-				// Add title
-				doc.setFontSize(18)
-				doc.setTextColor(33, 33, 33)
-				doc.text('INFORME DE BIOPSIA', 105, 20, { align: 'center' })
-				
-				// Add a separator line
-				doc.setDrawColor(200, 200, 200)
-				doc.line(10, 35, 200, 35)
+			if (error) {
+				throw error
 			}
-			
-			// Add case information
-			doc.setFontSize(12)
-			doc.setTextColor(33, 33, 33)
-			
-			// Add patient information
-			doc.setFontSize(14)
-			doc.setFont('helvetica', 'bold')
-			doc.text('Información del Paciente', 14, 45)
-			doc.setFont('helvetica', 'normal')
-			doc.setFontSize(10)
-			
-			// Create a table for patient info
-			const patientData = [
-				['Nombre:', case_.full_name],
-				['Cédula:', case_.id_number],
-				['Fecha de Nacimiento:', case_.date_of_birth ? format(parseISO(case_.date_of_birth), 'dd/MM/yyyy', { locale: es }) : 'N/A'],
-				['Edad:', case_.date_of_birth ? getAgeDisplay(case_.date_of_birth) : 'N/A'],
-				['Teléfono:', case_.phone],
-				['Email:', case_.email || 'N/A'],
-			]
-			
-			doc.autoTable({
-				startY: 50,
-				head: [],
-				body: patientData,
-				theme: 'plain',
-				styles: {
-					cellPadding: 2,
-					fontSize: 10,
-				},
-				columnStyles: {
-					0: { cellWidth: 40, fontStyle: 'bold' },
-					1: { cellWidth: 100 },
-				},
-			})
-			
-			// Add case details
-			doc.setFontSize(14)
-			doc.setFont('helvetica', 'bold')
-			doc.text('Información del Caso', 14, doc.autoTable.previous.finalY + 10)
-			doc.setFont('helvetica', 'normal')
-			doc.setFontSize(10)
-			
-			// Create a table for case info
-			const caseData = [
-				['Código:', case_.code || 'N/A'],
-				['Fecha:', format(new Date(case_.date), 'dd/MM/yyyy', { locale: es })],
-				['Tipo de Examen:', case_.exam_type],
-				['Médico Tratante:', case_.treating_doctor],
-				['Procedencia:', case_.origin],
-				['Sede:', case_.branch],
-			]
-			
-			doc.autoTable({
-				startY: doc.autoTable.previous.finalY + 15,
-				head: [],
-				body: caseData,
-				theme: 'plain',
-				styles: {
-					cellPadding: 2,
-					fontSize: 10,
-				},
-				columnStyles: {
-					0: { cellWidth: 40, fontStyle: 'bold' },
-					1: { cellWidth: 100 },
-				},
-			})
-			
-			// Add biopsy information
-			doc.setFontSize(14)
-			doc.setFont('helvetica', 'bold')
-			doc.text('Informe de Biopsia', 14, doc.autoTable.previous.finalY + 10)
-			doc.setFont('helvetica', 'normal')
-			doc.setFontSize(10)
-			
-			// Material Remitido
-			doc.setFontSize(12)
-			doc.setFont('helvetica', 'bold')
-			doc.text('Material Remitido:', 14, doc.autoTable.previous.finalY + 15)
-			doc.setFont('helvetica', 'normal')
-			doc.setFontSize(10)
-			
-			const splitMaterial = doc.splitTextToSize(case_.material_remitido || 'N/A', 180)
-			doc.text(splitMaterial, 14, doc.autoTable.previous.finalY + 20)
-			
-			// Información Clínica
-			doc.setFontSize(12)
-			doc.setFont('helvetica', 'bold')
-			doc.text('Información Clínica:', 14, doc.getTextDimensions(splitMaterial).h + doc.autoTable.previous.finalY + 25)
-			doc.setFont('helvetica', 'normal')
-			doc.setFontSize(10)
-			
-			const splitClinica = doc.splitTextToSize(case_.informacion_clinica || 'N/A', 180)
-			doc.text(splitClinica, 14, doc.getTextDimensions(splitMaterial).h + doc.autoTable.previous.finalY + 30)
-			
-			// Descripción Macroscópica
-			const clinicaY = doc.getTextDimensions(splitClinica).h + doc.getTextDimensions(splitMaterial).h + doc.autoTable.previous.finalY + 35
-			
-			// Check if we need a new page
-			if (clinicaY > 250) {
-				doc.addPage()
-				
-				// Add logo and header to the new page
-				doc.addImage(logoImage, 'PNG', 10, 10, 40, 20)
-				doc.setFontSize(18)
-				doc.setTextColor(33, 33, 33)
-				doc.text('INFORME DE BIOPSIA', 105, 20, { align: 'center' })
-				doc.setDrawColor(200, 200, 200)
-				doc.line(10, 35, 200, 35)
-				
-				doc.setFontSize(12)
-				doc.setFont('helvetica', 'bold')
-				doc.text('Descripción Macroscópica:', 14, 45)
-				doc.setFont('helvetica', 'normal')
-				doc.setFontSize(10)
-				
-				const splitMacro = doc.splitTextToSize(case_.descripcion_macroscopica || 'N/A', 180)
-				doc.text(splitMacro, 14, 50)
-				
-				// Diagnóstico
-				doc.setFontSize(12)
-				doc.setFont('helvetica', 'bold')
-				doc.text('Diagnóstico:', 14, doc.getTextDimensions(splitMacro).h + 55)
-				doc.setFont('helvetica', 'normal')
-				doc.setFontSize(10)
-				
-				const splitDiag = doc.splitTextToSize(case_.diagnostico || 'N/A', 180)
-				doc.text(splitDiag, 14, doc.getTextDimensions(splitMacro).h + 60)
-				
-				// Comentario (if exists)
-				if (case_.comentario) {
-					const diagY = doc.getTextDimensions(splitDiag).h + doc.getTextDimensions(splitMacro).h + 65
-					
-					// Check if we need another new page
-					if (diagY > 250) {
-						doc.addPage()
-						
-						// Add logo and header to the new page
-						doc.addImage(logoImage, 'PNG', 10, 10, 40, 20)
-						doc.setFontSize(18)
-						doc.setTextColor(33, 33, 33)
-						doc.text('INFORME DE BIOPSIA', 105, 20, { align: 'center' })
-						doc.setDrawColor(200, 200, 200)
-						doc.line(10, 35, 200, 35)
-						
-						doc.setFontSize(12)
-						doc.setFont('helvetica', 'bold')
-						doc.text('Comentario:', 14, 45)
-						doc.setFont('helvetica', 'normal')
-						doc.setFontSize(10)
-						
-						const splitComment = doc.splitTextToSize(case_.comentario, 180)
-						doc.text(splitComment, 14, 50)
-					} else {
-						doc.setFontSize(12)
-						doc.setFont('helvetica', 'bold')
-						doc.text('Comentario:', 14, diagY)
-						doc.setFont('helvetica', 'normal')
-						doc.setFontSize(10)
-						
-						const splitComment = doc.splitTextToSize(case_.comentario, 180)
-						doc.text(splitComment, 14, diagY + 5)
-					}
-				}
-			} else {
-				doc.setFontSize(12)
-				doc.setFont('helvetica', 'bold')
-				doc.text('Descripción Macroscópica:', 14, clinicaY)
-				doc.setFont('helvetica', 'normal')
-				doc.setFontSize(10)
-				
-				const splitMacro = doc.splitTextToSize(case_.descripcion_macroscopica || 'N/A', 180)
-				doc.text(splitMacro, 14, clinicaY + 5)
-				
-				// Diagnóstico
-				const macroY = doc.getTextDimensions(splitMacro).h + clinicaY + 10
-				
-				doc.setFontSize(12)
-				doc.setFont('helvetica', 'bold')
-				doc.text('Diagnóstico:', 14, macroY)
-				doc.setFont('helvetica', 'normal')
-				doc.setFontSize(10)
-				
-				const splitDiag = doc.splitTextToSize(case_.diagnostico || 'N/A', 180)
-				doc.text(splitDiag, 14, macroY + 5)
-				
-				// Comentario (if exists)
-				if (case_.comentario) {
-					const diagY = doc.getTextDimensions(splitDiag).h + macroY + 10
-					
-					// Check if we need a new page
-					if (diagY > 250) {
-						doc.addPage()
-						
-						// Add logo and header to the new page
-						doc.addImage(logoImage, 'PNG', 10, 10, 40, 20)
-						doc.setFontSize(18)
-						doc.setTextColor(33, 33, 33)
-						doc.text('INFORME DE BIOPSIA', 105, 20, { align: 'center' })
-						doc.setDrawColor(200, 200, 200)
-						doc.line(10, 35, 200, 35)
-						
-						doc.setFontSize(12)
-						doc.setFont('helvetica', 'bold')
-						doc.text('Comentario:', 14, 45)
-						doc.setFont('helvetica', 'normal')
-						doc.setFontSize(10)
-						
-						const splitComment = doc.splitTextToSize(case_.comentario, 180)
-						doc.text(splitComment, 14, 50)
-					} else {
-						doc.setFontSize(12)
-						doc.setFont('helvetica', 'bold')
-						doc.text('Comentario:', 14, diagY)
-						doc.setFont('helvetica', 'normal')
-						doc.setFontSize(10)
-						
-						const splitComment = doc.splitTextToSize(case_.comentario, 180)
-						doc.text(splitComment, 14, diagY + 5)
-					}
-				}
-			}
-			
-			// Add footer
-			const finalPageCount = doc.getNumberOfPages()
-			for (let i = 1; i <= finalPageCount; i++) {
-				doc.setPage(i)
-				
-				// Add the custom footer text
-				doc.setFontSize(8)
-				doc.setTextColor(100, 100, 100)
-				
-				// First line of footer
-				doc.text(
-					'DIRECCIÓN:',
-					14,
-					doc.internal.pageSize.getHeight() - 30
-				)
-				
-				// Second line - addresses
-				doc.text(
-					'VALLES DEL TUY: Edificio Multioficinas Conex / CARACAS: Policlínica Méndez Gimón – Clínica Sanatrix – Torre Centro Caracas / MARACAY: Centro Profesional Plaza',
-					14,
-					doc.internal.pageSize.getHeight() - 25
-				)
-				
-				// Third line - contact info
-				doc.text(
-					'CONTACTO: (0212) 889822 / (0414) 4861289 / (0424) 1425562',
-					14,
-					doc.internal.pageSize.getHeight() - 20
-				)
-				
-				// Fourth line - email
-				doc.text(
-					'Resultados@conspat.com',
-					14,
-					doc.internal.pageSize.getHeight() - 15
-				)
-				
-				// Page number and generation date at the bottom
-				doc.text(
-					`Página ${i} de ${finalPageCount} - Generado el ${format(new Date(), 'dd/MM/yyyy HH:mm', { locale: es })}`,
-					doc.internal.pageSize.getWidth() / 2,
-					doc.internal.pageSize.getHeight() - 10,
-					{ align: 'center' }
-				)
-			}
-			
-			// Save the PDF
-			const fileName = `biopsia_${case_.code || case_.id}_${case_.full_name.replace(/\s+/g, '_')}.pdf`
-			doc.save(fileName)
 			
 			toast({
-				title: '✅ PDF generado exitosamente',
-				description: `El informe ha sido descargado como ${fileName}`,
+				title: '✅ Caso eliminado exitosamente',
+				description: `El caso ${caseToDelete.code || caseToDelete.id} ha sido eliminado.`,
 				className: 'bg-green-100 border-green-400 text-green-800',
 			})
+			
+			// Close modal and refresh data
+			setIsDeleteModalOpen(false)
+			setCaseToDelete(null)
+			refetch()
 		} catch (error) {
-			console.error('Error generating PDF:', error)
+			console.error('Error deleting case:', error)
 			toast({
-				title: '❌ Error al generar PDF',
-				description: 'Hubo un problema al generar el PDF. Inténtalo de nuevo.',
+				title: '❌ Error al eliminar',
+				description: 'Hubo un problema al eliminar el caso. Inténtalo de nuevo.',
 				variant: 'destructive',
 			})
 		} finally {
-			setIsDownloading(null)
+			setIsDeleting(false)
 		}
+	}
+
+	const handleSaveCase = async (
+		caseId: string,
+		updates: Partial<MedicalRecord>,
+		changes: Array<{
+			field: string
+			fieldLabel: string
+			oldValue: any
+			newValue: any
+		}>,
+	) => {
+		if (!user) {
+			throw new Error('Usuario no autenticado')
+		}
+
+		const { data, error } = await updateMedicalRecordWithLog(
+			caseId,
+			updates,
+			changes,
+			user.id,
+			user.email || 'unknown@email.com',
+		)
+
+		if (error) {
+			throw error
+		}
+
+		// Refresh the cases list
+		refetch()
+
+		return data
 	}
 
 	const filteredAndSortedCases = useMemo(() => {
@@ -515,7 +266,6 @@ const CasesTable: React.FC<CasesTableProps> = ({
 	const CaseCard = ({ case_ }: { case_: MedicalRecord }) => {
 		const ageDisplay = case_.date_of_birth ? getAgeDisplay(case_.date_of_birth) : ''
 		const isBiopsyCase = case_.exam_type?.toLowerCase() === 'biopsia'
-		const hasDownloadableContent = isBiopsyCase && !!case_.diagnostico
 
 		return (
 			<div className="bg-white dark:bg-background rounded-lg p-4 border border-gray-200 dark:border-gray-700 hover:shadow-md transition-all">
@@ -595,32 +345,27 @@ const CasesTable: React.FC<CasesTableProps> = ({
 						Ver
 					</button>
 					<button
-						onClick={() => handleGenerateCase(case_)}
-						className={`flex-1 inline-flex items-center justify-center gap-1 px-3 py-2 text-xs font-medium ${
-							isBiopsyCase 
-								? "text-green-600 dark:text-green-400 hover:text-green-800 dark:hover:text-green-300 bg-green-50 dark:bg-green-900/20 hover:bg-green-100 dark:hover:bg-green-900/30" 
-								: "text-gray-400 dark:text-gray-600 bg-gray-100 dark:bg-gray-800/50 cursor-not-allowed"
-						} rounded-lg transition-colors`}
-						disabled={!isBiopsyCase}
+						onClick={() => handleEditCase(case_)}
+						className="flex-1 inline-flex items-center justify-center gap-1 px-3 py-2 text-xs font-medium text-green-600 dark:text-green-400 hover:text-green-800 dark:hover:text-green-300 bg-green-50 dark:bg-green-900/20 hover:bg-green-100 dark:hover:bg-green-900/30 rounded-lg transition-colors"
 					>
-						<FileText className="w-3 h-3" />
-						Generar
+						<Edit className="w-3 h-3" />
+						Editar
 					</button>
+					{isBiopsyCase && (
+						<button
+							onClick={() => handleGenerateBiopsyCase(case_)}
+							className="flex-1 inline-flex items-center justify-center gap-1 px-3 py-2 text-xs font-medium text-purple-600 dark:text-purple-400 hover:text-purple-800 dark:hover:text-purple-300 bg-purple-50 dark:bg-purple-900/20 hover:bg-purple-100 dark:hover:bg-purple-900/30 rounded-lg transition-colors"
+						>
+							<Stethoscope className="w-3 h-3" />
+							Biopsia
+						</button>
+					)}
 					<button
-						onClick={() => handleDownloadCase(case_)}
-						className={`flex-1 inline-flex items-center justify-center gap-1 px-3 py-2 text-xs font-medium ${
-							hasDownloadableContent 
-								? "text-purple-600 dark:text-purple-400 hover:text-purple-800 dark:hover:text-purple-300 bg-purple-50 dark:bg-purple-900/20 hover:bg-purple-100 dark:hover:bg-purple-900/30" 
-								: "text-gray-400 dark:text-gray-600 bg-gray-100 dark:bg-gray-800/50 cursor-not-allowed"
-						} rounded-lg transition-colors`}
-						disabled={!hasDownloadableContent || isDownloading === case_.id}
+						onClick={() => handleDeleteCase(case_)}
+						className="flex-1 inline-flex items-center justify-center gap-1 px-3 py-2 text-xs font-medium text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300 bg-red-50 dark:bg-red-900/20 hover:bg-red-100 dark:hover:bg-red-900/30 rounded-lg transition-colors"
 					>
-						{isDownloading === case_.id ? (
-							<div className="animate-spin rounded-full h-3 w-3 border-b-2 border-current"></div>
-						) : (
-							<Download className="w-3 h-3" />
-						)}
-						Descargar
+						<Trash2 className="w-3 h-3" />
+						Eliminar
 					</button>
 				</div>
 			</div>
@@ -876,7 +621,6 @@ const CasesTable: React.FC<CasesTableProps> = ({
 								{filteredAndSortedCases.map((case_) => {
 									const ageDisplay = case_.date_of_birth ? getAgeDisplay(case_.date_of_birth) : ''
 									const isBiopsyCase = case_.exam_type?.toLowerCase() === 'biopsia'
-									const hasDownloadableContent = isBiopsyCase && !!case_.diagnostico
 
 									return (
 										<tr key={case_.id} className="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
@@ -933,7 +677,7 @@ const CasesTable: React.FC<CasesTableProps> = ({
 												)}
 											</td>
 											<td className="px-4 py-4">
-												<div className="flex gap-2">
+												<div className="flex gap-1">
 													<button
 														onClick={(e) => {
 															e.stopPropagation()
@@ -947,36 +691,34 @@ const CasesTable: React.FC<CasesTableProps> = ({
 													<button
 														onClick={(e) => {
 															e.stopPropagation()
-															handleGenerateCase(case_)
+															handleEditCase(case_)
 														}}
-														className={`inline-flex items-center gap-1 px-3 py-1 text-xs font-medium ${
-															isBiopsyCase 
-																? "text-green-600 dark:text-green-400 hover:text-green-800 dark:hover:text-green-300" 
-																: "text-gray-400 dark:text-gray-600 cursor-not-allowed"
-														} transition-colors`}
-														disabled={!isBiopsyCase}
+														className="inline-flex items-center gap-1 px-3 py-1 text-xs font-medium text-green-600 dark:text-green-400 hover:text-green-800 dark:hover:text-green-300 transition-colors"
 													>
-														<FileText className="w-3 h-3" />
-														Generar
+														<Edit className="w-3 h-3" />
+														Editar
 													</button>
+													{isBiopsyCase && (
+														<button
+															onClick={(e) => {
+																e.stopPropagation()
+																handleGenerateBiopsyCase(case_)
+															}}
+															className="inline-flex items-center gap-1 px-3 py-1 text-xs font-medium text-purple-600 dark:text-purple-400 hover:text-purple-800 dark:hover:text-purple-300 transition-colors"
+														>
+															<Stethoscope className="w-3 h-3" />
+															Biopsia
+														</button>
+													)}
 													<button
 														onClick={(e) => {
 															e.stopPropagation()
-															handleDownloadCase(case_)
+															handleDeleteCase(case_)
 														}}
-														className={`inline-flex items-center gap-1 px-3 py-1 text-xs font-medium ${
-															hasDownloadableContent 
-																? "text-purple-600 dark:text-purple-400 hover:text-purple-800 dark:hover:text-purple-300" 
-																: "text-gray-400 dark:text-gray-600 cursor-not-allowed"
-														} transition-colors`}
-														disabled={!hasDownloadableContent || isDownloading === case_.id}
+														className="inline-flex items-center gap-1 px-3 py-1 text-xs font-medium text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300 transition-colors"
 													>
-														{isDownloading === case_.id ? (
-															<div className="animate-spin rounded-full h-3 w-3 border-b-2 border-current"></div>
-														) : (
-															<Download className="w-3 h-3" />
-														)}
-														Descargar
+														<Trash2 className="w-3 h-3" />
+														Eliminar
 													</button>
 												</div>
 											</td>
@@ -1204,7 +946,6 @@ const CasesTable: React.FC<CasesTableProps> = ({
 										{filteredAndSortedCases.map((case_) => {
 											const ageDisplay = case_.date_of_birth ? getAgeDisplay(case_.date_of_birth) : ''
 											const isBiopsyCase = case_.exam_type?.toLowerCase() === 'biopsia'
-											const hasDownloadableContent = isBiopsyCase && !!case_.diagnostico
 
 											return (
 												<tr key={case_.id} className="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
@@ -1261,7 +1002,7 @@ const CasesTable: React.FC<CasesTableProps> = ({
 														)}
 													</td>
 													<td className="px-4 py-4">
-														<div className="flex gap-2">
+														<div className="flex gap-1">
 															<button
 																onClick={(e) => {
 																	e.stopPropagation()
@@ -1275,36 +1016,34 @@ const CasesTable: React.FC<CasesTableProps> = ({
 															<button
 																onClick={(e) => {
 																	e.stopPropagation()
-																	handleGenerateCase(case_)
+																	handleEditCase(case_)
 																}}
-																className={`inline-flex items-center gap-1 px-3 py-1 text-xs font-medium ${
-																	isBiopsyCase 
-																		? "text-green-600 dark:text-green-400 hover:text-green-800 dark:hover:text-green-300" 
-																		: "text-gray-400 dark:text-gray-600 cursor-not-allowed"
-																} transition-colors`}
-																disabled={!isBiopsyCase}
+																className="inline-flex items-center gap-1 px-3 py-1 text-xs font-medium text-green-600 dark:text-green-400 hover:text-green-800 dark:hover:text-green-300 transition-colors"
 															>
-																<FileText className="w-3 h-3" />
-																Generar
+																<Edit className="w-3 h-3" />
+																Editar
 															</button>
+															{isBiopsyCase && (
+																<button
+																	onClick={(e) => {
+																		e.stopPropagation()
+																		handleGenerateBiopsyCase(case_)
+																	}}
+																	className="inline-flex items-center gap-1 px-3 py-1 text-xs font-medium text-purple-600 dark:text-purple-400 hover:text-purple-800 dark:hover:text-purple-300 transition-colors"
+																>
+																	<Stethoscope className="w-3 h-3" />
+																	Biopsia
+																</button>
+															)}
 															<button
 																onClick={(e) => {
 																	e.stopPropagation()
-																	handleDownloadCase(case_)
+																	handleDeleteCase(case_)
 																}}
-																className={`inline-flex items-center gap-1 px-3 py-1 text-xs font-medium ${
-																	hasDownloadableContent 
-																		? "text-purple-600 dark:text-purple-400 hover:text-purple-800 dark:hover:text-purple-300" 
-																		: "text-gray-400 dark:text-gray-600 cursor-not-allowed"
-																} transition-colors`}
-																disabled={!hasDownloadableContent || isDownloading === case_.id}
+																className="inline-flex items-center gap-1 px-3 py-1 text-xs font-medium text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300 transition-colors"
 															>
-																{isDownloading === case_.id ? (
-																	<div className="animate-spin rounded-full h-3 w-3 border-b-2 border-current"></div>
-																) : (
-																	<Download className="w-3 h-3" />
-																)}
-																Descargar
+																<Trash2 className="w-3 h-3" />
+																Eliminar
 															</button>
 														</div>
 													</td>
@@ -1329,18 +1068,76 @@ const CasesTable: React.FC<CasesTableProps> = ({
 				</div>
 			</Card>
 
-			{/* Generate Biopsy Modal */}
-			<GenerateBiopsyModal
-				case_={selectedCaseForGenerate}
-				isOpen={isGenerateModalOpen}
+			{/* Edit Modal */}
+			<EditCaseModal
+				case_={editingCase}
+				isOpen={isEditModalOpen}
 				onClose={() => {
-					setIsGenerateModalOpen(false);
-					setSelectedCaseForGenerate(null);
+					setIsEditModalOpen(false)
+					setEditingCase(null)
+				}}
+				onSave={handleSaveCase}
+			/>
+			
+			{/* Biopsy Modal */}
+			<GenerateBiopsyModal
+				case_={biopsyCase}
+				isOpen={isBiopsyModalOpen}
+				onClose={() => {
+					setIsBiopsyModalOpen(false)
+					setBiopsyCase(null)
 				}}
 				onSuccess={() => {
-					refetch();
+					refetch()
 				}}
 			/>
+
+			{/* Delete Confirmation Modal */}
+			{isDeleteModalOpen && caseToDelete && (
+				<div className="fixed inset-0 z-[9999999] flex items-center justify-center bg-black/50">
+					<div className="bg-white dark:bg-background rounded-lg p-6 max-w-md w-full mx-4 shadow-xl border border-gray-200 dark:border-gray-700">
+						<div className="flex items-center gap-3 mb-4">
+							<div className="p-2 bg-red-100 dark:bg-red-900/30 rounded-full">
+								<AlertCircle className="w-6 h-6 text-red-600 dark:text-red-400" />
+							</div>
+							<h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Confirmar eliminación</h3>
+						</div>
+						
+						<p className="text-gray-700 dark:text-gray-300 mb-6">
+							¿Estás seguro de que quieres eliminar este caso? Esta acción no se puede deshacer.
+						</p>
+						
+						<div className="flex flex-col sm:flex-row gap-3 sm:justify-end">
+							<button
+								onClick={() => {
+									setIsDeleteModalOpen(false)
+									setCaseToDelete(null)
+								}}
+								className="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-md hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
+							>
+								Cancelar
+							</button>
+							<button
+								onClick={confirmDelete}
+								disabled={isDeleting}
+								className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors flex items-center justify-center gap-2"
+							>
+								{isDeleting ? (
+									<>
+										<div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+										<span>Eliminando...</span>
+									</>
+								) : (
+									<>
+										<Trash2 className="w-4 h-4" />
+										<span>Confirmar</span>
+									</>
+								)}
+							</button>
+						</div>
+					</div>
+				</div>
+			)}
 		</>
 	)
 }
