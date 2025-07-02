@@ -5,19 +5,15 @@ import {
 	Search,
 	Filter,
 	Eye,
-	Edit,
 	Calendar,
 	User,
 	Stethoscope,
 	CreditCard,
-	Trash2,
-	AlertCircle,
 } from 'lucide-react'
 import { type MedicalRecord, updateMedicalRecordWithLog, getAgeDisplay, deleteMedicalRecord } from '@lib/supabase-service'
 import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
 import { useAuth } from '@app/providers/AuthContext'
-import EditCaseModal from './EditCaseModal'
 import { Card } from '@shared/components/ui/card'
 import { useToast } from '@shared/hooks/use-toast'
 import { useUserProfile } from '@shared/hooks/useUserProfile'
@@ -54,11 +50,6 @@ const CasesTable: React.FC<CasesTableProps> = ({
 	const [sortField, setSortField] = useState<SortField>('created_at')
 	const [sortDirection, setSortDirection] = useState<SortDirection>('desc')
 	const [rowLimit, setRowLimit] = useState<number>(20)
-	const [editingCase, setEditingCase] = useState<MedicalRecord | null>(null)
-	const [isEditModalOpen, setIsEditModalOpen] = useState(false)
-	const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
-	const [caseToDelete, setCaseToDelete] = useState<MedicalRecord | null>(null)
-	const [isDeleting, setIsDeleting] = useState(false)
 
 	// Set branch filter to user's assigned branch if they have one
 	React.useEffect(() => {
@@ -89,81 +80,6 @@ const CasesTable: React.FC<CasesTableProps> = ({
 			setSortField(field)
 			setSortDirection('asc')
 		}
-	}
-
-	const handleEditCase = (case_: MedicalRecord) => {
-		setEditingCase(case_)
-		setIsEditModalOpen(true)
-	}
-
-	const handleDeleteCase = (case_: MedicalRecord) => {
-		setCaseToDelete(case_)
-		setIsDeleteModalOpen(true)
-	}
-
-	const confirmDelete = async () => {
-		if (!caseToDelete) return
-		
-		setIsDeleting(true)
-		try {
-			const { error } = await deleteMedicalRecord(caseToDelete.id!)
-			
-			if (error) {
-				throw error
-			}
-			
-			toast({
-				title: '✅ Caso eliminado exitosamente',
-				description: `El caso ${caseToDelete.code || caseToDelete.id} ha sido eliminado.`,
-				className: 'bg-green-100 border-green-400 text-green-800',
-			})
-			
-			// Close modal and refresh data
-			setIsDeleteModalOpen(false)
-			setCaseToDelete(null)
-			refetch()
-		} catch (error) {
-			console.error('Error deleting case:', error)
-			toast({
-				title: '❌ Error al eliminar',
-				description: 'Hubo un problema al eliminar el caso. Inténtalo de nuevo.',
-				variant: 'destructive',
-			})
-		} finally {
-			setIsDeleting(false)
-		}
-	}
-
-	const handleSaveCase = async (
-		caseId: string,
-		updates: Partial<MedicalRecord>,
-		changes: Array<{
-			field: string
-			fieldLabel: string
-			oldValue: any
-			newValue: any
-		}>,
-	) => {
-		if (!user) {
-			throw new Error('Usuario no autenticado')
-		}
-
-		const { data, error } = await updateMedicalRecordWithLog(
-			caseId,
-			updates,
-			changes,
-			user.id,
-			user.email || 'unknown@email.com',
-		)
-
-		if (error) {
-			throw error
-		}
-
-		// Refresh the cases list
-		refetch()
-
-		return data
 	}
 
 	const filteredAndSortedCases = useMemo(() => {
@@ -634,7 +550,7 @@ const CasesTable: React.FC<CasesTableProps> = ({
 												)}
 											</td>
 											<td className="px-4 py-4">
-												<div className="flex gap-2">
+												<div className="flex">
 													<button
 														onClick={(e) => {
 															e.stopPropagation()
@@ -959,64 +875,6 @@ const CasesTable: React.FC<CasesTableProps> = ({
 					</div>
 				</div>
 			</Card>
-
-			{/* Edit Modal */}
-			<EditCaseModal
-				case_={editingCase}
-				isOpen={isEditModalOpen}
-				onClose={() => {
-					setIsEditModalOpen(false)
-					setEditingCase(null)
-				}}
-				onSave={handleSaveCase}
-			/>
-
-			{/* Delete Confirmation Modal */}
-			{isDeleteModalOpen && caseToDelete && (
-				<div className="fixed inset-0 z-[9999999] flex items-center justify-center bg-black/50">
-					<div className="bg-white dark:bg-background rounded-lg p-6 max-w-md w-full mx-4 shadow-xl border border-gray-200 dark:border-gray-700">
-						<div className="flex items-center gap-3 mb-4">
-							<div className="p-2 bg-red-100 dark:bg-red-900/30 rounded-full">
-								<AlertCircle className="w-6 h-6 text-red-600 dark:text-red-400" />
-							</div>
-							<h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Confirmar eliminación</h3>
-						</div>
-						
-						<p className="text-gray-700 dark:text-gray-300 mb-6">
-							¿Estás seguro de que quieres eliminar este caso? Esta acción no se puede deshacer.
-						</p>
-						
-						<div className="flex flex-col sm:flex-row gap-3 sm:justify-end">
-							<button
-								onClick={() => {
-									setIsDeleteModalOpen(false)
-									setCaseToDelete(null)
-								}}
-								className="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-md hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
-							>
-								Cancelar
-							</button>
-							<button
-								onClick={confirmDelete}
-								disabled={isDeleting}
-								className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors flex items-center justify-center gap-2"
-							>
-								{isDeleting ? (
-									<>
-										<div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-										<span>Eliminando...</span>
-									</>
-								) : (
-									<>
-										<Trash2 className="w-4 h-4" />
-										<span>Confirmar</span>
-									</>
-								)}
-							</button>
-						</div>
-					</div>
-				</div>
-			)}
 		</>
 	)
 }
