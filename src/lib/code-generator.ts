@@ -94,7 +94,7 @@ export async function generateMedicalRecordCode(
       .from('medical_records_clean')
       .select('id')
       .eq('code', generatedCode)
-      .single()
+      .maybeSingle()
 
     if (existingCode && existingCode.id !== currentRecordId) {
       console.warn('⚠️ Code collision detected, regenerating...')

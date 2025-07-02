@@ -1,5 +1,6 @@
-import { Input } from '@shared/components/ui/input'
 import { FormLabel } from '@shared/components/ui/form'
+import { Input } from '@shared/components/ui/input'
+import { useMemo } from 'react'
 
 interface CurrencyConverterProps {
 	usdValue: string
@@ -17,25 +18,59 @@ export const CurrencyConverter = ({
 	exchangeRate,
 	isLoadingRate,
 	inputStyles,
-}: CurrencyConverterProps) => (
-	<div className="space-y-2">
-		<FormLabel>Convertidor USD a VES</FormLabel>
-		<Input
-			type="text"
-			inputMode="decimal"
-			placeholder="Ingrese monto en Dólares"
-			value={usdValue}
-			onChange={(e) => {
-				const val = e.target.value
-				if (val === '' || /^[0-9]*\.?[0-9]*$/.test(val)) {
-					setUsdValue(val)
-				}
-			}}
-			className={inputStyles}
-		/>
-		{vesValue && <p className="text-sm font-bold text-green-600">{vesValue} VES</p>}
-		<p className="text-xs text-muted-foreground">
-			{isLoadingRate ? 'Cargando tasa...' : `Tasa BCV: ${exchangeRate?.toFixed(2) || 'N/A'} VES/USD`}
-		</p>
-	</div>
-)
+}: CurrencyConverterProps) => {
+	const usdFromVes = useMemo(() => {
+		if (!vesValue || !exchangeRate || isNaN(Number(vesValue))) return '0.00'
+		return (Number(vesValue) / exchangeRate).toFixed(2)
+	}, [vesValue, exchangeRate])
+
+	const handleVesChange = (value: string) => {
+		if (!exchangeRate) return
+		const vesAmount = Number(value)
+		if (!isNaN(vesAmount)) {
+			const usdAmount = (vesAmount / exchangeRate).toFixed(2)
+			setUsdValue(usdAmount)
+		}
+	}
+
+	return (
+		<>
+			{/* USD to VES Converter */}
+			<div className="space-y-2">
+				<FormLabel className="text-sm font-medium text-gray-700">
+					Convertir USD a Bs
+				</FormLabel>
+				<Input
+					type="number"
+					step="0.01"
+					placeholder="0.00"
+					value={usdValue}
+					onChange={(e) => setUsdValue(e.target.value)}
+					className={inputStyles}
+					disabled={isLoadingRate}
+				/>
+				<p className="text-sm text-gray-600">
+					= Bs {vesValue} {exchangeRate && `(Tasa: ${exchangeRate.toFixed(2)})`}
+				</p>
+			</div>
+
+			{/* VES to USD Converter */}
+			<div className="space-y-2">
+				<FormLabel className="text-sm font-medium text-gray-700">
+					Convertir Bs a USD
+				</FormLabel>
+				<Input
+					type="number"
+					step="0.01"
+					placeholder="0.00"
+					onChange={(e) => handleVesChange(e.target.value)}
+					className={inputStyles}
+					disabled={isLoadingRate}
+				/>
+				<p className="text-sm text-gray-600">
+					= ${usdFromVes} {exchangeRate && `(Tasa: ${exchangeRate.toFixed(2)})`}
+				</p>
+			</div>
+		</>
+	)
+}
