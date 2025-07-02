@@ -28,7 +28,7 @@ export const RecordsSection: React.FC<RecordsSectionProps> = ({
 	const [selectedCase, setSelectedCase] = useState<MedicalRecord | null>(null)
 	const [isPanelOpen, setIsPanelOpen] = useState(false)
 	const { profile } = useUserProfile()
-	const [filteredCases, setFilteredCases] = useState<MedicalRecord[]>(cases)
+	const [filteredCases, setFilteredCases] = useState<MedicalRecord[]>(cases || [])
 	const [showPendingOnly, setShowPendingOnly] = useState(false)
 	const [selectedExamType, setSelectedExamType] = useState<string | null>(null)
 
@@ -87,12 +87,13 @@ export const RecordsSection: React.FC<RecordsSectionProps> = ({
 		if (!records) return { total: 0, totalAmount: 0, completed: 0, examTypes: {} }
 
 		const total = records.length
-		const totalAmount = records.reduce((sum: number, record: MedicalRecord) => sum + record.total_amount, 0)
+		const totalAmount = records.reduce((sum: number, record: MedicalRecord) => sum + (record.total_amount || 0), 0)
 		const completed = records.filter((record: MedicalRecord) => record.payment_status === 'Completado').length
 
 		// Count cases by exam type
 		const examTypes: Record<string, number> = {}
 		records.forEach((record: MedicalRecord) => {
+			if (!record.exam_type) return;
 			const type = record.exam_type.toLowerCase()
 			examTypes[type] = (examTypes[type] || 0) + 1
 		})
@@ -125,6 +126,7 @@ export const RecordsSection: React.FC<RecordsSectionProps> = ({
 		}
 		
 		cases?.forEach((record: MedicalRecord) => {
+			if (!record.exam_type) return;
 			const type = record.exam_type.toLowerCase()
 			if (counts[type] !== undefined) {
 				counts[type]++
