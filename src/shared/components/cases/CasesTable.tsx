@@ -31,7 +31,7 @@ import { cn } from '@shared/lib/cn'
 import GenerateBiopsyModal from './GenerateBiopsyModal'
 import { jsPDF } from 'jspdf'
 import 'jspdf-autotable'
-import logoBase64 from '@assets/img/logo_conspat_base64.txt'
+import logoBase64 from '@assets/img/logo_conspat_base64.txt?raw'
 
 interface CasesTableProps {
 	onCaseSelect: (case_: MedicalRecord) => void
