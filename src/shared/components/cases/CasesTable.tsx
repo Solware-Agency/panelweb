@@ -22,6 +22,8 @@ import { useUserProfile } from '@shared/hooks/useUserProfile'
 import GenerateBiopsyModal from './GenerateBiopsyModal'
 import { jsPDF } from 'jspdf'
 import 'jspdf-autotable'
+// Import the logo
+import logoImage from '@assets/img/logo_conspat.png'
 
 interface CasesTableProps {
 	onCaseSelect: (case_: MedicalRecord) => void
@@ -121,10 +123,25 @@ const CasesTable: React.FC<CasesTableProps> = ({
 			// Create a new PDF document
 			const doc = new jsPDF()
 			
-			// Add header
-			doc.setFontSize(18)
-			doc.setTextColor(33, 33, 33)
-			doc.text('INFORME DE BIOPSIA', 105, 20, { align: 'center' })
+			// Get the number of pages that will be generated
+			const pageCount = doc.getNumberOfPages()
+			
+			// For each page, add the header with logo and title
+			for (let i = 1; i <= pageCount + 1; i++) { // +1 to ensure we handle any new pages that might be added
+				doc.setPage(i > pageCount ? pageCount : i)
+				
+				// Add logo at the top
+				doc.addImage(logoImage, 'PNG', 10, 10, 40, 20)
+				
+				// Add title
+				doc.setFontSize(18)
+				doc.setTextColor(33, 33, 33)
+				doc.text('INFORME DE BIOPSIA', 105, 20, { align: 'center' })
+				
+				// Add a separator line
+				doc.setDrawColor(200, 200, 200)
+				doc.line(10, 35, 200, 35)
+			}
 			
 			// Add case information
 			doc.setFontSize(12)
@@ -133,7 +150,7 @@ const CasesTable: React.FC<CasesTableProps> = ({
 			// Add patient information
 			doc.setFontSize(14)
 			doc.setFont('helvetica', 'bold')
-			doc.text('Información del Paciente', 14, 40)
+			doc.text('Información del Paciente', 14, 45)
 			doc.setFont('helvetica', 'normal')
 			doc.setFontSize(10)
 			
@@ -148,7 +165,7 @@ const CasesTable: React.FC<CasesTableProps> = ({
 			]
 			
 			doc.autoTable({
-				startY: 45,
+				startY: 50,
 				head: [],
 				body: patientData,
 				theme: 'plain',
@@ -227,37 +244,68 @@ const CasesTable: React.FC<CasesTableProps> = ({
 			// Check if we need a new page
 			if (clinicaY > 250) {
 				doc.addPage()
+				
+				// Add logo and header to the new page
+				doc.addImage(logoImage, 'PNG', 10, 10, 40, 20)
+				doc.setFontSize(18)
+				doc.setTextColor(33, 33, 33)
+				doc.text('INFORME DE BIOPSIA', 105, 20, { align: 'center' })
+				doc.setDrawColor(200, 200, 200)
+				doc.line(10, 35, 200, 35)
+				
 				doc.setFontSize(12)
 				doc.setFont('helvetica', 'bold')
-				doc.text('Descripción Macroscópica:', 14, 20)
+				doc.text('Descripción Macroscópica:', 14, 45)
 				doc.setFont('helvetica', 'normal')
 				doc.setFontSize(10)
 				
 				const splitMacro = doc.splitTextToSize(case_.descripcion_macroscopica || 'N/A', 180)
-				doc.text(splitMacro, 14, 25)
+				doc.text(splitMacro, 14, 50)
 				
 				// Diagnóstico
 				doc.setFontSize(12)
 				doc.setFont('helvetica', 'bold')
-				doc.text('Diagnóstico:', 14, doc.getTextDimensions(splitMacro).h + 30)
+				doc.text('Diagnóstico:', 14, doc.getTextDimensions(splitMacro).h + 55)
 				doc.setFont('helvetica', 'normal')
 				doc.setFontSize(10)
 				
 				const splitDiag = doc.splitTextToSize(case_.diagnostico || 'N/A', 180)
-				doc.text(splitDiag, 14, doc.getTextDimensions(splitMacro).h + 35)
+				doc.text(splitDiag, 14, doc.getTextDimensions(splitMacro).h + 60)
 				
 				// Comentario (if exists)
 				if (case_.comentario) {
-					const diagY = doc.getTextDimensions(splitDiag).h + doc.getTextDimensions(splitMacro).h + 40
+					const diagY = doc.getTextDimensions(splitDiag).h + doc.getTextDimensions(splitMacro).h + 65
 					
-					doc.setFontSize(12)
-					doc.setFont('helvetica', 'bold')
-					doc.text('Comentario:', 14, diagY)
-					doc.setFont('helvetica', 'normal')
-					doc.setFontSize(10)
-					
-					const splitComment = doc.splitTextToSize(case_.comentario, 180)
-					doc.text(splitComment, 14, diagY + 5)
+					// Check if we need another new page
+					if (diagY > 250) {
+						doc.addPage()
+						
+						// Add logo and header to the new page
+						doc.addImage(logoImage, 'PNG', 10, 10, 40, 20)
+						doc.setFontSize(18)
+						doc.setTextColor(33, 33, 33)
+						doc.text('INFORME DE BIOPSIA', 105, 20, { align: 'center' })
+						doc.setDrawColor(200, 200, 200)
+						doc.line(10, 35, 200, 35)
+						
+						doc.setFontSize(12)
+						doc.setFont('helvetica', 'bold')
+						doc.text('Comentario:', 14, 45)
+						doc.setFont('helvetica', 'normal')
+						doc.setFontSize(10)
+						
+						const splitComment = doc.splitTextToSize(case_.comentario, 180)
+						doc.text(splitComment, 14, 50)
+					} else {
+						doc.setFontSize(12)
+						doc.setFont('helvetica', 'bold')
+						doc.text('Comentario:', 14, diagY)
+						doc.setFont('helvetica', 'normal')
+						doc.setFontSize(10)
+						
+						const splitComment = doc.splitTextToSize(case_.comentario, 180)
+						doc.text(splitComment, 14, diagY + 5)
+					}
 				}
 			} else {
 				doc.setFontSize(12)
@@ -288,14 +336,23 @@ const CasesTable: React.FC<CasesTableProps> = ({
 					// Check if we need a new page
 					if (diagY > 250) {
 						doc.addPage()
+						
+						// Add logo and header to the new page
+						doc.addImage(logoImage, 'PNG', 10, 10, 40, 20)
+						doc.setFontSize(18)
+						doc.setTextColor(33, 33, 33)
+						doc.text('INFORME DE BIOPSIA', 105, 20, { align: 'center' })
+						doc.setDrawColor(200, 200, 200)
+						doc.line(10, 35, 200, 35)
+						
 						doc.setFontSize(12)
 						doc.setFont('helvetica', 'bold')
-						doc.text('Comentario:', 14, 20)
+						doc.text('Comentario:', 14, 45)
 						doc.setFont('helvetica', 'normal')
 						doc.setFontSize(10)
 						
 						const splitComment = doc.splitTextToSize(case_.comentario, 180)
-						doc.text(splitComment, 14, 25)
+						doc.text(splitComment, 14, 50)
 					} else {
 						doc.setFontSize(12)
 						doc.setFont('helvetica', 'bold')
