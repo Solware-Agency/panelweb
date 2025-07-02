@@ -14,6 +14,8 @@ import { CurrencyConverter } from './payment/CurrencyConverter'
 import { PaymentMethodsList } from './payment/PaymentMethodsList'
 import { PaymentSectionSkeleton } from './payment/PaymentSectionSkeleton'
 import { calculatePaymentDetails } from '@features/form/lib/payment/payment-utils'
+import { Input } from '@shared/components/ui/input'
+import { FormLabel } from '@shared/components/ui/form'
 
 interface PaymentSectionProps {
 	control: Control<FormValues>
@@ -25,6 +27,9 @@ interface PaymentSectionProps {
 	usdValue: string
 	setUsdValue: (value: string) => void
 	vesValue: string
+	vesInputValue: string
+	setVesInputValue: (value: string) => void
+	usdFromVes: string
 	exchangeRate: number | undefined
 	isLoadingRate: boolean
 }
@@ -39,6 +44,9 @@ export const PaymentSection = ({
 	usdValue,
 	setUsdValue,
 	vesValue,
+	vesInputValue,
+	setVesInputValue,
+	usdFromVes,
 	exchangeRate,
 	isLoadingRate,
 }: PaymentSectionProps) => {
@@ -68,7 +76,7 @@ export const PaymentSection = ({
 				<div className="w-20 h-1 bg-primary mt-1 rounded-full" />
 			</CardHeader>
 			<CardContent className="space-y-6">
-				<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+				<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
 					<PaymentHeader
 						control={control}
 						inputStyles={inputStyles}
@@ -79,10 +87,33 @@ export const PaymentSection = ({
 						usdValue={usdValue}
 						setUsdValue={setUsdValue}
 						vesValue={vesValue}
+						vesInputValue={vesInputValue}
+						setVesInputValue={setVesInputValue}
+						usdFromVes={usdFromVes}
 						exchangeRate={exchangeRate}
 						isLoadingRate={isLoadingRate}
 						inputStyles={inputStyles}
 					/>
+					<div className="space-y-2">
+						<FormLabel>Convertidor VES a USD</FormLabel>
+						<Input
+							type="text"
+							inputMode="decimal"
+							placeholder="Ingrese monto en Bolívares"
+							value={vesInputValue}
+							onChange={(e) => {
+								const val = e.target.value
+								if (val === '' || /^[0-9]*\.?[0-9]*$/.test(val)) {
+									setVesInputValue(val)
+								}
+							}}
+							className={inputStyles}
+						/>
+						{usdFromVes && <p className="text-sm font-bold text-green-600">{usdFromVes} USD</p>}
+						<p className="text-xs text-muted-foreground">
+							{isLoadingRate ? 'Cargando tasa...' : `Tasa BCV: ${exchangeRate?.toFixed(2) || 'N/A'} VES/USD`}
+						</p>
+					</div>
 				</div>
 
 				<PaymentMethodsList
