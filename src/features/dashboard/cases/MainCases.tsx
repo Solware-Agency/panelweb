@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { Download, RefreshCw } from 'lucide-react'
-import CasesTableWrapper from '@shared/components/cases/CasesTableWrapper'
+import CasesTable from '@shared/components/cases/CasesTable'
 import CaseDetailPanel from '@shared/components/cases/CaseDetailPanel'
 import type { MedicalRecord } from '@lib/supabase-service'
 import { useQuery } from '@tanstack/react-query'
@@ -78,7 +78,18 @@ const MainCases: React.FC = () => {
 			</div>
 
 			{/* Cases Table */}
-			<CasesTableWrapper />
+			<CasesTable 
+				onCaseSelect={handleCaseSelect}
+				cases={cases}
+				isLoading={isLoading}
+				error={error}
+				refetch={refetch}
+				isFullscreen={isFullscreen}
+				setIsFullscreen={setIsFullscreen}
+			/>
+
+			{/* Case Detail Panel */}
+			<CaseDetailPanel case_={selectedCase} isOpen={isPanelOpen} onClose={handlePanelClose} />
 		</div>
 	)
 }

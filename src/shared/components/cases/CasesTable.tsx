@@ -167,14 +167,22 @@ const CasesTable: React.FC<CasesTableProps> = ({
 	}
 
 	const filteredAndSortedCases = useMemo(() => {
+		if (!cases || !Array.isArray(cases)) {
+			console.warn('Cases is not an array:', cases)
+			return []
+		}
+
 		let filtered = cases.filter((case_) => {
+			// Skip if case_ is null or undefined
+			if (!case_) return false
+
 			const matchesSearch =
-				case_.full_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+				case_.full_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
 				(case_.id || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
-				case_.id_number.toLowerCase().includes(searchTerm.toLowerCase()) ||
-				case_.exam_type.toLowerCase().includes(searchTerm.toLowerCase()) ||
-				case_.treating_doctor.toLowerCase().includes(searchTerm.toLowerCase()) ||
-				case_.branch.toLowerCase().includes(searchTerm.toLowerCase()) ||
+				case_.id_number?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+				case_.exam_type?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+				case_.treating_doctor?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+				case_.branch?.toLowerCase().includes(searchTerm.toLowerCase()) ||
 				(case_.code && case_.code.toLowerCase().includes(searchTerm.toLowerCase()))
 
 			// Updated filter logic to handle only "Completado" and "Incompleto"
@@ -359,6 +367,9 @@ const CasesTable: React.FC<CasesTableProps> = ({
 						<div className="text-red-500 dark:text-red-400">
 							<p className="text-lg font-medium">Error al cargar los casos</p>
 							<p className="text-sm mt-2">Verifica tu conexión a internet o contacta al administrador</p>
+							<pre className="text-xs bg-gray-100 dark:bg-gray-800 p-2 mt-2 rounded overflow-auto max-w-full">
+								{JSON.stringify(error, null, 2)}
+							</pre>
 							<button
 								onClick={() => refetch()}
 								className="mt-4 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
