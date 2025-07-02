@@ -448,24 +448,7 @@ const CaseDetailPanel: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClos
 									</div>
 								</InfoSection>
 								
-								{/* Bottom Action Buttons */}
-								<div className="flex gap-2 pt-4 border-t border-gray-200 dark:border-gray-700">
-									<Button 
-										onClick={handleEditClick}
-										className="flex-1 flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white"
-									>
-										<Edit className="w-4 h-4" />
-										Editar Caso
-									</Button>
-									<Button 
-										onClick={handleDeleteClick}
-										variant="destructive"
-										className="flex-1 flex items-center justify-center gap-2"
-									>
-										<Trash2 className="w-4 h-4" />
-										Eliminar Caso
-									</Button>
-								</div>
+								
 							</div>
 						</motion.div>
 					</>
