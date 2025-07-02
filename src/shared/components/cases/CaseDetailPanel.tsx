@@ -216,7 +216,7 @@ const CaseDetailPanel: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClos
 							animate={{ x: 0 }}
 							exit={{ x: '100%' }}
 							transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-							className="fixed right-0 top-0 h-full w-full sm:w-2/3 lg:w-1/2 xl:w-2/5 bg-white dark:bg-background shadow-2xl z-[9999999] overflow-y-auto rounded-lg border-l border-input"
+							className="fixed right-0 top-0 h-full w-full sm:w-2/3 lg:w-1/2 xl:w-2/5 bg-white dark:bg-background shadow-2xl z-[99999999] overflow-y-auto rounded-lg border-l border-input"
 						>
 							{/* Header */}
 							<div className="sticky top-0 bg-white dark:bg-background border-b border-gray-200 dark:border-gray-700 p-4 sm:p-6 z-10">
@@ -449,7 +449,23 @@ const CaseDetailPanel: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClos
 								</InfoSection>
 								
 								{/* Bottom Action Buttons */}
-								
+								<div className="flex gap-2 pt-4 border-t border-gray-200 dark:border-gray-700">
+									<Button 
+										onClick={handleEditClick}
+										className="flex-1 flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white"
+									>
+										<Edit className="w-4 h-4" />
+										Editar Caso
+									</Button>
+									<Button 
+										onClick={handleDeleteClick}
+										variant="destructive"
+										className="flex-1 flex items-center justify-center gap-2"
+									>
+										<Trash2 className="w-4 h-4" />
+										Eliminar Caso
+									</Button>
+								</div>
 							</div>
 						</motion.div>
 					</>
@@ -466,7 +482,7 @@ const CaseDetailPanel: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClos
 			
 			{/* Delete Confirmation Modal */}
 			{isDeleteModalOpen && (
-				<div className="fixed inset-0 z-[99999999] flex items-center justify-center bg-black/50">
+				<div className="fixed inset-0 z-[999999999] flex items-center justify-center bg-black/50">
 					<div className="bg-white dark:bg-background rounded-lg p-6 max-w-md w-full mx-4 shadow-xl border border-gray-200 dark:border-gray-700">
 						<div className="flex items-center gap-3 mb-4">
 							<div className="p-2 bg-red-100 dark:bg-red-900/30 rounded-full">
