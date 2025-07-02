@@ -1,12 +1,8 @@
 import React, { useState, useEffect } from 'react'
 import { Outlet } from 'react-router-dom'
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { useDarkMode } from '@shared/hooks/useDarkMode'
 import Header from './Header'
 import Sidebar from './Sidebar'
-
-// Create a client instance
-const queryClient = new QueryClient()
 
 const Layout: React.FC = () => {
 	const { isDark, setIsDark } = useDarkMode()
@@ -99,9 +95,7 @@ const Layout: React.FC = () => {
 			>
 				<Header isDark={isDark} toggleDarkMode={toggleDarkMode} currentDate={currentDate} onMenuClick={toggleSidebar} />
 				<div className="flex-1">
-					<QueryClientProvider client={queryClient}>
-						<Outlet />
-					</QueryClientProvider>
+					<Outlet />
 				</div>
 			</div>
 		</div>

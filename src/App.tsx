@@ -1,4 +1,5 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { LoginPage } from '@features/auth/pages/LoginPage'
 import { RegisterPage } from '@features/auth/pages/RegisterPage'
 import { ForgotPasswordPage } from '@features/auth/pages/ForgotPasswordPage'
@@ -20,82 +21,87 @@ import Form from '@features/form/pages/Form'
 import FormRoute from '@app/routes/FormRoute'
 import CaseSelectionPage from '@features/form/pages/CaseSelectionPage'
 
+// Create a client instance
+const queryClient = new QueryClient()
+
 function App() {
 	return (
-		<BrowserRouter
-			future={{
-				v7_startTransition: true,
-				v7_relativeSplatPath: true,
-			}}
-		>
-			<div className="App">
-				<Routes>
-					{/* Public routes */}
-					<Route path="/" element={<LoginPage />} />
-					<Route path="/register" element={<RegisterPage />} />
-					<Route path="/forgot-password" element={<ForgotPasswordPage />} />
-					<Route path="/reset-password" element={<PasswordResetPage />} />
-					<Route path="/new-password" element={<NewPasswordPage />} />
-					<Route path="/email-verification-notice" element={<EmailVerificationNotice />} />
-					<Route path="/pending-approval" element={<PendingApprovalPage />} />
+		<QueryClientProvider client={queryClient}>
+			<BrowserRouter
+				future={{
+					v7_startTransition: true,
+					v7_relativeSplatPath: true,
+				}}
+			>
+				<div className="App">
+					<Routes>
+						{/* Public routes */}
+						<Route path="/" element={<LoginPage />} />
+						<Route path="/register" element={<RegisterPage />} />
+						<Route path="/forgot-password" element={<ForgotPasswordPage />} />
+						<Route path="/reset-password" element={<PasswordResetPage />} />
+						<Route path="/new-password" element={<NewPasswordPage />} />
+						<Route path="/email-verification-notice" element={<EmailVerificationNotice />} />
+						<Route path="/pending-approval" element={<PendingApprovalPage />} />
 
-					{/* Auth callback route for email verification and password reset */}
-					<Route path="/auth/callback" element={<AuthCallback />} />
+						{/* Auth callback route for email verification and password reset */}
+						<Route path="/auth/callback" element={<AuthCallback />} />
 
-					{/* Form route for regular users */}
-					<Route
-						path="/form"
-						element={
-							<FormRoute>
-								<Form />
-							</FormRoute>
-						}
-					/>
+						{/* Form route for regular users */}
+						<Route
+							path="/form"
+							element={
+								<FormRoute>
+									<Form />
+								</FormRoute>
+							}
+						/>
 
-					{/* Case Selection Page - accessible by owners, doctors and employees */}
-					<Route
-						path="/cases-selection"
-						element={
-							<PrivateRoute requiredRole={undefined}>
-								<CaseSelectionPage />
-							</PrivateRoute>
-						}
-					/>
+						{/* Case Selection Page - accessible by owners, doctors and employees */}
+						<Route
+							path="/cases-selection"
+							element={
+								<PrivateRoute requiredRole={undefined}>
+									<CaseSelectionPage />
+								</PrivateRoute>
+							}
+						/>
 
-					{/* Generate Case Page - accessible by owners, doctors and employees */}
-					<Route
-						path="/generar-caso/:id"
-						element={
-							<PrivateRoute requiredRole={undefined}>
-								<GenerateCasePage />
-							</PrivateRoute>
-						}
-					/>
+						{/* Generate Case Page - accessible by owners, doctors and employees */}
+						<Route
+							path="/generar-caso/:id"
+							element={
+								<PrivateRoute requiredRole={undefined}>
+									<GenerateCasePage />
+								</PrivateRoute>
+							}
+						/>
 
-					{/* Default route */}
-					<Route path="/" element={<LoginPage />} />
+						{/* Default route */}
+						<Route path="/" element={<LoginPage />} />
 
-					{/* Protected dashboard routes */}
-					<Route
-						path="/dashboard"
-						element={
-							<PrivateRoute requiredRole={undefined}>
-								<Layout />
-							</PrivateRoute>
-						}
-					>
-						{/* Nested routes that will render in the Outlet */}
-						<Route index element={<HomePage />} />
-						<Route path="home" element={<HomePage />} />
-						<Route path="stats" element={<StatsPage />} />
-						<Route path="reports" element={<ReportsPage />} />
-						<Route path="users" element={<UsersPage />} />
-						<Route path="cases" element={<CasesPage />} />
-						<Route path="settings" element={<SettingsPage />} />
-					</Route>
-				</Routes>
-			</div>
-		</BrowserRouter>
+						{/* Protected dashboard routes */}
+						<Route
+							path="/dashboard"
+							element={
+								<PrivateRoute requiredRole={undefined}>
+									<Layout />
+								</PrivateRoute>
+							}
+						>
+							{/* Nested routes that will render in the Outlet */}
+							<Route index element={<HomePage />} />
+							<Route path="home" element={<HomePage />} />
+							<Route path="stats" element={<StatsPage />} />
+							<Route path="reports" element={<ReportsPage />} />
+							<Route path="users" element={<UsersPage />} />
+							<Route path="cases" element={<CasesPage />} />
+							<Route path="settings" element={<SettingsPage />} />
+						</Route>
+					</Routes>
+				</div>
+			</BrowserRouter>
+		</QueryClientProvider>
 	)
 }
 

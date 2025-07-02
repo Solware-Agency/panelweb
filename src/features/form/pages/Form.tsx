@@ -3,7 +3,7 @@ import { Toaster as Sonner } from '@shared/components/ui/sonner'
 import { ThemeProvider } from '@app/providers/ThemeProvider'
 import { ThemeToggle } from '@shared/components/ui/ThemeToggle'
 import { Button } from '@shared/components/ui/button'
-import { QueryClient, QueryClientProvider, useQuery } from '@tanstack/react-query'
+import { useQuery } from '@tanstack/react-query'
 import { MedicalForm } from '@features/form/components/MedicalForm'
 import { RecordsSection } from '@features/form/components/RecordsSection'
 import { SettingsSection } from '@features/form/components/SettingsSection'
@@ -16,9 +16,6 @@ import { RefreshCw, Maximize2 } from 'lucide-react'
 import { useUserProfile } from '@shared/hooks/useUserProfile'
 import GenerateCaseButton from '@features/form/components/GenerateCaseButton'
 import { DoctorsSection } from '@features/form/components/DoctorsSection'
-
-// Create a client instance
-const queryClient = new QueryClient()
 
 function FormContent() {
 	const [activeTab, setActiveTab] = useState('form')
@@ -140,10 +137,8 @@ function FormContent() {
 
 export default function Form() {
 	return (
-		<QueryClientProvider client={queryClient}>
-			<ThemeProvider defaultTheme="system" storageKey="ui-theme">
-				<FormContent />
-			</ThemeProvider>
-		</QueryClientProvider>
+		<ThemeProvider defaultTheme="system" storageKey="ui-theme">
+			<FormContent />
+		</ThemeProvider>
 	)
 }
