@@ -3,7 +3,7 @@ import 'jspdf-autotable'
 import html2canvas from 'html2canvas'
 import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
-import logoImage from '@assets/img/logo_conspat.png'
+import logoImage from 'src/assets/img/logo_conspat.png'
 
 // Add the missing types for jspdf-autotable
 declare module 'jspdf' {
