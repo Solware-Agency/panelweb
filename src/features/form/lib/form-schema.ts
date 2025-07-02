@@ -5,7 +5,7 @@ export const paymentSchema = z.object({
 	method: z.string({ required_error: 'El método de pago es requerido.' }).min(1, 'El método de pago es requerido.'),
 	amount: z.coerce
 		.number({ invalid_type_error: 'El monto debe ser un número' })
-		.min(0.01, 'El monto debe ser un número positivo.'),
+		.min(0, 'El monto debe ser un número positivo o cero.'),
 	reference: z.string().min(1, 'La referencia es requerida'),
 })
 
@@ -55,7 +55,7 @@ export const formSchema = z.object({
 	branch: z.string().min(1, 'La sede es requerida'),
 	totalAmount: z.coerce
 		.number({ invalid_type_error: 'El monto total es requerido' })
-		.min(0.01, 'El monto total es requerido'),
+		.min(0, 'El monto total debe ser cero o positivo'),
 	payments: z
 		.array(paymentSchema)
 		.min(1, 'Se requiere al menos un método de pago.')

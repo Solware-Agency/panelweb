@@ -9,7 +9,7 @@ import { PatientDataSection } from './PatientDataSection'
 import { ServiceSection } from './ServiceSection'
 import { PaymentSection } from './PaymentSection'
 import { CommentsSection } from './CommentsSection'
-import { FilePlus2, Loader2 } from 'lucide-react'
+import { FilePlus2, Loader2, Trash2 } from 'lucide-react'
 import { useExchangeRate } from '@shared/hooks/useExchangeRate'
 import { useResetForm } from '@shared/hooks/useResetForm'
 import { insertMedicalRecord } from '@lib/supabase-service'
@@ -38,6 +38,8 @@ export function MedicalFormContainer() {
 	const { data: exchangeRate, isLoading: isLoadingRate } = useExchangeRate()
 	const [usdValue, setUsdValue] = useState('')
 	const [vesValue, setVesValue] = useState('')
+	const [vesInputValue, setVesInputValue] = useState('')
+	const [usdFromVes, setUsdFromVes] = useState('')
 	const [isSubmitted, setIsSubmitted] = useState(false)
 	const [isSubmitting, setIsSubmitting] = useState(false)
 
@@ -61,6 +63,18 @@ export function MedicalFormContainer() {
 			setVesValue('')
 		}
 	}, [usdValue, exchangeRate])
+
+	// Sync USD with VES input
+	useEffect(() => {
+		if (exchangeRate && vesInputValue && exchangeRate > 0) {
+			const ves = parseFloat(vesInputValue)
+			if (!isNaN(ves)) {
+				setUsdFromVes((ves / exchangeRate).toFixed(2))
+			}
+		} else {
+			setUsdFromVes('')
+		}
+	}, [vesInputValue, exchangeRate])
 
 	useResetForm(form, getInitialFormValues, setUsdValue, setIsSubmitted, toast)
 
@@ -98,6 +112,11 @@ export function MedicalFormContainer() {
 					className: 'bg-green-100 border-green-400 text-green-800',
 				})
 				setIsSubmitted(true)
+				
+				// Clear form after successful submission
+				form.reset(getInitialFormValues())
+				setUsdValue('')
+				setVesInputValue('')
 			}
 		} catch (error) {
 			console.error('Error inesperado:', error)
@@ -114,13 +133,36 @@ export function MedicalFormContainer() {
 	const handleNewRecord = () => {
 		form.reset(getInitialFormValues())
 		setUsdValue('')
+		setVesInputValue('')
 		setIsSubmitted(false)
+	}
+
+	const handleClearForm = () => {
+		form.reset(getInitialFormValues())
+		setUsdValue('')
+		setVesInputValue('')
+		setIsSubmitted(false)
+		toast({
+			title: '🧹 Formulario Limpio',
+			description: 'Todos los campos han sido reiniciados.',
+		})
 	}
 
 	const inputStyles = 'transition-all duration-300 focus:border-primary focus:ring-primary'
 
 	return (
 		<div className="animate-fade-in">
+			<div className="flex justify-end mb-4">
+				<Button 
+					type="button" 
+					onClick={handleClearForm}
+					variant="outline"
+					className="flex items-center gap-2"
+				>
+					<Trash2 className="h-4 w-4" />
+					Limpiar
+				</Button>
+			</div>
 			<Form {...form}>
 				<form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
 					<PatientDataSection control={form.control} inputStyles={inputStyles} />
@@ -135,6 +177,9 @@ export function MedicalFormContainer() {
 						usdValue={usdValue}
 						setUsdValue={setUsdValue}
 						vesValue={vesValue}
+						vesInputValue={vesInputValue}
+						setVesInputValue={setVesInputValue}
+						usdFromVes={usdFromVes}
 						exchangeRate={exchangeRate}
 						isLoadingRate={isLoadingRate}
 					/>
