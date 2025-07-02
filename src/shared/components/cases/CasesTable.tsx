@@ -124,11 +124,11 @@ const CasesTable: React.FC<CasesTableProps> = ({
 			const doc = new jsPDF()
 			
 			// Add logo to header
+        const cleanedBase64 = logoBase64.replace(/\s/g, '') // 🔥 elimina cualquier espacio o salto
+const fullDataUrl = `data:image/png;base64,${cleanedBase64}`
 			try {
 				// Add the proper data URI prefix to the base64 string and trim whitespace
-        const cleanedBase64 = logoBase64.replace(/\s/g, '')
-				const prefixedLogoBase64 = `data:image/png;base64,${cleanedBase64}`
-				doc.addImage(prefixedLogoBase64, 'PNG', 70, 10, 70, 25)
+				doc.addImage(fullDataUrl, 'PNG', 70, 10, 70, 25)
 			} catch (error) {
 				console.error('Error adding logo to PDF:', error)
 			}
