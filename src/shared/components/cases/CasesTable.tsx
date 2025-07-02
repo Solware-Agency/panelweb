@@ -5,7 +5,7 @@ import {
 	Search,
 	Filter,
 	Eye,
-	Calendar as CalendarIcon,
+	CalendarIcon,
 	User,
 	Stethoscope,
 	CreditCard,
@@ -123,24 +123,22 @@ const CasesTable: React.FC<CasesTableProps> = ({
 			// Create a new PDF document
 			const doc = new jsPDF()
 			
-			// Add logo to header
-        const cleanedBase64 = logoBase64.replace(/\s/g, '') // 🔥 elimina cualquier espacio o salto
-const fullDataUrl = `data:image/png;base64,${cleanedBase64}`
+			// Clean the base64 string by removing all whitespace
+			const cleanedBase64 = logoBase64.replace(/\s/g, '')
+			const fullDataUrl = `data:image/png;base64,${cleanedBase64}`
+			
 			try {
-				// Add the proper data URI prefix to the base64 string and trim whitespace
+				// Add the logo to the PDF
 				doc.addImage(fullDataUrl, 'PNG', 70, 10, 70, 25)
 			} catch (error) {
 				console.error('Error adding logo to PDF:', error)
+				// Continue with PDF generation even if logo fails
 			}
 			
 			// Add header
 			doc.setFontSize(18)
 			doc.setTextColor(33, 33, 33)
 			doc.text('INFORME DE BIOPSIA', 105, 45, { align: 'center' })
-			
-			// Add case information
-			doc.setFontSize(12)
-			doc.setTextColor(33, 33, 33)
 			
 			// Add patient information
 			doc.setFontSize(14)
