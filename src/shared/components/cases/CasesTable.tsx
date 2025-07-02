@@ -9,6 +9,7 @@ import {
 	User,
 	Stethoscope,
 	CreditCard,
+	FileText,
 } from 'lucide-react'
 import { type MedicalRecord, updateMedicalRecordWithLog, getAgeDisplay, deleteMedicalRecord } from '@lib/supabase-service'
 import { format } from 'date-fns'
@@ -240,6 +241,13 @@ const CasesTable: React.FC<CasesTableProps> = ({
 					>
 						<Eye className="w-3 h-3" />
 						Ver
+					</button>
+					<button
+						onClick={() => onCaseSelect(case_)}
+						className="flex-1 inline-flex items-center justify-center gap-1 px-3 py-2 text-xs font-medium text-green-600 dark:text-green-400 hover:text-green-800 dark:hover:text-green-300 bg-green-50 dark:bg-green-900/20 hover:bg-green-100 dark:hover:bg-green-900/30 rounded-lg transition-colors"
+					>
+						<FileText className="w-3 h-3" />
+						Generar
 					</button>
 				</div>
 			</div>
@@ -550,7 +558,7 @@ const CasesTable: React.FC<CasesTableProps> = ({
 												)}
 											</td>
 											<td className="px-4 py-4">
-												<div className="flex">
+												<div className="flex gap-2">
 													<button
 														onClick={(e) => {
 															e.stopPropagation()
@@ -560,6 +568,16 @@ const CasesTable: React.FC<CasesTableProps> = ({
 													>
 														<Eye className="w-3 h-3" />
 														Ver
+													</button>
+													<button
+														onClick={(e) => {
+															e.stopPropagation()
+															onCaseSelect(case_)
+														}}
+														className="inline-flex items-center gap-1 px-3 py-1 text-xs font-medium text-green-600 dark:text-green-400 hover:text-green-800 dark:hover:text-green-300 transition-colors"
+													>
+														<FileText className="w-3 h-3" />
+														Generar
 													</button>
 												</div>
 											</td>
@@ -842,7 +860,7 @@ const CasesTable: React.FC<CasesTableProps> = ({
 														)}
 													</td>
 													<td className="px-4 py-4">
-														<div className="flex">
+														<div className="flex gap-2">
 															<button
 																onClick={(e) => {
 																	e.stopPropagation()
@@ -852,6 +870,16 @@ const CasesTable: React.FC<CasesTableProps> = ({
 															>
 																<Eye className="w-3 h-3" />
 																Ver
+															</button>
+															<button
+																onClick={(e) => {
+																	e.stopPropagation()
+																	onCaseSelect(case_)
+																}}
+																className="inline-flex items-center gap-1 px-3 py-1 text-xs font-medium text-green-600 dark:text-green-400 hover:text-green-800 dark:hover:text-green-300 transition-colors"
+															>
+																<FileText className="w-3 h-3" />
+																Generar
 															</button>
 														</div>
 													</td>
