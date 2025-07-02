@@ -313,8 +313,40 @@ const CasesTable: React.FC<CasesTableProps> = ({
 			const pageCount = doc.getNumberOfPages()
 			for (let i = 1; i <= pageCount; i++) {
 				doc.setPage(i)
+				
+				// Add the custom footer text
 				doc.setFontSize(8)
 				doc.setTextColor(100, 100, 100)
+				
+				// First line of footer
+				doc.text(
+					'DIRECCIÓN:',
+					14,
+					doc.internal.pageSize.getHeight() - 30
+				)
+				
+				// Second line - addresses
+				doc.text(
+					'VALLES DEL TUY: Edificio Multioficinas Conex / CARACAS: Policlínica Méndez Gimón – Clínica Sanatrix – Torre Centro Caracas / MARACAY: Centro Profesional Plaza',
+					14,
+					doc.internal.pageSize.getHeight() - 25
+				)
+				
+				// Third line - contact info
+				doc.text(
+					'CONTACTO: (0212) 889822 / (0414) 4861289 / (0424) 1425562',
+					14,
+					doc.internal.pageSize.getHeight() - 20
+				)
+				
+				// Fourth line - email
+				doc.text(
+					'Resultados@conspat.com',
+					14,
+					doc.internal.pageSize.getHeight() - 15
+				)
+				
+				// Page number and generation date at the bottom
 				doc.text(
 					`Página ${i} de ${pageCount} - Generado el ${format(new Date(), 'dd/MM/yyyy HH:mm', { locale: es })}`,
 					doc.internal.pageSize.getWidth() / 2,
