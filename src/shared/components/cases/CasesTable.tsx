@@ -13,7 +13,7 @@ import {
 	Download,
 } from 'lucide-react'
 import { type MedicalRecord, updateMedicalRecordWithLog, getAgeDisplay, deleteMedicalRecord } from '@lib/supabase-service'
-import { format } from 'date-fns'
+import { format, parseISO } from 'date-fns'
 import { es } from 'date-fns/locale'
 import { useAuth } from '@app/providers/AuthContext'
 import { Card } from '@shared/components/ui/card'
