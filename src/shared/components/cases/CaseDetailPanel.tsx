@@ -447,8 +447,6 @@ const CaseDetailPanel: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClos
 										)}
 									</div>
 								</InfoSection>
-								
-								
 							</div>
 						</motion.div>
 					</>
