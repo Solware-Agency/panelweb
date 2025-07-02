@@ -124,11 +124,11 @@ const CasesTable: React.FC<CasesTableProps> = ({
 			const doc = new jsPDF()
 			
 			// Get the number of pages that will be generated
-			const pageCount = doc.getNumberOfPages()
+			let totalPages = doc.getNumberOfPages()
 			
 			// For each page, add the header with logo and title
-			for (let i = 1; i <= pageCount + 1; i++) { // +1 to ensure we handle any new pages that might be added
-				doc.setPage(i > pageCount ? pageCount : i)
+			for (let i = 1; i <= totalPages + 1; i++) { // +1 to ensure we handle any new pages that might be added
+				doc.setPage(i > totalPages ? totalPages : i)
 				
 				// Add logo at the top
 				doc.addImage(logoImage, 'PNG', 10, 10, 40, 20)
@@ -367,8 +367,8 @@ const CasesTable: React.FC<CasesTableProps> = ({
 			}
 			
 			// Add footer
-			const pageCount = doc.getNumberOfPages()
-			for (let i = 1; i <= pageCount; i++) {
+			const finalPageCount = doc.getNumberOfPages()
+			for (let i = 1; i <= finalPageCount; i++) {
 				doc.setPage(i)
 				
 				// Add the custom footer text
@@ -405,7 +405,7 @@ const CasesTable: React.FC<CasesTableProps> = ({
 				
 				// Page number and generation date at the bottom
 				doc.text(
-					`Página ${i} de ${pageCount} - Generado el ${format(new Date(), 'dd/MM/yyyy HH:mm', { locale: es })}`,
+					`Página ${i} de ${finalPageCount} - Generado el ${format(new Date(), 'dd/MM/yyyy HH:mm', { locale: es })}`,
 					doc.internal.pageSize.getWidth() / 2,
 					doc.internal.pageSize.getHeight() - 10,
 					{ align: 'center' }
