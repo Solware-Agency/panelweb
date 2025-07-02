@@ -3,7 +3,6 @@ import 'jspdf-autotable'
 import html2canvas from 'html2canvas'
 import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
-import logoImage from '../../../assets/img/logo_conspat.png'
 
 // Add the missing types for jspdf-autotable
 declare module 'jspdf' {
@@ -26,12 +25,6 @@ interface ExportToPdfOptions {
   headerText?: string
 }
 
-// Footer text for all PDFs
-const FOOTER_TEXT = `DIRECCIÓN:
-VALLES DEL TUY: Edificio Multioficinas Conex / CARACAS: Policlínica Méndez Gimón – Clínica Sanatrix – Torre Centro Caracas   / MARACAY: Centro Profesional Plaza
-CONTACTO: (0212) 889822 / (0414) 4861289 / (0424) 1425562
-Resultados@conspat.com`;
-
 /**
  * Export a DOM element to PDF
  */
@@ -48,7 +41,7 @@ export const exportElementToPdf = async (
     includeDate = true,
     includeHeader = true,
     includeFooter = true,
-    footerText = FOOTER_TEXT,
+    footerText = 'Generado por el sistema de registros médicos',
     headerText = 'Sistema de Registros Médicos',
   } = options
 
@@ -70,16 +63,17 @@ export const exportElementToPdf = async (
 
     // Add header
     if (includeHeader) {
-      // Add logo
-      try {
-        pdf.addImage(logoImage, 'PNG', 14, 10, 30, 15)
-      } catch (error) {
-        console.error('Error adding logo to PDF:', error)
+      // Add logo or header image if provided
+      if (options.headerImageUrl) {
+        pdf.addImage(options.headerImageUrl, 'JPEG', 14, 10, 30, 15)
+        pdf.setFontSize(18)
+        pdf.setTextColor(33, 33, 33)
+        pdf.text(headerText, 50, 20)
+      } else {
+        pdf.setFontSize(18)
+        pdf.setTextColor(33, 33, 33)
+        pdf.text(headerText, 14, 20)
       }
-      
-      pdf.setFontSize(18)
-      pdf.setTextColor(33, 33, 33)
-      pdf.text(headerText, 50, 20)
 
       // Add title
       pdf.setFontSize(16)
@@ -122,7 +116,7 @@ export const exportElementToPdf = async (
     
     // Calculate margins
     const marginTop = includeHeader ? 50 : 10
-    const marginBottom = includeFooter ? 30 : 10 // Increased margin for footer
+    const marginBottom = includeFooter ? 20 : 10
     const availableHeight = pageHeight - marginTop - marginBottom
     
     // Calculate image dimensions to fit the page
@@ -146,28 +140,13 @@ export const exportElementToPdf = async (
 
     // Add footer
     if (includeFooter) {
-      const totalPages = pdf.getNumberOfPages()
+      const footerY = pageHeight - 10
+      pdf.setFontSize(8)
+      pdf.setTextColor(100, 100, 100)
+      pdf.text(footerText, 14, footerY)
       
-      for (let i = 1; i <= totalPages; i++) {
-        pdf.setPage(i)
-        
-        // Set font for footer
-        pdf.setFontSize(8)
-        pdf.setTextColor(100, 100, 100)
-        
-        // Split footer text into lines
-        const footerLines = footerText.split('\n')
-        const lineHeight = 3.5
-        const startY = pageHeight - (footerLines.length * lineHeight) - 5
-        
-        // Add each line of the footer
-        footerLines.forEach((line, index) => {
-          pdf.text(line, 14, startY + (index * lineHeight))
-        })
-        
-        // Add page number
-        pdf.text(`Página ${i} de ${totalPages}`, pageWidth - 30, pageHeight - 10)
-      }
+      // Add page number
+      pdf.text(`Página 1 de 1`, pageWidth - 30, footerY)
     }
 
     // Save the PDF
@@ -197,7 +176,7 @@ export const exportTableToPdf = (
     includeDate = true,
     includeHeader = true,
     includeFooter = true,
-    footerText = FOOTER_TEXT,
+    footerText = 'Generado por el sistema de registros médicos',
     headerText = 'Sistema de Registros Médicos',
   } = options
 
@@ -219,16 +198,17 @@ export const exportTableToPdf = (
 
     // Add header
     if (includeHeader) {
-      // Add logo
-      try {
-        pdf.addImage(logoImage, 'PNG', 14, 10, 30, 15)
-      } catch (error) {
-        console.error('Error adding logo to PDF:', error)
+      // Add logo or header image if provided
+      if (options.headerImageUrl) {
+        pdf.addImage(options.headerImageUrl, 'JPEG', 14, 10, 30, 15)
+        pdf.setFontSize(18)
+        pdf.setTextColor(33, 33, 33)
+        pdf.text(headerText, 50, 20)
+      } else {
+        pdf.setFontSize(18)
+        pdf.setTextColor(33, 33, 33)
+        pdf.text(headerText, 14, 20)
       }
-      
-      pdf.setFontSize(18)
-      pdf.setTextColor(33, 33, 33)
-      pdf.text(headerText, 50, 20)
 
       // Add title
       pdf.setFontSize(16)
@@ -260,7 +240,7 @@ export const exportTableToPdf = (
       head: [headers],
       body: data,
       startY: includeHeader ? 50 : 10,
-      margin: { top: 10, right: 14, bottom: includeFooter ? 35 : 10, left: 14 }, // Increased bottom margin for footer
+      margin: { top: 10, right: 14, bottom: includeFooter ? 25 : 10, left: 14 },
       headStyles: {
         fillColor: [128, 0, 128], // Purple color
         textColor: [255, 255, 255],
@@ -277,27 +257,16 @@ export const exportTableToPdf = (
 
     // Add footer
     if (includeFooter) {
-      const totalPages = pdf.getNumberOfPages()
-      
-      for (let i = 1; i <= totalPages; i++) {
+      const pageCount = pdf.getNumberOfPages()
+      for (let i = 1; i <= pageCount; i++) {
         pdf.setPage(i)
-        
-        // Set font for footer
+        const footerY = pdf.internal.pageSize.getHeight() - 10
         pdf.setFontSize(8)
         pdf.setTextColor(100, 100, 100)
-        
-        // Split footer text into lines
-        const footerLines = footerText.split('\n')
-        const lineHeight = 3.5
-        const startY = pdf.internal.pageSize.getHeight() - (footerLines.length * lineHeight) - 5
-        
-        // Add each line of the footer
-        footerLines.forEach((line, index) => {
-          pdf.text(line, 14, startY + (index * lineHeight))
-        })
+        pdf.text(footerText, 14, footerY)
         
         // Add page number
-        pdf.text(`Página ${i} de ${totalPages}`, pdf.internal.pageSize.getWidth() - 30, pdf.internal.pageSize.getHeight() - 10)
+        pdf.text(`Página ${i} de ${pageCount}`, pdf.internal.pageSize.getWidth() - 30, footerY)
       }
     }
 

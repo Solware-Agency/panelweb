@@ -14,8 +14,7 @@
       "@lib/*": ["lib/*"],
       "@app/*": ["app/*"],
       "@features/*": ["features/*"],
-      "@shared/*": ["shared/*"],
-      "@assets/*": ["assets/*"]
+      "@shared/*": ["shared/*"]
     }
   }
 }
