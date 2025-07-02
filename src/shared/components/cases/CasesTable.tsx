@@ -5,7 +5,7 @@ import {
 	Search,
 	Filter,
 	Eye,
-	Calendar,
+	Calendar as CalendarIcon,
 	User,
 	Stethoscope,
 	CreditCard,
@@ -517,7 +517,7 @@ const CasesTable: React.FC<CasesTableProps> = ({
 				{/* Date and amount */}
 				<div className="flex items-center justify-between pt-2 border-t border-gray-200 dark:border-gray-700">
 					<div className="flex items-center gap-1">
-						<Calendar className="w-3 h-3 text-gray-400" />
+						<CalendarIcon className="w-3 h-3 text-gray-400" />
 						<span className="text-xs text-gray-500 dark:text-gray-400">
 							{case_.created_at ? format(new Date(case_.created_at), 'dd/MM/yyyy HH:mm', { locale: es }) : 'N/A'}
 						</span>
