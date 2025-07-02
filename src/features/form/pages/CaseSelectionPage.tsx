@@ -26,7 +26,7 @@ const CaseSelectionPage: React.FC = () => {
         // Build the query
         let query = supabase
           .from('medical_records_clean')
-          .select('id, code, full_name, exam_type, branch, date, id_number, material_remitido, diagnostico')
+          .select('id, code, full_name, exam_type, branch, date, id_number')
           .ilike('exam_type', '%biopsia%') // Case-insensitive search
           .order('created_at', { ascending: false });
         
@@ -82,7 +82,7 @@ const CaseSelectionPage: React.FC = () => {
       // Build the query
       let query = supabase
         .from('medical_records_clean')
-        .select('id, code, full_name, exam_type, branch, date, id_number, material_remitido, diagnostico')
+        .select('id, code, full_name, exam_type, branch, date, id_number')
         .ilike('exam_type', '%biopsia%') // Case-insensitive search
         .or(`code.ilike.%${searchTerm}%,id_number.ilike.%${searchTerm}%,full_name.ilike.%${searchTerm}%`);
       
@@ -106,7 +106,7 @@ const CaseSelectionPage: React.FC = () => {
       } else {
         toast({
           title: '❌ No se encontraron resultados',
-          description: 'No se encontraron casos de biopsia con ese criterio de búsqueda.',
+          description: 'No se encontraron casos con ese criterio de búsqueda.',
           variant: 'destructive',
         });
       }
@@ -135,7 +135,7 @@ const CaseSelectionPage: React.FC = () => {
     return (
       <div className="container mx-auto py-10 px-4">
         <div className="flex items-center justify-between mb-4">
-          <h1 className="text-2xl font-bold">Generar Caso</h1>
+          <h1 className="text-2xl font-bold">Seleccionar Caso</h1>
           <Button 
             onClick={handleBackToForm} 
             variant="outline"
@@ -151,8 +151,11 @@ const CaseSelectionPage: React.FC = () => {
             <AlertCircle className="text-red-500 size-12" />
             <h2 className="text-xl font-semibold">Error al cargar los casos</h2>
             <p className="text-gray-600 dark:text-gray-400 max-w-md mx-auto">
-              Hubo un problema al cargar los casos de biopsia. Por favor intenta de nuevo.
+              Hubo un problema al cargar los casos. Por favor intenta de nuevo.
             </p>
+            <pre className="text-xs bg-gray-100 dark:bg-gray-800 p-4 rounded-md overflow-auto max-w-full mt-4">
+              {JSON.stringify(error, null, 2)}
+            </pre>
             <Button 
               onClick={() => refetch()} 
               className="mt-4 bg-primary hover:bg-primary/80"
@@ -169,7 +172,7 @@ const CaseSelectionPage: React.FC = () => {
   return (
     <div className="container mx-auto py-10 px-4">
       <div className="flex items-center justify-between mb-4">
-        <h1 className="text-2xl font-bold">Generar Caso de Biopsia</h1>
+        <h1 className="text-2xl font-bold">Seleccionar Caso</h1>
         <Button 
           onClick={handleBackToForm} 
           variant="outline"
@@ -192,7 +195,7 @@ const CaseSelectionPage: React.FC = () => {
                 Sede: {profile.assigned_branch}
               </h3>
               <p className="text-sm text-blue-700 dark:text-blue-400">
-                Solo se muestran casos de biopsia de tu sede asignada
+                Solo se muestran casos de tu sede asignada
               </p>
             </div>
           </div>
@@ -202,11 +205,11 @@ const CaseSelectionPage: React.FC = () => {
       <Card className="mb-6 p-6 hover:border-primary hover:shadow-lg hover:shadow-primary/20 transition-all duration-300">
         <div className="flex items-center gap-2 mb-4">
           <BookCopy className="text-primary size-5" />
-          <h2 className="text-lg font-semibold">Buscar caso de biopsia</h2>
+          <h2 className="text-lg font-semibold">Buscar caso</h2>
         </div>
         <div className="mb-4">
           <p className="text-gray-600 dark:text-gray-400 mb-4">
-            Ingresa el número del caso, nombre del paciente o cédula para generar el caso de biopsia.
+            Ingresa el número del caso, nombre del paciente o cédula para buscar.
           </p>
         </div>
         
@@ -250,7 +253,7 @@ const CaseSelectionPage: React.FC = () => {
           <div className="flex items-center justify-between mb-4 px-2">
             <h2 className="text-xl font-semibold flex items-center gap-2">
               <Search className="text-primary size-5" /> 
-              Resultados de casos
+              Resultados
             </h2>
             <p className="text-sm text-gray-500">
               {!isLoading && filteredCases ? `${filteredCases.length} casos encontrados` : ''}
@@ -260,7 +263,7 @@ const CaseSelectionPage: React.FC = () => {
           {isLoading ? (
             <div className="flex items-center justify-center py-10">
               <Loader2 className="w-8 h-8 animate-spin text-primary mr-2" />
-              <span>Cargando casos de biopsia...</span>
+              <span>Cargando casos...</span>
             </div>
           ) : filteredCases && filteredCases.length > 0 ? (
             <div className="space-y-2 max-h-[600px] overflow-y-auto">
@@ -305,7 +308,7 @@ const CaseSelectionPage: React.FC = () => {
                           }}
                         >
                           <FileText className="w-4 h-4 mr-2" />
-                          {record.material_remitido || record.diagnostico ? 'Editar Caso' : 'Generar Caso'}
+                          Seleccionar Caso
                         </Button>
                       </td>
                     </tr>
@@ -334,7 +337,7 @@ const CaseSelectionPage: React.FC = () => {
             {isLoading ? (
               <div className="flex items-center justify-center py-10">
                 <Loader2 className="w-8 h-8 animate-spin text-primary mr-2" />
-                <span>Cargando casos de biopsia...</span>
+                <span>Cargando casos...</span>
               </div>
             ) : filteredCases && filteredCases.length > 0 ? (
               <div className="space-y-3">
@@ -376,7 +379,7 @@ const CaseSelectionPage: React.FC = () => {
                       }}
                     >
                       <FileText className="w-4 h-4 mr-1" />
-                      {record.material_remitido || record.diagnostico ? 'Editar Caso' : 'Generar Caso'}
+                      Seleccionar Caso
                     </Button>
                   </div>
                 ))}

@@ -177,12 +177,12 @@ const CasesTable: React.FC<CasesTableProps> = ({
 			if (!case_) return false
 
 			const matchesSearch =
-				case_.full_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+				(case_.full_name?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
 				(case_.id || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
-				case_.id_number?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-				case_.exam_type?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-				case_.treating_doctor?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-				case_.branch?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+				(case_.id_number?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
+				(case_.exam_type?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
+				(case_.treating_doctor?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
+				(case_.branch?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
 				(case_.code && case_.code.toLowerCase().includes(searchTerm.toLowerCase()))
 
 			// Updated filter logic to handle only "Completado" and "Incompleto"
@@ -474,13 +474,15 @@ const CasesTable: React.FC<CasesTableProps> = ({
 							Mostrando {filteredAndSortedCases.length} de{' '}
 							{
 								cases.filter((case_) => {
+									if (!case_) return false;
+									
 									const matchesSearch =
-										case_.full_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+										(case_.full_name?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
 										(case_.id || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
-										case_.id_number.toLowerCase().includes(searchTerm.toLowerCase()) ||
-										case_.exam_type.toLowerCase().includes(searchTerm.toLowerCase()) ||
-										case_.treating_doctor.toLowerCase().includes(searchTerm.toLowerCase()) ||
-										case_.branch.toLowerCase().includes(searchTerm.toLowerCase()) ||
+										(case_.id_number?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
+										(case_.exam_type?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
+										(case_.treating_doctor?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
+										(case_.branch?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
 										(case_.code && case_.code.toLowerCase().includes(searchTerm.toLowerCase()))
 
 									let matchesStatus = true
@@ -792,13 +794,15 @@ const CasesTable: React.FC<CasesTableProps> = ({
 								Mostrando {filteredAndSortedCases.length} de{' '}
 								{
 									cases.filter((case_) => {
+										if (!case_) return false;
+										
 										const matchesSearch =
-											case_.full_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+											(case_.full_name?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
 											(case_.id || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
-											case_.id_number.toLowerCase().includes(searchTerm.toLowerCase()) ||
-											case_.exam_type.toLowerCase().includes(searchTerm.toLowerCase()) ||
-											case_.treating_doctor.toLowerCase().includes(searchTerm.toLowerCase()) ||
-											case_.branch.toLowerCase().includes(searchTerm.toLowerCase()) ||
+											(case_.id_number?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
+											(case_.exam_type?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
+											(case_.treating_doctor?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
+											(case_.branch?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
 											(case_.code && case_.code.toLowerCase().includes(searchTerm.toLowerCase()))
 
 										let matchesStatus = true
