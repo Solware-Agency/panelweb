@@ -125,8 +125,9 @@ const CasesTable: React.FC<CasesTableProps> = ({
 			
 			// Add logo to header
 			try {
-				// Add the logo from base64 string
-				doc.addImage(logoBase64, 'PNG', 70, 10, 70, 25)
+				// Add the proper data URI prefix to the base64 string
+				const prefixedLogoBase64 = `data:image/png;base64,${logoBase64}`
+				doc.addImage(prefixedLogoBase64, 'PNG', 70, 10, 70, 25)
 			} catch (error) {
 				console.error('Error adding logo to PDF:', error)
 			}
