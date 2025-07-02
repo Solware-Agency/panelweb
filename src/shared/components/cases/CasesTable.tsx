@@ -12,13 +12,22 @@ import {
 	FileText,
 	Download,
 } from 'lucide-react'
-import { type MedicalRecord, updateMedicalRecordWithLog, getAgeDisplay, deleteMedicalRecord } from '@lib/supabase-service'
+import { motion, AnimatePresence } from 'motion/react'
+import type { MedicalRecord } from '@lib/supabase-service'
+import { getAgeDisplay, deleteMedicalRecord, updateMedicalRecordWithLog } from '@lib/supabase-service'
 import { format, parseISO } from 'date-fns'
 import { es } from 'date-fns/locale'
-import { useAuth } from '@app/providers/AuthContext'
-import { Card } from '@shared/components/ui/card'
+import { useQuery } from '@tanstack/react-query'
+import { supabase } from '@lib/supabase/config'
 import { useToast } from '@shared/hooks/use-toast'
-import { useUserProfile } from '@shared/hooks/useUserProfile'
+import { Button } from '@shared/components/ui/button'
+import { Input } from '@shared/components/ui/input'
+import { Textarea } from '@shared/components/ui/textarea'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@shared/components/ui/select'
+import { useAuth } from '@app/providers/AuthContext'
+import { Popover, PopoverContent, PopoverTrigger } from '@shared/components/ui/popover'
+import { Calendar } from '@shared/components/ui/calendar'
+import { cn } from '@shared/lib/cn'
 import GenerateBiopsyModal from './GenerateBiopsyModal'
 import { jsPDF } from 'jspdf'
 import 'jspdf-autotable'
@@ -46,11 +55,10 @@ const CasesTable: React.FC<CasesTableProps> = ({
 	setIsFullscreen 
 }) => {
 	const { user } = useAuth()
-	const { profile } = useUserProfile()
 	const { toast } = useToast()
 	const [searchTerm, setSearchTerm] = useState('')
 	const [statusFilter, setStatusFilter] = useState<string>('all')
-	const [branchFilter, setBranchFilter] = useState<string>(profile?.assigned_branch || 'all')
+	const [branchFilter, setBranchFilter] = useState<string>('all')
 	const [examTypeFilter, setExamTypeFilter] = useState<string>('all')
 	const [sortField, setSortField] = useState<SortField>('created_at')
 	const [sortDirection, setSortDirection] = useState<SortDirection>('desc')
@@ -58,13 +66,6 @@ const CasesTable: React.FC<CasesTableProps> = ({
 	const [selectedCaseForGenerate, setSelectedCaseForGenerate] = useState<MedicalRecord | null>(null)
 	const [isGenerateModalOpen, setIsGenerateModalOpen] = useState(false)
 	const [isDownloading, setIsDownloading] = useState<string | null>(null)
-
-	// Set branch filter to user's assigned branch if they have one
-	React.useEffect(() => {
-		if (profile?.assigned_branch) {
-			setBranchFilter(profile.assigned_branch)
-		}
-	}, [profile?.assigned_branch])
 
 	const getStatusColor = (status: string) => {
 		switch (status) {
@@ -121,10 +122,17 @@ const CasesTable: React.FC<CasesTableProps> = ({
 			// Create a new PDF document
 			const doc = new jsPDF()
 			
+			// Add logo to header
+			// Base64 logo would be added here
+			// For now, we'll just add a placeholder text header
+			doc.setFontSize(18)
+			doc.setTextColor(33, 33, 33)
+			doc.text('CONSPAT', 105, 20, { align: 'center' })
+			
 			// Add header
 			doc.setFontSize(18)
 			doc.setTextColor(33, 33, 33)
-			doc.text('INFORME DE BIOPSIA', 105, 20, { align: 'center' })
+			doc.text('INFORME DE BIOPSIA', 105, 30, { align: 'center' })
 			
 			// Add case information
 			doc.setFontSize(12)
@@ -644,22 +652,20 @@ const CasesTable: React.FC<CasesTableProps> = ({
 							</div>
 
 							{/* Branch Filter - Only show if user doesn't have assigned branch */}
-							{(!profile?.assigned_branch) && (
-								<div className="flex items-center gap-2">
-									<select
-										value={branchFilter}
-										onChange={(e) => setBranchFilter(e.target.value)}
-										className="px-3 py-2 border border-input rounded-lg focus:ring-2 focus:ring-primary dark:bg-background dark:text-white text-sm"
-									>
-										<option value="all">Todas las sedes</option>
-										<option value="PMG">PMG</option>
-										<option value="CPC">CPC</option>
-										<option value="CNX">CNX</option>
-										<option value="STX">STX</option>
-										<option value="MCY">MCY</option>
-									</select>
-								</div>
-							)}
+							<div className="flex items-center gap-2">
+								<select
+									value={branchFilter}
+									onChange={(e) => setBranchFilter(e.target.value)}
+									className="px-3 py-2 border border-input rounded-lg focus:ring-2 focus:ring-primary dark:bg-background dark:text-white text-sm"
+								>
+									<option value="all">Todas las sedes</option>
+									<option value="PMG">PMG</option>
+									<option value="CPC">CPC</option>
+									<option value="CNX">CNX</option>
+									<option value="STX">STX</option>
+									<option value="MCY">MCY</option>
+								</select>
+							</div>
 
 							{/* Exam Type Filter */}
 							<div className="flex items-center gap-2">
@@ -946,131 +952,313 @@ const CasesTable: React.FC<CasesTableProps> = ({
 
 	return (
 		<>
-			<Card className="hover:border-primary hover:shadow-lg hover:shadow-primary/20 transition-all duration-300 shadow-lg">
-				<div className="bg-white dark:bg-background rounded-xl transition-colors duration-300 h-full">
-					{/* Search and Filter Controls */}
-					<div className="p-4 sm:p-6 border-b border-gray-200 dark:border-gray-700">
-						<div className="flex flex-wrap items-center gap-4">
-							{/* Search and Filters Row */}
-							<div className="flex flex-col sm:flex-row gap-4 flex-1">
-								{/* Search - Acortada */}
-								<div className="w-full sm:max-w-md relative">
-									<Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
-									<input
-										type="text"
-										placeholder="Buscar por nombre, código, cédula, estudio o médico..."
-										value={searchTerm}
-										onChange={(e) => setSearchTerm(e.target.value)}
-										className="w-full pl-10 pr-4 py-2 border border-input rounded-lg focus:ring-2 focus:ring-primary dark:bg-background dark:text-white text-sm"
-									/>
-								</div>
-
-								{/* Status Filter - Updated with only Completado and Incompleto */}
-								<div className="flex items-center gap-2">
-									<Filter className="w-4 h-4 text-gray-400" />
-									<select
-										value={statusFilter}
-										onChange={(e) => setStatusFilter(e.target.value)}
-										className="px-3 py-2 border border-input rounded-lg focus:ring-2 focus:ring-primary dark:bg-background dark:text-white text-sm"
-									>
-										<option value="all">Todos los estatus</option>
-										<option value="Completado">Completado</option>
-										<option value="Incompleto">Incompleto</option>
-									</select>
-								</div>
-
-								{/* Branch Filter - Only show if user doesn't have assigned branch */}
-								{(!profile?.assigned_branch) && (
-									<div className="flex items-center gap-2">
-										<select
-											value={branchFilter}
-											onChange={(e) => setBranchFilter(e.target.value)}
-											className="px-3 py-2 border border-input rounded-lg focus:ring-2 focus:ring-primary dark:bg-background dark:text-white text-sm"
-										>
-											<option value="all">Todas las sedes</option>
-											<option value="PMG">PMG</option>
-											<option value="CPC">CPC</option>
-											<option value="CNX">CNX</option>
-											<option value="STX">STX</option>
-											<option value="MCY">MCY</option>
-										</select>
-									</div>
-								)}
-
-								{/* Exam Type Filter */}
-								<div className="flex items-center gap-2">
-									<select
-										value={examTypeFilter}
-										onChange={(e) => setExamTypeFilter(e.target.value)}
-										className="px-3 py-2 border border-input rounded-lg focus:ring-2 focus:ring-primary dark:bg-background dark:text-white text-sm"
-									>
-										<option value="all">Todos los estudios</option>
-										<option value="inmunohistoquimica">Inmunohistoquímica</option>
-										<option value="biopsia">Biopsia</option>
-										<option value="citologia">Citología</option>
-									</select>
-								</div>
+			<div className="bg-white dark:bg-background rounded-xl transition-colors duration-300 h-full">
+				{/* Search and Filter Controls */}
+				<div className="p-4 sm:p-6 border-b border-gray-200 dark:border-gray-700">
+					<div className="flex flex-wrap items-center gap-4">
+						{/* Search and Filters Row */}
+						<div className="flex flex-col sm:flex-row gap-4 flex-1">
+							{/* Search - Acortada */}
+							<div className="w-full sm:max-w-md relative">
+								<Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+								<input
+									type="text"
+									placeholder="Buscar por nombre, código, cédula, estudio o médico..."
+									value={searchTerm}
+									onChange={(e) => setSearchTerm(e.target.value)}
+									className="w-full pl-10 pr-4 py-2 border border-input rounded-lg focus:ring-2 focus:ring-primary dark:bg-background dark:text-white text-sm"
+								/>
 							</div>
 
-							{/* Row Limit Selector */}
+							{/* Status Filter - Updated with only Completado and Incompleto */}
 							<div className="flex items-center gap-2">
-								<label htmlFor="rowLimit" className="text-sm font-medium text-gray-700 dark:text-gray-300">
-									Mostrar:
-								</label>
+								<Filter className="w-4 h-4 text-gray-400" />
 								<select
-									id="rowLimit"
-									value={rowLimit}
-									onChange={(e) => setRowLimit(Number(e.target.value))}
-									className="px-3 py-1 border border-input rounded-lg focus:ring-2 focus:ring-primary dark:bg-background dark:text-white text-sm"
+									value={statusFilter}
+									onChange={(e) => setStatusFilter(e.target.value)}
+									className="px-3 py-2 border border-input rounded-lg focus:ring-2 focus:ring-primary dark:bg-background dark:text-white text-sm"
 								>
-									<option value={5}>Últimos 5 casos</option>
-									<option value={10}>Últimos 10 casos</option>
-									<option value={20}>Últimos 20 casos</option>
-									<option value={50}>Últimos 50 casos</option>
-									<option value={0}>Todos los casos</option>
+									<option value="all">Todos los estatus</option>
+									<option value="Completado">Completado</option>
+									<option value="Incompleto">Incompleto</option>
 								</select>
 							</div>
 
-							{/* Results count */}
-							<div className="text-sm text-gray-600 dark:text-gray-400">
-								Mostrando {filteredAndSortedCases.length} de{' '}
-								{
-									cases.filter((case_) => {
-										if (!case_) return false;
-										
-										const matchesSearch =
-											(case_.full_name?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
-											(case_.id || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
-											(case_.id_number?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
-											(case_.exam_type?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
-											(case_.treating_doctor?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
-											(case_.branch?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
-											(case_.code && case_.code.toLowerCase().includes(searchTerm.toLowerCase()))
+							{/* Branch Filter */}
+							<div className="flex items-center gap-2">
+								<select
+									value={branchFilter}
+									onChange={(e) => setBranchFilter(e.target.value)}
+									className="px-3 py-2 border border-input rounded-lg focus:ring-2 focus:ring-primary dark:bg-background dark:text-white text-sm"
+								>
+									<option value="all">Todas las sedes</option>
+									<option value="PMG">PMG</option>
+									<option value="CPC">CPC</option>
+									<option value="CNX">CNX</option>
+									<option value="STX">STX</option>
+									<option value="MCY">MCY</option>
+								</select>
+							</div>
 
-										let matchesStatus = true
-										if (statusFilter === 'Completado') {
-											matchesStatus = case_.payment_status === 'Completado'
-										} else if (statusFilter === 'Incompleto') {
-											matchesStatus = case_.payment_status !== 'Completado'
-										}
-
-										const matchesBranch = branchFilter === 'all' || case_.branch === branchFilter
-										const matchesExamType = examTypeFilter === 'all' || case_.exam_type === examTypeFilter
-
-										return matchesSearch && matchesStatus && matchesBranch && matchesExamType
-									}).length
-								}{' '}
-								casos
+							{/* Exam Type Filter */}
+							<div className="flex items-center gap-2">
+								<select
+									value={examTypeFilter}
+									onChange={(e) => setExamTypeFilter(e.target.value)}
+									className="px-3 py-2 border border-input rounded-lg focus:ring-2 focus:ring-primary dark:bg-background dark:text-white text-sm"
+								>
+									<option value="all">Todos los estudios</option>
+									<option value="inmunohistoquimica">Inmunohistoquímica</option>
+									<option value="biopsia">Biopsia</option>
+									<option value="citologia">Citología</option>
+								</select>
 							</div>
 						</div>
-					</div>
 
-					{/* Mobile View - Cards */}
-					<div className="block lg:hidden">
-						<div className="p-4 space-y-4 max-h-[60vh] overflow-y-auto">
-							{filteredAndSortedCases.map((case_) => (
-								<CaseCard key={case_.id} case_={case_} />
-							))}
+						{/* Row Limit Selector */}
+						<div className="flex items-center gap-2">
+							<label htmlFor="rowLimit" className="text-sm font-medium text-gray-700 dark:text-gray-300">
+								Mostrar:
+							</label>
+							<select
+								id="rowLimit"
+								value={rowLimit}
+								onChange={(e) => setRowLimit(Number(e.target.value))}
+								className="px-3 py-1 border border-input rounded-lg focus:ring-2 focus:ring-primary dark:bg-background dark:text-white text-sm"
+							>
+								<option value={5}>Últimos 5 casos</option>
+								<option value={10}>Últimos 10 casos</option>
+								<option value={20}>Últimos 20 casos</option>
+								<option value={50}>Últimos 50 casos</option>
+								<option value={0}>Todos los casos</option>
+							</select>
+						</div>
+
+						{/* Results count */}
+						<div className="text-sm text-gray-600 dark:text-gray-400">
+							Mostrando {filteredAndSortedCases.length} de{' '}
+							{
+								cases.filter((case_) => {
+									if (!case_) return false;
+									
+									const matchesSearch =
+										(case_.full_name?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
+										(case_.id || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+										(case_.id_number?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
+										(case_.exam_type?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
+										(case_.treating_doctor?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
+										(case_.branch?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
+										(case_.code && case_.code.toLowerCase().includes(searchTerm.toLowerCase()))
+
+									let matchesStatus = true
+									if (statusFilter === 'Completado') {
+										matchesStatus = case_.payment_status === 'Completado'
+									} else if (statusFilter === 'Incompleto') {
+										matchesStatus = case_.payment_status !== 'Completado'
+									}
+
+									const matchesBranch = branchFilter === 'all' || case_.branch === branchFilter
+									const matchesExamType = examTypeFilter === 'all' || case_.exam_type === examTypeFilter
+
+									return matchesSearch && matchesStatus && matchesBranch && matchesExamType
+								}).length
+							}{' '}
+							casos
+						</div>
+					</div>
+				</div>
+
+				{/* Mobile View - Cards */}
+				<div className="block lg:hidden">
+					<div className="p-4 space-y-4 max-h-[60vh] overflow-y-auto">
+						{filteredAndSortedCases.map((case_) => (
+							<CaseCard key={case_.id} case_={case_} />
+						))}
+
+						{filteredAndSortedCases.length === 0 && (
+							<div className="text-center py-12">
+								<div className="text-gray-500 dark:text-gray-400">
+									<Search className="w-12 h-12 mx-auto mb-4 opacity-50" />
+									<p className="text-lg font-medium">No se encontraron casos</p>
+									<p className="text-sm">Intenta ajustar los filtros de búsqueda</p>
+								</div>
+							</div>
+						)}
+					</div>
+				</div>
+
+				{/* Desktop View - Table */}
+				<div className="hidden lg:block">
+					<div className="overflow-x-auto">
+						<div className="max-h-[60vh] overflow-y-auto">
+							<table className="w-full">
+								<thead className="bg-gray-50/50 dark:bg-background/50 backdrop-blur-[10px] sticky top-0 z-50">
+									<tr>
+										<th className="px-4 py-3 text-left">
+											<button
+												onClick={() => handleSort('code')}
+												className="flex items-center gap-2 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider hover:text-gray-700 dark:hover:text-gray-200 text-left"
+											>
+												Código / Estatus
+												<SortIcon field="code" />
+											</button>
+										</th>
+										<th className="px-4 py-3 text-left">
+											<button
+												onClick={() => handleSort('created_at')}
+												className="flex items-center gap-2 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider hover:text-gray-700 dark:hover:text-gray-200 text-left"
+											>
+												Fecha de Registro
+												<SortIcon field="created_at" />
+											</button>
+										</th>
+										<th className="px-4 py-3 text-left">
+											<button
+												onClick={() => handleSort('full_name')}
+												className="flex items-center gap-2 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider hover:text-gray-700 dark:hover:text-gray-200 text-left"
+											>
+												Paciente
+												<SortIcon field="full_name" />
+											</button>
+										</th>
+										<th className="px-3 py-3 text-center">
+											<span className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+												Sede
+											</span>
+										</th>
+										<th className="px-4 py-3 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider text-center">
+											Estudio
+										</th>
+										<th className="px-4 py-3 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider text-left">
+											Médico Tratante
+										</th>
+										<th className="px-4 py-3 text-left">
+											<button
+												onClick={() => handleSort('total_amount')}
+												className="flex items-center gap-2 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider hover:text-gray-700 dark:hover:text-gray-200 text-left"
+											>
+												Monto Total
+												<SortIcon field="total_amount" />
+											</button>
+										</th>
+										<th className="px-4 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+											Acciones
+										</th>
+									</tr>
+								</thead>
+								<tbody className="divide-y divide-gray-200 dark:divide-gray-700">
+									{filteredAndSortedCases.map((case_) => {
+										const ageDisplay = case_.date_of_birth ? getAgeDisplay(case_.date_of_birth) : ''
+										const isBiopsyCase = case_.exam_type?.toLowerCase() === 'biopsia'
+										const hasDownloadableContent = isBiopsyCase && !!case_.diagnostico
+
+										return (
+											<tr key={case_.id} className="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
+												<td className="px-4 py-4">
+													<div className="flex flex-col items-start space-y-1 text-left">
+														{case_.code && (
+															<div className="inline-flex items-center gap-1 px-2 py-1 text-xs font-semibold rounded-full bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300 mb-1">
+																{case_.code}
+															</div>
+														)}
+														<span
+															className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(
+																case_.payment_status,
+															)}`}
+														>
+															{case_.payment_status}
+														</span>
+													</div>
+												</td>
+												<td className="px-4 py-4 text-sm text-gray-900 dark:text-gray-100 text-left">
+													{case_.created_at ? new Date(case_.created_at).toLocaleDateString('es-ES') : 'N/A'}
+												</td>
+												<td className="px-4 py-4">
+													<div className="text-left">
+														<div className="text-sm font-medium text-gray-900 dark:text-gray-100">{case_.full_name}</div>
+														<div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
+															<span>{case_.id_number}</span>
+															{ageDisplay && (
+																<>
+																	<span>•</span>
+																	<span>{ageDisplay}</span>
+																</>
+															)}
+														</div>
+													</div>
+												</td>
+												<td className="text-sm text-gray-900 dark:text-gray-100">
+													<div className="bg-gray-200 dark:bg-gray-900/60 hover:bg-gray-300 dark:hover:bg-gray-800/80 text-center border border-gray-500 dark:border-gray-700 rounded-lg px-1 py-1">
+														{case_.branch}
+													</div>
+												</td>
+												<td className="px-4 py-4 text-sm text-gray-900 dark:text-gray-100 text-center">
+													{case_.exam_type}
+												</td>
+												<td className="px-4 py-4 text-sm text-gray-900 dark:text-gray-100">{case_.treating_doctor}</td>
+												<td className="px-4 py-4">
+													<div className="text-sm font-medium text-gray-900 dark:text-gray-100">
+														${case_.total_amount.toLocaleString()}
+													</div>
+													{case_.remaining > 0 && (
+														<div className="text-xs text-red-600 dark:text-red-400">
+															Faltante: ${case_.remaining.toLocaleString()}
+														</div>
+													)}
+												</td>
+												<td className="px-4 py-4">
+													<div className="flex gap-2">
+														<button
+															onClick={(e) => {
+																e.stopPropagation()
+																onCaseSelect(case_)
+															}}
+															className="inline-flex items-center gap-1 px-3 py-1 text-xs font-medium text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 transition-colors"
+														>
+															<Eye className="w-3 h-3" />
+															Ver
+														</button>
+														<button
+															onClick={(e) => {
+																e.stopPropagation()
+																handleGenerateCase(case_)
+															}}
+															className={`inline-flex items-center gap-1 px-3 py-1 text-xs font-medium ${
+																isBiopsyCase 
+																	? "text-green-600 dark:text-green-400 hover:text-green-800 dark:hover:text-green-300" 
+																	: "text-gray-400 dark:text-gray-600 cursor-not-allowed"
+															} transition-colors`}
+															disabled={!isBiopsyCase}
+														>
+															<FileText className="w-3 h-3" />
+															Generar
+														</button>
+														<button
+															onClick={(e) => {
+																e.stopPropagation()
+																handleDownloadCase(case_)
+															}}
+															className={`inline-flex items-center gap-1 px-3 py-1 text-xs font-medium ${
+																hasDownloadableContent 
+																	? "text-purple-600 dark:text-purple-400 hover:text-purple-800 dark:hover:text-purple-300" 
+																	: "text-gray-400 dark:text-gray-600 cursor-not-allowed"
+															} transition-colors`}
+															disabled={!hasDownloadableContent || isDownloading === case_.id}
+														>
+															{isDownloading === case_.id ? (
+																<div className="animate-spin rounded-full h-3 w-3 border-b-2 border-current"></div>
+															) : (
+																<Download className="w-3 h-3" />
+															)}
+															Descargar
+														</button>
+													</div>
+												</td>
+											</tr>
+										)
+									})}
+								</tbody>
+							</table>
 
 							{filteredAndSortedCases.length === 0 && (
 								<div className="text-center py-12">
@@ -1083,194 +1271,8 @@ const CasesTable: React.FC<CasesTableProps> = ({
 							)}
 						</div>
 					</div>
-
-					{/* Desktop View - Table */}
-					<div className="hidden lg:block">
-						<div className="overflow-x-auto">
-							<div className="max-h-[60vh] overflow-y-auto">
-								<table className="w-full">
-									<thead className="bg-gray-50/50 dark:bg-background/50 backdrop-blur-[10px] sticky top-0 z-50">
-										<tr>
-											<th className="px-4 py-3 text-left">
-												<button
-													onClick={() => handleSort('code')}
-													className="flex items-center gap-2 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider hover:text-gray-700 dark:hover:text-gray-200 text-left"
-												>
-													Código / Estatus
-													<SortIcon field="code" />
-												</button>
-											</th>
-											<th className="px-4 py-3 text-left">
-												<button
-													onClick={() => handleSort('created_at')}
-													className="flex items-center gap-2 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider hover:text-gray-700 dark:hover:text-gray-200 text-left"
-												>
-													Fecha de Registro
-													<SortIcon field="created_at" />
-												</button>
-											</th>
-											<th className="px-4 py-3 text-left">
-												<button
-													onClick={() => handleSort('full_name')}
-													className="flex items-center gap-2 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider hover:text-gray-700 dark:hover:text-gray-200 text-left"
-												>
-													Paciente
-													<SortIcon field="full_name" />
-												</button>
-											</th>
-											<th className="px-3 py-3 text-center">
-												<span className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-													Sede
-												</span>
-											</th>
-											<th className="px-4 py-3 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider text-center">
-												Estudio
-											</th>
-											<th className="px-4 py-3 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider text-left">
-												Médico Tratante
-											</th>
-											<th className="px-4 py-3 text-left">
-												<button
-													onClick={() => handleSort('total_amount')}
-													className="flex items-center gap-2 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider hover:text-gray-700 dark:hover:text-gray-200 text-left"
-												>
-													Monto Total
-													<SortIcon field="total_amount" />
-												</button>
-											</th>
-											<th className="px-4 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-												Acciones
-											</th>
-										</tr>
-									</thead>
-									<tbody className="divide-y divide-gray-200 dark:divide-gray-700">
-										{filteredAndSortedCases.map((case_) => {
-											const ageDisplay = case_.date_of_birth ? getAgeDisplay(case_.date_of_birth) : ''
-											const isBiopsyCase = case_.exam_type?.toLowerCase() === 'biopsia'
-											const hasDownloadableContent = isBiopsyCase && !!case_.diagnostico
-
-											return (
-												<tr key={case_.id} className="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
-													<td className="px-4 py-4">
-														<div className="flex flex-col items-start space-y-1 text-left">
-															{case_.code && (
-																<div className="inline-flex items-center gap-1 px-2 py-1 text-xs font-semibold rounded-full bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300 mb-1">
-																	{case_.code}
-																</div>
-															)}
-															<span
-																className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(
-																	case_.payment_status,
-																)}`}
-															>
-																{case_.payment_status}
-															</span>
-														</div>
-													</td>
-													<td className="px-4 py-4 text-sm text-gray-900 dark:text-gray-100 text-left">
-														{case_.created_at ? new Date(case_.created_at).toLocaleDateString('es-ES') : 'N/A'}
-													</td>
-													<td className="px-4 py-4">
-														<div className="text-left">
-															<div className="text-sm font-medium text-gray-900 dark:text-gray-100">{case_.full_name}</div>
-															<div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
-																<span>{case_.id_number}</span>
-																{ageDisplay && (
-																	<>
-																		<span>•</span>
-																		<span>{ageDisplay}</span>
-																	</>
-																)}
-															</div>
-														</div>
-													</td>
-													<td className="text-sm text-gray-900 dark:text-gray-100">
-														<div className="bg-gray-200 dark:bg-gray-900/60 hover:bg-gray-300 dark:hover:bg-gray-800/80 text-center border border-gray-500 dark:border-gray-700 rounded-lg px-1 py-1">
-															{case_.branch}
-														</div>
-													</td>
-													<td className="px-4 py-4 text-sm text-gray-900 dark:text-gray-100 text-center">
-														{case_.exam_type}
-													</td>
-													<td className="px-4 py-4 text-sm text-gray-900 dark:text-gray-100">{case_.treating_doctor}</td>
-													<td className="px-4 py-4">
-														<div className="text-sm font-medium text-gray-900 dark:text-gray-100">
-															${case_.total_amount.toLocaleString()}
-														</div>
-														{case_.remaining > 0 && (
-															<div className="text-xs text-red-600 dark:text-red-400">
-																Faltante: ${case_.remaining.toLocaleString()}
-															</div>
-														)}
-													</td>
-													<td className="px-4 py-4">
-														<div className="flex gap-2">
-															<button
-																onClick={(e) => {
-																	e.stopPropagation()
-																	onCaseSelect(case_)
-																}}
-																className="inline-flex items-center gap-1 px-3 py-1 text-xs font-medium text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 transition-colors"
-															>
-																<Eye className="w-3 h-3" />
-																Ver
-															</button>
-															<button
-																onClick={(e) => {
-																	e.stopPropagation()
-																	handleGenerateCase(case_)
-																}}
-																className={`inline-flex items-center gap-1 px-3 py-1 text-xs font-medium ${
-																	isBiopsyCase 
-																		? "text-green-600 dark:text-green-400 hover:text-green-800 dark:hover:text-green-300" 
-																		: "text-gray-400 dark:text-gray-600 cursor-not-allowed"
-																} transition-colors`}
-																disabled={!isBiopsyCase}
-															>
-																<FileText className="w-3 h-3" />
-																Generar
-															</button>
-															<button
-																onClick={(e) => {
-																	e.stopPropagation()
-																	handleDownloadCase(case_)
-																}}
-																className={`inline-flex items-center gap-1 px-3 py-1 text-xs font-medium ${
-																	hasDownloadableContent 
-																		? "text-purple-600 dark:text-purple-400 hover:text-purple-800 dark:hover:text-purple-300" 
-																		: "text-gray-400 dark:text-gray-600 cursor-not-allowed"
-																} transition-colors`}
-																disabled={!hasDownloadableContent || isDownloading === case_.id}
-															>
-																{isDownloading === case_.id ? (
-																	<div className="animate-spin rounded-full h-3 w-3 border-b-2 border-current"></div>
-																) : (
-																	<Download className="w-3 h-3" />
-																)}
-																Descargar
-															</button>
-														</div>
-													</td>
-												</tr>
-											)
-										})}
-									</tbody>
-								</table>
-
-								{filteredAndSortedCases.length === 0 && (
-									<div className="text-center py-12">
-										<div className="text-gray-500 dark:text-gray-400">
-											<Search className="w-12 h-12 mx-auto mb-4 opacity-50" />
-											<p className="text-lg font-medium">No se encontraron casos</p>
-											<p className="text-sm">Intenta ajustar los filtros de búsqueda</p>
-										</div>
-									</div>
-								)}
-							</div>
-						</div>
-					</div>
 				</div>
-			</Card>
+			</div>
 
 			{/* Generate Biopsy Modal */}
 			<GenerateBiopsyModal
