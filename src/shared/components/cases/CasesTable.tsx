@@ -31,6 +31,7 @@ import { cn } from '@shared/lib/cn'
 import GenerateBiopsyModal from './GenerateBiopsyModal'
 import { jsPDF } from 'jspdf'
 import 'jspdf-autotable'
+import logoBase64 from '@assets/img/logo_conspat_base64.txt'
 
 interface CasesTableProps {
 	onCaseSelect: (case_: MedicalRecord) => void
@@ -123,16 +124,17 @@ const CasesTable: React.FC<CasesTableProps> = ({
 			const doc = new jsPDF()
 			
 			// Add logo to header
-			// Base64 logo would be added here
-			// For now, we'll just add a placeholder text header
-			doc.setFontSize(18)
-			doc.setTextColor(33, 33, 33)
-			doc.text('CONSPAT', 105, 20, { align: 'center' })
+			try {
+				// Add the logo from base64 string
+				doc.addImage(logoBase64, 'PNG', 70, 10, 70, 25)
+			} catch (error) {
+				console.error('Error adding logo to PDF:', error)
+			}
 			
 			// Add header
 			doc.setFontSize(18)
 			doc.setTextColor(33, 33, 33)
-			doc.text('INFORME DE BIOPSIA', 105, 30, { align: 'center' })
+			doc.text('INFORME DE BIOPSIA', 105, 45, { align: 'center' })
 			
 			// Add case information
 			doc.setFontSize(12)
@@ -141,7 +143,7 @@ const CasesTable: React.FC<CasesTableProps> = ({
 			// Add patient information
 			doc.setFontSize(14)
 			doc.setFont('helvetica', 'bold')
-			doc.text('Información del Paciente', 14, 40)
+			doc.text('Información del Paciente', 14, 55)
 			doc.setFont('helvetica', 'normal')
 			doc.setFontSize(10)
 			
@@ -156,7 +158,7 @@ const CasesTable: React.FC<CasesTableProps> = ({
 			]
 			
 			doc.autoTable({
-				startY: 45,
+				startY: 60,
 				head: [],
 				body: patientData,
 				theme: 'plain',
