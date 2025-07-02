@@ -325,20 +325,6 @@ const CasesTable: React.FC<CasesTableProps> = ({
 						<Eye className="w-3 h-3" />
 						Ver
 					</button>
-					<button
-						onClick={() => handleEditCase(case_)}
-						className="flex-1 inline-flex items-center justify-center gap-1 px-3 py-2 text-xs font-medium text-green-600 dark:text-green-400 hover:text-green-800 dark:hover:text-green-300 bg-green-50 dark:bg-green-900/20 hover:bg-green-100 dark:hover:bg-green-900/30 rounded-lg transition-colors"
-					>
-						<Edit className="w-3 h-3" />
-						Editar
-					</button>
-					<button
-						onClick={() => handleDeleteCase(case_)}
-						className="flex-1 inline-flex items-center justify-center gap-1 px-3 py-2 text-xs font-medium text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300 bg-red-50 dark:bg-red-900/20 hover:bg-red-100 dark:hover:bg-red-900/30 rounded-lg transition-colors"
-					>
-						<Trash2 className="w-3 h-3" />
-						Eliminar
-					</button>
 				</div>
 			</div>
 		)
@@ -659,26 +645,6 @@ const CasesTable: React.FC<CasesTableProps> = ({
 														<Eye className="w-3 h-3" />
 														Ver
 													</button>
-													<button
-														onClick={(e) => {
-															e.stopPropagation()
-															handleEditCase(case_)
-														}}
-														className="inline-flex items-center gap-1 px-3 py-1 text-xs font-medium text-green-600 dark:text-green-400 hover:text-green-800 dark:hover:text-green-300 transition-colors"
-													>
-														<Edit className="w-3 h-3" />
-														Editar
-													</button>
-													<button
-														onClick={(e) => {
-															e.stopPropagation()
-															handleDeleteCase(case_)
-														}}
-														className="inline-flex items-center gap-1 px-3 py-1 text-xs font-medium text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300 transition-colors"
-													>
-														<Trash2 className="w-3 h-3" />
-														Eliminar
-													</button>
 												</div>
 											</td>
 										</tr>
@@ -970,26 +936,6 @@ const CasesTable: React.FC<CasesTableProps> = ({
 															>
 																<Eye className="w-3 h-3" />
 																Ver
-															</button>
-															<button
-																onClick={(e) => {
-																	e.stopPropagation()
-																	handleEditCase(case_)
-																}}
-																className="inline-flex items-center gap-1 px-3 py-1 text-xs font-medium text-green-600 dark:text-green-400 hover:text-green-800 dark:hover:text-green-300 transition-colors"
-															>
-																<Edit className="w-3 h-3" />
-																Editar
-															</button>
-															<button
-																onClick={(e) => {
-																	e.stopPropagation()
-																	handleDeleteCase(case_)
-																}}
-																className="inline-flex items-center gap-1 px-3 py-1 text-xs font-medium text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300 transition-colors"
-															>
-																<Trash2 className="w-3 h-3" />
-																Eliminar
 															</button>
 														</div>
 													</td>
