@@ -10,6 +10,7 @@ import {
 	Stethoscope,
 	CreditCard,
 	FileText,
+	Download,
 } from 'lucide-react'
 import { type MedicalRecord, updateMedicalRecordWithLog, getAgeDisplay, deleteMedicalRecord } from '@lib/supabase-service'
 import { format } from 'date-fns'
@@ -19,6 +20,8 @@ import { Card } from '@shared/components/ui/card'
 import { useToast } from '@shared/hooks/use-toast'
 import { useUserProfile } from '@shared/hooks/useUserProfile'
 import GenerateBiopsyModal from './GenerateBiopsyModal'
+import { jsPDF } from 'jspdf'
+import 'jspdf-autotable'
 
 interface CasesTableProps {
 	onCaseSelect: (case_: MedicalRecord) => void
@@ -54,6 +57,7 @@ const CasesTable: React.FC<CasesTableProps> = ({
 	const [rowLimit, setRowLimit] = useState<number>(20)
 	const [selectedCaseForGenerate, setSelectedCaseForGenerate] = useState<MedicalRecord | null>(null)
 	const [isGenerateModalOpen, setIsGenerateModalOpen] = useState(false)
+	const [isDownloading, setIsDownloading] = useState<string | null>(null)
 
 	// Set branch filter to user's assigned branch if they have one
 	React.useEffect(() => {
@@ -99,6 +103,245 @@ const CasesTable: React.FC<CasesTableProps> = ({
 		
 		setSelectedCaseForGenerate(case_)
 		setIsGenerateModalOpen(true)
+	}
+
+	const handleDownloadCase = async (case_: MedicalRecord) => {
+		// Check if this case has a diagnosis
+		if (!case_.diagnostico) {
+			toast({
+				title: '❌ Sin diagnóstico',
+				description: 'Este caso no tiene un diagnóstico. Primero debe generar el caso.',
+				variant: 'destructive',
+			})
+			return
+		}
+
+		setIsDownloading(case_.id)
+		try {
+			// Create a new PDF document
+			const doc = new jsPDF()
+			
+			// Add header
+			doc.setFontSize(18)
+			doc.setTextColor(33, 33, 33)
+			doc.text('INFORME DE BIOPSIA', 105, 20, { align: 'center' })
+			
+			// Add case information
+			doc.setFontSize(12)
+			doc.setTextColor(33, 33, 33)
+			
+			// Add patient information
+			doc.setFontSize(14)
+			doc.setFont('helvetica', 'bold')
+			doc.text('Información del Paciente', 14, 40)
+			doc.setFont('helvetica', 'normal')
+			doc.setFontSize(10)
+			
+			// Create a table for patient info
+			const patientData = [
+				['Nombre:', case_.full_name],
+				['Cédula:', case_.id_number],
+				['Fecha de Nacimiento:', case_.date_of_birth ? format(parseISO(case_.date_of_birth), 'dd/MM/yyyy', { locale: es }) : 'N/A'],
+				['Edad:', case_.date_of_birth ? getAgeDisplay(case_.date_of_birth) : 'N/A'],
+				['Teléfono:', case_.phone],
+				['Email:', case_.email || 'N/A'],
+			]
+			
+			doc.autoTable({
+				startY: 45,
+				head: [],
+				body: patientData,
+				theme: 'plain',
+				styles: {
+					cellPadding: 2,
+					fontSize: 10,
+				},
+				columnStyles: {
+					0: { cellWidth: 40, fontStyle: 'bold' },
+					1: { cellWidth: 100 },
+				},
+			})
+			
+			// Add case details
+			doc.setFontSize(14)
+			doc.setFont('helvetica', 'bold')
+			doc.text('Información del Caso', 14, doc.autoTable.previous.finalY + 10)
+			doc.setFont('helvetica', 'normal')
+			doc.setFontSize(10)
+			
+			// Create a table for case info
+			const caseData = [
+				['Código:', case_.code || 'N/A'],
+				['Fecha:', format(new Date(case_.date), 'dd/MM/yyyy', { locale: es })],
+				['Tipo de Examen:', case_.exam_type],
+				['Médico Tratante:', case_.treating_doctor],
+				['Procedencia:', case_.origin],
+				['Sede:', case_.branch],
+			]
+			
+			doc.autoTable({
+				startY: doc.autoTable.previous.finalY + 15,
+				head: [],
+				body: caseData,
+				theme: 'plain',
+				styles: {
+					cellPadding: 2,
+					fontSize: 10,
+				},
+				columnStyles: {
+					0: { cellWidth: 40, fontStyle: 'bold' },
+					1: { cellWidth: 100 },
+				},
+			})
+			
+			// Add biopsy information
+			doc.setFontSize(14)
+			doc.setFont('helvetica', 'bold')
+			doc.text('Informe de Biopsia', 14, doc.autoTable.previous.finalY + 10)
+			doc.setFont('helvetica', 'normal')
+			doc.setFontSize(10)
+			
+			// Material Remitido
+			doc.setFontSize(12)
+			doc.setFont('helvetica', 'bold')
+			doc.text('Material Remitido:', 14, doc.autoTable.previous.finalY + 15)
+			doc.setFont('helvetica', 'normal')
+			doc.setFontSize(10)
+			
+			const splitMaterial = doc.splitTextToSize(case_.material_remitido || 'N/A', 180)
+			doc.text(splitMaterial, 14, doc.autoTable.previous.finalY + 20)
+			
+			// Información Clínica
+			doc.setFontSize(12)
+			doc.setFont('helvetica', 'bold')
+			doc.text('Información Clínica:', 14, doc.getTextDimensions(splitMaterial).h + doc.autoTable.previous.finalY + 25)
+			doc.setFont('helvetica', 'normal')
+			doc.setFontSize(10)
+			
+			const splitClinica = doc.splitTextToSize(case_.informacion_clinica || 'N/A', 180)
+			doc.text(splitClinica, 14, doc.getTextDimensions(splitMaterial).h + doc.autoTable.previous.finalY + 30)
+			
+			// Descripción Macroscópica
+			const clinicaY = doc.getTextDimensions(splitClinica).h + doc.getTextDimensions(splitMaterial).h + doc.autoTable.previous.finalY + 35
+			
+			// Check if we need a new page
+			if (clinicaY > 250) {
+				doc.addPage()
+				doc.setFontSize(12)
+				doc.setFont('helvetica', 'bold')
+				doc.text('Descripción Macroscópica:', 14, 20)
+				doc.setFont('helvetica', 'normal')
+				doc.setFontSize(10)
+				
+				const splitMacro = doc.splitTextToSize(case_.descripcion_macroscopica || 'N/A', 180)
+				doc.text(splitMacro, 14, 25)
+				
+				// Diagnóstico
+				doc.setFontSize(12)
+				doc.setFont('helvetica', 'bold')
+				doc.text('Diagnóstico:', 14, doc.getTextDimensions(splitMacro).h + 30)
+				doc.setFont('helvetica', 'normal')
+				doc.setFontSize(10)
+				
+				const splitDiag = doc.splitTextToSize(case_.diagnostico || 'N/A', 180)
+				doc.text(splitDiag, 14, doc.getTextDimensions(splitMacro).h + 35)
+				
+				// Comentario (if exists)
+				if (case_.comentario) {
+					const diagY = doc.getTextDimensions(splitDiag).h + doc.getTextDimensions(splitMacro).h + 40
+					
+					doc.setFontSize(12)
+					doc.setFont('helvetica', 'bold')
+					doc.text('Comentario:', 14, diagY)
+					doc.setFont('helvetica', 'normal')
+					doc.setFontSize(10)
+					
+					const splitComment = doc.splitTextToSize(case_.comentario, 180)
+					doc.text(splitComment, 14, diagY + 5)
+				}
+			} else {
+				doc.setFontSize(12)
+				doc.setFont('helvetica', 'bold')
+				doc.text('Descripción Macroscópica:', 14, clinicaY)
+				doc.setFont('helvetica', 'normal')
+				doc.setFontSize(10)
+				
+				const splitMacro = doc.splitTextToSize(case_.descripcion_macroscopica || 'N/A', 180)
+				doc.text(splitMacro, 14, clinicaY + 5)
+				
+				// Diagnóstico
+				const macroY = doc.getTextDimensions(splitMacro).h + clinicaY + 10
+				
+				doc.setFontSize(12)
+				doc.setFont('helvetica', 'bold')
+				doc.text('Diagnóstico:', 14, macroY)
+				doc.setFont('helvetica', 'normal')
+				doc.setFontSize(10)
+				
+				const splitDiag = doc.splitTextToSize(case_.diagnostico || 'N/A', 180)
+				doc.text(splitDiag, 14, macroY + 5)
+				
+				// Comentario (if exists)
+				if (case_.comentario) {
+					const diagY = doc.getTextDimensions(splitDiag).h + macroY + 10
+					
+					// Check if we need a new page
+					if (diagY > 250) {
+						doc.addPage()
+						doc.setFontSize(12)
+						doc.setFont('helvetica', 'bold')
+						doc.text('Comentario:', 14, 20)
+						doc.setFont('helvetica', 'normal')
+						doc.setFontSize(10)
+						
+						const splitComment = doc.splitTextToSize(case_.comentario, 180)
+						doc.text(splitComment, 14, 25)
+					} else {
+						doc.setFontSize(12)
+						doc.setFont('helvetica', 'bold')
+						doc.text('Comentario:', 14, diagY)
+						doc.setFont('helvetica', 'normal')
+						doc.setFontSize(10)
+						
+						const splitComment = doc.splitTextToSize(case_.comentario, 180)
+						doc.text(splitComment, 14, diagY + 5)
+					}
+				}
+			}
+			
+			// Add footer
+			const pageCount = doc.getNumberOfPages()
+			for (let i = 1; i <= pageCount; i++) {
+				doc.setPage(i)
+				doc.setFontSize(8)
+				doc.setTextColor(100, 100, 100)
+				doc.text(
+					`Página ${i} de ${pageCount} - Generado el ${format(new Date(), 'dd/MM/yyyy HH:mm', { locale: es })}`,
+					doc.internal.pageSize.getWidth() / 2,
+					doc.internal.pageSize.getHeight() - 10,
+					{ align: 'center' }
+				)
+			}
+			
+			// Save the PDF
+			const fileName = `biopsia_${case_.code || case_.id}_${case_.full_name.replace(/\s+/g, '_')}.pdf`
+			doc.save(fileName)
+			
+			toast({
+				title: '✅ PDF generado exitosamente',
+				description: `El informe ha sido descargado como ${fileName}`,
+				className: 'bg-green-100 border-green-400 text-green-800',
+			})
+		} catch (error) {
+			console.error('Error generating PDF:', error)
+			toast({
+				title: '❌ Error al generar PDF',
+				description: 'Hubo un problema al generar el PDF. Inténtalo de nuevo.',
+				variant: 'destructive',
+			})
+		} finally {
+			setIsDownloading(null)
+		}
 	}
 
 	const filteredAndSortedCases = useMemo(() => {
@@ -183,6 +426,7 @@ const CasesTable: React.FC<CasesTableProps> = ({
 	const CaseCard = ({ case_ }: { case_: MedicalRecord }) => {
 		const ageDisplay = case_.date_of_birth ? getAgeDisplay(case_.date_of_birth) : ''
 		const isBiopsyCase = case_.exam_type?.toLowerCase() === 'biopsia'
+		const hasDownloadableContent = isBiopsyCase && !!case_.diagnostico
 
 		return (
 			<div className="bg-white dark:bg-background rounded-lg p-4 border border-gray-200 dark:border-gray-700 hover:shadow-md transition-all">
@@ -263,11 +507,31 @@ const CasesTable: React.FC<CasesTableProps> = ({
 					</button>
 					<button
 						onClick={() => handleGenerateCase(case_)}
-						className="flex-1 inline-flex items-center justify-center gap-1 px-3 py-2 text-xs font-medium text-green-600 dark:text-green-400 hover:text-green-800 dark:hover:text-green-300 bg-green-50 dark:bg-green-900/20 hover:bg-green-100 dark:hover:bg-green-900/30 rounded-lg transition-colors"
+						className={`flex-1 inline-flex items-center justify-center gap-1 px-3 py-2 text-xs font-medium ${
+							isBiopsyCase 
+								? "text-green-600 dark:text-green-400 hover:text-green-800 dark:hover:text-green-300 bg-green-50 dark:bg-green-900/20 hover:bg-green-100 dark:hover:bg-green-900/30" 
+								: "text-gray-400 dark:text-gray-600 bg-gray-100 dark:bg-gray-800/50 cursor-not-allowed"
+						} rounded-lg transition-colors`}
 						disabled={!isBiopsyCase}
 					>
 						<FileText className="w-3 h-3" />
 						Generar
+					</button>
+					<button
+						onClick={() => handleDownloadCase(case_)}
+						className={`flex-1 inline-flex items-center justify-center gap-1 px-3 py-2 text-xs font-medium ${
+							hasDownloadableContent 
+								? "text-purple-600 dark:text-purple-400 hover:text-purple-800 dark:hover:text-purple-300 bg-purple-50 dark:bg-purple-900/20 hover:bg-purple-100 dark:hover:bg-purple-900/30" 
+								: "text-gray-400 dark:text-gray-600 bg-gray-100 dark:bg-gray-800/50 cursor-not-allowed"
+						} rounded-lg transition-colors`}
+						disabled={!hasDownloadableContent || isDownloading === case_.id}
+					>
+						{isDownloading === case_.id ? (
+							<div className="animate-spin rounded-full h-3 w-3 border-b-2 border-current"></div>
+						) : (
+							<Download className="w-3 h-3" />
+						)}
+						Descargar
 					</button>
 				</div>
 			</div>
@@ -523,6 +787,7 @@ const CasesTable: React.FC<CasesTableProps> = ({
 								{filteredAndSortedCases.map((case_) => {
 									const ageDisplay = case_.date_of_birth ? getAgeDisplay(case_.date_of_birth) : ''
 									const isBiopsyCase = case_.exam_type?.toLowerCase() === 'biopsia'
+									const hasDownloadableContent = isBiopsyCase && !!case_.diagnostico
 
 									return (
 										<tr key={case_.id} className="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
@@ -595,11 +860,34 @@ const CasesTable: React.FC<CasesTableProps> = ({
 															e.stopPropagation()
 															handleGenerateCase(case_)
 														}}
-														className="inline-flex items-center gap-1 px-3 py-1 text-xs font-medium text-green-600 dark:text-green-400 hover:text-green-800 dark:hover:text-green-300 transition-colors"
+														className={`inline-flex items-center gap-1 px-3 py-1 text-xs font-medium ${
+															isBiopsyCase 
+																? "text-green-600 dark:text-green-400 hover:text-green-800 dark:hover:text-green-300" 
+																: "text-gray-400 dark:text-gray-600 cursor-not-allowed"
+														} transition-colors`}
 														disabled={!isBiopsyCase}
 													>
 														<FileText className="w-3 h-3" />
 														Generar
+													</button>
+													<button
+														onClick={(e) => {
+															e.stopPropagation()
+															handleDownloadCase(case_)
+														}}
+														className={`inline-flex items-center gap-1 px-3 py-1 text-xs font-medium ${
+															hasDownloadableContent 
+																? "text-purple-600 dark:text-purple-400 hover:text-purple-800 dark:hover:text-purple-300" 
+																: "text-gray-400 dark:text-gray-600 cursor-not-allowed"
+														} transition-colors`}
+														disabled={!hasDownloadableContent || isDownloading === case_.id}
+													>
+														{isDownloading === case_.id ? (
+															<div className="animate-spin rounded-full h-3 w-3 border-b-2 border-current"></div>
+														) : (
+															<Download className="w-3 h-3" />
+														)}
+														Descargar
 													</button>
 												</div>
 											</td>
@@ -827,6 +1115,7 @@ const CasesTable: React.FC<CasesTableProps> = ({
 										{filteredAndSortedCases.map((case_) => {
 											const ageDisplay = case_.date_of_birth ? getAgeDisplay(case_.date_of_birth) : ''
 											const isBiopsyCase = case_.exam_type?.toLowerCase() === 'biopsia'
+											const hasDownloadableContent = isBiopsyCase && !!case_.diagnostico
 
 											return (
 												<tr key={case_.id} className="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
@@ -899,11 +1188,34 @@ const CasesTable: React.FC<CasesTableProps> = ({
 																	e.stopPropagation()
 																	handleGenerateCase(case_)
 																}}
-																className="inline-flex items-center gap-1 px-3 py-1 text-xs font-medium text-green-600 dark:text-green-400 hover:text-green-800 dark:hover:text-green-300 transition-colors"
+																className={`inline-flex items-center gap-1 px-3 py-1 text-xs font-medium ${
+																	isBiopsyCase 
+																		? "text-green-600 dark:text-green-400 hover:text-green-800 dark:hover:text-green-300" 
+																		: "text-gray-400 dark:text-gray-600 cursor-not-allowed"
+																} transition-colors`}
 																disabled={!isBiopsyCase}
 															>
 																<FileText className="w-3 h-3" />
 																Generar
+															</button>
+															<button
+																onClick={(e) => {
+																	e.stopPropagation()
+																	handleDownloadCase(case_)
+																}}
+																className={`inline-flex items-center gap-1 px-3 py-1 text-xs font-medium ${
+																	hasDownloadableContent 
+																		? "text-purple-600 dark:text-purple-400 hover:text-purple-800 dark:hover:text-purple-300" 
+																		: "text-gray-400 dark:text-gray-600 cursor-not-allowed"
+																} transition-colors`}
+																disabled={!hasDownloadableContent || isDownloading === case_.id}
+															>
+																{isDownloading === case_.id ? (
+																	<div className="animate-spin rounded-full h-3 w-3 border-b-2 border-current"></div>
+																) : (
+																	<Download className="w-3 h-3" />
+																)}
+																Descargar
 															</button>
 														</div>
 													</td>
