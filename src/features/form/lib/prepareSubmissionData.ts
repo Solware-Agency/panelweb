@@ -5,8 +5,15 @@ import type { MedicalRecordInsert } from '@shared/types/types'
 import { format } from 'date-fns'
 
 export function prepareSubmissionData(data: FormValues, exchangeRate: number | undefined): MedicalRecordInsert {
-	const { paymentStatus, missingAmount } = calculatePaymentDetails(data.payments, data.totalAmount, exchangeRate)
-	const paymentsColumns = mapPaymentsToColumns(data.payments)
+	// If total amount is 0, payment is automatically complete
+	const totalAmount = data.totalAmount || 0
+	const payments = data.payments || []
+	
+	const { paymentStatus, missingAmount } = totalAmount === 0 
+		? { paymentStatus: 'Completado', missingAmount: 0 } 
+		: calculatePaymentDetails(payments, totalAmount, exchangeRate)
+		
+	const paymentsColumns = mapPaymentsToColumns(payments)
 
 	return {
 		full_name: data.fullName,
@@ -22,7 +29,7 @@ export function prepareSubmissionData(data: FormValues, exchangeRate: number | u
 		relationship: data.relationship,
 		branch: data.branch,
 		date: data.registrationDate instanceof Date ? data.registrationDate.toISOString() : String(data.registrationDate),
-		total_amount: data.totalAmount,
+		total_amount: totalAmount,
 		comments: data.comments,
 		exchange_rate: exchangeRate || null,
 		payment_status: paymentStatus || 'N/A',

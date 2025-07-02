@@ -29,7 +29,7 @@ const getInitialFormValues = (): FormValues => ({
 	branch: '',
 	registrationDate: new Date(),
 	totalAmount: 0,
-	payments: [{ method: '', amount: 0, reference: '' }],
+	payments: [],
 	comments: '',
 })
 

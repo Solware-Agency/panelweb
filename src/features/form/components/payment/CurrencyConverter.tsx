@@ -1,6 +1,5 @@
 import { Input } from '@shared/components/ui/input'
 import { FormLabel } from '@shared/components/ui/form'
-import { useState, useEffect } from 'react'
 
 interface CurrencyConverterProps {
 	usdValue: string

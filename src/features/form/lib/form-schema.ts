@@ -2,11 +2,12 @@ import { z } from 'zod'
 
 // --- Validation Schema ---
 export const paymentSchema = z.object({
-	method: z.string({ required_error: 'El método de pago es requerido.' }).min(1, 'El método de pago es requerido.'),
+	method: z.string().optional(),
 	amount: z.coerce
 		.number({ invalid_type_error: 'El monto debe ser un número' })
-		.min(0, 'El monto debe ser un número positivo o cero.'),
-	reference: z.string().min(1, 'La referencia es requerida'),
+		.min(0, 'El monto debe ser un número positivo o cero.')
+		.optional(),
+	reference: z.string().optional(),
 })
 
 export const formSchema = z.object({
@@ -55,11 +56,11 @@ export const formSchema = z.object({
 	branch: z.string().min(1, 'La sede es requerida'),
 	totalAmount: z.coerce
 		.number({ invalid_type_error: 'El monto total es requerido' })
-		.positive('El monto total debe ser positivo'),
+		.min(0, 'El monto total debe ser 0 o positivo'),
 	payments: z
 		.array(paymentSchema)
-		.min(1, 'Se requiere al menos un método de pago.')
-		.max(4, 'Puedes agregar hasta 4 métodos de pago.'),
+		.optional()
+		.default([]),
 	comments: z.string().optional(),
 })
 

@@ -62,7 +62,7 @@ export const PaymentMethodsList = ({
 			type="button"
 			variant="outline"
 			size="sm"
-			onClick={() => append && append({ method: '', amount: '' as any, reference: '' })}
+			onClick={() => append && append({ method: '', amount: 0, reference: '' })}
 			disabled={!append || fields.length >= 4}
 			className="disabled:opacity-40"
 		>

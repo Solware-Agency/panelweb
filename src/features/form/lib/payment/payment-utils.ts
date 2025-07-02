@@ -9,6 +9,15 @@ export const calculatePaymentDetails = (
 ) => {
 	const totalAmountValue = parseFloat(String(totalAmount)) || 0
 
+	// If total amount is 0, consider payment complete
+	if (totalAmountValue === 0) {
+		return {
+			paymentStatus: 'Completado',
+			isPaymentComplete: true,
+			missingAmount: 0
+		}
+	}
+
 	const currentTotalPaid = payments.reduce((acc, payment) => {
 		const amount = parseFloat(String(payment.amount)) || 0
 		if (!payment.method || !amount) return acc
@@ -64,6 +73,15 @@ export const calculatePaymentDetailsFromRecord = (
 ) => {
 	const totalAmount = record.total_amount || 0
 	const exchangeRate = record.exchange_rate || undefined
+
+	// If total amount is 0, consider payment complete
+	if (totalAmount === 0) {
+		return {
+			paymentStatus: 'Completado',
+			isPaymentComplete: true,
+			missingAmount: 0
+		}
+	}
 
 	// Convert medical record payment fields to payments array format
 	const payments = []

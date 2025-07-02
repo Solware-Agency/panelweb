@@ -28,7 +28,7 @@ export const PaymentMethodItem = ({ control, index, remove, inputStyles, fieldsL
 				name={`payments.${index}.method`}
 				render={({ field }) => (
 					<FormItem>
-						<FormLabel>Forma de Pago {index + 1} *</FormLabel>
+						<FormLabel>Forma de Pago {index + 1}</FormLabel>
 						<Select onValueChange={field.onChange} defaultValue={field.value}>
 							<FormControl>
 								<SelectTrigger className={inputStyles}>
@@ -53,7 +53,7 @@ export const PaymentMethodItem = ({ control, index, remove, inputStyles, fieldsL
 				render={({ field }) => (
 					<FormItem>
 						<FormLabel>
-							Monto {index + 1} {currencyLabel} *
+							Monto {index + 1} {currencyLabel}
 						</FormLabel>
 						<FormControl>
 							<div className="relative">
@@ -83,7 +83,7 @@ export const PaymentMethodItem = ({ control, index, remove, inputStyles, fieldsL
 				name={`payments.${index}.reference`}
 				render={({ field }) => (
 					<FormItem>
-						<FormLabel>Referencia {index + 1} *</FormLabel>
+						<FormLabel>Referencia {index + 1}</FormLabel>
 						<FormControl>
 							<Input placeholder="Referencia de pago" {...field} className={inputStyles} />
 						</FormControl>

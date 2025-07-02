@@ -92,7 +92,7 @@ export const PaymentHeader = ({ control, inputStyles, exchangeRate, isLoadingRat
 				name="totalAmount"
 				render={({ field }) => (
 					<FormItem>
-						<FormLabel>Monto Total ($) *</FormLabel>
+						<FormLabel>Monto Total ($)</FormLabel>
 						<FormControl>
 							<Input 
 								type="number" 
