@@ -521,7 +521,7 @@ const CasesTable: React.FC<CasesTableProps> = ({
 					<div className="flex items-center gap-1">
 						<CalendarIcon className="w-3 h-3 text-gray-400" />
 						<span className="text-xs text-gray-500 dark:text-gray-400">
-							{case_.created_at ? format(new Date(case_.created_at), 'dd/MM/yyyy HH:mm', { locale: es }) : 'N/A'}
+							{case_.created_at ? format(new Date(case_.created_at), 'dd/MM/yyyy', { locale: es }) : 'N/A'}
 						</span>
 					</div>
 					<div className="flex items-center gap-1">
@@ -848,7 +848,7 @@ const CasesTable: React.FC<CasesTableProps> = ({
 												</div>
 											</td>
 											<td className="px-4 py-4 text-sm text-gray-900 dark:text-gray-100 text-left">
-												{case_.created_at ? new Date(case_.created_at).toLocaleDateString('es-ES') : 'N/A'}
+												{case_.created_at ? format(new Date(case_.created_at), 'dd/MM/yyyy', { locale: es }) : 'N/A'}
 											</td>
 											<td className="px-4 py-4">
 												<div className="text-left">
@@ -1173,7 +1173,7 @@ const CasesTable: React.FC<CasesTableProps> = ({
 													</div>
 												</td>
 												<td className="px-4 py-4 text-sm text-gray-900 dark:text-gray-100 text-left">
-													{case_.created_at ? new Date(case_.created_at).toLocaleDateString('es-ES') : 'N/A'}
+													{case_.created_at ? format(new Date(case_.created_at), 'dd/MM/yyyy', { locale: es }) : 'N/A'}
 												</td>
 												<td className="px-4 py-4">
 													<div className="text-left">
