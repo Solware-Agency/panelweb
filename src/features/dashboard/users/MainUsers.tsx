@@ -245,7 +245,7 @@ const MainUsers: React.FC = () => {
 			toast({
 				title: '✅ Rol actualizado',
 				description: `El rol del usuario ha sido cambiado a ${
-					newRole === 'owner' ? 'Propietario' : newRole === 'admin' ? 'Administrador' : 'Empleado'
+					newRole === 'owner' ? 'Propietario' : newRole === 'admin' ? 'Administrador' : 'Recepcionista'
 				}.`,
 				className: 'bg-green-100 border-green-400 text-green-800',
 			})
@@ -488,7 +488,7 @@ const MainUsers: React.FC = () => {
 							</div>
 						</div>
 						<div>
-							<h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">Empleados</h3>
+							<h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">Recepcionistas</h3>
 							<p className="text-2xl sm:text-3xl font-bold text-gray-700 dark:text-gray-300">
 								{stats.employees}
 							</p>
@@ -578,7 +578,7 @@ const MainUsers: React.FC = () => {
 								<SelectContent>
 									<SelectItem value="all">Todos los roles</SelectItem>
 									<SelectItem value="owner">Propietarios</SelectItem>
-									<SelectItem value="employee">Empleados</SelectItem>
+									<SelectItem value="employee">Recepcionistas</SelectItem>
 									<SelectItem value="admin">Administradores</SelectItem>
 								</SelectContent>
 							</Select>
@@ -651,7 +651,7 @@ const MainUsers: React.FC = () => {
 									<div className="flex items-center justify-between mb-3">
 										<span className={`inline-flex items-center gap-1 px-2 py-1 text-xs font-semibold rounded-full ${getRoleColor(user.role)}`}>
 											{getRoleIcon(user.role)}
-											{user.role === 'owner' ? 'Propietario' : user.role === 'admin' ? 'Administrador' : 'Empleado'}
+											{user.role === 'owner' ? 'Propietario' : user.role === 'admin' ? 'Administrador' : 'Recepcionista'}
 										</span>
 									</div>
 
@@ -753,7 +753,7 @@ const MainUsers: React.FC = () => {
 													<SelectItem value="employee">
 														<div className="flex items-center gap-2">
 															<Briefcase className="w-4 h-4 text-blue-600 dark:text-blue-400" />
-															<span>Empleado</span>
+															<span>Recepcionista</span>
 														</div>
 													</SelectItem>
 													<SelectItem value="admin">
@@ -853,7 +853,7 @@ const MainUsers: React.FC = () => {
 														<SelectItem value="employee">
 															<div className="flex items-center gap-2">
 																<Briefcase className="w-4 h-4 text-blue-600 dark:text-blue-400" />
-																<span>Empleado</span>
+																<span>Recepcionista</span>
 															</div>
 														</SelectItem>
 														<SelectItem value="admin">
@@ -867,7 +867,7 @@ const MainUsers: React.FC = () => {
 											) : (
 												<span className={`inline-flex items-center gap-1 px-2 py-1 text-xs font-semibold rounded-full ${getRoleColor(user.role)}`}>
 													{getRoleIcon(user.role)}
-													{user.role === 'owner' ? 'Propietario' : user.role === 'admin' ? 'Administrador' : 'Empleado'}
+													{user.role === 'owner' ? 'Propietario' : user.role === 'admin' ? 'Administrador' : 'Recepcionista'}
 												</span>
 											)}
 										</td>
@@ -961,10 +961,10 @@ const MainUsers: React.FC = () => {
 						<strong>Aprobación de Usuarios:</strong> Los nuevos usuarios se crean con estado "Pendiente" y deben ser aprobados por un propietario antes de poder acceder al sistema.
 					</li>
 					<li>
-						<strong>Asignación de Sede:</strong> Los empleados con una sede asignada solo podrán ver los casos médicos de esa sede.
+						<strong>Asignación de Sede:</strong> Los Recepcionistas con una sede asignada solo podrán ver los casos médicos de esa sede.
 					</li>
 					<li>
-						<strong>Sin Restricción:</strong> Los empleados sin sede asignada pueden ver todos los casos.
+						<strong>Sin Restricción:</strong> Los Recepcionistas sin sede asignada pueden ver todos los casos.
 					</li>
 					<li>
 						<strong>Propietarios:</strong> Los usuarios con rol de propietario siempre pueden ver todos los casos, independientemente de la sede asignada.
