@@ -126,7 +126,7 @@ export type Database = {
 					full_name: string
 					id_number: string
 					phone: string
-					date_of_birth: string // Changed from age: number to date_of_birth: string
+					date_of_birth: string
 					email: string | null
 					exam_type: string
 					origin: string
@@ -163,13 +163,14 @@ export type Database = {
 					descripcion_macroscopica: string | null
 					diagnostico: string | null
 					comentario: string | null
+					pdf_en_ready: boolean | null
 				}
 				Insert: {
 					id?: string
 					full_name: string
 					id_number: string
 					phone: string
-					date_of_birth: string // Changed from age: number to date_of_birth: string
+					date_of_birth: string
 					email?: string | null
 					exam_type: string
 					origin: string
@@ -206,13 +207,14 @@ export type Database = {
 					descripcion_macroscopica?: string | null
 					diagnostico?: string | null
 					comentario?: string | null
+					pdf_en_ready?: boolean | null
 				}
 				Update: {
 					id?: string
 					full_name?: string
 					id_number?: string
 					phone?: string
-					date_of_birth?: string // Changed from age?: number to date_of_birth?: string
+					date_of_birth?: string
 					email?: string | null
 					exam_type?: string
 					origin?: string
@@ -249,6 +251,7 @@ export type Database = {
 					descripcion_macroscopica?: string | null
 					diagnostico?: string | null
 					comentario?: string | null
+					pdf_en_ready?: boolean | null
 				}
 				Relationships: []
 			}

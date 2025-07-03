@@ -3,7 +3,7 @@ import fontkit from '@pdf-lib/fontkit';
 import { format, parseISO } from 'date-fns';
 import { es } from 'date-fns/locale';
 import type { MedicalRecord } from '@lib/supabase-service';
-import { getAgeDisplay } from '@lib/supabase-service';
+import { getAgeDisplay, updatePdfReadyStatus } from '@lib/supabase-service';
 
 // Import logo as a module
 import logoPath from '/src/assets/img/logo_conspat.png';
@@ -404,6 +404,16 @@ export async function generatePDF(caseData: MedicalRecord): Promise<void> {
     // Clean up
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
+    
+    // Update PDF ready status in database
+    if (caseData.id && !caseData.pdf_en_ready) {
+      try {
+        await updatePdfReadyStatus(caseData.id, true);
+      } catch (error) {
+        console.error('Error updating PDF ready status:', error);
+        // Continue even if status update fails
+      }
+    }
     
     return Promise.resolve();
   } catch (error) {

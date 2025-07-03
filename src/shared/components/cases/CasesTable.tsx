@@ -614,7 +614,8 @@ const CasesTable: React.FC<CasesTableProps> = ({
 							</thead>
 							<tbody className="divide-y divide-gray-200 dark:divide-gray-700">
 								{filteredAndSortedCases.length > 0 ? (
-									filteredAndSortedCases.map((case_) => {
+									// Only render the first 100 rows for better performance
+									filteredAndSortedCases.slice(0, 100).map((case_) => {
 										const ageDisplay = case_.date_of_birth ? getAgeDisplay(case_.date_of_birth) : ''
 										const isBiopsyCase = case_.exam_type?.toLowerCase() === 'biopsia'
 										const hasDownloadableContent = isBiopsyCase && !!case_.diagnostico
@@ -744,6 +745,20 @@ const CasesTable: React.FC<CasesTableProps> = ({
 								)}
 							</tbody>
 						</table>
+						
+						{filteredAndSortedCases.length > 100 && (
+							<div className="text-center py-4 border-t border-gray-200 dark:border-gray-700">
+								<p className="text-sm text-gray-500 dark:text-gray-400">
+									Mostrando 100 de {filteredAndSortedCases.length} casos
+								</p>
+								<button
+									onClick={() => setIsFullscreen(true)}
+									className="mt-2 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/80 transition-colors"
+								>
+									Ver todos los casos
+								</button>
+							</div>
+						)}
 					</div>
 				</div>
 			</div>

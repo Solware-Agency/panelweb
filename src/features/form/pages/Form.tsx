@@ -7,14 +7,24 @@ import { useQuery } from '@tanstack/react-query'
 import { MedicalForm } from '@features/form/components/MedicalForm'
 import { RecordsSection } from '@features/form/components/RecordsSection'
 import { SettingsSection } from '@features/form/components/SettingsSection'
-import { useState, useCallback } from 'react'
+import { useState, useCallback, Suspense } from 'react'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@shared/components/ui/tabs'
 import { useNavigate } from 'react-router-dom'
 import { signOut } from '@lib/supabase/auth'
 import { getMedicalRecords, searchMedicalRecords } from '@lib/supabase-service'
-import { RefreshCw, Maximize2 } from 'lucide-react'
+import { RefreshCw, Maximize2, Loader2 } from 'lucide-react'
 import { useUserProfile } from '@shared/hooks/useUserProfile'
 import { DoctorsSection } from '@features/form/components/DoctorsSection'
+
+// Loading fallback component
+const LoadingFallback = () => (
+  <div className="flex items-center justify-center h-64">
+    <div className="flex flex-col items-center gap-4">
+      <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      <p className="text-muted-foreground">Cargando datos...</p>
+    </div>
+  </div>
+);
 
 function FormContent() {
 	const [activeTab, setActiveTab] = useState('form')
@@ -24,6 +34,7 @@ function FormContent() {
 	const { profile } = useUserProfile()
 
 	// Query for medical records data - fetch all records at once
+	// Only enable the query when the records tab is active to save resources
 	const {
 		data: casesData,
 		isLoading: casesLoading,
@@ -39,6 +50,8 @@ function FormContent() {
 		suspense: false,
 		// Add refetchOnWindowFocus to false to prevent unnecessary refetches
 		refetchOnWindowFocus: false,
+		// Only enable the query when the records tab is active
+		enabled: activeTab === 'records',
 	})
 
 	const handleClearForm = useCallback(() => {
@@ -57,6 +70,16 @@ function FormContent() {
 	const handleSearch = useCallback((term: string) => {
 		setSearchTerm(term)
 	}, [])
+
+	// Handle tab change with lazy loading
+	const handleTabChange = useCallback((value: string) => {
+		setActiveTab(value)
+		
+		// If switching to records tab, refetch data
+		if (value === 'records') {
+			refetchCases()
+		}
+	}, [refetchCases])
 
 	return (
 		<>
@@ -96,7 +119,7 @@ function FormContent() {
 						<h3 className='text-md text-primary font-semibold mt-4'>Bienvenido, {profile?.display_name}</h3>
 					</div>
 
-					<Tabs defaultValue="form" value={activeTab} onValueChange={setActiveTab}>
+					<Tabs defaultValue="form" value={activeTab} onValueChange={handleTabChange}>
 						<TabsList className="mb-6">
 							<TabsTrigger value="form">Formulario</TabsTrigger>
 							<TabsTrigger value="records">Registros</TabsTrigger>
@@ -109,15 +132,17 @@ function FormContent() {
 						</TabsContent>
 
 						<TabsContent value="records" className="mt-6">
-							<RecordsSection
-								cases={casesData?.data || []}
-								isLoading={casesLoading}
-								error={casesError}
-								refetch={refetchCases}
-								isFullscreen={isFullscreen}
-								setIsFullscreen={setIsFullscreen}
-								onSearch={handleSearch}
-							/>
+							<Suspense fallback={<LoadingFallback />}>
+								<RecordsSection
+									cases={casesData?.data || []}
+									isLoading={casesLoading}
+									error={casesError}
+									refetch={refetchCases}
+									isFullscreen={isFullscreen}
+									setIsFullscreen={setIsFullscreen}
+									onSearch={handleSearch}
+								/>
+							</Suspense>
 						</TabsContent>
 
 						<TabsContent value="settings" className="mt-6">

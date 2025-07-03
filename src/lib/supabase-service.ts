@@ -48,7 +48,7 @@ export interface MedicalRecord {
 	descripcion_macroscopica?: string | null
 	diagnostico?: string | null
 	comentario?: string | null
-	pdf_en_ready?: boolean
+	pdf_en_ready?: boolean | null
 }
 
 export interface ChangeLog {
@@ -621,6 +621,31 @@ export const getMedicalRecordsStats = async () => {
 		return { data: stats, error: null }
 	} catch (error) {
 		console.error(`Error getting stats from ${TABLE_NAME}:`, error)
+		return { data: null, error }
+	}
+}
+
+// Function to update PDF ready status
+export const updatePdfReadyStatus = async (id: string, isReady: boolean) => {
+	try {
+		console.log(`🔄 Updating PDF ready status for record ${id} to ${isReady}`)
+
+		const { data, error } = await supabase
+			.from(TABLE_NAME)
+			.update({ pdf_en_ready: isReady })
+			.eq('id', id)
+			.select()
+			.single()
+
+		if (error) {
+			console.error(`❌ Error updating PDF ready status:`, error)
+			return { data: null, error }
+		}
+
+		console.log(`✅ PDF ready status updated successfully:`, data)
+		return { data, error: null }
+	} catch (error) {
+		console.error(`❌ Error updating PDF ready status:`, error)
 		return { data: null, error }
 	}
 }
