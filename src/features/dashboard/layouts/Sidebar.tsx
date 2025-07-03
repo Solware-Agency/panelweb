@@ -12,6 +12,7 @@ import {
 	Users,
 	Settings,
 	ShieldCheck,
+	History,
 } from 'lucide-react'
 import { NavLink, useNavigate } from 'react-router-dom'
 import { signOut } from '@lib/supabase/auth'
@@ -47,6 +48,7 @@ const Sidebar: React.FC<SidebarProps> = ({
 
 	// Determine if user is admin role
 	const isAdmin = profile?.role === 'admin'
+	const isOwner = profile?.role === 'owner'
 
 	return (
 		<aside className="bg-white/80 dark:bg-background/50 shadow-lg hover:shadow-primary/50 backdrop-blur-[10px] flex flex-col justify-between h-screen py-8 px-5 gap-4 border-gray-600 text-gray-700 dark:text-white transition-all duration-300 ease-in-out overflow-hidden border-r border-input">
@@ -233,6 +235,31 @@ const Sidebar: React.FC<SidebarProps> = ({
 								</p>
 							</div>
 						</NavLink>
+
+						{/* New Changelog Link - Only for owners */}
+						{isOwner && (
+							<NavLink
+								to="/dashboard/changelog"
+								className={({ isActive }) =>
+									`flex justify-between items-center gap-3 cursor-pointer transition w-full ${
+										isActive ? 'text-primary border-primary' : 'hover:text-primary'
+									}`
+								}
+								onClick={onClose}
+								title={!showFullContent ? 'Historial de Cambios' : undefined}
+							>
+								<div className="flex gap-3 items-center min-w-0">
+									<History className="stroke-2 size-5 shrink-0" />
+									<p
+										className={`text-md whitespace-nowrap transition-all duration-300 ${
+											showFullContent ? 'opacity-100 w-auto' : 'opacity-0 w-0 overflow-hidden'
+										}`}
+									>
+										Historial
+									</p>
+								</div>
+							</NavLink>
+						)}
 					</>
 				)}
 			</div>

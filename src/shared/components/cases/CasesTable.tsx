@@ -11,10 +11,11 @@ import {
 	CreditCard,
 	FileText,
 	Download,
+	History,
 } from 'lucide-react'
 import { motion, AnimatePresence } from 'motion/react'
 import type { MedicalRecord } from '@lib/supabase-service'
-import { getAgeDisplay, deleteMedicalRecord, updateMedicalRecordWithLog } from '@lib/supabase-service'
+import { getAgeDisplay, deleteMedicalRecord, updateMedicalRecordWithLog, getChangeLogsForRecord } from '@lib/supabase-service'
 import { format, parseISO } from 'date-fns'
 import { es } from 'date-fns/locale'
 import { useQuery } from '@tanstack/react-query'
@@ -67,6 +68,21 @@ const CasesTable: React.FC<CasesTableProps> = ({
 	const [selectedCaseForGenerate, setSelectedCaseForGenerate] = useState<MedicalRecord | null>(null)
 	const [isGenerateModalOpen, setIsGenerateModalOpen] = useState(false)
 	const [isDownloading, setIsDownloading] = useState<string | null>(null)
+	const [selectedCaseForChangelog, setSelectedCaseForChangelog] = useState<string | null>(null)
+	const [isChangelogModalOpen, setIsChangelogModalOpen] = useState(false)
+
+	// Query to get change logs for the selected case
+	const { 
+		data: changeLogs, 
+		isLoading: isLoadingChangeLogs 
+	} = useQuery({
+		queryKey: ['case-change-logs', selectedCaseForChangelog],
+		queryFn: () => {
+			if (!selectedCaseForChangelog) return { data: null };
+			return getChangeLogsForRecord(selectedCaseForChangelog);
+		},
+		enabled: !!selectedCaseForChangelog && isChangelogModalOpen,
+	})
 
 	const getStatusColor = (status: string) => {
 		switch (status) {
@@ -105,6 +121,11 @@ const CasesTable: React.FC<CasesTableProps> = ({
 		
 		setSelectedCaseForGenerate(case_)
 		setIsGenerateModalOpen(true)
+	}
+
+	const handleViewChangelog = (caseId: string) => {
+		setSelectedCaseForChangelog(caseId)
+		setIsChangelogModalOpen(true)
 	}
 
 	const handleDownloadCase = async (case_: MedicalRecord) => {
@@ -463,6 +484,15 @@ const CasesTable: React.FC<CasesTableProps> = ({
 			<ChevronDown className="w-4 h-4 text-blue-600 dark:text-blue-400" />
 		)
 	}
+
+	// Format change log date
+	const formatChangeLogDate = (dateString: string) => {
+		const date = new Date(dateString);
+		return {
+			date: format(date, 'dd/MM/yyyy', { locale: es }),
+			time: format(date, 'HH:mm:ss', { locale: es })
+		};
+	};
 
 	// Mobile Card Component
 	const CaseCard = ({ case_ }: { case_: MedicalRecord }) => {
@@ -929,6 +959,16 @@ const CasesTable: React.FC<CasesTableProps> = ({
 														)}
 														Descargar
 													</button>
+													<button
+														onClick={(e) => {
+															e.stopPropagation()
+															handleViewChangelog(case_.id!)
+														}}
+														className="inline-flex items-center gap-1 px-3 py-1 text-xs font-medium text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-300 transition-colors"
+													>
+														<History className="w-3 h-3" />
+														Historial
+													</button>
 												</div>
 											</td>
 										</tr>
@@ -1254,6 +1294,16 @@ const CasesTable: React.FC<CasesTableProps> = ({
 															)}
 															Descargar
 														</button>
+														<button
+															onClick={(e) => {
+																e.stopPropagation()
+																handleViewChangelog(case_.id!)
+															}}
+															className="inline-flex items-center gap-1 px-3 py-1 text-xs font-medium text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-300 transition-colors"
+														>
+															<History className="w-3 h-3" />
+															Historial
+														</button>
 													</div>
 												</td>
 											</tr>
@@ -1288,6 +1338,104 @@ const CasesTable: React.FC<CasesTableProps> = ({
 					refetch();
 				}}
 			/>
+
+			{/* Changelog Modal */}
+			{isChangelogModalOpen && (
+				<div className="fixed inset-0 z-[999999999] flex items-center justify-center bg-black/50">
+					<div className="bg-white dark:bg-background rounded-lg p-6 max-w-2xl w-full mx-4 shadow-xl border border-gray-200 dark:border-gray-700 max-h-[90vh] flex flex-col">
+						<div className="flex items-center justify-between mb-4">
+							<div className="flex items-center gap-3">
+								<div className="p-2 bg-purple-100 dark:bg-purple-900/30 rounded-full">
+									<History className="w-6 h-6 text-purple-600 dark:text-purple-400" />
+								</div>
+								<h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Historial de Cambios</h3>
+							</div>
+							<button
+								onClick={() => {
+									setIsChangelogModalOpen(false)
+									setSelectedCaseForChangelog(null)
+								}}
+								className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
+							>
+								<X className="w-5 h-5 text-gray-500 dark:text-gray-400" />
+							</button>
+						</div>
+						
+						<div className="overflow-y-auto flex-1">
+							{isLoadingChangeLogs ? (
+								<div className="flex items-center justify-center py-12">
+									<div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+								</div>
+							) : !changeLogs?.data || changeLogs.data.length === 0 ? (
+								<div className="text-center py-12">
+									<History className="w-16 h-16 mx-auto mb-4 text-gray-300 dark:text-gray-600" />
+									<p className="text-lg font-medium text-gray-700 dark:text-gray-300">No hay registros de cambios</p>
+									<p className="text-sm text-gray-500 dark:text-gray-400">Este caso no tiene historial de cambios registrado</p>
+								</div>
+							) : (
+								<div className="space-y-4">
+									{changeLogs.data.map((log) => {
+										const formattedDate = formatChangeLogDate(log.changed_at);
+										
+										return (
+											<div key={log.id} className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-4 border border-gray-200 dark:border-gray-700">
+												<div className="flex justify-between items-start mb-3">
+													<div className="flex items-center gap-2">
+														<User className="w-4 h-4 text-gray-500 dark:text-gray-400" />
+														<span className="text-sm font-medium text-gray-700 dark:text-gray-300">{log.user_email}</span>
+													</div>
+													<div className="text-xs text-gray-500 dark:text-gray-400">
+														{formattedDate.date} {formattedDate.time}
+													</div>
+												</div>
+												
+												{log.field_name === 'created_record' ? (
+													<div className="flex items-center gap-2 text-green-600 dark:text-green-400">
+														<FileText className="w-4 h-4" />
+														<span>Creó el registro</span>
+													</div>
+												) : log.field_name === 'deleted_record' ? (
+													<div className="flex items-center gap-2 text-red-600 dark:text-red-400">
+														<Trash2 className="w-4 h-4" />
+														<span>Eliminó el registro</span>
+													</div>
+												) : (
+													<div>
+														<p className="text-sm font-medium text-gray-700 dark:text-gray-300">
+															Cambió {log.field_label}
+														</p>
+														<div className="flex items-center gap-2 mt-1 text-sm">
+															<span className="line-through text-gray-500 dark:text-gray-400">
+																{log.old_value || '(vacío)'}
+															</span>
+															<span className="text-xs">→</span>
+															<span className="text-green-600 dark:text-green-400">
+																{log.new_value || '(vacío)'}
+															</span>
+														</div>
+													</div>
+												)}
+											</div>
+										);
+									})}
+								</div>
+							)}
+						</div>
+						
+						<div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+							<Button 
+								onClick={() => {
+									setIsChangelogModalOpen(false)
+									setSelectedCaseForChangelog(null)
+								}}
+								className="w-full"
+							>
+								Cerrar
+							</Button>
+						</div>
+					</div>
+				</div>
+			)}
 		</>
 	)
 }

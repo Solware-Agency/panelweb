@@ -60,6 +60,7 @@ export interface ChangeLog {
 	old_value: string | null
 	new_value: string | null
 	changed_at: string
+	created_at?: string
 }
 
 // Helper function to calculate age from date of birth
@@ -518,7 +519,23 @@ export const getChangeLogsForRecord = async (medicalRecordId: string) => {
 	}
 }
 
-// NEW: Combined function to update medical record and save change log
+// NEW: Function to get all change logs with pagination
+export const getAllChangeLogs = async (limit = 50, offset = 0) => {
+	try {
+		const { data, error } = await supabase
+			.from(CHANGE_LOG_TABLE)
+			.select('*, medical_records_clean!inner(id, full_name, code)')
+			.order('changed_at', { ascending: false })
+			.range(offset, offset + limit - 1)
+
+		return { data, error }
+	} catch (error) {
+		console.error('Error fetching all change logs:', error)
+		return { data: null, error }
+	}
+}
+
+// Combined function to update medical record and save change log
 export const updateMedicalRecordWithLog = async (
 	id: string,
 	updates: Partial<MedicalRecord>,

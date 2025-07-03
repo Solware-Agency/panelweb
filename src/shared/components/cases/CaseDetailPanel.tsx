@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react'
 import { 
   X, User, Stethoscope, CreditCard, FileText, CheckCircle, Hash, Cake, UserCheck, 
-  Edit, Trash2, Loader2, AlertCircle, Save, XCircle, Plus, DollarSign
+  Edit, Trash2, Loader2, AlertCircle, Save, XCircle, Plus, DollarSign, History
 } from 'lucide-react'
 import { motion, AnimatePresence } from 'motion/react'
 import type { MedicalRecord } from '@lib/supabase-service'
-import { getAgeDisplay, deleteMedicalRecord, updateMedicalRecordWithLog } from '@lib/supabase-service'
+import { getAgeDisplay, deleteMedicalRecord, updateMedicalRecordWithLog, getChangeLogsForRecord } from '@lib/supabase-service'
 import { format, parseISO } from 'date-fns'
 import { es } from 'date-fns/locale'
 import { useQuery } from '@tanstack/react-query'
@@ -42,6 +42,7 @@ const CaseDetailPanel: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClos
 		amount: '',
 		reference: ''
 	})
+	const [showChangelog, setShowChangelog] = useState(false)
 	
 	// Query to get the user who created the record
 	const { data: creatorData } = useQuery({
@@ -89,6 +90,20 @@ const CaseDetailPanel: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClos
 			return null
 		},
 		enabled: !!case_?.id && isOpen,
+	})
+
+	// Query to get change logs for this record
+	const { 
+		data: changeLogs, 
+		isLoading: isLoadingChangeLogs,
+		refetch: refetchChangeLogs
+	} = useQuery({
+		queryKey: ['change-logs', case_?.id],
+		queryFn: async () => {
+			if (!case_?.id) return { data: null };
+			return getChangeLogsForRecord(case_.id);
+		},
+		enabled: !!case_?.id && isOpen && showChangelog,
 	})
 
 	// Initialize edited case when case_ changes or when entering edit mode
@@ -235,6 +250,11 @@ const CaseDetailPanel: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClos
 			if (onCaseUpdated) {
 				onCaseUpdated();
 			}
+
+			// Refresh changelog if it's open
+			if (showChangelog) {
+				refetchChangeLogs();
+			}
 		} catch (error) {
 			console.error('Error updating case:', error);
 			toast({
@@ -296,6 +316,10 @@ const CaseDetailPanel: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClos
 			[`payment_amount_${index}`]: null,
 			[`payment_reference_${index}`]: null
 		}));
+	};
+
+	const toggleChangelog = () => {
+		setShowChangelog(!showChangelog);
 	};
 
 	if (!case_) return null
@@ -406,6 +430,15 @@ const CaseDetailPanel: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClos
 		return bolivares.includes(method) ? 'Bs' : '$'
 	}
 
+	// Format change log date
+	const formatChangeLogDate = (dateString: string) => {
+		const date = new Date(dateString);
+		return {
+			date: format(date, 'dd/MM/yyyy', { locale: es }),
+			time: format(date, 'HH:mm:ss', { locale: es })
+		};
+	};
+
 	return (
 		<>
 			<AnimatePresence>
@@ -473,7 +506,7 @@ const CaseDetailPanel: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClos
 								</div>
 								
 								{/* Action Buttons */}
-								<div className="flex gap-2 mt-4">
+								<div className="flex flex-wrap gap-2 mt-4">
 									{isEditing ? (
 										<>
 											<Button 
@@ -520,6 +553,14 @@ const CaseDetailPanel: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClos
 												<Trash2 className="w-4 h-4" />
 												Eliminar Caso
 											</Button>
+											<Button
+												onClick={toggleChangelog}
+												variant="outline"
+												className="flex items-center gap-2"
+											>
+												<History className="w-4 h-4" />
+												{showChangelog ? 'Ocultar Historial' : 'Ver Historial'}
+											</Button>
 										</>
 									)}
 								</div>
@@ -527,6 +568,84 @@ const CaseDetailPanel: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClos
 
 							{/* Content */}
 							<div className="p-4 sm:p-6 space-y-6">
+								{/* Changelog Section */}
+								{showChangelog && (
+									<div className="bg-white dark:bg-background rounded-lg p-4 border border-input transition-all duration-300">
+										<div className="flex items-center justify-between mb-3">
+											<div className="flex items-center gap-2">
+												<History className="w-5 h-5 text-purple-600 dark:text-purple-400" />
+												<h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Historial de Cambios</h3>
+											</div>
+											<Button 
+												variant="ghost" 
+												size="sm" 
+												onClick={toggleChangelog}
+												className="text-gray-500 dark:text-gray-400"
+											>
+												<X className="w-4 h-4" />
+											</Button>
+										</div>
+										
+										{isLoadingChangeLogs ? (
+											<div className="flex items-center justify-center py-8">
+												<Loader2 className="w-6 h-6 animate-spin text-primary" />
+											</div>
+										) : !changeLogs?.data || changeLogs.data.length === 0 ? (
+											<div className="text-center py-6">
+												<History className="w-12 h-12 mx-auto mb-2 text-gray-300 dark:text-gray-600" />
+												<p className="text-gray-500 dark:text-gray-400">No hay registros de cambios para este caso</p>
+											</div>
+										) : (
+											<div className="space-y-4 max-h-96 overflow-y-auto pr-2">
+												{changeLogs.data.map((log) => {
+													const formattedDate = formatChangeLogDate(log.changed_at);
+													
+													return (
+														<div key={log.id} className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-3 border border-gray-200 dark:border-gray-700">
+															<div className="flex justify-between items-start mb-2">
+																<div className="flex items-center gap-2">
+																	<User className="w-4 h-4 text-gray-500 dark:text-gray-400" />
+																	<span className="text-sm font-medium">{log.user_email}</span>
+																</div>
+																<div className="text-xs text-gray-500 dark:text-gray-400">
+																	{formattedDate.date} {formattedDate.time}
+																</div>
+															</div>
+															
+															{log.field_name === 'created_record' ? (
+																<div className="flex items-center gap-2 text-green-600 dark:text-green-400">
+																	<FileText className="w-4 h-4" />
+																	<span>Creó el registro</span>
+																</div>
+															) : log.field_name === 'deleted_record' ? (
+																<div className="flex items-center gap-2 text-red-600 dark:text-red-400">
+																	<Trash2 className="w-4 h-4" />
+																	<span>Eliminó el registro</span>
+																</div>
+															) : (
+																<div>
+																	<p className="text-sm font-medium text-gray-700 dark:text-gray-300">
+																		Cambió {log.field_label}
+																	</p>
+																	<div className="flex items-center gap-2 mt-1 text-sm">
+																		<span className="line-through text-gray-500 dark:text-gray-400">
+																			{log.old_value || '(vacío)'}
+																		</span>
+																		<span className="text-xs">→</span>
+																		<span className="text-green-600 dark:text-green-400">
+																			{log.new_value || '(vacío)'}
+																		</span>
+																	</div>
+																</div>
+															)}
+														</div>
+													);
+												})}
+											</div>
+										)}
+									</div>
+								)}
+
 								{/* Registered By Section */}
 								{(creatorData || case_.created_by_display_name) && (
 									<InfoSection title="Registrado por" icon={UserCheck}>
@@ -981,12 +1100,20 @@ const CaseDetailPanel: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClos
 									<div className="space-y-1">
 										<InfoRow
 											label="Fecha de creación"
-											value={new Date(case_.created_at || '').toLocaleDateString('es-ES')}
+											value={
+												case_.created_at
+													? format(new Date(case_.created_at), 'dd/MM/yyyy HH:mm', { locale: es })
+													: 'N/A'
+											}
 											editable={false}
 										/>
 										<InfoRow
 											label="Última actualización"
-											value={new Date(case_.updated_at || '').toLocaleDateString('es-ES')}
+											value={
+												case_.updated_at
+													? format(new Date(case_.updated_at), 'dd/MM/yyyy HH:mm', { locale: es })
+													: 'N/A'
+											}
 											editable={false}
 										/>
 										<div className="py-2">
