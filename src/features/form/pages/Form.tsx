@@ -15,12 +15,10 @@ import { getMedicalRecords } from '@lib/supabase-service'
 import { RefreshCw, Maximize2 } from 'lucide-react'
 import { useUserProfile } from '@shared/hooks/useUserProfile'
 import { DoctorsSection } from '@features/form/components/DoctorsSection'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@shared/components/ui/select'
 
 function FormContent() {
 	const [activeTab, setActiveTab] = useState('form')
 	const [isFullscreen, setIsFullscreen] = useState(false)
-	const [itemsPerPage, setItemsPerPage] = useState(100)
 	const navigate = useNavigate()
 	const { profile } = useUserProfile()
 
@@ -31,8 +29,8 @@ function FormContent() {
 		error: casesError,
 		refetch: refetchCases,
 	} = useQuery({
-		queryKey: ['medical-cases', itemsPerPage],
-		queryFn: () => getMedicalRecords(itemsPerPage, 0),
+		queryKey: ['medical-cases'],
+		queryFn: () => getMedicalRecords(100, 0),
 		staleTime: 1000 * 60 * 5, // 5 minutes
 	})
 
@@ -65,20 +63,6 @@ function FormContent() {
 				)}
 				{activeTab === 'records' && (
 					<>
-						<Select 
-							value={itemsPerPage.toString()} 
-							onValueChange={(value) => setItemsPerPage(parseInt(value))}
-						>
-							<SelectTrigger className="h-10 shadow-xl dark:shadow-black shadow-black/40">
-								<SelectValue placeholder="Registros por página" />
-							</SelectTrigger>
-							<SelectContent>
-								<SelectItem value="100">100 registros</SelectItem>
-								<SelectItem value="500">500 registros</SelectItem>
-								<SelectItem value="1000">1000 registros</SelectItem>
-								<SelectItem value="0">Todos los registros</SelectItem>
-							</SelectContent>
-						</Select>
 						<button
 							onClick={handleToggleFullscreen}
 							className="hidden lg:flex px-3 py-2 border border-input rounded-lg focus:ring-2 focus:ring-primary dark:bg-background dark:text-white text-sm items-center gap-2 shadow-xl dark:shadow-black shadow-black/40"

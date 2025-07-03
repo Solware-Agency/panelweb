@@ -69,7 +69,7 @@ const ChangelogTable: React.FC = () => {
     refetch 
   } = useQuery({
     queryKey: ['change-logs', page, rowsPerPage],
-    queryFn: () => getAllChangeLogs(rowsPerPage, page),
+    queryFn: () => getAllChangeLogs(rowsPerPage, page * rowsPerPage),
     staleTime: 1000 * 60 * 5, // 5 minutes
   })
 
@@ -236,32 +236,10 @@ const ChangelogTable: React.FC = () => {
             Registro de todas las acciones realizadas en el sistema
           </p>
         </div>
-        <div className="flex items-center gap-2">
-          <Button onClick={() => refetch()} variant="outline" className="flex items-center gap-2">
-            <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
-            Actualizar
-          </Button>
-          
-          <Select 
-            value={rowsPerPage.toString()} 
-            onValueChange={(value) => {
-              setRowsPerPage(parseInt(value))
-              setPage(0) // Reset to first page when changing rows per page
-            }}
-          >
-            <SelectTrigger className="w-40">
-              <SelectValue placeholder="Filas por página" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="20">20 por página</SelectItem>
-              <SelectItem value="50">50 por página</SelectItem>
-              <SelectItem value="100">100 por página</SelectItem>
-              <SelectItem value="500">500 por página</SelectItem>
-              <SelectItem value="1000">1000 por página</SelectItem>
-              <SelectItem value="0">Todos los registros</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
+        <Button onClick={() => refetch()} variant="outline" className="flex items-center gap-2">
+          <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
+          Actualizar
+        </Button>
       </div>
 
       {/* Filters */}
@@ -508,11 +486,25 @@ const ChangelogTable: React.FC = () => {
           <div className="flex items-center justify-between p-4 border-t border-gray-200 dark:border-gray-700">
             <div className="text-sm text-gray-500 dark:text-gray-400">
               Mostrando {filteredLogs.length} de {logsData?.data?.length || 0} registros
-              {logsData?.count && logsData.count > logsData.data.length && (
-                <> (de {logsData.count} total)</>
-              )}
             </div>
             <div className="flex items-center gap-2">
+              <Select 
+                value={rowsPerPage.toString()} 
+                onValueChange={(value) => {
+                  setRowsPerPage(parseInt(value))
+                  setPage(0) // Reset to first page when changing rows per page
+                }}
+              >
+                <SelectTrigger className="w-32">
+                  <SelectValue placeholder="Filas por página" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="10">10 por página</SelectItem>
+                  <SelectItem value="20">20 por página</SelectItem>
+                  <SelectItem value="50">50 por página</SelectItem>
+                  <SelectItem value="100">100 por página</SelectItem>
+                </SelectContent>
+              </Select>
               <Button 
                 variant="outline" 
                 onClick={() => setPage(Math.max(0, page - 1))}
@@ -526,7 +518,7 @@ const ChangelogTable: React.FC = () => {
               <Button 
                 variant="outline" 
                 onClick={() => setPage(page + 1)}
-                disabled={!logsData?.data || filteredLogs.length < rowsPerPage}
+                disabled={filteredLogs.length < rowsPerPage}
               >
                 Siguiente
               </Button>
