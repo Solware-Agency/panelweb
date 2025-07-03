@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { memo } from 'react'
 import { type Control, useWatch } from 'react-hook-form'
 import { type FormValues } from '@features/form/lib/form-schema'
 import { FormField, FormItem, FormLabel, FormControl, FormMessage } from '@shared/components/ui/form'
@@ -14,7 +14,7 @@ interface PaymentHeaderProps {
 	isLoadingRate?: boolean
 }
 
-export const PaymentHeader = ({ control, inputStyles, exchangeRate, isLoadingRate }: PaymentHeaderProps) => {
+export const PaymentHeader = memo(({ control, inputStyles, exchangeRate, isLoadingRate }: PaymentHeaderProps) => {
 	const { profile } = useUserProfile()
 	const totalAmount = useWatch({
 		control,
@@ -117,4 +117,6 @@ export const PaymentHeader = ({ control, inputStyles, exchangeRate, isLoadingRat
 			/>
 		</React.Fragment>
 	)
-}
+})
+
+PaymentHeader.displayName = 'PaymentHeader'

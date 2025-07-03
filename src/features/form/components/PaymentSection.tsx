@@ -8,14 +8,12 @@ import {
 } from 'react-hook-form'
 import { type FormValues } from '@features/form/lib/form-schema'
 import { Card, CardContent, CardHeader, CardTitle } from '@shared/components/ui/card'
-import { useMemo } from 'react'
+import { useMemo, memo } from 'react'
 import { PaymentHeader } from './payment/PaymentHeader'
 import { CurrencyConverter } from './payment/CurrencyConverter'
 import { PaymentMethodsList } from './payment/PaymentMethodsList'
 import { PaymentSectionSkeleton } from './payment/PaymentSectionSkeleton'
 import { calculatePaymentDetails } from '@features/form/lib/payment/payment-utils'
-import { Input } from '@shared/components/ui/input'
-import { FormLabel } from '@shared/components/ui/form'
 
 interface PaymentSectionProps {
 	control: Control<FormValues>
@@ -34,7 +32,7 @@ interface PaymentSectionProps {
 	isLoadingRate: boolean
 }
 
-export const PaymentSection = ({
+export const PaymentSection = memo(({
 	control,
 	errors,
 	fields,
@@ -61,6 +59,7 @@ export const PaymentSection = ({
 		name: 'totalAmount',
 	})
 
+	// Use useMemo to prevent recalculation on every render
 	const { paymentStatus, isPaymentComplete, missingAmount } = useMemo(() => {
 		return calculatePaymentDetails(watchedPayments, totalAmount, exchangeRate)
 	}, [totalAmount, watchedPayments, exchangeRate])
@@ -94,26 +93,6 @@ export const PaymentSection = ({
 						isLoadingRate={isLoadingRate}
 						inputStyles={inputStyles}
 					/>
-					<div className="space-y-2">
-						<FormLabel>Convertidor VES a USD</FormLabel>
-						<Input
-							type="text"
-							inputMode="decimal"
-							placeholder="Ingrese monto en Bolívares"
-							value={vesInputValue}
-							onChange={(e) => {
-								const val = e.target.value
-								if (val === '' || /^[0-9]*\.?[0-9]*$/.test(val)) {
-									setVesInputValue(val)
-								}
-							}}
-							className={inputStyles}
-						/>
-						{usdFromVes && <p className="text-sm font-bold text-green-600">{usdFromVes} USD</p>}
-						<p className="text-xs text-muted-foreground">
-							{isLoadingRate ? 'Cargando tasa...' : `Tasa BCV: ${exchangeRate?.toFixed(2) || 'N/A'} VES/USD`}
-						</p>
-					</div>
 				</div>
 
 				<PaymentMethodsList
@@ -130,4 +109,6 @@ export const PaymentSection = ({
 			</CardContent>
 		</Card>
 	)
-}
+})
+
+PaymentSection.displayName = 'PaymentSection'

@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import { supabase } from '@lib/supabase/config'
 
 interface AutocompleteOption {
@@ -116,8 +116,8 @@ export const useAutocomplete = (fieldName: string) => {
 		}
 	}, [fieldName]) // Only depend on fieldName, not hasPreloadedData
 
-	// Function to get random suggestions from all values
-	const getRandomSuggestions = (count: number = 8): AutocompleteOption[] => {
+	// Function to get random suggestions from all values - memoized with useCallback
+	const getRandomSuggestions = useCallback((count: number = 8): AutocompleteOption[] => {
 		if (allFieldValues.length === 0) return []
 		
 		// Create a weighted random selection based on frequency
@@ -139,10 +139,10 @@ export const useAutocomplete = (fieldName: string) => {
 		}
 		
 		return randomSuggestions
-	}
+	}, [allFieldValues])
 
-	// Function to get filtered suggestions based on search term
-	const getFilteredSuggestions = (searchTerm: string): AutocompleteOption[] => {
+	// Function to get filtered suggestions based on search term - memoized with useCallback
+	const getFilteredSuggestions = useCallback((searchTerm: string): AutocompleteOption[] => {
 		if (!searchTerm || searchTerm.length === 0) {
 			return getRandomSuggestions()
 		}
@@ -163,10 +163,10 @@ export const useAutocomplete = (fieldName: string) => {
 			// Then by frequency
 			return b.count - a.count
 		}).slice(0, 8)
-	}
+	}, [allFieldValues, getRandomSuggestions])
 
-	// FIXED: getSuggestions now only processes preloaded data, no async calls
-	const getSuggestions = (searchTerm: string = '') => {
+	// getSuggestions now only processes preloaded data, no async calls - memoized with useCallback
+	const getSuggestions = useCallback((searchTerm: string = '') => {
 		// Cancel any previous abort controller
 		if (abortControllerRef.current) {
 			abortControllerRef.current.abort()
@@ -181,7 +181,7 @@ export const useAutocomplete = (fieldName: string) => {
 		// Process suggestions synchronously from preloaded data
 		const filteredSuggestions = getFilteredSuggestions(searchTerm)
 		setSuggestions(filteredSuggestions)
-	}
+	}, [hasPreloadedData, allFieldValues, getFilteredSuggestions])
 
 	// Clean up AbortController on unmount
 	useEffect(() => {

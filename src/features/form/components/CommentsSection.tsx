@@ -3,13 +3,14 @@ import { type FormValues } from '@features/form/lib/form-schema'
 import { FormField, FormItem, FormControl, FormMessage } from '@shared/components/ui/form'
 import { Textarea } from '@shared/components/ui/textarea'
 import { Card, CardContent, CardHeader, CardTitle } from '@shared/components/ui/card'
+import { memo } from 'react'
 
 interface CommentsSectionProps {
 	control: Control<FormValues>
 	inputStyles: string
 }
 
-export const CommentsSection = ({ control, inputStyles }: CommentsSectionProps) => (
+export const CommentsSection = memo(({ control, inputStyles }: CommentsSectionProps) => (
 	<Card className="transition-all duration-300 hover:border-primary hover:shadow-lg hover:shadow-primary/20">
 		<CardHeader>
 			<CardTitle>Comentarios</CardTitle>
@@ -34,4 +35,6 @@ export const CommentsSection = ({ control, inputStyles }: CommentsSectionProps) 
 			/>
 		</CardContent>
 	</Card>
-)
+))
+
+CommentsSection.displayName = 'CommentsSection'

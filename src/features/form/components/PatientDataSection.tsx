@@ -12,14 +12,14 @@ import { es } from 'date-fns/locale'
 import { Calendar } from '@shared/components/ui/calendar'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { usePatientAutofill } from '@shared/hooks/usePatientAutofill'
-import { useState } from 'react'
+import { useState, memo, useCallback, useMemo } from 'react'
 
 interface PatientDataSectionProps {
 	control: Control<FormValues>
 	inputStyles: string
 }
 
-export const PatientDataSection = ({ control, inputStyles }: PatientDataSectionProps) => {
+export const PatientDataSection = memo(({ control, inputStyles }: PatientDataSectionProps) => {
 	const { setValue } = useFormContext<FormValues>()
 	const { fillPatientData, isLoading: isLoadingPatient, lastFilledPatient } = usePatientAutofill(setValue)
 	const [isDateOfBirthCalendarOpen, setIsDateOfBirthCalendarOpen] = useState(false)
@@ -28,31 +28,29 @@ export const PatientDataSection = ({ control, inputStyles }: PatientDataSectionP
 	// Watch date of birth to calculate age
 	const dateOfBirth = useWatch({ control, name: 'dateOfBirth' })
 
-	// Calculate age from date of birth
-	const calculateAge = (birthDate: Date): { years: number; months: number } => {
-		if (!birthDate) return { years: 0, months: 0 }
+	// Calculate age from date of birth - memoized to prevent unnecessary recalculations
+	const { years, months, currentAge } = useMemo(() => {
+		if (!dateOfBirth) return { years: 0, months: 0, currentAge: '' };
+		
 		const now = new Date()
-		const years = differenceInYears(now, birthDate)
-		const months = differenceInMonths(now, birthDate) % 12
-		return { years, months }
-	}
-
-	const { years, months } = dateOfBirth ? calculateAge(dateOfBirth) : { years: 0, months: 0 }
-
-	// Format age display based on years and months
-	const getAgeDisplay = () => {
+		const years = differenceInYears(now, dateOfBirth)
+		const months = differenceInMonths(now, dateOfBirth) % 12
+		
+		// Format age display based on years and months
+		let currentAge = '';
 		if (years === 0) {
-			return `${months} ${months === 1 ? 'mes' : 'meses'}`
+			currentAge = `${months} ${months === 1 ? 'mes' : 'meses'}`
 		} else {
-			return `${years} ${years === 1 ? 'año' : 'años'}`
+			currentAge = `${years} ${years === 1 ? 'año' : 'años'}`
 		}
-	}
+		
+		return { years, months, currentAge };
+	}, [dateOfBirth]);
 
-	const currentAge = dateOfBirth ? getAgeDisplay() : ''
-
-	const handlePatientSelect = (idNumber: string) => {
+	// Memoize the handler to prevent unnecessary re-renders
+	const handlePatientSelect = useCallback((idNumber: string) => {
 		fillPatientData(idNumber, true) // Silencioso
-	}
+	}, [fillPatientData]);
 
 	return (
 		<Card className="transition-all duration-300 hover:border-primary hover:shadow-lg hover:shadow-primary/20">
@@ -285,4 +283,6 @@ export const PatientDataSection = ({ control, inputStyles }: PatientDataSectionP
 			</CardContent>
 		</Card>
 	)
-}
+})
+
+PatientDataSection.displayName = 'PatientDataSection'

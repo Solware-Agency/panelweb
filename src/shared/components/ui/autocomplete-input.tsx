@@ -11,7 +11,8 @@ interface AutocompleteInputProps extends React.ComponentProps<typeof Input> {
   minSearchLength?: number;
 }
 
-export const AutocompleteInput = React.forwardRef<
+// Use React.memo to prevent unnecessary re-renders
+export const AutocompleteInput = React.memo(React.forwardRef<
   HTMLInputElement,
   AutocompleteInputProps
 >(({ className, fieldName, onValueChange, onPatientSelect, minSearchLength = 0, ...props }, ref) => {
@@ -64,7 +65,7 @@ export const AutocompleteInput = React.forwardRef<
     };
   }, []);
 
-  // FIXED: Debounced search effect - prevent infinite loops
+  // Debounced search effect - prevent infinite loops
   React.useEffect(() => {
     // Clear previous timeout
     if (debounceTimeoutRef.current) {
@@ -97,7 +98,8 @@ export const AutocompleteInput = React.forwardRef<
     };
   }, [inputValue, getSuggestions, searchTerminated, isAutofilled, hasFocused, hasPreloadedData]);
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  // Memoize handlers to prevent unnecessary re-renders
+  const handleInputChange = React.useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setInputValue(value);
     setSelectedIndex(-1);
@@ -107,9 +109,9 @@ export const AutocompleteInput = React.forwardRef<
     
     // Call original onChange if exists
     props.onChange?.(e);
-  };
+  }, [props.onChange, onValueChange]);
 
-  const handleSuggestionClick = (suggestion: string) => {
+  const handleSuggestionClick = React.useCallback((suggestion: string) => {
     setInputValue(suggestion);
     setShowSuggestions(false);
     setSelectedIndex(-1);
@@ -133,9 +135,9 @@ export const AutocompleteInput = React.forwardRef<
     
     // Focus input after selection
     inputRef.current?.focus();
-  };
+  }, [fieldName, onPatientSelect, onValueChange, props.onChange]);
 
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+  const handleKeyDown = React.useCallback((e: React.KeyboardEvent<HTMLInputElement>) => {
     if (!showSuggestions || suggestions.length === 0 || searchTerminated || isAutofilled) {
       props.onKeyDown?.(e);
       return;
@@ -172,18 +174,18 @@ export const AutocompleteInput = React.forwardRef<
       default:
         props.onKeyDown?.(e);
     }
-  };
+  }, [showSuggestions, suggestions, selectedIndex, searchTerminated, isAutofilled, props.onKeyDown, handleSuggestionClick]);
 
-  const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
+  const handleBlur = React.useCallback((e: React.FocusEvent<HTMLInputElement>) => {
     // Delay hiding suggestions to allow click events
     setTimeout(() => {
       setShowSuggestions(false);
       setSelectedIndex(-1);
     }, 150);
     props.onBlur?.(e);
-  };
+  }, [props.onBlur]);
 
-  const handleFocus = (e: React.FocusEvent<HTMLInputElement>) => {
+  const handleFocus = React.useCallback((e: React.FocusEvent<HTMLInputElement>) => {
     setHasFocused(true);
     
     // Show suggestions immediately on focus if not terminated and not autofilled
@@ -198,10 +200,10 @@ export const AutocompleteInput = React.forwardRef<
       }, 0);
     }
     props.onFocus?.(e);
-  };
+  }, [getSuggestions, hasPreloadedData, inputValue, isAutofilled, props.onFocus, searchTerminated]);
 
-  // Determine the icon based on field and state
-  const getIcon = () => {
+  // Determine the icon based on field and state - memoized to prevent unnecessary recalculations
+  const getIcon = React.useMemo(() => {
     if (isLoading && !searchTerminated && !isAutofilled) {
       return <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />;
     }
@@ -219,15 +221,15 @@ export const AutocompleteInput = React.forwardRef<
     }
     
     return null;
-  };
+  }, [isLoading, searchTerminated, isAutofilled, fieldName, showSuggestions, inputValue, hasFocused]);
 
-  // Determine suggestion header text
-  const getSuggestionHeaderText = () => {
+  // Determine suggestion header text - memoized to prevent unnecessary recalculations
+  const getSuggestionHeaderText = React.useMemo(() => {
     if (inputValue.length === 0) {
       return `${suggestions.length} sugerencia${suggestions.length !== 1 ? 's' : ''} aleatoria${suggestions.length !== 1 ? 's' : ''}`;
     }
     return `${suggestions.length} sugerencia${suggestions.length !== 1 ? 's' : ''} encontrada${suggestions.length !== 1 ? 's' : ''}`;
-  };
+  }, [inputValue.length, suggestions.length]);
 
   return (
     <div className="relative">
@@ -243,9 +245,9 @@ export const AutocompleteInput = React.forwardRef<
           className={cn(className)}
           autoComplete="off"
         />
-        {getIcon() && (
+        {getIcon && (
           <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
-            {getIcon()}
+            {getIcon}
           </div>
         )}
       </div>
@@ -258,7 +260,7 @@ export const AutocompleteInput = React.forwardRef<
           <div className="px-3 py-2 text-xs text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 flex items-center gap-2">
             {fieldName === 'idNumber' && <User className="h-3 w-3" />}
             {inputValue.length === 0 && <Shuffle className="h-3 w-3" />}
-            {getSuggestionHeaderText()}
+            {getSuggestionHeaderText}
           </div>
           {suggestions.map((suggestion, index) => (
             <div
@@ -294,6 +296,6 @@ export const AutocompleteInput = React.forwardRef<
       )}
     </div>
   );
-});
+}));
 
 AutocompleteInput.displayName = "AutocompleteInput";

@@ -1,5 +1,6 @@
 import { Input } from '@shared/components/ui/input'
 import { FormLabel } from '@shared/components/ui/form'
+import { memo } from 'react'
 
 interface CurrencyConverterProps {
 	usdValue: string
@@ -13,13 +14,10 @@ interface CurrencyConverterProps {
 	inputStyles: string
 }
 
-export const CurrencyConverter = ({
+export const CurrencyConverter = memo(({
 	usdValue,
 	setUsdValue,
 	vesValue,
-	vesInputValue,
-	setVesInputValue,
-	usdFromVes,
 	exchangeRate,
 	isLoadingRate,
 	inputStyles,
@@ -44,4 +42,6 @@ export const CurrencyConverter = ({
 			{isLoadingRate ? 'Cargando tasa...' : `Tasa BCV: ${exchangeRate?.toFixed(2) || 'N/A'} VES/USD`}
 		</p>
 	</div>
-)
+))
+
+CurrencyConverter.displayName = 'CurrencyConverter'

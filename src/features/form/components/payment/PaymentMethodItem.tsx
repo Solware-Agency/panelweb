@@ -6,6 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Button } from '@shared/components/ui/button'
 import { Trash2 } from 'lucide-react'
 import { isBolivaresMethod } from '@features/form/lib/payment/payment-utils'
+import { memo, useMemo } from 'react'
 
 interface PaymentMethodItemProps {
 	control: Control<FormValues>
@@ -16,11 +17,21 @@ interface PaymentMethodItemProps {
 	fieldsLength: number
 }
 
-export const PaymentMethodItem = ({ control, index, remove, inputStyles, fieldsLength }: PaymentMethodItemProps) => {
+export const PaymentMethodItem = memo(({ control, index, remove, inputStyles, fieldsLength }: PaymentMethodItemProps) => {
 	const paymentMethod = useWatch({ control, name: `payments.${index}.method` })
-	const isBolivares = isBolivaresMethod(paymentMethod)
-	const currencyLabel = isBolivares ? '(Bs)' : '($)'
-	const currencySymbol = isBolivares ? 'Bs' : '$'
+	
+	// Use useMemo to prevent unnecessary recalculations
+	const { isBolivares, currencyLabel, currencySymbol } = useMemo(() => {
+		const isBolivares = isBolivaresMethod(paymentMethod)
+		return {
+			isBolivares,
+			currencyLabel: isBolivares ? '(Bs)' : '($)',
+			currencySymbol: isBolivares ? 'Bs' : '$'
+		}
+	}, [paymentMethod])
+
+	// Memoize the handler to prevent unnecessary re-renders
+	const handleRemove = useMemo(() => () => remove(index), [remove, index])
 
 	return (
 		<div className="grid grid-cols-1 md:grid-cols-4 gap-4 items-start bg-secondary p-4 rounded-lg">
@@ -98,11 +109,13 @@ export const PaymentMethodItem = ({ control, index, remove, inputStyles, fieldsL
 					variant="ghost"
 					size="icon"
 					className="text-destructive mt-8"
-					onClick={() => remove(index)}
+					onClick={handleRemove}
 				>
 					<Trash2 className="h-4 w-4" />
 				</Button>
 			)}
 		</div>
 	)
-}
+})
+
+PaymentMethodItem.displayName = 'PaymentMethodItem'

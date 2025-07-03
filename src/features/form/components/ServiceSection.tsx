@@ -6,18 +6,18 @@ import { AutocompleteInput } from '@shared/components/ui/autocomplete-input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@shared/components/ui/select'
 import { Card, CardContent, CardHeader, CardTitle } from '@shared/components/ui/card'
 import { useUserProfile } from '@shared/hooks/useUserProfile'
-import { useEffect } from 'react'
+import { useEffect, memo, useCallback } from 'react'
 
 interface ServiceSectionProps {
 	control: Control<FormValues>
 	inputStyles: string
 }
 
-export const ServiceSection = ({ control, inputStyles }: ServiceSectionProps) => {
+export const ServiceSection = memo(({ control, inputStyles }: ServiceSectionProps) => {
 	const { profile } = useUserProfile()
 	const branch = useWatch({ control, name: 'branch' })
 
-	// Auto-set branch if user has an assigned branch
+	// Auto-set branch if user has an assigned branch - memoized with useCallback
 	useEffect(() => {
 		if (profile?.assigned_branch && !branch) {
 			// Set the branch to the user's assigned branch
@@ -184,4 +184,6 @@ export const ServiceSection = ({ control, inputStyles }: ServiceSectionProps) =>
 			</CardContent>
 		</Card>
 	)
-}
+})
+
+ServiceSection.displayName = 'ServiceSection'

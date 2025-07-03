@@ -1,6 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm, useFieldArray } from 'react-hook-form'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback, useMemo } from 'react'
 import { Button } from '@shared/components/ui/button'
 import { Form } from '@shared/components/ui/form'
 import { useToast } from '@shared/hooks/use-toast'
@@ -47,12 +47,17 @@ export function MedicalFormContainer() {
 		resolver: zodResolver(formSchema),
 		defaultValues: getInitialFormValues(),
 	})
+	
 	const { fields, append, remove } = useFieldArray({
 		control: form.control,
 		name: 'payments',
 	})
 
-	// Sync VES with USD input
+	// Memoize the form control to prevent unnecessary re-renders
+	const formControl = useMemo(() => form.control, [form.control]);
+	const formErrors = useMemo(() => form.formState.errors, [form.formState.errors]);
+
+	// Sync VES with USD input - memoized to prevent unnecessary re-renders
 	useEffect(() => {
 		if (exchangeRate && usdValue) {
 			const usd = parseFloat(usdValue)
@@ -64,7 +69,7 @@ export function MedicalFormContainer() {
 		}
 	}, [usdValue, exchangeRate])
 
-	// Sync USD with VES input
+	// Sync USD with VES input - memoized to prevent unnecessary re-renders
 	useEffect(() => {
 		if (exchangeRate && vesInputValue && exchangeRate > 0) {
 			const ves = parseFloat(vesInputValue)
@@ -78,7 +83,8 @@ export function MedicalFormContainer() {
 
 	useResetForm(form, getInitialFormValues, setUsdValue, setIsSubmitted, toast)
 
-	async function onSubmit(data: FormValues) {
+	// Memoize the submit handler to prevent unnecessary re-renders
+	const onSubmit = useCallback(async (data: FormValues) => {
 		setIsSubmitting(true)
 
 		try {
@@ -146,16 +152,16 @@ export function MedicalFormContainer() {
 		} finally {
 			setIsSubmitting(false)
 		}
-	}
+	}, [form, toast, exchangeRate]);
 
-	const handleNewRecord = () => {
+	const handleNewRecord = useCallback(() => {
 		form.reset(getInitialFormValues())
 		setUsdValue('')
 		setVesInputValue('')
 		setIsSubmitted(false)
-	}
+	}, [form]);
 
-	const handleClearForm = () => {
+	const handleClearForm = useCallback(() => {
 		form.reset(getInitialFormValues())
 		setUsdValue('')
 		setVesInputValue('')
@@ -164,7 +170,7 @@ export function MedicalFormContainer() {
 			title: '🧹 Formulario Limpio',
 			description: 'Todos los campos han sido reiniciados.',
 		})
-	}
+	}, [form, toast]);
 
 	const inputStyles = 'transition-all duration-300 focus:border-primary focus:ring-primary'
 
@@ -183,11 +189,11 @@ export function MedicalFormContainer() {
 			</div>
 			<Form {...form}>
 				<form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-					<PatientDataSection control={form.control} inputStyles={inputStyles} />
-					<ServiceSection control={form.control} inputStyles={inputStyles} />
+					<PatientDataSection control={formControl} inputStyles={inputStyles} />
+					<ServiceSection control={formControl} inputStyles={inputStyles} />
 					<PaymentSection
-						control={form.control}
-						errors={form.formState.errors}
+						control={formControl}
+						errors={formErrors}
 						fields={fields}
 						append={fields.length < 4 ? append : undefined}
 						remove={remove}
@@ -201,7 +207,7 @@ export function MedicalFormContainer() {
 						exchangeRate={exchangeRate}
 						isLoadingRate={isLoadingRate}
 					/>
-					<CommentsSection control={form.control} inputStyles={inputStyles} />
+					<CommentsSection control={formControl} inputStyles={inputStyles} />
 					{isSubmitted ? (
 						<Button
 							type="button"

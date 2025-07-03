@@ -1,7 +1,8 @@
+import { memo } from 'react'
 import { Card, CardContent, CardHeader } from '@shared/components/ui/card'
 import { Skeleton } from '@shared/components/ui/skeleton'
 
-export const PaymentSectionSkeleton = () => {
+export const PaymentSectionSkeleton = memo(() => {
 	return (
 		<Card>
 			<CardHeader>
@@ -34,4 +35,6 @@ export const PaymentSectionSkeleton = () => {
 			</CardContent>
 		</Card>
 	)
-}
+})
+
+PaymentSectionSkeleton.displayName = 'PaymentSectionSkeleton'
