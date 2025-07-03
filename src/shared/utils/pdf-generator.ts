@@ -7,6 +7,8 @@ import { getAgeDisplay } from '@lib/supabase-service';
 
 // Import logo as a module
 import logoPath from '/src/assets/img/logo_conspat.png';
+// Import signature image
+import firmasImg from '/src/assets/img/firmas.png';
 
 // Type definition for PDF page to avoid TypeScript errors
 type PDFPage = ReturnType<PDFDocument['addPage']>;
@@ -57,7 +59,7 @@ export async function generatePDF(caseData: MedicalRecord): Promise<void> {
       
       // Embed the logo image
       const logoImage = await pdfDoc.embedPng(logoArrayBuffer);
-      const logoDims = logoImage.scale(0.1); // Scale to 50%
+      const logoDims = logoImage.scale(0.1); // Scale to 10%
       
       // Draw the logo centered at the top
       page.drawImage(logoImage, {
@@ -297,10 +299,34 @@ export async function generatePDF(caseData: MedicalRecord): Promise<void> {
       yPos = result.yPos;
     }
     
+    // Fetch and embed the signature image
+    let signatureImage;
+    try {
+      const signatureResponse = await fetch(firmasImg);
+      const signatureArrayBuffer = await signatureResponse.arrayBuffer();
+      signatureImage = await pdfDoc.embedPng(signatureArrayBuffer);
+    } catch (error) {
+      console.error('Error embedding signature image:', error);
+      // Continue without signature if there's an error
+    }
+    
     // Add footer to all pages
     const addFooter = (page: PDFPage) => {
       const { width, height } = page.getSize();
       const footerY = 30;
+      
+      // Add signature image if available
+      if (signatureImage) {
+        const signatureDims = signatureImage.scale(0.3); // Scale to 30%
+        
+        // Draw the signature centered above the footer text
+        page.drawImage(signatureImage, {
+          x: (width - signatureDims.width) / 2,
+          y: footerY + 40, // Position above the footer text
+          width: signatureDims.width,
+          height: signatureDims.height,
+        });
+      }
       
       // Add contact information
       page.drawText('DIRECCIÓN:', {
