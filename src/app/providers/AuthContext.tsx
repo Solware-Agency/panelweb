@@ -54,6 +54,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 				setUser(initialSession?.user ?? null)
 			} catch (error) {
 				console.error('Error getting initial session:', error)
+				// Clear invalid session data
+				await supabase.auth.signOut()
+				setSession(null)
+				setUser(null)
 			} finally {
 				setLoading(false)
 			}
@@ -66,6 +70,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 			data: { subscription },
 		} = supabase.auth.onAuthStateChange(async (event, currentSession) => {
 			console.log('Auth state changed:', event, currentSession?.user?.email)
+
+			// Clear invalid session data on sign out
+			if (event === 'SIGNED_OUT') {
+				await supabase.auth.signOut()
+			}
 
 			setSession(currentSession)
 			setUser(currentSession?.user ?? null)
