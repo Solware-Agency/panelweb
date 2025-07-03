@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import CasesTable from '@shared/components/cases/CasesTable'
 import CaseDetailPanel from '@shared/components/cases/CaseDetailPanel'
-import { Users, MapPin, Microscope, FileText, Activity, Maximize2 } from 'lucide-react'
+import { Users, MapPin, Microscope, FileText, Activity, Maximize2, Download } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@shared/components/ui/card'
 import { searchClientes, type MedicalRecord } from '@lib/supabase-service'
 import { useUserProfile } from '@shared/hooks/useUserProfile'
@@ -32,6 +32,7 @@ export const RecordsSection: React.FC<RecordsSectionProps> = ({
 	const [filteredCases, setFilteredCases] = useState<MedicalRecord[]>(cases || [])
 	const [showPendingOnly, setShowPendingOnly] = useState(false)
 	const [selectedExamType, setSelectedExamType] = useState<string | null>(null)
+	const [showPdfReadyOnly, setShowPdfReadyOnly] = useState(false)
 
 	// Filter cases by assigned branch if user is an employee with assigned branch
 	useEffect(() => {
@@ -59,8 +60,17 @@ export const RecordsSection: React.FC<RecordsSectionProps> = ({
 			)
 		}
 
+		// If showPdfReadyOnly is true, filter to show only cases with downloadable PDF
+		if (showPdfReadyOnly) {
+			filtered = filtered.filter(c => {
+				const isBiopsyCase = c.exam_type?.toLowerCase() === 'biopsia'
+				const hasDownloadableContent = isBiopsyCase && !!c.diagnostico
+				return hasDownloadableContent
+			})
+		}
+
 		setFilteredCases(filtered)
-	}, [cases, profile, showPendingOnly, selectedExamType])
+	}, [cases, profile, showPendingOnly, selectedExamType, showPdfReadyOnly])
 
 	const handleCaseSelect = (case_: MedicalRecord) => {
 		setSelectedCase(case_)
@@ -106,6 +116,7 @@ export const RecordsSection: React.FC<RecordsSectionProps> = ({
 	const handleTogglePendingFilter = () => {
 		setShowPendingOnly(!showPendingOnly)
 		setSelectedExamType(null) // Clear exam type filter when toggling pending filter
+		setShowPdfReadyOnly(false) // Clear PDF filter when toggling pending filter
 	}
 
 	// Toggle exam type filter
@@ -115,7 +126,15 @@ export const RecordsSection: React.FC<RecordsSectionProps> = ({
 		} else {
 			setSelectedExamType(examType.toLowerCase())
 			setShowPendingOnly(false) // Clear pending filter when selecting exam type
+			setShowPdfReadyOnly(false) // Clear PDF filter when selecting exam type
 		}
+	}
+
+	// Toggle PDF ready filter
+	const handleTogglePdfFilter = () => {
+		setShowPdfReadyOnly(!showPdfReadyOnly)
+		setShowPendingOnly(false) // Clear pending filter when toggling PDF filter
+		setSelectedExamType(null) // Clear exam type filter when toggling PDF filter
 	}
 
 	// Get exam type counts from all cases (not just filtered)
@@ -135,6 +154,15 @@ export const RecordsSection: React.FC<RecordsSectionProps> = ({
 		})
 		
 		return counts
+	}, [cases])
+
+	// Count PDF-ready cases
+	const pdfReadyCases = React.useMemo(() => {
+		return cases?.filter(c => {
+			const isBiopsyCase = c.exam_type?.toLowerCase() === 'biopsia'
+			const hasDownloadableContent = isBiopsyCase && !!c.diagnostico
+			return hasDownloadableContent
+		}).length || 0
 	}, [cases])
 
 	// Get exam type icon
@@ -190,7 +218,7 @@ export const RecordsSection: React.FC<RecordsSectionProps> = ({
 
 			{/* Statistics cards */}
 			{!searchTerm && records && (
-				<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+				<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
 					{/* Pending Cases Card */}
 					<Card 
 						className={`transition-all duration-300 hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 group cursor-pointer ${
@@ -208,6 +236,27 @@ export const RecordsSection: React.FC<RecordsSectionProps> = ({
 							</div>
 							<p className="text-xs text-muted-foreground">
 								{stats.total - stats.completed} de {stats.total} casos pendientes
+							</p>
+						</CardContent>
+					</Card>
+
+					{/* PDF Ready Cases Card */}
+					<Card 
+						className={`transition-all duration-300 hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 group cursor-pointer ${
+							showPdfReadyOnly ? 'border-primary shadow-lg shadow-primary/20' : ''
+						}`}
+						onClick={handleTogglePdfFilter}
+					>
+						<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+							<CardTitle className="text-sm font-medium">PDF Disponibles</CardTitle>
+							<Download className={`h-4 w-4 ${showPdfReadyOnly ? 'text-primary' : 'text-muted-foreground group-hover:text-primary/80'}`} />
+						</CardHeader>
+						<CardContent>
+							<div className="text-2xl font-bold">
+								{pdfReadyCases}
+							</div>
+							<p className="text-xs text-muted-foreground">
+								casos con PDF listo para descargar
 							</p>
 						</CardContent>
 					</Card>
@@ -291,6 +340,15 @@ export const RecordsSection: React.FC<RecordsSectionProps> = ({
 						<span className="text-sm font-medium text-blue-800 dark:text-blue-300 flex items-center gap-2">
 							<Users className="w-4 h-4" />
 							Mostrando solo casos pendientes
+						</span>
+					</div>
+				)}
+				
+				{showPdfReadyOnly && (
+					<div className="px-4 py-2 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg inline-block">
+						<span className="text-sm font-medium text-green-800 dark:text-green-300 flex items-center gap-2">
+							<Download className="w-4 h-4" />
+							Mostrando solo casos con PDF disponible
 						</span>
 					</div>
 				)}

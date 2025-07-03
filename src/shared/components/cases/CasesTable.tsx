@@ -71,6 +71,7 @@ const CasesTable: React.FC<CasesTableProps> = ({
 	const [isDownloading, setIsDownloading] = useState<string | null>(null)
 	const [selectedCaseForEdit, setSelectedCaseForEdit] = useState<MedicalRecord | null>(null)
 	const [isEditModalOpen, setIsEditModalOpen] = useState(false)
+	const [pdfReadyFilter, setPdfReadyFilter] = useState<boolean>(false)
 
 	const getStatusColor = (status: string) => {
 		switch (status) {
@@ -184,7 +185,12 @@ const CasesTable: React.FC<CasesTableProps> = ({
 			// Exam type filter
 			const matchesExamType = examTypeFilter === 'all' || case_.exam_type === examTypeFilter
 
-			return matchesSearch && matchesStatus && matchesBranch && matchesExamType
+			// PDF ready filter
+			const isBiopsyCase = case_.exam_type?.toLowerCase() === 'biopsia'
+			const hasDownloadableContent = isBiopsyCase && !!case_.diagnostico
+			const matchesPdfReady = !pdfReadyFilter || hasDownloadableContent
+
+			return matchesSearch && matchesStatus && matchesBranch && matchesExamType && matchesPdfReady
 		})
 
 		filtered.sort((a, b) => {
@@ -214,7 +220,7 @@ const CasesTable: React.FC<CasesTableProps> = ({
 		}
 
 		return filtered
-	}, [cases, searchTerm, statusFilter, branchFilter, examTypeFilter, sortField, sortDirection, rowLimit])
+	}, [cases, searchTerm, statusFilter, branchFilter, examTypeFilter, pdfReadyFilter, sortField, sortDirection, rowLimit])
 
 	const SortIcon = ({ field }: { field: SortField }) => {
 		if (sortField !== field) {
@@ -447,6 +453,20 @@ const CasesTable: React.FC<CasesTableProps> = ({
 									<option value="citologia">Citología</option>
 								</select>
 							</div>
+
+							{/* PDF Ready Filter */}
+							<div className="flex items-center gap-2">
+								<label className="inline-flex items-center cursor-pointer">
+									<input
+										type="checkbox"
+										checked={pdfReadyFilter}
+										onChange={() => setPdfReadyFilter(!pdfReadyFilter)}
+										className="sr-only peer"
+									/>
+									<div className="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
+									<span className="ms-3 text-sm font-medium text-gray-700 dark:text-gray-300">Solo PDF disponibles</span>
+								</label>
+							</div>
 						</div>
 
 						{/* Row Limit Selector */}
@@ -494,7 +514,12 @@ const CasesTable: React.FC<CasesTableProps> = ({
 									const matchesBranch = branchFilter === 'all' || case_.branch === branchFilter
 									const matchesExamType = examTypeFilter === 'all' || case_.exam_type === examTypeFilter
 
-									return matchesSearch && matchesStatus && matchesBranch && matchesExamType
+									// PDF ready filter
+									const isBiopsyCase = case_.exam_type?.toLowerCase() === 'biopsia'
+									const hasDownloadableContent = isBiopsyCase && !!case_.diagnostico
+									const matchesPdfReady = !pdfReadyFilter || hasDownloadableContent
+
+									return matchesSearch && matchesStatus && matchesBranch && matchesExamType && matchesPdfReady
 								}).length
 							}{' '}
 							casos
@@ -786,6 +811,20 @@ const CasesTable: React.FC<CasesTableProps> = ({
 								</select>
 							</div>
 							
+							{/* PDF Ready Filter */}
+							<div className="flex items-center gap-2">
+								<label className="inline-flex items-center cursor-pointer">
+									<input
+										type="checkbox"
+										checked={pdfReadyFilter}
+										onChange={() => setPdfReadyFilter(!pdfReadyFilter)}
+										className="sr-only peer"
+									/>
+									<div className="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
+									<span className="ms-3 text-sm font-medium text-gray-700 dark:text-gray-300">Solo PDF disponibles</span>
+								</label>
+							</div>
+							
 							{/* Fullscreen Button */}
 							<button
 								onClick={() => setIsFullscreen(true)}
@@ -841,7 +880,12 @@ const CasesTable: React.FC<CasesTableProps> = ({
 									const matchesBranch = branchFilter === 'all' || case_.branch === branchFilter
 									const matchesExamType = examTypeFilter === 'all' || case_.exam_type === examTypeFilter
 
-									return matchesSearch && matchesStatus && matchesBranch && matchesExamType
+									// PDF ready filter
+									const isBiopsyCase = case_.exam_type?.toLowerCase() === 'biopsia'
+									const hasDownloadableContent = isBiopsyCase && !!case_.diagnostico
+									const matchesPdfReady = !pdfReadyFilter || hasDownloadableContent
+
+									return matchesSearch && matchesStatus && matchesBranch && matchesExamType && matchesPdfReady
 								}).length
 							}{' '}
 							casos
