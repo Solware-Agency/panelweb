@@ -57,7 +57,7 @@ export async function generatePDF(caseData: MedicalRecord): Promise<void> {
       
       // Embed the logo image
       const logoImage = await pdfDoc.embedPng(logoArrayBuffer);
-      const logoDims = logoImage.scale(0.5); // Scale to 50%
+      const logoDims = logoImage.scale(0); // Scale to 50%
       
       // Draw the logo centered at the top
       page.drawImage(logoImage, {
