@@ -417,29 +417,35 @@ export const deleteMedicalRecord = async (id: string) => {
 	try {
 		console.log(`🗑️ Deleting medical record ${id} from ${TABLE_NAME}`)
 		
+		// Get record details before deleting for the log
+		const { data: recordToDelete, error: fetchError } = await getMedicalRecordById(id)
+		
+		if (fetchError) {
+			console.error(`❌ Error fetching record before deletion:`, fetchError)
+			return { data: null, error: fetchError }
+		}
+		
 		// Log the deletion action first
 		try {
 			const { data: { user } } = await supabase.auth.getUser()
-			if (user) {
-				// Get record details before deleting for the log
-				const { data: recordToDelete } = await getMedicalRecordById(id)
-				
-				if (recordToDelete) {
-					await saveChangeLog(
-						id,
-						user.id,
-						user.email || 'unknown@email.com',
-						[{
-							field: 'deleted_record',
-							fieldLabel: 'Registro Eliminado',
-							oldValue: `${recordToDelete.code || id} - ${recordToDelete.full_name}`,
-							newValue: null
-						}]
-					)
-				}
+			if (user && recordToDelete) {
+				await saveChangeLog(
+					id,
+					user.id,
+					user.email || 'unknown@email.com',
+					[{
+						field: 'deleted_record',
+						fieldLabel: 'Registro Eliminado',
+						oldValue: `${recordToDelete.code || id} - ${recordToDelete.full_name}`,
+						newValue: null
+					}]
+				)
+				console.log(`✅ Deletion logged successfully for record ${id}`)
+			} else {
+				console.warn('⚠️ Could not log deletion: User or record not found')
 			}
 		} catch (logError) {
-			console.error('Error logging record deletion:', logError)
+			console.error('❌ Error logging record deletion:', logError)
 			// Continue with deletion even if logging fails
 		}
 		
@@ -459,7 +465,7 @@ export const deleteMedicalRecord = async (id: string) => {
 	}
 }
 
-// NEW: Function to save change logs
+// Function to save change logs
 export const saveChangeLog = async (
 	medicalRecordId: string,
 	userId: string,
@@ -503,7 +509,7 @@ export const saveChangeLog = async (
 	}
 }
 
-// NEW: Function to get change logs for a medical record
+// Function to get change logs for a medical record
 export const getChangeLogsForRecord = async (medicalRecordId: string) => {
 	try {
 		const { data, error } = await supabase
@@ -519,7 +525,7 @@ export const getChangeLogsForRecord = async (medicalRecordId: string) => {
 	}
 }
 
-// NEW: Function to get all change logs with pagination
+// Function to get all change logs with pagination
 export const getAllChangeLogs = async (limit = 50, offset = 0) => {
 	try {
 		const { data, error } = await supabase

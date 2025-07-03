@@ -18,7 +18,7 @@ import { Button } from '@shared/components/ui/button'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@shared/components/ui/select'
 import { useQuery } from '@tanstack/react-query'
 import { getAllChangeLogs } from '@lib/supabase-service'
-import { format, parseISO } from 'date-fns'
+import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
 import { useToast } from '@shared/hooks/use-toast'
 import { useUserProfile } from '@shared/hooks/useUserProfile'
@@ -42,7 +42,7 @@ interface ChangeLogEntry {
     id: string
     full_name: string
     code: string | null
-  }
+  } | null
 }
 
 const ChangelogTable: React.FC = () => {
@@ -168,6 +168,7 @@ const ChangelogTable: React.FC = () => {
     // Navigate to case details or open case detail panel
     console.log('View case:', caseId)
     // This would typically navigate to the case detail page or open a modal
+    window.location.href = '/dashboard/cases'
   }
 
   // Function to clear filters
