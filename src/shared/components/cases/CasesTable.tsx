@@ -12,6 +12,8 @@ import {
 	FileText,
 	Download,
 	Maximize2,
+	Edit2,
+	Trash2,
 } from 'lucide-react'
 import { motion, AnimatePresence } from 'motion/react'
 import type { MedicalRecord } from '@lib/supabase-service'
@@ -31,6 +33,7 @@ import { Calendar } from '@shared/components/ui/calendar'
 import { cn } from '@shared/lib/cn'
 import GenerateBiopsyModal from './GenerateBiopsyModal'
 import { generatePDF } from '@shared/utils/pdf-generator'
+import UnifiedCaseModal from './UnifiedCaseModal'
 
 interface CasesTableProps {
 	onCaseSelect: (case_: MedicalRecord) => void
@@ -66,6 +69,8 @@ const CasesTable: React.FC<CasesTableProps> = ({
 	const [selectedCaseForGenerate, setSelectedCaseForGenerate] = useState<MedicalRecord | null>(null)
 	const [isGenerateModalOpen, setIsGenerateModalOpen] = useState(false)
 	const [isDownloading, setIsDownloading] = useState<string | null>(null)
+	const [selectedCaseForEdit, setSelectedCaseForEdit] = useState<MedicalRecord | null>(null)
+	const [isEditModalOpen, setIsEditModalOpen] = useState(false)
 
 	const getStatusColor = (status: string) => {
 		switch (status) {
@@ -104,6 +109,11 @@ const CasesTable: React.FC<CasesTableProps> = ({
 		
 		setSelectedCaseForGenerate(case_)
 		setIsGenerateModalOpen(true)
+	}
+
+	const handleEditCase = (case_: MedicalRecord) => {
+		setSelectedCaseForEdit(case_)
+		setIsEditModalOpen(true)
 	}
 
 	const handleDownloadCase = async (case_: MedicalRecord) => {
@@ -301,33 +311,35 @@ const CasesTable: React.FC<CasesTableProps> = ({
 						Ver
 					</button>
 					<button
-						onClick={() => handleGenerateCase(case_)}
-						className={`flex-1 inline-flex items-center justify-center gap-1 px-3 py-2 text-xs font-medium ${
-							isBiopsyCase 
-								? "text-green-600 dark:text-green-400 hover:text-green-800 dark:hover:text-green-300 bg-green-50 dark:bg-green-900/20 hover:bg-green-100 dark:hover:bg-green-900/30" 
-								: "text-gray-400 dark:text-gray-600 bg-gray-100 dark:bg-gray-800/50 cursor-not-allowed"
-						} rounded-lg transition-colors`}
-						disabled={!isBiopsyCase}
+						onClick={() => handleEditCase(case_)}
+						className="flex-1 inline-flex items-center justify-center gap-1 px-3 py-2 text-xs font-medium text-purple-600 dark:text-purple-400 hover:text-purple-800 dark:hover:text-purple-300 bg-purple-50 dark:bg-purple-900/20 hover:bg-purple-100 dark:hover:bg-purple-900/30 rounded-lg transition-colors"
 					>
-						<FileText className="w-3 h-3" />
-						Generar
+						<Edit2 className="w-3 h-3" />
+						Editar
 					</button>
-					<button
-						onClick={() => handleDownloadCase(case_)}
-						className={`flex-1 inline-flex items-center justify-center gap-1 px-3 py-2 text-xs font-medium ${
-							hasDownloadableContent 
-								? "text-purple-600 dark:text-purple-400 hover:text-purple-800 dark:hover:text-purple-300 bg-purple-50 dark:bg-purple-900/20 hover:bg-purple-100 dark:hover:bg-purple-900/30" 
-								: "text-gray-400 dark:text-gray-600 bg-gray-100 dark:bg-gray-800/50 cursor-not-allowed"
-						} rounded-lg transition-colors`}
-						disabled={!hasDownloadableContent || isDownloading === case_.id}
-					>
-						{isDownloading === case_.id ? (
-							<div className="animate-spin rounded-full h-3 w-3 border-b-2 border-current"></div>
-						) : (
-							<Download className="w-3 h-3" />
-						)}
-						Descargar
-					</button>
+					{isBiopsyCase && (
+						<button
+							onClick={() => handleGenerateCase(case_)}
+							className="flex-1 inline-flex items-center justify-center gap-1 px-3 py-2 text-xs font-medium text-green-600 dark:text-green-400 hover:text-green-800 dark:hover:text-green-300 bg-green-50 dark:bg-green-900/20 hover:bg-green-100 dark:hover:bg-green-900/30 rounded-lg transition-colors"
+						>
+							<FileText className="w-3 h-3" />
+							Generar
+						</button>
+					)}
+					{hasDownloadableContent && (
+						<button
+							onClick={() => handleDownloadCase(case_)}
+							className="flex-1 inline-flex items-center justify-center gap-1 px-3 py-2 text-xs font-medium text-orange-600 dark:text-orange-400 hover:text-orange-800 dark:hover:text-orange-300 bg-orange-50 dark:bg-orange-900/20 hover:bg-orange-100 dark:hover:bg-orange-900/30 rounded-lg transition-colors"
+							disabled={isDownloading === case_.id}
+						>
+							{isDownloading === case_.id ? (
+								<div className="animate-spin rounded-full h-3 w-3 border-b-2 border-current"></div>
+							) : (
+								<Download className="w-3 h-3" />
+							)}
+							PDF
+						</button>
+					)}
 				</div>
 			</div>
 		)
@@ -651,37 +663,42 @@ const CasesTable: React.FC<CasesTableProps> = ({
 													<button
 														onClick={(e) => {
 															e.stopPropagation()
-															handleGenerateCase(case_)
+															handleEditCase(case_)
 														}}
-														className={`inline-flex items-center gap-1 px-3 py-1 text-xs font-medium ${
-															isBiopsyCase 
-																? "text-green-600 dark:text-green-400 hover:text-green-800 dark:hover:text-green-300" 
-																: "text-gray-400 dark:text-gray-600 cursor-not-allowed"
-														} transition-colors`}
-														disabled={!isBiopsyCase}
+														className="inline-flex items-center gap-1 px-3 py-1 text-xs font-medium text-purple-600 dark:text-purple-400 hover:text-purple-800 dark:hover:text-purple-300 transition-colors"
 													>
-														<FileText className="w-3 h-3" />
-														Generar
+														<Edit2 className="w-3 h-3" />
+														Editar
 													</button>
-													<button
-														onClick={(e) => {
-															e.stopPropagation()
-															handleDownloadCase(case_)
-														}}
-														className={`inline-flex items-center gap-1 px-3 py-1 text-xs font-medium ${
-															hasDownloadableContent 
-																? "text-purple-600 dark:text-purple-400 hover:text-purple-800 dark:hover:text-purple-300" 
-																: "text-gray-400 dark:text-gray-600 cursor-not-allowed"
-														} transition-colors`}
-														disabled={!hasDownloadableContent || isDownloading === case_.id}
-													>
-														{isDownloading === case_.id ? (
-															<div className="animate-spin rounded-full h-3 w-3 border-b-2 border-current"></div>
-														) : (
-															<Download className="w-3 h-3" />
-														)}
-														Descargar
-													</button>
+													{isBiopsyCase && (
+														<button
+															onClick={(e) => {
+																e.stopPropagation()
+																handleGenerateCase(case_)
+															}}
+															className="inline-flex items-center gap-1 px-3 py-1 text-xs font-medium text-green-600 dark:text-green-400 hover:text-green-800 dark:hover:text-green-300 transition-colors"
+														>
+															<FileText className="w-3 h-3" />
+															Generar
+														</button>
+													)}
+													{hasDownloadableContent && (
+														<button
+															onClick={(e) => {
+																e.stopPropagation()
+																handleDownloadCase(case_)
+															}}
+															className="inline-flex items-center gap-1 px-3 py-1 text-xs font-medium text-orange-600 dark:text-orange-400 hover:text-orange-800 dark:hover:text-orange-300 transition-colors"
+															disabled={isDownloading === case_.id}
+														>
+															{isDownloading === case_.id ? (
+																<div className="animate-spin rounded-full h-3 w-3 border-b-2 border-current"></div>
+															) : (
+																<Download className="w-3 h-3" />
+															)}
+															PDF
+														</button>
+													)}
 												</div>
 											</td>
 										</tr>
@@ -985,37 +1002,42 @@ const CasesTable: React.FC<CasesTableProps> = ({
 														<button
 															onClick={(e) => {
 																e.stopPropagation()
-																handleGenerateCase(case_)
+																handleEditCase(case_)
 															}}
-															className={`inline-flex items-center gap-1 px-3 py-1 text-xs font-medium ${
-																isBiopsyCase 
-																	? "text-green-600 dark:text-green-400 hover:text-green-800 dark:hover:text-green-300" 
-																	: "text-gray-400 dark:text-gray-600 cursor-not-allowed"
-															} transition-colors`}
-															disabled={!isBiopsyCase}
+															className="inline-flex items-center gap-1 px-3 py-1 text-xs font-medium text-purple-600 dark:text-purple-400 hover:text-purple-800 dark:hover:text-purple-300 transition-colors"
 														>
-															<FileText className="w-3 h-3" />
-															Generar
+															<Edit2 className="w-3 h-3" />
+															Editar
 														</button>
-														<button
-															onClick={(e) => {
-																e.stopPropagation()
-																handleDownloadCase(case_)
-															}}
-															className={`inline-flex items-center gap-1 px-3 py-1 text-xs font-medium ${
-																hasDownloadableContent 
-																	? "text-purple-600 dark:text-purple-400 hover:text-purple-800 dark:hover:text-purple-300" 
-																	: "text-gray-400 dark:text-gray-600 cursor-not-allowed"
-															} transition-colors`}
-															disabled={!hasDownloadableContent || isDownloading === case_.id}
-														>
-															{isDownloading === case_.id ? (
-																<div className="animate-spin rounded-full h-3 w-3 border-b-2 border-current"></div>
-															) : (
-																<Download className="w-3 h-3" />
-															)}
-															Descargar
-														</button>
+														{isBiopsyCase && (
+															<button
+																onClick={(e) => {
+																	e.stopPropagation()
+																	handleGenerateCase(case_)
+																}}
+																className="inline-flex items-center gap-1 px-3 py-1 text-xs font-medium text-green-600 dark:text-green-400 hover:text-green-800 dark:hover:text-green-300 transition-colors"
+															>
+																<FileText className="w-3 h-3" />
+																Generar
+															</button>
+														)}
+														{hasDownloadableContent && (
+															<button
+																onClick={(e) => {
+																	e.stopPropagation()
+																	handleDownloadCase(case_)
+																}}
+																className="inline-flex items-center gap-1 px-3 py-1 text-xs font-medium text-orange-600 dark:text-orange-400 hover:text-orange-800 dark:hover:text-orange-300 transition-colors"
+																disabled={isDownloading === case_.id}
+															>
+																{isDownloading === case_.id ? (
+																	<div className="animate-spin rounded-full h-3 w-3 border-b-2 border-current"></div>
+																) : (
+																	<Download className="w-3 h-3" />
+																)}
+																PDF
+															</button>
+														)}
 													</div>
 												</td>
 											</tr>
@@ -1047,6 +1069,22 @@ const CasesTable: React.FC<CasesTableProps> = ({
 					setSelectedCaseForGenerate(null);
 				}}
 				onSuccess={() => {
+					refetch();
+				}}
+			/>
+
+			{/* Unified Edit Modal */}
+			<UnifiedCaseModal
+				case_={selectedCaseForEdit}
+				isOpen={isEditModalOpen}
+				onClose={() => {
+					setIsEditModalOpen(false);
+					setSelectedCaseForEdit(null);
+				}}
+				onSave={() => {
+					refetch();
+				}}
+				onDelete={() => {
 					refetch();
 				}}
 			/>

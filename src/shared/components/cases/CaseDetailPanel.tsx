@@ -1,20 +1,12 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState } from 'react'
 import { motion, AnimatePresence } from 'motion/react'
-import { X, Edit2, Save, User, Calendar, Phone, Mail, FileText, DollarSign, Clock, CheckCircle, AlertTriangle, Microscope } from 'lucide-react'
+import { X, Edit2, User, Calendar, Phone, Mail, FileText, DollarSign, Clock, CheckCircle, AlertTriangle, Microscope } from 'lucide-react'
 import type { MedicalRecord } from '@lib/supabase-service'
-import { getAgeDisplay, updateMedicalRecordWithLog } from '@lib/supabase-service'
+import { getAgeDisplay } from '@lib/supabase-service'
 import { format, parseISO } from 'date-fns'
 import { es } from 'date-fns/locale'
-import { useAuth } from '@app/providers/AuthContext'
-import { useToast } from '@shared/hooks/use-toast'
 import { Button } from '@shared/components/ui/button'
-import { Input } from '@shared/components/ui/input'
-import { Textarea } from '@shared/components/ui/textarea'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@shared/components/ui/select'
-import { Popover, PopoverContent, PopoverTrigger } from '@shared/components/ui/popover'
-import { Calendar as CalendarComponent } from '@shared/components/ui/calendar'
-import { cn } from '@shared/lib/cn'
-import EditCaseModal from './EditCaseModal'
+import UnifiedCaseModal from './UnifiedCaseModal'
 
 interface CaseDetailPanelProps {
 	case_: MedicalRecord | null
@@ -22,166 +14,10 @@ interface CaseDetailPanelProps {
 	onClose: () => void
 }
 
-interface Change {
-	field: string
-	fieldLabel: string
-	oldValue: any
-	newValue: any
-}
-
 const CaseDetailPanel: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClose }) => {
-	const { user } = useAuth()
-	const { toast } = useToast()
 	const [isEditModalOpen, setIsEditModalOpen] = useState(false)
-	const [isEditing, setIsEditing] = useState(false)
-	const [isSaving, setIsSaving] = useState(false)
-	const [editedValues, setEditedValues] = useState<Partial<MedicalRecord>>({})
-	const [isDatePickerOpen, setIsDatePickerOpen] = useState(false)
-
-	// Reset edited values when case changes
-	useEffect(() => {
-		if (case_) {
-			setEditedValues({})
-			setIsEditing(false)
-		}
-	}, [case_])
 
 	if (!case_) return null
-
-	const handleEditClick = () => {
-		setIsEditing(true)
-		// Initialize edited values with current values
-		setEditedValues({
-			exam_type: case_.exam_type,
-			treating_doctor: case_.treating_doctor,
-			origin: case_.origin,
-			branch: case_.branch,
-			sample_type: case_.sample_type,
-			number_of_samples: case_.number_of_samples,
-			date: case_.date,
-			material_remitido: case_.material_remitido || '',
-			informacion_clinica: case_.informacion_clinica || '',
-			descripcion_macroscopica: case_.descripcion_macroscopica || '',
-			diagnostico: case_.diagnostico || '',
-			comentario: case_.comentario || ''
-		})
-	}
-
-	const handleCancelEdit = () => {
-		setIsEditing(false)
-		setEditedValues({})
-	}
-
-	const handleInputChange = (field: keyof MedicalRecord, value: any) => {
-		setEditedValues(prev => ({
-			...prev,
-			[field]: value
-		}))
-	}
-
-	const handleSaveChanges = async () => {
-		if (!user || !case_) return
-
-		// Detect changes
-		const changes: Change[] = []
-		Object.entries(editedValues).forEach(([field, value]) => {
-			const currentValue = case_[field as keyof MedicalRecord]
-			if (value !== currentValue) {
-				// Get field label for display
-				const fieldLabels: Record<string, string> = {
-					exam_type: 'Tipo de Examen',
-					treating_doctor: 'Médico Tratante',
-					origin: 'Procedencia',
-					branch: 'Sede',
-					sample_type: 'Tipo de Muestra',
-					number_of_samples: 'Cantidad de Muestras',
-					date: 'Fecha de Registro',
-					material_remitido: 'Material Remitido',
-					informacion_clinica: 'Información Clínica',
-					descripcion_macroscopica: 'Descripción Macroscópica',
-					diagnostico: 'Diagnóstico',
-					comentario: 'Comentario'
-				}
-
-				changes.push({
-					field,
-					fieldLabel: fieldLabels[field] || field,
-					oldValue: currentValue,
-					newValue: value
-				})
-			}
-		})
-
-		if (changes.length === 0) {
-			toast({
-				title: 'Sin cambios',
-				description: 'No se detectaron cambios para guardar.',
-				variant: 'default',
-			})
-			setIsEditing(false)
-			return
-		}
-
-		setIsSaving(true)
-		try {
-			// Update record with changes
-			const { error } = await updateMedicalRecordWithLog(
-				case_.id!,
-				editedValues,
-				changes,
-				user.id,
-				user.email || 'unknown@email.com'
-			)
-
-			if (error) {
-				throw error
-			}
-
-			toast({
-				title: '✅ Caso actualizado',
-				description: `Se guardaron ${changes.length} cambio(s) exitosamente.`,
-				className: 'bg-green-100 border-green-400 text-green-800',
-			})
-
-			setIsEditing(false)
-			// Refresh the case data (this would typically be handled by the parent component)
-			// For now, we'll just update the local state
-			onClose()
-		} catch (error) {
-			console.error('Error saving case:', error)
-			toast({
-				title: '❌ Error al guardar',
-				description: 'Hubo un problema al guardar los cambios. Inténtalo de nuevo.',
-				variant: 'destructive',
-			})
-		} finally {
-			setIsSaving(false)
-		}
-	}
-
-	const handleSaveInEditModal = async (caseId: string, updates: Partial<MedicalRecord>, changes: Change[]) => {
-		if (!user) return
-
-		try {
-			const { error } = await updateMedicalRecordWithLog(
-				caseId,
-				updates,
-				changes,
-				user.id,
-				user.email || 'unknown@email.com'
-			)
-
-			if (error) {
-				throw error
-			}
-
-			// Close the modal and refresh data
-			onClose()
-		} catch (error) {
-			console.error('Error saving case in modal:', error)
-			throw error
-		}
-	}
 
 	// Format date for display
 	const formattedDate = case_.date ? format(new Date(case_.date), 'dd/MM/yyyy', { locale: es }) : 'N/A'
@@ -248,14 +84,12 @@ const CaseDetailPanel: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClos
 									</div>
 								</div>
 								<div className="flex items-center gap-2">
-									{!isEditing && (
-										<button
-											onClick={handleEditClick}
-											className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
-										>
-											<Edit2 className="w-5 h-5 text-blue-500 dark:text-blue-400" />
-										</button>
-									)}
+									<button
+										onClick={() => setIsEditModalOpen(true)}
+										className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
+									>
+										<Edit2 className="w-5 h-5 text-blue-500 dark:text-blue-400" />
+									</button>
 									<button
 										onClick={onClose}
 										className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
@@ -314,67 +148,19 @@ const CaseDetailPanel: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClos
 										<Microscope className="text-primary size-6" />
 										<h3 className="text-xl font-semibold">Información Médica</h3>
 									</div>
-									{isEditing && (
-										<div className="flex items-center gap-2">
-											<Button variant="outline" size="sm" onClick={handleCancelEdit} disabled={isSaving}>
-												Cancelar
-											</Button>
-											<Button 
-												size="sm" 
-												onClick={handleSaveChanges} 
-												disabled={isSaving}
-												className="bg-primary hover:bg-primary/80"
-											>
-												{isSaving ? (
-													<>
-														<div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-														Guardando...
-													</>
-												) : (
-													<>
-														<Save className="w-4 h-4 mr-2" />
-														Guardar
-													</>
-												)}
-											</Button>
-										</div>
-									)}
 								</div>
 								<div className="space-y-4">
 									<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 										{/* Exam Type */}
 										<div>
 											<p className="text-sm text-gray-500 dark:text-gray-400">Estudio:</p>
-											{isEditing ? (
-												<Select 
-													value={editedValues.exam_type || case_.exam_type} 
-													onValueChange={(value) => handleInputChange('exam_type', value)}
-												>
-													<SelectTrigger className="w-full">
-														<SelectValue placeholder="Seleccione tipo de examen" />
-													</SelectTrigger>
-													<SelectContent>
-														<SelectItem value="inmunohistoquimica">Inmunohistoquímica</SelectItem>
-														<SelectItem value="biopsia">Biopsia</SelectItem>
-														<SelectItem value="citologia">Citología</SelectItem>
-													</SelectContent>
-												</Select>
-											) : (
-												<p className="text-base font-medium">{case_.exam_type}</p>
-											)}
+											<p className="text-base font-medium">{case_.exam_type}</p>
 										</div>
 										
 										{/* Treating Doctor */}
 										<div>
 											<p className="text-sm text-gray-500 dark:text-gray-400">Médico tratante:</p>
-											{isEditing ? (
-												<Input 
-													value={editedValues.treating_doctor || case_.treating_doctor} 
-													onChange={(e) => handleInputChange('treating_doctor', e.target.value)}
-												/>
-											) : (
-												<p className="text-base font-medium">{case_.treating_doctor}</p>
-											)}
+											<p className="text-base font-medium">{case_.treating_doctor}</p>
 										</div>
 									</div>
 									
@@ -382,38 +168,13 @@ const CaseDetailPanel: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClos
 										{/* Origin */}
 										<div>
 											<p className="text-sm text-gray-500 dark:text-gray-400">Procedencia:</p>
-											{isEditing ? (
-												<Input 
-													value={editedValues.origin || case_.origin} 
-													onChange={(e) => handleInputChange('origin', e.target.value)}
-												/>
-											) : (
-												<p className="text-base font-medium">{case_.origin}</p>
-											)}
+											<p className="text-base font-medium">{case_.origin}</p>
 										</div>
 										
 										{/* Branch */}
 										<div>
 											<p className="text-sm text-gray-500 dark:text-gray-400">Sede:</p>
-											{isEditing ? (
-												<Select 
-													value={editedValues.branch || case_.branch} 
-													onValueChange={(value) => handleInputChange('branch', value)}
-												>
-													<SelectTrigger className="w-full">
-														<SelectValue placeholder="Seleccione una sede" />
-													</SelectTrigger>
-													<SelectContent>
-														<SelectItem value="PMG">PMG</SelectItem>
-														<SelectItem value="CPC">CPC</SelectItem>
-														<SelectItem value="CNX">CNX</SelectItem>
-														<SelectItem value="STX">STX</SelectItem>
-														<SelectItem value="MCY">MCY</SelectItem>
-													</SelectContent>
-												</Select>
-											) : (
-												<p className="text-base font-medium">{case_.branch}</p>
-											)}
+											<p className="text-base font-medium">{case_.branch}</p>
 										</div>
 									</div>
 									
@@ -421,64 +182,20 @@ const CaseDetailPanel: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClos
 										{/* Sample Type */}
 										<div>
 											<p className="text-sm text-gray-500 dark:text-gray-400">Muestra:</p>
-											{isEditing ? (
-												<Input 
-													value={editedValues.sample_type || case_.sample_type} 
-													onChange={(e) => handleInputChange('sample_type', e.target.value)}
-												/>
-											) : (
-												<p className="text-base font-medium">{case_.sample_type}</p>
-											)}
+											<p className="text-base font-medium">{case_.sample_type}</p>
 										</div>
 										
 										{/* Number of Samples */}
 										<div>
 											<p className="text-sm text-gray-500 dark:text-gray-400">Cantidad de muestras:</p>
-											{isEditing ? (
-												<Input 
-													type="number"
-													min="1"
-													value={editedValues.number_of_samples || case_.number_of_samples} 
-													onChange={(e) => handleInputChange('number_of_samples', parseInt(e.target.value))}
-												/>
-											) : (
-												<p className="text-base font-medium">{case_.number_of_samples}</p>
-											)}
+											<p className="text-base font-medium">{case_.number_of_samples}</p>
 										</div>
 									</div>
 									
 									{/* Registration Date */}
 									<div>
 										<p className="text-sm text-gray-500 dark:text-gray-400">Fecha de registro:</p>
-										{isEditing ? (
-											<Popover open={isDatePickerOpen} onOpenChange={setIsDatePickerOpen}>
-												<PopoverTrigger asChild>
-													<Button
-														variant="outline"
-														className="w-full justify-start text-left font-normal"
-													>
-														<Calendar className="mr-2 h-4 w-4" />
-														{editedValues.date ? format(new Date(editedValues.date), 'PPP', { locale: es }) : formattedDate}
-													</Button>
-												</PopoverTrigger>
-												<PopoverContent className="w-auto p-0">
-													<CalendarComponent
-														mode="single"
-														selected={editedValues.date ? new Date(editedValues.date) : new Date(case_.date)}
-														onSelect={(date) => {
-															if (date) {
-																handleInputChange('date', date.toISOString())
-																setIsDatePickerOpen(false)
-															}
-														}}
-														initialFocus
-														locale={es}
-													/>
-												</PopoverContent>
-											</Popover>
-										) : (
-											<p className="text-base font-medium">{formattedDate}</p>
-										)}
+										<p className="text-base font-medium">{formattedDate}</p>
 									</div>
 								</div>
 							</div>
@@ -494,71 +211,31 @@ const CaseDetailPanel: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClos
 										{/* Material Remitido */}
 										<div>
 											<p className="text-sm text-gray-500 dark:text-gray-400">Material Remitido:</p>
-											{isEditing ? (
-												<Textarea 
-													value={editedValues.material_remitido || case_.material_remitido || ''} 
-													onChange={(e) => handleInputChange('material_remitido', e.target.value)}
-													className="min-h-[80px]"
-												/>
-											) : (
-												<p className="text-base">{case_.material_remitido || 'No especificado'}</p>
-											)}
+											<p className="text-base">{case_.material_remitido || 'No especificado'}</p>
 										</div>
 										
 										{/* Información Clínica */}
 										<div>
 											<p className="text-sm text-gray-500 dark:text-gray-400">Información Clínica:</p>
-											{isEditing ? (
-												<Textarea 
-													value={editedValues.informacion_clinica || case_.informacion_clinica || ''} 
-													onChange={(e) => handleInputChange('informacion_clinica', e.target.value)}
-													className="min-h-[80px]"
-												/>
-											) : (
-												<p className="text-base">{case_.informacion_clinica || 'No especificado'}</p>
-											)}
+											<p className="text-base">{case_.informacion_clinica || 'No especificado'}</p>
 										</div>
 										
 										{/* Descripción Macroscópica */}
 										<div>
 											<p className="text-sm text-gray-500 dark:text-gray-400">Descripción Macroscópica:</p>
-											{isEditing ? (
-												<Textarea 
-													value={editedValues.descripcion_macroscopica || case_.descripcion_macroscopica || ''} 
-													onChange={(e) => handleInputChange('descripcion_macroscopica', e.target.value)}
-													className="min-h-[100px]"
-												/>
-											) : (
-												<p className="text-base">{case_.descripcion_macroscopica || 'No especificado'}</p>
-											)}
+											<p className="text-base">{case_.descripcion_macroscopica || 'No especificado'}</p>
 										</div>
 										
 										{/* Diagnóstico */}
 										<div>
 											<p className="text-sm text-gray-500 dark:text-gray-400">Diagnóstico:</p>
-											{isEditing ? (
-												<Textarea 
-													value={editedValues.diagnostico || case_.diagnostico || ''} 
-													onChange={(e) => handleInputChange('diagnostico', e.target.value)}
-													className="min-h-[100px]"
-												/>
-											) : (
-												<p className="text-base">{case_.diagnostico || 'No especificado'}</p>
-											)}
+											<p className="text-base">{case_.diagnostico || 'No especificado'}</p>
 										</div>
 										
 										{/* Comentario */}
 										<div>
 											<p className="text-sm text-gray-500 dark:text-gray-400">Comentario:</p>
-											{isEditing ? (
-												<Textarea 
-													value={editedValues.comentario || case_.comentario || ''} 
-													onChange={(e) => handleInputChange('comentario', e.target.value)}
-													className="min-h-[80px]"
-												/>
-											) : (
-												<p className="text-base">{case_.comentario || 'No especificado'}</p>
-											)}
+											<p className="text-base">{case_.comentario || 'No especificado'}</p>
 										</div>
 									</div>
 								</div>
@@ -694,18 +371,23 @@ const CaseDetailPanel: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClos
 									className="flex-1 bg-primary hover:bg-primary/80"
 								>
 									<Edit2 className="w-4 h-4 mr-2" />
-									Editar Completo
+									Editar
 								</Button>
 							</div>
 						</div>
 					</motion.div>
 
-					{/* Edit Modal */}
-					<EditCaseModal
+					{/* Unified Edit Modal */}
+					<UnifiedCaseModal
 						case_={case_}
 						isOpen={isEditModalOpen}
 						onClose={() => setIsEditModalOpen(false)}
-						onSave={handleSaveInEditModal}
+						onSave={() => {
+							onClose();
+						}}
+						onDelete={() => {
+							onClose();
+						}}
 					/>
 				</>
 			)}
