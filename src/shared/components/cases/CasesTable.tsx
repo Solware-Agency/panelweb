@@ -30,9 +30,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@shared/components/ui/p
 import { Calendar } from '@shared/components/ui/calendar'
 import { cn } from '@shared/lib/cn'
 import GenerateBiopsyModal from './GenerateBiopsyModal'
-import { jsPDF } from 'jspdf'
-import 'jspdf-autotable'
-import logoBase64 from '@assets/img/logo_conspat_base64.txt?raw'
+import { generatePDF } from '@shared/utils/pdf-generator'
 
 interface CasesTableProps {
 	onCaseSelect: (case_: MedicalRecord) => void
@@ -121,258 +119,12 @@ const CasesTable: React.FC<CasesTableProps> = ({
 
 		setIsDownloading(case_.id)
 		try {
-			// Create a new PDF document
-			const doc = new jsPDF()
-			
-			// Clean the base64 string by removing all whitespace
-			const cleanedBase64 = logoBase64.replace(/\s/g, '')
-			const fullDataUrl = `data:image/png;base64,${cleanedBase64}`
-			
-			try {
-				// Add the logo to the PDF
-				doc.addImage(fullDataUrl, 'PNG', 70, 10, 70, 25)
-			} catch (error) {
-				console.error('Error adding logo to PDF:', error)
-				// Continue with PDF generation even if logo fails
-			}
-			
-			// Add header
-			doc.setFontSize(18)
-			doc.setTextColor(33, 33, 33)
-			doc.text('INFORME DE BIOPSIA', 105, 45, { align: 'center' })
-			
-			// Add patient information
-			doc.setFontSize(14)
-			doc.setFont('helvetica', 'bold')
-			doc.text('Información del Paciente', 14, 55)
-			doc.setFont('helvetica', 'normal')
-			doc.setFontSize(10)
-			
-			// Create a table for patient info
-			const patientData = [
-				['Nombre:', case_.full_name],
-				['Cédula:', case_.id_number],
-				['Fecha de Nacimiento:', case_.date_of_birth ? format(parseISO(case_.date_of_birth), 'dd/MM/yyyy', { locale: es }) : 'N/A'],
-				['Edad:', case_.date_of_birth ? getAgeDisplay(case_.date_of_birth) : 'N/A'],
-				['Teléfono:', case_.phone],
-				['Email:', case_.email || 'N/A'],
-			]
-			
-			doc.autoTable({
-				startY: 60,
-				head: [],
-				body: patientData,
-				theme: 'plain',
-				styles: {
-					cellPadding: 2,
-					fontSize: 10,
-				},
-				columnStyles: {
-					0: { cellWidth: 40, fontStyle: 'bold' },
-					1: { cellWidth: 100 },
-				},
-			})
-			
-			// Add case details
-			doc.setFontSize(14)
-			doc.setFont('helvetica', 'bold')
-			doc.text('Información del Caso', 14, doc.autoTable.previous.finalY + 10)
-			doc.setFont('helvetica', 'normal')
-			doc.setFontSize(10)
-			
-			// Create a table for case info
-			const caseData = [
-				['Código:', case_.code || 'N/A'],
-				['Fecha:', format(new Date(case_.date), 'dd/MM/yyyy', { locale: es })],
-				['Tipo de Examen:', case_.exam_type],
-				['Médico Tratante:', case_.treating_doctor],
-				['Procedencia:', case_.origin],
-				['Sede:', case_.branch],
-			]
-			
-			doc.autoTable({
-				startY: doc.autoTable.previous.finalY + 15,
-				head: [],
-				body: caseData,
-				theme: 'plain',
-				styles: {
-					cellPadding: 2,
-					fontSize: 10,
-				},
-				columnStyles: {
-					0: { cellWidth: 40, fontStyle: 'bold' },
-					1: { cellWidth: 100 },
-				},
-			})
-			
-			// Add biopsy information
-			doc.setFontSize(14)
-			doc.setFont('helvetica', 'bold')
-			doc.text('Informe de Biopsia', 14, doc.autoTable.previous.finalY + 10)
-			doc.setFont('helvetica', 'normal')
-			doc.setFontSize(10)
-			
-			// Material Remitido
-			doc.setFontSize(12)
-			doc.setFont('helvetica', 'bold')
-			doc.text('Material Remitido:', 14, doc.autoTable.previous.finalY + 15)
-			doc.setFont('helvetica', 'normal')
-			doc.setFontSize(10)
-			
-			const splitMaterial = doc.splitTextToSize(case_.material_remitido || 'N/A', 180)
-			doc.text(splitMaterial, 14, doc.autoTable.previous.finalY + 20)
-			
-			// Información Clínica
-			doc.setFontSize(12)
-			doc.setFont('helvetica', 'bold')
-			doc.text('Información Clínica:', 14, doc.getTextDimensions(splitMaterial).h + doc.autoTable.previous.finalY + 25)
-			doc.setFont('helvetica', 'normal')
-			doc.setFontSize(10)
-			
-			const splitClinica = doc.splitTextToSize(case_.informacion_clinica || 'N/A', 180)
-			doc.text(splitClinica, 14, doc.getTextDimensions(splitMaterial).h + doc.autoTable.previous.finalY + 30)
-			
-			// Descripción Macroscópica
-			const clinicaY = doc.getTextDimensions(splitClinica).h + doc.getTextDimensions(splitMaterial).h + doc.autoTable.previous.finalY + 35
-			
-			// Check if we need a new page
-			if (clinicaY > 250) {
-				doc.addPage()
-				doc.setFontSize(12)
-				doc.setFont('helvetica', 'bold')
-				doc.text('Descripción Macroscópica:', 14, 20)
-				doc.setFont('helvetica', 'normal')
-				doc.setFontSize(10)
-				
-				const splitMacro = doc.splitTextToSize(case_.descripcion_macroscopica || 'N/A', 180)
-				doc.text(splitMacro, 14, 25)
-				
-				// Diagnóstico
-				doc.setFontSize(12)
-				doc.setFont('helvetica', 'bold')
-				doc.text('Diagnóstico:', 14, doc.getTextDimensions(splitMacro).h + 30)
-				doc.setFont('helvetica', 'normal')
-				doc.setFontSize(10)
-				
-				const splitDiag = doc.splitTextToSize(case_.diagnostico || 'N/A', 180)
-				doc.text(splitDiag, 14, doc.getTextDimensions(splitMacro).h + 35)
-				
-				// Comentario (if exists)
-				if (case_.comentario) {
-					const diagY = doc.getTextDimensions(splitDiag).h + doc.getTextDimensions(splitMacro).h + 40
-					
-					doc.setFontSize(12)
-					doc.setFont('helvetica', 'bold')
-					doc.text('Comentario:', 14, diagY)
-					doc.setFont('helvetica', 'normal')
-					doc.setFontSize(10)
-					
-					const splitComment = doc.splitTextToSize(case_.comentario, 180)
-					doc.text(splitComment, 14, diagY + 5)
-				}
-			} else {
-				doc.setFontSize(12)
-				doc.setFont('helvetica', 'bold')
-				doc.text('Descripción Macroscópica:', 14, clinicaY)
-				doc.setFont('helvetica', 'normal')
-				doc.setFontSize(10)
-				
-				const splitMacro = doc.splitTextToSize(case_.descripcion_macroscopica || 'N/A', 180)
-				doc.text(splitMacro, 14, clinicaY + 5)
-				
-				// Diagnóstico
-				const macroY = doc.getTextDimensions(splitMacro).h + clinicaY + 10
-				
-				doc.setFontSize(12)
-				doc.setFont('helvetica', 'bold')
-				doc.text('Diagnóstico:', 14, macroY)
-				doc.setFont('helvetica', 'normal')
-				doc.setFontSize(10)
-				
-				const splitDiag = doc.splitTextToSize(case_.diagnostico || 'N/A', 180)
-				doc.text(splitDiag, 14, macroY + 5)
-				
-				// Comentario (if exists)
-				if (case_.comentario) {
-					const diagY = doc.getTextDimensions(splitDiag).h + macroY + 10
-					
-					// Check if we need a new page
-					if (diagY > 250) {
-						doc.addPage()
-						doc.setFontSize(12)
-						doc.setFont('helvetica', 'bold')
-						doc.text('Comentario:', 14, 20)
-						doc.setFont('helvetica', 'normal')
-						doc.setFontSize(10)
-						
-						const splitComment = doc.splitTextToSize(case_.comentario, 180)
-						doc.text(splitComment, 14, 25)
-					} else {
-						doc.setFontSize(12)
-						doc.setFont('helvetica', 'bold')
-						doc.text('Comentario:', 14, diagY)
-						doc.setFont('helvetica', 'normal')
-						doc.setFontSize(10)
-						
-						const splitComment = doc.splitTextToSize(case_.comentario, 180)
-						doc.text(splitComment, 14, diagY + 5)
-					}
-				}
-			}
-			
-			// Add footer
-			const pageCount = doc.getNumberOfPages()
-			for (let i = 1; i <= pageCount; i++) {
-				doc.setPage(i)
-				
-				// Add the custom footer text
-				doc.setFontSize(8)
-				doc.setTextColor(100, 100, 100)
-				
-				// First line of footer
-				doc.text(
-					'DIRECCIÓN:',
-					14,
-					doc.internal.pageSize.getHeight() - 30
-				)
-				
-				// Second line - addresses
-				doc.text(
-					'VALLES DEL TUY: Edificio Multioficinas Conex / CARACAS: Policlínica Méndez Gimón – Clínica Sanatrix – Torre Centro Caracas / MARACAY: Centro Profesional Plaza',
-					14,
-					doc.internal.pageSize.getHeight() - 25
-				)
-				
-				// Third line - contact info
-				doc.text(
-					'CONTACTO: (0212) 889822 / (0414) 4861289 / (0424) 1425562',
-					14,
-					doc.internal.pageSize.getHeight() - 20
-				)
-				
-				// Fourth line - email
-				doc.text(
-					'Resultados@conspat.com',
-					14,
-					doc.internal.pageSize.getHeight() - 15
-				)
-				
-				// Page number and generation date at the bottom
-				doc.text(
-					`Página ${i} de ${pageCount} - Generado el ${format(new Date(), 'dd/MM/yyyy HH:mm', { locale: es })}`,
-					doc.internal.pageSize.getWidth() / 2,
-					doc.internal.pageSize.getHeight() - 10,
-					{ align: 'center' }
-				)
-			}
-			
-			// Save the PDF
-			const fileName = `biopsia_${case_.code || case_.id}_${case_.full_name.replace(/\s+/g, '_')}.pdf`
-			doc.save(fileName)
+			// Use the new pdf-lib based generator
+			await generatePDF(case_);
 			
 			toast({
 				title: '✅ PDF generado exitosamente',
-				description: `El informe ha sido descargado como ${fileName}`,
+				description: `El informe ha sido descargado correctamente.`,
 				className: 'bg-green-100 border-green-400 text-green-800',
 			})
 		} catch (error) {
@@ -1016,16 +768,16 @@ const CasesTable: React.FC<CasesTableProps> = ({
 									<option value="citologia">Citología</option>
 								</select>
 							</div>
+							
+							{/* Fullscreen Button */}
+							<button
+								onClick={() => setIsFullscreen(true)}
+								className="hidden lg:flex px-3 py-2 border border-input rounded-lg focus:ring-2 focus:ring-primary dark:bg-background dark:text-white text-sm items-center gap-2 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+							>
+								<Maximize2 className="w-4 h-4" />
+								Expandir
+							</button>
 						</div>
-
-						{/* Fullscreen Button */}
-						<button
-							onClick={() => setIsFullscreen(true)}
-							className="hidden lg:flex px-3 py-2 border border-input rounded-lg focus:ring-2 focus:ring-primary dark:bg-background dark:text-white text-sm items-center gap-2 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
-						>
-							<Maximize2 className="w-4 h-4" />
-							Expandir
-						</button>
 
 						{/* Row Limit Selector */}
 						<div className="flex items-center gap-2">

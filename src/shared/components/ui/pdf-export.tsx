@@ -35,7 +35,7 @@ export const exportElementToPdf = async (
   const {
     title = 'Reporte',
     subtitle = '',
-    filename = reporte-${format(new Date(), 'yyyy-MM-dd-HHmm')},
+    filename = `reporte-${format(new Date(), 'yyyy-MM-dd-HHmm')}`,
     orientation = 'portrait',
     pageSize = 'a4',
     includeDate = true,
@@ -92,7 +92,7 @@ export const exportElementToPdf = async (
         const dateStr = format(new Date(), 'PPP', { locale: es })
         pdf.setFontSize(10)
         pdf.setTextColor(100, 100, 100)
-        pdf.text(Fecha: ${dateStr}, pdf.internal.pageSize.getWidth() - 60, 20)
+        pdf.text(`Fecha: ${dateStr}`, pdf.internal.pageSize.getWidth() - 60, 20)
       }
 
       // Add a separator line
@@ -146,11 +146,11 @@ export const exportElementToPdf = async (
       pdf.text(footerText, 14, footerY)
       
       // Add page number
-      pdf.text(Página 1 de 1, pageWidth - 30, footerY)
+      pdf.text(`Página 1 de 1`, pageWidth - 30, footerY)
     }
 
     // Save the PDF
-    pdf.save(${filename}.pdf)
+    pdf.save(`${filename}.pdf`)
     
     return true
   } catch (error) {
@@ -170,7 +170,7 @@ export const exportTableToPdf = (
   const {
     title = 'Reporte',
     subtitle = '',
-    filename = reporte-${format(new Date(), 'yyyy-MM-dd-HHmm')},
+    filename = `reporte-${format(new Date(), 'yyyy-MM-dd-HHmm')}`,
     orientation = 'portrait',
     pageSize = 'a4',
     includeDate = true,
@@ -227,7 +227,7 @@ export const exportTableToPdf = (
         const dateStr = format(new Date(), 'PPP', { locale: es })
         pdf.setFontSize(10)
         pdf.setTextColor(100, 100, 100)
-        pdf.text(Fecha: ${dateStr}, pdf.internal.pageSize.getWidth() - 60, 20)
+        pdf.text(`Fecha: ${dateStr}`, pdf.internal.pageSize.getWidth() - 60, 20)
       }
 
       // Add a separator line
@@ -266,12 +266,12 @@ export const exportTableToPdf = (
         pdf.text(footerText, 14, footerY)
         
         // Add page number
-        pdf.text(Página ${i} de ${pageCount}, pdf.internal.pageSize.getWidth() - 30, footerY)
+        pdf.text(`Página ${i} de ${pageCount}`, pdf.internal.pageSize.getWidth() - 30, footerY)
       }
     }
 
     // Save the PDF
-    pdf.save(${filename}.pdf)
+    pdf.save(`${filename}.pdf`)
     
     return true
   } catch (error) {
