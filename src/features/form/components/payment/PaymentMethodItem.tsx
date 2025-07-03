@@ -5,6 +5,7 @@ import { Input } from '@shared/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@shared/components/ui/select'
 import { Button } from '@shared/components/ui/button'
 import { Trash2 } from 'lucide-react'
+import { isBolivaresMethod } from '@features/form/lib/payment/payment-utils'
 
 interface PaymentMethodItemProps {
 	control: Control<FormValues>
@@ -17,7 +18,7 @@ interface PaymentMethodItemProps {
 
 export const PaymentMethodItem = ({ control, index, remove, inputStyles, fieldsLength }: PaymentMethodItemProps) => {
 	const paymentMethod = useWatch({ control, name: `payments.${index}.method` })
-	const isBolivares = ['Punto de venta', 'Pago móvil', 'Bs en efectivo'].includes(paymentMethod || '')
+	const isBolivares = isBolivaresMethod(paymentMethod)
 	const currencyLabel = isBolivares ? '(Bs)' : '($)'
 	const currencySymbol = isBolivares ? 'Bs' : '$'
 
