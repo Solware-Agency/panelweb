@@ -2,9 +2,9 @@ import React, { useState, useEffect } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import CasesTable from '@shared/components/cases/CasesTable'
 import CaseDetailPanel from '@shared/components/cases/CaseDetailPanel'
-import { Users, MapPin, Microscope, FileText, Activity, Maximize2, Download } from 'lucide-react'
+import { Users, MapPin, Microscope, FileText, Activity, Maximize2, Download, ChevronLeft, ChevronRight } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@shared/components/ui/card'
-import { searchClientes, type MedicalRecord } from '@lib/supabase-service'
+import { searchClientes, type MedicalRecord, type PaginationMeta } from '@lib/supabase-service'
 import { useUserProfile } from '@shared/hooks/useUserProfile'
 import { Button } from '@shared/components/ui/button'
 
@@ -15,6 +15,8 @@ interface RecordsSectionProps {
 	refetch: () => void
 	isFullscreen: boolean
 	setIsFullscreen: (value: boolean) => void
+	pagination?: PaginationMeta | null
+	onPageChange?: (page: number) => void
 }
 
 export const RecordsSection: React.FC<RecordsSectionProps> = ({
@@ -24,6 +26,8 @@ export const RecordsSection: React.FC<RecordsSectionProps> = ({
 	refetch,
 	isFullscreen,
 	setIsFullscreen,
+	pagination,
+	onPageChange
 }) => {
 	const [searchTerm, setSearchTerm] = useState('')
 	const [selectedCase, setSelectedCase] = useState<MedicalRecord | null>(null)
@@ -182,6 +186,13 @@ export const RecordsSection: React.FC<RecordsSectionProps> = ({
 	// Handle toggle fullscreen
 	const handleToggleFullscreen = () => {
 		setIsFullscreen(!isFullscreen)
+	}
+
+	// Handle page change
+	const handlePageChange = (newPage: number) => {
+		if (onPageChange) {
+			onPageChange(newPage);
+		}
 	}
 
 	return (
@@ -373,6 +384,116 @@ export const RecordsSection: React.FC<RecordsSectionProps> = ({
 				isFullscreen={isFullscreen}
 				setIsFullscreen={setIsFullscreen}
 			/>
+
+			{/* Pagination Controls */}
+			{pagination && pagination.totalPages > 1 && (
+				<div className="flex justify-between items-center mt-6 bg-white dark:bg-background rounded-lg p-4 border border-gray-200 dark:border-gray-700">
+					<div className="text-sm text-gray-600 dark:text-gray-400">
+						Mostrando página {pagination.currentPage + 1} de {pagination.totalPages} ({pagination.totalCount} registros totales)
+					</div>
+					<div className="flex gap-2">
+						<Button
+							variant="outline"
+							size="sm"
+							onClick={() => handlePageChange(pagination.currentPage - 1)}
+							disabled={!pagination.hasPreviousPage}
+							className="flex items-center gap-1"
+						>
+							<ChevronLeft className="h-4 w-4" />
+							Anterior
+						</Button>
+						
+						{/* Page number indicators */}
+						<div className="flex items-center gap-1">
+							{pagination.totalPages <= 7 ? (
+								// Show all pages if 7 or fewer
+								Array.from({ length: pagination.totalPages }, (_, i) => (
+									<Button
+										key={i}
+										variant={pagination.currentPage === i ? "default" : "outline"}
+										size="sm"
+										onClick={() => handlePageChange(i)}
+										className="w-8 h-8 p-0"
+									>
+										{i + 1}
+									</Button>
+								))
+							) : (
+								// Show limited pages with ellipsis for many pages
+								<>
+									{/* First page */}
+									<Button
+										variant={pagination.currentPage === 0 ? "default" : "outline"}
+										size="sm"
+										onClick={() => handlePageChange(0)}
+										className="w-8 h-8 p-0"
+									>
+										1
+									</Button>
+									
+									{/* Ellipsis or page numbers */}
+									{pagination.currentPage > 2 && (
+										<span className="px-1 text-gray-500 dark:text-gray-400">...</span>
+									)}
+									
+									{/* Pages around current page */}
+									{Array.from(
+										{ length: Math.min(3, pagination.totalPages) },
+										(_, i) => {
+											const pageNum = Math.max(
+												1,
+												Math.min(
+													pagination.currentPage - 1 + i,
+													pagination.totalPages - 2
+												)
+											);
+											return pageNum;
+										}
+									)
+										.filter((value, index, self) => self.indexOf(value) === index) // Remove duplicates
+										.map(pageNum => (
+											<Button
+												key={pageNum}
+												variant={pagination.currentPage === pageNum ? "default" : "outline"}
+												size="sm"
+												onClick={() => handlePageChange(pageNum)}
+												className="w-8 h-8 p-0"
+											>
+												{pageNum + 1}
+											</Button>
+										))}
+									
+									{/* Ellipsis or page numbers */}
+									{pagination.currentPage < pagination.totalPages - 3 && (
+										<span className="px-1 text-gray-500 dark:text-gray-400">...</span>
+									)}
+									
+									{/* Last page */}
+									<Button
+										variant={pagination.currentPage === pagination.totalPages - 1 ? "default" : "outline"}
+										size="sm"
+										onClick={() => handlePageChange(pagination.totalPages - 1)}
+										className="w-8 h-8 p-0"
+									>
+										{pagination.totalPages}
+									</Button>
+								</>
+							)}
+						</div>
+						
+						<Button
+							variant="outline"
+							size="sm"
+							onClick={() => handlePageChange(pagination.currentPage + 1)}
+							disabled={!pagination.hasNextPage}
+							className="flex items-center gap-1"
+						>
+							Siguiente
+							<ChevronRight className="h-4 w-4" />
+						</Button>
+					</div>
+				</div>
+			)}
 
 			{/* Case Detail Panel */}
 			<CaseDetailPanel case_={selectedCase} isOpen={isPanelOpen} onClose={handlePanelClose} />

@@ -16,7 +16,7 @@ import {
 	Trash2,
 } from 'lucide-react'
 import { motion, AnimatePresence } from 'motion/react'
-import type { MedicalRecord } from '@lib/supabase-service'
+import type { MedicalRecord, PaginationMeta } from '@lib/supabase-service'
 import { getAgeDisplay, deleteMedicalRecord, updateMedicalRecordWithLog } from '@lib/supabase-service'
 import { format, parseISO } from 'date-fns'
 import { es } from 'date-fns/locale'
@@ -43,6 +43,8 @@ interface CasesTableProps {
 	refetch: () => void
 	isFullscreen: boolean
 	setIsFullscreen: (value: boolean) => void
+	pagination?: PaginationMeta
+	onPageChange?: (page: number) => void
 }
 
 type SortField = 'id' | 'created_at' | 'full_name' | 'date_of_birth' | 'total_amount' | 'code'
@@ -55,7 +57,9 @@ const CasesTable: React.FC<CasesTableProps> = ({
 	error, 
 	refetch,
 	isFullscreen,
-	setIsFullscreen 
+	setIsFullscreen,
+	pagination,
+	onPageChange
 }) => {
 	const { user } = useAuth()
 	const { toast } = useToast()
@@ -214,13 +218,13 @@ const CasesTable: React.FC<CasesTableProps> = ({
 			}
 		})
 
-		// Apply row limit
-		if (rowLimit > 0) {
+		// Apply row limit if not using server-side pagination
+		if (!pagination && rowLimit > 0) {
 			return filtered.slice(0, rowLimit)
 		}
 
 		return filtered
-	}, [cases, searchTerm, statusFilter, branchFilter, examTypeFilter, pdfReadyFilter, sortField, sortDirection, rowLimit])
+	}, [cases, searchTerm, statusFilter, branchFilter, examTypeFilter, pdfReadyFilter, sortField, sortDirection, rowLimit, pagination])
 
 	const SortIcon = ({ field }: { field: SortField }) => {
 		if (sortField !== field) {
@@ -743,6 +747,116 @@ const CasesTable: React.FC<CasesTableProps> = ({
 						)}
 					</div>
 				</div>
+
+				{/* Pagination Controls */}
+				{pagination && pagination.totalPages > 1 && (
+					<div className="flex justify-between items-center p-4 border-t border-gray-200 dark:border-gray-700">
+						<div className="text-sm text-gray-600 dark:text-gray-400">
+							Mostrando página {pagination.currentPage + 1} de {pagination.totalPages} ({pagination.totalCount} registros totales)
+						</div>
+						<div className="flex gap-2">
+							<Button
+								variant="outline"
+								size="sm"
+								onClick={() => onPageChange && onPageChange(pagination.currentPage - 1)}
+								disabled={!pagination.hasPreviousPage}
+								className="flex items-center gap-1"
+							>
+								<ChevronUp className="h-4 w-4 rotate-90" />
+								Anterior
+							</Button>
+							
+							{/* Page number indicators */}
+							<div className="flex items-center gap-1">
+								{pagination.totalPages <= 7 ? (
+									// Show all pages if 7 or fewer
+									Array.from({ length: pagination.totalPages }, (_, i) => (
+										<Button
+											key={i}
+											variant={pagination.currentPage === i ? "default" : "outline"}
+											size="sm"
+											onClick={() => onPageChange && onPageChange(i)}
+											className="w-8 h-8 p-0"
+										>
+											{i + 1}
+										</Button>
+									))
+								) : (
+									// Show limited pages with ellipsis for many pages
+									<>
+										{/* First page */}
+										<Button
+											variant={pagination.currentPage === 0 ? "default" : "outline"}
+											size="sm"
+											onClick={() => onPageChange && onPageChange(0)}
+											className="w-8 h-8 p-0"
+										>
+											1
+										</Button>
+										
+										{/* Ellipsis or page numbers */}
+										{pagination.currentPage > 2 && (
+											<span className="px-1 text-gray-500 dark:text-gray-400">...</span>
+										)}
+										
+										{/* Pages around current page */}
+										{Array.from(
+											{ length: Math.min(3, pagination.totalPages) },
+											(_, i) => {
+												const pageNum = Math.max(
+													1,
+													Math.min(
+														pagination.currentPage - 1 + i,
+														pagination.totalPages - 2
+													)
+												);
+												return pageNum;
+											}
+										)
+											.filter((value, index, self) => self.indexOf(value) === index) // Remove duplicates
+											.map(pageNum => (
+												<Button
+													key={pageNum}
+													variant={pagination.currentPage === pageNum ? "default" : "outline"}
+													size="sm"
+													onClick={() => onPageChange && onPageChange(pageNum)}
+													className="w-8 h-8 p-0"
+												>
+													{pageNum + 1}
+												</Button>
+											))}
+										
+										{/* Ellipsis or page numbers */}
+										{pagination.currentPage < pagination.totalPages - 3 && (
+											<span className="px-1 text-gray-500 dark:text-gray-400">...</span>
+										)}
+										
+										{/* Last page */}
+										<Button
+											variant={pagination.currentPage === pagination.totalPages - 1 ? "default" : "outline"}
+											size="sm"
+											onClick={() => onPageChange && onPageChange(pagination.totalPages - 1)}
+											className="w-8 h-8 p-0"
+										>
+											{pagination.totalPages}
+										</Button>
+									</>
+								)}
+							</div>
+							
+							<Button
+								variant="outline"
+								size="sm"
+								onClick={() => onPageChange && onPageChange(pagination.currentPage + 1)}
+								disabled={!pagination.hasNextPage}
+								className="flex items-center gap-1"
+							>
+								Siguiente
+								<ChevronUp className="h-4 w-4 -rotate-90" />
+							</Button>
+						</div>
+					</div>
+				)}
 			</div>
 		)
 	}
@@ -1102,6 +1216,116 @@ const CasesTable: React.FC<CasesTableProps> = ({
 						</div>
 					</div>
 				</div>
+
+				{/* Pagination Controls */}
+				{pagination && pagination.totalPages > 1 && (
+					<div className="flex justify-between items-center p-4 border-t border-gray-200 dark:border-gray-700">
+						<div className="text-sm text-gray-600 dark:text-gray-400">
+							Mostrando página {pagination.currentPage + 1} de {pagination.totalPages} ({pagination.totalCount} registros totales)
+						</div>
+						<div className="flex gap-2">
+							<Button
+								variant="outline"
+								size="sm"
+								onClick={() => onPageChange && onPageChange(pagination.currentPage - 1)}
+								disabled={!pagination.hasPreviousPage}
+								className="flex items-center gap-1"
+							>
+								<ChevronUp className="h-4 w-4 rotate-90" />
+								Anterior
+							</Button>
+							
+							{/* Page number indicators */}
+							<div className="flex items-center gap-1">
+								{pagination.totalPages <= 7 ? (
+									// Show all pages if 7 or fewer
+									Array.from({ length: pagination.totalPages }, (_, i) => (
+										<Button
+											key={i}
+											variant={pagination.currentPage === i ? "default" : "outline"}
+											size="sm"
+											onClick={() => onPageChange && onPageChange(i)}
+											className="w-8 h-8 p-0"
+										>
+											{i + 1}
+										</Button>
+									))
+								) : (
+									// Show limited pages with ellipsis for many pages
+									<>
+										{/* First page */}
+										<Button
+											variant={pagination.currentPage === 0 ? "default" : "outline"}
+											size="sm"
+											onClick={() => onPageChange && onPageChange(0)}
+											className="w-8 h-8 p-0"
+										>
+											1
+										</Button>
+										
+										{/* Ellipsis or page numbers */}
+										{pagination.currentPage > 2 && (
+											<span className="px-1 text-gray-500 dark:text-gray-400">...</span>
+										)}
+										
+										{/* Pages around current page */}
+										{Array.from(
+											{ length: Math.min(3, pagination.totalPages) },
+											(_, i) => {
+												const pageNum = Math.max(
+													1,
+													Math.min(
+														pagination.currentPage - 1 + i,
+														pagination.totalPages - 2
+													)
+												);
+												return pageNum;
+											}
+										)
+											.filter((value, index, self) => self.indexOf(value) === index) // Remove duplicates
+											.map(pageNum => (
+												<Button
+													key={pageNum}
+													variant={pagination.currentPage === pageNum ? "default" : "outline"}
+													size="sm"
+													onClick={() => onPageChange && onPageChange(pageNum)}
+													className="w-8 h-8 p-0"
+												>
+													{pageNum + 1}
+												</Button>
+											))}
+										
+										{/* Ellipsis or page numbers */}
+										{pagination.currentPage < pagination.totalPages - 3 && (
+											<span className="px-1 text-gray-500 dark:text-gray-400">...</span>
+										)}
+										
+										{/* Last page */}
+										<Button
+											variant={pagination.currentPage === pagination.totalPages - 1 ? "default" : "outline"}
+											size="sm"
+											onClick={() => onPageChange && onPageChange(pagination.totalPages - 1)}
+											className="w-8 h-8 p-0"
+										>
+											{pagination.totalPages}
+										</Button>
+									</>
+								)}
+							</div>
+							
+							<Button
+								variant="outline"
+								size="sm"
+								onClick={() => onPageChange && onPageChange(pagination.currentPage + 1)}
+								disabled={!pagination.hasNextPage}
+								className="flex items-center gap-1"
+							>
+								Siguiente
+								<ChevronUp className="h-4 w-4 -rotate-90" />
+							</Button>
+						</div>
+					</div>
+				)}
 			</div>
 
 			{/* Generate Biopsy Modal */}

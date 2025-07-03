@@ -63,6 +63,16 @@ export interface ChangeLog {
 	created_at?: string
 }
 
+// Interface for pagination metadata
+export interface PaginationMeta {
+	currentPage: number
+	totalPages: number
+	totalCount: number
+	pageSize: number
+	hasNextPage: boolean
+	hasPreviousPage: boolean
+}
+
 // Helper function to calculate age from date of birth
 export const calculateAge = (dateOfBirth: string): number => {
 	if (!dateOfBirth) return 0
@@ -325,18 +335,45 @@ export const insertMedicalRecord = async (
 	}
 }
 
-export const getMedicalRecords = async (limit = 50, offset = 0) => {
+export const getMedicalRecords = async (pageSize = 100, page = 0) => {
 	try {
+		// Calculate the range for pagination
+		const from = page * pageSize;
+		const to = from + pageSize - 1;
+		
+		// First get the total count for pagination metadata
+		const { count, error: countError } = await supabase
+			.from(TABLE_NAME)
+			.select('*', { count: 'exact', head: true });
+			
+		if (countError) {
+			console.error(`Error counting records in ${TABLE_NAME}:`, countError);
+			return { data: null, error: countError, pagination: null };
+		}
+		
+		// Then fetch the actual data for the current page
 		const { data, error } = await supabase
 			.from(TABLE_NAME)
 			.select('*')
 			.order('created_at', { ascending: false })
-			.range(offset, offset + limit - 1)
+			.range(from, to);
 
-		return { data, error }
+		// Calculate pagination metadata
+		const totalCount = count || 0;
+		const totalPages = Math.ceil(totalCount / pageSize);
+		const pagination: PaginationMeta = {
+			currentPage: page,
+			totalPages,
+			totalCount,
+			pageSize,
+			hasNextPage: page < totalPages - 1,
+			hasPreviousPage: page > 0
+		};
+
+		return { data, error, pagination };
 	} catch (error) {
 		console.error(`Error fetching ${TABLE_NAME}:`, error)
-		return { data: null, error }
+		return { data: null, error, pagination: null }
 	}
 }
 

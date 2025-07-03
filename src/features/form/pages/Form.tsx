@@ -19,18 +19,20 @@ import { DoctorsSection } from '@features/form/components/DoctorsSection'
 function FormContent() {
 	const [activeTab, setActiveTab] = useState('form')
 	const [isFullscreen, setIsFullscreen] = useState(false)
+	const [currentPage, setCurrentPage] = useState(0)
+	const pageSize = 100
 	const navigate = useNavigate()
 	const { profile } = useUserProfile()
 
-	// Query for medical records data
+	// Query for medical records data with pagination
 	const {
 		data: casesData,
 		isLoading: casesLoading,
 		error: casesError,
 		refetch: refetchCases,
 	} = useQuery({
-		queryKey: ['medical-cases'],
-		queryFn: () => getMedicalRecords(100, 0),
+		queryKey: ['medical-cases', currentPage, pageSize],
+		queryFn: () => getMedicalRecords(pageSize, currentPage),
 		staleTime: 1000 * 60 * 5, // 5 minutes
 	})
 
@@ -49,6 +51,10 @@ function FormContent() {
 
 	const handleToggleFullscreen = () => {
 		setIsFullscreen(true)
+	}
+
+	const handlePageChange = (page: number) => {
+		setCurrentPage(page)
 	}
 
 	return (
@@ -116,6 +122,8 @@ function FormContent() {
 								refetch={refetchCases}
 								isFullscreen={isFullscreen}
 								setIsFullscreen={setIsFullscreen}
+								pagination={casesData?.pagination}
+								onPageChange={handlePageChange}
 							/>
 						</TabsContent>
 
