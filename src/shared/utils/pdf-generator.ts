@@ -5,8 +5,9 @@ import { es } from 'date-fns/locale';
 import type { MedicalRecord } from '@lib/supabase-service';
 import { getAgeDisplay } from '@lib/supabase-service';
 
-// Import logo as a module
+// Import logo and signatures as modules
 import logoPath from '/src/assets/img/logo_conspat.png';
+import firmasPath from '/src/assets/img/firmas.png';
 
 // Type definition for PDF page to avoid TypeScript errors
 type PDFPage = ReturnType<PDFDocument['addPage']>;
@@ -57,7 +58,7 @@ export async function generatePDF(caseData: MedicalRecord): Promise<void> {
       
       // Embed the logo image
       const logoImage = await pdfDoc.embedPng(logoArrayBuffer);
-      const logoDims = logoImage.scale(0.1); // Scale to 50%
+      const logoDims = logoImage.scale(0.1); // Scale to 10%
       
       // Draw the logo centered at the top
       page.drawImage(logoImage, {
@@ -297,10 +298,34 @@ export async function generatePDF(caseData: MedicalRecord): Promise<void> {
       yPos = result.yPos;
     }
     
+    // Fetch and embed the signature image
+    let firmasImage;
+    try {
+      const firmasResponse = await fetch(firmasPath);
+      const firmasArrayBuffer = await firmasResponse.arrayBuffer();
+      firmasImage = await pdfDoc.embedPng(firmasArrayBuffer);
+    } catch (error) {
+      console.error('Error embedding signatures:', error);
+      // Continue without signatures if there's an error
+    }
+    
     // Add footer to all pages
     const addFooter = (page: PDFPage) => {
       const { width, height } = page.getSize();
       const footerY = 30;
+      
+      // Add signatures if available
+      if (firmasImage) {
+        const firmasDims = firmasImage.scale(0.5); // Scale to 50%
+        
+        // Draw the signatures centered above the footer text
+        page.drawImage(firmasImage, {
+          x: (width - firmasDims.width) / 2,
+          y: footerY + 30, // Position above the footer text
+          width: firmasDims.width,
+          height: firmasDims.height,
+        });
+      }
       
       // Add contact information
       page.drawText('DIRECCIÓN:', {
