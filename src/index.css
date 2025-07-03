@@ -81,7 +81,12 @@
   }
 }
 
+::-moz-selection { /* Para Firefox */
+  background: hsl(330 81% 60%);
+  color: white;
+}
+
 ::selection {
   background: hsl(330 81% 60%);
-  text: white;
+  color: white;
 }
