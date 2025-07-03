@@ -8,6 +8,9 @@ import { getAgeDisplay } from '@lib/supabase-service';
 // Import logo as a module
 import logoPath from '/src/assets/img/logo_conspat.png';
 
+// Type definition for PDF page to avoid TypeScript errors
+type PDFPage = ReturnType<PDFDocument['addPage']>;
+
 /**
  * Generates a PDF document for a medical case using pdf-lib
  * @param caseData The case data to include in the PDF
@@ -186,20 +189,29 @@ export async function generatePDF(caseData: MedicalRecord): Promise<void> {
     yPos -= headingSize + 10;
     
     // Function to add a multi-line text field
-    const addMultilineField = (label: string, text: string | undefined | null) => {
+    const addMultilineField = (
+      label: string, 
+      text: string | undefined | null, 
+      currentPage: PDFPage, 
+      currentYPos: number,
+      pdfDocument: PDFDocument
+    ): { page: PDFPage; yPos: number } => {
       if (!text) text = 'N/A';
       
+      let workingPage = currentPage;
+      let workingYPos = currentYPos;
+      
       // Draw label
-      page.drawText(label + ':', {
+      workingPage.drawText(label + ':', {
         x: margin,
-        y: yPos,
+        y: workingYPos,
         size: normalSize,
         font: helveticaBold,
         color: blackColor,
       });
       
       // Update Y position
-      yPos -= normalSize + 5;
+      workingYPos -= normalSize + 5;
       
       // Split text into lines that fit within the content width
       const words = text.split(' ');
@@ -211,23 +223,23 @@ export async function generatePDF(caseData: MedicalRecord): Promise<void> {
         
         if (testLineWidth > contentWidth) {
           // Check if we need to add a new page
-          if (yPos < margin + normalSize) {
+          if (workingYPos < margin + normalSize) {
             // Add a new page
-            page = pdfDoc.addPage(PageSizes.A4);
-            yPos = height - margin;
+            workingPage = pdfDocument.addPage(PageSizes.A4);
+            workingYPos = height - margin;
           }
           
           // Draw the current line
-          page.drawText(currentLine, {
+          workingPage.drawText(currentLine, {
             x: margin,
-            y: yPos,
+            y: workingYPos,
             size: normalSize,
             font: helveticaFont,
             color: blackColor,
           });
           
           // Move to next line
-          yPos -= normalSize + 5;
+          workingYPos -= normalSize + 5;
           currentLine = word;
         } else {
           currentLine = testLine;
@@ -237,37 +249,52 @@ export async function generatePDF(caseData: MedicalRecord): Promise<void> {
       // Draw the last line
       if (currentLine) {
         // Check if we need to add a new page
-        if (yPos < margin + normalSize) {
+        if (workingYPos < margin + normalSize) {
           // Add a new page
-          page = pdfDoc.addPage(PageSizes.A4);
-          yPos = height - margin;
+          workingPage = pdfDocument.addPage(PageSizes.A4);
+          workingYPos = height - margin;
         }
         
-        page.drawText(currentLine, {
+        workingPage.drawText(currentLine, {
           x: margin,
-          y: yPos,
+          y: workingYPos,
           size: normalSize,
           font: helveticaFont,
           color: blackColor,
         });
         
         // Move to next line
-        yPos -= normalSize + 5;
+        workingYPos -= normalSize + 5;
       }
       
       // Add some extra space after the field
-      yPos -= 10;
+      workingYPos -= 10;
+      
+      return { page: workingPage, yPos: workingYPos };
     };
     
     // Add biopsy information fields
-    addMultilineField('Material Remitido', caseData.material_remitido);
-    addMultilineField('Información Clínica', caseData.informacion_clinica);
-    addMultilineField('Descripción Macroscópica', caseData.descripcion_macroscopica);
-    addMultilineField('Diagnóstico', caseData.diagnostico);
+    let result = addMultilineField('Material Remitido', caseData.material_remitido, page, yPos, pdfDoc);
+    page = result.page;
+    yPos = result.yPos;
+    
+    result = addMultilineField('Información Clínica', caseData.informacion_clinica, page, yPos, pdfDoc);
+    page = result.page;
+    yPos = result.yPos;
+    
+    result = addMultilineField('Descripción Macroscópica', caseData.descripcion_macroscopica, page, yPos, pdfDoc);
+    page = result.page;
+    yPos = result.yPos;
+    
+    result = addMultilineField('Diagnóstico', caseData.diagnostico, page, yPos, pdfDoc);
+    page = result.page;
+    yPos = result.yPos;
     
     // Add comentario if it exists
     if (caseData.comentario) {
-      addMultilineField('Comentario', caseData.comentario);
+      result = addMultilineField('Comentario', caseData.comentario, page, yPos, pdfDoc);
+      page = result.page;
+      yPos = result.yPos;
     }
     
     // Add footer to all pages
@@ -310,7 +337,8 @@ export async function generatePDF(caseData: MedicalRecord): Promise<void> {
       
       // Add page number and generation date
       const pageCount = pdfDoc.getPageCount();
-      const pageText = `Página ${page.getIndex() + 1} de ${pageCount} - Generado el ${format(new Date(), 'dd/MM/yyyy HH:mm', { locale: es })}`;
+      const pageIndex = pdfDoc.getPages().indexOf(page);
+      const pageText = `Página ${pageIndex + 1} de ${pageCount} - Generado el ${format(new Date(), 'dd/MM/yyyy HH:mm', { locale: es })}`;
       
       page.drawText(pageText, {
         x: width / 2 - helveticaFont.widthOfTextAtSize(pageText, smallSize) / 2,
@@ -357,6 +385,3 @@ export async function generatePDF(caseData: MedicalRecord): Promise<void> {
     return Promise.reject(error);
   }
 }
-
-// Type definition for PDF page to avoid TypeScript errors
-type PDFPage = ReturnType<PDFDocument['addPage']>;
