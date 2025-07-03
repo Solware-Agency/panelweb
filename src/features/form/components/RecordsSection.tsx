@@ -2,9 +2,9 @@ import React, { useState, useEffect } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import CasesTable from '@shared/components/cases/CasesTable'
 import CaseDetailPanel from '@shared/components/cases/CaseDetailPanel'
-import { Users, MapPin, Microscope, FileText, Activity, Maximize2, Download, ChevronLeft, ChevronRight } from 'lucide-react'
+import { Users, MapPin, Microscope, FileText, Activity, Maximize2, Download, Search } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@shared/components/ui/card'
-import { searchClientes, type MedicalRecord, type PaginationMeta } from '@lib/supabase-service'
+import { searchClientes, type MedicalRecord } from '@lib/supabase-service'
 import { useUserProfile } from '@shared/hooks/useUserProfile'
 import { Button } from '@shared/components/ui/button'
 import { Input } from '@shared/components/ui/input'
@@ -16,8 +16,7 @@ interface RecordsSectionProps {
 	refetch: () => void
 	isFullscreen: boolean
 	setIsFullscreen: (value: boolean) => void
-	pagination?: PaginationMeta | null
-	onPageChange?: (page: number) => void
+	onSearch?: (term: string) => void
 }
 
 export const RecordsSection: React.FC<RecordsSectionProps> = ({
@@ -27,8 +26,7 @@ export const RecordsSection: React.FC<RecordsSectionProps> = ({
 	refetch,
 	isFullscreen,
 	setIsFullscreen,
-	pagination,
-	onPageChange
+	onSearch
 }) => {
 	const [searchTerm, setSearchTerm] = useState('')
 	const [selectedCase, setSelectedCase] = useState<MedicalRecord | null>(null)
@@ -89,24 +87,8 @@ export const RecordsSection: React.FC<RecordsSectionProps> = ({
 		setTimeout(() => setSelectedCase(null), 300)
 	}
 
-	// Query for search results
-	const { data: searchResults, isLoading: searchLoading, refetch: refetchSearch } = useQuery({
-		queryKey: ['clientes-search', searchTerm],
-		queryFn: () => searchClientes(searchTerm),
-		enabled: false, // Don't run automatically
-	})
-
-	// Handle search submit
-	const handleSearch = async () => {
-		if (!searchTerm.trim()) return;
-		
-		setIsSearching(true);
-		await refetchSearch();
-		setIsSearching(false);
-	}
-
 	// Determine which data to use
-	const records = searchTerm && searchResults?.data ? searchResults.data : filteredCases
+	const records = filteredCases
 
 	// Calculate statistics
 	const stats = React.useMemo(() => {
@@ -206,8 +188,15 @@ export const RecordsSection: React.FC<RecordsSectionProps> = ({
 
 	// Handle search on Enter key
 	const handleSearchKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-		if (e.key === 'Enter') {
-			handleSearch()
+		if (e.key === 'Enter' && onSearch) {
+			onSearch(searchTerm)
+		}
+	}
+
+	// Handle search button click
+	const handleSearchClick = () => {
+		if (onSearch) {
+			onSearch(searchTerm)
 		}
 	}
 
@@ -247,7 +236,7 @@ export const RecordsSection: React.FC<RecordsSectionProps> = ({
 						)}
 					</div>
 					<Button 
-						onClick={handleSearch}
+						onClick={handleSearchClick}
 						disabled={isSearching || !searchTerm.trim()}
 						className="whitespace-nowrap"
 					>
@@ -403,11 +392,11 @@ export const RecordsSection: React.FC<RecordsSectionProps> = ({
 					</div>
 				)}
 				
-				{searchTerm && searchResults && (
+				{searchTerm && (
 					<div className="px-4 py-2 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg inline-block">
 						<span className="text-sm font-medium text-blue-800 dark:text-blue-300 flex items-center gap-2">
 							<Search className="w-4 h-4" />
-							Resultados para: "{searchTerm}" ({searchResults.data?.length || 0})
+							Resultados para: "{searchTerm}"
 						</span>
 					</div>
 				)}
@@ -417,14 +406,12 @@ export const RecordsSection: React.FC<RecordsSectionProps> = ({
 			<CasesTable
 				onCaseSelect={handleCaseSelect}
 				cases={records || []}
-				isLoading={isLoading || searchLoading}
+				isLoading={isLoading}
 				error={error}
 				refetch={refetch}
 				isFullscreen={isFullscreen}
 				setIsFullscreen={setIsFullscreen}
-				pagination={pagination}
-				onPageChange={onPageChange}
-				onSearch={handleSearch}
+				onSearch={onSearch}
 			/>
 
 			{/* Case Detail Panel */}

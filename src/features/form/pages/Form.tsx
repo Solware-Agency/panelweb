@@ -19,23 +19,21 @@ import { DoctorsSection } from '@features/form/components/DoctorsSection'
 function FormContent() {
 	const [activeTab, setActiveTab] = useState('form')
 	const [isFullscreen, setIsFullscreen] = useState(false)
-	const [currentPage, setCurrentPage] = useState(0)
 	const [searchTerm, setSearchTerm] = useState('')
-	const pageSize = 100
 	const navigate = useNavigate()
 	const { profile } = useUserProfile()
 
-	// Query for medical records data with pagination
+	// Query for medical records data - fetch all records at once
 	const {
 		data: casesData,
 		isLoading: casesLoading,
 		error: casesError,
 		refetch: refetchCases,
 	} = useQuery({
-		queryKey: ['medical-cases', currentPage, pageSize, searchTerm],
+		queryKey: ['medical-cases', searchTerm],
 		queryFn: () => searchTerm 
-			? searchMedicalRecords(searchTerm, pageSize, currentPage)
-			: getMedicalRecords(pageSize, currentPage),
+			? searchMedicalRecords(searchTerm)
+			: getMedicalRecords(),
 		staleTime: 1000 * 60 * 5, // 5 minutes
 	})
 
@@ -56,13 +54,8 @@ function FormContent() {
 		setIsFullscreen(true)
 	}
 
-	const handlePageChange = (page: number) => {
-		setCurrentPage(page)
-	}
-
 	const handleSearch = (term: string) => {
 		setSearchTerm(term)
-		setCurrentPage(0) // Reset to first page when searching
 	}
 
 	return (
@@ -130,8 +123,7 @@ function FormContent() {
 								refetch={refetchCases}
 								isFullscreen={isFullscreen}
 								setIsFullscreen={setIsFullscreen}
-								pagination={casesData?.pagination}
-								onPageChange={handlePageChange}
+								onSearch={handleSearch}
 							/>
 						</TabsContent>
 

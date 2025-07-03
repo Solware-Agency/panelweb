@@ -14,11 +14,9 @@ import {
 	Maximize2,
 	Edit2,
 	Trash2,
-	ChevronLeft,
-	ChevronRight,
 } from 'lucide-react'
 import { motion, AnimatePresence } from 'motion/react'
-import type { MedicalRecord, PaginationMeta } from '@lib/supabase-service'
+import type { MedicalRecord } from '@lib/supabase-service'
 import { getAgeDisplay, deleteMedicalRecord, updateMedicalRecordWithLog } from '@lib/supabase-service'
 import { format, parseISO } from 'date-fns'
 import { es } from 'date-fns/locale'
@@ -36,7 +34,6 @@ import { cn } from '@shared/lib/cn'
 import GenerateBiopsyModal from './GenerateBiopsyModal'
 import { generatePDF } from '@shared/utils/pdf-generator'
 import UnifiedCaseModal from './UnifiedCaseModal'
-import { Checkbox } from '@shared/components/ui/checkbox'
 
 interface CasesTableProps {
 	onCaseSelect: (case_: MedicalRecord) => void
@@ -46,8 +43,6 @@ interface CasesTableProps {
 	refetch: () => void
 	isFullscreen: boolean
 	setIsFullscreen: (value: boolean) => void
-	pagination?: PaginationMeta | null
-	onPageChange?: (page: number) => void
 	onSearch?: (term: string) => void
 }
 
@@ -62,8 +57,6 @@ const CasesTable: React.FC<CasesTableProps> = ({
 	refetch,
 	isFullscreen,
 	setIsFullscreen,
-	pagination,
-	onPageChange,
 	onSearch
 }) => {
 	const { user } = useAuth()
@@ -74,7 +67,6 @@ const CasesTable: React.FC<CasesTableProps> = ({
 	const [examTypeFilter, setExamTypeFilter] = useState<string>('all')
 	const [sortField, setSortField] = useState<SortField>('created_at')
 	const [sortDirection, setSortDirection] = useState<SortDirection>('desc')
-	const [rowLimit, setRowLimit] = useState<number>(20)
 	const [selectedCaseForGenerate, setSelectedCaseForGenerate] = useState<MedicalRecord | null>(null)
 	const [isGenerateModalOpen, setIsGenerateModalOpen] = useState(false)
 	const [isDownloading, setIsDownloading] = useState<string | null>(null)
@@ -159,18 +151,28 @@ const CasesTable: React.FC<CasesTableProps> = ({
 		}
 	}
 
+	// Handle search input change
 	const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-		const value = e.target.value;
-		setSearchTerm(value);
-		
-		// If onSearch prop is provided, call it with the search term
-		if (onSearch) {
-			onSearch(value);
+		setSearchTerm(e.target.value)
+	}
+
+	// Handle search on Enter key
+	const handleSearchKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+		if (e.key === 'Enter' && onSearch) {
+			onSearch(searchTerm)
 		}
 	}
 
-	const handlePdfReadyToggle = (checked: boolean) => {
-		setShowPdfReadyOnly(checked);
+	// Handle search button click
+	const handleSearchClick = () => {
+		if (onSearch) {
+			onSearch(searchTerm)
+		}
+	}
+
+	// Handle PDF filter toggle
+	const handlePdfFilterToggle = () => {
+		setShowPdfReadyOnly(!showPdfReadyOnly)
 	}
 
 	const filteredAndSortedCases = useMemo(() => {
@@ -183,16 +185,7 @@ const CasesTable: React.FC<CasesTableProps> = ({
 			// Skip if case_ is null or undefined
 			if (!case_) return false
 
-			const matchesSearch =
-				(case_.full_name?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
-				(case_.id || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
-				(case_.id_number?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
-				(case_.exam_type?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
-				(case_.treating_doctor?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
-				(case_.branch?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
-				(case_.code && case_.code.toLowerCase().includes(searchTerm.toLowerCase()))
-
-			// Updated filter logic to handle only "Completado" and "Incompleto"
+			// Status filter
 			let matchesStatus = true
 			if (statusFilter === 'Completado') {
 				matchesStatus = case_.payment_status === 'Completado'
@@ -209,11 +202,13 @@ const CasesTable: React.FC<CasesTableProps> = ({
 			const matchesExamType = examTypeFilter === 'all' || case_.exam_type === examTypeFilter
 
 			// PDF ready filter
-			const matchesPdfReady = !showPdfReadyOnly || (
-				case_.exam_type?.toLowerCase() === 'biopsia' && !!case_.diagnostico
-			)
+			let matchesPdfReady = true
+			if (showPdfReadyOnly) {
+				const isBiopsyCase = case_.exam_type?.toLowerCase() === 'biopsia'
+				matchesPdfReady = isBiopsyCase && !!case_.diagnostico
+			}
 
-			return matchesSearch && matchesStatus && matchesBranch && matchesExamType && matchesPdfReady
+			return matchesStatus && matchesBranch && matchesExamType && matchesPdfReady
 		})
 
 		filtered.sort((a, b) => {
@@ -237,13 +232,8 @@ const CasesTable: React.FC<CasesTableProps> = ({
 			}
 		})
 
-		// Apply row limit if pagination is not provided
-		if (!pagination && rowLimit > 0) {
-			return filtered.slice(0, rowLimit)
-		}
-
 		return filtered
-	}, [cases, searchTerm, statusFilter, branchFilter, examTypeFilter, sortField, sortDirection, rowLimit, pagination, showPdfReadyOnly])
+	}, [cases, statusFilter, branchFilter, examTypeFilter, sortField, sortDirection, showPdfReadyOnly])
 
 	const SortIcon = ({ field }: { field: SortField }) => {
 		if (sortField !== field) {
@@ -429,9 +419,18 @@ const CasesTable: React.FC<CasesTableProps> = ({
 									placeholder="Buscar por nombre, código, cédula, estudio o médico..."
 									value={searchTerm}
 									onChange={handleSearchChange}
+									onKeyDown={handleSearchKeyDown}
 									className="w-full pl-10 pr-4 py-2 border border-input rounded-lg focus:ring-2 focus:ring-primary dark:bg-background dark:text-white text-sm"
 								/>
 							</div>
+
+							{/* Search Button */}
+							<Button 
+								onClick={handleSearchClick}
+								className="whitespace-nowrap"
+							>
+								Buscar
+							</Button>
 
 							{/* Status Filter - Updated with only Completado and Incompleto */}
 							<div className="flex items-center gap-2">
@@ -477,78 +476,23 @@ const CasesTable: React.FC<CasesTableProps> = ({
 								</select>
 							</div>
 
-							{/* PDF Ready Only Checkbox */}
+							{/* PDF Ready Filter */}
 							<div className="flex items-center gap-2">
-								<div className="flex items-center space-x-2">
-									<Checkbox 
-										id="pdfReady" 
+								<label className="flex items-center gap-2 cursor-pointer">
+									<input
+										type="checkbox"
 										checked={showPdfReadyOnly}
-										onCheckedChange={handlePdfReadyToggle}
+										onChange={handlePdfFilterToggle}
+										className="rounded border-gray-300 text-primary focus:ring-primary"
 									/>
-									<label
-										htmlFor="pdfReady"
-										className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 flex items-center gap-1"
-									>
-										<Download className="h-4 w-4 text-gray-500" />
-										Solo PDF disponibles
-									</label>
-								</div>
+									<span className="text-sm">Solo PDF disponibles</span>
+								</label>
 							</div>
-						</div>
-
-						{/* Row Limit Selector */}
-						<div className="flex items-center gap-2">
-							<label htmlFor="rowLimit" className="text-sm font-medium text-gray-700 dark:text-gray-300">
-								Mostrar:
-							</label>
-							<select
-								id="rowLimit"
-								value={rowLimit}
-								onChange={(e) => setRowLimit(Number(e.target.value))}
-								className="px-3 py-1 border border-input rounded-lg focus:ring-2 focus:ring-primary dark:bg-background dark:text-white text-sm"
-							>
-								<option value={5}>Últimos 5 casos</option>
-								<option value={10}>Últimos 10 casos</option>
-								<option value={20}>Últimos 20 casos</option>
-								<option value={50}>Últimos 50 casos</option>
-								<option value={0}>Todos los casos</option>
-							</select>
 						</div>
 
 						{/* Results count */}
 						<div className="text-sm text-gray-600 dark:text-gray-400">
-							Mostrando {filteredAndSortedCases.length} de{' '}
-							{
-								cases.filter((case_) => {
-									if (!case_) return false;
-									
-									const matchesSearch =
-										(case_.full_name?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
-										(case_.id || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
-										(case_.id_number?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
-										(case_.exam_type?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
-										(case_.treating_doctor?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
-										(case_.branch?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
-										(case_.code && case_.code.toLowerCase().includes(searchTerm.toLowerCase()))
-
-									let matchesStatus = true
-									if (statusFilter === 'Completado') {
-										matchesStatus = case_.payment_status === 'Completado'
-									} else if (statusFilter === 'Incompleto') {
-										matchesStatus = case_.payment_status !== 'Completado'
-									}
-
-									const matchesBranch = branchFilter === 'all' || case_.branch === branchFilter
-									const matchesExamType = examTypeFilter === 'all' || case_.exam_type === examTypeFilter
-									
-									const matchesPdfReady = !showPdfReadyOnly || (
-										case_.exam_type?.toLowerCase() === 'biopsia' && !!case_.diagnostico
-									)
-
-									return matchesSearch && matchesStatus && matchesBranch && matchesExamType && matchesPdfReady
-								}).length
-							}{' '}
-							casos
+							Mostrando {filteredAndSortedCases.length} de {cases.length} casos
 						</div>
 
 						{/* Close button */}
@@ -769,116 +713,6 @@ const CasesTable: React.FC<CasesTableProps> = ({
 						)}
 					</div>
 				</div>
-
-				{/* Pagination Controls */}
-				{pagination && pagination.totalPages > 1 && (
-					<div className="flex justify-between items-center p-4 border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-background">
-						<div className="text-sm text-gray-600 dark:text-gray-400">
-							Mostrando página {pagination.currentPage + 1} de {pagination.totalPages} ({pagination.totalCount} registros totales)
-						</div>
-						<div className="flex gap-2">
-							<Button
-								variant="outline"
-								size="sm"
-								onClick={() => onPageChange && onPageChange(pagination.currentPage - 1)}
-								disabled={!pagination.hasPreviousPage}
-								className="flex items-center gap-1"
-							>
-								<ChevronLeft className="h-4 w-4" />
-								Anterior
-							</Button>
-							
-							{/* Page number indicators */}
-							<div className="flex items-center gap-1">
-								{pagination.totalPages <= 7 ? (
-									// Show all pages if 7 or fewer
-									Array.from({ length: pagination.totalPages }, (_, i) => (
-										<Button
-											key={i}
-											variant={pagination.currentPage === i ? "default" : "outline"}
-											size="sm"
-											onClick={() => onPageChange && onPageChange(i)}
-											className="w-8 h-8 p-0"
-										>
-											{i + 1}
-										</Button>
-									))
-								) : (
-									// Show limited pages with ellipsis for many pages
-									<>
-										{/* First page */}
-										<Button
-											variant={pagination.currentPage === 0 ? "default" : "outline"}
-											size="sm"
-											onClick={() => onPageChange && onPageChange(0)}
-											className="w-8 h-8 p-0"
-										>
-											1
-										</Button>
-										
-										{/* Ellipsis or page numbers */}
-										{pagination.currentPage > 2 && (
-											<span className="px-1 text-gray-500 dark:text-gray-400">...</span>
-										)}
-										
-										{/* Pages around current page */}
-										{Array.from(
-											{ length: Math.min(3, pagination.totalPages) },
-											(_, i) => {
-												const pageNum = Math.max(
-													1,
-													Math.min(
-														pagination.currentPage - 1 + i,
-														pagination.totalPages - 2
-													)
-												);
-												return pageNum;
-											}
-										)
-											.filter((value, index, self) => self.indexOf(value) === index) // Remove duplicates
-											.map(pageNum => (
-												<Button
-													key={pageNum}
-													variant={pagination.currentPage === pageNum ? "default" : "outline"}
-													size="sm"
-													onClick={() => onPageChange && onPageChange(pageNum)}
-													className="w-8 h-8 p-0"
-												>
-													{pageNum + 1}
-												</Button>
-											))}
-										
-										{/* Ellipsis or page numbers */}
-										{pagination.currentPage < pagination.totalPages - 3 && (
-											<span className="px-1 text-gray-500 dark:text-gray-400">...</span>
-										)}
-										
-										{/* Last page */}
-										<Button
-											variant={pagination.currentPage === pagination.totalPages - 1 ? "default" : "outline"}
-											size="sm"
-											onClick={() => onPageChange && onPageChange(pagination.totalPages - 1)}
-											className="w-8 h-8 p-0"
-										>
-											{pagination.totalPages}
-										</Button>
-									</>
-								)}
-							</div>
-							
-							<Button
-								variant="outline"
-								size="sm"
-								onClick={() => onPageChange && onPageChange(pagination.currentPage + 1)}
-								disabled={!pagination.hasNextPage}
-								className="flex items-center gap-1"
-							>
-								Siguiente
-								<ChevronRight className="h-4 w-4" />
-							</Button>
-						</div>
-					</div>
-				)}
 			</div>
 		)
 	}
@@ -899,9 +733,18 @@ const CasesTable: React.FC<CasesTableProps> = ({
 									placeholder="Buscar por nombre, código, cédula, estudio o médico..."
 									value={searchTerm}
 									onChange={handleSearchChange}
+									onKeyDown={handleSearchKeyDown}
 									className="w-full pl-10 pr-4 py-2 border border-input rounded-lg focus:ring-2 focus:ring-primary dark:bg-background dark:text-white text-sm"
 								/>
 							</div>
+
+							{/* Search Button */}
+							<Button 
+								onClick={handleSearchClick}
+								className="whitespace-nowrap"
+							>
+								Buscar
+							</Button>
 
 							{/* Status Filter - Updated with only Completado and Incompleto */}
 							<div className="flex items-center gap-2">
@@ -947,22 +790,17 @@ const CasesTable: React.FC<CasesTableProps> = ({
 								</select>
 							</div>
 							
-							{/* PDF Ready Only Checkbox */}
+							{/* PDF Ready Filter */}
 							<div className="flex items-center gap-2">
-								<div className="flex items-center space-x-2">
-									<Checkbox 
-										id="pdfReady" 
+								<label className="flex items-center gap-2 cursor-pointer">
+									<input
+										type="checkbox"
 										checked={showPdfReadyOnly}
-										onCheckedChange={handlePdfReadyToggle}
+										onChange={handlePdfFilterToggle}
+										className="rounded border-gray-300 text-primary focus:ring-primary"
 									/>
-									<label
-										htmlFor="pdfReady"
-										className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 flex items-center gap-1"
-									>
-										<Download className="h-4 w-4 text-gray-500" />
-										Solo PDF disponibles
-									</label>
-								</div>
+									<span className="text-sm">Solo PDF disponibles</span>
+								</label>
 							</div>
 							
 							{/* Fullscreen Button */}
@@ -975,59 +813,9 @@ const CasesTable: React.FC<CasesTableProps> = ({
 							</button>
 						</div>
 
-						{/* Row Limit Selector */}
-						<div className="flex items-center gap-2">
-							<label htmlFor="rowLimit" className="text-sm font-medium text-gray-700 dark:text-gray-300">
-								Mostrar:
-							</label>
-							<select
-								id="rowLimit"
-								value={rowLimit}
-								onChange={(e) => setRowLimit(Number(e.target.value))}
-								className="px-3 py-1 border border-input rounded-lg focus:ring-2 focus:ring-primary dark:bg-background dark:text-white text-sm"
-							>
-								<option value={5}>Últimos 5 casos</option>
-								<option value={10}>Últimos 10 casos</option>
-								<option value={20}>Últimos 20 casos</option>
-								<option value={50}>Últimos 50 casos</option>
-								<option value={0}>Todos los casos</option>
-							</select>
-						</div>
-
 						{/* Results count */}
 						<div className="text-sm text-gray-600 dark:text-gray-400">
-							Mostrando {filteredAndSortedCases.length} de{' '}
-							{
-								cases.filter((case_) => {
-									if (!case_) return false;
-									
-									const matchesSearch =
-										(case_.full_name?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
-										(case_.id || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
-										(case_.id_number?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
-										(case_.exam_type?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
-										(case_.treating_doctor?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
-										(case_.branch?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
-										(case_.code && case_.code.toLowerCase().includes(searchTerm.toLowerCase()))
-
-									let matchesStatus = true
-									if (statusFilter === 'Completado') {
-										matchesStatus = case_.payment_status === 'Completado'
-									} else if (statusFilter === 'Incompleto') {
-										matchesStatus = case_.payment_status !== 'Completado'
-									}
-
-									const matchesBranch = branchFilter === 'all' || case_.branch === branchFilter
-									const matchesExamType = examTypeFilter === 'all' || case_.exam_type === examTypeFilter
-									
-									const matchesPdfReady = !showPdfReadyOnly || (
-										case_.exam_type?.toLowerCase() === 'biopsia' && !!case_.diagnostico
-									)
-
-									return matchesSearch && matchesStatus && matchesBranch && matchesExamType && matchesPdfReady
-								}).length
-							}{' '}
-							casos
+							Mostrando {filteredAndSortedCases.length} de {cases.length} casos
 						</div>
 					</div>
 				</div>
@@ -1241,116 +1029,6 @@ const CasesTable: React.FC<CasesTableProps> = ({
 						</div>
 					</div>
 				</div>
-
-				{/* Pagination Controls */}
-				{pagination && pagination.totalPages > 1 && (
-					<div className="flex justify-between items-center p-4 border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-background">
-						<div className="text-sm text-gray-600 dark:text-gray-400">
-							Mostrando página {pagination.currentPage + 1} de {pagination.totalPages} ({pagination.totalCount} registros totales)
-						</div>
-						<div className="flex gap-2">
-							<Button
-								variant="outline"
-								size="sm"
-								onClick={() => onPageChange && onPageChange(pagination.currentPage - 1)}
-								disabled={!pagination.hasPreviousPage}
-								className="flex items-center gap-1"
-							>
-								<ChevronLeft className="h-4 w-4" />
-								Anterior
-							</Button>
-							
-							{/* Page number indicators */}
-							<div className="flex items-center gap-1">
-								{pagination.totalPages <= 7 ? (
-									// Show all pages if 7 or fewer
-									Array.from({ length: pagination.totalPages }, (_, i) => (
-										<Button
-											key={i}
-											variant={pagination.currentPage === i ? "default" : "outline"}
-											size="sm"
-											onClick={() => onPageChange && onPageChange(i)}
-											className="w-8 h-8 p-0"
-										>
-											{i + 1}
-										</Button>
-									))
-								) : (
-									// Show limited pages with ellipsis for many pages
-									<>
-										{/* First page */}
-										<Button
-											variant={pagination.currentPage === 0 ? "default" : "outline"}
-											size="sm"
-											onClick={() => onPageChange && onPageChange(0)}
-											className="w-8 h-8 p-0"
-										>
-											1
-										</Button>
-										
-										{/* Ellipsis or page numbers */}
-										{pagination.currentPage > 2 && (
-											<span className="px-1 text-gray-500 dark:text-gray-400">...</span>
-										)}
-										
-										{/* Pages around current page */}
-										{Array.from(
-											{ length: Math.min(3, pagination.totalPages) },
-											(_, i) => {
-												const pageNum = Math.max(
-													1,
-													Math.min(
-														pagination.currentPage - 1 + i,
-														pagination.totalPages - 2
-													)
-												);
-												return pageNum;
-											}
-										)
-											.filter((value, index, self) => self.indexOf(value) === index) // Remove duplicates
-											.map(pageNum => (
-												<Button
-													key={pageNum}
-													variant={pagination.currentPage === pageNum ? "default" : "outline"}
-													size="sm"
-													onClick={() => onPageChange && onPageChange(pageNum)}
-													className="w-8 h-8 p-0"
-												>
-													{pageNum + 1}
-												</Button>
-											))}
-										
-										{/* Ellipsis or page numbers */}
-										{pagination.currentPage < pagination.totalPages - 3 && (
-											<span className="px-1 text-gray-500 dark:text-gray-400">...</span>
-										)}
-										
-										{/* Last page */}
-										<Button
-											variant={pagination.currentPage === pagination.totalPages - 1 ? "default" : "outline"}
-											size="sm"
-											onClick={() => onPageChange && onPageChange(pagination.totalPages - 1)}
-											className="w-8 h-8 p-0"
-										>
-											{pagination.totalPages}
-										</Button>
-									</>
-								)}
-							</div>
-							
-							<Button
-								variant="outline"
-								size="sm"
-								onClick={() => onPageChange && onPageChange(pagination.currentPage + 1)}
-								disabled={!pagination.hasNextPage}
-								className="flex items-center gap-1"
-							>
-								Siguiente
-								<ChevronRight className="h-4 w-4" />
-							</Button>
-						</div>
-					</div>
-				)}
 			</div>
 
 			{/* Generate Biopsy Modal */}
