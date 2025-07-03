@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@shared/components/ui/
 import { searchClientes, type MedicalRecord } from '@lib/supabase-service'
 import { useUserProfile } from '@shared/hooks/useUserProfile'
 import { Button } from '@shared/components/ui/button'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@shared/components/ui/select'
 
 interface RecordsSectionProps {
 	cases: MedicalRecord[]
@@ -32,6 +33,7 @@ export const RecordsSection: React.FC<RecordsSectionProps> = ({
 	const [filteredCases, setFilteredCases] = useState<MedicalRecord[]>(cases || [])
 	const [showPendingOnly, setShowPendingOnly] = useState(false)
 	const [selectedExamType, setSelectedExamType] = useState<string | null>(null)
+	const [itemsPerPage, setItemsPerPage] = useState(25)
 
 	// Filter cases by assigned branch if user is an employee with assigned branch
 	useEffect(() => {
@@ -74,9 +76,9 @@ export const RecordsSection: React.FC<RecordsSectionProps> = ({
 	}
 
 	// Query for search results (if needed for separate search functionality)
-	const { data: searchResults } = useQuery({
-		queryKey: ['clientes-search', searchTerm],
-		queryFn: () => searchClientes(searchTerm),
+	const { data: searchResults, isLoading: isSearching } = useQuery({
+		queryKey: ['clientes-search', searchTerm, itemsPerPage],
+		queryFn: () => searchClientes(searchTerm, itemsPerPage, 0),
 		enabled: !!searchTerm,
 	})
 
@@ -177,15 +179,34 @@ export const RecordsSection: React.FC<RecordsSectionProps> = ({
 					</p>
 				</div>
 				
-				{/* Fullscreen button */}
-				<Button
-					onClick={handleToggleFullscreen}
-					variant="outline"
-					className="flex items-center gap-2"
-				>
-					<Maximize2 className="w-4 h-4" />
-					{isFullscreen ? "Salir de pantalla completa" : "Pantalla completa"}
-				</Button>
+				<div className="flex items-center gap-2">
+					<Select 
+						value={itemsPerPage.toString()} 
+						onValueChange={(value) => setItemsPerPage(parseInt(value))}
+					>
+						<SelectTrigger className="w-40">
+							<SelectValue placeholder="Registros por página" />
+						</SelectTrigger>
+						<SelectContent>
+							<SelectItem value="25">25 por página</SelectItem>
+							<SelectItem value="50">50 por página</SelectItem>
+							<SelectItem value="100">100 por página</SelectItem>
+							<SelectItem value="500">500 por página</SelectItem>
+							<SelectItem value="1000">1000 por página</SelectItem>
+							<SelectItem value="0">Todos los registros</SelectItem>
+						</SelectContent>
+					</Select>
+					
+					{/* Fullscreen button */}
+					<Button
+						onClick={handleToggleFullscreen}
+						variant="outline"
+						className="flex items-center gap-2"
+					>
+						<Maximize2 className="w-4 h-4" />
+						{isFullscreen ? "Salir de pantalla completa" : "Pantalla completa"}
+					</Button>
+				</div>
 			</div>
 
 			{/* Statistics cards */}
@@ -279,8 +300,11 @@ export const RecordsSection: React.FC<RecordsSectionProps> = ({
 
 			{/* Results count for search */}
 			{searchTerm && records && (
-				<div className="text-sm text-muted-foreground">
+				<div className="text-sm text-muted-foreground mb-4">
 					Se encontraron {records.length} resultado{records.length !== 1 ? 's' : ''}
+					{searchResults?.count && searchResults.count > records.length && (
+						<> (mostrando {records.length} de {searchResults.count})</>
+					)}
 				</div>
 			)}
 
@@ -309,7 +333,7 @@ export const RecordsSection: React.FC<RecordsSectionProps> = ({
 			<CasesTable
 				onCaseSelect={handleCaseSelect}
 				cases={records || []}
-				isLoading={isLoading}
+				isLoading={isLoading || isSearching}
 				error={error}
 				refetch={refetch}
 				isFullscreen={isFullscreen}

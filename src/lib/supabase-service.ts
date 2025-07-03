@@ -325,18 +325,42 @@ export const insertMedicalRecord = async (
 	}
 }
 
-export const getMedicalRecords = async (limit = 50, offset = 0) => {
+export const getMedicalRecords = async (pageSize = 100, pageNumber = 0) => {
 	try {
+		// Calculate the start and end indices for pagination
+		const start = pageNumber * pageSize;
+		
+		// First get the total count of records
+		const { count, error: countError } = await supabase
+			.from(TABLE_NAME)
+			.select('*', { count: 'exact', head: true });
+			
+		if (countError) {
+			console.error(`Error counting records in ${TABLE_NAME}:`, countError);
+			return { data: null, error: countError, count: 0 };
+		}
+		
+		// If pageSize is 0, return all records (no pagination)
+		if (pageSize === 0) {
+			const { data, error } = await supabase
+				.from(TABLE_NAME)
+				.select('*')
+				.order('created_at', { ascending: false });
+				
+			return { data, error, count };
+		}
+		
+		// Otherwise, use pagination
 		const { data, error } = await supabase
 			.from(TABLE_NAME)
 			.select('*')
 			.order('created_at', { ascending: false })
-			.range(offset, offset + limit - 1)
-
-		return { data, error }
+			.range(start, start + pageSize - 1);
+			
+		return { data, error, count };
 	} catch (error) {
-		console.error(`Error fetching ${TABLE_NAME}:`, error)
-		return { data: null, error }
+		console.error(`Error fetching ${TABLE_NAME}:`, error);
+		return { data: null, error, count: 0 };
 	}
 }
 
@@ -351,18 +375,45 @@ export const getMedicalRecordById = async (id: string) => {
 	}
 }
 
-export const searchMedicalRecords = async (searchTerm: string) => {
+export const searchMedicalRecords = async (searchTerm: string, pageSize = 100, pageNumber = 0) => {
 	try {
+		// Calculate the start and end indices for pagination
+		const start = pageNumber * pageSize;
+		
+		// First get the total count of matching records
+		const { count, error: countError } = await supabase
+			.from(TABLE_NAME)
+			.select('*', { count: 'exact', head: true })
+			.or(`full_name.ilike.%${searchTerm}%,id_number.ilike.%${searchTerm}%,phone.ilike.%${searchTerm}%,code.ilike.%${searchTerm}%`);
+			
+		if (countError) {
+			console.error(`Error counting search results in ${TABLE_NAME}:`, countError);
+			return { data: null, error: countError, count: 0 };
+		}
+		
+		// If pageSize is 0, return all matching records (no pagination)
+		if (pageSize === 0) {
+			const { data, error } = await supabase
+				.from(TABLE_NAME)
+				.select('*')
+				.or(`full_name.ilike.%${searchTerm}%,id_number.ilike.%${searchTerm}%,phone.ilike.%${searchTerm}%,code.ilike.%${searchTerm}%`)
+				.order('created_at', { ascending: false });
+				
+			return { data, error, count };
+		}
+		
+		// Otherwise, use pagination
 		const { data, error } = await supabase
 			.from(TABLE_NAME)
 			.select('*')
 			.or(`full_name.ilike.%${searchTerm}%,id_number.ilike.%${searchTerm}%,phone.ilike.%${searchTerm}%,code.ilike.%${searchTerm}%`)
 			.order('created_at', { ascending: false })
-
-		return { data, error }
+			.range(start, start + pageSize - 1);
+			
+		return { data, error, count };
 	} catch (error) {
-		console.error(`Error searching ${TABLE_NAME}:`, error)
-		return { data: null, error }
+		console.error(`Error searching ${TABLE_NAME}:`, error);
+		return { data: null, error, count: 0 };
 	}
 }
 
@@ -522,34 +573,85 @@ export const saveChangeLog = async (
 }
 
 // Function to get change logs for a medical record
-export const getChangeLogsForRecord = async (medicalRecordId: string) => {
+export const getChangeLogsForRecord = async (medicalRecordId: string, pageSize = 100, pageNumber = 0) => {
 	try {
+		// Calculate the start and end indices for pagination
+		const start = pageNumber * pageSize;
+		
+		// First get the total count of logs
+		const { count, error: countError } = await supabase
+			.from(CHANGE_LOG_TABLE)
+			.select('*', { count: 'exact', head: true })
+			.eq('medical_record_id', medicalRecordId);
+			
+		if (countError) {
+			console.error(`Error counting change logs for record ${medicalRecordId}:`, countError);
+			return { data: null, error: countError, count: 0 };
+		}
+		
+		// If pageSize is 0, return all logs (no pagination)
+		if (pageSize === 0) {
+			const { data, error } = await supabase
+				.from(CHANGE_LOG_TABLE)
+				.select('*')
+				.eq('medical_record_id', medicalRecordId)
+				.order('changed_at', { ascending: false });
+				
+			return { data, error, count };
+		}
+		
+		// Otherwise, use pagination
 		const { data, error } = await supabase
 			.from(CHANGE_LOG_TABLE)
 			.select('*')
 			.eq('medical_record_id', medicalRecordId)
 			.order('changed_at', { ascending: false })
-
-		return { data, error }
+			.range(start, start + pageSize - 1);
+			
+		return { data, error, count };
 	} catch (error) {
-		console.error(`Error fetching change logs for record ${medicalRecordId}:`, error)
-		return { data: null, error }
+		console.error(`Error fetching change logs for record ${medicalRecordId}:`, error);
+		return { data: null, error, count: 0 };
 	}
 }
 
 // Function to get all change logs with pagination
-export const getAllChangeLogs = async (limit = 50, offset = 0) => {
+export const getAllChangeLogs = async (pageSize = 100, pageNumber = 0) => {
 	try {
+		// Calculate the start and end indices for pagination
+		const start = pageNumber * pageSize;
+		
+		// First get the total count of logs
+		const { count, error: countError } = await supabase
+			.from(CHANGE_LOG_TABLE)
+			.select('*', { count: 'exact', head: true });
+			
+		if (countError) {
+			console.error('Error counting all change logs:', countError);
+			return { data: null, error: countError, count: 0 };
+		}
+		
+		// If pageSize is 0, return all logs (no pagination)
+		if (pageSize === 0) {
+			const { data, error } = await supabase
+				.from(CHANGE_LOG_TABLE)
+				.select('*, medical_records_clean!inner(id, full_name, code)')
+				.order('changed_at', { ascending: false });
+				
+			return { data, error, count };
+		}
+		
+		// Otherwise, use pagination
 		const { data, error } = await supabase
 			.from(CHANGE_LOG_TABLE)
 			.select('*, medical_records_clean!inner(id, full_name, code)')
 			.order('changed_at', { ascending: false })
-			.range(offset, offset + limit - 1)
-
-		return { data, error }
+			.range(start, start + pageSize - 1);
+			
+		return { data, error, count };
 	} catch (error) {
-		console.error('Error fetching all change logs:', error)
-		return { data: null, error }
+		console.error('Error fetching all change logs:', error);
+		return { data: null, error, count: 0 };
 	}
 }
 
