@@ -71,11 +71,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 		} = supabase.auth.onAuthStateChange(async (event, currentSession) => {
 			console.log('Auth state changed:', event, currentSession?.user?.email)
 
-			// Clear invalid session data on sign out
-			if (event === 'SIGNED_OUT') {
-				await supabase.auth.signOut()
-			}
-
 			setSession(currentSession)
 			setUser(currentSession?.user ?? null)
 			setLoading(false)
