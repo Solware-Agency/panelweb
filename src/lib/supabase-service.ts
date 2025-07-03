@@ -420,6 +420,12 @@ export const deleteMedicalRecord = async (id: string) => {
 		// Get record details before deleting for the log
 		const { data: recordToDelete, error: fetchError } = await getMedicalRecordById(id)
 		
+		// If record doesn't exist, treat as successful deletion
+		if (fetchError && fetchError.code === 'PGRST116') {
+			console.log(`⚠️ Record ${id} not found, treating as already deleted`)
+			return { data: null, error: null }
+		}
+		
 		if (fetchError) {
 			console.error(`❌ Error fetching record before deletion:`, fetchError)
 			return { data: null, error: fetchError }
@@ -450,15 +456,21 @@ export const deleteMedicalRecord = async (id: string) => {
 		}
 		
 		// Perform the actual deletion
-		const { data, error } = await supabase.from(TABLE_NAME).delete().eq('id', id).select().single()
+		const { data, error } = await supabase.from(TABLE_NAME).delete().eq('id', id).select()
 
 		if (error) {
 			console.error(`❌ Error deleting record from ${TABLE_NAME}:`, error)
 			return { data: null, error }
 		}
 
-		console.log(`✅ Medical record deleted successfully from ${TABLE_NAME}:`, data)
-		return { data, error: null }
+		// Check if any records were deleted
+		if (!data || data.length === 0) {
+			console.log(`⚠️ No records were deleted for ID ${id} - record may not exist`)
+			return { data: null, error: null }
+		}
+
+		console.log(`✅ Medical record deleted successfully from ${TABLE_NAME}:`, data[0])
+		return { data: data[0], error: null }
 	} catch (error) {
 		console.error(`❌ Error deleting record from ${TABLE_NAME}:`, error)
 		return { data: null, error }
