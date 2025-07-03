@@ -35,7 +35,7 @@ export const exportElementToPdf = async (
   const {
     title = 'Reporte',
     subtitle = '',
-    filename = `reporte-${format(new Date(), 'yyyy-MM-dd-HHmm')}`,
+    filename = reporte-${format(new Date(), 'yyyy-MM-dd-HHmm')},
     orientation = 'portrait',
     pageSize = 'a4',
     includeDate = true,
@@ -92,7 +92,7 @@ export const exportElementToPdf = async (
         const dateStr = format(new Date(), 'PPP', { locale: es })
         pdf.setFontSize(10)
         pdf.setTextColor(100, 100, 100)
-        pdf.text(`Fecha: ${dateStr}`, pdf.internal.pageSize.getWidth() - 60, 20)
+        pdf.text(Fecha: ${dateStr}, pdf.internal.pageSize.getWidth() - 60, 20)
       }
 
       // Add a separator line
@@ -146,11 +146,11 @@ export const exportElementToPdf = async (
       pdf.text(footerText, 14, footerY)
       
       // Add page number
-      pdf.text(`Página 1 de 1`, pageWidth - 30, footerY)
+      pdf.text(Página 1 de 1, pageWidth - 30, footerY)
     }
 
     // Save the PDF
-    pdf.save(`${filename}.pdf`)
+    pdf.save(${filename}.pdf)
     
     return true
   } catch (error) {
@@ -170,7 +170,7 @@ export const exportTableToPdf = (
   const {
     title = 'Reporte',
     subtitle = '',
-    filename = `reporte-${format(new Date(), 'yyyy-MM-dd-HHmm')}`,
+    filename = reporte-${format(new Date(), 'yyyy-MM-dd-HHmm')},
     orientation = 'portrait',
     pageSize = 'a4',
     includeDate = true,
@@ -178,108 +178,104 @@ export const exportTableToPdf = (
     includeFooter = true,
     footerText = 'Generado por el sistema de registros médicos',
     headerText = 'Sistema de Registros Médicos',
-  } = options;
+  } = options
 
   try {
+    // Create a new jsPDF instance
     const pdf = new jsPDF({
       orientation,
       unit: 'mm',
       format: pageSize,
-    });
+    })
 
-    const pageWidth = pdf.internal.pageSize.getWidth();
-    const pageHeight = pdf.internal.pageSize.getHeight();
-    const marginLeft = 14;
-    const marginRight = 14;
-    const usableWidth = pageWidth - marginLeft - marginRight;
-
+    // Set document properties
     pdf.setProperties({
       title: title,
       subject: subtitle,
       author: 'Sistema de Registros Médicos',
       creator: 'Sistema de Registros Médicos',
-    });
+    })
 
-    // Header
+    // Add header
     if (includeHeader) {
-      const headerY = 20;
-
+      // Add logo or header image if provided
       if (options.headerImageUrl) {
-        pdf.addImage(options.headerImageUrl, 'JPEG', marginLeft, 10, 30, 15);
-        pdf.setFontSize(18);
-        pdf.setTextColor(33, 33, 33);
-        pdf.text(headerText, marginLeft + 35, headerY);
+        pdf.addImage(options.headerImageUrl, 'JPEG', 14, 10, 30, 15)
+        pdf.setFontSize(18)
+        pdf.setTextColor(33, 33, 33)
+        pdf.text(headerText, 50, 20)
       } else {
-        pdf.setFontSize(18);
-        pdf.setTextColor(33, 33, 33);
-        pdf.text(headerText, pageWidth / 2, headerY, { align: 'center' });
+        pdf.setFontSize(18)
+        pdf.setTextColor(33, 33, 33)
+        pdf.text(headerText, 14, 20)
       }
 
-      pdf.setFontSize(16);
-      pdf.setTextColor(33, 33, 33);
-      pdf.text(title, pageWidth / 2, headerY + 10, { align: 'center' });
+      // Add title
+      pdf.setFontSize(16)
+      pdf.setTextColor(33, 33, 33)
+      pdf.text(title, 14, 30)
 
+      // Add subtitle if provided
       if (subtitle) {
-        pdf.setFontSize(12);
-        pdf.setTextColor(100, 100, 100);
-        pdf.text(subtitle, pageWidth / 2, headerY + 18, { align: 'center' });
+        pdf.setFontSize(12)
+        pdf.setTextColor(100, 100, 100)
+        pdf.text(subtitle, 14, 38)
       }
 
+      // Add date if requested
       if (includeDate) {
-        const dateStr = format(new Date(), 'PPP', { locale: es });
-        pdf.setFontSize(10);
-        pdf.setTextColor(100, 100, 100);
-        pdf.text(`Fecha: ${dateStr}`, pageWidth - marginRight, headerY, { align: 'right' });
+        const dateStr = format(new Date(), 'PPP', { locale: es })
+        pdf.setFontSize(10)
+        pdf.setTextColor(100, 100, 100)
+        pdf.text(Fecha: ${dateStr}, pdf.internal.pageSize.getWidth() - 60, 20)
       }
 
-      pdf.setDrawColor(200, 200, 200);
-      pdf.line(marginLeft, 42, pageWidth - marginRight, 42);
+      // Add a separator line
+      pdf.setDrawColor(200, 200, 200)
+      pdf.line(14, 42, pdf.internal.pageSize.getWidth() - 14, 42)
     }
 
-    // Tabla
+    // Add table
     pdf.autoTable({
       head: [headers],
       body: data,
-      startY: includeHeader ? 50 : 20,
-      margin: { left: marginLeft, right: marginRight },
-      styles: {
-        fontSize: 10,
-        cellPadding: 3,
-      },
+      startY: includeHeader ? 50 : 10,
+      margin: { top: 10, right: 14, bottom: includeFooter ? 25 : 10, left: 14 },
       headStyles: {
-        fillColor: [63, 81, 181], // Azul
+        fillColor: [128, 0, 128], // Purple color
         textColor: [255, 255, 255],
         fontStyle: 'bold',
       },
       alternateRowStyles: {
         fillColor: [245, 245, 245],
       },
-    });
+      styles: {
+        fontSize: 10,
+        cellPadding: 3,
+      },
+    })
 
-    // Footer centrado
+    // Add footer
     if (includeFooter) {
-      const pageCount = pdf.getNumberOfPages();
+      const pageCount = pdf.getNumberOfPages()
       for (let i = 1; i <= pageCount; i++) {
-        pdf.setPage(i);
-        const footerY = pageHeight - 10;
-
-        pdf.setFontSize(8);
-        pdf.setTextColor(100, 100, 100);
-
-        // Texto centrado
-        pdf.text(footerText, pageWidth / 2, footerY, { align: 'center' });
-
-        // Número de página centrado debajo
-        pdf.text(`Página ${i} de ${pageCount}`, pageWidth / 2, footerY + 5, {
-          align: 'center',
-        });
+        pdf.setPage(i)
+        const footerY = pdf.internal.pageSize.getHeight() - 10
+        pdf.setFontSize(8)
+        pdf.setTextColor(100, 100, 100)
+        pdf.text(footerText, 14, footerY)
+        
+        // Add page number
+        pdf.text(Página ${i} de ${pageCount}, pdf.internal.pageSize.getWidth() - 30, footerY)
       }
     }
 
-    pdf.save(`${filename}.pdf`);
-    return true;
+    // Save the PDF
+    pdf.save(${filename}.pdf)
+    
+    return true
   } catch (error) {
-    console.error('Error exporting to PDF:', error);
-    return false;
+    console.error('Error exporting to PDF:', error)
+    return false
   }
-};
+}
