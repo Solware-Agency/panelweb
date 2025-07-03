@@ -46,6 +46,7 @@ export function MedicalFormContainer() {
 	const form = useForm<FormValues>({
 		resolver: zodResolver(formSchema),
 		defaultValues: getInitialFormValues(),
+		mode: 'onChange', // Validate on change instead of on blur
 	})
 	
 	const { fields, append, remove } = useFieldArray({
@@ -82,6 +83,11 @@ export function MedicalFormContainer() {
 	}, [vesInputValue, exchangeRate])
 
 	useResetForm(form, getInitialFormValues, setUsdValue, setIsSubmitted, toast)
+
+	// Memoize the append handler to prevent unnecessary re-renders
+	const handleAppend = useCallback(() => {
+		append({ method: '', amount: 0, reference: '' });
+	}, [append]);
 
 	// Memoize the submit handler to prevent unnecessary re-renders
 	const onSubmit = useCallback(async (data: FormValues) => {
@@ -195,7 +201,7 @@ export function MedicalFormContainer() {
 						control={formControl}
 						errors={formErrors}
 						fields={fields}
-						append={fields.length < 4 ? append : undefined}
+						append={fields.length < 4 ? handleAppend : undefined}
 						remove={remove}
 						inputStyles={inputStyles}
 						usdValue={usdValue}

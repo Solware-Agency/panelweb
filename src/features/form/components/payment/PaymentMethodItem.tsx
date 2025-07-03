@@ -6,7 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Button } from '@shared/components/ui/button'
 import { Trash2 } from 'lucide-react'
 import { isBolivaresMethod } from '@features/form/lib/payment/payment-utils'
-import { memo, useMemo } from 'react'
+import { memo, useMemo, useCallback } from 'react'
 
 interface PaymentMethodItemProps {
 	control: Control<FormValues>
@@ -31,7 +31,7 @@ export const PaymentMethodItem = memo(({ control, index, remove, inputStyles, fi
 	}, [paymentMethod])
 
 	// Memoize the handler to prevent unnecessary re-renders
-	const handleRemove = useMemo(() => () => remove(index), [remove, index])
+	const handleRemove = useCallback(() => remove(index), [remove, index])
 
 	return (
 		<div className="grid grid-cols-1 md:grid-cols-4 gap-4 items-start bg-secondary p-4 rounded-lg">
@@ -73,14 +73,16 @@ export const PaymentMethodItem = memo(({ control, index, remove, inputStyles, fi
 									{currencySymbol}
 								</span>
 								<Input 
-									type="number" 
-									step="0.01" 
+									type="text" 
+									inputMode="decimal"
 									placeholder="0" 
-									{...field}
 									value={field.value === 0 ? '' : field.value}
 									onChange={(e) => {
-										const value = e.target.value
-										field.onChange(value === '' ? 0 : Number(value))
+										const value = e.target.value;
+										// Only allow numbers and a single decimal point
+										if (value === '' || /^[0-9]*\.?[0-9]*$/.test(value)) {
+											field.onChange(value === '' ? 0 : parseFloat(value));
+										}
 									}}
 									className={`${inputStyles} pl-9`} 
 								/>
