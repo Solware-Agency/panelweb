@@ -2,10 +2,11 @@ import React, { useState, useEffect } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import CasesTable from '@shared/components/cases/CasesTable'
 import CaseDetailPanel from '@shared/components/cases/CaseDetailPanel'
-import { Users, MapPin, Microscope, FileText, Activity } from 'lucide-react'
+import { Users, MapPin, Microscope, FileText, Activity, Maximize2 } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@shared/components/ui/card'
 import { searchClientes, type MedicalRecord } from '@lib/supabase-service'
 import { useUserProfile } from '@shared/hooks/useUserProfile'
+import { Button } from '@shared/components/ui/button'
 
 interface RecordsSectionProps {
 	cases: MedicalRecord[]
@@ -150,6 +151,11 @@ export const RecordsSection: React.FC<RecordsSectionProps> = ({
 		}
 	}
 
+	// Handle toggle fullscreen
+	const handleToggleFullscreen = () => {
+		setIsFullscreen(!isFullscreen)
+	}
+
 	return (
 		<div>
 			{/* Header with search and refresh */}
@@ -170,6 +176,16 @@ export const RecordsSection: React.FC<RecordsSectionProps> = ({
 						{searchTerm ? `Resultados de búsqueda para "${searchTerm}"` : ''}
 					</p>
 				</div>
+				
+				{/* Fullscreen button */}
+				<Button
+					onClick={handleToggleFullscreen}
+					variant="outline"
+					className="flex items-center gap-2"
+				>
+					<Maximize2 className="w-4 h-4" />
+					{isFullscreen ? "Salir de pantalla completa" : "Pantalla completa"}
+				</Button>
 			</div>
 
 			{/* Statistics cards */}
