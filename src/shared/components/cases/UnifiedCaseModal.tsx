@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'motion/react'
 import { 
   X, Save, Trash2, AlertCircle, User, DollarSign, FileText, 
-  Cake, Mail, Phone, Calendar, Microscope, MapPin, Briefcase
+  Cake, Mail, Phone, Calendar as CalendarIcon, Microscope, MapPin, Briefcase
 } from 'lucide-react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -792,7 +792,7 @@ const UnifiedCaseModal: React.FC<UnifiedCaseModalProps> = ({
                             render={({ field }) => (
                               <FormItem className="flex flex-col">
                                 <FormLabel className="flex items-center gap-2">
-                                  <Calendar className="w-4 h-4 text-blue-500" />
+                                  <CalendarIcon className="w-4 h-4 text-blue-500" />
                                   Fecha de Registro
                                 </FormLabel>
                                 <Popover open={isRegistrationDateOpen} onOpenChange={setIsRegistrationDateOpen}>
@@ -805,7 +805,7 @@ const UnifiedCaseModal: React.FC<UnifiedCaseModalProps> = ({
                                           !field.value && 'text-muted-foreground'
                                         )}
                                       >
-                                        <Calendar className="mr-2 h-4 w-4" />
+                                        <CalendarIcon className="mr-2 h-4 w-4" />
                                         {field.value ? (
                                           format(new Date(field.value), 'PPP', { locale: es })
                                         ) : (
