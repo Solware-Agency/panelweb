@@ -342,7 +342,7 @@ export const getMedicalRecords = async (limit = 50, offset = 0) => {
 
 export const getMedicalRecordById = async (id: string) => {
 	try {
-		const { data, error } = await supabase.from(TABLE_NAME).select('*').eq('id', id).single()
+		const { data, error } = await supabase.from(TABLE_NAME).select('*').eq('id', id).maybeSingle()
 
 		return { data, error }
 	} catch (error) {

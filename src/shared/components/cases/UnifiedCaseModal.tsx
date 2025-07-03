@@ -15,7 +15,7 @@ import { Textarea } from '@shared/components/ui/textarea'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@shared/components/ui/select'
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@shared/components/ui/form'
 import { Popover, PopoverContent, PopoverTrigger } from '@shared/components/ui/popover'
-import { Calendar } from '@shared/components/ui/calendar'
+import { Calendar as DatePickerCalendar } from '@shared/components/ui/calendar'
 import { useToast } from '@shared/hooks/use-toast'
 import { useAuth } from '@app/providers/AuthContext'
 import { cn } from '@shared/lib/cn'
@@ -623,7 +623,7 @@ const UnifiedCaseModal: React.FC<UnifiedCaseModalProps> = ({
                                     </FormControl>
                                   </PopoverTrigger>
                                   <PopoverContent className="w-auto p-0 z-[99999999999]">
-                                    <Calendar
+                                    <DatePickerCalendar
                                       mode="single"
                                       selected={field.value || undefined}
                                       onSelect={(date) => {
@@ -815,7 +815,7 @@ const UnifiedCaseModal: React.FC<UnifiedCaseModalProps> = ({
                                     </FormControl>
                                   </PopoverTrigger>
                                   <PopoverContent className="w-auto p-0 z-[99999999999]">
-                                    <Calendar
+                                    <DatePickerCalendar
                                       mode="single"
                                       selected={field.value ? new Date(field.value) : undefined}
                                       onSelect={(date) => {
