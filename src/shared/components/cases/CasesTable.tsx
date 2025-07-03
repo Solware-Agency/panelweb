@@ -12,7 +12,6 @@ import {
 	FileText,
 	Download,
 	Maximize2,
-	History
 } from 'lucide-react'
 import { motion, AnimatePresence } from 'motion/react'
 import type { MedicalRecord } from '@lib/supabase-service'
@@ -386,14 +385,6 @@ const CasesTable: React.FC<CasesTableProps> = ({
 		} finally {
 			setIsDownloading(null)
 		}
-	}
-
-	// Function to view case changelog
-	const handleViewChangelog = (caseId: string) => {
-		// Navigate to changelog filtered by this case
-		console.log('View changelog for case:', caseId)
-		// This would typically navigate to the changelog page with a filter
-		window.location.href = '/dashboard/changelog'
 	}
 
 	const filteredAndSortedCases = useMemo(() => {
@@ -858,7 +849,7 @@ const CasesTable: React.FC<CasesTableProps> = ({
 												</div>
 											</td>
 											<td className="px-4 py-4 text-sm text-gray-900 dark:text-gray-100 text-left">
-												{case_.created_at ? format(new Date(case_.created_at), 'dd/MM/yyyy', { locale: es }) : 'N/A'}
+												{case_.created_at ? new Date(case_.created_at).toLocaleDateString('es-ES') : 'N/A'}
 											</td>
 											<td className="px-4 py-4">
 												<div className="text-left">
@@ -938,16 +929,6 @@ const CasesTable: React.FC<CasesTableProps> = ({
 															<Download className="w-3 h-3" />
 														)}
 														Descargar
-													</button>
-													<button
-														onClick={(e) => {
-															e.stopPropagation()
-															handleViewChangelog(case_.id!)
-														}}
-														className="inline-flex items-center gap-1 px-3 py-1 text-xs font-medium text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-300 transition-colors"
-													>
-														<History className="w-3 h-3" />
-														Historial
 													</button>
 												</div>
 											</td>
@@ -1035,16 +1016,16 @@ const CasesTable: React.FC<CasesTableProps> = ({
 									<option value="citologia">Citología</option>
 								</select>
 							</div>
-
-							{/* Fullscreen Button */}
-							<button
-								onClick={() => setIsFullscreen(true)}
-								className="hidden lg:flex px-3 py-2 border border-input rounded-lg focus:ring-2 focus:ring-primary dark:bg-background dark:text-white text-sm items-center gap-2 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
-							>
-								<Maximize2 className="w-4 h-4" />
-								Expandir
-							</button>
 						</div>
+
+						{/* Fullscreen Button */}
+						<button
+							onClick={() => setIsFullscreen(true)}
+							className="hidden lg:flex px-3 py-2 border border-input rounded-lg focus:ring-2 focus:ring-primary dark:bg-background dark:text-white text-sm items-center gap-2 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+						>
+							<Maximize2 className="w-4 h-4" />
+							Expandir
+						</button>
 
 						{/* Row Limit Selector */}
 						<div className="flex items-center gap-2">
@@ -1202,7 +1183,7 @@ const CasesTable: React.FC<CasesTableProps> = ({
 													</div>
 												</td>
 												<td className="px-4 py-4 text-sm text-gray-900 dark:text-gray-100 text-left">
-													{case_.created_at ? format(new Date(case_.created_at), 'dd/MM/yyyy', { locale: es }) : 'N/A'}
+													{case_.created_at ? new Date(case_.created_at).toLocaleDateString('es-ES') : 'N/A'}
 												</td>
 												<td className="px-4 py-4">
 													<div className="text-left">
