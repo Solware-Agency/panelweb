@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@shared/components/ui/
 import { searchClientes, type MedicalRecord, type PaginationMeta } from '@lib/supabase-service'
 import { useUserProfile } from '@shared/hooks/useUserProfile'
 import { Button } from '@shared/components/ui/button'
+import { Input } from '@shared/components/ui/input'
 
 interface RecordsSectionProps {
 	cases: MedicalRecord[]
@@ -37,6 +38,7 @@ export const RecordsSection: React.FC<RecordsSectionProps> = ({
 	const [showPendingOnly, setShowPendingOnly] = useState(false)
 	const [selectedExamType, setSelectedExamType] = useState<string | null>(null)
 	const [showPdfReadyOnly, setShowPdfReadyOnly] = useState(false)
+	const [isSearching, setIsSearching] = useState(false)
 
 	// Filter cases by assigned branch if user is an employee with assigned branch
 	useEffect(() => {
@@ -64,7 +66,7 @@ export const RecordsSection: React.FC<RecordsSectionProps> = ({
 			)
 		}
 
-		// If showPdfReadyOnly is true, filter to show only cases with downloadable PDF
+		// If showPdfReadyOnly is true, filter to show only cases with PDF ready
 		if (showPdfReadyOnly) {
 			filtered = filtered.filter(c => {
 				const isBiopsyCase = c.exam_type?.toLowerCase() === 'biopsia'
@@ -87,15 +89,24 @@ export const RecordsSection: React.FC<RecordsSectionProps> = ({
 		setTimeout(() => setSelectedCase(null), 300)
 	}
 
-	// Query for search results (if needed for separate search functionality)
-	const { data: searchResults } = useQuery({
+	// Query for search results
+	const { data: searchResults, isLoading: searchLoading, refetch: refetchSearch } = useQuery({
 		queryKey: ['clientes-search', searchTerm],
 		queryFn: () => searchClientes(searchTerm),
-		enabled: !!searchTerm,
+		enabled: false, // Don't run automatically
 	})
 
+	// Handle search submit
+	const handleSearch = async () => {
+		if (!searchTerm.trim()) return;
+		
+		setIsSearching(true);
+		await refetchSearch();
+		setIsSearching(false);
+	}
+
 	// Determine which data to use
-	const records = searchTerm ? searchResults?.data : filteredCases
+	const records = searchTerm && searchResults?.data ? searchResults.data : filteredCases
 
 	// Calculate statistics
 	const stats = React.useMemo(() => {
@@ -188,10 +199,15 @@ export const RecordsSection: React.FC<RecordsSectionProps> = ({
 		setIsFullscreen(!isFullscreen)
 	}
 
-	// Handle page change
-	const handlePageChange = (newPage: number) => {
-		if (onPageChange) {
-			onPageChange(newPage);
+	// Handle search input change
+	const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+		setSearchTerm(e.target.value)
+	}
+
+	// Handle search on Enter key
+	const handleSearchKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+		if (e.key === 'Enter') {
+			handleSearch()
 		}
 	}
 
@@ -211,24 +227,45 @@ export const RecordsSection: React.FC<RecordsSectionProps> = ({
 							</div>
 						)}
 					</div>
-					<p className="text-muted-foreground">
-						{searchTerm ? `Resultados de búsqueda para "${searchTerm}"` : ''}
-					</p>
 				</div>
 				
-				{/* Fullscreen button */}
-				<Button
-					onClick={handleToggleFullscreen}
-					variant="outline"
-					className="flex items-center gap-2"
-				>
-					<Maximize2 className="w-4 h-4" />
-					{isFullscreen ? "Salir de pantalla completa" : "Pantalla completa"}
-				</Button>
+				{/* Search Bar */}
+				<div className="flex w-full sm:w-auto gap-2">
+					<div className="relative flex-1">
+						<Input
+							type="text"
+							placeholder="Buscar por nombre, código, cédula..."
+							value={searchTerm}
+							onChange={handleSearchChange}
+							onKeyDown={handleSearchKeyDown}
+							className="w-full pr-10"
+						/>
+						{isSearching && (
+							<div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+								<div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary"></div>
+							</div>
+						)}
+					</div>
+					<Button 
+						onClick={handleSearch}
+						disabled={isSearching || !searchTerm.trim()}
+						className="whitespace-nowrap"
+					>
+						Buscar
+					</Button>
+					<Button
+						onClick={handleToggleFullscreen}
+						variant="outline"
+						className="flex items-center gap-2 whitespace-nowrap"
+					>
+						<Maximize2 className="w-4 h-4" />
+						{isFullscreen ? "Salir" : "Expandir"}
+					</Button>
+				</div>
 			</div>
 
 			{/* Statistics cards */}
-			{!searchTerm && records && (
+			{records && (
 				<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
 					{/* Pending Cases Card */}
 					<Card 
@@ -337,13 +374,6 @@ export const RecordsSection: React.FC<RecordsSectionProps> = ({
 				</div>
 			)}
 
-			{/* Results count for search */}
-			{searchTerm && records && (
-				<div className="text-sm text-muted-foreground">
-					Se encontraron {records.length} resultado{records.length !== 1 ? 's' : ''}
-				</div>
-			)}
-
 			{/* Active filters indicators */}
 			<div className="flex flex-wrap gap-2 mb-4">
 				{showPendingOnly && (
@@ -372,128 +402,30 @@ export const RecordsSection: React.FC<RecordsSectionProps> = ({
 						</span>
 					</div>
 				)}
+				
+				{searchTerm && searchResults && (
+					<div className="px-4 py-2 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg inline-block">
+						<span className="text-sm font-medium text-blue-800 dark:text-blue-300 flex items-center gap-2">
+							<Search className="w-4 h-4" />
+							Resultados para: "{searchTerm}" ({searchResults.data?.length || 0})
+						</span>
+					</div>
+				)}
 			</div>
 
 			{/* Cases Table */}
 			<CasesTable
 				onCaseSelect={handleCaseSelect}
 				cases={records || []}
-				isLoading={isLoading}
+				isLoading={isLoading || searchLoading}
 				error={error}
 				refetch={refetch}
 				isFullscreen={isFullscreen}
 				setIsFullscreen={setIsFullscreen}
+				pagination={pagination}
+				onPageChange={onPageChange}
+				onSearch={handleSearch}
 			/>
-
-			{/* Pagination Controls */}
-			{pagination && pagination.totalPages > 1 && (
-				<div className="flex justify-between items-center mt-6 bg-white dark:bg-background rounded-lg p-4 border border-gray-200 dark:border-gray-700">
-					<div className="text-sm text-gray-600 dark:text-gray-400">
-						Mostrando página {pagination.currentPage + 1} de {pagination.totalPages} ({pagination.totalCount} registros totales)
-					</div>
-					<div className="flex gap-2">
-						<Button
-							variant="outline"
-							size="sm"
-							onClick={() => handlePageChange(pagination.currentPage - 1)}
-							disabled={!pagination.hasPreviousPage}
-							className="flex items-center gap-1"
-						>
-							<ChevronLeft className="h-4 w-4" />
-							Anterior
-						</Button>
-						
-						{/* Page number indicators */}
-						<div className="flex items-center gap-1">
-							{pagination.totalPages <= 7 ? (
-								// Show all pages if 7 or fewer
-								Array.from({ length: pagination.totalPages }, (_, i) => (
-									<Button
-										key={i}
-										variant={pagination.currentPage === i ? "default" : "outline"}
-										size="sm"
-										onClick={() => handlePageChange(i)}
-										className="w-8 h-8 p-0"
-									>
-										{i + 1}
-									</Button>
-								))
-							) : (
-								// Show limited pages with ellipsis for many pages
-								<>
-									{/* First page */}
-									<Button
-										variant={pagination.currentPage === 0 ? "default" : "outline"}
-										size="sm"
-										onClick={() => handlePageChange(0)}
-										className="w-8 h-8 p-0"
-									>
-										1
-									</Button>
-									
-									{/* Ellipsis or page numbers */}
-									{pagination.currentPage > 2 && (
-										<span className="px-1 text-gray-500 dark:text-gray-400">...</span>
-									)}
-									
-									{/* Pages around current page */}
-									{Array.from(
-										{ length: Math.min(3, pagination.totalPages) },
-										(_, i) => {
-											const pageNum = Math.max(
-												1,
-												Math.min(
-													pagination.currentPage - 1 + i,
-													pagination.totalPages - 2
-												)
-											);
-											return pageNum;
-										}
-									)
-										.filter((value, index, self) => self.indexOf(value) === index) // Remove duplicates
-										.map(pageNum => (
-											<Button
-												key={pageNum}
-												variant={pagination.currentPage === pageNum ? "default" : "outline"}
-												size="sm"
-												onClick={() => handlePageChange(pageNum)}
-												className="w-8 h-8 p-0"
-											>
-												{pageNum + 1}
-											</Button>
-										))}
-									
-									{/* Ellipsis or page numbers */}
-									{pagination.currentPage < pagination.totalPages - 3 && (
-										<span className="px-1 text-gray-500 dark:text-gray-400">...</span>
-									)}
-									
-									{/* Last page */}
-									<Button
-										variant={pagination.currentPage === pagination.totalPages - 1 ? "default" : "outline"}
-										size="sm"
-										onClick={() => handlePageChange(pagination.totalPages - 1)}
-										className="w-8 h-8 p-0"
-									>
-										{pagination.totalPages}
-									</Button>
-								</>
-							)}
-						</div>
-						
-						<Button
-							variant="outline"
-							size="sm"
-							onClick={() => handlePageChange(pagination.currentPage + 1)}
-							disabled={!pagination.hasNextPage}
-							className="flex items-center gap-1"
-						>
-							Siguiente
-							<ChevronRight className="h-4 w-4" />
-						</Button>
-					</div>
-				</div>
-			)}
 
 			{/* Case Detail Panel */}
 			<CaseDetailPanel case_={selectedCase} isOpen={isPanelOpen} onClose={handlePanelClose} />

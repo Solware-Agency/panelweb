@@ -11,7 +11,7 @@ import { useState } from 'react'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@shared/components/ui/tabs'
 import { useNavigate } from 'react-router-dom'
 import { signOut } from '@lib/supabase/auth'
-import { getMedicalRecords } from '@lib/supabase-service'
+import { getMedicalRecords, searchMedicalRecords } from '@lib/supabase-service'
 import { RefreshCw, Maximize2 } from 'lucide-react'
 import { useUserProfile } from '@shared/hooks/useUserProfile'
 import { DoctorsSection } from '@features/form/components/DoctorsSection'
@@ -20,6 +20,7 @@ function FormContent() {
 	const [activeTab, setActiveTab] = useState('form')
 	const [isFullscreen, setIsFullscreen] = useState(false)
 	const [currentPage, setCurrentPage] = useState(0)
+	const [searchTerm, setSearchTerm] = useState('')
 	const pageSize = 100
 	const navigate = useNavigate()
 	const { profile } = useUserProfile()
@@ -31,8 +32,10 @@ function FormContent() {
 		error: casesError,
 		refetch: refetchCases,
 	} = useQuery({
-		queryKey: ['medical-cases', currentPage, pageSize],
-		queryFn: () => getMedicalRecords(pageSize, currentPage),
+		queryKey: ['medical-cases', currentPage, pageSize, searchTerm],
+		queryFn: () => searchTerm 
+			? searchMedicalRecords(searchTerm, pageSize, currentPage)
+			: getMedicalRecords(pageSize, currentPage),
 		staleTime: 1000 * 60 * 5, // 5 minutes
 	})
 
@@ -55,6 +58,11 @@ function FormContent() {
 
 	const handlePageChange = (page: number) => {
 		setCurrentPage(page)
+	}
+
+	const handleSearch = (term: string) => {
+		setSearchTerm(term)
+		setCurrentPage(0) // Reset to first page when searching
 	}
 
 	return (

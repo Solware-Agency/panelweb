@@ -48,6 +48,7 @@ export interface MedicalRecord {
 	descripcion_macroscopica?: string | null
 	diagnostico?: string | null
 	comentario?: string | null
+	pdf_en_ready?: boolean
 }
 
 export interface ChangeLog {
@@ -222,7 +223,8 @@ export const insertMedicalRecord = async (
 			informacion_clinica: undefined,
 			descripcion_macroscopica: undefined,
 			diagnostico: undefined,
-			comentario: undefined
+			comentario: undefined,
+			pdf_en_ready: false
 		}
 
 		console.log(`💾 Insertando datos en tabla ${TABLE_NAME}:`, recordData)
@@ -388,18 +390,47 @@ export const getMedicalRecordById = async (id: string) => {
 	}
 }
 
-export const searchMedicalRecords = async (searchTerm: string) => {
+export const searchMedicalRecords = async (searchTerm: string, pageSize = 100, page = 0) => {
 	try {
+		// Calculate the range for pagination
+		const from = page * pageSize;
+		const to = from + pageSize - 1;
+		
+		// First get the total count for pagination metadata
+		const { count, error: countError } = await supabase
+			.from(TABLE_NAME)
+			.select('*', { count: 'exact', head: true })
+			.or(`full_name.ilike.%${searchTerm}%,id_number.ilike.%${searchTerm}%,phone.ilike.%${searchTerm}%,code.ilike.%${searchTerm}%,treating_doctor.ilike.%${searchTerm}%`);
+			
+		if (countError) {
+			console.error(`Error counting search results in ${TABLE_NAME}:`, countError);
+			return { data: null, error: countError, pagination: null };
+		}
+		
+		// Then fetch the actual data for the current page
 		const { data, error } = await supabase
 			.from(TABLE_NAME)
 			.select('*')
-			.or(`full_name.ilike.%${searchTerm}%,id_number.ilike.%${searchTerm}%,phone.ilike.%${searchTerm}%,code.ilike.%${searchTerm}%`)
+			.or(`full_name.ilike.%${searchTerm}%,id_number.ilike.%${searchTerm}%,phone.ilike.%${searchTerm}%,code.ilike.%${searchTerm}%,treating_doctor.ilike.%${searchTerm}%`)
 			.order('created_at', { ascending: false })
+			.range(from, to);
 
-		return { data, error }
+		// Calculate pagination metadata
+		const totalCount = count || 0;
+		const totalPages = Math.ceil(totalCount / pageSize);
+		const pagination: PaginationMeta = {
+			currentPage: page,
+			totalPages,
+			totalCount,
+			pageSize,
+			hasNextPage: page < totalPages - 1,
+			hasPreviousPage: page > 0
+		};
+
+		return { data, error, pagination };
 	} catch (error) {
 		console.error(`Error searching ${TABLE_NAME}:`, error)
-		return { data: null, error }
+		return { data: null, error, pagination: null }
 	}
 }
 

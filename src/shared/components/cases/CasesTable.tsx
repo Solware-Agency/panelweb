@@ -14,6 +14,8 @@ import {
 	Maximize2,
 	Edit2,
 	Trash2,
+	ChevronLeft,
+	ChevronRight,
 } from 'lucide-react'
 import { motion, AnimatePresence } from 'motion/react'
 import type { MedicalRecord, PaginationMeta } from '@lib/supabase-service'
@@ -34,6 +36,7 @@ import { cn } from '@shared/lib/cn'
 import GenerateBiopsyModal from './GenerateBiopsyModal'
 import { generatePDF } from '@shared/utils/pdf-generator'
 import UnifiedCaseModal from './UnifiedCaseModal'
+import { Checkbox } from '@shared/components/ui/checkbox'
 
 interface CasesTableProps {
 	onCaseSelect: (case_: MedicalRecord) => void
@@ -43,8 +46,9 @@ interface CasesTableProps {
 	refetch: () => void
 	isFullscreen: boolean
 	setIsFullscreen: (value: boolean) => void
-	pagination?: PaginationMeta
+	pagination?: PaginationMeta | null
 	onPageChange?: (page: number) => void
+	onSearch?: (term: string) => void
 }
 
 type SortField = 'id' | 'created_at' | 'full_name' | 'date_of_birth' | 'total_amount' | 'code'
@@ -59,7 +63,8 @@ const CasesTable: React.FC<CasesTableProps> = ({
 	isFullscreen,
 	setIsFullscreen,
 	pagination,
-	onPageChange
+	onPageChange,
+	onSearch
 }) => {
 	const { user } = useAuth()
 	const { toast } = useToast()
@@ -75,7 +80,7 @@ const CasesTable: React.FC<CasesTableProps> = ({
 	const [isDownloading, setIsDownloading] = useState<string | null>(null)
 	const [selectedCaseForEdit, setSelectedCaseForEdit] = useState<MedicalRecord | null>(null)
 	const [isEditModalOpen, setIsEditModalOpen] = useState(false)
-	const [pdfReadyFilter, setPdfReadyFilter] = useState<boolean>(false)
+	const [showPdfReadyOnly, setShowPdfReadyOnly] = useState(false)
 
 	const getStatusColor = (status: string) => {
 		switch (status) {
@@ -154,6 +159,20 @@ const CasesTable: React.FC<CasesTableProps> = ({
 		}
 	}
 
+	const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+		const value = e.target.value;
+		setSearchTerm(value);
+		
+		// If onSearch prop is provided, call it with the search term
+		if (onSearch) {
+			onSearch(value);
+		}
+	}
+
+	const handlePdfReadyToggle = (checked: boolean) => {
+		setShowPdfReadyOnly(checked);
+	}
+
 	const filteredAndSortedCases = useMemo(() => {
 		if (!cases || !Array.isArray(cases)) {
 			console.warn('Cases is not an array:', cases)
@@ -190,9 +209,9 @@ const CasesTable: React.FC<CasesTableProps> = ({
 			const matchesExamType = examTypeFilter === 'all' || case_.exam_type === examTypeFilter
 
 			// PDF ready filter
-			const isBiopsyCase = case_.exam_type?.toLowerCase() === 'biopsia'
-			const hasDownloadableContent = isBiopsyCase && !!case_.diagnostico
-			const matchesPdfReady = !pdfReadyFilter || hasDownloadableContent
+			const matchesPdfReady = !showPdfReadyOnly || (
+				case_.exam_type?.toLowerCase() === 'biopsia' && !!case_.diagnostico
+			)
 
 			return matchesSearch && matchesStatus && matchesBranch && matchesExamType && matchesPdfReady
 		})
@@ -218,13 +237,13 @@ const CasesTable: React.FC<CasesTableProps> = ({
 			}
 		})
 
-		// Apply row limit if not using server-side pagination
+		// Apply row limit if pagination is not provided
 		if (!pagination && rowLimit > 0) {
 			return filtered.slice(0, rowLimit)
 		}
 
 		return filtered
-	}, [cases, searchTerm, statusFilter, branchFilter, examTypeFilter, pdfReadyFilter, sortField, sortDirection, rowLimit, pagination])
+	}, [cases, searchTerm, statusFilter, branchFilter, examTypeFilter, sortField, sortDirection, rowLimit, pagination, showPdfReadyOnly])
 
 	const SortIcon = ({ field }: { field: SortField }) => {
 		if (sortField !== field) {
@@ -409,7 +428,7 @@ const CasesTable: React.FC<CasesTableProps> = ({
 									type="text"
 									placeholder="Buscar por nombre, código, cédula, estudio o médico..."
 									value={searchTerm}
-									onChange={(e) => setSearchTerm(e.target.value)}
+									onChange={handleSearchChange}
 									className="w-full pl-10 pr-4 py-2 border border-input rounded-lg focus:ring-2 focus:ring-primary dark:bg-background dark:text-white text-sm"
 								/>
 							</div>
@@ -458,18 +477,22 @@ const CasesTable: React.FC<CasesTableProps> = ({
 								</select>
 							</div>
 
-							{/* PDF Ready Filter */}
+							{/* PDF Ready Only Checkbox */}
 							<div className="flex items-center gap-2">
-								<label className="inline-flex items-center cursor-pointer">
-									<input
-										type="checkbox"
-										checked={pdfReadyFilter}
-										onChange={() => setPdfReadyFilter(!pdfReadyFilter)}
-										className="sr-only peer"
+								<div className="flex items-center space-x-2">
+									<Checkbox 
+										id="pdfReady" 
+										checked={showPdfReadyOnly}
+										onCheckedChange={handlePdfReadyToggle}
 									/>
-									<div className="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
-									<span className="ms-3 text-sm font-medium text-gray-700 dark:text-gray-300">Solo PDF disponibles</span>
-								</label>
+									<label
+										htmlFor="pdfReady"
+										className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 flex items-center gap-1"
+									>
+										<Download className="h-4 w-4 text-gray-500" />
+										Solo PDF disponibles
+									</label>
+								</div>
 							</div>
 						</div>
 
@@ -517,11 +540,10 @@ const CasesTable: React.FC<CasesTableProps> = ({
 
 									const matchesBranch = branchFilter === 'all' || case_.branch === branchFilter
 									const matchesExamType = examTypeFilter === 'all' || case_.exam_type === examTypeFilter
-
-									// PDF ready filter
-									const isBiopsyCase = case_.exam_type?.toLowerCase() === 'biopsia'
-									const hasDownloadableContent = isBiopsyCase && !!case_.diagnostico
-									const matchesPdfReady = !pdfReadyFilter || hasDownloadableContent
+									
+									const matchesPdfReady = !showPdfReadyOnly || (
+										case_.exam_type?.toLowerCase() === 'biopsia' && !!case_.diagnostico
+									)
 
 									return matchesSearch && matchesStatus && matchesBranch && matchesExamType && matchesPdfReady
 								}).length
@@ -750,7 +772,7 @@ const CasesTable: React.FC<CasesTableProps> = ({
 
 				{/* Pagination Controls */}
 				{pagination && pagination.totalPages > 1 && (
-					<div className="flex justify-between items-center p-4 border-t border-gray-200 dark:border-gray-700">
+					<div className="flex justify-between items-center p-4 border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-background">
 						<div className="text-sm text-gray-600 dark:text-gray-400">
 							Mostrando página {pagination.currentPage + 1} de {pagination.totalPages} ({pagination.totalCount} registros totales)
 						</div>
@@ -762,7 +784,7 @@ const CasesTable: React.FC<CasesTableProps> = ({
 								disabled={!pagination.hasPreviousPage}
 								className="flex items-center gap-1"
 							>
-								<ChevronUp className="h-4 w-4 rotate-90" />
+								<ChevronLeft className="h-4 w-4" />
 								Anterior
 							</Button>
 							
@@ -852,7 +874,7 @@ const CasesTable: React.FC<CasesTableProps> = ({
 								className="flex items-center gap-1"
 							>
 								Siguiente
-								<ChevronUp className="h-4 w-4 -rotate-90" />
+								<ChevronRight className="h-4 w-4" />
 							</Button>
 						</div>
 					</div>
@@ -876,7 +898,7 @@ const CasesTable: React.FC<CasesTableProps> = ({
 									type="text"
 									placeholder="Buscar por nombre, código, cédula, estudio o médico..."
 									value={searchTerm}
-									onChange={(e) => setSearchTerm(e.target.value)}
+									onChange={handleSearchChange}
 									className="w-full pl-10 pr-4 py-2 border border-input rounded-lg focus:ring-2 focus:ring-primary dark:bg-background dark:text-white text-sm"
 								/>
 							</div>
@@ -925,18 +947,22 @@ const CasesTable: React.FC<CasesTableProps> = ({
 								</select>
 							</div>
 							
-							{/* PDF Ready Filter */}
+							{/* PDF Ready Only Checkbox */}
 							<div className="flex items-center gap-2">
-								<label className="inline-flex items-center cursor-pointer">
-									<input
-										type="checkbox"
-										checked={pdfReadyFilter}
-										onChange={() => setPdfReadyFilter(!pdfReadyFilter)}
-										className="sr-only peer"
+								<div className="flex items-center space-x-2">
+									<Checkbox 
+										id="pdfReady" 
+										checked={showPdfReadyOnly}
+										onCheckedChange={handlePdfReadyToggle}
 									/>
-									<div className="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
-									<span className="ms-3 text-sm font-medium text-gray-700 dark:text-gray-300">Solo PDF disponibles</span>
-								</label>
+									<label
+										htmlFor="pdfReady"
+										className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 flex items-center gap-1"
+									>
+										<Download className="h-4 w-4 text-gray-500" />
+										Solo PDF disponibles
+									</label>
+								</div>
 							</div>
 							
 							{/* Fullscreen Button */}
@@ -993,11 +1019,10 @@ const CasesTable: React.FC<CasesTableProps> = ({
 
 									const matchesBranch = branchFilter === 'all' || case_.branch === branchFilter
 									const matchesExamType = examTypeFilter === 'all' || case_.exam_type === examTypeFilter
-
-									// PDF ready filter
-									const isBiopsyCase = case_.exam_type?.toLowerCase() === 'biopsia'
-									const hasDownloadableContent = isBiopsyCase && !!case_.diagnostico
-									const matchesPdfReady = !pdfReadyFilter || hasDownloadableContent
+									
+									const matchesPdfReady = !showPdfReadyOnly || (
+										case_.exam_type?.toLowerCase() === 'biopsia' && !!case_.diagnostico
+									)
 
 									return matchesSearch && matchesStatus && matchesBranch && matchesExamType && matchesPdfReady
 								}).length
@@ -1219,7 +1244,7 @@ const CasesTable: React.FC<CasesTableProps> = ({
 
 				{/* Pagination Controls */}
 				{pagination && pagination.totalPages > 1 && (
-					<div className="flex justify-between items-center p-4 border-t border-gray-200 dark:border-gray-700">
+					<div className="flex justify-between items-center p-4 border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-background">
 						<div className="text-sm text-gray-600 dark:text-gray-400">
 							Mostrando página {pagination.currentPage + 1} de {pagination.totalPages} ({pagination.totalCount} registros totales)
 						</div>
@@ -1231,7 +1256,7 @@ const CasesTable: React.FC<CasesTableProps> = ({
 								disabled={!pagination.hasPreviousPage}
 								className="flex items-center gap-1"
 							>
-								<ChevronUp className="h-4 w-4 rotate-90" />
+								<ChevronLeft className="h-4 w-4" />
 								Anterior
 							</Button>
 							
@@ -1321,7 +1346,7 @@ const CasesTable: React.FC<CasesTableProps> = ({
 								className="flex items-center gap-1"
 							>
 								Siguiente
-								<ChevronUp className="h-4 w-4 -rotate-90" />
+								<ChevronRight className="h-4 w-4" />
 							</Button>
 						</div>
 					</div>
