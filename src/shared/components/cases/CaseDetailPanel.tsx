@@ -1,1324 +1,715 @@
 import React, { useState, useEffect } from 'react'
-import { 
-  X, User, Stethoscope, CreditCard, FileText, CheckCircle, Hash, Cake, UserCheck, 
-  Edit, Trash2, Loader2, AlertCircle, Save, XCircle, Plus, DollarSign, History
-} from 'lucide-react'
 import { motion, AnimatePresence } from 'motion/react'
+import { X, Edit2, Save, User, Calendar, Phone, Mail, FileText, DollarSign, Clock, CheckCircle, AlertTriangle, Microscope } from 'lucide-react'
 import type { MedicalRecord } from '@lib/supabase-service'
-import { getAgeDisplay, deleteMedicalRecord, updateMedicalRecordWithLog, getChangeLogsForRecord } from '@lib/supabase-service'
+import { getAgeDisplay, updateMedicalRecordWithLog } from '@lib/supabase-service'
 import { format, parseISO } from 'date-fns'
 import { es } from 'date-fns/locale'
-import { useQuery } from '@tanstack/react-query'
-import { supabase } from '@lib/supabase/config'
+import { useAuth } from '@app/providers/AuthContext'
 import { useToast } from '@shared/hooks/use-toast'
 import { Button } from '@shared/components/ui/button'
 import { Input } from '@shared/components/ui/input'
 import { Textarea } from '@shared/components/ui/textarea'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@shared/components/ui/select'
-import { useAuth } from '@app/providers/AuthContext'
 import { Popover, PopoverContent, PopoverTrigger } from '@shared/components/ui/popover'
-import { Calendar } from '@shared/components/ui/calendar'
+import { Calendar as CalendarComponent } from '@shared/components/ui/calendar'
 import { cn } from '@shared/lib/cn'
+import EditCaseModal from './EditCaseModal'
 
 interface CaseDetailPanelProps {
 	case_: MedicalRecord | null
 	isOpen: boolean
 	onClose: () => void
-	onCaseUpdated?: () => void
 }
 
-const CaseDetailPanel: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClose, onCaseUpdated }) => {
-	const { toast } = useToast()
+interface Change {
+	field: string
+	fieldLabel: string
+	oldValue: any
+	newValue: any
+}
+
+const CaseDetailPanel: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClose }) => {
 	const { user } = useAuth()
-	const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
-	const [isDeleting, setIsDeleting] = useState(false)
+	const { toast } = useToast()
+	const [isEditModalOpen, setIsEditModalOpen] = useState(false)
 	const [isEditing, setIsEditing] = useState(false)
 	const [isSaving, setIsSaving] = useState(false)
-	const [editedCase, setEditedCase] = useState<Partial<MedicalRecord>>({})
-	const [isDateOfBirthOpen, setIsDateOfBirthOpen] = useState(false)
-	const [isAddPaymentModalOpen, setIsAddPaymentModalOpen] = useState(false)
-	const [newPayment, setNewPayment] = useState({
-		method: '',
-		amount: '',
-		reference: ''
-	})
-	const [showChangelog, setShowChangelog] = useState(false)
-	
-	// Query to get the user who created the record
-	const { data: creatorData } = useQuery({
-		queryKey: ['record-creator', case_?.id],
-		queryFn: async () => {
-			if (!case_) return null;
-			
-			// First try to get creator info from the record itself (for new records)
-			if (case_.created_by && case_.created_by_display_name) {
-				return {
-					id: case_.created_by,
-					email: '', // We don't have the email in the record
-					displayName: case_.created_by_display_name,
-				}
-			}
+	const [editedValues, setEditedValues] = useState<Partial<MedicalRecord>>({})
+	const [isDatePickerOpen, setIsDatePickerOpen] = useState(false)
 
-			// If not available, try to get from change logs
-			const { data, error } = await supabase
-				.from('change_logs')
-				.select('user_id, user_email')
-				.eq('medical_record_id', case_.id)
-				.order('changed_at', { ascending: true })
-				.limit(1)
-
-			if (error) {
-				console.error('Error fetching record creator:', error)
-				return null
-			}
-
-			if (data && data.length > 0) {
-				// Get the user profile to get the display name
-				const { data: profileData } = await supabase
-					.from('profiles')
-					.select('display_name')
-					.eq('id', data[0].user_id)
-					.single()
-
-				return {
-					id: data[0].user_id,
-					email: data[0].user_email,
-					displayName: profileData?.display_name || null,
-				}
-			}
-
-			return null
-		},
-		enabled: !!case_?.id && isOpen,
-	})
-
-	// Query to get change logs for this record
-	const { 
-		data: changeLogs, 
-		isLoading: isLoadingChangeLogs,
-		refetch: refetchChangeLogs
-	} = useQuery({
-		queryKey: ['change-logs', case_?.id],
-		queryFn: async () => {
-			if (!case_?.id) return { data: null };
-			return getChangeLogsForRecord(case_.id);
-		},
-		enabled: !!case_?.id && isOpen && showChangelog,
-	})
-
-	// Initialize edited case when case_ changes or when entering edit mode
+	// Reset edited values when case changes
 	useEffect(() => {
-		if (case_ && isEditing) {
-			setEditedCase({
-				full_name: case_.full_name,
-				id_number: case_.id_number,
-				phone: case_.phone,
-				email: case_.email,
-				date_of_birth: case_.date_of_birth,
-				comments: case_.comments,
-				payment_method_1: case_.payment_method_1,
-				payment_amount_1: case_.payment_amount_1,
-				payment_reference_1: case_.payment_reference_1,
-				payment_method_2: case_.payment_method_2,
-				payment_amount_2: case_.payment_amount_2,
-				payment_reference_2: case_.payment_reference_2,
-				payment_method_3: case_.payment_method_3,
-				payment_amount_3: case_.payment_amount_3,
-				payment_reference_3: case_.payment_reference_3,
-				payment_method_4: case_.payment_method_4,
-				payment_amount_4: case_.payment_amount_4,
-				payment_reference_4: case_.payment_reference_4,
-			})
-		} else {
-			setEditedCase({})
+		if (case_) {
+			setEditedValues({})
+			setIsEditing(false)
 		}
-	}, [case_, isEditing])
+	}, [case_])
+
+	if (!case_) return null
 
 	const handleEditClick = () => {
-		if (!case_) return;
-		setIsEditing(true);
-	};
+		setIsEditing(true)
+		// Initialize edited values with current values
+		setEditedValues({
+			exam_type: case_.exam_type,
+			treating_doctor: case_.treating_doctor,
+			origin: case_.origin,
+			branch: case_.branch,
+			sample_type: case_.sample_type,
+			number_of_samples: case_.number_of_samples,
+			date: case_.date,
+			material_remitido: case_.material_remitido || '',
+			informacion_clinica: case_.informacion_clinica || '',
+			descripcion_macroscopica: case_.descripcion_macroscopica || '',
+			diagnostico: case_.diagnostico || '',
+			comentario: case_.comentario || ''
+		})
+	}
 
 	const handleCancelEdit = () => {
-		setIsEditing(false);
-		setEditedCase({});
-	};
+		setIsEditing(false)
+		setEditedValues({})
+	}
 
-	const handleDeleteClick = () => {
-		if (!case_) return;
-		setIsDeleteModalOpen(true);
-	};
-
-	const handleConfirmDelete = async () => {
-		if (!case_) return;
-		
-		setIsDeleting(true);
-		try {
-			const { error } = await deleteMedicalRecord(case_.id!);
-			
-			if (error) {
-				throw error;
-			}
-			
-			toast({
-				title: '✅ Caso eliminado exitosamente',
-				description: `El caso ${case_.code || case_.id} ha sido eliminado.`,
-				className: 'bg-green-100 border-green-400 text-green-800',
-			});
-			
-			// Close modals and panel
-			setIsDeleteModalOpen(false);
-			onClose();
-			
-			// Refresh data if callback provided
-			if (onCaseUpdated) {
-				onCaseUpdated();
-			}
-		} catch (error) {
-			console.error('Error deleting case:', error);
-			toast({
-				title: '❌ Error al eliminar',
-				description: 'Hubo un problema al eliminar el caso. Inténtalo de nuevo.',
-				variant: 'destructive',
-			});
-		} finally {
-			setIsDeleting(false);
-		}
-	};
-
-	const handleInputChange = (field: string, value: any) => {
-		setEditedCase(prev => ({
+	const handleInputChange = (field: keyof MedicalRecord, value: any) => {
+		setEditedValues(prev => ({
 			...prev,
 			[field]: value
-		}));
-	};
+		}))
+	}
 
 	const handleSaveChanges = async () => {
-		if (!case_ || !user) return;
-		
-		setIsSaving(true);
-		try {
-			// Detect changes
-			const changes = [];
-			for (const [key, value] of Object.entries(editedCase)) {
-				// Skip if value hasn't changed
-				if (value === case_[key as keyof MedicalRecord]) continue;
-				
-				// Add to changes array
+		if (!user || !case_) return
+
+		// Detect changes
+		const changes: Change[] = []
+		Object.entries(editedValues).forEach(([field, value]) => {
+			const currentValue = case_[field as keyof MedicalRecord]
+			if (value !== currentValue) {
+				// Get field label for display
+				const fieldLabels: Record<string, string> = {
+					exam_type: 'Tipo de Examen',
+					treating_doctor: 'Médico Tratante',
+					origin: 'Procedencia',
+					branch: 'Sede',
+					sample_type: 'Tipo de Muestra',
+					number_of_samples: 'Cantidad de Muestras',
+					date: 'Fecha de Registro',
+					material_remitido: 'Material Remitido',
+					informacion_clinica: 'Información Clínica',
+					descripcion_macroscopica: 'Descripción Macroscópica',
+					diagnostico: 'Diagnóstico',
+					comentario: 'Comentario'
+				}
+
 				changes.push({
-					field: key,
-					fieldLabel: getFieldLabel(key),
-					oldValue: case_[key as keyof MedicalRecord],
+					field,
+					fieldLabel: fieldLabels[field] || field,
+					oldValue: currentValue,
 					newValue: value
-				});
+				})
 			}
-			
-			if (changes.length === 0) {
-				toast({
-					title: 'Sin cambios',
-					description: 'No se detectaron cambios para guardar.',
-					variant: 'default',
-				});
-				setIsEditing(false);
-				setIsSaving(false);
-				return;
-			}
-			
+		})
+
+		if (changes.length === 0) {
+			toast({
+				title: 'Sin cambios',
+				description: 'No se detectaron cambios para guardar.',
+				variant: 'default',
+			})
+			setIsEditing(false)
+			return
+		}
+
+		setIsSaving(true)
+		try {
 			// Update record with changes
 			const { error } = await updateMedicalRecordWithLog(
 				case_.id!,
-				editedCase,
+				editedValues,
 				changes,
 				user.id,
 				user.email || 'unknown@email.com'
-			);
-			
+			)
+
 			if (error) {
-				throw error;
-			}
-			
-			toast({
-				title: '✅ Caso actualizado exitosamente',
-				description: `Se han guardado los cambios al caso ${case_.code || case_.id}.`,
-				className: 'bg-green-100 border-green-400 text-green-800',
-			});
-			
-			// Exit edit mode
-			setIsEditing(false);
-			
-			// Refresh data if callback provided
-			if (onCaseUpdated) {
-				onCaseUpdated();
+				throw error
 			}
 
-			// Refresh changelog if it's open
-			if (showChangelog) {
-				refetchChangeLogs();
-			}
+			toast({
+				title: '✅ Caso actualizado',
+				description: `Se guardaron ${changes.length} cambio(s) exitosamente.`,
+				className: 'bg-green-100 border-green-400 text-green-800',
+			})
+
+			setIsEditing(false)
+			// Refresh the case data (this would typically be handled by the parent component)
+			// For now, we'll just update the local state
+			onClose()
 		} catch (error) {
-			console.error('Error updating case:', error);
+			console.error('Error saving case:', error)
 			toast({
 				title: '❌ Error al guardar',
 				description: 'Hubo un problema al guardar los cambios. Inténtalo de nuevo.',
 				variant: 'destructive',
-			});
+			})
 		} finally {
-			setIsSaving(false);
+			setIsSaving(false)
 		}
-	};
+	}
 
-	const handleAddPayment = () => {
-		if (!case_ || !editedCase) return;
-		
-		// Find the first empty payment slot
-		let paymentSlot = 0;
-		for (let i = 1; i <= 4; i++) {
-			const methodKey = `payment_method_${i}` as keyof MedicalRecord;
-			if (!editedCase[methodKey]) {
-				paymentSlot = i;
-				break;
+	const handleSaveInEditModal = async (caseId: string, updates: Partial<MedicalRecord>, changes: Change[]) => {
+		if (!user) return
+
+		try {
+			const { error } = await updateMedicalRecordWithLog(
+				caseId,
+				updates,
+				changes,
+				user.id,
+				user.email || 'unknown@email.com'
+			)
+
+			if (error) {
+				throw error
 			}
+
+			// Close the modal and refresh data
+			onClose()
+		} catch (error) {
+			console.error('Error saving case in modal:', error)
+			throw error
 		}
-		
-		if (paymentSlot === 0) {
-			toast({
-				title: '❌ Límite alcanzado',
-				description: 'Ya has agregado el máximo de 4 métodos de pago.',
-				variant: 'destructive',
-			});
-			return;
-		}
-		
-		// Add the new payment
-		setEditedCase(prev => ({
-			...prev,
-			[`payment_method_${paymentSlot}`]: newPayment.method,
-			[`payment_amount_${paymentSlot}`]: parseFloat(newPayment.amount),
-			[`payment_reference_${paymentSlot}`]: newPayment.reference
-		}));
-		
-		// Reset form and close modal
-		setNewPayment({
-			method: '',
-			amount: '',
-			reference: ''
-		});
-		setIsAddPaymentModalOpen(false);
-	};
+	}
 
-	const handleRemovePayment = (index: number) => {
-		if (!case_ || !editedCase) return;
-		
-		// Remove the payment
-		setEditedCase(prev => ({
-			...prev,
-			[`payment_method_${index}`]: null,
-			[`payment_amount_${index}`]: null,
-			[`payment_reference_${index}`]: null
-		}));
-	};
+	// Format date for display
+	const formattedDate = case_.date ? format(new Date(case_.date), 'dd/MM/yyyy', { locale: es }) : 'N/A'
+	
+	// Get age display from date of birth
+	const ageDisplay = case_.date_of_birth ? getAgeDisplay(case_.date_of_birth) : ''
 
-	const toggleChangelog = () => {
-		setShowChangelog(!showChangelog);
-	};
+	// Format date of birth for display
+	const formattedDateOfBirth = case_.date_of_birth 
+		? format(parseISO(case_.date_of_birth), 'dd/MM/yyyy', { locale: es })
+		: 'N/A'
 
-	if (!case_) return null
-
+	// Get payment status color
 	const getStatusColor = (status: string) => {
 		switch (status) {
 			case 'Completado':
 				return 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300'
-			case 'En Proceso':
-				return 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300'
 			case 'Pendiente':
 				return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300'
-			case 'Cancelado':
-				return 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300'
 			default:
 				return 'bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-300'
 		}
 	}
 
-	const getFieldLabel = (field: string): string => {
-		const labels: Record<string, string> = {
-			full_name: 'Nombre Completo',
-			id_number: 'Cédula',
-			phone: 'Teléfono',
-			email: 'Correo Electrónico',
-			date_of_birth: 'Fecha de Nacimiento',
-			comments: 'Comentarios',
-			payment_method_1: 'Método de Pago 1',
-			payment_amount_1: 'Monto de Pago 1',
-			payment_reference_1: 'Referencia de Pago 1',
-			payment_method_2: 'Método de Pago 2',
-			payment_amount_2: 'Monto de Pago 2',
-			payment_reference_2: 'Referencia de Pago 2',
-			payment_method_3: 'Método de Pago 3',
-			payment_amount_3: 'Monto de Pago 3',
-			payment_reference_3: 'Referencia de Pago 3',
-			payment_method_4: 'Método de Pago 4',
-			payment_amount_4: 'Monto de Pago 4',
-			payment_reference_4: 'Referencia de Pago 4',
-		}
-		return labels[field] || field
-	}
-
-	const InfoSection = ({
-		title,
-		icon: Icon,
-		children,
-	}: {
-		title: string
-		icon: React.ComponentType<{ className?: string }>
-		children: React.ReactNode
-	}) => (
-		<div className="bg-white dark:bg-background rounded-lg p-4 border border-input transition-all duration-300">
-			<div className="flex items-center gap-2 mb-3">
-				<Icon className="w-5 h-5 text-blue-600 dark:text-blue-400" />
-				<h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">{title}</h3>
-			</div>
-			{children}
-		</div>
-	)
-
-	const InfoRow = ({ 
-		label, 
-		value, 
-		field, 
-		editable = true,
-		type = 'text'
-	}: { 
-		label: string
-		value: string | number | undefined
-		field?: string
-		editable?: boolean
-		type?: 'text' | 'number' | 'email'
-	}) => {
-		const isEditableField = isEditing && editable && field;
-		const fieldValue = field ? (editedCase[field as keyof MedicalRecord] ?? value) : value;
-		
-		return (
-			<div className="flex flex-col sm:flex-row sm:justify-between py-2 border-b border-gray-200 dark:border-gray-700 last:border-b-0">
-				<span className="text-sm font-medium text-gray-600 dark:text-gray-400">{label}:</span>
-				{isEditableField ? (
-					<div className="sm:w-1/2">
-						<Input
-							type={type}
-							value={fieldValue || ''}
-							onChange={(e) => handleInputChange(field!, e.target.value)}
-							className="text-sm border-dashed focus:border-primary focus:ring-primary bg-gray-50 dark:bg-gray-800/50"
-						/>
-					</div>
-				) : (
-					<span className="text-sm text-gray-900 dark:text-gray-100 sm:text-right">{fieldValue || 'N/A'}</span>
-				)}
-			</div>
-		)
-	}
-
-	// Format date of birth and get age display
-	const formattedDateOfBirth = case_.date_of_birth
-		? format(parseISO(case_.date_of_birth), 'dd/MM/yyyy', { locale: es })
-		: 'N/A'
-
-	const ageDisplay = case_.date_of_birth ? getAgeDisplay(case_.date_of_birth) : ''
-
-	// Función auxiliar para mostrar el símbolo correcto según el método
-	const getPaymentSymbol = (method?: string) => {
-		if (!method) return ''
-		const bolivares = ['Punto de venta', 'Pago móvil', 'Bs en efectivo']
-		return bolivares.includes(method) ? 'Bs' : '$'
-	}
-
-	// Format change log date
-	const formatChangeLogDate = (dateString: string) => {
-		const date = new Date(dateString);
-		return {
-			date: format(date, 'dd/MM/yyyy', { locale: es }),
-			time: format(date, 'HH:mm:ss', { locale: es })
-		};
-	};
-
 	return (
-		<>
-			<AnimatePresence>
-				{isOpen && (
-					<>
-						{/* Backdrop */}
-						<motion.div
-							viewport={{ margin: '0px' }}
-							initial={{ opacity: 0 }}
-							animate={{ opacity: 1 }}
-							exit={{ opacity: 0 }}
-							onClick={isEditing ? undefined : onClose}
-							className="fixed inset-0 bg-black/50 z-[99999998]"
-						/>
+		<AnimatePresence>
+			{isOpen && (
+				<>
+					{/* Backdrop */}
+					<motion.div
+						initial={{ opacity: 0 }}
+						animate={{ opacity: 1 }}
+						exit={{ opacity: 0 }}
+						onClick={onClose}
+						className="fixed inset-0 bg-black/50 z-[99999998]"
+					/>
 
-						{/* Panel */}
-						<motion.div
-							viewport={{ margin: '0px' }}
-							initial={{ x: '100%' }}
-							animate={{ x: 0 }}
-							exit={{ x: '100%' }}
-							transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-							className="fixed right-0 top-0 h-full w-full sm:w-2/3 lg:w-1/2 xl:w-2/5 bg-white dark:bg-background shadow-2xl z-[99999999] overflow-y-auto rounded-lg border-l border-input"
-						>
-							{/* Header */}
-							<div className="sticky top-0 bg-white dark:bg-background border-b border-gray-200 dark:border-gray-700 p-4 sm:p-6 z-10">
-								<div className="flex items-center justify-between">
-									<div>
-										{isEditing ? (
-											<Input
-												value={editedCase.full_name || case_.full_name}
-												onChange={(e) => handleInputChange('full_name', e.target.value)}
-												className="text-xl sm:text-2xl font-bold border-dashed focus:border-primary focus:ring-primary bg-gray-50 dark:bg-gray-800/50"
-											/>
-										) : (
-											<h2 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-gray-100">{case_.full_name}</h2>
+					{/* Main Panel */}
+					<motion.div
+						initial={{ x: '100%' }}
+						animate={{ x: 0 }}
+						exit={{ x: '100%' }}
+						transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+						className="fixed right-0 top-0 h-full w-full sm:w-2/3 lg:w-1/2 xl:w-2/5 bg-white dark:bg-background shadow-2xl z-[99999999] overflow-y-auto rounded-lg border-l border-input"
+					>
+						{/* Header */}
+						<div className="sticky top-0 bg-white dark:bg-background border-b border-gray-200 dark:border-gray-700 p-4 sm:p-6 z-10">
+							<div className="flex items-center justify-between">
+								<div>
+									<h2 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-gray-100">Detalles del Caso</h2>
+									<div className="flex items-center gap-2 mt-2">
+										{case_.code && (
+											<span className="inline-flex items-center gap-1 px-2 py-1 text-xs font-semibold rounded-full bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300">
+												{case_.code}
+											</span>
 										)}
+										<span
+											className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(
+												case_.payment_status,
+											)}`}
+										>
+											{case_.payment_status}
+										</span>
 									</div>
+								</div>
+								<div className="flex items-center gap-2">
+									{!isEditing && (
+										<button
+											onClick={handleEditClick}
+											className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
+										>
+											<Edit2 className="w-5 h-5 text-blue-500 dark:text-blue-400" />
+										</button>
+									)}
 									<button
-										onClick={isEditing ? handleCancelEdit : onClose}
+										onClick={onClose}
 										className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
 									>
 										<X className="w-5 h-5 text-gray-500 dark:text-gray-400" />
 									</button>
 								</div>
+							</div>
+						</div>
 
-								{/* Status badges */}
-								<div className="flex flex-wrap gap-2 mt-4">
-									<span
-										className={`inline-flex px-3 py-1 text-sm font-semibold rounded-full ${getStatusColor(
-											case_.payment_status,
-										)}`}
-									>
-										{case_.payment_status}
-									</span>
-									<span className="inline-flex items-center gap-1 px-3 py-1 text-sm font-semibold rounded-full bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300">
-										<CheckCircle size={16} />
-										{case_.branch}
-									</span>
-									{case_.code && (
-										<span className="inline-flex items-center gap-1 px-3 py-1 text-sm font-semibold rounded-full bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300">
-											{case_.code}
-										</span>
-									)}
+						{/* Content */}
+						<div className="p-4 sm:p-6 space-y-6">
+							{/* Patient Information */}
+							<div className="bg-white dark:bg-background rounded-lg p-4 border border-input transition-all duration-300">
+								<div className="flex items-center gap-2 mb-4">
+									<User className="text-blue-500 size-6" />
+									<h3 className="text-xl font-semibold">Información del Paciente</h3>
 								</div>
-								
-								{/* Action Buttons */}
-								<div className="flex flex-wrap gap-2 mt-4">
-									{isEditing ? (
-										<>
-											<Button 
-												onClick={handleSaveChanges}
-												disabled={isSaving}
-												className="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white"
-											>
-												{isSaving ? (
-													<>
-														<Loader2 className="w-4 h-4 animate-spin" />
-														Guardando...
-													</>
-												) : (
-													<>
-														<Save className="w-4 h-4" />
-														Guardar Cambios
-													</>
-												)}
-											</Button>
-											<Button 
-												onClick={handleCancelEdit}
-												variant="outline"
-												className="flex items-center gap-2"
-												disabled={isSaving}
-											>
-												<XCircle className="w-4 h-4" />
-												Cancelar
-											</Button>
-										</>
-									) : (
-										<>
-											<Button 
-												onClick={handleEditClick}
-												className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white"
-											>
-												<Edit className="w-4 h-4" />
-												Editar Caso
-											</Button>
-											<Button 
-												onClick={handleDeleteClick}
-												variant="destructive"
-												className="flex items-center gap-2"
-											>
-												<Trash2 className="w-4 h-4" />
-												Eliminar Caso
-											</Button>
-											<Button
-												onClick={toggleChangelog}
-												variant="outline"
-												className="flex items-center gap-2"
-											>
-												<History className="w-4 h-4" />
-												{showChangelog ? 'Ocultar Historial' : 'Ver Historial'}
-											</Button>
-										</>
+								<div className="space-y-4">
+									<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+										<div>
+											<p className="text-sm text-gray-500 dark:text-gray-400">Nombre completo:</p>
+											<p className="text-base font-medium">{case_.full_name}</p>
+										</div>
+										<div>
+											<p className="text-sm text-gray-500 dark:text-gray-400">Cédula:</p>
+											<p className="text-base font-medium">{case_.id_number}</p>
+										</div>
+									</div>
+									<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+										<div>
+											<p className="text-sm text-gray-500 dark:text-gray-400">Fecha de nacimiento:</p>
+											<p className="text-base font-medium">
+												{formattedDateOfBirth}
+												{ageDisplay && <span className="ml-2 text-sm text-blue-600">({ageDisplay})</span>}
+											</p>
+										</div>
+										<div>
+											<p className="text-sm text-gray-500 dark:text-gray-400">Teléfono:</p>
+											<p className="text-base font-medium">{case_.phone}</p>
+										</div>
+									</div>
+									{case_.email && (
+										<div>
+											<p className="text-sm text-gray-500 dark:text-gray-400">Email:</p>
+											<p className="text-base font-medium">{case_.email}</p>
+										</div>
 									)}
 								</div>
 							</div>
 
-							{/* Content */}
-							<div className="p-4 sm:p-6 space-y-6">
-								{/* Changelog Section */}
-								{showChangelog && (
-									<div className="bg-white dark:bg-background rounded-lg p-4 border border-input transition-all duration-300">
-										<div className="flex items-center justify-between mb-3">
-											<div className="flex items-center gap-2">
-												<History className="w-5 h-5 text-purple-600 dark:text-purple-400" />
-												<h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Historial de Cambios</h3>
-											</div>
+							{/* Medical Information */}
+							<div className="bg-white dark:bg-background rounded-lg p-4 border border-input transition-all duration-300">
+								<div className="flex items-center justify-between gap-2 mb-4">
+									<div className="flex items-center gap-2">
+										<Microscope className="text-primary size-6" />
+										<h3 className="text-xl font-semibold">Información Médica</h3>
+									</div>
+									{isEditing && (
+										<div className="flex items-center gap-2">
+											<Button variant="outline" size="sm" onClick={handleCancelEdit} disabled={isSaving}>
+												Cancelar
+											</Button>
 											<Button 
-												variant="ghost" 
 												size="sm" 
-												onClick={toggleChangelog}
-												className="text-gray-500 dark:text-gray-400"
+												onClick={handleSaveChanges} 
+												disabled={isSaving}
+												className="bg-primary hover:bg-primary/80"
 											>
-												<X className="w-4 h-4" />
+												{isSaving ? (
+													<>
+														<div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+														Guardando...
+													</>
+												) : (
+													<>
+														<Save className="w-4 h-4 mr-2" />
+														Guardar
+													</>
+												)}
 											</Button>
 										</div>
+									)}
+								</div>
+								<div className="space-y-4">
+									<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+										{/* Exam Type */}
+										<div>
+											<p className="text-sm text-gray-500 dark:text-gray-400">Estudio:</p>
+											{isEditing ? (
+												<Select 
+													value={editedValues.exam_type || case_.exam_type} 
+													onValueChange={(value) => handleInputChange('exam_type', value)}
+												>
+													<SelectTrigger className="w-full">
+														<SelectValue placeholder="Seleccione tipo de examen" />
+													</SelectTrigger>
+													<SelectContent>
+														<SelectItem value="inmunohistoquimica">Inmunohistoquímica</SelectItem>
+														<SelectItem value="biopsia">Biopsia</SelectItem>
+														<SelectItem value="citologia">Citología</SelectItem>
+													</SelectContent>
+												</Select>
+											) : (
+												<p className="text-base font-medium">{case_.exam_type}</p>
+											)}
+										</div>
 										
-										{isLoadingChangeLogs ? (
-											<div className="flex items-center justify-center py-8">
-												<Loader2 className="w-6 h-6 animate-spin text-primary" />
-											</div>
-										) : !changeLogs?.data || changeLogs.data.length === 0 ? (
-											<div className="text-center py-6">
-												<History className="w-12 h-12 mx-auto mb-2 text-gray-300 dark:text-gray-600" />
-												<p className="text-gray-500 dark:text-gray-400">No hay registros de cambios para este caso</p>
-											</div>
+										{/* Treating Doctor */}
+										<div>
+											<p className="text-sm text-gray-500 dark:text-gray-400">Médico tratante:</p>
+											{isEditing ? (
+												<Input 
+													value={editedValues.treating_doctor || case_.treating_doctor} 
+													onChange={(e) => handleInputChange('treating_doctor', e.target.value)}
+												/>
+											) : (
+												<p className="text-base font-medium">{case_.treating_doctor}</p>
+											)}
+										</div>
+									</div>
+									
+									<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+										{/* Origin */}
+										<div>
+											<p className="text-sm text-gray-500 dark:text-gray-400">Procedencia:</p>
+											{isEditing ? (
+												<Input 
+													value={editedValues.origin || case_.origin} 
+													onChange={(e) => handleInputChange('origin', e.target.value)}
+												/>
+											) : (
+												<p className="text-base font-medium">{case_.origin}</p>
+											)}
+										</div>
+										
+										{/* Branch */}
+										<div>
+											<p className="text-sm text-gray-500 dark:text-gray-400">Sede:</p>
+											{isEditing ? (
+												<Select 
+													value={editedValues.branch || case_.branch} 
+													onValueChange={(value) => handleInputChange('branch', value)}
+												>
+													<SelectTrigger className="w-full">
+														<SelectValue placeholder="Seleccione una sede" />
+													</SelectTrigger>
+													<SelectContent>
+														<SelectItem value="PMG">PMG</SelectItem>
+														<SelectItem value="CPC">CPC</SelectItem>
+														<SelectItem value="CNX">CNX</SelectItem>
+														<SelectItem value="STX">STX</SelectItem>
+														<SelectItem value="MCY">MCY</SelectItem>
+													</SelectContent>
+												</Select>
+											) : (
+												<p className="text-base font-medium">{case_.branch}</p>
+											)}
+										</div>
+									</div>
+									
+									<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+										{/* Sample Type */}
+										<div>
+											<p className="text-sm text-gray-500 dark:text-gray-400">Muestra:</p>
+											{isEditing ? (
+												<Input 
+													value={editedValues.sample_type || case_.sample_type} 
+													onChange={(e) => handleInputChange('sample_type', e.target.value)}
+												/>
+											) : (
+												<p className="text-base font-medium">{case_.sample_type}</p>
+											)}
+										</div>
+										
+										{/* Number of Samples */}
+										<div>
+											<p className="text-sm text-gray-500 dark:text-gray-400">Cantidad de muestras:</p>
+											{isEditing ? (
+												<Input 
+													type="number"
+													min="1"
+													value={editedValues.number_of_samples || case_.number_of_samples} 
+													onChange={(e) => handleInputChange('number_of_samples', parseInt(e.target.value))}
+												/>
+											) : (
+												<p className="text-base font-medium">{case_.number_of_samples}</p>
+											)}
+										</div>
+									</div>
+									
+									{/* Registration Date */}
+									<div>
+										<p className="text-sm text-gray-500 dark:text-gray-400">Fecha de registro:</p>
+										{isEditing ? (
+											<Popover open={isDatePickerOpen} onOpenChange={setIsDatePickerOpen}>
+												<PopoverTrigger asChild>
+													<Button
+														variant="outline"
+														className="w-full justify-start text-left font-normal"
+													>
+														<Calendar className="mr-2 h-4 w-4" />
+														{editedValues.date ? format(new Date(editedValues.date), 'PPP', { locale: es }) : formattedDate}
+													</Button>
+												</PopoverTrigger>
+												<PopoverContent className="w-auto p-0">
+													<CalendarComponent
+														mode="single"
+														selected={editedValues.date ? new Date(editedValues.date) : new Date(case_.date)}
+														onSelect={(date) => {
+															if (date) {
+																handleInputChange('date', date.toISOString())
+																setIsDatePickerOpen(false)
+															}
+														}}
+														initialFocus
+														locale={es}
+													/>
+												</PopoverContent>
+											</Popover>
 										) : (
-											<div className="space-y-4 max-h-96 overflow-y-auto pr-2">
-												{changeLogs.data.map((log) => {
-													const formattedDate = formatChangeLogDate(log.changed_at);
-													
-													return (
-														<div key={log.id} className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-3 border border-gray-200 dark:border-gray-700">
-															<div className="flex justify-between items-start mb-2">
-																<div className="flex items-center gap-2">
-																	<User className="w-4 h-4 text-gray-500 dark:text-gray-400" />
-																	<span className="text-sm font-medium">{log.user_email}</span>
-																</div>
-																<div className="text-xs text-gray-500 dark:text-gray-400">
-																	{formattedDate.date} {formattedDate.time}
-																</div>
-															</div>
-															
-															{log.field_name === 'created_record' ? (
-																<div className="flex items-center gap-2 text-green-600 dark:text-green-400">
-																	<FileText className="w-4 h-4" />
-																	<span>Creó el registro</span>
-																</div>
-															) : log.field_name === 'deleted_record' ? (
-																<div className="flex items-center gap-2 text-red-600 dark:text-red-400">
-																	<Trash2 className="w-4 h-4" />
-																	<span>Eliminó el registro</span>
-																</div>
-															) : (
-																<div>
-																	<p className="text-sm font-medium text-gray-700 dark:text-gray-300">
-																		Cambió {log.field_label}
-																	</p>
-																	<div className="flex items-center gap-2 mt-1 text-sm">
-																		<span className="line-through text-gray-500 dark:text-gray-400">
-																			{log.old_value || '(vacío)'}
-																		</span>
-																		<span className="text-xs">→</span>
-																		<span className="text-green-600 dark:text-green-400">
-																			{log.new_value || '(vacío)'}
-																		</span>
-																	</div>
-																</div>
-															)}
-														</div>
-													);
-												})}
+											<p className="text-base font-medium">{formattedDate}</p>
+										)}
+									</div>
+								</div>
+							</div>
+
+							{/* Biopsy Information (only for biopsy cases) */}
+							{case_.exam_type?.toLowerCase() === 'biopsia' && (
+								<div className="bg-white dark:bg-background rounded-lg p-4 border border-input transition-all duration-300">
+									<div className="flex items-center gap-2 mb-4">
+										<FileText className="text-green-500 size-6" />
+										<h3 className="text-xl font-semibold">Información de Biopsia</h3>
+									</div>
+									<div className="space-y-4">
+										{/* Material Remitido */}
+										<div>
+											<p className="text-sm text-gray-500 dark:text-gray-400">Material Remitido:</p>
+											{isEditing ? (
+												<Textarea 
+													value={editedValues.material_remitido || case_.material_remitido || ''} 
+													onChange={(e) => handleInputChange('material_remitido', e.target.value)}
+													className="min-h-[80px]"
+												/>
+											) : (
+												<p className="text-base">{case_.material_remitido || 'No especificado'}</p>
+											)}
+										</div>
+										
+										{/* Información Clínica */}
+										<div>
+											<p className="text-sm text-gray-500 dark:text-gray-400">Información Clínica:</p>
+											{isEditing ? (
+												<Textarea 
+													value={editedValues.informacion_clinica || case_.informacion_clinica || ''} 
+													onChange={(e) => handleInputChange('informacion_clinica', e.target.value)}
+													className="min-h-[80px]"
+												/>
+											) : (
+												<p className="text-base">{case_.informacion_clinica || 'No especificado'}</p>
+											)}
+										</div>
+										
+										{/* Descripción Macroscópica */}
+										<div>
+											<p className="text-sm text-gray-500 dark:text-gray-400">Descripción Macroscópica:</p>
+											{isEditing ? (
+												<Textarea 
+													value={editedValues.descripcion_macroscopica || case_.descripcion_macroscopica || ''} 
+													onChange={(e) => handleInputChange('descripcion_macroscopica', e.target.value)}
+													className="min-h-[100px]"
+												/>
+											) : (
+												<p className="text-base">{case_.descripcion_macroscopica || 'No especificado'}</p>
+											)}
+										</div>
+										
+										{/* Diagnóstico */}
+										<div>
+											<p className="text-sm text-gray-500 dark:text-gray-400">Diagnóstico:</p>
+											{isEditing ? (
+												<Textarea 
+													value={editedValues.diagnostico || case_.diagnostico || ''} 
+													onChange={(e) => handleInputChange('diagnostico', e.target.value)}
+													className="min-h-[100px]"
+												/>
+											) : (
+												<p className="text-base">{case_.diagnostico || 'No especificado'}</p>
+											)}
+										</div>
+										
+										{/* Comentario */}
+										<div>
+											<p className="text-sm text-gray-500 dark:text-gray-400">Comentario:</p>
+											{isEditing ? (
+												<Textarea 
+													value={editedValues.comentario || case_.comentario || ''} 
+													onChange={(e) => handleInputChange('comentario', e.target.value)}
+													className="min-h-[80px]"
+												/>
+											) : (
+												<p className="text-base">{case_.comentario || 'No especificado'}</p>
+											)}
+										</div>
+									</div>
+								</div>
+							)}
+
+							{/* Payment Information */}
+							<div className="bg-white dark:bg-background rounded-lg p-4 border border-input transition-all duration-300">
+								<div className="flex items-center gap-2 mb-4">
+									<DollarSign className="text-purple-500 size-6" />
+									<h3 className="text-xl font-semibold">Información de Pago</h3>
+								</div>
+								<div className="space-y-4">
+									<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+										<div>
+											<p className="text-sm text-gray-500 dark:text-gray-400">Monto total:</p>
+											<p className="text-base font-medium">${case_.total_amount.toLocaleString()}</p>
+										</div>
+										<div>
+											<p className="text-sm text-gray-500 dark:text-gray-400">Estado de pago:</p>
+											<div className={`inline-flex px-2 py-1 text-sm font-semibold rounded-full ${getStatusColor(case_.payment_status)}`}>
+												{case_.payment_status}
+											</div>
+										</div>
+									</div>
+
+									{case_.remaining > 0 && (
+										<div className="bg-red-50 dark:bg-red-900/20 p-3 rounded-lg border border-red-200 dark:border-red-800">
+											<div className="flex items-center gap-2">
+												<AlertTriangle className="w-5 h-5 text-red-600 dark:text-red-400" />
+												<p className="text-sm font-medium text-red-800 dark:text-red-300">
+													Monto pendiente: ${case_.remaining.toLocaleString()}
+												</p>
+											</div>
+										</div>
+									)}
+
+									{/* Payment Methods */}
+									<div className="space-y-3">
+										<p className="text-sm font-medium text-gray-700 dark:text-gray-300">Métodos de pago:</p>
+										{case_.payment_method_1 && (
+											<div className="bg-gray-50 dark:bg-gray-800/50 p-3 rounded-lg">
+												<div className="flex justify-between">
+													<p className="text-sm font-medium">{case_.payment_method_1}</p>
+													<p className="text-sm font-medium">${case_.payment_amount_1?.toLocaleString() || 0}</p>
+												</div>
+												{case_.payment_reference_1 && (
+													<p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+														Ref: {case_.payment_reference_1}
+													</p>
+												)}
+											</div>
+										)}
+										{case_.payment_method_2 && (
+											<div className="bg-gray-50 dark:bg-gray-800/50 p-3 rounded-lg">
+												<div className="flex justify-between">
+													<p className="text-sm font-medium">{case_.payment_method_2}</p>
+													<p className="text-sm font-medium">${case_.payment_amount_2?.toLocaleString() || 0}</p>
+												</div>
+												{case_.payment_reference_2 && (
+													<p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+														Ref: {case_.payment_reference_2}
+													</p>
+												)}
+											</div>
+										)}
+										{case_.payment_method_3 && (
+											<div className="bg-gray-50 dark:bg-gray-800/50 p-3 rounded-lg">
+												<div className="flex justify-between">
+													<p className="text-sm font-medium">{case_.payment_method_3}</p>
+													<p className="text-sm font-medium">${case_.payment_amount_3?.toLocaleString() || 0}</p>
+												</div>
+												{case_.payment_reference_3 && (
+													<p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+														Ref: {case_.payment_reference_3}
+													</p>
+												)}
+											</div>
+										)}
+										{case_.payment_method_4 && (
+											<div className="bg-gray-50 dark:bg-gray-800/50 p-3 rounded-lg">
+												<div className="flex justify-between">
+													<p className="text-sm font-medium">{case_.payment_method_4}</p>
+													<p className="text-sm font-medium">${case_.payment_amount_4?.toLocaleString() || 0}</p>
+												</div>
+												{case_.payment_reference_4 && (
+													<p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+														Ref: {case_.payment_reference_4}
+													</p>
+												)}
 											</div>
 										)}
 									</div>
-								)}
+								</div>
+							</div>
 
-								{/* Registered By Section */}
-								{(creatorData || case_.created_by_display_name) && (
-									<InfoSection title="Registrado por" icon={UserCheck}>
-										<div className="space-y-1">
-											<InfoRow
-												label="Nombre"
-												value={creatorData?.displayName || case_.created_by_display_name || 'Usuario del sistema'}
-												editable={false}
-											/>
-											{creatorData?.email && <InfoRow label="Email" value={creatorData.email} editable={false} />}
-											<InfoRow
-												label="Fecha de registro"
-												value={
-													case_.created_at
-														? format(new Date(case_.created_at), 'dd/MM/yyyy HH:mm', { locale: es })
-														: 'N/A'
-												}
-												editable={false}
-											/>
+							{/* Additional Information */}
+							<div className="bg-white dark:bg-background rounded-lg p-4 border border-input transition-all duration-300">
+								<div className="flex items-center gap-2 mb-4">
+									<FileText className="text-blue-500 size-6" />
+									<h3 className="text-xl font-semibold">Información Adicional</h3>
+								</div>
+								<div className="space-y-4">
+									{case_.comments && (
+										<div>
+											<p className="text-sm text-gray-500 dark:text-gray-400">Comentarios:</p>
+											<p className="text-base">{case_.comments}</p>
 										</div>
-									</InfoSection>
-								)}
-
-								{/* Case Code Section */}
-								{case_.code && (
-									<InfoSection title="Código del Caso" icon={Hash}>
-										<div className="space-y-1">
-											<InfoRow label="Código" value={case_.code} editable={false} />
-											<div className="text-xs text-gray-500 dark:text-gray-400 mt-2 p-2 bg-gray-50 dark:bg-gray-800 rounded">
-												<p>
-													<strong>Formato:</strong> [Tipo][Año][Contador][Mes]
-												</p>
-												<p>
-													<strong>Ejemplo:</strong> 1 = Citología, 25 = 2025, 001 = Primer caso, A = Enero
-												</p>
-											</div>
-										</div>
-									</InfoSection>
-								)}
-
-								{/* Patient Information */}
-								<InfoSection title="Información del Paciente" icon={User}>
-									<div className="space-y-1">
-										<InfoRow 
-											label="Nombre completo" 
-											value={case_.full_name} 
-											field="full_name"
-										/>
-										<InfoRow 
-											label="Cédula" 
-											value={case_.id_number} 
-											field="id_number"
-										/>
-										<div className="flex flex-col sm:flex-row sm:justify-between py-2 border-b border-gray-200 dark:border-gray-700">
-											<span className="text-sm font-medium text-gray-600 dark:text-gray-400 flex items-center gap-1">
-												<Cake className="w-4 h-4 text-pink-500" />
-												Fecha de Nacimiento:
-											</span>
-											{isEditing ? (
-												<div className="sm:w-1/2">
-													<Popover open={isDateOfBirthOpen} onOpenChange={setIsDateOfBirthOpen}>
-														<PopoverTrigger asChild>
-															<Button
-																variant="outline"
-																className={cn(
-																	"w-full justify-start text-left font-normal border-dashed bg-gray-50 dark:bg-gray-800/50",
-																	!editedCase.date_of_birth && "text-muted-foreground"
-																)}
-															>
-																<Cake className="mr-2 h-4 w-4 text-pink-500" />
-																{editedCase.date_of_birth ? (
-																	<div className="flex items-center gap-2">
-																		<span>{format(parseISO(editedCase.date_of_birth as string), 'PPP', { locale: es })}</span>
-																		{getAgeDisplay(editedCase.date_of_birth as string) && (
-																			<span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">
-																				{getAgeDisplay(editedCase.date_of_birth as string)}
-																			</span>
-																		)}
-																	</div>
-																) : case_.date_of_birth ? (
-																	<div className="flex items-center gap-2">
-																		<span>{format(parseISO(case_.date_of_birth), 'PPP', { locale: es })}</span>
-																		{ageDisplay && (
-																			<span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">
-																				{ageDisplay}
-																			</span>
-																		)}
-																	</div>
-																) : (
-																	<span>Sin fecha de nacimiento</span>
-																)}
-															</Button>
-														</PopoverTrigger>
-														<PopoverContent className="w-auto p-0 z-[999999999]">
-															<Calendar
-																mode="single"
-																selected={editedCase.date_of_birth ? parseISO(editedCase.date_of_birth as string) : undefined}
-																onSelect={(date) => {
-																	if (date) {
-																		handleInputChange('date_of_birth', format(date, 'yyyy-MM-dd'));
-																		setIsDateOfBirthOpen(false);
-																	}
-																}}
-																disabled={(date) => {
-																	const today = new Date();
-																	const maxAge = new Date(today.getFullYear() - 150, today.getMonth(), today.getDate());
-																	return date > today || date < maxAge;
-																}}
-																initialFocus
-																locale={es}
-															/>
-														</PopoverContent>
-													</Popover>
-												</div>
-											) : (
-												<div className="text-sm text-gray-900 dark:text-gray-100 sm:text-right">
-													<div>{formattedDateOfBirth}</div>
-													{ageDisplay && (
-														<div className="text-xs text-blue-600 dark:text-blue-400 font-medium">{ageDisplay}</div>
-													)}
-												</div>
-											)}
-										</div>
-										<InfoRow 
-											label="Teléfono" 
-											value={case_.phone} 
-											field="phone"
-										/>
-										<InfoRow 
-											label="Email" 
-											value={case_.email || 'N/A'} 
-											field="email"
-											type="email"
-										/>
-										<InfoRow 
-											label="Relación" 
-											value={case_.relationship || 'N/A'} 
-											editable={false}
-										/>
-									</div>
-								</InfoSection>
-
-								{/* Medical Information */}
-								<InfoSection title="Información Médica" icon={Stethoscope}>
-									<div className="space-y-1">
-										<InfoRow label="Estudio" value={case_.exam_type} editable={false} />
-										<InfoRow label="Médico tratante" value={case_.treating_doctor} editable={false} />
-										<InfoRow label="Procedencia" value={case_.origin} editable={false} />
-										<InfoRow label="Sede" value={case_.branch} editable={false} />
-										<InfoRow label="Muestra" value={case_.sample_type} editable={false} />
-										<InfoRow label="Cantidad de muestras" value={case_.number_of_samples} editable={false} />
-										<InfoRow label="Fecha de registro" value={new Date(case_.date || '').toLocaleDateString('es-ES')} editable={false} />
-									</div>
-								</InfoSection>
-
-								{/* Financial Information */}
-								<InfoSection title="Información Financiera" icon={CreditCard}>
-									<div className="space-y-1">
-										<InfoRow label="Monto total" value={`$${case_.total_amount.toLocaleString()}`} editable={false} />
-										<InfoRow label="Monto faltante" value={`$${case_.remaining.toLocaleString()}`} editable={false} />
-										<InfoRow label="Tasa de cambio" value={case_.exchange_rate?.toFixed(2)} editable={false} />
-									</div>
-
-									{/* Payment Methods */}
-									<div className="mt-4">
-										<div className="flex items-center justify-between mb-2">
-											<h4 className="text-sm font-medium text-gray-700 dark:text-gray-300">Formas de Pago:</h4>
-											{isEditing && (
-												<Button 
-													size="sm" 
-													variant="outline" 
-													onClick={() => setIsAddPaymentModalOpen(true)}
-													className="text-xs flex items-center gap-1"
-													disabled={
-														!!editedCase.payment_method_1 && 
-														!!editedCase.payment_method_2 && 
-														!!editedCase.payment_method_3 && 
-														!!editedCase.payment_method_4
-													}
-												>
-													<Plus className="w-3 h-3" />
-													Agregar Método
-												</Button>
-											)}
-										</div>
-										<div className="space-y-2">
-											{/* Payment Method 1 */}
-											{(case_.payment_method_1 || (isEditing && editedCase.payment_method_1)) && (
-												<div className="bg-white dark:bg-background p-3 rounded border border-gray-200 dark:border-gray-700 relative transition-all hover:border-gray-300 dark:hover:border-gray-600">
-													{isEditing ? (
-														<>
-															<div className="grid grid-cols-1 md:grid-cols-3 gap-2">
-																<div>
-																	<label className="text-xs text-gray-500 dark:text-gray-400 mb-1 block">Método</label>
-																	<Select
-																		value={editedCase.payment_method_1 || ''}
-																		onValueChange={(value) => handleInputChange('payment_method_1', value)}
-																	>
-																		<SelectTrigger className="text-sm border-dashed focus:border-primary focus:ring-primary bg-gray-50 dark:bg-gray-800/50">
-																			<SelectValue placeholder="Seleccionar método" />
-																		</SelectTrigger>
-																		<SelectContent className="z-[999999999]">
-																			<SelectItem value="Punto de venta">Punto de venta</SelectItem>
-																			<SelectItem value="Dólares en efectivo">Dólares en efectivo</SelectItem>
-																			<SelectItem value="Zelle">Zelle</SelectItem>
-																			<SelectItem value="Pago móvil">Pago móvil</SelectItem>
-																			<SelectItem value="Bs en efectivo">Bs en efectivo</SelectItem>
-																		</SelectContent>
-																	</Select>
-																</div>
-																<div>
-																	<label className="text-xs text-gray-500 dark:text-gray-400 mb-1 block">Monto</label>
-																	<Input
-																		type="number"
-																		value={editedCase.payment_amount_1 || ''}
-																		onChange={(e) => handleInputChange('payment_amount_1', parseFloat(e.target.value))}
-																		className="text-sm border-dashed focus:border-primary focus:ring-primary bg-gray-50 dark:bg-gray-800/50"
-																	/>
-																</div>
-																<div>
-																	<label className="text-xs text-gray-500 dark:text-gray-400 mb-1 block">Referencia</label>
-																	<Input
-																		value={editedCase.payment_reference_1 || ''}
-																		onChange={(e) => handleInputChange('payment_reference_1', e.target.value)}
-																		className="text-sm border-dashed focus:border-primary focus:ring-primary bg-gray-50 dark:bg-gray-800/50"
-																	/>
-																</div>
-															</div>
-															<button
-																onClick={() => handleRemovePayment(1)}
-																className="absolute -top-2 -right-2 bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 p-1 rounded-full hover:bg-red-200 dark:hover:bg-red-900/50 transition-colors"
-															>
-																<XCircle className="w-4 h-4" />
-															</button>
-														</>
-													) : (
-														<div className="flex justify-between items-center">
-															<span className="text-sm font-medium">{case_.payment_method_1}</span>
-															<span className="text-sm">
-																{getPaymentSymbol(case_.payment_method_1)} {case_.payment_amount_1?.toLocaleString()}
-															</span>
-														</div>
-													)}
-													{(case_.payment_reference_1 || (isEditing && editedCase.payment_reference_1)) && !isEditing && (
-														<div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-															Ref: {editedCase.payment_reference_1 || case_.payment_reference_1}
-														</div>
-													)}
-												</div>
-											)}
-
-											{/* Payment Method 2 */}
-											{(case_.payment_method_2 || (isEditing && editedCase.payment_method_2)) && (
-												<div className="bg-white dark:bg-background p-3 rounded border border-gray-200 dark:border-gray-700 relative transition-all hover:border-gray-300 dark:hover:border-gray-600">
-													{isEditing ? (
-														<>
-															<div className="grid grid-cols-1 md:grid-cols-3 gap-2">
-																<div>
-																	<label className="text-xs text-gray-500 dark:text-gray-400 mb-1 block">Método</label>
-																	<Select
-																		value={editedCase.payment_method_2 || ''}
-																		onValueChange={(value) => handleInputChange('payment_method_2', value)}
-																	>
-																		<SelectTrigger className="text-sm border-dashed focus:border-primary focus:ring-primary bg-gray-50 dark:bg-gray-800/50">
-																			<SelectValue placeholder="Seleccionar método" />
-																		</SelectTrigger>
-																		<SelectContent className="z-[999999999]">
-																			<SelectItem value="Punto de venta">Punto de venta</SelectItem>
-																			<SelectItem value="Dólares en efectivo">Dólares en efectivo</SelectItem>
-																			<SelectItem value="Zelle">Zelle</SelectItem>
-																			<SelectItem value="Pago móvil">Pago móvil</SelectItem>
-																			<SelectItem value="Bs en efectivo">Bs en efectivo</SelectItem>
-																		</SelectContent>
-																	</Select>
-																</div>
-																<div>
-																	<label className="text-xs text-gray-500 dark:text-gray-400 mb-1 block">Monto</label>
-																	<Input
-																		type="number"
-																		value={editedCase.payment_amount_2 || ''}
-																		onChange={(e) => handleInputChange('payment_amount_2', parseFloat(e.target.value))}
-																		className="text-sm border-dashed focus:border-primary focus:ring-primary bg-gray-50 dark:bg-gray-800/50"
-																	/>
-																</div>
-																<div>
-																	<label className="text-xs text-gray-500 dark:text-gray-400 mb-1 block">Referencia</label>
-																	<Input
-																		value={editedCase.payment_reference_2 || ''}
-																		onChange={(e) => handleInputChange('payment_reference_2', e.target.value)}
-																		className="text-sm border-dashed focus:border-primary focus:ring-primary bg-gray-50 dark:bg-gray-800/50"
-																	/>
-																</div>
-															</div>
-															<button
-																onClick={() => handleRemovePayment(2)}
-																className="absolute -top-2 -right-2 bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 p-1 rounded-full hover:bg-red-200 dark:hover:bg-red-900/50 transition-colors"
-															>
-																<XCircle className="w-4 h-4" />
-															</button>
-														</>
-													) : (
-														<div className="flex justify-between items-center">
-															<span className="text-sm font-medium">{case_.payment_method_2}</span>
-															<span className="text-sm">
-																{getPaymentSymbol(case_.payment_method_2)} {case_.payment_amount_2?.toLocaleString()}
-															</span>
-														</div>
-													)}
-													{(case_.payment_reference_2 || (isEditing && editedCase.payment_reference_2)) && !isEditing && (
-														<div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-															Ref: {editedCase.payment_reference_2 || case_.payment_reference_2}
-														</div>
-													)}
-												</div>
-											)}
-
-											{/* Payment Method 3 */}
-											{(case_.payment_method_3 || (isEditing && editedCase.payment_method_3)) && (
-												<div className="bg-white dark:bg-background p-3 rounded border border-gray-200 dark:border-gray-700 relative transition-all hover:border-gray-300 dark:hover:border-gray-600">
-													{isEditing ? (
-														<>
-															<div className="grid grid-cols-1 md:grid-cols-3 gap-2">
-																<div>
-																	<label className="text-xs text-gray-500 dark:text-gray-400 mb-1 block">Método</label>
-																	<Select
-																		value={editedCase.payment_method_3 || ''}
-																		onValueChange={(value) => handleInputChange('payment_method_3', value)}
-																	>
-																		<SelectTrigger className="text-sm border-dashed focus:border-primary focus:ring-primary bg-gray-50 dark:bg-gray-800/50">
-																			<SelectValue placeholder="Seleccionar método" />
-																		</SelectTrigger>
-																		<SelectContent className="z-[999999999]">
-																			<SelectItem value="Punto de venta">Punto de venta</SelectItem>
-																			<SelectItem value="Dólares en efectivo">Dólares en efectivo</SelectItem>
-																			<SelectItem value="Zelle">Zelle</SelectItem>
-																			<SelectItem value="Pago móvil">Pago móvil</SelectItem>
-																			<SelectItem value="Bs en efectivo">Bs en efectivo</SelectItem>
-																		</SelectContent>
-																	</Select>
-																</div>
-																<div>
-																	<label className="text-xs text-gray-500 dark:text-gray-400 mb-1 block">Monto</label>
-																	<Input
-																		type="number"
-																		value={editedCase.payment_amount_3 || ''}
-																		onChange={(e) => handleInputChange('payment_amount_3', parseFloat(e.target.value))}
-																		className="text-sm border-dashed focus:border-primary focus:ring-primary bg-gray-50 dark:bg-gray-800/50"
-																	/>
-																</div>
-																<div>
-																	<label className="text-xs text-gray-500 dark:text-gray-400 mb-1 block">Referencia</label>
-																	<Input
-																		value={editedCase.payment_reference_3 || ''}
-																		onChange={(e) => handleInputChange('payment_reference_3', e.target.value)}
-																		className="text-sm border-dashed focus:border-primary focus:ring-primary bg-gray-50 dark:bg-gray-800/50"
-																	/>
-																</div>
-															</div>
-															<button
-																onClick={() => handleRemovePayment(3)}
-																className="absolute -top-2 -right-2 bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 p-1 rounded-full hover:bg-red-200 dark:hover:bg-red-900/50 transition-colors"
-															>
-																<XCircle className="w-4 h-4" />
-															</button>
-														</>
-													) : (
-														<div className="flex justify-between items-center">
-															<span className="text-sm font-medium">{case_.payment_method_3}</span>
-															<span className="text-sm">
-																{getPaymentSymbol(case_.payment_method_3)} {case_.payment_amount_3?.toLocaleString()}
-															</span>
-														</div>
-													)}
-													{(case_.payment_reference_3 || (isEditing && editedCase.payment_reference_3)) && !isEditing && (
-														<div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-															Ref: {editedCase.payment_reference_3 || case_.payment_reference_3}
-														</div>
-													)}
-												</div>
-											)}
-
-											{/* Payment Method 4 */}
-											{(case_.payment_method_4 || (isEditing && editedCase.payment_method_4)) && (
-												<div className="bg-white dark:bg-background p-3 rounded border border-gray-200 dark:border-gray-700 relative transition-all hover:border-gray-300 dark:hover:border-gray-600">
-													{isEditing ? (
-														<>
-															<div className="grid grid-cols-1 md:grid-cols-3 gap-2">
-																<div>
-																	<label className="text-xs text-gray-500 dark:text-gray-400 mb-1 block">Método</label>
-																	<Select
-																		value={editedCase.payment_method_4 || ''}
-																		onValueChange={(value) => handleInputChange('payment_method_4', value)}
-																	>
-																		<SelectTrigger className="text-sm border-dashed focus:border-primary focus:ring-primary bg-gray-50 dark:bg-gray-800/50">
-																			<SelectValue placeholder="Seleccionar método" />
-																		</SelectTrigger>
-																		<SelectContent className="z-[999999999]">
-																			<SelectItem value="Punto de venta">Punto de venta</SelectItem>
-																			<SelectItem value="Dólares en efectivo">Dólares en efectivo</SelectItem>
-																			<SelectItem value="Zelle">Zelle</SelectItem>
-																			<SelectItem value="Pago móvil">Pago móvil</SelectItem>
-																			<SelectItem value="Bs en efectivo">Bs en efectivo</SelectItem>
-																		</SelectContent>
-																	</Select>
-																</div>
-																<div>
-																	<label className="text-xs text-gray-500 dark:text-gray-400 mb-1 block">Monto</label>
-																	<Input
-																		type="number"
-																		value={editedCase.payment_amount_4 || ''}
-																		onChange={(e) => handleInputChange('payment_amount_4', parseFloat(e.target.value))}
-																		className="text-sm border-dashed focus:border-primary focus:ring-primary bg-gray-50 dark:bg-gray-800/50"
-																	/>
-																</div>
-																<div>
-																	<label className="text-xs text-gray-500 dark:text-gray-400 mb-1 block">Referencia</label>
-																	<Input
-																		value={editedCase.payment_reference_4 || ''}
-																		onChange={(e) => handleInputChange('payment_reference_4', e.target.value)}
-																		className="text-sm border-dashed focus:border-primary focus:ring-primary bg-gray-50 dark:bg-gray-800/50"
-																	/>
-																</div>
-															</div>
-															<button
-																onClick={() => handleRemovePayment(4)}
-																className="absolute -top-2 -right-2 bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 p-1 rounded-full hover:bg-red-200 dark:hover:bg-red-900/50 transition-colors"
-															>
-																<XCircle className="w-4 h-4" />
-															</button>
-														</>
-													) : (
-														<div className="flex justify-between items-center">
-															<span className="text-sm font-medium">{case_.payment_method_4}</span>
-															<span className="text-sm">
-																{getPaymentSymbol(case_.payment_method_4)} {case_.payment_amount_4?.toLocaleString()}
-															</span>
-														</div>
-													)}
-													{(case_.payment_reference_4 || (isEditing && editedCase.payment_reference_4)) && !isEditing && (
-														<div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-															Ref: {editedCase.payment_reference_4 || case_.payment_reference_4}
-														</div>
-													)}
-												</div>
-											)}
-										</div>
-									</div>
-								</InfoSection>
-
-								{/* Additional Information */}
-								<InfoSection title="Información Adicional" icon={FileText}>
-									<div className="space-y-1">
-										<InfoRow
-											label="Fecha de creación"
-											value={
-												case_.created_at
-													? format(new Date(case_.created_at), 'dd/MM/yyyy HH:mm', { locale: es })
-													: 'N/A'
-											}
-											editable={false}
-										/>
-										<InfoRow
-											label="Última actualización"
-											value={
-												case_.updated_at
-													? format(new Date(case_.updated_at), 'dd/MM/yyyy HH:mm', { locale: es })
-													: 'N/A'
-											}
-											editable={false}
-										/>
-										<div className="py-2">
-											<span className="text-sm font-medium text-gray-600 dark:text-gray-400">Comentarios:</span>
-											{isEditing ? (
-												<Textarea
-													value={editedCase.comments || ''}
-													onChange={(e) => handleInputChange('comments', e.target.value)}
-													className="mt-1 w-full min-h-[100px] text-sm border-dashed focus:border-primary focus:ring-primary bg-gray-50 dark:bg-gray-800/50"
-													placeholder="Agregar comentarios adicionales..."
-												/>
-											) : (
-												<p className="text-sm text-gray-900 dark:text-gray-100 mt-1 p-3 bg-white dark:bg-background rounded border">
-													{case_.comments || 'Sin comentarios'}
-												</p>
-											)}
-										</div>
-									</div>
-								</InfoSection>
-
-								{/* Bottom Action Buttons */}
-								<div className="flex gap-2 pt-4 border-t border-gray-200 dark:border-gray-700">
-									{isEditing ? (
-										<>
-											<Button 
-												onClick={handleSaveChanges}
-												disabled={isSaving}
-												className="flex-1 flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white"
-											>
-												{isSaving ? (
-													<>
-														<Loader2 className="w-4 h-4 animate-spin" />
-														Guardando...
-													</>
-												) : (
-													<>
-														<Save className="w-4 h-4" />
-														Guardar Cambios
-													</>
-												)}
-											</Button>
-											<Button 
-												onClick={handleCancelEdit}
-												variant="outline"
-												className="flex-1 flex items-center gap-2"
-												disabled={isSaving}
-											>
-												<XCircle className="w-4 h-4" />
-												Cancelar
-											</Button>
-										</>
-									) : (
-										<>
-											<Button 
-												onClick={handleEditClick}
-												className="flex-1 flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white"
-											>
-												<Edit className="w-4 h-4" />
-												Editar Caso
-											</Button>
-											<Button 
-												onClick={handleDeleteClick}
-												variant="destructive"
-												className="flex-1 flex items-center gap-2"
-											>
-												<Trash2 className="w-4 h-4" />
-												Eliminar Caso
-											</Button>
-										</>
 									)}
+									<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+										<div>
+											<p className="text-sm text-gray-500 dark:text-gray-400">Fecha de creación:</p>
+											<p className="text-base">
+												{case_.created_at ? format(new Date(case_.created_at), 'dd/MM/yyyy HH:mm', { locale: es }) : 'N/A'}
+											</p>
+										</div>
+										{case_.created_by_display_name && (
+											<div>
+												<p className="text-sm text-gray-500 dark:text-gray-400">Creado por:</p>
+												<p className="text-base">{case_.created_by_display_name}</p>
+											</div>
+										)}
+									</div>
 								</div>
 							</div>
-						</motion.div>
-					</>
-				)}
-			</AnimatePresence>
-			
-			{/* Delete Confirmation Modal */}
-			{isDeleteModalOpen && (
-				<div className="fixed inset-0 z-[999999999] flex items-center justify-center bg-black/50">
-					<div className="bg-white dark:bg-background rounded-lg p-6 max-w-md w-full mx-4 shadow-xl border border-gray-200 dark:border-gray-700">
-						<div className="flex items-center gap-3 mb-4">
-							<div className="p-2 bg-red-100 dark:bg-red-900/30 rounded-full">
-								<AlertCircle className="w-6 h-6 text-red-600 dark:text-red-400" />
-							</div>
-							<h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Confirmar eliminación</h3>
-						</div>
-						
-						<p className="text-gray-700 dark:text-gray-300 mb-6">
-							¿Estás seguro de que quieres eliminar este caso? Esta acción no se puede deshacer.
-						</p>
-						
-						<div className="flex flex-col sm:flex-row gap-3 sm:justify-end">
-							<button
-								onClick={() => setIsDeleteModalOpen(false)}
-								className="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-md hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
-							>
-								Cancelar
-							</button>
-							<button
-								onClick={handleConfirmDelete}
-								disabled={isDeleting}
-								className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors flex items-center justify-center gap-2"
-							>
-								{isDeleting ? (
-									<>
-										<Loader2 className="w-4 h-4 animate-spin" />
-										<span>Eliminando...</span>
-									</>
-								) : (
-									<>
-										<Trash2 className="w-4 h-4" />
-										<span>Confirmar</span>
-									</>
-								)}
-							</button>
-						</div>
-					</div>
-				</div>
-			)}
 
-			{/* Add Payment Modal */}
-			{isAddPaymentModalOpen && (
-				<div className="fixed inset-0 z-[999999999] flex items-center justify-center bg-black/50">
-					<div className="bg-white dark:bg-background rounded-lg p-6 max-w-md w-full mx-4 shadow-xl border border-gray-200 dark:border-gray-700">
-						<div className="flex items-center justify-between mb-4">
-							<div className="flex items-center gap-3">
-								<div className="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-full">
-									<DollarSign className="w-5 h-5 text-blue-600 dark:text-blue-400" />
-								</div>
-								<h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Agregar Método de Pago</h3>
-							</div>
-							<button
-								onClick={() => setIsAddPaymentModalOpen(false)}
-								className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
-							>
-								<X className="w-5 h-5 text-gray-500 dark:text-gray-400" />
-							</button>
-						</div>
-						
-						<div className="space-y-4 mb-6">
-							<div>
-								<label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-									Método de Pago
-								</label>
-								<Select
-									value={newPayment.method}
-									onValueChange={(value) => setNewPayment({...newPayment, method: value})}
+							{/* Action Buttons */}
+							<div className="flex flex-col sm:flex-row gap-3 pt-6 border-t border-gray-200 dark:border-gray-700">
+								<Button variant="outline" onClick={onClose} className="flex-1">
+									Cerrar
+								</Button>
+								<Button
+									onClick={() => setIsEditModalOpen(true)}
+									className="flex-1 bg-primary hover:bg-primary/80"
 								>
-									<SelectTrigger className="w-full">
-										<SelectValue placeholder="Seleccionar método" />
-									</SelectTrigger>
-									<SelectContent className="z-[999999999]">
-										<SelectItem value="Punto de venta">Punto de venta</SelectItem>
-										<SelectItem value="Dólares en efectivo">Dólares en efectivo</SelectItem>
-										<SelectItem value="Zelle">Zelle</SelectItem>
-										<SelectItem value="Pago móvil">Pago móvil</SelectItem>
-										<SelectItem value="Bs en efectivo">Bs en efectivo</SelectItem>
-									</SelectContent>
-								</Select>
-							</div>
-							
-							<div>
-								<label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-									Monto
-								</label>
-								<Input
-									type="number"
-									value={newPayment.amount}
-									onChange={(e) => setNewPayment({...newPayment, amount: e.target.value})}
-									placeholder="0.00"
-								/>
-							</div>
-							
-							<div>
-								<label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-									Referencia
-								</label>
-								<Input
-									value={newPayment.reference}
-									onChange={(e) => setNewPayment({...newPayment, reference: e.target.value})}
-									placeholder="Referencia de pago"
-								/>
+									<Edit2 className="w-4 h-4 mr-2" />
+									Editar Completo
+								</Button>
 							</div>
 						</div>
-						
-						<div className="flex flex-col sm:flex-row gap-3 sm:justify-end">
-							<Button
-								variant="outline"
-								onClick={() => setIsAddPaymentModalOpen(false)}
-							>
-								Cancelar
-							</Button>
-							<Button
-								onClick={handleAddPayment}
-								disabled={!newPayment.method || !newPayment.amount}
-								className="bg-primary hover:bg-primary/80"
-							>
-								Agregar Pago
-							</Button>
-						</div>
-					</div>
-				</div>
+					</motion.div>
+
+					{/* Edit Modal */}
+					<EditCaseModal
+						case_={case_}
+						isOpen={isEditModalOpen}
+						onClose={() => setIsEditModalOpen(false)}
+						onSave={handleSaveInEditModal}
+					/>
+				</>
 			)}
-		</>
+		</AnimatePresence>
 	)
 }
 
