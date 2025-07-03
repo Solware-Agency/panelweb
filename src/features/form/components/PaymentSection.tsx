@@ -19,7 +19,7 @@ interface PaymentSectionProps {
 	control: Control<FormValues>
 	errors: FieldErrors<FormValues>
 	fields: FieldArrayWithId<FormValues, 'payments', 'id'>[]
-	append?: UseFieldArrayAppend<FormValues, 'payments'>
+	append?: UseFieldArrayAppend<FormValues, 'payments'> | (() => void)
 	remove: UseFieldArrayRemove
 	inputStyles: string
 	usdValue: string
