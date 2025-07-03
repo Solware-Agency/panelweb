@@ -5,7 +5,8 @@ import { es } from 'date-fns/locale';
 import type { MedicalRecord } from '@lib/supabase-service';
 import { getAgeDisplay } from '@lib/supabase-service';
 
-// Import signatures as modules
+// Import logo and signatures as modules
+import logoPath from '/src/assets/img/logo_conspat.png';
 import firmasPath from '/src/assets/img/firmas.png';
 
 // Type definition for PDF page to avoid TypeScript errors
@@ -51,8 +52,8 @@ export async function generatePDF(caseData: MedicalRecord): Promise<void> {
     
     // Add logo
     try {
-      // Fetch the logo image from public directory
-      const logoResponse = await fetch('/logo_conspat.png');
+      // Fetch the logo image
+      const logoResponse = await fetch(logoPath);
       const logoArrayBuffer = await logoResponse.arrayBuffer();
       
       // Embed the logo image
