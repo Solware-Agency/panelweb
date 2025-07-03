@@ -7,7 +7,7 @@ import { useQuery } from '@tanstack/react-query'
 import { MedicalForm } from '@features/form/components/MedicalForm'
 import { RecordsSection } from '@features/form/components/RecordsSection'
 import { SettingsSection } from '@features/form/components/SettingsSection'
-import { useState } from 'react'
+import { useState, useCallback } from 'react'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@shared/components/ui/tabs'
 import { useNavigate } from 'react-router-dom'
 import { signOut } from '@lib/supabase/auth'
@@ -35,28 +35,28 @@ function FormContent() {
 			? searchMedicalRecords(searchTerm)
 			: getMedicalRecords(),
 		staleTime: 1000 * 60 * 5, // 5 minutes
+		// Add suspense option to prevent UI blocking
+		suspense: false,
+		// Add refetchOnWindowFocus to false to prevent unnecessary refetches
+		refetchOnWindowFocus: false,
 	})
 
-	const handleClearForm = () => {
+	const handleClearForm = useCallback(() => {
 		window.dispatchEvent(new CustomEvent('clearForm'))
-	}
+	}, [])
 
-	const handleLogout = async () => {
+	const handleLogout = useCallback(async () => {
 		await signOut()
 		navigate('/')
-	}
+	}, [navigate])
 
-	const handleRefreshCases = () => {
+	const handleRefreshCases = useCallback(() => {
 		refetchCases()
-	}
+	}, [refetchCases])
 
-	const handleToggleFullscreen = () => {
-		setIsFullscreen(true)
-	}
-
-	const handleSearch = (term: string) => {
+	const handleSearch = useCallback((term: string) => {
 		setSearchTerm(term)
-	}
+	}, [])
 
 	return (
 		<>
@@ -70,13 +70,6 @@ function FormContent() {
 				)}
 				{activeTab === 'records' && (
 					<>
-						<button
-							onClick={handleToggleFullscreen}
-							className="hidden lg:flex px-3 py-2 border border-input rounded-lg focus:ring-2 focus:ring-primary dark:bg-background dark:text-white text-sm items-center gap-2 shadow-xl dark:shadow-black shadow-black/40"
-						>
-							<Maximize2 className="size-3" />
-							Expandir
-						</button>
 						<button
 							onClick={handleRefreshCases}
 							disabled={casesLoading}

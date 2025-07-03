@@ -1,10 +1,9 @@
-import React, { useState, useEffect } from 'react'
-import { useQuery } from '@tanstack/react-query'
+import React, { useState, useEffect, useCallback, useMemo } from 'react'
 import CasesTable from '@shared/components/cases/CasesTable'
 import CaseDetailPanel from '@shared/components/cases/CaseDetailPanel'
 import { Users, MapPin, Microscope, FileText, Activity, Maximize2, Download, Search } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@shared/components/ui/card'
-import { searchClientes, type MedicalRecord } from '@lib/supabase-service'
+import { type MedicalRecord } from '@lib/supabase-service'
 import { useUserProfile } from '@shared/hooks/useUserProfile'
 import { Button } from '@shared/components/ui/button'
 import { Input } from '@shared/components/ui/input'
@@ -32,18 +31,14 @@ export const RecordsSection: React.FC<RecordsSectionProps> = ({
 	const [selectedCase, setSelectedCase] = useState<MedicalRecord | null>(null)
 	const [isPanelOpen, setIsPanelOpen] = useState(false)
 	const { profile } = useUserProfile()
-	const [filteredCases, setFilteredCases] = useState<MedicalRecord[]>(cases || [])
 	const [showPendingOnly, setShowPendingOnly] = useState(false)
 	const [selectedExamType, setSelectedExamType] = useState<string | null>(null)
 	const [showPdfReadyOnly, setShowPdfReadyOnly] = useState(false)
 	const [isSearching, setIsSearching] = useState(false)
 
 	// Filter cases by assigned branch if user is an employee with assigned branch
-	useEffect(() => {
-		if (!cases) {
-			setFilteredCases([])
-			return
-		}
+	const filteredCases = useMemo(() => {
+		if (!cases || cases.length === 0) return []
 
 		let filtered = [...cases]
 
@@ -73,51 +68,50 @@ export const RecordsSection: React.FC<RecordsSectionProps> = ({
 			})
 		}
 
-		setFilteredCases(filtered)
+		return filtered
 	}, [cases, profile, showPendingOnly, selectedExamType, showPdfReadyOnly])
 
-	const handleCaseSelect = (case_: MedicalRecord) => {
+	const handleCaseSelect = useCallback((case_: MedicalRecord) => {
 		setSelectedCase(case_)
 		setIsPanelOpen(true)
-	}
+	}, [])
 
-	const handlePanelClose = () => {
+	const handlePanelClose = useCallback(() => {
 		setIsPanelOpen(false)
 		// Delay clearing selected case to allow animation to complete
 		setTimeout(() => setSelectedCase(null), 300)
-	}
-
-	// Determine which data to use
-	const records = filteredCases
+	}, [])
 
 	// Calculate statistics
-	const stats = React.useMemo(() => {
-		if (!records) return { total: 0, totalAmount: 0, completed: 0, examTypes: {} }
+	const stats = useMemo(() => {
+		if (!filteredCases || filteredCases.length === 0) {
+			return { total: 0, totalAmount: 0, completed: 0, examTypes: {} }
+		}
 
-		const total = records.length
-		const totalAmount = records.reduce((sum: number, record: MedicalRecord) => sum + (record.total_amount || 0), 0)
-		const completed = records.filter((record: MedicalRecord) => record.payment_status === 'Completado').length
+		const total = filteredCases.length
+		const totalAmount = filteredCases.reduce((sum: number, record: MedicalRecord) => sum + (record.total_amount || 0), 0)
+		const completed = filteredCases.filter((record: MedicalRecord) => record.payment_status === 'Completado').length
 
 		// Count cases by exam type
 		const examTypes: Record<string, number> = {}
-		records.forEach((record: MedicalRecord) => {
+		filteredCases.forEach((record: MedicalRecord) => {
 			if (!record.exam_type) return;
 			const type = record.exam_type.toLowerCase()
 			examTypes[type] = (examTypes[type] || 0) + 1
 		})
 
 		return { total, totalAmount, completed, examTypes }
-	}, [records])
+	}, [filteredCases])
 
 	// Toggle pending cases filter
-	const handleTogglePendingFilter = () => {
+	const handleTogglePendingFilter = useCallback(() => {
 		setShowPendingOnly(!showPendingOnly)
 		setSelectedExamType(null) // Clear exam type filter when toggling pending filter
 		setShowPdfReadyOnly(false) // Clear PDF filter when toggling pending filter
-	}
+	}, [showPendingOnly])
 
 	// Toggle exam type filter
-	const handleExamTypeFilter = (examType: string) => {
+	const handleExamTypeFilter = useCallback((examType: string) => {
 		if (selectedExamType === examType.toLowerCase()) {
 			setSelectedExamType(null) // Clear filter if already selected
 		} else {
@@ -125,17 +119,17 @@ export const RecordsSection: React.FC<RecordsSectionProps> = ({
 			setShowPendingOnly(false) // Clear pending filter when selecting exam type
 			setShowPdfReadyOnly(false) // Clear PDF filter when selecting exam type
 		}
-	}
+	}, [selectedExamType])
 
 	// Toggle PDF ready filter
-	const handleTogglePdfFilter = () => {
+	const handleTogglePdfFilter = useCallback(() => {
 		setShowPdfReadyOnly(!showPdfReadyOnly)
 		setShowPendingOnly(false) // Clear pending filter when toggling PDF filter
 		setSelectedExamType(null) // Clear exam type filter when toggling PDF filter
-	}
+	}, [showPdfReadyOnly])
 
 	// Get exam type counts from all cases (not just filtered)
-	const examTypeCounts = React.useMemo(() => {
+	const examTypeCounts = useMemo(() => {
 		const counts: Record<string, number> = {
 			'biopsia': 0,
 			'citologia': 0,
@@ -154,7 +148,7 @@ export const RecordsSection: React.FC<RecordsSectionProps> = ({
 	}, [cases])
 
 	// Count PDF-ready cases
-	const pdfReadyCases = React.useMemo(() => {
+	const pdfReadyCases = useMemo(() => {
 		return cases?.filter(c => {
 			const isBiopsyCase = c.exam_type?.toLowerCase() === 'biopsia'
 			const hasDownloadableContent = isBiopsyCase && !!c.diagnostico
@@ -163,7 +157,7 @@ export const RecordsSection: React.FC<RecordsSectionProps> = ({
 	}, [cases])
 
 	// Get exam type icon
-	const getExamTypeIcon = (examType: string) => {
+	const getExamTypeIcon = useCallback((examType: string) => {
 		switch (examType.toLowerCase()) {
 			case 'biopsia':
 				return <Activity className="h-4 w-4" />
@@ -174,31 +168,30 @@ export const RecordsSection: React.FC<RecordsSectionProps> = ({
 			default:
 				return <FileText className="h-4 w-4" />
 		}
-	}
-
-	// Handle toggle fullscreen
-	const handleToggleFullscreen = () => {
-		setIsFullscreen(!isFullscreen)
-	}
+	}, [])
 
 	// Handle search input change
-	const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+	const handleSearchChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
 		setSearchTerm(e.target.value)
-	}
+	}, [])
 
 	// Handle search on Enter key
-	const handleSearchKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+	const handleSearchKeyDown = useCallback((e: React.KeyboardEvent<HTMLInputElement>) => {
 		if (e.key === 'Enter' && onSearch) {
+			setIsSearching(true)
 			onSearch(searchTerm)
+			setTimeout(() => setIsSearching(false), 500)
 		}
-	}
+	}, [onSearch, searchTerm])
 
 	// Handle search button click
-	const handleSearchClick = () => {
+	const handleSearchClick = useCallback(() => {
 		if (onSearch) {
+			setIsSearching(true)
 			onSearch(searchTerm)
+			setTimeout(() => setIsSearching(false), 500)
 		}
-	}
+	}, [onSearch, searchTerm])
 
 	return (
 		<div>
@@ -243,7 +236,7 @@ export const RecordsSection: React.FC<RecordsSectionProps> = ({
 						Buscar
 					</Button>
 					<Button
-						onClick={handleToggleFullscreen}
+						onClick={() => setIsFullscreen(true)}
 						variant="outline"
 						className="flex items-center gap-2 whitespace-nowrap"
 					>
@@ -254,114 +247,112 @@ export const RecordsSection: React.FC<RecordsSectionProps> = ({
 			</div>
 
 			{/* Statistics cards */}
-			{records && (
-				<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
-					{/* Pending Cases Card */}
-					<Card 
-						className={`transition-all duration-300 hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 group cursor-pointer ${
-							showPendingOnly ? 'border-primary shadow-lg shadow-primary/20' : ''
-						}`}
-						onClick={handleTogglePendingFilter}
-					>
-						<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-							<CardTitle className="text-sm font-medium">Casos Pendientes</CardTitle>
-							<Users className={`h-4 w-4 ${showPendingOnly ? 'text-primary' : 'text-muted-foreground group-hover:text-primary/80'}`} />
-						</CardHeader>
-						<CardContent>
-							<div className="text-2xl font-bold">
-								{stats.total > 0 ? Math.round(((stats.total - stats.completed) / stats.total) * 100) : 0}%
-							</div>
-							<p className="text-xs text-muted-foreground">
-								{stats.total - stats.completed} de {stats.total} casos pendientes
-							</p>
-						</CardContent>
-					</Card>
+			<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
+				{/* Pending Cases Card */}
+				<Card 
+					className={`transition-all duration-300 hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 group cursor-pointer ${
+						showPendingOnly ? 'border-primary shadow-lg shadow-primary/20' : ''
+					}`}
+					onClick={handleTogglePendingFilter}
+				>
+					<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+						<CardTitle className="text-sm font-medium">Casos Pendientes</CardTitle>
+						<Users className={`h-4 w-4 ${showPendingOnly ? 'text-primary' : 'text-muted-foreground group-hover:text-primary/80'}`} />
+					</CardHeader>
+					<CardContent>
+						<div className="text-2xl font-bold">
+							{stats.total > 0 ? Math.round(((stats.total - stats.completed) / stats.total) * 100) : 0}%
+						</div>
+						<p className="text-xs text-muted-foreground">
+							{stats.total - stats.completed} de {stats.total} casos pendientes
+						</p>
+					</CardContent>
+				</Card>
 
-					{/* PDF Ready Cases Card */}
-					<Card 
-						className={`transition-all duration-300 hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 group cursor-pointer ${
-							showPdfReadyOnly ? 'border-primary shadow-lg shadow-primary/20' : ''
-						}`}
-						onClick={handleTogglePdfFilter}
-					>
-						<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-							<CardTitle className="text-sm font-medium">PDF Disponibles</CardTitle>
-							<Download className={`h-4 w-4 ${showPdfReadyOnly ? 'text-primary' : 'text-muted-foreground group-hover:text-primary/80'}`} />
-						</CardHeader>
-						<CardContent>
-							<div className="text-2xl font-bold">
-								{pdfReadyCases}
-							</div>
-							<p className="text-xs text-muted-foreground">
-								casos con PDF listo para descargar
-							</p>
-						</CardContent>
-					</Card>
+				{/* PDF Ready Cases Card */}
+				<Card 
+					className={`transition-all duration-300 hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 group cursor-pointer ${
+						showPdfReadyOnly ? 'border-primary shadow-lg shadow-primary/20' : ''
+					}`}
+					onClick={handleTogglePdfFilter}
+				>
+					<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+						<CardTitle className="text-sm font-medium">PDF Disponibles</CardTitle>
+						<Download className={`h-4 w-4 ${showPdfReadyOnly ? 'text-primary' : 'text-muted-foreground group-hover:text-primary/80'}`} />
+					</CardHeader>
+					<CardContent>
+						<div className="text-2xl font-bold">
+							{pdfReadyCases}
+						</div>
+						<p className="text-xs text-muted-foreground">
+							casos con PDF listo para descargar
+						</p>
+					</CardContent>
+				</Card>
 
-					{/* Biopsia Card */}
-					<Card 
-						className={`transition-all duration-300 hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 group cursor-pointer ${
-							selectedExamType === 'biopsia' ? 'border-primary shadow-lg shadow-primary/20' : ''
-						}`}
-						onClick={() => handleExamTypeFilter('biopsia')}
-					>
-						<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-							<CardTitle className="text-sm font-medium">Biopsias</CardTitle>
-							<Activity className={`h-4 w-4 ${selectedExamType === 'biopsia' ? 'text-primary' : 'text-muted-foreground group-hover:text-primary/80'}`} />
-						</CardHeader>
-						<CardContent>
-							<div className="text-2xl font-bold">
-								{examTypeCounts['biopsia'] || 0}
-							</div>
-							<p className="text-xs text-muted-foreground">
-								casos de biopsia
-							</p>
-						</CardContent>
-					</Card>
+				{/* Biopsia Card */}
+				<Card 
+					className={`transition-all duration-300 hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 group cursor-pointer ${
+						selectedExamType === 'biopsia' ? 'border-primary shadow-lg shadow-primary/20' : ''
+					}`}
+					onClick={() => handleExamTypeFilter('biopsia')}
+				>
+					<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+						<CardTitle className="text-sm font-medium">Biopsias</CardTitle>
+						<Activity className={`h-4 w-4 ${selectedExamType === 'biopsia' ? 'text-primary' : 'text-muted-foreground group-hover:text-primary/80'}`} />
+					</CardHeader>
+					<CardContent>
+						<div className="text-2xl font-bold">
+							{examTypeCounts['biopsia'] || 0}
+						</div>
+						<p className="text-xs text-muted-foreground">
+							casos de biopsia
+						</p>
+					</CardContent>
+				</Card>
 
-					{/* Citología Card */}
-					<Card 
-						className={`transition-all duration-300 hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 group cursor-pointer ${
-							selectedExamType === 'citologia' ? 'border-primary shadow-lg shadow-primary/20' : ''
-						}`}
-						onClick={() => handleExamTypeFilter('citologia')}
-					>
-						<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-							<CardTitle className="text-sm font-medium">Citologías</CardTitle>
-							<FileText className={`h-4 w-4 ${selectedExamType === 'citologia' ? 'text-primary' : 'text-muted-foreground group-hover:text-primary/80'}`} />
-						</CardHeader>
-						<CardContent>
-							<div className="text-2xl font-bold">
-								{examTypeCounts['citologia'] || 0}
-							</div>
-							<p className="text-xs text-muted-foreground">
-								casos de citología
-							</p>
-						</CardContent>
-					</Card>
+				{/* Citología Card */}
+				<Card 
+					className={`transition-all duration-300 hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 group cursor-pointer ${
+						selectedExamType === 'citologia' ? 'border-primary shadow-lg shadow-primary/20' : ''
+					}`}
+					onClick={() => handleExamTypeFilter('citologia')}
+				>
+					<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+						<CardTitle className="text-sm font-medium">Citologías</CardTitle>
+						<FileText className={`h-4 w-4 ${selectedExamType === 'citologia' ? 'text-primary' : 'text-muted-foreground group-hover:text-primary/80'}`} />
+					</CardHeader>
+					<CardContent>
+						<div className="text-2xl font-bold">
+							{examTypeCounts['citologia'] || 0}
+						</div>
+						<p className="text-xs text-muted-foreground">
+							casos de citología
+						</p>
+					</CardContent>
+				</Card>
 
-					{/* Inmunohistoquímica Card */}
-					<Card 
-						className={`transition-all duration-300 hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 group cursor-pointer ${
-							selectedExamType === 'inmunohistoquimica' ? 'border-primary shadow-lg shadow-primary/20' : ''
-						}`}
-						onClick={() => handleExamTypeFilter('inmunohistoquimica')}
-					>
-						<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-							<CardTitle className="text-sm font-medium">Inmunohistoquímica</CardTitle>
-							<Microscope className={`h-4 w-4 ${selectedExamType === 'inmunohistoquimica' ? 'text-primary' : 'text-muted-foreground group-hover:text-primary/80'}`} />
-						</CardHeader>
-						<CardContent>
-							<div className="text-2xl font-bold">
-								{examTypeCounts['inmunohistoquimica'] || 0}
-							</div>
-							<p className="text-xs text-muted-foreground">
-								casos de inmunohistoquímica
-							</p>
-						</CardContent>
-					</Card>
-				</div>
-			)}
+				{/* Inmunohistoquímica Card */}
+				<Card 
+					className={`transition-all duration-300 hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 group cursor-pointer ${
+						selectedExamType === 'inmunohistoquimica' ? 'border-primary shadow-lg shadow-primary/20' : ''
+					}`}
+					onClick={() => handleExamTypeFilter('inmunohistoquimica')}
+				>
+					<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+						<CardTitle className="text-sm font-medium">Inmunohistoquímica</CardTitle>
+						<Microscope className={`h-4 w-4 ${selectedExamType === 'inmunohistoquimica' ? 'text-primary' : 'text-muted-foreground group-hover:text-primary/80'}`} />
+					</CardHeader>
+					<CardContent>
+						<div className="text-2xl font-bold">
+							{examTypeCounts['inmunohistoquimica'] || 0}
+						</div>
+						<p className="text-xs text-muted-foreground">
+							casos de inmunohistoquímica
+						</p>
+					</CardContent>
+				</Card>
+			</div>
 
 			{/* Active filters indicators */}
 			<div className="flex flex-wrap gap-2 mb-4">
@@ -405,7 +396,7 @@ export const RecordsSection: React.FC<RecordsSectionProps> = ({
 			{/* Cases Table */}
 			<CasesTable
 				onCaseSelect={handleCaseSelect}
-				cases={records || []}
+				cases={filteredCases}
 				isLoading={isLoading}
 				error={error}
 				refetch={refetch}
