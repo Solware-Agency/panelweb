@@ -126,13 +126,17 @@ function MainHome() {
 														r="14"
 														fill="none"
 														className={`stroke-current ${colors[index % colors.length]}`}
-														strokeWidth="4"
+														strokeWidth={hoveredBranchIndex === index ? "5" : "4"}
 														strokeDasharray={`${branch.percentage} ${100 - branch.percentage}`}
 														strokeDashoffset={-offset}
 														strokeLinecap="round"
 														onMouseEnter={() => setHoveredBranchIndex(index)}
 														onMouseLeave={() => setHoveredBranchIndex(null)}
-														style={{ cursor: 'pointer' }}
+														style={{ 
+															cursor: 'pointer',
+															filter: hoveredBranchIndex === index ? 'drop-shadow(0 0 3px currentColor)' : 'none',
+															transition: 'all 0.2s ease'
+														}}
 													></circle>
 												)
 											})}
@@ -145,6 +149,39 @@ function MainHome() {
 												<p className="text-xs text-gray-500 dark:text-gray-400">Total</p>
 											</div>
 										</div>
+										
+										{/* Tooltip for pie chart */}
+										{hoveredBranchIndex !== null && stats?.revenueByBranch[hoveredBranchIndex] && (
+											<div className="absolute -top-28 left-1/2 transform -translate-x-1/2 z-10 bg-white dark:bg-gray-800 rounded-lg p-3 shadow-lg min-w-[180px] border border-gray-200 dark:border-gray-700 animate-fade-in">
+												<div className="text-center mb-2">
+													<h3 className="font-bold text-gray-900 dark:text-gray-100">
+														{stats.revenueByBranch[hoveredBranchIndex].branch}
+													</h3>
+													<div className="w-full h-0.5 bg-gray-200 dark:bg-gray-700 my-1"></div>
+												</div>
+												<div className="grid grid-cols-2 gap-2 text-sm">
+													<div>
+														<p className="text-gray-500 dark:text-gray-400">Ingresos:</p>
+														<p className="font-bold text-gray-900 dark:text-gray-100">
+															{formatCurrency(stats.revenueByBranch[hoveredBranchIndex].revenue)}
+														</p>
+													</div>
+													<div>
+														<p className="text-gray-500 dark:text-gray-400">Porcentaje:</p>
+														<p className="font-bold text-gray-900 dark:text-gray-100">
+															{stats.revenueByBranch[hoveredBranchIndex].percentage.toFixed(1)}%
+														</p>
+													</div>
+													<div className="col-span-2">
+														<p className="text-gray-500 dark:text-gray-400">Período:</p>
+														<p className="font-bold text-gray-900 dark:text-gray-100">
+															{format(selectedMonth, 'MMMM yyyy', { locale: es })}
+														</p>
+													</div>
+												</div>
+												<div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 w-4 h-4 rotate-45 bg-white dark:bg-gray-800 border-r border-b border-gray-200 dark:border-gray-700"></div>
+											</div>
+										)}
 									</div>
 								</div>
 
@@ -195,12 +232,12 @@ function MainHome() {
 											return (
 												<div
 													key={branch.branch}
-													className={`flex items-center justify-between p-2 sm:p-3 bg-gradient-to-r ${color.bg} rounded-xl border ${color.border} relative ${color.hover} transition-all duration-300`}
+													className={`flex items-center justify-between p-2 sm:p-3 bg-gradient-to-r ${color.bg} rounded-xl border ${color.border} relative ${color.hover} transition-all duration-300 ${hoveredBranchIndex === index ? 'scale-105 shadow-md' : ''}`}
 													onMouseEnter={() => setHoveredBranchIndex(index)}
 													onMouseLeave={() => setHoveredBranchIndex(null)}
 												>
 													<div className="flex items-center gap-2 sm:gap-3">
-														<div className={`w-3 h-3 sm:w-4 sm:h-4 ${color.dot} rounded-full shadow-lg`}></div>
+														<div className={`w-3 h-3 sm:w-4 sm:h-4 ${color.dot} rounded-full shadow-lg ${hoveredBranchIndex === index ? 'animate-pulse' : ''}`}></div>
 														<div>
 															<p className="font-medium text-gray-700 dark:text-gray-300 text-sm sm:text-base">
 																{branch.branch}
@@ -212,6 +249,31 @@ function MainHome() {
 															{formatCurrency(branch.revenue)}
 														</span>
 													</div>
+													
+													{/* Interactive Tooltip */}
+													{hoveredBranchIndex === index && (
+														<div className={`absolute z-10 -top-24 left-1/2 transform -translate-x-1/2 ${color.tooltip} text-white rounded-lg p-3 shadow-lg min-w-[200px] animate-fade-in`}>
+															<div className="text-center mb-2">
+																<h3 className="font-bold">{branch.branch}</h3>
+																<div className="w-full h-0.5 bg-white/30 my-1"></div>
+															</div>
+															<div className="grid grid-cols-2 gap-2 text-sm">
+																<div>
+																	<p className="text-white/70">Ingresos:</p>
+																	<p className="font-bold">{formatCurrency(branch.revenue)}</p>
+																</div>
+																<div>
+																	<p className="text-white/70">Porcentaje:</p>
+																	<p className="font-bold">{branch.percentage.toFixed(1)}%</p>
+																</div>
+																<div className="col-span-2">
+																	<p className="text-white/70">Período:</p>
+																	<p className="font-bold">{format(selectedMonth, 'MMMM yyyy', { locale: es })}</p>
+																</div>
+															</div>
+															<div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 w-4 h-4 rotate-45 bg-inherit"></div>
+														</div>
+													)}
 												</div>
 											)
 										})

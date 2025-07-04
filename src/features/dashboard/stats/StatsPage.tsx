@@ -10,6 +10,7 @@ const StatsPage: React.FC = () => {
 	const [selectedMonth, setSelectedMonth] = useState<Date>(new Date())
 	const [selectedYear, setSelectedYear] = useState<number>(new Date().getFullYear())
 	const { data: stats, isLoading, error } = useDashboardStats(selectedMonth, selectedYear)
+	const [hoveredSegmentIndex, setHoveredSegmentIndex] = useState<number | null>(null)
 
 	if (error) {
 		console.error('Error loading stats:', error)
@@ -244,10 +245,16 @@ const StatsPage: React.FC = () => {
 												cy="18"
 												r="14"
 												fill="none"
-												className={`stroke-current ${colors[index % colors.length]}`}
-												strokeWidth="4"
+												className={`stroke-current ${colors[index % colors.length]} transition-all duration-200`}
+												strokeWidth={hoveredSegmentIndex === index ? "5" : "4"}
 												strokeDasharray={`${branch.percentage} ${100 - branch.percentage}`}
 												strokeDashoffset={-offset}
+												onMouseEnter={() => setHoveredSegmentIndex(index)}
+												onMouseLeave={() => setHoveredSegmentIndex(null)}
+												style={{ 
+													cursor: 'pointer',
+													filter: hoveredSegmentIndex === index ? 'drop-shadow(0 0 3px currentColor)' : 'none'
+												}}
 											></circle>
 										)
 									})}
@@ -260,6 +267,39 @@ const StatsPage: React.FC = () => {
 										<p className="text-sm text-gray-500 dark:text-gray-400">Total</p>
 									</div>
 								</div>
+								
+								{/* Tooltip for pie chart */}
+								{hoveredSegmentIndex !== null && stats?.revenueByBranch[hoveredSegmentIndex] && (
+									<div className="absolute -top-28 left-1/2 transform -translate-x-1/2 z-10 bg-white dark:bg-gray-800 rounded-lg p-3 shadow-lg min-w-[180px] border border-gray-200 dark:border-gray-700 animate-fade-in">
+										<div className="text-center mb-2">
+											<h3 className="font-bold text-gray-900 dark:text-gray-100">
+												{stats.revenueByBranch[hoveredSegmentIndex].branch}
+											</h3>
+											<div className="w-full h-0.5 bg-gray-200 dark:bg-gray-700 my-1"></div>
+										</div>
+										<div className="grid grid-cols-2 gap-2 text-sm">
+											<div>
+												<p className="text-gray-500 dark:text-gray-400">Ingresos:</p>
+												<p className="font-bold text-gray-900 dark:text-gray-100">
+													{formatCurrency(stats.revenueByBranch[hoveredSegmentIndex].revenue)}
+												</p>
+											</div>
+											<div>
+												<p className="text-gray-500 dark:text-gray-400">Porcentaje:</p>
+												<p className="font-bold text-gray-900 dark:text-gray-100">
+													{stats.revenueByBranch[hoveredSegmentIndex].percentage.toFixed(1)}%
+												</p>
+											</div>
+											<div className="col-span-2">
+												<p className="text-gray-500 dark:text-gray-400">Período:</p>
+												<p className="font-bold text-gray-900 dark:text-gray-100">
+													{format(selectedMonth, 'MMMM yyyy', { locale: es })}
+												</p>
+											</div>
+										</div>
+										<div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 w-4 h-4 rotate-45 bg-white dark:bg-gray-800 border-r border-b border-gray-200 dark:border-gray-700"></div>
+									</div>
+								)}
 							</div>
 						</div>
 						<div className="space-y-3">
@@ -273,9 +313,18 @@ const StatsPage: React.FC = () => {
 								stats?.revenueByBranch.map((branch, index) => {
 									const colors = ['bg-blue-500', 'bg-green-500', 'bg-orange-500', 'bg-red-500', 'bg-purple-500']
 									return (
-										<div key={branch.branch} className="flex items-center justify-between">
+										<div 
+											key={branch.branch} 
+											className="flex items-center justify-between transition-all duration-200"
+											onMouseEnter={() => setHoveredSegmentIndex(index)}
+											onMouseLeave={() => setHoveredSegmentIndex(null)}
+											style={{ 
+												transform: hoveredSegmentIndex === index ? 'scale(1.05)' : 'scale(1)',
+												cursor: 'pointer'
+											}}
+										>
 											<div className="flex items-center gap-2">
-												<div className={`w-3 h-3 ${colors[index % colors.length]} rounded-full`}></div>
+												<div className={`w-3 h-3 ${colors[index % colors.length]} rounded-full ${hoveredSegmentIndex === index ? 'animate-pulse' : ''}`}></div>
 												<span className="text-sm text-gray-600 dark:text-gray-400">{branch.branch}</span>
 											</div>
 											<span className="text-sm font-medium text-gray-700 dark:text-gray-300">
