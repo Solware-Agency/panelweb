@@ -36,7 +36,7 @@ export const RecordsSection: React.FC<RecordsSectionProps> = ({
 	const [showPdfReadyOnly, setShowPdfReadyOnly] = useState(false)
 	const [isSearching, setIsSearching] = useState(false)
 
-	// Filter cases by assigned branch if user is an employee with assigned branch
+	// Filter cases by assigned branch if user has an assigned branch
 	const filteredCases = useMemo(() => {
 		if (!cases || cases.length === 0) return []
 
@@ -44,6 +44,11 @@ export const RecordsSection: React.FC<RecordsSectionProps> = ({
 
 		// If user is an employee with assigned branch, filter cases
 		if (profile?.role === 'employee' && profile?.assigned_branch) {
+			filtered = filtered.filter(c => c.branch === profile.assigned_branch)
+		}
+		
+		// If user is an admin with assigned branch, filter cases
+		if (profile?.role === 'admin' && profile?.assigned_branch) {
 			filtered = filtered.filter(c => c.branch === profile.assigned_branch)
 		}
 
@@ -200,7 +205,7 @@ export const RecordsSection: React.FC<RecordsSectionProps> = ({
 				<div>
 					<div className="flex items-center gap-3">
 						<h2 className="text-2xl font-bold text-foreground">Registros de Clientes</h2>
-						{profile?.role === 'employee' && profile?.assigned_branch && (
+						{profile?.assigned_branch && (
 							<div className="flex items-center gap-2 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg px-3 py-1">
 								<MapPin className="w-4 h-4 text-blue-600 dark:text-blue-400" />
 								<span className="text-sm font-medium text-blue-800 dark:text-blue-300">
