@@ -29,28 +29,31 @@ export const PatientDataSection = memo(({ control, inputStyles }: PatientDataSec
 	const dateOfBirth = useWatch({ control, name: 'dateOfBirth' })
 
 	// Calculate age from date of birth - memoized to prevent unnecessary recalculations
-	const { years, months, currentAge } = useMemo(() => {
-		if (!dateOfBirth) return { years: 0, months: 0, currentAge: '' };
-		
+	const { currentAge } = useMemo(() => {
+		if (!dateOfBirth) return { years: 0, months: 0, currentAge: '' }
+
 		const now = new Date()
 		const years = differenceInYears(now, dateOfBirth)
 		const months = differenceInMonths(now, dateOfBirth) % 12
-		
+
 		// Format age display based on years and months
-		let currentAge = '';
+		let currentAge = ''
 		if (years === 0) {
 			currentAge = `${months} ${months === 1 ? 'mes' : 'meses'}`
 		} else {
 			currentAge = `${years} ${years === 1 ? 'año' : 'años'}`
 		}
-		
-		return { years, months, currentAge };
-	}, [dateOfBirth]);
+
+		return { years, months, currentAge }
+	}, [dateOfBirth])
 
 	// Memoize the handler to prevent unnecessary re-renders
-	const handlePatientSelect = useCallback((idNumber: string) => {
-		fillPatientData(idNumber, true) // Silencioso
-	}, [fillPatientData]);
+	const handlePatientSelect = useCallback(
+		(idNumber: string) => {
+			fillPatientData(idNumber, true) // Silencioso
+		},
+		[fillPatientData],
+	)
 
 	return (
 		<Card className="transition-all duration-300 hover:border-primary hover:shadow-lg hover:shadow-primary/20">
@@ -197,19 +200,19 @@ export const PatientDataSection = memo(({ control, inputStyles }: PatientDataSec
 								<PopoverContent className="w-auto p-0">
 									<Calendar
 										mode="single"
-										selected={field.value}
+										selected={field.value instanceof Date ? field.value : undefined}
 										onSelect={(date) => {
-											field.onChange(date)
+											field.onChange(date instanceof Date ? date : null)
 											setIsDateOfBirthCalendarOpen(false)
 										}}
 										disabled={(date) => {
 											const today = new Date()
 											const maxAge = new Date(today.getFullYear() - 150, today.getMonth(), today.getDate())
-											return date > today || date < maxAge
+											return date < maxAge || false
 										}}
 										initialFocus
 										locale={es}
-										defaultMonth={field.value || new Date(2000, 0, 1)}
+										defaultMonth={field.value instanceof Date ? field.value : new Date(2000, 0, 1)}
 									/>
 								</PopoverContent>
 							</Popover>
@@ -258,21 +261,26 @@ export const PatientDataSection = memo(({ control, inputStyles }: PatientDataSec
 											)}
 										>
 											<CalendarIcon className="mr-2 h-4 w-4" />
-											{field.value ? format(field.value, 'PPP', { locale: es }) : <span>Selecciona fecha de registro</span>}
+											{field.value ? (
+												format(field.value, 'PPP', { locale: es })
+											) : (
+												<span>Selecciona fecha de registro</span>
+											)}
 										</Button>
 									</FormControl>
 								</PopoverTrigger>
 								<PopoverContent className="w-auto p-0">
 									<Calendar
 										mode="single"
-										selected={field.value}
+										selected={field.value instanceof Date ? field.value : undefined}
 										onSelect={(date) => {
-											field.onChange(date)
+											field.onChange(date instanceof Date ? date : null)
 											setIsRegistrationDateCalendarOpen(false)
 										}}
 										disabled={(date) => date > new Date()}
 										initialFocus
 										locale={es}
+										defaultMonth={field.value instanceof Date ? field.value : new Date(2000, 0, 1)}
 									/>
 								</PopoverContent>
 							</Popover>

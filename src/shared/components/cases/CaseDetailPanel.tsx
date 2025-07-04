@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { motion, AnimatePresence } from 'motion/react'
-import { X, Edit2, User, Calendar, Phone, Mail, FileText, DollarSign, Clock, CheckCircle, AlertTriangle, Microscope } from 'lucide-react'
+import { X, Edit2, User, FileText, DollarSign, AlertTriangle, Microscope } from 'lucide-react'
 import type { MedicalRecord } from '@lib/supabase-service'
 import { getAgeDisplay } from '@lib/supabase-service'
 import { format, parseISO } from 'date-fns'
@@ -21,12 +21,12 @@ const CaseDetailPanel: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClos
 
 	// Format date for display
 	const formattedDate = case_.date ? format(new Date(case_.date), 'dd/MM/yyyy', { locale: es }) : 'N/A'
-	
+
 	// Get age display from date of birth
 	const ageDisplay = case_.date_of_birth ? getAgeDisplay(case_.date_of_birth) : ''
 
 	// Format date of birth for display
-	const formattedDateOfBirth = case_.date_of_birth 
+	const formattedDateOfBirth = case_.date_of_birth
 		? format(parseISO(case_.date_of_birth), 'dd/MM/yyyy', { locale: es })
 		: 'N/A'
 
@@ -156,42 +156,42 @@ const CaseDetailPanel: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClos
 											<p className="text-sm text-gray-500 dark:text-gray-400">Estudio:</p>
 											<p className="text-base font-medium">{case_.exam_type}</p>
 										</div>
-										
+
 										{/* Treating Doctor */}
 										<div>
 											<p className="text-sm text-gray-500 dark:text-gray-400">Médico tratante:</p>
 											<p className="text-base font-medium">{case_.treating_doctor}</p>
 										</div>
 									</div>
-									
+
 									<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 										{/* Origin */}
 										<div>
 											<p className="text-sm text-gray-500 dark:text-gray-400">Procedencia:</p>
 											<p className="text-base font-medium">{case_.origin}</p>
 										</div>
-										
+
 										{/* Branch */}
 										<div>
 											<p className="text-sm text-gray-500 dark:text-gray-400">Sede:</p>
 											<p className="text-base font-medium">{case_.branch}</p>
 										</div>
 									</div>
-									
+
 									<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 										{/* Sample Type */}
 										<div>
 											<p className="text-sm text-gray-500 dark:text-gray-400">Muestra:</p>
 											<p className="text-base font-medium">{case_.sample_type}</p>
 										</div>
-										
+
 										{/* Number of Samples */}
 										<div>
 											<p className="text-sm text-gray-500 dark:text-gray-400">Cantidad de muestras:</p>
 											<p className="text-base font-medium">{case_.number_of_samples}</p>
 										</div>
 									</div>
-									
+
 									{/* Registration Date */}
 									<div>
 										<p className="text-sm text-gray-500 dark:text-gray-400">Fecha de registro:</p>
@@ -213,25 +213,25 @@ const CaseDetailPanel: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClos
 											<p className="text-sm text-gray-500 dark:text-gray-400">Material Remitido:</p>
 											<p className="text-base">{case_.material_remitido || 'No especificado'}</p>
 										</div>
-										
+
 										{/* Información Clínica */}
 										<div>
 											<p className="text-sm text-gray-500 dark:text-gray-400">Información Clínica:</p>
 											<p className="text-base">{case_.informacion_clinica || 'No especificado'}</p>
 										</div>
-										
+
 										{/* Descripción Macroscópica */}
 										<div>
 											<p className="text-sm text-gray-500 dark:text-gray-400">Descripción Macroscópica:</p>
 											<p className="text-base">{case_.descripcion_macroscopica || 'No especificado'}</p>
 										</div>
-										
+
 										{/* Diagnóstico */}
 										<div>
 											<p className="text-sm text-gray-500 dark:text-gray-400">Diagnóstico:</p>
 											<p className="text-base">{case_.diagnostico || 'No especificado'}</p>
 										</div>
-										
+
 										{/* Comentario */}
 										<div>
 											<p className="text-sm text-gray-500 dark:text-gray-400">Comentario:</p>
@@ -255,7 +255,11 @@ const CaseDetailPanel: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClos
 										</div>
 										<div>
 											<p className="text-sm text-gray-500 dark:text-gray-400">Estado de pago:</p>
-											<div className={`inline-flex px-2 py-1 text-sm font-semibold rounded-full ${getStatusColor(case_.payment_status)}`}>
+											<div
+												className={`inline-flex px-2 py-1 text-sm font-semibold rounded-full ${getStatusColor(
+													case_.payment_status,
+												)}`}
+											>
 												{case_.payment_status}
 											</div>
 										</div>
@@ -348,7 +352,9 @@ const CaseDetailPanel: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClos
 										<div>
 											<p className="text-sm text-gray-500 dark:text-gray-400">Fecha de creación:</p>
 											<p className="text-base">
-												{case_.created_at ? format(new Date(case_.created_at), 'dd/MM/yyyy HH:mm', { locale: es }) : 'N/A'}
+												{case_.created_at
+													? format(new Date(case_.created_at), 'dd/MM/yyyy HH:mm', { locale: es })
+													: 'N/A'}
 											</p>
 										</div>
 										{case_.created_by_display_name && (
@@ -366,10 +372,7 @@ const CaseDetailPanel: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClos
 								<Button variant="outline" onClick={onClose} className="flex-1">
 									Cerrar
 								</Button>
-								<Button
-									onClick={() => setIsEditModalOpen(true)}
-									className="flex-1 bg-primary hover:bg-primary/80"
-								>
+								<Button onClick={() => setIsEditModalOpen(true)} className="flex-1 bg-primary hover:bg-primary/80">
 									<Edit2 className="w-4 h-4 mr-2" />
 									Editar
 								</Button>
@@ -383,10 +386,10 @@ const CaseDetailPanel: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClos
 						isOpen={isEditModalOpen}
 						onClose={() => setIsEditModalOpen(false)}
 						onSave={() => {
-							onClose();
+							onClose()
 						}}
 						onDelete={() => {
-							onClose();
+							onClose()
 						}}
 					/>
 				</>

@@ -122,6 +122,11 @@ export default {
       scale: {
         '98': '.98',
       },
+      zIndex: {
+        '100': '100',
+        '200': '200',
+        '300': '300',
+      }
     }
   },
   plugins: [tailwindcssAnimate, tailwindcssTypography],
