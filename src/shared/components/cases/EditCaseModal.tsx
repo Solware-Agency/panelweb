@@ -510,7 +510,7 @@ const EditCaseModal: React.FC<EditCaseModalProps> = ({ case_, isOpen, onClose, o
 						animate={{ opacity: 1 }}
 						exit={{ opacity: 0 }}
 						onClick={onClose}
-						className="fixed inset-0 bg-black/50 z-[9999999999]"
+						className="fixed inset-0 bg-black/50 z-200"
 					/>
 
 					{/* Main Modal */}
@@ -519,7 +519,7 @@ const EditCaseModal: React.FC<EditCaseModalProps> = ({ case_, isOpen, onClose, o
 						animate={{ x: 0 }}
 						exit={{ x: '100%' }}
 						transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-						className="fixed right-0 top-0 h-full w-full sm:w-2/3 lg:w-1/2 xl:w-2/5 bg-white dark:bg-background shadow-2xl z-[9999999999] overflow-y-auto border-l border-input"
+						className="fixed right-0 top-0 h-full w-full sm:w-2/3 lg:w-1/2 xl:w-2/5 bg-white dark:bg-background shadow-2xl z-200 overflow-y-auto border-l border-input"
 					>
 						{/* Header */}
 						<div className="sticky top-0 bg-white dark:bg-background border-b border-gray-200 dark:border-gray-700 p-4 sm:p-6 z-10">
@@ -601,7 +601,7 @@ const EditCaseModal: React.FC<EditCaseModalProps> = ({ case_, isOpen, onClose, o
 																</Button>
 															</FormControl>
 														</PopoverTrigger>
-														<PopoverContent className="w-auto p-0 z-[99999999999]">
+														<PopoverContent className="w-auto p-0 z-100">
 															<Calendar
 																mode="single"
 																selected={field.value || undefined}
@@ -666,13 +666,13 @@ const EditCaseModal: React.FC<EditCaseModalProps> = ({ case_, isOpen, onClose, o
 									initial={{ opacity: 0 }}
 									animate={{ opacity: 1 }}
 									exit={{ opacity: 0 }}
-									className="fixed inset-0 bg-black/70 z-[99999999999]"
+									className="fixed inset-0 bg-black/70 z-300"
 								/>
 								<motion.div
 									initial={{ opacity: 0, scale: 0.95 }}
 									animate={{ opacity: 1, scale: 1 }}
 									exit={{ opacity: 0, scale: 0.95 }}
-									className="fixed inset-0 flex items-center justify-center z-[99999999999] p-4"
+									className="fixed inset-0 flex items-center justify-center z-300 p-4"
 								>
 									<div className="bg-white dark:bg-background rounded-xl shadow-2xl max-w-md w-full max-h-[80vh] overflow-y-auto">
 										<div className="p-6">

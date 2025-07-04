@@ -15,7 +15,7 @@ const MainCases: React.FC = () => {
 	// Query for refreshing data
 	const casesQueryResult = useQuery({
 		queryKey: ['medical-cases'],
-		queryFn: () => getMedicalRecords(100, 0),
+		queryFn: () => getMedicalRecords(),
 		staleTime: 1000 * 60 * 5, // 5 minutes
 	})
 

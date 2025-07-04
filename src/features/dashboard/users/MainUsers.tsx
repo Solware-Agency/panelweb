@@ -1,17 +1,42 @@
-import React, { useState, useEffect } from 'react'
-import { Users, Mail, Calendar, Search, Filter, Crown, Briefcase, MapPin, CheckCircle, Clock, User, ShieldCheck } from 'lucide-react'
+import React, { useState } from 'react'
+import {
+	Users,
+	Mail,
+	Calendar,
+	Search,
+	Filter,
+	Crown,
+	Briefcase,
+	MapPin,
+	CheckCircle,
+	Clock,
+	User,
+	ShieldCheck,
+} from 'lucide-react'
 import { Card } from '@shared/components/ui/card'
 import { Input } from '@shared/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@shared/components/ui/select'
 import { useQuery } from '@tanstack/react-query'
 import { supabase } from '@lib/supabase/config'
-import { updateUserRole, updateUserBranch, canManageUsers, getUserByEmail, updateUserApprovalStatus, updateUserToAdmin } from '@lib/supabase/user-management'
+import {
+	updateUserRole,
+	updateUserBranch,
+	canManageUsers,
+	updateUserApprovalStatus,
+} from '@lib/supabase/user-management'
 import { useAuth } from '@app/providers/AuthContext'
 import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
 import { useToast } from '@shared/hooks/use-toast'
 import { Button } from '@shared/components/ui/button'
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@shared/components/ui/dialog'
+import {
+	Dialog,
+	DialogContent,
+	DialogDescription,
+	DialogFooter,
+	DialogHeader,
+	DialogTitle,
+} from '@shared/components/ui/dialog'
 
 interface UserProfile {
 	id: string
@@ -35,13 +60,20 @@ const MainUsers: React.FC = () => {
 	const [statusFilter, setStatusFilter] = useState<string>('all')
 	const [branchFilter, setbranchFilter] = useState<string>('all')
 	const [approvalFilter, setApprovalFilter] = useState<string>('all')
-	const [searchEmail, setSearchEmail] = useState('')
-	const [isSearching, setIsSearching] = useState(false)
 	const [confirmDialogOpen, setConfirmDialogOpen] = useState(false)
-	const [userToUpdate, setUserToUpdate] = useState<{id: string, email: string, newRole: 'owner' | 'employee' | 'admin'} | null>(null)
+	const [userToUpdate, setUserToUpdate] = useState<{
+		id: string
+		email: string
+		newRole: 'owner' | 'employee' | 'admin'
+	} | null>(null)
 
 	// Query para obtener usuarios
-	const { data: users, isLoading, error, refetch } = useQuery({
+	const {
+		data: users,
+		isLoading,
+		error,
+		refetch,
+	} = useQuery({
 		queryKey: ['users'],
 		queryFn: async (): Promise<UserProfile[]> => {
 			try {
@@ -55,12 +87,13 @@ const MainUsers: React.FC = () => {
 
 				// Simular contraseñas para demostración (en un sistema real, nunca se deberían mostrar contraseñas)
 				// Esto es solo para fines de demostración
-				const usersWithPasswords = profiles?.map(profile => ({
-					...profile,
-					email_confirmed_at: null, // Placeholder - requiere permisos admin
-					last_sign_in_at: null, // Placeholder - requiere permisos admin
-					password: '********' // Contraseña simulada para demostración
-				})) || []
+				const usersWithPasswords =
+					profiles?.map((profile) => ({
+						...profile,
+						email_confirmed_at: undefined, // Placeholder
+						last_sign_in_at: undefined, // Placeholder
+						password: '********', // Contraseña simulada para demostración
+					})) || []
 
 				return usersWithPasswords
 			} catch (error) {
@@ -80,49 +113,6 @@ const MainUsers: React.FC = () => {
 		},
 		enabled: !!currentUser?.id,
 	})
-
-	const handleSearchUser = async () => {
-		if (!searchEmail.trim()) {
-			toast({
-				title: '❌ Email requerido',
-				description: 'Por favor ingresa un email para buscar.',
-				variant: 'destructive',
-			})
-			return
-		}
-
-		setIsSearching(true)
-		try {
-			const { data, error } = await getUserByEmail(searchEmail.trim())
-			
-			if (error || !data) {
-				toast({
-					title: '❌ Usuario no encontrado',
-					description: 'No se encontró ningún usuario con ese email.',
-					variant: 'destructive',
-				})
-				return
-			}
-
-			// Si se encuentra, actualizar la lista filtrando solo ese usuario
-			setSearchTerm(searchEmail.trim())
-			
-			toast({
-				title: '✅ Usuario encontrado',
-				description: `Se encontró el usuario ${data.email}.`,
-				className: 'bg-green-100 border-green-400 text-green-800',
-			})
-		} catch (error) {
-			console.error('Error searching user:', error)
-			toast({
-				title: '❌ Error en la búsqueda',
-				description: 'Hubo un problema al buscar el usuario. Inténtalo de nuevo.',
-				variant: 'destructive',
-			})
-		} finally {
-			setIsSearching(false)
-		}
-	}
 
 	const getRoleIcon = (role: string) => {
 		switch (role) {
@@ -174,7 +164,7 @@ const MainUsers: React.FC = () => {
 
 	const getBranchColor = (branch: string | null | undefined) => {
 		if (!branch) return 'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-300'
-		
+
 		switch (branch) {
 			case 'PMG':
 				return 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300'
@@ -213,7 +203,7 @@ const MainUsers: React.FC = () => {
 		}
 
 		// Obtener el usuario que se va a actualizar
-		const userToEdit = users?.find(u => u.id === userId)
+		const userToEdit = users?.find((u) => u.id === userId)
 		if (!userToEdit) {
 			toast({
 				title: '❌ Usuario no encontrado',
@@ -228,7 +218,7 @@ const MainUsers: React.FC = () => {
 			setUserToUpdate({
 				id: userId,
 				email: userToEdit.email,
-				newRole: newRole
+				newRole: newRole,
 			})
 			setConfirmDialogOpen(true)
 			return
@@ -237,7 +227,7 @@ const MainUsers: React.FC = () => {
 		// Para otros roles, proceder directamente
 		try {
 			const { error } = await updateUserRole(userId, newRole)
-			
+
 			if (error) {
 				throw error
 			}
@@ -245,7 +235,7 @@ const MainUsers: React.FC = () => {
 			toast({
 				title: '✅ Rol actualizado',
 				description: `El rol del usuario ha sido cambiado a ${
-					newRole === 'owner' ? 'Propietario' : newRole === 'admin' ? 'Administrador' : 'Recepcionista'
+					{ owner: 'Propietario', admin: 'Administrador', employee: 'Recepcionista' }[newRole]
 				}.`,
 				className: 'bg-green-100 border-green-400 text-green-800',
 			})
@@ -267,14 +257,16 @@ const MainUsers: React.FC = () => {
 
 		try {
 			const { error } = await updateUserRole(userToUpdate.id, userToUpdate.newRole)
-			
+
 			if (error) {
 				throw error
 			}
 
 			toast({
 				title: '✅ Rol actualizado',
-				description: `El rol del usuario ha sido cambiado a Administrador.`,
+				description: `El rol del usuario ha sido cambiado a ${
+					{ owner: 'Propietario', admin: 'Administrador', employee: 'Recepcionista' }[userToUpdate.newRole]
+				}.`,
 				className: 'bg-green-100 border-green-400 text-green-800',
 			})
 
@@ -306,16 +298,17 @@ const MainUsers: React.FC = () => {
 
 		try {
 			const { error } = await updateUserBranch(userId, branch === 'none' ? null : branch)
-			
+
 			if (error) {
 				throw error
 			}
 
 			toast({
 				title: '✅ Sede actualizada',
-				description: branch === 'none' 
-					? 'Se ha eliminado la restricción de sede para este usuario.' 
-					: `La sede del usuario ha sido cambiada a ${branch}.`,
+				description:
+					branch === 'none'
+						? 'Se ha eliminado la restricción de sede para este usuario.'
+						: `La sede del usuario ha sido cambiada a ${branch}.`,
 				className: 'bg-green-100 border-green-400 text-green-800',
 			})
 
@@ -354,19 +347,21 @@ const MainUsers: React.FC = () => {
 
 		try {
 			const { error } = await updateUserApprovalStatus(userId, newStatus)
-			
+
 			if (error) {
 				throw error
 			}
 
 			toast({
 				title: newStatus === 'aprobado' ? '✅ Usuario aprobado' : '⏱️ Usuario pendiente',
-				description: newStatus === 'aprobado' 
-					? 'El usuario ha sido aprobado y ahora puede acceder al sistema.' 
-					: 'El usuario ha sido marcado como pendiente y no podrá acceder al sistema.',
-				className: newStatus === 'aprobado' 
-					? 'bg-green-100 border-green-400 text-green-800' 
-					: 'bg-orange-100 border-orange-400 text-orange-800',
+				description:
+					newStatus === 'aprobado'
+						? 'El usuario ha sido aprobado y ahora puede acceder al sistema.'
+						: 'El usuario ha sido marcado como pendiente y no podrá acceder al sistema.',
+				className:
+					newStatus === 'aprobado'
+						? 'bg-green-100 border-green-400 text-green-800'
+						: 'bg-orange-100 border-orange-400 text-orange-800',
 			})
 
 			// Refrescar la lista de usuarios
@@ -382,34 +377,39 @@ const MainUsers: React.FC = () => {
 	}
 
 	// Filtrar usuarios
-	const filteredUsers = users?.filter(user => {
-		const matchesSearch = user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-			(user.display_name || '').toLowerCase().includes(searchTerm.toLowerCase())
-		const matchesRole = roleFilter === 'all' || user.role === roleFilter
-		const matchesStatus = statusFilter === 'all' || 
-			(statusFilter === 'verified' && user.email_confirmed_at) ||
-			(statusFilter === 'unverified' && !user.email_confirmed_at)
-		const matchesBranch = branchFilter === 'all' || 
-			(branchFilter === 'assigned' && user.assigned_branch) ||
-			(branchFilter === 'unassigned' && !user.assigned_branch) ||
-			user.assigned_branch === branchFilter
-		const matchesApproval = approvalFilter === 'all' ||
-			(approvalFilter === 'aprobado' && user.estado === 'aprobado') ||
-			(approvalFilter === 'pendiente' && user.estado === 'pendiente')
-		
-		return matchesSearch && matchesRole && matchesStatus && matchesBranch && matchesApproval
-	}) || []
+	const filteredUsers =
+		users?.filter((user) => {
+			const matchesSearch =
+				user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+				(user.display_name || '').toLowerCase().includes(searchTerm.toLowerCase())
+			const matchesRole = roleFilter === 'all' || user.role === roleFilter
+			const matchesStatus =
+				statusFilter === 'all' ||
+				(statusFilter === 'verified' && user.email_confirmed_at) ||
+				(statusFilter === 'unverified' && !user.email_confirmed_at)
+			const matchesBranch =
+				branchFilter === 'all' ||
+				(branchFilter === 'assigned' && user.assigned_branch) ||
+				(branchFilter === 'unassigned' && !user.assigned_branch) ||
+				user.assigned_branch === branchFilter
+			const matchesApproval =
+				approvalFilter === 'all' ||
+				(approvalFilter === 'aprobado' && user.estado === 'aprobado') ||
+				(approvalFilter === 'pendiente' && user.estado === 'pendiente')
+
+			return matchesSearch && matchesRole && matchesStatus && matchesBranch && matchesApproval
+		}) || []
 
 	// Estadísticas
 	const stats = {
 		total: users?.length || 0,
-		owners: users?.filter(u => u.role === 'owner').length || 0,
-		employees: users?.filter(u => u.role === 'employee').length || 0,
-		admins: users?.filter(u => u.role === 'admin').length || 0,
-		verified: users?.filter(u => u.email_confirmed_at).length || 0,
-		withBranch: users?.filter(u => u.assigned_branch).length || 0,
-		approved: users?.filter(u => u.estado === 'aprobado').length || 0,
-		pending: users?.filter(u => u.estado === 'pendiente').length || 0,
+		owners: users?.filter((u) => u.role === 'owner').length || 0,
+		employees: users?.filter((u) => u.role === 'employee').length || 0,
+		admins: users?.filter((u) => u.role === 'admin').length || 0,
+		verified: users?.filter((u) => u.email_confirmed_at).length || 0,
+		withBranch: users?.filter((u) => u.assigned_branch).length || 0,
+		approved: users?.filter((u) => u.estado === 'aprobado').length || 0,
+		pending: users?.filter((u) => u.estado === 'pendiente').length || 0,
 	}
 
 	if (isLoading) {
@@ -457,9 +457,7 @@ const MainUsers: React.FC = () => {
 						</div>
 						<div>
 							<h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">Total Usuarios</h3>
-							<p className="text-2xl sm:text-3xl font-bold text-gray-700 dark:text-gray-300">
-								{stats.total}
-							</p>
+							<p className="text-2xl sm:text-3xl font-bold text-gray-700 dark:text-gray-300">{stats.total}</p>
 						</div>
 					</div>
 				</Card>
@@ -473,9 +471,7 @@ const MainUsers: React.FC = () => {
 						</div>
 						<div>
 							<h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">Propietarios</h3>
-							<p className="text-2xl sm:text-3xl font-bold text-gray-700 dark:text-gray-300">
-								{stats.owners}
-							</p>
+							<p className="text-2xl sm:text-3xl font-bold text-gray-700 dark:text-gray-300">{stats.owners}</p>
 						</div>
 					</div>
 				</Card>
@@ -489,9 +485,7 @@ const MainUsers: React.FC = () => {
 						</div>
 						<div>
 							<h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">Recepcionistas</h3>
-							<p className="text-2xl sm:text-3xl font-bold text-gray-700 dark:text-gray-300">
-								{stats.employees}
-							</p>
+							<p className="text-2xl sm:text-3xl font-bold text-gray-700 dark:text-gray-300">{stats.employees}</p>
 						</div>
 					</div>
 				</Card>
@@ -505,52 +499,11 @@ const MainUsers: React.FC = () => {
 						</div>
 						<div>
 							<h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">Administradores</h3>
-							<p className="text-2xl sm:text-3xl font-bold text-gray-700 dark:text-gray-300">
-								{stats.admins}
-							</p>
+							<p className="text-2xl sm:text-3xl font-bold text-gray-700 dark:text-gray-300">{stats.admins}</p>
 						</div>
 					</div>
 				</Card>
 			</div>
-
-			{/* Búsqueda por email específico */}
-			<Card className="hover:border-primary hover:shadow-lg hover:shadow-primary/20 transition-all duration-300 shadow-lg mb-6">
-				<div className="bg-white dark:bg-background rounded-xl p-4 sm:p-6 transition-colors duration-300">
-					<h3 className="text-lg font-semibold text-gray-700 dark:text-gray-300 mb-4">Buscar Usuario Específico</h3>
-					<div className="flex flex-col sm:flex-row gap-4">
-						<div className="flex-1 relative">
-							<Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
-							<Input
-								type="email"
-								placeholder="Ingresa el email exacto del usuario..."
-								value={searchEmail}
-								onChange={(e) => setSearchEmail(e.target.value)}
-								className="pl-10"
-							/>
-						</div>
-						<Button 
-							onClick={handleSearchUser}
-							disabled={isSearching}
-							className="bg-primary hover:bg-primary/80"
-						>
-							{isSearching ? (
-								<>
-									<div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-									Buscando...
-								</>
-							) : (
-								<>
-									<Search className="w-4 h-4 mr-2" />
-									Buscar Usuario
-								</>
-							)}
-						</Button>
-					</div>
-					<div className="mt-2 text-xs text-gray-500 dark:text-gray-400">
-						Ejemplo: andreoneuge@gmail.com
-					</div>
-				</div>
-			</Card>
 
 			{/* Filtros y búsqueda */}
 			<Card className="hover:border-primary hover:shadow-lg hover:shadow-primary/20 transition-all duration-300 shadow-lg mb-6">
@@ -646,12 +599,23 @@ const MainUsers: React.FC = () => {
 					<div className="block lg:hidden p-4">
 						<div className="space-y-4">
 							{filteredUsers.map((user) => (
-								<div key={user.id} className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-4 border border-gray-200 dark:border-gray-700">
+								<div
+									key={user.id}
+									className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-4 border border-gray-200 dark:border-gray-700"
+								>
 									{/* Header con rol y estado */}
 									<div className="flex items-center justify-between mb-3">
-										<span className={`inline-flex items-center gap-1 px-2 py-1 text-xs font-semibold rounded-full ${getRoleColor(user.role)}`}>
+										<span
+											className={`inline-flex items-center gap-1 px-2 py-1 text-xs font-semibold rounded-full ${getRoleColor(
+												user.role,
+											)}`}
+										>
 											{getRoleIcon(user.role)}
-											{user.role === 'owner' ? 'Propietario' : user.role === 'admin' ? 'Administrador' : 'Recepcionista'}
+											{user.role === 'owner'
+												? 'Propietario'
+												: user.role === 'admin'
+												? 'Administrador'
+												: 'Recepcionista'}
 										</span>
 									</div>
 
@@ -672,7 +636,11 @@ const MainUsers: React.FC = () => {
 									{/* Estado de aprobación */}
 									<div className="flex items-center gap-2 mb-2">
 										{getApprovalIcon(user.estado)}
-										<span className={`inline-flex items-center gap-1 px-2 py-1 text-xs font-semibold rounded-full ${getApprovalColor(user.estado)}`}>
+										<span
+											className={`inline-flex items-center gap-1 px-2 py-1 text-xs font-semibold rounded-full ${getApprovalColor(
+												user.estado,
+											)}`}
+										>
 											{user.estado === 'aprobado' ? 'Aprobado' : 'Pendiente de aprobación'}
 										</span>
 									</div>
@@ -682,7 +650,11 @@ const MainUsers: React.FC = () => {
 										<MapPin className="w-4 h-4 text-gray-600 dark:text-gray-400" />
 										<div className="flex items-center gap-2">
 											{user.assigned_branch ? (
-												<span className={`inline-flex items-center gap-1 px-2 py-1 text-xs font-semibold rounded-full ${getBranchColor(user.assigned_branch)}`}>
+												<span
+													className={`inline-flex items-center gap-1 px-2 py-1 text-xs font-semibold rounded-full ${getBranchColor(
+														user.assigned_branch,
+													)}`}
+												>
 													{user.assigned_branch}
 												</span>
 											) : (
@@ -705,8 +677,8 @@ const MainUsers: React.FC = () => {
 											<label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
 												Estado de Aprobación:
 											</label>
-											<Select 
-												defaultValue={user.estado || 'pendiente'} 
+											<Select
+												defaultValue={user.estado || 'pendiente'}
 												onValueChange={(value: 'pendiente' | 'aprobado') => handleApprovalChange(user.id, value)}
 											>
 												<SelectTrigger className="w-full">
@@ -736,8 +708,8 @@ const MainUsers: React.FC = () => {
 											<label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
 												Cambiar Rol:
 											</label>
-											<Select 
-												defaultValue={user.role} 
+											<Select
+												defaultValue={user.role}
 												onValueChange={(value: 'owner' | 'employee' | 'admin') => handleRoleChange(user.id, value)}
 											>
 												<SelectTrigger className="w-full">
@@ -773,8 +745,8 @@ const MainUsers: React.FC = () => {
 											<label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
 												Asignar Sede:
 											</label>
-											<Select 
-												defaultValue={user.assigned_branch || 'none'} 
+											<Select
+												defaultValue={user.assigned_branch || 'none'}
 												onValueChange={(value) => handleBranchChange(user.id, value === 'none' ? null : value)}
 											>
 												<SelectTrigger className="w-full">
@@ -836,8 +808,8 @@ const MainUsers: React.FC = () => {
 										</td>
 										<td className="px-6 py-4">
 											{canManage && user.id !== currentUser?.id ? (
-												<Select 
-													defaultValue={user.role} 
+												<Select
+													defaultValue={user.role}
 													onValueChange={(value: 'owner' | 'employee' | 'admin') => handleRoleChange(user.id, value)}
 												>
 													<SelectTrigger className="w-40">
@@ -865,22 +837,30 @@ const MainUsers: React.FC = () => {
 													</SelectContent>
 												</Select>
 											) : (
-												<span className={`inline-flex items-center gap-1 px-2 py-1 text-xs font-semibold rounded-full ${getRoleColor(user.role)}`}>
+												<span
+													className={`inline-flex items-center gap-1 px-2 py-1 text-xs font-semibold rounded-full ${getRoleColor(
+														user.role,
+													)}`}
+												>
 													{getRoleIcon(user.role)}
-													{user.role === 'owner' ? 'Propietario' : user.role === 'admin' ? 'Administrador' : 'Recepcionista'}
+													{user.role === 'owner'
+														? 'Propietario'
+														: user.role === 'admin'
+														? 'Administrador'
+														: 'Recepcionista'}
 												</span>
 											)}
 										</td>
 										<td className="px-6 py-4">
 											{canManage ? (
-												<Select 
-													defaultValue={user.assigned_branch || 'none'} 
+												<Select
+													defaultValue={user.assigned_branch || 'none'}
 													onValueChange={(value) => handleBranchChange(user.id, value === 'none' ? null : value)}
 												>
 													<SelectTrigger className="w-40">
-														<SelectValue placeholder="Seleccionar sede" className='text-white' />
+														<SelectValue placeholder="Seleccionar sede" className="text-white" />
 													</SelectTrigger>
-													<SelectContent className='bg-white dark:bg-background'>
+													<SelectContent className="bg-white dark:bg-background">
 														<SelectItem value="none">Sin restricción</SelectItem>
 														<SelectItem value="PMG">PMG</SelectItem>
 														<SelectItem value="CPC">CPC</SelectItem>
@@ -889,21 +869,23 @@ const MainUsers: React.FC = () => {
 														<SelectItem value="MCY">MCY</SelectItem>
 													</SelectContent>
 												</Select>
+											) : user.assigned_branch ? (
+												<span
+													className={`inline-flex items-center gap-1 px-2 py-1 text-xs font-semibold rounded-full ${getBranchColor(
+														user.assigned_branch,
+													)}`}
+												>
+													<MapPin className="w-3 h-3" />
+													{user.assigned_branch}
+												</span>
 											) : (
-												user.assigned_branch ? (
-													<span className={`inline-flex items-center gap-1 px-2 py-1 text-xs font-semibold rounded-full ${getBranchColor(user.assigned_branch)}`}>
-														<MapPin className="w-3 h-3" />
-														{user.assigned_branch}
-													</span>
-												) : (
-													<span className="text-sm text-gray-500 dark:text-gray-400">Sin restricción</span>
-												)
+												<span className="text-sm text-gray-500 dark:text-gray-400">Sin restricción</span>
 											)}
 										</td>
 										<td className="px-6 py-4">
 											{canManage && user.id !== currentUser?.id ? (
-												<Select 
-													defaultValue={user.estado || 'pendiente'} 
+												<Select
+													defaultValue={user.estado || 'pendiente'}
 													onValueChange={(value: 'pendiente' | 'aprobado') => handleApprovalChange(user.id, value)}
 												>
 													<SelectTrigger className="w-40">
@@ -925,7 +907,11 @@ const MainUsers: React.FC = () => {
 													</SelectContent>
 												</Select>
 											) : (
-												<span className={`inline-flex items-center gap-1 px-2 py-1 text-xs font-semibold rounded-full ${getApprovalColor(user.estado)}`}>
+												<span
+													className={`inline-flex items-center gap-1 px-2 py-1 text-xs font-semibold rounded-full ${getApprovalColor(
+														user.estado,
+													)}`}
+												>
 													{getApprovalIcon(user.estado)}
 													{user.estado === 'aprobado' ? 'Aprobado' : 'Pendiente'}
 												</span>
@@ -958,19 +944,23 @@ const MainUsers: React.FC = () => {
 				<h3 className="text-lg font-semibold text-blue-800 dark:text-blue-300 mb-2">Instrucciones de Uso</h3>
 				<ul className="list-disc list-inside space-y-2 text-sm text-blue-700 dark:text-blue-400">
 					<li>
-						<strong>Aprobación de Usuarios:</strong> Los nuevos usuarios se crean con estado "Pendiente" y deben ser aprobados por un propietario antes de poder acceder al sistema.
+						<strong>Aprobación de Usuarios:</strong> Los nuevos usuarios se crean con estado "Pendiente" y deben ser
+						aprobados por un propietario antes de poder acceder al sistema.
 					</li>
 					<li>
-						<strong>Asignación de Sede:</strong> Los Recepcionistas con una sede asignada solo podrán ver los casos médicos de esa sede.
+						<strong>Asignación de Sede:</strong> Los Recepcionistas con una sede asignada solo podrán ver los casos
+						médicos de esa sede.
 					</li>
 					<li>
 						<strong>Sin Restricción:</strong> Los Recepcionistas sin sede asignada pueden ver todos los casos.
 					</li>
 					<li>
-						<strong>Propietarios:</strong> Los usuarios con rol de propietario siempre pueden ver todos los casos, independientemente de la sede asignada.
+						<strong>Propietarios:</strong> Los usuarios con rol de propietario siempre pueden ver todos los casos,
+						independientemente de la sede asignada.
 					</li>
 					<li>
-						<strong>Administradores:</strong> Los usuarios con rol de administrador tienen acceso a registros, casos generados, médicos y ajustes.
+						<strong>Administradores:</strong> Los usuarios con rol de administrador tienen acceso a registros, casos
+						generados, médicos y ajustes.
 					</li>
 				</ul>
 			</div>
@@ -981,16 +971,15 @@ const MainUsers: React.FC = () => {
 					<DialogHeader>
 						<DialogTitle>Confirmar cambio de rol</DialogTitle>
 						<DialogDescription>
-							¿Está seguro que desea cambiar el rol del usuario {userToUpdate?.email} a Administrador? Este cambio modificará los permisos y accesos del usuario en el sistema.
+							¿Está seguro que desea cambiar el rol del usuario {userToUpdate?.email} a Administrador? Este cambio
+							modificará los permisos y accesos del usuario en el sistema.
 						</DialogDescription>
 					</DialogHeader>
 					<DialogFooter>
 						<Button variant="outline" onClick={() => setConfirmDialogOpen(false)}>
 							Cancelar
 						</Button>
-						<Button onClick={confirmRoleChange}>
-							Confirmar
-						</Button>
+						<Button onClick={confirmRoleChange}>Confirmar</Button>
 					</DialogFooter>
 				</DialogContent>
 			</Dialog>

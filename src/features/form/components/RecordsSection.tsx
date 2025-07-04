@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useMemo } from 'react'
+import React, { useState, useCallback, useMemo } from 'react'
 import CasesTable from '@shared/components/cases/CasesTable'
 import CaseDetailPanel from '@shared/components/cases/CaseDetailPanel'
 import { Users, MapPin, Microscope, FileText, Activity, Maximize2, Download, Search } from 'lucide-react'

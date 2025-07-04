@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useCallback, useRef } from 'react'
+import React, { useState, useMemo, useCallback } from 'react'
 import {
 	ChevronUp,
 	ChevronDown,
@@ -13,24 +13,14 @@ import {
 	Download,
 	Maximize2,
 	Edit2,
-	Trash2,
 } from 'lucide-react'
-import { motion, AnimatePresence } from 'motion/react'
 import type { MedicalRecord } from '@lib/supabase-service'
-import { getAgeDisplay, deleteMedicalRecord, updateMedicalRecordWithLog } from '@lib/supabase-service'
-import { format, parseISO } from 'date-fns'
+import { getAgeDisplay } from '@lib/supabase-service'
+import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
-import { useQuery } from '@tanstack/react-query'
-import { supabase } from '@lib/supabase/config'
 import { useToast } from '@shared/hooks/use-toast'
 import { Button } from '@shared/components/ui/button'
-import { Input } from '@shared/components/ui/input'
-import { Textarea } from '@shared/components/ui/textarea'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@shared/components/ui/select'
 import { useAuth } from '@app/providers/AuthContext'
-import { Popover, PopoverContent, PopoverTrigger } from '@shared/components/ui/popover'
-import { Calendar } from '@shared/components/ui/calendar'
-import { cn } from '@shared/lib/cn'
 import GenerateBiopsyModal from './GenerateBiopsyModal'
 import { generatePDF } from '@shared/utils/pdf-generator'
 import UnifiedCaseModal from './UnifiedCaseModal'
@@ -49,17 +39,17 @@ interface CasesTableProps {
 type SortField = 'id' | 'created_at' | 'full_name' | 'date_of_birth' | 'total_amount' | 'code'
 type SortDirection = 'asc' | 'desc'
 
-const CasesTable: React.FC<CasesTableProps> = ({ 
-	onCaseSelect, 
-	cases, 
-	isLoading, 
-	error, 
+const CasesTable: React.FC<CasesTableProps> = ({
+	onCaseSelect,
+	cases,
+	isLoading,
+	error,
 	refetch,
 	isFullscreen,
 	setIsFullscreen,
-	onSearch
+	onSearch,
 }) => {
-	const { user } = useAuth()
+	useAuth()
 	const { toast } = useToast()
 	const [searchTerm, setSearchTerm] = useState('')
 	const [statusFilter, setStatusFilter] = useState<string>('all')
@@ -74,9 +64,8 @@ const CasesTable: React.FC<CasesTableProps> = ({
 	const [isEditModalOpen, setIsEditModalOpen] = useState(false)
 	const [showPdfReadyOnly, setShowPdfReadyOnly] = useState(false)
 	const [isSearching, setIsSearching] = useState(false)
-	
+
 	// Use a ref to track if we're in the dashboard or form view
-	const isDashboardView = useRef(window.location.pathname.includes('/dashboard')).current
 
 	const getStatusColor = useCallback((status: string) => {
 		switch (status) {
@@ -93,67 +82,76 @@ const CasesTable: React.FC<CasesTableProps> = ({
 		}
 	}, [])
 
-	const handleSort = useCallback((field: SortField) => {
-		if (sortField === field) {
-			setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc')
-		} else {
-			setSortField(field)
-			setSortDirection('asc')
-		}
-	}, [sortField, sortDirection])
+	const handleSort = useCallback(
+		(field: SortField) => {
+			if (sortField === field) {
+				setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc')
+			} else {
+				setSortField(field)
+				setSortDirection('asc')
+			}
+		},
+		[sortField, sortDirection],
+	)
 
-	const handleGenerateCase = useCallback((case_: MedicalRecord) => {
-		// Check if this is a biopsy case
-		if (case_.exam_type?.toLowerCase() !== 'biopsia') {
-			toast({
-				title: '❌ Tipo de examen incorrecto',
-				description: 'La generación de casos solo está disponible para biopsias.',
-				variant: 'destructive',
-			})
-			return
-		}
-		
-		setSelectedCaseForGenerate(case_)
-		setIsGenerateModalOpen(true)
-	}, [toast])
+	const handleGenerateCase = useCallback(
+		(case_: MedicalRecord) => {
+			// Check if this is a biopsy case
+			if (case_.exam_type?.toLowerCase() !== 'biopsia') {
+				toast({
+					title: '❌ Tipo de examen incorrecto',
+					description: 'La generación de casos solo está disponible para biopsias.',
+					variant: 'destructive',
+				})
+				return
+			}
+
+			setSelectedCaseForGenerate(case_)
+			setIsGenerateModalOpen(true)
+		},
+		[toast],
+	)
 
 	const handleEditCase = useCallback((case_: MedicalRecord) => {
 		setSelectedCaseForEdit(case_)
 		setIsEditModalOpen(true)
 	}, [])
 
-	const handleDownloadCase = useCallback(async (case_: MedicalRecord) => {
-		// Check if this case has a diagnosis
-		if (!case_.diagnostico) {
-			toast({
-				title: '❌ Sin diagnóstico',
-				description: 'Este caso no tiene un diagnóstico. Primero debe generar el caso.',
-				variant: 'destructive',
-			})
-			return
-		}
+	const handleDownloadCase = useCallback(
+		async (case_: MedicalRecord) => {
+			// Check if this case has a diagnosis
+			if (!case_.diagnostico) {
+				toast({
+					title: '❌ Sin diagnóstico',
+					description: 'Este caso no tiene un diagnóstico. Primero debe generar el caso.',
+					variant: 'destructive',
+				})
+				return
+			}
 
-		setIsDownloading(case_.id)
-		try {
-			// Use the new pdf-lib based generator
-			await generatePDF(case_);
-			
-			toast({
-				title: '✅ PDF generado exitosamente',
-				description: `El informe ha sido descargado correctamente.`,
-				className: 'bg-green-100 border-green-400 text-green-800',
-			})
-		} catch (error) {
-			console.error('Error generating PDF:', error)
-			toast({
-				title: '❌ Error al generar PDF',
-				description: 'Hubo un problema al generar el PDF. Inténtalo de nuevo.',
-				variant: 'destructive',
-			})
-		} finally {
-			setIsDownloading(null)
-		}
-	}, [toast])
+			setIsDownloading(case_.id ?? null)
+			try {
+				// Use the new pdf-lib based generator
+				await generatePDF(case_)
+
+				toast({
+					title: '✅ PDF generado exitosamente',
+					description: `El informe ha sido descargado correctamente.`,
+					className: 'bg-green-100 border-green-400 text-green-800',
+				})
+			} catch (error) {
+				console.error('Error generating PDF:', error)
+				toast({
+					title: '❌ Error al generar PDF',
+					description: 'Hubo un problema al generar el PDF. Inténtalo de nuevo.',
+					variant: 'destructive',
+				})
+			} finally {
+				setIsDownloading(null)
+			}
+		},
+		[toast],
+	)
 
 	// Handle search input change
 	const handleSearchChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
@@ -161,13 +159,16 @@ const CasesTable: React.FC<CasesTableProps> = ({
 	}, [])
 
 	// Handle search on Enter key
-	const handleSearchKeyDown = useCallback((e: React.KeyboardEvent<HTMLInputElement>) => {
-		if (e.key === 'Enter' && onSearch) {
-			setIsSearching(true)
-			onSearch(searchTerm)
-			setTimeout(() => setIsSearching(false), 500)
-		}
-	}, [onSearch, searchTerm])
+	const handleSearchKeyDown = useCallback(
+		(e: React.KeyboardEvent<HTMLInputElement>) => {
+			if (e.key === 'Enter' && onSearch) {
+				setIsSearching(true)
+				onSearch(searchTerm)
+				setTimeout(() => setIsSearching(false), 500)
+			}
+		},
+		[onSearch, searchTerm],
+	)
 
 	// Handle search button click
 	const handleSearchClick = useCallback(() => {
@@ -207,7 +208,8 @@ const CasesTable: React.FC<CasesTableProps> = ({
 			// If statusFilter is 'all', matchesStatus remains true
 
 			// Branch filter
-			const matchesBranch = branchFilter === 'all' || case_.branch === branchFilter
+			const normalize = (str: string | null | undefined) => (str ? str.trim().toLowerCase() : '')
+			const matchesBranch = branchFilter === 'all' || normalize(case_.branch) === normalize(branchFilter)
 
 			// Exam type filter
 			const matchesExamType = examTypeFilter === 'all' || case_.exam_type === examTypeFilter
@@ -222,7 +224,7 @@ const CasesTable: React.FC<CasesTableProps> = ({
 			// Local search filter (only if onSearch is not provided)
 			let matchesSearch = true
 			if (!onSearch && searchTerm) {
-				matchesSearch = 
+				matchesSearch =
 					(case_.full_name?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
 					(case_.id_number?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
 					(case_.treating_doctor?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
@@ -256,136 +258,152 @@ const CasesTable: React.FC<CasesTableProps> = ({
 		})
 
 		return filtered
-	}, [cases, statusFilter, branchFilter, examTypeFilter, sortField, sortDirection, showPdfReadyOnly, searchTerm, onSearch])
+	}, [
+		cases,
+		statusFilter,
+		branchFilter,
+		examTypeFilter,
+		sortField,
+		sortDirection,
+		showPdfReadyOnly,
+		searchTerm,
+		onSearch,
+	])
 
-	const SortIcon = useCallback(({ field }: { field: SortField }) => {
-		if (sortField !== field) {
-			return <ChevronUp className="w-4 h-4 text-gray-400" />
-		}
-		return sortDirection === 'asc' ? (
-			<ChevronUp className="w-4 h-4 text-blue-600 dark:text-blue-400" />
-		) : (
-			<ChevronDown className="w-4 h-4 text-blue-600 dark:text-blue-400" />
-		)
-	}, [sortField, sortDirection])
+	const SortIcon = useCallback(
+		({ field }: { field: SortField }) => {
+			if (sortField !== field) {
+				return <ChevronUp className="w-4 h-4 text-gray-400" />
+			}
+			return sortDirection === 'asc' ? (
+				<ChevronUp className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+			) : (
+				<ChevronDown className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+			)
+		},
+		[sortField, sortDirection],
+	)
 
 	// Mobile Card Component - Memoized to prevent unnecessary re-renders
-	const CaseCard = useCallback(({ case_ }: { case_: MedicalRecord }) => {
-		const ageDisplay = case_.date_of_birth ? getAgeDisplay(case_.date_of_birth) : ''
-		const isBiopsyCase = case_.exam_type?.toLowerCase() === 'biopsia'
-		const hasDownloadableContent = isBiopsyCase && !!case_.diagnostico
+	const CaseCard = useCallback(
+		({ case_ }: { case_: MedicalRecord }) => {
+			const ageDisplay = case_.date_of_birth ? getAgeDisplay(case_.date_of_birth) : ''
+			const isBiopsyCase = case_.exam_type?.toLowerCase() === 'biopsia'
+			const hasDownloadableContent = isBiopsyCase && !!case_.diagnostico
 
-		return (
-			<div className="bg-white dark:bg-background rounded-lg p-4 border border-gray-200 dark:border-gray-700 hover:shadow-md transition-all">
-				{/* Header with status and code */}
-				<div className="flex items-center justify-between mb-3">
-					<span
-						className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(
-							case_.payment_status,
-						)}`}
-					>
-						{case_.payment_status}
-					</span>
-					<div className="flex items-center gap-2">
-						{case_.code && (
-							<span className="inline-flex items-center gap-1 px-2 py-1 text-xs font-semibold rounded-full bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300">
-								{case_.code}
-							</span>
-						)}
-					</div>
-				</div>
-
-				{/* Patient info */}
-				<div className="flex items-center gap-2 mb-2">
-					<User className="w-4 h-4 text-blue-600 dark:text-blue-400" />
-					<div>
-						<p className="font-medium text-gray-900 dark:text-gray-100 text-sm">{case_.full_name}</p>
-						<div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
-							<span>{case_.id_number}</span>
-							{ageDisplay && (
-								<>
-									<span>•</span>
-									<span>{ageDisplay}</span>
-								</>
+			return (
+				<div className="bg-white dark:bg-background rounded-lg p-4 border border-gray-200 dark:border-gray-700 hover:shadow-md transition-all">
+					{/* Header with status and code */}
+					<div className="flex items-center justify-between mb-3">
+						<span
+							className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(
+								case_.payment_status,
+							)}`}
+						>
+							{case_.payment_status}
+						</span>
+						<div className="flex items-center gap-2">
+							{case_.code && (
+								<span className="inline-flex items-center gap-1 px-2 py-1 text-xs font-semibold rounded-full bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300">
+									{case_.code}
+								</span>
 							)}
 						</div>
 					</div>
-				</div>
 
-				{/* Medical info */}
-				<div className="flex items-center gap-2 mb-2">
-					<Stethoscope className="w-4 h-4 text-green-600 dark:text-green-400" />
-					<div>
-						<p className="text-sm text-gray-900 dark:text-gray-100">{case_.exam_type}</p>
-						<p className="text-xs text-gray-500 dark:text-gray-400">{case_.treating_doctor}</p>
+					{/* Patient info */}
+					<div className="flex items-center gap-2 mb-2">
+						<User className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+						<div>
+							<p className="font-medium text-gray-900 dark:text-gray-100 text-sm">{case_.full_name}</p>
+							<div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
+								<span>{case_.id_number}</span>
+								{ageDisplay && (
+									<>
+										<span>•</span>
+										<span>{ageDisplay}</span>
+									</>
+								)}
+							</div>
+						</div>
 					</div>
-				</div>
 
-				{/* Date and amount */}
-				<div className="flex items-center justify-between pt-2 border-t border-gray-200 dark:border-gray-700">
-					<div className="flex items-center gap-1">
-						<CalendarIcon className="w-3 h-3 text-gray-400" />
-						<span className="text-xs text-gray-500 dark:text-gray-400">
-							{case_.created_at ? format(new Date(case_.created_at), 'dd/MM/yyyy', { locale: es }) : 'N/A'}
-						</span>
+					{/* Medical info */}
+					<div className="flex items-center gap-2 mb-2">
+						<Stethoscope className="w-4 h-4 text-green-600 dark:text-green-400" />
+						<div>
+							<p className="text-sm text-gray-900 dark:text-gray-100">{case_.exam_type}</p>
+							<p className="text-xs text-gray-500 dark:text-gray-400">{case_.treating_doctor}</p>
+						</div>
 					</div>
-					<div className="flex items-center gap-1">
-						<CreditCard className="w-3 h-3 text-gray-400" />
-						<span className="text-sm font-medium text-gray-900 dark:text-gray-100">
-							${case_.total_amount.toLocaleString()}
-						</span>
-					</div>
-				</div>
 
-				{case_.remaining > 0 && (
-					<div className="mt-2 text-xs text-red-600 dark:text-red-400">
-						Faltante: ${case_.remaining.toLocaleString()}
+					{/* Date and amount */}
+					<div className="flex items-center justify-between pt-2 border-t border-gray-200 dark:border-gray-700">
+						<div className="flex items-center gap-1">
+							<CalendarIcon className="w-3 h-3 text-gray-400" />
+							<span className="text-xs text-gray-500 dark:text-gray-400">
+								{case_.created_at ? format(new Date(case_.created_at), 'dd/MM/yyyy', { locale: es }) : 'N/A'}
+							</span>
+						</div>
+						<div className="flex items-center gap-1">
+							<CreditCard className="w-3 h-3 text-gray-400" />
+							<span className="text-sm font-medium text-gray-900 dark:text-gray-100">
+								${case_.total_amount.toLocaleString()}
+							</span>
+						</div>
 					</div>
-				)}
 
-				{/* Action buttons */}
-				<div className="flex gap-1 mt-3 pt-2 border-t border-gray-200 dark:border-gray-700">
-					<button
-						onClick={() => onCaseSelect(case_)}
-						className="flex-1 inline-flex items-center justify-center gap-1 px-3 py-2 text-xs font-medium text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 bg-blue-50 dark:bg-blue-900/20 hover:bg-blue-100 dark:hover:bg-blue-900/30 rounded-lg transition-colors"
-					>
-						<Eye className="w-3 h-3" />
-						Ver
-					</button>
-					<button
-						onClick={() => handleEditCase(case_)}
-						className="flex-1 inline-flex items-center justify-center gap-1 px-3 py-2 text-xs font-medium text-purple-600 dark:text-purple-400 hover:text-purple-800 dark:hover:text-purple-300 bg-purple-50 dark:bg-purple-900/20 hover:bg-purple-100 dark:hover:bg-purple-900/30 rounded-lg transition-colors"
-					>
-						<Edit2 className="w-3 h-3" />
-						Editar
-					</button>
-					{isBiopsyCase && (
-						<button
-							onClick={() => handleGenerateCase(case_)}
-							className="flex-1 inline-flex items-center justify-center gap-1 px-3 py-2 text-xs font-medium text-green-600 dark:text-green-400 hover:text-green-800 dark:hover:text-green-300 bg-green-50 dark:bg-green-900/20 hover:bg-green-100 dark:hover:bg-green-900/30 rounded-lg transition-colors"
-						>
-							<FileText className="w-3 h-3" />
-							Generar
-						</button>
+					{case_.remaining > 0 && (
+						<div className="mt-2 text-xs text-red-600 dark:text-red-400">
+							Faltante: ${case_.remaining.toLocaleString()}
+						</div>
 					)}
-					{hasDownloadableContent && (
+
+					{/* Action buttons */}
+					<div className="flex gap-1 mt-3 pt-2 border-t border-gray-200 dark:border-gray-700">
 						<button
-							onClick={() => handleDownloadCase(case_)}
-							className="flex-1 inline-flex items-center justify-center gap-1 px-3 py-2 text-xs font-medium text-orange-600 dark:text-orange-400 hover:text-orange-800 dark:hover:text-orange-300 bg-orange-50 dark:bg-orange-900/20 hover:bg-orange-100 dark:hover:bg-orange-900/30 rounded-lg transition-colors"
-							disabled={isDownloading === case_.id}
+							onClick={() => onCaseSelect(case_)}
+							className="flex-1 inline-flex items-center justify-center gap-1 px-3 py-2 text-xs font-medium text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 bg-blue-50 dark:bg-blue-900/20 hover:bg-blue-100 dark:hover:bg-blue-900/30 rounded-lg transition-colors"
 						>
-							{isDownloading === case_.id ? (
-								<div className="animate-spin rounded-full h-3 w-3 border-b-2 border-current"></div>
-							) : (
-								<Download className="w-3 h-3" />
-							)}
-							PDF
+							<Eye className="w-3 h-3" />
+							Ver
 						</button>
-					)}
+						<button
+							onClick={() => handleEditCase(case_)}
+							className="flex-1 inline-flex items-center justify-center gap-1 px-3 py-2 text-xs font-medium text-purple-600 dark:text-purple-400 hover:text-purple-800 dark:hover:text-purple-300 bg-purple-50 dark:bg-purple-900/20 hover:bg-purple-100 dark:hover:bg-purple-900/30 rounded-lg transition-colors"
+						>
+							<Edit2 className="w-3 h-3" />
+							Editar
+						</button>
+						{isBiopsyCase && (
+							<button
+								onClick={() => handleGenerateCase(case_)}
+								className="flex-1 inline-flex items-center justify-center gap-1 px-3 py-2 text-xs font-medium text-green-600 dark:text-green-400 hover:text-green-800 dark:hover:text-green-300 bg-green-50 dark:bg-green-900/20 hover:bg-green-100 dark:hover:bg-green-900/30 rounded-lg transition-colors"
+							>
+								<FileText className="w-3 h-3" />
+								Generar
+							</button>
+						)}
+						{hasDownloadableContent && (
+							<button
+								onClick={() => handleDownloadCase(case_)}
+								className="flex-1 inline-flex items-center justify-center gap-1 px-3 py-2 text-xs font-medium text-orange-600 dark:text-orange-400 hover:text-orange-800 dark:hover:text-orange-300 bg-orange-50 dark:bg-orange-900/20 hover:bg-orange-100 dark:hover:bg-orange-900/30 rounded-lg transition-colors"
+								disabled={isDownloading === case_.id}
+							>
+								{isDownloading === case_.id ? (
+									<div className="animate-spin rounded-full h-3 w-3 border-b-2 border-current"></div>
+								) : (
+									<Download className="w-3 h-3" />
+								)}
+								PDF
+							</button>
+						)}
+					</div>
 				</div>
-			</div>
-		)
-	}, [getStatusColor, onCaseSelect, handleEditCase, handleGenerateCase, handleDownloadCase, isDownloading])
+			)
+		},
+		[getStatusColor, onCaseSelect, handleEditCase, handleGenerateCase, handleDownloadCase, isDownloading],
+	)
 
 	// Render loading state
 	if (isLoading) {
@@ -453,7 +471,7 @@ const CasesTable: React.FC<CasesTableProps> = ({
 							</div>
 
 							{/* Search Button */}
-							<Button 
+							<Button
 								onClick={handleSearchClick}
 								disabled={isSearching || !searchTerm.trim()}
 								className="whitespace-nowrap"
@@ -540,9 +558,7 @@ const CasesTable: React.FC<CasesTableProps> = ({
 					<div className="block lg:hidden h-full overflow-y-auto">
 						<div className="p-4 space-y-4">
 							{filteredAndSortedCases.length > 0 ? (
-								filteredAndSortedCases.map((case_) => (
-									<CaseCard key={case_.id} case_={case_} />
-								))
+								filteredAndSortedCases.map((case_) => <CaseCard key={case_.id} case_={case_} />)
 							) : (
 								<div className="text-center py-12">
 									<div className="text-gray-500 dark:text-gray-400">
@@ -643,7 +659,9 @@ const CasesTable: React.FC<CasesTableProps> = ({
 												</td>
 												<td className="px-4 py-4">
 													<div className="text-left">
-														<div className="text-sm font-medium text-gray-900 dark:text-gray-100">{case_.full_name}</div>
+														<div className="text-sm font-medium text-gray-900 dark:text-gray-100">
+															{case_.full_name}
+														</div>
 														<div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
 															<span>{case_.id_number}</span>
 															{ageDisplay && (
@@ -745,7 +763,7 @@ const CasesTable: React.FC<CasesTableProps> = ({
 								)}
 							</tbody>
 						</table>
-						
+
 						{filteredAndSortedCases.length > 100 && (
 							<div className="text-center py-4 border-t border-gray-200 dark:border-gray-700">
 								<p className="text-sm text-gray-500 dark:text-gray-400">
@@ -792,7 +810,7 @@ const CasesTable: React.FC<CasesTableProps> = ({
 							</div>
 
 							{/* Search Button */}
-							<Button 
+							<Button
 								onClick={handleSearchClick}
 								disabled={isSearching || !searchTerm.trim()}
 								className="whitespace-nowrap"
@@ -843,7 +861,7 @@ const CasesTable: React.FC<CasesTableProps> = ({
 									<option value="citologia">Citología</option>
 								</select>
 							</div>
-							
+
 							{/* PDF Ready Filter */}
 							<div className="flex items-center gap-2">
 								<label className="flex items-center gap-2 cursor-pointer">
@@ -856,7 +874,7 @@ const CasesTable: React.FC<CasesTableProps> = ({
 									<span className="text-sm">Solo PDF disponibles</span>
 								</label>
 							</div>
-							
+
 							{/* Fullscreen Button */}
 							<button
 								onClick={() => setIsFullscreen(true)}
@@ -878,9 +896,7 @@ const CasesTable: React.FC<CasesTableProps> = ({
 				<div className="block lg:hidden">
 					<div className="p-4 space-y-4 max-h-[60vh] overflow-y-auto">
 						{filteredAndSortedCases.length > 0 ? (
-							filteredAndSortedCases.slice(0, 50).map((case_) => (
-								<CaseCard key={case_.id} case_={case_} />
-							))
+							filteredAndSortedCases.slice(0, 50).map((case_) => <CaseCard key={case_.id} case_={case_} />)
 						) : (
 							<div className="text-center py-12">
 								<div className="text-gray-500 dark:text-gray-400">
@@ -890,7 +906,7 @@ const CasesTable: React.FC<CasesTableProps> = ({
 								</div>
 							</div>
 						)}
-						
+
 						{filteredAndSortedCases.length > 50 && (
 							<div className="text-center py-4 border-t border-gray-200 dark:border-gray-700">
 								<p className="text-sm text-gray-500 dark:text-gray-400">
@@ -997,7 +1013,9 @@ const CasesTable: React.FC<CasesTableProps> = ({
 													</td>
 													<td className="px-4 py-4">
 														<div className="text-left">
-															<div className="text-sm font-medium text-gray-900 dark:text-gray-100">{case_.full_name}</div>
+															<div className="text-sm font-medium text-gray-900 dark:text-gray-100">
+																{case_.full_name}
+															</div>
 															<div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
 																<span>{case_.id_number}</span>
 																{ageDisplay && (
@@ -1017,7 +1035,9 @@ const CasesTable: React.FC<CasesTableProps> = ({
 													<td className="px-4 py-4 text-sm text-gray-900 dark:text-gray-100 text-center">
 														{case_.exam_type}
 													</td>
-													<td className="px-4 py-4 text-sm text-gray-900 dark:text-gray-100">{case_.treating_doctor}</td>
+													<td className="px-4 py-4 text-sm text-gray-900 dark:text-gray-100">
+														{case_.treating_doctor}
+													</td>
 													<td className="px-4 py-4">
 														<div className="text-sm font-medium text-gray-900 dark:text-gray-100">
 															${case_.total_amount.toLocaleString()}
@@ -1099,7 +1119,7 @@ const CasesTable: React.FC<CasesTableProps> = ({
 									)}
 								</tbody>
 							</table>
-							
+
 							{filteredAndSortedCases.length > 100 && (
 								<div className="text-center py-4 border-t border-gray-200 dark:border-gray-700">
 									<p className="text-sm text-gray-500 dark:text-gray-400">
@@ -1123,11 +1143,11 @@ const CasesTable: React.FC<CasesTableProps> = ({
 				case_={selectedCaseForGenerate}
 				isOpen={isGenerateModalOpen}
 				onClose={() => {
-					setIsGenerateModalOpen(false);
-					setSelectedCaseForGenerate(null);
+					setIsGenerateModalOpen(false)
+					setSelectedCaseForGenerate(null)
 				}}
 				onSuccess={() => {
-					refetch();
+					refetch()
 				}}
 			/>
 
@@ -1136,14 +1156,14 @@ const CasesTable: React.FC<CasesTableProps> = ({
 				case_={selectedCaseForEdit}
 				isOpen={isEditModalOpen}
 				onClose={() => {
-					setIsEditModalOpen(false);
-					setSelectedCaseForEdit(null);
+					setIsEditModalOpen(false)
+					setSelectedCaseForEdit(null)
 				}}
 				onSave={() => {
-					refetch();
+					refetch()
 				}}
 				onDelete={() => {
-					refetch();
+					refetch()
 				}}
 			/>
 		</>

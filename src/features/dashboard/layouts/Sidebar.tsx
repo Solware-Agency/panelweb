@@ -11,7 +11,6 @@ import {
 	Clock,
 	Users,
 	Settings,
-	ShieldCheck,
 	History,
 } from 'lucide-react'
 import { NavLink, useNavigate } from 'react-router-dom'
@@ -287,7 +286,6 @@ const Sidebar: React.FC<SidebarProps> = ({
 					</div>
 				</NavLink>
 				<div
-					onClick={handleLogout}
 					title={!showFullContent ? 'Fecha' : undefined}
 					className="flex items-center gap-3 cursor-pointer hover:text-primary transition"
 				>

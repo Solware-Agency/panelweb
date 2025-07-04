@@ -2,7 +2,6 @@ import { Toaster } from '@shared/components/ui/toaster'
 import { Toaster as Sonner } from '@shared/components/ui/sonner'
 import { ThemeProvider } from '@app/providers/ThemeProvider'
 import { ThemeToggle } from '@shared/components/ui/ThemeToggle'
-import { Button } from '@shared/components/ui/button'
 import { useQuery } from '@tanstack/react-query'
 import { MedicalForm } from '@features/form/components/MedicalForm'
 import { RecordsSection } from '@features/form/components/RecordsSection'
@@ -12,7 +11,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@shared/components/ui/
 import { useNavigate } from 'react-router-dom'
 import { signOut } from '@lib/supabase/auth'
 import { getMedicalRecords, searchMedicalRecords } from '@lib/supabase-service'
-import { RefreshCw, Maximize2, Loader2 } from 'lucide-react'
+import { RefreshCw, Loader2 } from 'lucide-react'
 import { useUserProfile } from '@shared/hooks/useUserProfile'
 import { DoctorsSection } from '@features/form/components/DoctorsSection'
 
@@ -46,17 +45,11 @@ function FormContent() {
 			? searchMedicalRecords(searchTerm)
 			: getMedicalRecords(),
 		staleTime: 1000 * 60 * 5, // 5 minutes
-		// Add suspense option to prevent UI blocking
-		suspense: false,
 		// Add refetchOnWindowFocus to false to prevent unnecessary refetches
 		refetchOnWindowFocus: false,
 		// Only enable the query when the records tab is active
 		enabled: activeTab === 'records',
 	})
-
-	const handleClearForm = useCallback(() => {
-		window.dispatchEvent(new CustomEvent('clearForm'))
-	}, [])
 
 	const handleLogout = useCallback(async () => {
 		await signOut()
@@ -86,11 +79,6 @@ function FormContent() {
 			<Toaster />
 			<Sonner />
 			<div className="fixed top-4 right-4 z-50 flex items-center gap-2">
-				{activeTab === 'form' && (
-					<Button variant="outline" onClick={handleClearForm} className="shadow-xl dark:shadow-black shadow-black/40">
-						Limpiar
-					</Button>
-				)}
 				{activeTab === 'records' && (
 					<>
 						<button
