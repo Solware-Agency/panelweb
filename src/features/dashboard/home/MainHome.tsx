@@ -149,9 +149,6 @@ function MainHome() {
 												<p className="text-xs text-gray-500 dark:text-gray-400">Total</p>
 											</div>
 										</div>
-										
-										{/* Tooltip for pie chart */}
-										
 									</div>
 								</div>
 
@@ -222,26 +219,34 @@ function MainHome() {
 													
 													{/* Interactive Tooltip */}
 													{hoveredBranchIndex === index && (
-														<div className={`absolute z-10 -top-24 left-1/2 transform -translate-x-1/2 ${color.tooltip} text-white rounded-lg p-3 shadow-lg min-w-[200px] animate-fade-in`}>
+														<div className="absolute bottom-full left-1/2 transform -translate-x-1/2 z-10 bg-white dark:bg-gray-800 rounded-lg p-3 shadow-lg min-w-[180px] border border-gray-200 dark:border-gray-700 mb-2 animate-fade-in">
 															<div className="text-center mb-2">
-																<h3 className="font-bold">{branch.branch}</h3>
-																<div className="w-full h-0.5 bg-white/30 my-1"></div>
+																<h3 className="font-bold text-gray-900 dark:text-gray-100">
+																	{branch.branch}
+																</h3>
+																<div className="w-full h-0.5 bg-gray-200 dark:bg-gray-700 my-1"></div>
 															</div>
 															<div className="grid grid-cols-2 gap-2 text-sm">
 																<div>
-																	<p className="text-white/70">Ingresos:</p>
-																	<p className="font-bold">{formatCurrency(branch.revenue)}</p>
+																	<p className="text-gray-500 dark:text-gray-400">Ingresos:</p>
+																	<p className="font-bold text-gray-900 dark:text-gray-100">
+																		{formatCurrency(branch.revenue)}
+																	</p>
 																</div>
 																<div>
-																	<p className="text-white/70">Porcentaje:</p>
-																	<p className="font-bold">{branch.percentage.toFixed(1)}%</p>
+																	<p className="text-gray-500 dark:text-gray-400">Porcentaje:</p>
+																	<p className="font-bold text-gray-900 dark:text-gray-100">
+																		{branch.percentage.toFixed(1)}%
+																	</p>
 																</div>
 																<div className="col-span-2">
-																	<p className="text-white/70">Período:</p>
-																	<p className="font-bold">{format(selectedMonth, 'MMMM yyyy', { locale: es })}</p>
+																	<p className="text-gray-500 dark:text-gray-400">Período:</p>
+																	<p className="font-bold text-gray-900 dark:text-gray-100">
+																		{format(selectedMonth, 'MMMM yyyy', { locale: es })}
+																	</p>
 																</div>
 															</div>
-															<div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 w-4 h-4 rotate-45 bg-inherit"></div>
+															<div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 w-4 h-4 rotate-45 bg-white dark:bg-gray-800 border-r border-b border-gray-200 dark:border-gray-700"></div>
 														</div>
 													)}
 												</div>
