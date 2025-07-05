@@ -18,14 +18,8 @@ console.log('🔗 Conectando a Supabase con tabla medical_records_clean')
 const getRedirectUrl = () => {
 	if (typeof window === 'undefined') return 'http://localhost:5173'
 
-	const isDevelopment = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-
-	if (isDevelopment) {
-		return `${window.location.protocol}//${window.location.host}`
-	}
-
-	// Production URL
-	return import.meta.env.VITE_PRODUCTION_URL || 'https://panel.solware.agency'
+	// Always use the current origin to ensure consistency
+	return window.location.origin
 }
 
 export const REDIRECT_URL = getRedirectUrl()
