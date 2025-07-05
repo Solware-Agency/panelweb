@@ -6,7 +6,7 @@ import { useQuery } from '@tanstack/react-query'
 import { MedicalForm } from '@features/form/components/MedicalForm'
 import { RecordsSection } from '@features/form/components/RecordsSection'
 import { SettingsSection } from '@features/form/components/SettingsSection'
-import { Link } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
 import { useState, useCallback, Suspense } from 'react'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@shared/components/ui/tabs'
 import { useNavigate } from 'react-router-dom'
@@ -31,6 +31,7 @@ function FormContent() {
 	const [isFullscreen, setIsFullscreen] = useState(false)
 	const [searchTerm, setSearchTerm] = useState('')
 	const navigate = useNavigate()
+	const location = useLocation()
 	const { profile } = useUserProfile()
 
 	// Query for medical records data - fetch all records at once
@@ -80,13 +81,6 @@ function FormContent() {
 			<Toaster />
 			<Sonner />
 			<div className="fixed top-4 right-4 z-50 flex items-center gap-2">
-				<Link
-					to="/patients"
-					className="flex items-center gap-2 px-3 py-2 border border-input rounded-lg focus:ring-2 focus:ring-primary dark:bg-background dark:text-white text-sm hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors shadow-xl dark:shadow-black shadow-black/40"
-				>
-					<Users className="w-4 h-4" />
-					<span>Pacientes</span>
-				</Link>
 				{activeTab === 'records' && (
 					<>
 						<button
@@ -118,11 +112,20 @@ function FormContent() {
 					</div>
 
 					<Tabs defaultValue="form" value={activeTab} onValueChange={handleTabChange}>
-						<TabsList className="mb-4 sm:mb-6 overflow-x-auto flex-nowrap gap-2">
+						<TabsList className="mb-4 sm:mb-6 overflow-x-auto flex-wrap gap-2">
 							<TabsTrigger value="form">Formulario</TabsTrigger>
 							<TabsTrigger value="records">Registros</TabsTrigger>
 							<TabsTrigger value="doctors">Médicos</TabsTrigger>
 							<TabsTrigger value="settings">Ajustes</TabsTrigger>
+							<Link
+								to="/patients"
+								className={`inline-flex items-center justify-center whitespace-nowrap rounded-sm px-2 sm:px-3 py-1.5 text-xs sm:text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:bg-background hover:text-foreground hover:shadow-sm flex-shrink-0 ${
+									location.pathname === '/patients' ? 'bg-background text-foreground shadow-sm' : 'text-muted-foreground'
+								}`}
+							>
+								<Users className="w-4 h-4 mr-2" />
+								Pacientes
+							</Link>
 						</TabsList>
 
 						<TabsContent value="form" className="mt-4 sm:mt-6">
