@@ -27,7 +27,6 @@ import GenerateBiopsyModal from './GenerateBiopsyModal'
 import DoctorFilterPanel from './DoctorFilterPanel'
 import { generatePDF } from '@shared/utils/pdf-generator'
 import UnifiedCaseModal from './UnifiedCaseModal'
-import UnifiedCaseModal from './UnifiedCaseModal'
 
 interface CasesTableProps {
 	cases: MedicalRecord[]
