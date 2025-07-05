@@ -1,7 +1,7 @@
 import React from 'react';
 import { Card } from '@shared/components/ui/card';
 import { cn } from '@shared/lib/cn';
-import { StatType } from '@shared/components/ui/stat-detail-panel';
+import type { StatType } from '@shared/components/ui/stat-detail-panel';
 
 interface StatCardProps {
   title: string;
