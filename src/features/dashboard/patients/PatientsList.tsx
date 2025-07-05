@@ -10,6 +10,7 @@ import { getAgeDisplay } from '@lib/supabase-service'
 import { format, parseISO } from 'date-fns'
 import { es } from 'date-fns/locale'
 
+// Define interface for patient data
 type SortField = 'full_name' | 'id_number' | 'date_of_birth' | 'phone' | 'email'
 type SortDirection = 'asc' | 'desc'
 
@@ -22,16 +23,19 @@ interface PatientData {
   lastVisit: string
 }
 
-const PatientsList: React.FC = () => {
+// Use React.memo to prevent unnecessary re-renders
+const PatientsList: React.FC = React.memo(() => {
   const [searchTerm, setSearchTerm] = useState('')
   const [sortField, setSortField] = useState<SortField>('full_name')
   const [sortDirection, setSortDirection] = useState<SortDirection>('asc')
   const [isSearching, setIsSearching] = useState(false)
 
-  // Fetch all medical records
+  // Fetch all medical records - add refetchOnWindowFocus: false to prevent unnecessary refetches
   const { data: recordsData, isLoading, error, refetch } = useQuery({
     queryKey: ['all-medical-records'],
     queryFn: () => getMedicalRecords(),
+    staleTime: 1000 * 60 * 5, // 5 minutes
+    refetchOnWindowFocus: false, // Prevent refetching on window focus
   })
 
   // Process records to get unique patients
@@ -478,6 +482,6 @@ const PatientsList: React.FC = () => {
       </Card>
     </div>
   )
-}
+})
 
 export default PatientsList
