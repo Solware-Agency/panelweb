@@ -57,7 +57,8 @@ const StatsPage: React.FC = () => {
 	const incompleteRate = stats?.totalCases ? (stats.incompleteCases / stats.totalCases) * 100 : 0
 
 	return (
-		<div className="p-3 sm:p-6">
+		<>
+			<div className="p-3 sm:p-6">
 			{/* <div className="text-sm text-gray-600 dark:text-gray-400">
 							Mes seleccionado:{' '}
 							<span className="font-medium">{format(selectedMonth, 'MMMM yyyy', { locale: es })}</span>
@@ -480,20 +481,20 @@ const StatsPage: React.FC = () => {
 					</div>
 				</Card>
 			</div>
-		</div>
-		
-		{/* Stat Detail Panel */}
-		{selectedStat && (
-			<StatDetailPanel
-				isOpen={isDetailPanelOpen}
-				onClose={handleDetailPanelClose}
-				statType={selectedStat}
-				stats={stats}
-				isLoading={isLoading}
-				selectedMonth={selectedMonth}
-				selectedYear={selectedYear}
-			/>
-		)}
+			
+			{/* Stat Detail Panel */}
+			{selectedStat && (
+				<StatDetailPanel
+					isOpen={isDetailPanelOpen}
+					onClose={handleDetailPanelClose}
+					statType={selectedStat}
+					stats={stats}
+					isLoading={isLoading}
+					selectedMonth={selectedMonth}
+					selectedYear={selectedYear}
+				/>
+			)}
+		</>
 	)
 }
 
