@@ -83,15 +83,6 @@ function App() {
 							<Route path="changelog" element={<ChangelogPage />} />
 						</Route>
 
-						{/* Standalone Patients Route for Form Users */}
-						<Route
-							path="/patients"
-							element={
-								<FormRoute>
-									<PatientsPage />
-								</FormRoute>
-							}
-						/>
 					</Routes>
 				</div>
 			</BrowserRouter>

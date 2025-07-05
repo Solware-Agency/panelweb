@@ -6,15 +6,15 @@ import { useQuery } from '@tanstack/react-query'
 import { MedicalForm } from '@features/form/components/MedicalForm'
 import { RecordsSection } from '@features/form/components/RecordsSection'
 import { SettingsSection } from '@features/form/components/SettingsSection'
-import { Link, useLocation } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { useState, useCallback, Suspense } from 'react'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@shared/components/ui/tabs'
-import { useNavigate } from 'react-router-dom'
 import { signOut } from '@lib/supabase/auth'
 import { getMedicalRecords, searchMedicalRecords } from '@lib/supabase-service'
 import { RefreshCw, Loader2, User, Users } from 'lucide-react'
 import { useUserProfile } from '@shared/hooks/useUserProfile'
 import { DoctorsSection } from '@features/form/components/DoctorsSection'
+import PatientsPage from '@features/dashboard/patients/PatientsPage'
 
 // Loading fallback component
 const LoadingFallback = () => (
@@ -31,7 +31,6 @@ function FormContent() {
 	const [isFullscreen, setIsFullscreen] = useState(false)
 	const [searchTerm, setSearchTerm] = useState('')
 	const navigate = useNavigate()
-	const location = useLocation()
 	const { profile } = useUserProfile()
 
 	// Query for medical records data - fetch all records at once
@@ -112,20 +111,12 @@ function FormContent() {
 					</div>
 
 					<Tabs defaultValue="form" value={activeTab} onValueChange={handleTabChange}>
-						<TabsList className="mb-4 sm:mb-6 overflow-x-auto flex-wrap gap-2">
+						<TabsList className="mb-4 sm:mb-6 overflow-x-auto flex-nowrap gap-2">
 							<TabsTrigger value="form">Formulario</TabsTrigger>
 							<TabsTrigger value="records">Registros</TabsTrigger>
 							<TabsTrigger value="doctors">Médicos</TabsTrigger>
+							<TabsTrigger value="patients">Pacientes</TabsTrigger>
 							<TabsTrigger value="settings">Ajustes</TabsTrigger>
-							<Link
-								to="/patients"
-								className={`inline-flex items-center justify-center whitespace-nowrap rounded-sm px-2 sm:px-3 py-1.5 text-xs sm:text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:bg-background hover:text-foreground hover:shadow-sm flex-shrink-0 ${
-									location.pathname === '/patients' ? 'bg-background text-foreground shadow-sm' : 'text-muted-foreground'
-								}`}
-							>
-								<Users className="w-4 h-4 mr-2" />
-								Pacientes
-							</Link>
 						</TabsList>
 
 						<TabsContent value="form" className="mt-4 sm:mt-6">
@@ -152,6 +143,10 @@ function FormContent() {
 
 						<TabsContent value="doctors" className="mt-4 sm:mt-6">
 							<DoctorsSection />
+						</TabsContent>
+
+						<TabsContent value="patients" className="mt-4 sm:mt-6">
+							<PatientsPage />
 						</TabsContent>
 					</Tabs>
 				</main>
