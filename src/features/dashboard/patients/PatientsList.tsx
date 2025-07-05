@@ -29,6 +29,7 @@ const PatientsList: React.FC = () => {
   const [isSearching, setIsSearching] = useState(false)
 
   // Fetch all medical records
+  const { data: recordsData, isLoading, error, refetch } = useQuery({
     queryKey: ['all-medical-records'],
   })
 
@@ -237,6 +238,9 @@ const PatientsList: React.FC = () => {
             <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
             Actualizar
           </Button>
+        </div>
+      </Card>
+
       {/* Stats */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
         <Card className="p-4">
