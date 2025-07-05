@@ -237,7 +237,7 @@ const Sidebar: React.FC<SidebarProps> = ({
 					title={!showFullContent ? 'Pacientes' : undefined}
 				>
 					<div className="flex gap-3 items-center min-w-0">
-						<User className="stroke-2 size-5 shrink-0" />
+						<Users className="stroke-2 size-5 shrink-0" />
 						<p
 							className={`text-md whitespace-nowrap transition-all duration-300 ${
 								showFullContent ? 'opacity-100 w-auto' : 'opacity-0 w-0 overflow-hidden'
