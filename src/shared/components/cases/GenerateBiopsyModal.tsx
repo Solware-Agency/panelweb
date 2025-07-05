@@ -9,6 +9,7 @@ import { Button } from '@shared/components/ui/button'
 import { Textarea } from '@shared/components/ui/textarea'
 import { useToast } from '@shared/hooks/use-toast'
 import { useAuth } from '@app/providers/AuthContext'
+import { useUserProfile } from '@shared/hooks/useUserProfile'
 import { updateMedicalRecordWithLog } from '@lib/supabase-service'
 import type { MedicalRecord } from '@lib/supabase-service'
 
@@ -34,6 +35,7 @@ const GenerateBiopsyModal: React.FC<GenerateBiopsyModalProps> = ({ case_, isOpen
 	const [isSaving, setIsSaving] = useState(false)
 	const { toast } = useToast()
 	const { user } = useAuth()
+	const { profile } = useUserProfile()
 
 	const form = useForm<BiopsyCaseFormData>({
 		resolver: zodResolver(biopsyCaseSchema),
@@ -63,6 +65,10 @@ const GenerateBiopsyModal: React.FC<GenerateBiopsyModalProps> = ({ case_, isOpen
 		if (!case_ || !user) return
 
 		setIsSaving(true)
+		
+		// Get current timestamp for generated_at
+		const now = new Date().toISOString()
+		
 		try {
 			// Prepare changes for logging
 			const changes = []
@@ -112,6 +118,30 @@ const GenerateBiopsyModal: React.FC<GenerateBiopsyModalProps> = ({ case_, isOpen
 				})
 			}
 
+			// Add generated_by information to updates
+			const updatesWithGeneratedBy = {
+				...data,
+				generated_by: user.id,
+				generated_by_display_name: profile?.display_name || user.email,
+				generated_at: now,
+				pdf_en_ready: true // Mark as PDF ready when generated
+			}
+			
+			// Add generated_by to changes log
+			changes.push({
+				field: 'generated_by',
+				fieldLabel: 'Generado Por',
+				oldValue: case_.generated_by || null,
+				newValue: user.id
+			})
+			
+			changes.push({
+				field: 'pdf_en_ready',
+				fieldLabel: 'PDF Listo',
+				oldValue: case_.pdf_en_ready || false,
+				newValue: true
+			})
+
 			// If no changes, show message and return
 			if (changes.length === 0) {
 				toast({
@@ -126,7 +156,7 @@ const GenerateBiopsyModal: React.FC<GenerateBiopsyModalProps> = ({ case_, isOpen
 			// Update record with changes
 			const { error } = await updateMedicalRecordWithLog(
 				case_.id!,
-				data,
+				updatesWithGeneratedBy,
 				changes,
 				user.id,
 				user.email || 'unknown@email.com',

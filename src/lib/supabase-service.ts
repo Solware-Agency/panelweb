@@ -49,6 +49,12 @@ export interface MedicalRecord {
 	diagnostico?: string | null
 	comentario?: string | null
 	pdf_en_ready?: boolean | null
+	generated_by?: string | null
+	generated_by_display_name?: string | null
+	generated_at?: string | null
+	generated_by?: string | null
+	generated_by_display_name?: string | null
+	generated_at?: string | null
 }
 
 export interface ChangeLog {
