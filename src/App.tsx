@@ -15,6 +15,7 @@ import StatsPage from '@features/dashboard/stats/StatsPage'
 import ReportsPage from '@features/dashboard/reports/ReportsPage'
 import UsersPage from '@features/dashboard/users/UsersPage'
 import CasesPage from '@features/dashboard/cases/CasesPage'
+import MyCasesPage from '@features/dashboard/cases/MyCasesPage'
 import SettingsPage from '@features/dashboard/settings/SettingsPage'
 import ChangelogPage from '@features/dashboard/changelog/ChangelogPage'
 import Form from '@features/form/pages/Form'
@@ -75,6 +76,7 @@ function App() {
 							<Route path="reports" element={<ReportsPage />} />
 							<Route path="users" element={<UsersPage />} />
 							<Route path="cases" element={<CasesPage />} />
+							<Route path="my-cases" element={<MyCasesPage />} />
 							<Route path="settings" element={<SettingsPage />} />
 							<Route path="changelog" element={<ChangelogPage />} />
 						</Route>

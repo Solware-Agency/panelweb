@@ -6,6 +6,7 @@ import {
 	X,
 	FolderInput,
 	LogOut,
+	Microscope,
 	Moon,
 	Sun,
 	Clock,
@@ -48,6 +49,7 @@ const Sidebar: React.FC<SidebarProps> = ({
 	// Determine if user is admin role
 	const isAdmin = profile?.role === 'admin'
 	const isOwner = profile?.role === 'owner'
+	const isEmployee = profile?.role === 'employee'
 
 	return (
 		<aside className="bg-white/80 dark:bg-background/50 shadow-lg hover:shadow-primary/50 backdrop-blur-[10px] flex flex-col justify-between h-screen py-8 px-5 gap-4 border-gray-600 text-gray-700 dark:text-white transition-all duration-300 ease-in-out overflow-hidden border-r border-input">
@@ -74,56 +76,8 @@ const Sidebar: React.FC<SidebarProps> = ({
 					)}
 				</div>
 
-				{/* Show different menu items based on role */}
-				{isAdmin ? (
-					// Admin menu items
-					<>
-						<NavLink
-							to="/dashboard/cases"
-							className={({ isActive }) =>
-								`flex justify-between items-center gap-3 cursor-pointer transition w-full ${
-									isActive ? 'text-primary border-primary' : 'hover:text-primary'
-								}`
-							}
-							onClick={onClose}
-							title={!showFullContent ? 'Registros' : undefined}
-						>
-							<div className="flex gap-3 items-center min-w-0">
-								<FolderInput className="stroke-2 size-5 shrink-0" />
-								<p
-									className={`text-md whitespace-nowrap transition-all duration-300 ${
-										showFullContent ? 'opacity-100 w-auto' : 'opacity-0 w-0 overflow-hidden'
-									}`}
-								>
-									Registros
-								</p>
-							</div>
-						</NavLink>
-
-						<NavLink
-							to="/dashboard/users"
-							className={({ isActive }) =>
-								`flex justify-between items-center gap-3 cursor-pointer transition w-full ${
-									isActive ? 'text-primary border-primary' : 'hover:text-primary'
-								}`
-							}
-							onClick={onClose}
-							title={!showFullContent ? 'Médicos' : undefined}
-						>
-							<div className="flex gap-3 items-center min-w-0">
-								<Users className="stroke-2 size-5 shrink-0" />
-								<p
-									className={`text-md whitespace-nowrap transition-all duration-300 ${
-										showFullContent ? 'opacity-100 w-auto' : 'opacity-0 w-0 overflow-hidden'
-									}`}
-								>
-									Médicos
-								</p>
-							</div>
-						</NavLink>
-					</>
-				) : (
-					// Regular menu items for owner/employee
+				{/* Common menu items for all roles */}
+				{!isEmployee && (
 					<>
 						<NavLink
 							to="/dashboard/home"
@@ -146,7 +100,12 @@ const Sidebar: React.FC<SidebarProps> = ({
 								</p>
 							</div>
 						</NavLink>
+					</>
+				)}
 
+				{/* Stats and Reports - Only for owner */}
+				{isOwner && (
+					<>
 						<NavLink
 							to="/dashboard/stats"
 							className={({ isActive }) =>
@@ -190,7 +149,11 @@ const Sidebar: React.FC<SidebarProps> = ({
 								</p>
 							</div>
 						</NavLink>
+					</>
+				)}
 
+				{/* Users - For owner and admin */}
+				{(isOwner || isAdmin) && (
 						<NavLink
 							to="/dashboard/users"
 							className={({ isActive }) =>
@@ -212,7 +175,9 @@ const Sidebar: React.FC<SidebarProps> = ({
 								</p>
 							</div>
 						</NavLink>
+				)}
 
+				{/* Cases - For all roles */}
 						<NavLink
 							to="/dashboard/cases"
 							className={({ isActive }) =>
@@ -234,9 +199,35 @@ const Sidebar: React.FC<SidebarProps> = ({
 								</p>
 							</div>
 						</NavLink>
-
+				
+				{/* My Cases - Only for admin */}
+				{isAdmin && (
+						<NavLink
+							to="/dashboard/my-cases"
+							className={({ isActive }) =>
+								`flex justify-between items-center gap-3 cursor-pointer transition w-full ${
+									isActive ? 'text-primary border-primary' : 'hover:text-primary'
+								}`
+							}
+							onClick={onClose}
+							title={!showFullContent ? 'Mis Casos' : undefined}
+						>
+							<div className="flex gap-3 items-center min-w-0">
+								<Microscope className="stroke-2 size-5 shrink-0" />
+								<p
+									className={`text-md whitespace-nowrap transition-all duration-300 ${
+										showFullContent ? 'opacity-100 w-auto' : 'opacity-0 w-0 overflow-hidden'
+									}`}
+								>
+									Mis Casos
+								</p>
+							</div>
+						</NavLink>
+				)}
+				
+				{/* Changelog - Only for owners */}
+				{isOwner && (
 						{/* New Changelog Link - Only for owners */}
-						{isOwner && (
 							<NavLink
 								to="/dashboard/changelog"
 								className={({ isActive }) =>
@@ -258,8 +249,6 @@ const Sidebar: React.FC<SidebarProps> = ({
 									</p>
 								</div>
 							</NavLink>
-						)}
-					</>
 				)}
 			</div>
 

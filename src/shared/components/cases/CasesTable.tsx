@@ -21,6 +21,7 @@ import { es } from 'date-fns/locale'
 import { useToast } from '@shared/hooks/use-toast'
 import { Button } from '@shared/components/ui/button'
 import { useAuth } from '@app/providers/AuthContext'
+import { useUserProfile } from '@shared/hooks/useUserProfile'
 import GenerateBiopsyModal from './GenerateBiopsyModal'
 import { generatePDF } from '@shared/utils/pdf-generator'
 import UnifiedCaseModal from './UnifiedCaseModal'
@@ -50,6 +51,7 @@ const CasesTable: React.FC<CasesTableProps> = ({
 	onSearch,
 }) => {
 	useAuth()
+	const { profile } = useUserProfile()
 	const { toast } = useToast()
 	const [searchTerm, setSearchTerm] = useState('')
 	const [statusFilter, setStatusFilter] = useState<string>('all')
@@ -64,6 +66,10 @@ const CasesTable: React.FC<CasesTableProps> = ({
 	const [isEditModalOpen, setIsEditModalOpen] = useState(false)
 	const [showPdfReadyOnly, setShowPdfReadyOnly] = useState(false)
 	const [isSearching, setIsSearching] = useState(false)
+	
+	// Determine if user can edit, delete, or generate cases based on role
+	const canEdit = profile?.role === 'owner' || profile?.role === 'employee'
+	const canGenerate = profile?.role === 'owner' || profile?.role === 'admin'
 
 	// Use a ref to track if we're in the dashboard or form view
 
@@ -96,6 +102,16 @@ const CasesTable: React.FC<CasesTableProps> = ({
 
 	const handleGenerateCase = useCallback(
 		(case_: MedicalRecord) => {
+			// Check if user has permission to generate cases
+			if (!canGenerate) {
+				toast({
+					title: '❌ Permiso denegado',
+					description: 'No tienes permisos para generar casos.',
+					variant: 'destructive',
+				})
+				return
+			}
+			
 			// Check if this is a biopsy case
 			if (case_.exam_type?.toLowerCase() !== 'biopsia') {
 				toast({
@@ -109,13 +125,23 @@ const CasesTable: React.FC<CasesTableProps> = ({
 			setSelectedCaseForGenerate(case_)
 			setIsGenerateModalOpen(true)
 		},
-		[toast],
+		[toast, canGenerate],
 	)
 
 	const handleEditCase = useCallback((case_: MedicalRecord) => {
+		// Check if user has permission to edit cases
+		if (!canEdit) {
+			toast({
+				title: '❌ Permiso denegado',
+				description: 'No tienes permisos para editar casos.',
+				variant: 'destructive',
+			})
+			return
+		}
+		
 		setSelectedCaseForEdit(case_)
 		setIsEditModalOpen(true)
-	}, [])
+	}, [canEdit, toast])
 
 	const handleDownloadCase = useCallback(
 		async (case_: MedicalRecord) => {
@@ -371,6 +397,7 @@ const CasesTable: React.FC<CasesTableProps> = ({
 						<button
 							onClick={() => handleEditCase(case_)}
 							className="flex-1 inline-flex items-center justify-center gap-1 px-3 py-2 text-xs font-medium text-purple-600 dark:text-purple-400 hover:text-purple-800 dark:hover:text-purple-300 bg-purple-50 dark:bg-purple-900/20 hover:bg-purple-100 dark:hover:bg-purple-900/30 rounded-lg transition-colors"
+							disabled={!canEdit}
 						>
 							<Edit2 className="w-3 h-3" />
 							Editar
@@ -379,6 +406,7 @@ const CasesTable: React.FC<CasesTableProps> = ({
 							<button
 								onClick={() => handleGenerateCase(case_)}
 								className="flex-1 inline-flex items-center justify-center gap-1 px-3 py-2 text-xs font-medium text-green-600 dark:text-green-400 hover:text-green-800 dark:hover:text-green-300 bg-green-50 dark:bg-green-900/20 hover:bg-green-100 dark:hover:bg-green-900/30 rounded-lg transition-colors"
+								disabled={!canGenerate}
 							>
 								<FileText className="w-3 h-3" />
 								Generar
@@ -709,6 +737,7 @@ const CasesTable: React.FC<CasesTableProps> = ({
 																e.stopPropagation()
 																handleEditCase(case_)
 															}}
+															disabled={!canEdit}
 															className="inline-flex items-center gap-1 px-3 py-1 text-xs font-medium text-purple-600 dark:text-purple-400 hover:text-purple-800 dark:hover:text-purple-300 transition-colors"
 														>
 															<Edit2 className="w-3 h-3" />
@@ -720,6 +749,7 @@ const CasesTable: React.FC<CasesTableProps> = ({
 																	e.stopPropagation()
 																	handleGenerateCase(case_)
 																}}
+																disabled={!canGenerate}
 																className="inline-flex items-center gap-1 px-3 py-1 text-xs font-medium text-green-600 dark:text-green-400 hover:text-green-800 dark:hover:text-green-300 transition-colors"
 															>
 																<FileText className="w-3 h-3" />
@@ -1065,6 +1095,7 @@ const CasesTable: React.FC<CasesTableProps> = ({
 																	e.stopPropagation()
 																	handleEditCase(case_)
 																}}
+																disabled={!canEdit}
 																className="inline-flex items-center gap-1 px-3 py-1 text-xs font-medium text-purple-600 dark:text-purple-400 hover:text-purple-800 dark:hover:text-purple-300 transition-colors"
 															>
 																<Edit2 className="w-3 h-3" />
@@ -1076,6 +1107,7 @@ const CasesTable: React.FC<CasesTableProps> = ({
 																		e.stopPropagation()
 																		handleGenerateCase(case_)
 																	}}
+																	disabled={!canGenerate}
 																	className="inline-flex items-center gap-1 px-3 py-1 text-xs font-medium text-green-600 dark:text-green-400 hover:text-green-800 dark:hover:text-green-300 transition-colors"
 																>
 																	<FileText className="w-3 h-3" />
