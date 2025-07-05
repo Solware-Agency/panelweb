@@ -627,6 +627,7 @@ export const getMedicalRecordsStats = async () => {
 
 // Function to update PDF ready status
 export const updatePdfReadyStatus = async (id: string, isReady: boolean) => {
+}
 
 // Mantener compatibilidad con nombres anteriores
 export const insertCliente = insertMedicalRecord
