@@ -6,7 +6,7 @@ import { Button } from '@shared/components/ui/button';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 
-export type StatType = 
+type StatType = 
   | 'totalRevenue' 
   | 'monthlyRevenue' 
   | 'totalCases' 
@@ -16,6 +16,8 @@ export type StatType =
   | 'uniquePatients'
   | 'branchRevenue'
   | 'examTypes';
+
+export type { StatType };
 
 interface StatDetailPanelProps {
   isOpen: boolean;
