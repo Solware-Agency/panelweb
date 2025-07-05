@@ -11,6 +11,7 @@ import {
 	Sun,
 	Clock,
 	Users,
+	User,
 	Settings,
 	History,
 } from 'lucide-react'
