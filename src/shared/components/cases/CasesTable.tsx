@@ -12,6 +12,7 @@ import {
 	FileText,
 	Download,
 	Maximize2,
+	Edit,
 	Edit2,
 } from 'lucide-react'
 import type { MedicalRecord } from '@lib/supabase-service'
@@ -26,9 +27,9 @@ import GenerateBiopsyModal from './GenerateBiopsyModal'
 import DoctorFilterPanel from './DoctorFilterPanel'
 import { generatePDF } from '@shared/utils/pdf-generator'
 import UnifiedCaseModal from './UnifiedCaseModal'
+import UnifiedCaseModal from './UnifiedCaseModal'
 
 interface CasesTableProps {
-	onCaseSelect: (case_: MedicalRecord) => void
 	cases: MedicalRecord[]
 	isLoading: boolean
 	error: any
@@ -42,7 +43,6 @@ type SortField = 'id' | 'created_at' | 'full_name' | 'date_of_birth' | 'total_am
 type SortDirection = 'asc' | 'desc'
 
 const CasesTable: React.FC<CasesTableProps> = ({
-	onCaseSelect,
 	cases,
 	isLoading,
 	error,

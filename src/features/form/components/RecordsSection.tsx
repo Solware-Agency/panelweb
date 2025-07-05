@@ -138,6 +138,20 @@ export const RecordsSection: React.FC<RecordsSectionProps> = ({
 			'inmunohistoquimica': 0
 		}
 		
+		if (cases) {
+			cases.forEach(record => {
+				if (record.exam_type) {
+					const type = record.exam_type.toLowerCase()
+					if (counts[type] !== undefined) {
+						counts[type]++
+					}
+				}
+			})
+		}
+		
+		return counts
+	}, [cases])
+	
 	// Count PDF-ready cases
 	const pdfReadyCases = useMemo(() => {
 		return cases?.filter(c => {
