@@ -1,27 +1,20 @@
 import React, { useState } from 'react'
 import { motion, AnimatePresence } from 'motion/react'
-import { X, User, FileText, DollarSign, AlertTriangle, Microscope, Edit2 } from 'lucide-react'
+import { X, User, FileText, DollarSign, AlertTriangle, Microscope } from 'lucide-react'
 import type { MedicalRecord } from '@lib/supabase-service'
 import { getAgeDisplay } from '@lib/supabase-service'
 import { format, parseISO } from 'date-fns'
 import { es } from 'date-fns/locale'
 import { useUserProfile } from '@shared/hooks/useUserProfile'
-import UnifiedCaseModal from './UnifiedCaseModal'
-import { Button } from '@shared/components/ui/button'
 
 interface CaseDetailPanelProps {
 	case_: MedicalRecord | null
 	isOpen: boolean
 	onClose: () => void
+	onCaseSelect: (case_: MedicalRecord) => void
 }
 
-const CaseDetailPanel: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClose }) => {
-	const [isEditModalOpen, setIsEditModalOpen] = useState(false)
-	const { profile } = useUserProfile()
-	
-	// Determine if user can edit cases based on role
-	const canEdit = profile?.role === 'owner' || profile?.role === 'employee'
-
+const CaseDetailPanel: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClose, onCaseSelect }) => {
 	if (!case_) return null
 
 	// Format date for display
@@ -73,7 +66,7 @@ const CaseDetailPanel: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClos
 							<div className="flex items-center justify-between">
 								<div>
 									<h2 className="text-lg sm:text-2xl font-bold text-gray-900 dark:text-gray-100">Detalles del Caso</h2>
-									<div className="flex items-center gap-1.5 sm:gap-2 mt-1 sm:mt-2 flex-wrap">
+									<div className="flex items-center gap-1.5 sm:gap-2 mt-1 sm:mt-2">
 										{case_.code && (
 											<span className="inline-flex items-center gap-1 px-1.5 sm:px-2 py-0.5 sm:py-1 text-xs font-semibold rounded-full bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300">
 												{case_.code}
@@ -89,17 +82,6 @@ const CaseDetailPanel: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClos
 									</div>
 								</div>
 								<div className="flex items-center gap-2">
-									{canEdit && (
-										<Button
-											onClick={() => setIsEditModalOpen(true)}
-											variant="outline"
-											size="sm"
-											className="flex items-center gap-1 text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300"
-										>
-											<Edit2 className="w-4 h-4" />
-											Editar
-										</Button>
-									)}
 									<button
 										onClick={onClose}
 										className="p-1.5 sm:p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
@@ -379,33 +361,6 @@ const CaseDetailPanel: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClos
 						</div>
 					</motion.div>
 
-					{/* Edit Modal */}
-					<UnifiedCaseModal
-						case_={case_}
-						isOpen={isEditModalOpen}
-						onClose={() => setIsEditModalOpen(false)}
-						onSave={() => {
-							// Refresh data but don't close the detail panel
-							// Just close the edit modal and refresh the parent component
-							setIsEditModalOpen(false)
-							// Trigger a refetch of the case data
-							if (onClose) {
-								// Close and reopen to refresh data
-								onClose();
-								// Wait a moment before reopening to ensure data is refreshed
-								setTimeout(() => {
-									if (case_?.id) {
-										// This would ideally be a direct refetch, but we're using the close/reopen pattern
-										// The parent component should handle refetching when onClose is called
-										onCaseSelect(case_);
-									}
-								}, 300);
-							}
-						}}
-						onDelete={() => {
-							onClose()
-						}}
-					/>
 				</>
 			)}
 		</AnimatePresence>

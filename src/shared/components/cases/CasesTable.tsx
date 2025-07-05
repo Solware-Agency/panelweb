@@ -24,7 +24,6 @@ import { useAuth } from '@app/providers/AuthContext'
 import { useUserProfile } from '@shared/hooks/useUserProfile'
 import GenerateBiopsyModal from './GenerateBiopsyModal'
 import DoctorFilterPanel from './DoctorFilterPanel'
-import UnifiedCaseModal from './UnifiedCaseModal'
 import { generatePDF } from '@shared/utils/pdf-generator'
 
 interface CasesTableProps {
@@ -63,15 +62,12 @@ const CasesTable: React.FC<CasesTableProps> = ({
 	const [selectedCaseForGenerate, setSelectedCaseForGenerate] = useState<MedicalRecord | null>(null)
 	const [isGenerateModalOpen, setIsGenerateModalOpen] = useState(false)
 	const [isDownloading, setIsDownloading] = useState<string | null>(null)
-	const [selectedCaseForEdit, setSelectedCaseForEdit] = useState<MedicalRecord | null>(null)
-	const [isEditModalOpen, setIsEditModalOpen] = useState(false)
 	const [showPdfReadyOnly, setShowPdfReadyOnly] = useState(false)
 	const [selectedDoctors, setSelectedDoctors] = useState<string[]>([])
 	const [showDoctorFilter, setShowDoctorFilter] = useState(false)
 	const [isSearching, setIsSearching] = useState(false)
 
 	// Determine if user can edit, delete, or generate cases based on role
-	const canEdit = profile?.role === 'owner' || profile?.role === 'employee'
 	const canGenerate = profile?.role === 'owner' || profile?.role === 'admin'
 
 	// Use a ref to track if we're in the dashboard or form view
@@ -129,24 +125,6 @@ const CasesTable: React.FC<CasesTableProps> = ({
 			setIsGenerateModalOpen(true)
 		},
 		[toast, canGenerate],
-	)
-
-	const handleEditCase = useCallback(
-		(case_: MedicalRecord) => {
-			// Check if user has permission to edit cases
-			if (!canEdit) {
-				toast({
-					title: '❌ Permiso denegado',
-					description: 'No tienes permisos para editar casos.',
-					variant: 'destructive',
-				})
-				return
-			}
-
-			setSelectedCaseForEdit(case_)
-			setIsEditModalOpen(true)
-		},
-		[canEdit, toast],
 	)
 
 	const handleDownloadCase = useCallback(
@@ -416,14 +394,6 @@ const CasesTable: React.FC<CasesTableProps> = ({
 							<Eye className="w-3 h-3" />
 							Ver
 						</button>
-						<button
-							onClick={() => handleEditCase(case_)}
-							className="flex-1 inline-flex items-center justify-center gap-1 px-3 py-2 text-xs font-medium text-purple-600 dark:text-purple-400 hover:text-purple-800 dark:hover:text-purple-300 bg-purple-50 dark:bg-purple-900/20 hover:bg-purple-100 dark:hover:bg-purple-900/30 rounded-lg transition-colors"
-							disabled={!canEdit}
-						>
-							<Edit2 className="w-3 h-3" />
-							Editar
-						</button>
 						{isBiopsyCase && (
 							<button
 								onClick={() => handleGenerateCase(case_)}
@@ -452,7 +422,7 @@ const CasesTable: React.FC<CasesTableProps> = ({
 				</div>
 			)
 		},
-		[getStatusColor, onCaseSelect, handleEditCase, handleGenerateCase, handleDownloadCase, isDownloading],
+		[getStatusColor, onCaseSelect, handleGenerateCase, handleDownloadCase, isDownloading],
 	)
 
 	// Render loading state
@@ -802,17 +772,6 @@ const CasesTable: React.FC<CasesTableProps> = ({
 														>
 															<Eye className="w-3 h-3" />
 															Ver
-														</button>
-														<button
-															onClick={(e) => {
-																e.stopPropagation()
-																handleEditCase(case_)
-															}}
-															disabled={!canEdit}
-															className="inline-flex items-center gap-1 px-3 py-1 text-xs font-medium text-purple-600 dark:text-purple-400 hover:text-purple-800 dark:hover:text-purple-300 transition-colors"
-														>
-															<Edit2 className="w-3 h-3" />
-															Editar
 														</button>
 														{isBiopsyCase && (
 															<button
@@ -1272,22 +1231,6 @@ const CasesTable: React.FC<CasesTableProps> = ({
 					setSelectedCaseForGenerate(null)
 				}}
 				onSuccess={() => {
-					refetch()
-				}}
-			/>
-
-			{/* Unified Edit Modal */}
-			<UnifiedCaseModal
-				case_={selectedCaseForEdit}
-				isOpen={isEditModalOpen}
-				onClose={() => {
-					setIsEditModalOpen(false)
-					setSelectedCaseForEdit(null)
-				}}
-				onSave={() => {
-					refetch()
-				}}
-				onDelete={() => {
 					refetch()
 				}}
 			/>
