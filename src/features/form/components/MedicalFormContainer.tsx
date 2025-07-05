@@ -14,13 +14,6 @@ import { useExchangeRate } from '@shared/hooks/useExchangeRate'
 import { useResetForm } from '@shared/hooks/useResetForm'
 import { insertMedicalRecord } from '@lib/supabase-service'
 
-interface MedicalFormContainerProps {
-	patientSectionRef: React.RefObject<HTMLDivElement>
-	serviceSectionRef: React.RefObject<HTMLDivElement>
-	paymentSectionRef: React.RefObject<HTMLDivElement>
-	commentsSectionRef: React.RefObject<HTMLDivElement>
-}
-
 const getInitialFormValues = (): FormValues => ({
 	fullName: '',
 	idNumber: '',
@@ -40,12 +33,7 @@ const getInitialFormValues = (): FormValues => ({
 	comments: '',
 })
 
-export function MedicalFormContainer({
-	patientSectionRef,
-	serviceSectionRef,
-	paymentSectionRef,
-	commentsSectionRef
-}: MedicalFormContainerProps) {
+export function MedicalFormContainer() {
 	const { toast } = useToast()
 	const { data: exchangeRate, isLoading: isLoadingRate } = useExchangeRate()
 	const [usdValue, setUsdValue] = useState('')
@@ -207,37 +195,25 @@ export function MedicalFormContainer({
 			</div>
 			<Form {...form}>
 				<form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 sm:space-y-8">
-					<div ref={patientSectionRef} id="patient-section">
-						<PatientDataSection control={formControl} inputStyles={inputStyles} />
-					</div>
-					
-					<div ref={serviceSectionRef} id="service-section">
-						<ServiceSection control={formControl} inputStyles={inputStyles} />
-					</div>
-					
-					<div ref={paymentSectionRef} id="payment-section">
-						<PaymentSection
-							control={formControl}
-							errors={formErrors}
-							fields={fields}
-							append={fields.length < 4 ? handleAppend : undefined}
-							remove={remove}
-							inputStyles={inputStyles}
-							usdValue={usdValue}
-							setUsdValue={setUsdValue}
-							vesValue={vesValue}
-							vesInputValue={vesInputValue}
-							setVesInputValue={setVesInputValue}
-							usdFromVes={usdFromVes}
-							exchangeRate={exchangeRate}
-							isLoadingRate={isLoadingRate}
-						/>
-					</div>
-					
-					<div ref={commentsSectionRef} id="comments-section">
-						<CommentsSection control={formControl} inputStyles={inputStyles} />
-					</div>
-					
+					<PatientDataSection control={formControl} inputStyles={inputStyles} />
+					<ServiceSection control={formControl} inputStyles={inputStyles} />
+					<PaymentSection
+						control={formControl}
+						errors={formErrors}
+						fields={fields}
+						append={fields.length < 4 ? handleAppend : undefined}
+						remove={remove}
+						inputStyles={inputStyles}
+						usdValue={usdValue}
+						setUsdValue={setUsdValue}
+						vesValue={vesValue}
+						vesInputValue={vesInputValue}
+						setVesInputValue={setVesInputValue}
+						usdFromVes={usdFromVes}
+						exchangeRate={exchangeRate}
+						isLoadingRate={isLoadingRate}
+					/>
+					<CommentsSection control={formControl} inputStyles={inputStyles} />
 					{isSubmitted ? (
 						<Button
 							type="button"

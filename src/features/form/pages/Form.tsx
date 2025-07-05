@@ -3,19 +3,17 @@ import { Toaster as Sonner } from '@shared/components/ui/sonner'
 import { ThemeProvider } from '@app/providers/ThemeProvider'
 import { ThemeToggle } from '@shared/components/ui/ThemeToggle'
 import { useQuery } from '@tanstack/react-query'
-import { useRef, useEffect } from 'react'
 import { MedicalForm } from '@features/form/components/MedicalForm'
 import { RecordsSection } from '@features/form/components/RecordsSection'
 import { SettingsSection } from '@features/form/components/SettingsSection'
 import { useState, useCallback, Suspense } from 'react'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@shared/components/ui/tabs'
-import { useLocation, useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { signOut } from '@lib/supabase/auth'
 import { getMedicalRecords, searchMedicalRecords } from '@lib/supabase-service'
 import { RefreshCw, Loader2 } from 'lucide-react'
 import { useUserProfile } from '@shared/hooks/useUserProfile'
 import { DoctorsSection } from '@features/form/components/DoctorsSection'
-import FormLayout from '@features/form/layouts/FormLayout'
 
 // Loading fallback component
 const LoadingFallback = () => (
@@ -29,18 +27,10 @@ const LoadingFallback = () => (
 
 function FormContent() {
 	const [activeTab, setActiveTab] = useState('form')
-	const [activeSection, setActiveSection] = useState('patient')
 	const [isFullscreen, setIsFullscreen] = useState(false)
 	const [searchTerm, setSearchTerm] = useState('')
 	const navigate = useNavigate()
 	const { profile } = useUserProfile()
-	const location = useLocation()
-	const patientSectionRef = useRef<HTMLDivElement>(null)
-	const serviceSectionRef = useRef<HTMLDivElement>(null)
-	const paymentSectionRef = useRef<HTMLDivElement>(null)
-	const commentsSectionRef = useRef<HTMLDivElement>(null)
-	const recordsSectionRef = useRef<HTMLDivElement>(null)
-	const settingsSectionRef = useRef<HTMLDivElement>(null)
 
 	// Query for medical records data - fetch all records at once
 	// Only enable the query when the records tab is active to save resources
@@ -84,148 +74,85 @@ function FormContent() {
 		}
 	}, [refetchCases])
 
-	// Handle section change from sidebar
-	const handleSectionChange = useCallback((section: string) => {
-		setActiveSection(section)
-		
-		// If section is records or settings, change the tab
-		if (section === 'records') {
-			setActiveTab('records')
-		} else if (section === 'settings') {
-			setActiveTab('settings')
-		} else {
-			setActiveTab('form')
-		}
-		
-		// Scroll to the appropriate section
-		setTimeout(() => {
-			let ref = null
-			switch (section) {
-				case 'patient':
-					ref = patientSectionRef.current
-					break
-				case 'service':
-					ref = serviceSectionRef.current
-					break
-				case 'payment':
-					ref = paymentSectionRef.current
-					break
-				case 'comments':
-					ref = commentsSectionRef.current
-					break
-				case 'records':
-					ref = recordsSectionRef.current
-					break
-				case 'settings':
-					ref = settingsSectionRef.current
-					break
-			}
-			
-			if (ref) {
-				ref.scrollIntoView({ behavior: 'smooth', block: 'start' })
-			}
-		}, 100)
-	}, [])
-
-	// Update active section based on scroll position
-	useEffect(() => {
-		const handleScroll = () => {
-			if (activeTab !== 'form') return
-			
-			const scrollPosition = window.scrollY + 100
-			
-			// Get positions of all sections
-			const patientPosition = patientSectionRef.current?.offsetTop || 0
-			const servicePosition = serviceSectionRef.current?.offsetTop || 0
-			const paymentPosition = paymentSectionRef.current?.offsetTop || 0
-			const commentsPosition = commentsSectionRef.current?.offsetTop || 0
-			
-			// Determine active section based on scroll position
-			if (scrollPosition >= commentsPosition) {
-				setActiveSection('comments')
-			} else if (scrollPosition >= paymentPosition) {
-				setActiveSection('payment')
-			} else if (scrollPosition >= servicePosition) {
-				setActiveSection('service')
-			} else {
-				setActiveSection('patient')
-			}
-		}
-		
-		window.addEventListener('scroll', handleScroll)
-		return () => window.removeEventListener('scroll', handleScroll)
-	}, [activeTab])
-
 	return (
-		<FormLayout activeSection={activeSection} onSectionChange={handleSectionChange}>
-			<div className="relative">
-				<Toaster />
-				<Sonner />
-				
-				{/* Fixed action buttons */}
-				<div className="fixed top-4 right-4 z-50 flex items-center gap-2">
-					{activeTab === 'records' && (
-						<>
-							<button
-								onClick={handleRefreshCases}
-								disabled={casesLoading}
-								className="flex items-center gap-2 px-3 py-2 border border-input rounded-lg focus:ring-2 focus:ring-primary dark:bg-background dark:text-white text-sm hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors disabled:opacity-50 shadow-xl dark:shadow-black shadow-black/40"
-							>
-								<RefreshCw className={`w-4 h-4 ${casesLoading ? 'animate-spin' : ''}`} />
-							</button>
-						</>
-					)}
-					<ThemeToggle />
-				</div>
-
-				<div className="container mx-auto py-6 sm:py-10 px-3 sm:px-4">
-					<main>
-						{activeTab === 'form' && (
-							<div className="space-y-6 sm:space-y-8">
-								<div ref={patientSectionRef} id="patient-section">
-									<MedicalForm />
-								</div>
-							</div>
-						)}
-
-						{activeTab === 'records' && (
-							<div ref={recordsSectionRef} id="records-section">
-								<Suspense fallback={<LoadingFallback />}>
-									<RecordsSection
-										cases={casesData?.data || []}
-										isLoading={casesLoading}
-										error={casesError}
-										refetch={refetchCases}
-										isFullscreen={isFullscreen}
-										setIsFullscreen={setIsFullscreen}
-										onSearch={handleSearch}
-									/>
-								</Suspense>
-							</div>
-						)}
-
-						{activeTab === 'settings' && (
-							<div ref={settingsSectionRef} id="settings-section">
-								<SettingsSection />
-							</div>
-						)}
-
-						{activeTab === 'doctors' && (
-							<div id="doctors-section">
-								<DoctorsSection />
-							</div>
-						)}
-					</main>
-				</div>
+		<>
+			<Toaster />
+			<Sonner />
+			<div className="fixed top-4 right-4 z-50 flex items-center gap-2">
+				{activeTab === 'records' && (
+					<>
+						<button
+							onClick={handleRefreshCases}
+							disabled={casesLoading}
+							className="flex items-center gap-2 px-3 py-2 border border-input rounded-lg focus:ring-2 focus:ring-primary dark:bg-background dark:text-white text-sm hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors disabled:opacity-50 shadow-xl dark:shadow-black shadow-black/40"
+						>
+							<RefreshCw className={`w-4 h-4 ${casesLoading ? 'animate-spin' : ''}`} />
+						</button>
+					</>
+				)}
+				<button
+					onClick={handleLogout}
+					className="bg-background text-foreground shadow-xl dark:shadow-black shadow-black/40 py-2 rounded-md px-5 border border-input hover:border-red-500 dark:hover:shadow-red-500 hover:shadow-sm"
+				>
+					Cerrar sesión
+				</button>
+				<ThemeToggle />
 			</div>
-		</FormLayout>
+
+			<div className="container mx-auto py-10 px-4">
+				<main>
+					<div className="mb-6">
+						<h2 className="text-2xl font-semibold text-foreground mb-2">Sistema de Registros Médicos</h2>
+						<div className="w-24 h-1 bg-primary mt-3 rounded-full" />
+						<h3 className='text-md text-primary font-semibold mt-4'>Bienvenido, {profile?.display_name}</h3>
+					</div>
+
+					<Tabs defaultValue="form" value={activeTab} onValueChange={handleTabChange}>
+						<TabsList className="mb-6">
+							<TabsTrigger value="form">Formulario</TabsTrigger>
+							<TabsTrigger value="records">Registros</TabsTrigger>
+							<TabsTrigger value="doctors">Médicos</TabsTrigger>
+							<TabsTrigger value="settings">Ajustes</TabsTrigger>
+						</TabsList>
+
+						<TabsContent value="form" className="mt-6">
+							<MedicalForm />
+						</TabsContent>
+
+						<TabsContent value="records" className="mt-6">
+							<Suspense fallback={<LoadingFallback />}>
+								<RecordsSection
+									cases={casesData?.data || []}
+									isLoading={casesLoading}
+									error={casesError}
+									refetch={refetchCases}
+									isFullscreen={isFullscreen}
+									setIsFullscreen={setIsFullscreen}
+									onSearch={handleSearch}
+								/>
+							</Suspense>
+						</TabsContent>
+
+						<TabsContent value="settings" className="mt-6">
+							<SettingsSection />
+						</TabsContent>
+
+						<TabsContent value="doctors" className="mt-6">
+							<DoctorsSection />
+						</TabsContent>
+					</Tabs>
+				</main>
+			</div>
+		</>
 	)
 }
 
 export default function Form() {
 	return (
 		<ThemeProvider defaultTheme="system" storageKey="ui-theme">
-			<FormContent />
+			<div className="overflow-x-hidden">
+				<FormContent />
+			</div>
 		</ThemeProvider>
 	)
 }
