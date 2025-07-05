@@ -14,6 +14,7 @@ import { getMedicalRecords, searchMedicalRecords } from '@lib/supabase-service'
 import { RefreshCw, Loader2 } from 'lucide-react'
 import { useUserProfile } from '@shared/hooks/useUserProfile'
 import { DoctorsSection } from '@features/form/components/DoctorsSection'
+import { useAuth } from '@app/providers/AuthContext'
 
 // Loading fallback component
 const LoadingFallback = () => (
@@ -31,6 +32,7 @@ function FormContent() {
 	const [searchTerm, setSearchTerm] = useState('')
 	const navigate = useNavigate()
 	const { profile } = useUserProfile()
+	const { session } = useAuth()
 
 	// Query for medical records data - fetch all records at once
 	// Only enable the query when the records tab is active to save resources
@@ -52,9 +54,11 @@ function FormContent() {
 	})
 
 	const handleLogout = useCallback(async () => {
-		await signOut()
+		if (session) {
+			await signOut()
+		}
 		navigate('/')
-	}, [navigate])
+	}, [navigate, session])
 
 	const handleRefreshCases = useCallback(() => {
 		refetchCases()

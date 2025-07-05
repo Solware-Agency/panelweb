@@ -7,7 +7,7 @@ import Aurora from '@shared/components/ui/Aurora'
 import FadeContent from '@shared/components/ui/FadeContent'
 
 function EmailVerificationNotice() {
-	const { user } = useAuth()
+	const { user, session } = useAuth()
 	const [checkingVerification] = useState(false)
 	const [message, setMessage] = useState('')
 	const [error, setError] = useState('')
@@ -51,7 +51,9 @@ function EmailVerificationNotice() {
 	}
 
 	const handleLogout = async () => {
-		await signOut()
+		if (session) {
+			await signOut()
+		}
 		navigate('/')
 	}
 

@@ -1,13 +1,17 @@
 import { useNavigate } from 'react-router-dom'
 import { signOut } from '@lib/supabase/auth'
 import { useUserProfile } from '@shared/hooks/useUserProfile'
+import { useAuth } from '@app/providers/AuthContext'
 
 function Header() {
 	const navigate = useNavigate()
 	const { profile } = useUserProfile()
+	const { session } = useAuth()
 
 	const handleLogout = async () => {
-		await signOut()
+		if (session) {
+			await signOut()
+		}
 		navigate('/')
 	}
 	return (
