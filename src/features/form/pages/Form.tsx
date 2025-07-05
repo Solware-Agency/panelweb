@@ -57,7 +57,6 @@ function FormContent() {
 		if (session) {
 			await signOut()
 		}
-		navigate('/')
 	}, [navigate, session])
 
 	const handleRefreshCases = useCallback(() => {
