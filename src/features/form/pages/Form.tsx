@@ -104,11 +104,13 @@ function FormContent() {
 					<div className="mb-6">
 						<h2 className="text-2xl font-semibold text-foreground mb-2">Sistema de Registros Médicos</h2>
 						<div className="w-24 h-1 bg-primary mt-3 rounded-full" />
-						<h3 className='text-sm sm:text-md text-primary font-semibold mt-3 sm:mt-4'>Bienvenido, {profile?.display_name}</h3>
+						<h3 className="text-sm sm:text-md text-primary font-semibold mt-3 sm:mt-4">
+							Bienvenido, {profile?.display_name}
+						</h3>
 					</div>
 
 					<Tabs defaultValue="form" value={activeTab} onValueChange={handleTabChange}>
-						<TabsList className="mb-4 sm:mb-6 w-full overflow-x-auto flex-nowrap">
+						<TabsList className="mb-4 sm:mb-6 overflow-x-auto flex-nowrap gap-2">
 							<TabsTrigger value="form">Formulario</TabsTrigger>
 							<TabsTrigger value="records">Registros</TabsTrigger>
 							<TabsTrigger value="doctors">Médicos</TabsTrigger>
