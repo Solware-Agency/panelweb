@@ -481,6 +481,7 @@ const StatsPage: React.FC = () => {
 					</div>
 				</Card>
 			</div>
+			</div>
 			
 			{/* Stat Detail Panel */}
 			{selectedStat && (
