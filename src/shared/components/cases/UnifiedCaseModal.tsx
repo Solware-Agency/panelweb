@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'motion/react'
 import { 
   AlertTriangle, Trash2, Loader2, X, Edit2, User, FileText, 
-  DollarSign, Save, Eye, EyeOff, Microscope, Calendar, Mail, Phone, Cake 
+  DollarSign, Save, Eye, EyeOff, Microscope, Calendar, Mail, Phone, Cake
 } from 'lucide-react'
 import type { MedicalRecord } from '@lib/supabase-service'
 import { updateMedicalRecordWithLog, deleteMedicalRecord, getAgeDisplay } from '@lib/supabase-service'
@@ -31,6 +31,13 @@ const editCaseSchema = z.object({
 	email: z.string().email('Email inválido').optional().nullable(),
 	date_of_birth: z.date().optional().nullable(),
 	comments: z.string().optional(),
+	// Biopsy fields
+	material_remitido: z.string().optional(),
+	informacion_clinica: z.string().optional(),
+	descripcion_macroscopica: z.string().optional(),
+	diagnostico: z.string().optional(),
+	comentario: z.string().optional(),
+	// Payment fields
 	payment_method_1: z.string().optional(),
 	payment_amount_1: z.coerce.number().min(0).optional().nullable(),
 	payment_reference_1: z.string().optional(),
@@ -90,6 +97,11 @@ const UnifiedCaseModal: React.FC<UnifiedCaseModalProps> = ({ case_, isOpen, onCl
 			email: null,
 			date_of_birth: null,
 			comments: '',
+			material_remitido: '',
+			informacion_clinica: '',
+			descripcion_macroscopica: '',
+			diagnostico: '',
+			comentario: '',
 			payment_method_1: undefined,
 			payment_amount_1: null,
 			payment_reference_1: '',
@@ -125,6 +137,11 @@ const UnifiedCaseModal: React.FC<UnifiedCaseModalProps> = ({ case_, isOpen, onCl
 				email: case_.email || null,
 				date_of_birth: dateOfBirth,
 				comments: case_.comments || '',
+				material_remitido: case_.material_remitido || '',
+				informacion_clinica: case_.informacion_clinica || '',
+				descripcion_macroscopica: case_.descripcion_macroscopica || '',
+				diagnostico: case_.diagnostico || '',
+				comentario: case_.comentario || '',
 				payment_method_1: case_.payment_method_1 || undefined,
 				payment_amount_1: case_.payment_amount_1,
 				payment_reference_1: case_.payment_reference_1 || '',
@@ -156,6 +173,11 @@ const UnifiedCaseModal: React.FC<UnifiedCaseModalProps> = ({ case_, isOpen, onCl
 			email: 'Correo Electrónico',
 			date_of_birth: 'Fecha de Nacimiento',
 			comments: 'Comentarios',
+			material_remitido: 'Material Remitido',
+			informacion_clinica: 'Información Clínica',
+			descripcion_macroscopica: 'Descripción Macroscópica',
+			diagnostico: 'Diagnóstico',
+			comentario: 'Comentario',
 			payment_method_1: 'Método de Pago 1',
 			payment_amount_1: 'Monto de Pago 1',
 			payment_reference_1: 'Referencia de Pago 1',
@@ -746,6 +768,117 @@ const UnifiedCaseModal: React.FC<UnifiedCaseModalProps> = ({ case_, isOpen, onCl
 													/>
 												</div>
 											</div>
+
+											{/* Biopsy Information Section (only for biopsy cases) */}
+											{case_.exam_type?.toLowerCase() === 'biopsia' && (
+												<div className="bg-white dark:bg-background rounded-lg p-4 border border-input">
+													<div className="flex items-center gap-2 mb-3">
+														<Microscope className="w-5 h-5 text-green-600 dark:text-green-400" />
+														<h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Información de Biopsia</h3>
+													</div>
+													<div className="space-y-4">
+														{/* Material Remitido */}
+														<FormField
+															control={form.control}
+															name="material_remitido"
+															render={({ field }) => (
+																<FormItem>
+																	<FormLabel>Material Remitido</FormLabel>
+																	<FormControl>
+																		<Textarea
+																			placeholder="Describa el material remitido para análisis..."
+																			className="min-h-[80px]"
+																			{...field}
+																			value={field.value || ''}
+																		/>
+																	</FormControl>
+																	<FormMessage />
+																</FormItem>
+															)}
+														/>
+														
+														{/* Información Clínica */}
+														<FormField
+															control={form.control}
+															name="informacion_clinica"
+															render={({ field }) => (
+																<FormItem>
+																	<FormLabel>Información Clínica</FormLabel>
+																	<FormControl>
+																		<Textarea
+																			placeholder="Información clínica relevante..."
+																			className="min-h-[80px]"
+																			{...field}
+																			value={field.value || ''}
+																		/>
+																	</FormControl>
+																	<FormMessage />
+																</FormItem>
+															)}
+														/>
+														
+														{/* Descripción Macroscópica */}
+														<FormField
+															control={form.control}
+															name="descripcion_macroscopica"
+															render={({ field }) => (
+																<FormItem>
+																	<FormLabel>Descripción Macroscópica</FormLabel>
+																	<FormControl>
+																		<Textarea
+																			placeholder="Descripción macroscópica de la muestra..."
+																			className="min-h-[80px]"
+																			{...field}
+																			value={field.value || ''}
+																		/>
+																	</FormControl>
+																	<FormMessage />
+																</FormItem>
+															)}
+														/>
+														
+														{/* Diagnóstico */}
+														<FormField
+															control={form.control}
+															name="diagnostico"
+															render={({ field }) => (
+																<FormItem>
+																	<FormLabel>Diagnóstico</FormLabel>
+																	<FormControl>
+																		<Textarea
+																			placeholder="Diagnóstico basado en el análisis..."
+																			className="min-h-[80px]"
+																			{...field}
+																			value={field.value || ''}
+																		/>
+																	</FormControl>
+																	<FormMessage />
+																</FormItem>
+															)}
+														/>
+														
+														{/* Comentario */}
+														<FormField
+															control={form.control}
+															name="comentario"
+															render={({ field }) => (
+																<FormItem>
+																	<FormLabel>Comentario</FormLabel>
+																	<FormControl>
+																		<Textarea
+																			placeholder="Comentarios adicionales (opcional)..."
+																			className="min-h-[80px]"
+																			{...field}
+																			value={field.value || ''}
+																		/>
+																	</FormControl>
+																	<FormMessage />
+																</FormItem>
+															)}
+														/>
+													</div>
+												</div>
+											)}
 
 											{/* Comments Section */}
 											<div className="space-y-4">

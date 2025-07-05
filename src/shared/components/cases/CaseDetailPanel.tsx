@@ -386,8 +386,21 @@ const CaseDetailPanel: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClos
 						onClose={() => setIsEditModalOpen(false)}
 						onSave={() => {
 							// Refresh data but don't close the detail panel
-							// Just close the edit modal
+							// Just close the edit modal and refresh the parent component
 							setIsEditModalOpen(false)
+							// Trigger a refetch of the case data
+							if (onClose) {
+								// Close and reopen to refresh data
+								onClose();
+								// Wait a moment before reopening to ensure data is refreshed
+								setTimeout(() => {
+									if (case_?.id) {
+										// This would ideally be a direct refetch, but we're using the close/reopen pattern
+										// The parent component should handle refetching when onClose is called
+										onCaseSelect(case_);
+									}
+								}, 300);
+							}
 						}}
 						onDelete={() => {
 							onClose()
