@@ -41,24 +41,24 @@ const ReportsPage: React.FC = () => {
 		<div className="p-3 sm:p-6" ref={reportRef}>
 			{/* Export Section */}
 			<ExportSection />
-
 			{/* Main Reports */}
-			<div className="space-y-6">
+			<div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-5 mb-4 sm:mb-6">
 				{/* Doctor Revenue Report */}
 				<DoctorRevenueReport />
 				
 				{/* Origin Revenue Report */}
 				<OriginRevenueReport />
-				
+			</div>
+			
+			<div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-5 mb-4 sm:mb-6">
 				{/* Exam Type Report */}
 				<ExamTypeReport />
 				
 				{/* Branch Report */}
 				<BranchRevenueReport />
 			</div>
-
 			{/* Pending Payments Section */}
-			<Card className="col-span-1 grid hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 transition-all duration-300 shadow-lg mb-6 sm:mb-8">
+			<Card className="col-span-1 grid hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 transition-all duration-300 shadow-lg mb-5 sm:mb-6">
 				<div className="bg-white dark:bg-background rounded-xl p-4 sm:p-6 transition-colors duration-300">
 					<div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 sm:mb-6">
 						<h3 className="text-lg sm:text-xl font-bold text-gray-700 dark:text-gray-300 mb-2 sm:mb-0 flex items-center gap-2">
@@ -196,7 +196,7 @@ const ReportsPage: React.FC = () => {
 			</Card>
 
 			{/* Performance Summary */}
-			<Card className="col-span-1 grid hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 transition-all duration-300 shadow-lg">
+			<Card className="col-span-1 grid hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 transition-all duration-300 shadow-lg mb-2">
 				<div className="bg-white dark:bg-background rounded-xl p-4 sm:p-6 transition-colors duration-300">
 					<h3 className="text-lg sm:text-xl font-bold text-gray-700 dark:text-gray-300 mb-4 sm:mb-6">
 						Resumen de Rendimiento

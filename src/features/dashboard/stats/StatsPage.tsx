@@ -64,7 +64,7 @@ const StatsPage: React.FC = () => {
 							<span className="font-medium">{format(selectedMonth, 'MMMM yyyy', { locale: es })}</span>
 						</div> */}
 			{/* KPI Cards Grid */}
-			<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-4 sm:mb-6 md:mb-8">
+			<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-3 sm:mb-5 md:mb-6">
 				{/* Total Revenue Card */}
 				<StatCard
 					title="Ingresos Totales"
@@ -131,7 +131,7 @@ const StatsPage: React.FC = () => {
 			</div>
 
 			{/* Charts Section */}
-			<div className="grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-4 md:gap-6 mb-4 sm:mb-6 md:mb-8">
+			<div className="grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-4 md:gap-5 mb-3 sm:mb-5 md:mb-6">
 				{/* 12-Month Revenue Trend Chart with Interactive Bars */}
 				<Card className="col-span-1 grid hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 transition-all duration-300 shadow-lg">
 					<div className="bg-white dark:bg-background rounded-xl p-3 sm:p-4 md:p-6 transition-colors duration-300">
@@ -319,7 +319,7 @@ const StatsPage: React.FC = () => {
 			</div>
 
 			{/* Detailed Tables */}
-			<div className="grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-4 md:gap-6">
+			<div className="grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-4 md:gap-5">
 				{/* Performance Metrics by Exam Type (Normalized) */}
 				<Card className="col-span-1 grid hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 transition-all duration-300 shadow-lg">
 					<div className="bg-white dark:bg-background rounded-xl p-3 sm:p-4 md:p-6 transition-colors duration-300">

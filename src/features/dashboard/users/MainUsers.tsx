@@ -476,7 +476,7 @@ const MainUsers: React.FC = () => {
       </div>
 
       {/* Estadísticas - Responsive Grid */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-4 mb-4 sm:mb-6">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3 mb-3 sm:mb-5">
         <Card className="hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 transition-all duration-300 shadow-lg">
           <div className="bg-white dark:bg-background rounded-xl p-3 sm:p-4 md:p-6 transition-colors duration-300">
             <div className="flex items-center justify-between mb-2 sm:mb-4">
@@ -535,11 +535,11 @@ const MainUsers: React.FC = () => {
       </div>
 
 			{/* Filtros y búsqueda */}
-			<Card className="hover:border-primary hover:shadow-lg hover:shadow-primary/20 transition-all duration-300 shadow-lg mb-4 sm:mb-6">
+			<Card className="hover:border-primary hover:shadow-lg hover:shadow-primary/20 transition-all duration-300 shadow-lg mb-3 sm:mb-5">
 				<div className="bg-white dark:bg-background rounded-xl p-3 sm:p-6 transition-colors duration-300">
-					<div className="flex flex-col sm:flex-row gap-2 sm:gap-4">
+					<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-6 gap-2 sm:gap-3">
 						{/* Búsqueda */}
-						<div className="flex-1 relative">
+						<div className="col-span-1 sm:col-span-2 lg:col-span-2 xl:col-span-2 relative">
 							<Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
 							<Input
 								type="text"
@@ -551,7 +551,7 @@ const MainUsers: React.FC = () => {
 						</div>
 
 						{/* Filtro por rol */}
-						<div className="flex items-center gap-2">
+						<div className="col-span-1 sm:col-span-1 lg:col-span-1 xl:col-span-1 flex items-center gap-2">
 							<Filter className="w-4 h-4 text-gray-400" />
 							<Select value={roleFilter} onValueChange={setRoleFilter}>
 								<SelectTrigger className="w-40">
@@ -571,7 +571,7 @@ const MainUsers: React.FC = () => {
 						</div>
 
 						{/* Filtro por estado */}
-						<div className="flex items-center gap-2">
+						<div className="col-span-1 sm:col-span-1 lg:col-span-1 xl:col-span-1 flex items-center gap-2">
 							<Select value={statusFilter} onValueChange={setStatusFilter}>
 								<SelectTrigger className="w-40">
 									<SelectValue placeholder="Filtrar por estado" />
@@ -585,7 +585,7 @@ const MainUsers: React.FC = () => {
 						</div>
 
 						{/* Filtro por aprobación */}
-						<div className="flex items-center gap-2">
+						<div className="col-span-1 sm:col-span-1 lg:col-span-1 xl:col-span-1 flex items-center gap-2">
 							<Select value={approvalFilter} onValueChange={setApprovalFilter}>
 								<SelectTrigger className="w-40">
 									<SelectValue placeholder="Filtrar por aprobación" />
@@ -599,7 +599,7 @@ const MainUsers: React.FC = () => {
 						</div>
 
 						{/* Filtro por sede */}
-						<div className="flex items-center gap-2">
+						<div className="col-span-1 sm:col-span-1 lg:col-span-1 xl:col-span-1 flex items-center gap-2">
 							<Select value={branchFilter} onValueChange={setbranchFilter}>
 								<SelectTrigger className="w-40">
 									<SelectValue placeholder="Filtrar por sede" />

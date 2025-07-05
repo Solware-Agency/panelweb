@@ -61,7 +61,7 @@ function MainHome() {
 			<main className="p-2 sm:p-5">
 				{/* Welcome Banner - Full width on mobile */}
 				<Card 
-					className="mb-4 dark:bg-background bg-white rounded-xl py-3 sm:py-6 px-3 sm:px-8 flex flex-col sm:flex-row items-center justify-between shadow-lg cursor-pointer transition-all duration-300 hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20"
+					className="mb-3 sm:mb-4 dark:bg-background bg-white rounded-xl py-3 sm:py-6 px-3 sm:px-8 flex flex-col sm:flex-row items-center justify-between shadow-lg cursor-pointer transition-all duration-300 hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20"
 					onClick={() => handleStatCardClick('totalRevenue')}
 				>
 					<div className="flex-1 text-center sm:text-left mb-3 sm:mb-0">
@@ -94,11 +94,11 @@ function MainHome() {
 				</Card>
 				
 				{/* Mobile-first responsive grid */}
-				<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-3 sm:gap-4">
+				<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-3 sm:gap-4">
 
 					{/* Grid 2 - Revenue by Branch Chart */}
 					<Card 
-						className="col-span-1 sm:col-span-2 lg:col-span-3 row-span-1 lg:row-span-2 dark:bg-background bg-white rounded-xl py-3 sm:py-6 px-3 sm:px-6 md:px-8 transition-all duration-300 cursor-pointer group shadow-lg h-full hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20" 
+						className="col-span-1 sm:col-span-2 lg:col-span-6 row-span-1 lg:row-span-2 dark:bg-background bg-white rounded-xl py-3 sm:py-6 px-3 sm:px-6 md:px-8 transition-all duration-300 cursor-pointer group shadow-lg h-full hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20" 
 						onClick={() => handleStatCardClick('branchRevenue')}
 					>
 						<div className="h-full flex flex-col">
@@ -279,41 +279,41 @@ function MainHome() {
 
 					{/* Grid 3 - KPI Card: Monthly Revenue */}
 					<StatCard
-						title="Ingresos Mensuales"
-						value={isLoading ? '...' : formatCurrency(stats?.monthlyRevenue || 0)}
-						description={format(selectedMonth, 'MMMM yyyy', { locale: es })}
-						icon={<DollarSign className="w-5 h-5 sm:w-6 sm:h-6 text-green-600 dark:text-green-400" />}
-						trend={{
-							value: isLoading ? '...' : '+12.5%',
-							icon: <TrendingUp className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />,
-							positive: true
-						}}
-						onClick={() => handleStatCardClick('monthlyRevenue')}
-						className="col-span-1 sm:col-span-1 lg:col-span-2 row-span-1 lg:row-span-2"
-						statType="monthlyRevenue"
-						isSelected={selectedStat === 'monthlyRevenue' && isDetailPanelOpen}
-					/>
+                        title="Ingresos Mensuales"
+                        value={isLoading ? '...' : formatCurrency(stats?.monthlyRevenue || 0)}
+                        description={format(selectedMonth, 'MMMM yyyy', { locale: es })}
+                        icon={<DollarSign className="w-5 h-5 sm:w-6 sm:h-6 text-green-600 dark:text-green-400" />}
+                        trend={{
+                            value: isLoading ? '...' : '+12.5%',
+                            icon: <TrendingUp className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />,
+                            positive: true
+                        }}
+                        onClick={() => handleStatCardClick('monthlyRevenue')}
+                        className="col-span-1 sm:col-span-1 lg:col-span-3 row-span-1 lg:row-span-1"
+                        statType="monthlyRevenue"
+                        isSelected={selectedStat === 'monthlyRevenue' && isDetailPanelOpen}
+                    />
 
 					{/* Grid 4 - KPI Card: Total de Casos */}
 					<StatCard
-						title="Total de Casos"
-						value={isLoading ? '...' : stats?.totalCases || 0}
-						description="casos registrados"
-						icon={<Users className="w-5 h-5 sm:w-6 sm:h-6 text-blue-600 dark:text-blue-400" />}
-						trend={{
-							value: isLoading ? '...' : `+${stats?.newPatientsThisMonth || 0}`,
-							icon: <TrendingUp className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />,
-							positive: true
-						}}
-						onClick={() => handleStatCardClick('totalCases')}
-						className="col-span-1 sm:col-span-1 lg:col-span-2 row-span-1 lg:row-span-2"
-						statType="totalCases"
-						isSelected={selectedStat === 'totalCases' && isDetailPanelOpen}
-					/>
+                        title="Total de Casos"
+                        value={isLoading ? '...' : stats?.totalCases || 0}
+                        description="casos registrados"
+                        icon={<Users className="w-5 h-5 sm:w-6 sm:h-6 text-blue-600 dark:text-blue-400" />}
+                        trend={{
+                            value: isLoading ? '...' : `+${stats?.newPatientsThisMonth || 0}`,
+                            icon: <TrendingUp className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />,
+                            positive: true
+                        }}
+                        onClick={() => handleStatCardClick('totalCases')}
+                        className="col-span-1 sm:col-span-1 lg:col-span-3 row-span-1 lg:row-span-1"
+                        statType="totalCases"
+                        isSelected={selectedStat === 'totalCases' && isDetailPanelOpen}
+                    />
 
 					{/* Grid 5 - Médicos Tratantes */}
 					<Card
-						className="col-span-1 sm:col-span-2 lg:col-span-2 row-span-1 lg:row-span-4 dark:bg-background bg-white rounded-xl py-3 sm:py-5 px-3 sm:px-6 transition-all duration-300 flex flex-col cursor-pointer shadow-lg hover:bg-white/90 group h-full hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20"
+						className="col-span-1 sm:col-span-2 lg:col-span-3 row-span-1 lg:row-span-3 dark:bg-background bg-white rounded-xl p-3 sm:p-4 transition-all duration-300 flex flex-col cursor-pointer shadow-lg hover:bg-white/90 group h-full hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20"
 					>
 						<div className="h-full flex flex-col" onClick={() => navigate('/dashboard/reports')}>
 							<div className="flex items-center justify-between mb-3 sm:mb-4">
@@ -362,7 +362,7 @@ function MainHome() {
 
 					{/* Grid 6 - 12-Month Sales Trend Chart with Year Selector */}
 					<Card 
-						className="col-span-1 sm:col-span-2 lg:col-span-4 row-span-1 lg:row-span-2 dark:bg-background bg-white rounded-xl py-3 sm:py-5 px-3 sm:px-6 transition-all duration-300 cursor-pointer shadow-lg hover:bg-white/90 group h-full hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20" 
+						className="col-span-1 sm:col-span-2 lg:col-span-6 row-span-1 lg:row-span-2 dark:bg-background bg-white rounded-xl py-3 sm:py-5 px-3 sm:px-6 transition-all duration-300 cursor-pointer shadow-lg hover:bg-white/90 group h-full hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20" 
 						onClick={() => handleStatCardClick('totalRevenue')}
 					>
 						<div className="h-full flex flex-col">
@@ -420,7 +420,7 @@ function MainHome() {
 
 					{/* Grid 7 - Top Exam Types (Normalized) */}
 					<Card 
-						className="col-span-1 sm:col-span-2 lg:col-span-3 row-span-1 lg:row-span-2 dark:bg-background bg-white rounded-xl py-3 sm:py-5 px-3 sm:px-6 transition-all duration-300 cursor-pointer shadow-lg hover:bg-white/90 group h-full hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20" 
+						className="col-span-1 sm:col-span-2 lg:col-span-6 row-span-1 lg:row-span-1 dark:bg-background bg-white rounded-xl py-3 sm:py-5 px-3 sm:px-6 transition-all duration-300 cursor-pointer shadow-lg hover:bg-white/90 group h-full hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20" 
 						onClick={() => handleStatCardClick('examTypes')}
 					>
 						<div className="h-full flex flex-col">
@@ -486,7 +486,7 @@ function MainHome() {
 
 					{/* Grid 8 - Quick Actions & Status Indicators */}
 					<Card 
-						className="col-span-1 sm:col-span-2 lg:col-span-3 row-span-1 lg:row-span-2 dark:bg-background bg-white rounded-xl py-3 sm:py-5 px-3 sm:px-6 transition-all duration-300 h-full hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 shadow-lg" 
+						className="col-span-1 sm:col-span-2 lg:col-span-3 row-span-1 lg:row-span-1 dark:bg-background bg-white rounded-xl py-3 sm:py-5 px-3 sm:px-6 transition-all duration-300 h-full hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 shadow-lg" 
 						onClick={() => handleStatCardClick('incompleteCases')}
 					>
 						<div className="h-full flex flex-col">

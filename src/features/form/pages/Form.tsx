@@ -104,22 +104,22 @@ function FormContent() {
 					<div className="mb-6">
 						<h2 className="text-2xl font-semibold text-foreground mb-2">Sistema de Registros Médicos</h2>
 						<div className="w-24 h-1 bg-primary mt-3 rounded-full" />
-						<h3 className='text-md text-primary font-semibold mt-4'>Bienvenido, {profile?.display_name}</h3>
+						<h3 className='text-sm sm:text-md text-primary font-semibold mt-3 sm:mt-4'>Bienvenido, {profile?.display_name}</h3>
 					</div>
 
 					<Tabs defaultValue="form" value={activeTab} onValueChange={handleTabChange}>
-						<TabsList className="mb-6">
+						<TabsList className="mb-4 sm:mb-6 w-full overflow-x-auto flex-nowrap">
 							<TabsTrigger value="form">Formulario</TabsTrigger>
 							<TabsTrigger value="records">Registros</TabsTrigger>
 							<TabsTrigger value="doctors">Médicos</TabsTrigger>
 							<TabsTrigger value="settings">Ajustes</TabsTrigger>
 						</TabsList>
 
-						<TabsContent value="form" className="mt-6">
+						<TabsContent value="form" className="mt-4 sm:mt-6">
 							<MedicalForm />
 						</TabsContent>
 
-						<TabsContent value="records" className="mt-6">
+						<TabsContent value="records" className="mt-4 sm:mt-6">
 							<Suspense fallback={<LoadingFallback />}>
 								<RecordsSection
 									cases={casesData?.data || []}
@@ -133,11 +133,11 @@ function FormContent() {
 							</Suspense>
 						</TabsContent>
 
-						<TabsContent value="settings" className="mt-6">
+						<TabsContent value="settings" className="mt-4 sm:mt-6">
 							<SettingsSection />
 						</TabsContent>
 
-						<TabsContent value="doctors" className="mt-6">
+						<TabsContent value="doctors" className="mt-4 sm:mt-6">
 							<DoctorsSection />
 						</TabsContent>
 					</Tabs>

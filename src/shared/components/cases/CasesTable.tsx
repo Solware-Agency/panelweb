@@ -886,11 +886,11 @@ const CasesTable: React.FC<CasesTableProps> = ({
 			<div className="bg-white dark:bg-background rounded-xl transition-colors duration-300 h-full overflow-hidden">
 				{/* Search and Filter Controls */}
 				<div className="p-3 sm:p-6 border-b border-gray-200 dark:border-gray-700">
-					<div className="flex flex-wrap items-center gap-2 sm:gap-4">
+					<div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4">
 						{/* Search and Filters Row */}
-						<div className="flex flex-col sm:flex-row gap-2 sm:gap-4 flex-1 w-full">
+						<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3 w-full">
 							{/* Search - Acortada */}
-							<div className="w-full sm:max-w-md relative flex-1">
+							<div className="col-span-1 sm:col-span-1 lg:col-span-1 relative">
 								<Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
 								<input
 									type="text"
@@ -908,16 +908,16 @@ const CasesTable: React.FC<CasesTableProps> = ({
 							</div>
 
 							{/* Search Button */}
-							<Button
+							<Button 
 								onClick={handleSearchClick}
 								disabled={isSearching || !searchTerm.trim()}
-								className="whitespace-nowrap sm:flex-none"
+								className="col-span-1 sm:col-span-1 lg:col-span-1 whitespace-nowrap"
 							>
 								Buscar
 							</Button>
 
 							{/* Status Filter - Updated with only Completado and Incompleto */}
-							<div className="flex items-center gap-2">
+							<div className="col-span-1 sm:col-span-1 lg:col-span-1 flex items-center gap-2">
 								<Filter className="w-4 h-4 text-gray-400" />
 								<select
 									title="Filtrar por estado"
@@ -932,7 +932,7 @@ const CasesTable: React.FC<CasesTableProps> = ({
 							</div>
 
 							{/* Branch Filter */}
-							<div className="flex items-center gap-2">
+							<div className="col-span-1 sm:col-span-1 lg:col-span-1 flex items-center gap-2">
 								<select
 									title="Filtrar por sede"
 									value={branchFilter}
