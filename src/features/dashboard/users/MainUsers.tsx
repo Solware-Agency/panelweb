@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import {
 	Users,
 	Mail,
@@ -53,7 +53,7 @@ interface UserProfile {
 }
 
 const MainUsers: React.FC = () => {
-	const { user: currentUser } = useAuth()
+	const { user: currentUser, profile } = useAuth()
 	const { toast } = useToast()
 	const [searchTerm, setSearchTerm] = useState('')
 	const [roleFilter, setRoleFilter] = useState<string>('all')
@@ -61,6 +61,7 @@ const MainUsers: React.FC = () => {
 	const [branchFilter, setbranchFilter] = useState<string>('all')
 	const [approvalFilter, setApprovalFilter] = useState<string>('all')
 	const [confirmDialogOpen, setConfirmDialogOpen] = useState(false)
+	const [roleFilterOptions, setRoleFilterOptions] = useState<string[]>(['all', 'owner', 'employee', 'admin'])
 	const [userToUpdate, setUserToUpdate] = useState<{
 		id: string
 		email: string
@@ -103,6 +104,17 @@ const MainUsers: React.FC = () => {
 		},
 		staleTime: 1000 * 60 * 5, // 5 minutos
 	})
+
+	// Set available role filter options based on user role
+	useEffect(() => {
+		if (profile?.role === 'admin') {
+			// Admin users can only see admin users
+			setRoleFilterOptions(['admin'])
+			setRoleFilter('admin')
+		} else {
+			setRoleFilterOptions(['all', 'owner', 'employee', 'admin'])
+		}
+	}, [profile?.role])
 
 	// Query para verificar permisos del usuario actual
 	const { data: canManage } = useQuery({
@@ -379,6 +391,11 @@ const MainUsers: React.FC = () => {
 	// Filtrar usuarios
 	const filteredUsers =
 		users?.filter((user) => {
+			// If current user is admin, only show admin users
+			if (profile?.role === 'admin' && user.role !== 'admin') {
+				return false
+			}
+			
 			const matchesSearch =
 				user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
 				(user.display_name || '').toLowerCase().includes(searchTerm.toLowerCase())
@@ -526,13 +543,17 @@ const MainUsers: React.FC = () => {
 							<Filter className="w-4 h-4 text-gray-400" />
 							<Select value={roleFilter} onValueChange={setRoleFilter}>
 								<SelectTrigger className="w-40">
-									<SelectValue placeholder="Filtrar por rol" />
+									<SelectValue placeholder={profile?.role === 'admin' ? 'Médicos' : 'Filtrar por rol'} />
 								</SelectTrigger>
 								<SelectContent>
-									<SelectItem value="all">Todos los roles</SelectItem>
-									<SelectItem value="owner">Propietarios</SelectItem>
-									<SelectItem value="employee">Recepcionistas</SelectItem>
-									<SelectItem value="admin">Administradores</SelectItem>
+									{roleFilterOptions.map(role => (
+										<SelectItem key={role} value={role}>
+											{role === 'all' ? 'Todos los roles' : 
+											 role === 'owner' ? 'Propietarios' : 
+											 role === 'employee' ? 'Recepcionistas' : 
+											 'Médicos'}
+										</SelectItem>
+									))}
 								</SelectContent>
 							</Select>
 						</div>
@@ -931,7 +952,11 @@ const MainUsers: React.FC = () => {
 						<div className="text-center py-12">
 							<div className="text-gray-500 dark:text-gray-400">
 								<Users className="w-12 h-12 mx-auto mb-4 opacity-50" />
-								<p className="text-lg font-medium">No se encontraron usuarios</p>
+								<p className="text-lg font-medium">
+									{profile?.role === 'admin' 
+										? 'No se encontraron médicos' 
+										: 'No se encontraron usuarios'}
+								</p>
 								<p className="text-sm">Intenta ajustar los filtros de búsqueda</p>
 							</div>
 						</div>
@@ -941,27 +966,46 @@ const MainUsers: React.FC = () => {
 
 			{/* Instrucciones */}
 			<div className="mt-6 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
-				<h3 className="text-lg font-semibold text-blue-800 dark:text-blue-300 mb-2">Instrucciones de Uso</h3>
+				<h3 className="text-lg font-semibold text-blue-800 dark:text-blue-300 mb-2">
+					{profile?.role === 'admin' ? 'Información de Médicos' : 'Instrucciones de Uso'}
+				</h3>
 				<ul className="list-disc list-inside space-y-2 text-sm text-blue-700 dark:text-blue-400">
-					<li>
-						<strong>Aprobación de Usuarios:</strong> Los nuevos usuarios se crean con estado "Pendiente" y deben ser
-						aprobados por un propietario antes de poder acceder al sistema.
-					</li>
-					<li>
-						<strong>Asignación de Sede:</strong> Los Recepcionistas con una sede asignada solo podrán ver los casos
-						médicos de esa sede.
-					</li>
-					<li>
-						<strong>Sin Restricción:</strong> Los Recepcionistas sin sede asignada pueden ver todos los casos.
-					</li>
-					<li>
-						<strong>Propietarios:</strong> Los usuarios con rol de propietario siempre pueden ver todos los casos,
-						independientemente de la sede asignada.
-					</li>
-					<li>
-						<strong>Administradores:</strong> Los usuarios con rol de administrador tienen acceso a registros, casos
-						generados, médicos y ajustes.
-					</li>
+					{profile?.role === 'admin' ? (
+						<>
+							<li>
+								<strong>Médicos:</strong> En esta sección puedes ver y gestionar los usuarios con rol de médico.
+							</li>
+							<li>
+								<strong>Asignación de Sede:</strong> Los médicos con una sede asignada solo podrán ver los casos
+								médicos de esa sede.
+							</li>
+							<li>
+								<strong>Generación de Casos:</strong> Los médicos pueden generar diagnósticos para casos de biopsia.
+							</li>
+						</>
+					) : (
+						<>
+							<li>
+								<strong>Aprobación de Usuarios:</strong> Los nuevos usuarios se crean con estado "Pendiente" y deben ser
+								aprobados por un propietario antes de poder acceder al sistema.
+							</li>
+							<li>
+								<strong>Asignación de Sede:</strong> Los Recepcionistas con una sede asignada solo podrán ver los casos
+								médicos de esa sede.
+							</li>
+							<li>
+								<strong>Sin Restricción:</strong> Los Recepcionistas sin sede asignada pueden ver todos los casos.
+							</li>
+							<li>
+								<strong>Propietarios:</strong> Los usuarios con rol de propietario siempre pueden ver todos los casos,
+								independientemente de la sede asignada.
+							</li>
+							<li>
+								<strong>Administradores:</strong> Los usuarios con rol de administrador tienen acceso a registros, casos
+								generados, médicos y ajustes.
+							</li>
+						</>
+					)}
 				</ul>
 			</div>
 
