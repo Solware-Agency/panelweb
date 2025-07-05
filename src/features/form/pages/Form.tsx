@@ -6,6 +6,7 @@ import { useQuery } from '@tanstack/react-query'
 import { MedicalForm } from '@features/form/components/MedicalForm'
 import { RecordsSection } from '@features/form/components/RecordsSection'
 import { SettingsSection } from '@features/form/components/SettingsSection'
+import { Link } from 'react-router-dom'
 import { useState, useCallback, Suspense } from 'react'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@shared/components/ui/tabs'
 import { useNavigate } from 'react-router-dom'
@@ -79,6 +80,13 @@ function FormContent() {
 			<Toaster />
 			<Sonner />
 			<div className="fixed top-4 right-4 z-50 flex items-center gap-2">
+				<Link
+					to="/patients"
+					className="flex items-center gap-2 px-3 py-2 border border-input rounded-lg focus:ring-2 focus:ring-primary dark:bg-background dark:text-white text-sm hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors shadow-xl dark:shadow-black shadow-black/40"
+				>
+					<User className="w-4 h-4" />
+					<span>Pacientes</span>
+				</Link>
 				{activeTab === 'records' && (
 					<>
 						<button
