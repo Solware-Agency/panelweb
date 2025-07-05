@@ -1,4 +1,5 @@
 import React, { useState, useCallback, useMemo } from 'react'
+import { FixedSizeList as List } from 'react-window'
 import { useQuery } from '@tanstack/react-query'
 import { getMedicalRecords } from '@lib/supabase-service'
 import { Search, Filter, RefreshCw, User, Users, Phone, Mail, Calendar, ChevronUp, ChevronDown, UserCheck, AtSign } from 'lucide-react'
@@ -21,6 +22,7 @@ interface PatientData {
   email: string | null
   date_of_birth: string | null
   lastVisit: string
+  totalVisits: number
 }
 
 // Use React.memo to prevent unnecessary re-renders
@@ -288,8 +290,8 @@ const PatientsList: React.FC = React.memo(() => {
       {/* Patients table */}
       <Card className="overflow-hidden">
         {/* Desktop view */}
-        <div className="hidden md:block overflow-x-auto">
-          <div className="max-h-[600px] overflow-y-auto">
+        <div className="hidden md:block">
+          <div className="overflow-x-auto">
             <table className="w-full">
               <thead className="bg-gray-50 dark:bg-gray-800/50 sticky top-0 z-10">
                 <tr>
@@ -350,66 +352,82 @@ const PatientsList: React.FC = React.memo(() => {
                   </th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
-                {sortedPatients.length > 0 ? (
-                  sortedPatients.map((patient) => (
-                    <tr key={patient.id_number} className="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
-                      <td className="px-4 py-4">
-                        <div className="flex items-center">
-                          <div className="flex-shrink-0 h-8 w-8 bg-gray-200 dark:bg-gray-700 rounded-full flex items-center justify-center">
-                            <User className="h-4 w-4 text-gray-500 dark:text-gray-400" />
-                          </div>
-                          <div className="ml-3">
-                            <p className="text-sm font-medium text-gray-900 dark:text-gray-100">{patient.full_name}</p>
-                          </div>
-                        </div>
-                      </td>
-                      <td className="px-4 py-4 text-sm text-gray-900 dark:text-gray-100">{patient.id_number}</td>
-                      <td className="px-4 py-4 text-sm text-gray-900 dark:text-gray-100">
-                        {patient.date_of_birth ? (
-                          <div>
-                            <span>{format(parseISO(patient.date_of_birth), 'dd/MM/yyyy', { locale: es })}</span>
-                            <span className="ml-2 text-xs text-blue-600 dark:text-blue-400">
-                              ({getAgeDisplay(patient.date_of_birth)})
-                            </span>
-                          </div>
-                        ) : (
-                          <span className="text-gray-500 dark:text-gray-400">No disponible</span>
-                        )}
-                      </td>
-                      <td className="px-4 py-4 text-sm text-gray-900 dark:text-gray-100">{patient.phone}</td>
-                      <td className="px-4 py-4 text-sm text-gray-900 dark:text-gray-100">
-                        {patient.email || <span className="text-gray-500 dark:text-gray-400">No disponible</span>}
-                      </td>
-                      <td className="px-4 py-4 text-sm text-gray-900 dark:text-gray-100">
-                        {format(new Date(patient.lastVisit), 'dd/MM/yyyy', { locale: es })}
-                      </td>
-                      <td className="px-4 py-4 text-center">
-                        <span className="px-2 py-1 text-xs font-medium rounded-full bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300">
-                          {patient.totalVisits}
-                        </span>
-                      </td>
-                    </tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td colSpan={7} className="px-4 py-8 text-center text-gray-500 dark:text-gray-400">
-                      <User className="mx-auto h-12 w-12 text-gray-400 dark:text-gray-600 mb-4" />
-                      <p className="text-lg font-medium">No se encontraron pacientes</p>
-                      <p className="text-sm">
-                        {searchTerm ? 'Intenta con otra búsqueda' : 'Aún no hay pacientes registrados'}
-                      </p>
-                    </td>
-                  </tr>
-                )}
-              </tbody>
             </table>
+            
+            {sortedPatients.length > 0 ? (
+              <div className="max-h-[600px]">
+                <List
+                  height={600}
+                  itemCount={sortedPatients.length}
+                  itemSize={70}
+                  width="100%"
+                  className="divide-y divide-gray-200 dark:divide-gray-700"
+                >
+                  {({ index, style }) => {
+                    const patient = sortedPatients[index];
+                    return (
+                      <div style={style} className="flex divide-y divide-gray-200 dark:divide-gray-700">
+                        <table className="w-full">
+                          <tbody>
+                            <tr className="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
+                              <td className="px-4 py-4">
+                                <div className="flex items-center">
+                                  <div className="flex-shrink-0 h-8 w-8 bg-gray-200 dark:bg-gray-700 rounded-full flex items-center justify-center">
+                                    <User className="h-4 w-4 text-gray-500 dark:text-gray-400" />
+                                  </div>
+                                  <div className="ml-3">
+                                    <p className="text-sm font-medium text-gray-900 dark:text-gray-100">{patient.full_name}</p>
+                                  </div>
+                                </div>
+                              </td>
+                              <td className="px-4 py-4 text-sm text-gray-900 dark:text-gray-100">{patient.id_number}</td>
+                              <td className="px-4 py-4 text-sm text-gray-900 dark:text-gray-100">
+                                {patient.date_of_birth ? (
+                                  <div>
+                                    <span>{format(parseISO(patient.date_of_birth), 'dd/MM/yyyy', { locale: es })}</span>
+                                    <span className="ml-2 text-xs text-blue-600 dark:text-blue-400">
+                                      ({getAgeDisplay(patient.date_of_birth)})
+                                    </span>
+                                  </div>
+                                ) : (
+                                  <span className="text-gray-500 dark:text-gray-400">No disponible</span>
+                                )}
+                              </td>
+                              <td className="px-4 py-4 text-sm text-gray-900 dark:text-gray-100">{patient.phone}</td>
+                              <td className="px-4 py-4 text-sm text-gray-900 dark:text-gray-100">
+                                {patient.email || <span className="text-gray-500 dark:text-gray-400">No disponible</span>}
+                              </td>
+                              <td className="px-4 py-4 text-sm text-gray-900 dark:text-gray-100">
+                                {format(new Date(patient.lastVisit), 'dd/MM/yyyy', { locale: es })}
+                              </td>
+                              <td className="px-4 py-4 text-center">
+                                <span className="px-2 py-1 text-xs font-medium rounded-full bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300">
+                                  {patient.totalVisits}
+                                </span>
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    );
+                  }}
+                </List>
+              </div>
+            ) : (
+              <div className="px-4 py-8 text-center text-gray-500 dark:text-gray-400">
+                <User className="mx-auto h-12 w-12 text-gray-400 dark:text-gray-600 mb-4" />
+                <p className="text-lg font-medium">No se encontraron pacientes</p>
+                <p className="text-sm">
+                  {searchTerm ? 'Intenta con otra búsqueda' : 'Aún no hay pacientes registrados'}
+                </p>
+              </div>
+            )}
           </div>
         </div>
 
         {/* Mobile view - cards */}
         <div className="md:hidden">
-          <div className="max-h-[500px] overflow-y-auto">
+          <div className="max-h-[500px] overflow-y-auto overscroll-contain">
             {sortedPatients.length > 0 ? (
               <div className="divide-y divide-gray-200 dark:divide-gray-700">
                 {sortedPatients.map((patient) => (
