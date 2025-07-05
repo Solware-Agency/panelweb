@@ -31,6 +31,7 @@ const PatientsList: React.FC = () => {
   // Fetch all medical records
   const { data: recordsData, isLoading, error, refetch } = useQuery({
     queryKey: ['all-medical-records'],
+    queryFn: () => getMedicalRecords(),
   })
 
   // Process records to get unique patients
