@@ -1,36 +1,37 @@
 import React, { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'motion/react'
-import { 
-  X, Save, Trash2, AlertCircle, Loader2, User, DollarSign, Edit2,
-  FileText, Cake, Mail, Phone, Microscope, CheckCircle
-} from 'lucide-react'
+import { X, Edit, Save, AlertTriangle, Loader2, Trash2, User, FileText, DollarSign, Microscope, Calendar, Mail, Phone, MapPin } from 'lucide-react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import type { MedicalRecord } from '@lib/supabase-service'
-import { updateMedicalRecordWithLog, deleteMedicalRecord, getAgeDisplay } from '@lib/supabase-service'
+import { getAgeDisplay, updateMedicalRecordWithLog, deleteMedicalRecord } from '@lib/supabase-service'
 import { Button } from '@shared/components/ui/button'
 import { Input } from '@shared/components/ui/input'
 import { Textarea } from '@shared/components/ui/textarea'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@shared/components/ui/select'
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@shared/components/ui/form'
-import { Popover, PopoverContent, PopoverTrigger } from '@shared/components/ui/popover'
-import { Calendar } from '@shared/components/ui/calendar'
 import { useToast } from '@shared/hooks/use-toast'
-import { cn } from '@shared/lib/cn'
-import { format, parseISO } from 'date-fns'
-import { es } from 'date-fns/locale'
 import { useAuth } from '@app/providers/AuthContext'
 import { useUserProfile } from '@shared/hooks/useUserProfile'
+import { format, parseISO } from 'date-fns'
+import { es } from 'date-fns/locale'
 
 // Validation schema for editing
 const editCaseSchema = z.object({
   // Patient Information
   full_name: z.string().min(1, 'El nombre es requerido'),
   id_number: z.string().min(1, 'La cédula es requerida'),
-  phone: z.string().min(1, 'El teléfono es requerido').max(15, 'Máximo 15 caracteres'),
+  phone: z.string().min(1, 'El teléfono es requerido'),
   email: z.string().email('Email inválido').optional().nullable(),
-  date_of_birth: z.date().optional().nullable(),
+  
+  // Medical Information
+  exam_type: z.string().min(1, 'El tipo de examen es requerido'),
+  origin: z.string().min(1, 'La procedencia es requerida'),
+  treating_doctor: z.string().min(1, 'El médico tratante es requerido'),
+  sample_type: z.string().min(1, 'El tipo de muestra es requerido'),
+  number_of_samples: z.coerce.number().int().positive('Debe ser un número positivo'),
+  branch: z.string().min(1, 'La sede es requerida'),
   
   // Payment Information
   payment_method_1: z.string().optional().nullable(),
@@ -48,13 +49,6 @@ const editCaseSchema = z.object({
   
   // Additional Information
   comments: z.string().optional().nullable(),
-  
-  // Medical Information (for biopsy cases)
-  material_remitido: z.string().optional().nullable(),
-  informacion_clinica: z.string().optional().nullable(),
-  descripcion_macroscopica: z.string().optional().nullable(),
-  diagnostico: z.string().optional().nullable(),
-  comentario: z.string().optional().nullable(),
 });
 
 type EditCaseFormData = z.infer<typeof editCaseSchema>;
@@ -67,6 +61,7 @@ interface Change {
 }
 
 const paymentMethods = ['Punto de venta', 'Dólares en efectivo', 'Zelle', 'Pago móvil', 'Bs en efectivo'];
+const examTypes = ['inmunohistoquimica', 'biopsia', 'citologia'];
 
 interface UnifiedCaseModalProps {
   case_: MedicalRecord | null;
@@ -83,18 +78,15 @@ const UnifiedCaseModal: React.FC<UnifiedCaseModalProps> = ({
   onSave, 
   onDelete 
 }) => {
-  const [isEditing, setIsEditing] = useState(false);
-  const [isConfirmDeleteOpen, setIsConfirmDeleteOpen] = useState(false);
-  const [isConfirmSaveOpen, setIsConfirmSaveOpen] = useState(false);
-  const [changes, setChanges] = useState<Change[]>([]);
-  const [isSaving, setIsSaving] = useState(false);
+  const [isEditMode, setIsEditMode] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
-  const [isDateOfBirthOpen, setIsDateOfBirthOpen] = useState(false);
+  const [isConfirmDeleteOpen, setIsConfirmDeleteOpen] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
   const { toast } = useToast();
   const { user } = useAuth();
   const { profile } = useUserProfile();
-
-  // Determine if user can edit or delete cases based on role
+  
+  // Determine if user can edit or delete records based on role
   const canEdit = profile?.role === 'owner' || profile?.role === 'employee';
   const canDelete = profile?.role === 'owner' || profile?.role === 'employee';
 
@@ -105,8 +97,12 @@ const UnifiedCaseModal: React.FC<UnifiedCaseModalProps> = ({
       id_number: '',
       phone: '',
       email: null,
-      date_of_birth: null,
-      comments: '',
+      exam_type: '',
+      origin: '',
+      treating_doctor: '',
+      sample_type: '',
+      number_of_samples: 1,
+      branch: '',
       payment_method_1: null,
       payment_amount_1: null,
       payment_reference_1: null,
@@ -119,61 +115,43 @@ const UnifiedCaseModal: React.FC<UnifiedCaseModalProps> = ({
       payment_method_4: null,
       payment_amount_4: null,
       payment_reference_4: null,
-      material_remitido: null,
-      informacion_clinica: null,
-      descripcion_macroscopica: null,
-      diagnostico: null,
-      comentario: null,
+      comments: null,
     },
   });
 
-  // Reset form when case changes or when switching between view/edit modes
+  // Reset form when case changes
   useEffect(() => {
     if (case_ && isOpen) {
-      // Parse date_of_birth string to Date object if it exists
-      let dateOfBirth = null;
-      if (case_.date_of_birth) {
-        try {
-          dateOfBirth = parseISO(case_.date_of_birth);
-        } catch (error) {
-          console.error('Error parsing date of birth:', error);
-        }
-      }
-
       form.reset({
         full_name: case_.full_name || '',
         id_number: case_.id_number || '',
         phone: case_.phone || '',
         email: case_.email || null,
-        date_of_birth: dateOfBirth,
-        comments: case_.comments || '',
+        exam_type: case_.exam_type || '',
+        origin: case_.origin || '',
+        treating_doctor: case_.treating_doctor || '',
+        sample_type: case_.sample_type || '',
+        number_of_samples: case_.number_of_samples || 1,
+        branch: case_.branch || '',
         payment_method_1: case_.payment_method_1 || null,
-        payment_amount_1: case_.payment_amount_1,
+        payment_amount_1: case_.payment_amount_1 || null,
         payment_reference_1: case_.payment_reference_1 || null,
         payment_method_2: case_.payment_method_2 || null,
-        payment_amount_2: case_.payment_amount_2,
+        payment_amount_2: case_.payment_amount_2 || null,
         payment_reference_2: case_.payment_reference_2 || null,
         payment_method_3: case_.payment_method_3 || null,
-        payment_amount_3: case_.payment_amount_3,
+        payment_amount_3: case_.payment_amount_3 || null,
         payment_reference_3: case_.payment_reference_3 || null,
         payment_method_4: case_.payment_method_4 || null,
-        payment_amount_4: case_.payment_amount_4,
+        payment_amount_4: case_.payment_amount_4 || null,
         payment_reference_4: case_.payment_reference_4 || null,
-        material_remitido: case_.material_remitido || null,
-        informacion_clinica: case_.informacion_clinica || null,
-        descripcion_macroscopica: case_.descripcion_macroscopica || null,
-        diagnostico: case_.diagnostico || null,
-        comentario: case_.comentario || null,
+        comments: case_.comments || null,
       });
+      
+      // Exit edit mode when case changes
+      setIsEditMode(false);
     }
-  }, [case_, isOpen, form, isEditing]);
-
-  // Reset editing state when modal closes
-  useEffect(() => {
-    if (!isOpen) {
-      setIsEditing(false);
-    }
-  }, [isOpen]);
+  }, [case_, isOpen, form]);
 
   const getFieldLabel = (field: string): string => {
     const labels: Record<string, string> = {
@@ -181,8 +159,12 @@ const UnifiedCaseModal: React.FC<UnifiedCaseModalProps> = ({
       id_number: 'Cédula',
       phone: 'Teléfono',
       email: 'Correo Electrónico',
-      date_of_birth: 'Fecha de Nacimiento',
-      comments: 'Comentarios',
+      exam_type: 'Tipo de Examen',
+      origin: 'Procedencia',
+      treating_doctor: 'Médico Tratante',
+      sample_type: 'Tipo de Muestra',
+      number_of_samples: 'Cantidad de Muestras',
+      branch: 'Sede',
       payment_method_1: 'Método de Pago 1',
       payment_amount_1: 'Monto de Pago 1',
       payment_reference_1: 'Referencia de Pago 1',
@@ -195,18 +177,13 @@ const UnifiedCaseModal: React.FC<UnifiedCaseModalProps> = ({
       payment_method_4: 'Método de Pago 4',
       payment_amount_4: 'Monto de Pago 4',
       payment_reference_4: 'Referencia de Pago 4',
-      material_remitido: 'Material Remitido',
-      informacion_clinica: 'Información Clínica',
-      descripcion_macroscopica: 'Descripción Macroscópica',
-      diagnostico: 'Diagnóstico',
-      comentario: 'Comentario',
+      comments: 'Comentarios',
     };
     return labels[field] || field;
   };
 
   const formatValue = (value: any): string => {
     if (value === null || value === undefined || value === '') return 'Vacío';
-    if (value instanceof Date) return format(value, 'dd/MM/yyyy', { locale: es });
     if (typeof value === 'number') return value.toString();
     return String(value);
   };
@@ -221,39 +198,9 @@ const UnifiedCaseModal: React.FC<UnifiedCaseModalProps> = ({
       let oldValue = case_[field as keyof MedicalRecord];
       let newValue = formData[field];
 
-      // Special handling for date_of_birth
-      if (field === 'date_of_birth') {
-        // Convert string date to Date object for comparison
-        if (case_.date_of_birth && newValue) {
-          try {
-            const oldDate = parseISO(case_.date_of_birth);
-            // If dates are different, format them as strings for the change log
-            if (oldDate.getTime() !== (newValue as Date).getTime()) {
-              detectedChanges.push({
-                field,
-                fieldLabel: getFieldLabel(field),
-                oldValue: format(oldDate, 'yyyy-MM-dd'),
-                newValue: format(newValue as Date, 'yyyy-MM-dd'),
-              });
-            }
-          } catch (error) {
-            console.error('Error comparing dates:', error);
-          }
-        } else if ((!case_.date_of_birth && newValue) || (case_.date_of_birth && !newValue)) {
-          // One is null and the other isn't
-          detectedChanges.push({
-            field,
-            fieldLabel: getFieldLabel(field),
-            oldValue: case_.date_of_birth || null,
-            newValue: newValue ? format(newValue as Date, 'yyyy-MM-dd') : null,
-          });
-        }
-        return; // Skip the rest of the comparison for date_of_birth
-      }
-
       // Special handling for payment methods - convert undefined to null for comparison
-      const normalizedOld = oldValue === null || oldValue === undefined || oldValue === '' ? null : oldValue;
-      const normalizedNew = newValue === null || newValue === undefined || newValue === '' ? null : newValue;
+      const normalizedOld = oldValue === undefined ? null : oldValue;
+      const normalizedNew = newValue === undefined ? null : newValue;
 
       // Convert to strings for comparison, but keep original values for storage
       const oldStr = normalizedOld === null ? '' : String(normalizedOld);
@@ -272,74 +219,27 @@ const UnifiedCaseModal: React.FC<UnifiedCaseModalProps> = ({
     return detectedChanges;
   };
 
-  const handleSubmit = (formData: EditCaseFormData) => {
-    // Validate: don't allow saving if total payment amount exceeds total case amount
-    const exchangeRate = case_?.exchange_rate || 0;
-    const bolivaresMethods = ['Punto de venta', 'Pago móvil', 'Bs en efectivo'];
-    let totalPagosUSD = 0;
-    
-    for (let i = 1; i <= 4; i++) {
-      const method = formData[`payment_method_${i}` as keyof EditCaseFormData] as string | undefined;
-      let amountRaw = formData[`payment_amount_${i}` as keyof EditCaseFormData];
-      let amount = typeof amountRaw === 'number' ? amountRaw : parseFloat(String(amountRaw));
-      
-      if (!method || isNaN(amount) || typeof amount !== 'number') continue;
-      
-      if (bolivaresMethods.includes(method)) {
-        if (exchangeRate > 0) {
-          totalPagosUSD += amount / exchangeRate;
-        }
-      } else {
-        totalPagosUSD += amount;
-      }
-    }
-    
-    const montoTotal = case_?.total_amount || 0;
-    if (totalPagosUSD > montoTotal + 0.01) {
-      toast({
-        title: 'Error en pagos',
-        description: 'La suma de los pagos (convertidos a USD) excede el monto total del caso. Corrige los montos antes de guardar.',
-        variant: 'destructive',
-      });
-      return;
-    }
+  const handleSubmit = async (formData: EditCaseFormData) => {
+    if (!case_ || !user) return;
 
-    const detectedChanges = detectChanges(formData);
+    const changes = detectChanges(formData);
 
-    if (detectedChanges.length === 0) {
+    if (changes.length === 0) {
       toast({
         title: 'Sin cambios',
         description: 'No se detectaron cambios para guardar.',
         variant: 'default',
       });
-      setIsEditing(false);
+      setIsEditMode(false);
       return;
     }
-
-    setChanges(detectedChanges);
-    setIsConfirmSaveOpen(true);
-  };
-
-  const handleConfirmSave = async () => {
-    if (!case_ || !user) return;
 
     setIsSaving(true);
     try {
       // Prepare updates object
       const updates: Partial<MedicalRecord> = {};
       changes.forEach((change) => {
-        // Special handling for date_of_birth to format as string
-        if (change.field === 'date_of_birth' && change.newValue instanceof Date) {
-          updates[change.field as keyof MedicalRecord] = format(change.newValue, 'yyyy-MM-dd') as any;
-        } else if (
-          typeof change.newValue === 'string' ||
-          typeof change.newValue === 'number' ||
-          change.newValue === null
-        ) {
-          updates[change.field as keyof MedicalRecord] = change.newValue as any;
-        } else {
-          updates[change.field as keyof MedicalRecord] = undefined;
-        }
+        updates[change.field as keyof MedicalRecord] = change.newValue as any;
       });
 
       const { error } = await updateMedicalRecordWithLog(
@@ -347,7 +247,7 @@ const UnifiedCaseModal: React.FC<UnifiedCaseModalProps> = ({
         updates,
         changes,
         user.id,
-        user.email || 'unknown@email.com',
+        user.email || 'unknown@email.com'
       );
 
       if (error) {
@@ -360,13 +260,8 @@ const UnifiedCaseModal: React.FC<UnifiedCaseModalProps> = ({
         className: 'bg-green-100 border-green-400 text-green-800',
       });
 
-      setIsConfirmSaveOpen(false);
-      setIsEditing(false);
-      
-      // Call onSave callback if provided
-      if (onSave) {
-        onSave();
-      }
+      setIsEditMode(false);
+      if (onSave) onSave();
     } catch (error) {
       console.error('Error saving case:', error);
       toast({
@@ -380,7 +275,7 @@ const UnifiedCaseModal: React.FC<UnifiedCaseModalProps> = ({
   };
 
   const handleDelete = async () => {
-    if (!case_ || !user) return;
+    if (!case_) return;
 
     setIsDeleting(true);
     try {
@@ -411,7 +306,6 @@ const UnifiedCaseModal: React.FC<UnifiedCaseModalProps> = ({
     }
   };
 
-  // Get status color for payment status
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'Completado':
@@ -440,9 +334,6 @@ const UnifiedCaseModal: React.FC<UnifiedCaseModalProps> = ({
     ? format(parseISO(case_.date_of_birth), 'dd/MM/yyyy', { locale: es })
     : 'N/A';
 
-  // Check if this is a biopsy case
-  const isBiopsyCase = case_.exam_type?.toLowerCase() === 'biopsia';
-
   return (
     <AnimatePresence>
       {isOpen && (
@@ -453,9 +344,7 @@ const UnifiedCaseModal: React.FC<UnifiedCaseModalProps> = ({
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={() => {
-              if (!isEditing) {
-                onClose();
-              }
+              if (!isEditMode) onClose();
             }}
             className="fixed inset-0 bg-black/50 z-[99999998]"
           />
@@ -467,24 +356,23 @@ const UnifiedCaseModal: React.FC<UnifiedCaseModalProps> = ({
             exit={{ opacity: 0, scale: 0.95 }}
             transition={{ type: 'spring', damping: 25, stiffness: 200 }}
             className="fixed inset-0 flex items-center justify-center z-[99999999] p-4"
-            onClick={(e) => e.stopPropagation()}
           >
-            <div className="bg-white dark:bg-background rounded-xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto border border-input">
+            <div className="bg-white dark:bg-background rounded-xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
               {/* Header */}
               <div className="sticky top-0 bg-white dark:bg-background border-b border-gray-200 dark:border-gray-700 p-4 sm:p-6 z-10">
                 <div className="flex items-center justify-between">
                   <div>
                     <h2 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-gray-100">
-                      {isEditing ? 'Editar Caso' : 'Detalles del Caso'}
+                      {isEditMode ? 'Editar Caso' : 'Detalles del Caso'}
                     </h2>
-                    <div className="flex items-center gap-1.5 sm:gap-2 mt-1 sm:mt-2 flex-wrap">
+                    <div className="flex items-center gap-1.5 sm:gap-2 mt-1 sm:mt-2">
                       {case_.code && (
                         <span className="inline-flex items-center gap-1 px-1.5 sm:px-2 py-0.5 sm:py-1 text-xs font-semibold rounded-full bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300">
                           {case_.code}
                         </span>
                       )}
                       <span
-                        className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(
+                        className={`inline-flex px-1.5 sm:px-2 py-0.5 sm:py-1 text-xs font-semibold rounded-full ${getStatusColor(
                           case_.payment_status,
                         )}`}
                       >
@@ -493,20 +381,21 @@ const UnifiedCaseModal: React.FC<UnifiedCaseModalProps> = ({
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
-                    {!isEditing && canEdit && (
+                    {!isEditMode && canEdit && (
                       <Button
-                        onClick={() => setIsEditing(true)}
+                        onClick={() => setIsEditMode(true)}
                         variant="outline"
                         size="sm"
-                        className="flex items-center gap-1 text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300"
+                        className="flex items-center gap-1"
                       >
-                        <Edit2 className="w-4 h-4" />
-                        Editar
+                        <Edit className="w-4 h-4" />
+                        <span className="hidden sm:inline">Editar</span>
                       </Button>
                     )}
                     <button
                       onClick={onClose}
                       className="p-1.5 sm:p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
+                      disabled={isEditMode && isSaving}
                     >
                       <X className="w-5 h-5 text-gray-500 dark:text-gray-400" />
                     </button>
@@ -515,17 +404,16 @@ const UnifiedCaseModal: React.FC<UnifiedCaseModalProps> = ({
               </div>
 
               {/* Content */}
-              {isEditing ? (
+              {isEditMode ? (
                 <Form {...form}>
                   <form onSubmit={form.handleSubmit(handleSubmit)} className="p-4 sm:p-6 space-y-6">
                     {/* Patient Information Section */}
                     <div className="bg-white dark:bg-background rounded-lg p-4 border border-input">
-                      <div className="flex items-center gap-2 mb-3">
-                        <User className="w-5 h-5 text-blue-600 dark:text-blue-400" />
-                        <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Información del Paciente</h3>
+                      <div className="flex items-center gap-2 mb-4">
+                        <User className="text-blue-500 size-6" />
+                        <h3 className="text-lg sm:text-xl font-semibold">Información del Paciente</h3>
                       </div>
-                      <div className="space-y-4">
-                        {/* Full Name */}
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <FormField
                           control={form.control}
                           name="full_name"
@@ -533,14 +421,12 @@ const UnifiedCaseModal: React.FC<UnifiedCaseModalProps> = ({
                             <FormItem>
                               <FormLabel>Nombre Completo</FormLabel>
                               <FormControl>
-                                <Input placeholder="Nombre y Apellido" {...field} className="focus:border-primary focus:ring-primary" />
+                                <Input {...field} />
                               </FormControl>
                               <FormMessage />
                             </FormItem>
                           )}
                         />
-                        
-                        {/* ID Number */}
                         <FormField
                           control={form.control}
                           name="id_number"
@@ -548,119 +434,159 @@ const UnifiedCaseModal: React.FC<UnifiedCaseModalProps> = ({
                             <FormItem>
                               <FormLabel>Cédula</FormLabel>
                               <FormControl>
-                                <Input placeholder="12345678" {...field} className="focus:border-primary focus:ring-primary" />
+                                <Input {...field} />
                               </FormControl>
                               <FormMessage />
                             </FormItem>
                           )}
                         />
-                        
-                        {/* Phone */}
                         <FormField
                           control={form.control}
                           name="phone"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel className="flex items-center gap-2">
-                                <Phone className="w-4 h-4 text-blue-500" />
-                                Teléfono
-                              </FormLabel>
+                              <FormLabel>Teléfono</FormLabel>
                               <FormControl>
-                                <Input placeholder="0412-1234567" {...field} className="focus:border-primary focus:ring-primary" />
+                                <Input {...field} />
                               </FormControl>
                               <FormMessage />
                             </FormItem>
                           )}
                         />
-                        
-                        {/* Email */}
                         <FormField
                           control={form.control}
                           name="email"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel className="flex items-center gap-2">
-                                <Mail className="w-4 h-4 text-blue-500" />
-                                Correo Electrónico
-                              </FormLabel>
+                              <FormLabel>Email</FormLabel>
                               <FormControl>
-                                <Input
-                                  type="email"
-                                  placeholder="correo@ejemplo.com"
-                                  {...field}
-                                  value={field.value || ''}
-                                  className="focus:border-primary focus:ring-primary"
+                                <Input 
+                                  type="email" 
+                                  {...field} 
+                                  value={field.value || ''} 
+                                  onChange={(e) => field.onChange(e.target.value || null)}
                                 />
                               </FormControl>
                               <FormMessage />
                             </FormItem>
                           )}
                         />
-                        
-                        {/* Date of Birth */}
+                      </div>
+                    </div>
+
+                    {/* Medical Information Section */}
+                    <div className="bg-white dark:bg-background rounded-lg p-4 border border-input">
+                      <div className="flex items-center gap-2 mb-4">
+                        <Microscope className="text-primary size-6" />
+                        <h3 className="text-lg sm:text-xl font-semibold">Información Médica</h3>
+                      </div>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <FormField
                           control={form.control}
-                          name="date_of_birth"
+                          name="exam_type"
                           render={({ field }) => (
-                            <FormItem className="flex flex-col">
-                              <FormLabel className="flex items-center gap-2">
-                                <Cake className="w-4 h-4 text-pink-500" />
-                                Fecha de Nacimiento
-                              </FormLabel>
-                              <Popover open={isDateOfBirthOpen} onOpenChange={setIsDateOfBirthOpen}>
-                                <PopoverTrigger asChild>
-                                  <FormControl>
-                                    <Button
-                                      variant={'outline'}
-                                      className={cn(
-                                        'w-full justify-start text-left font-normal',
-                                        !field.value && 'text-muted-foreground',
-                                      )}
-                                    >
-                                      <Cake className="mr-2 h-4 w-4 text-pink-500" />
-                                      {field.value ? (
-                                        <div className="flex items-center gap-2">
-                                          <span>{format(field.value, 'PPP', { locale: es })}</span>
-                                          {ageDisplay && (
-                                            <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">
-                                              {ageDisplay}
-                                            </span>
-                                          )}
-                                        </div>
-                                      ) : case_.date_of_birth ? (
-                                        <div className="flex items-center gap-2">
-                                          <span>{format(parseISO(case_.date_of_birth), 'PPP', { locale: es })}</span>
-                                          {ageDisplay && (
-                                            <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">
-                                              {ageDisplay}
-                                            </span>
-                                          )}
-                                        </div>
-                                      ) : (
-                                        <span>Sin fecha de nacimiento</span>
-                                      )}
-                                    </Button>
-                                  </FormControl>
-                                </PopoverTrigger>
-                                <PopoverContent className="w-auto p-0 z-[9999999]">
-                                  <Calendar
-                                    mode="single"
-                                    selected={field.value || undefined}
-                                    onSelect={(date) => {
-                                      field.onChange(date);
-                                      setIsDateOfBirthOpen(false);
-                                    }}
-                                    disabled={(date) => {
-                                      const today = new Date();
-                                      const maxAge = new Date(today.getFullYear() - 150, today.getMonth(), today.getDate());
-                                      return date > today || date < maxAge;
-                                    }}
-                                    initialFocus
-                                    locale={es}
-                                    defaultMonth={field.value || new Date(2000, 0, 1)}
-                                  />
-                                </PopoverContent>
-                              </Popover>
+                            <FormItem>
+                              <FormLabel>Tipo de Examen</FormLabel>
+                              <Select 
+                                onValueChange={field.onChange} 
+                                defaultValue={field.value}
+                              >
+                                <FormControl>
+                                  <SelectTrigger>
+                                    <SelectValue placeholder="Seleccionar tipo de examen" />
+                                  </SelectTrigger>
+                                </FormControl>
+                                <SelectContent>
+                                  {examTypes.map(type => (
+                                    <SelectItem key={type} value={type}>
+                                      {type.charAt(0).toUpperCase() + type.slice(1)}
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={form.control}
+                          name="treating_doctor"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Médico Tratante</FormLabel>
+                              <FormControl>
+                                <Input {...field} />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={form.control}
+                          name="origin"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Procedencia</FormLabel>
+                              <FormControl>
+                                <Input {...field} />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={form.control}
+                          name="branch"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Sede</FormLabel>
+                              <Select 
+                                onValueChange={field.onChange} 
+                                defaultValue={field.value}
+                              >
+                                <FormControl>
+                                  <SelectTrigger>
+                                    <SelectValue placeholder="Seleccionar sede" />
+                                  </SelectTrigger>
+                                </FormControl>
+                                <SelectContent>
+                                  <SelectItem value="PMG">PMG</SelectItem>
+                                  <SelectItem value="CPC">CPC</SelectItem>
+                                  <SelectItem value="CNX">CNX</SelectItem>
+                                  <SelectItem value="STX">STX</SelectItem>
+                                  <SelectItem value="MCY">MCY</SelectItem>
+                                </SelectContent>
+                              </Select>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={form.control}
+                          name="sample_type"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Tipo de Muestra</FormLabel>
+                              <FormControl>
+                                <Input {...field} />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={form.control}
+                          name="number_of_samples"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Cantidad de Muestras</FormLabel>
+                              <FormControl>
+                                <Input 
+                                  type="number" 
+                                  {...field} 
+                                  onChange={(e) => field.onChange(parseInt(e.target.value) || 1)}
+                                />
+                              </FormControl>
                               <FormMessage />
                             </FormItem>
                           )}
@@ -668,416 +594,113 @@ const UnifiedCaseModal: React.FC<UnifiedCaseModalProps> = ({
                       </div>
                     </div>
 
-                    {/* Medical Information Section (for biopsy cases) */}
-                    {isBiopsyCase && (
-                      <div className="bg-white dark:bg-background rounded-lg p-4 border border-input">
-                        <div className="flex items-center gap-2 mb-3">
-                          <Microscope className="w-5 h-5 text-green-600 dark:text-green-400" />
-                          <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Información Médica</h3>
-                        </div>
-                        <div className="space-y-4">
-                          {/* Material Remitido */}
-                          <FormField
-                            control={form.control}
-                            name="material_remitido"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel>Material Remitido</FormLabel>
-                                <FormControl>
-                                  <Textarea
-                                    placeholder="Describa el material remitido para análisis..."
-                                    className="min-h-[60px] resize-y"
-                                    {...field}
-                                    value={field.value || ''}
-                                  />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                          
-                          {/* Información Clínica */}
-                          <FormField
-                            control={form.control}
-                            name="informacion_clinica"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel>Información Clínica</FormLabel>
-                                <FormControl>
-                                  <Textarea
-                                    placeholder="Información clínica relevante..."
-                                    className="min-h-[60px] resize-y"
-                                    {...field}
-                                    value={field.value || ''}
-                                  />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                          
-                          {/* Descripción Macroscópica */}
-                          <FormField
-                            control={form.control}
-                            name="descripcion_macroscopica"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel>Descripción Macroscópica</FormLabel>
-                                <FormControl>
-                                  <Textarea
-                                    placeholder="Descripción macroscópica de la muestra..."
-                                    className="min-h-[80px] resize-y"
-                                    {...field}
-                                    value={field.value || ''}
-                                  />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                          
-                          {/* Diagnóstico */}
-                          <FormField
-                            control={form.control}
-                            name="diagnostico"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel>Diagnóstico</FormLabel>
-                                <FormControl>
-                                  <Textarea
-                                    placeholder="Diagnóstico basado en el análisis..."
-                                    className="min-h-[80px] resize-y"
-                                    {...field}
-                                    value={field.value || ''}
-                                  />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                          
-                          {/* Comentario */}
-                          <FormField
-                            control={form.control}
-                            name="comentario"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel>Comentario</FormLabel>
-                                <FormControl>
-                                  <Textarea
-                                    placeholder="Comentarios adicionales (opcional)..."
-                                    className="min-h-[60px] resize-y"
-                                    {...field}
-                                    value={field.value || ''}
-                                  />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                        </div>
-                      </div>
-                    )}
-
-                    {/* Payment Methods Section */}
+                    {/* Payment Information Section */}
                     <div className="bg-white dark:bg-background rounded-lg p-4 border border-input">
-                      <div className="flex items-center gap-2 mb-3">
-                        <DollarSign className="w-5 h-5 text-purple-600 dark:text-purple-400" />
-                        <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Métodos de Pago</h3>
+                      <div className="flex items-center gap-2 mb-4">
+                        <DollarSign className="text-purple-500 size-6" />
+                        <h3 className="text-lg sm:text-xl font-semibold">Información de Pago</h3>
                       </div>
+                      
+                      {/* Payment Methods */}
                       <div className="space-y-4">
-                        {/* Payment Method 1 */}
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
-                          <FormField
-                            control={form.control}
-                            name="payment_method_1"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel>Método de Pago 1</FormLabel>
-                                <Select
-                                  onValueChange={(value) => field.onChange(value === 'none' ? null : value)}
-                                  value={field.value || 'none'}
-                                >
-                                  <FormControl>
-                                    <SelectTrigger>
-                                      <SelectValue placeholder="Seleccionar método" />
-                                    </SelectTrigger>
-                                  </FormControl>
-                                  <SelectContent className="z-[9999999]">
-                                    <SelectItem value="none">Sin método</SelectItem>
-                                    {paymentMethods.map((method) => (
-                                      <SelectItem key={method} value={method}>
-                                        {method}
-                                      </SelectItem>
-                                    ))}
-                                  </SelectContent>
-                                </Select>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                          <FormField
-                            control={form.control}
-                            name="payment_amount_1"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel>Monto 1</FormLabel>
-                                <FormControl>
-                                  <Input
-                                    type="number"
-                                    step="0.01"
-                                    placeholder="0.00"
-                                    {...field}
-                                    value={field.value || ''}
-                                    onChange={(e) => {
-                                      const value = e.target.value;
-                                      field.onChange(value === '' ? null : parseFloat(value));
-                                    }}
-                                  />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                          <FormField
-                            control={form.control}
-                            name="payment_reference_1"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel>Referencia 1</FormLabel>
-                                <FormControl>
-                                  <Input placeholder="Referencia de pago" {...field} value={field.value || ''} />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                        </div>
-
-                        {/* Payment Method 2 */}
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
-                          <FormField
-                            control={form.control}
-                            name="payment_method_2"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel>Método de Pago 2</FormLabel>
-                                <Select
-                                  onValueChange={(value) => field.onChange(value === 'none' ? null : value)}
-                                  value={field.value || 'none'}
-                                >
-                                  <FormControl>
-                                    <SelectTrigger>
-                                      <SelectValue placeholder="Seleccionar método" />
-                                    </SelectTrigger>
-                                  </FormControl>
-                                  <SelectContent className="z-[9999999]">
-                                    <SelectItem value="none">Sin método</SelectItem>
-                                    {paymentMethods.map((method) => (
-                                      <SelectItem key={method} value={method}>
-                                        {method}
-                                      </SelectItem>
-                                    ))}
-                                  </SelectContent>
-                                </Select>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                          <FormField
-                            control={form.control}
-                            name="payment_amount_2"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel>Monto 2</FormLabel>
-                                <FormControl>
-                                  <Input
-                                    type="number"
-                                    step="0.01"
-                                    placeholder="0.00"
-                                    {...field}
-                                    value={field.value || ''}
-                                    onChange={(e) => {
-                                      const value = e.target.value;
-                                      field.onChange(value === '' ? null : parseFloat(value));
-                                    }}
-                                  />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                          <FormField
-                            control={form.control}
-                            name="payment_reference_2"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel>Referencia 2</FormLabel>
-                                <FormControl>
-                                  <Input placeholder="Referencia de pago" {...field} value={field.value || ''} />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                        </div>
-
-                        {/* Payment Method 3 */}
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
-                          <FormField
-                            control={form.control}
-                            name="payment_method_3"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel>Método de Pago 3</FormLabel>
-                                <Select
-                                  onValueChange={(value) => field.onChange(value === 'none' ? null : value)}
-                                  value={field.value || 'none'}
-                                >
-                                  <FormControl>
-                                    <SelectTrigger>
-                                      <SelectValue placeholder="Seleccionar método" />
-                                    </SelectTrigger>
-                                  </FormControl>
-                                  <SelectContent className="z-[9999999]">
-                                    <SelectItem value="none">Sin método</SelectItem>
-                                    {paymentMethods.map((method) => (
-                                      <SelectItem key={method} value={method}>
-                                        {method}
-                                      </SelectItem>
-                                    ))}
-                                  </SelectContent>
-                                </Select>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                          <FormField
-                            control={form.control}
-                            name="payment_amount_3"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel>Monto 3</FormLabel>
-                                <FormControl>
-                                  <Input
-                                    type="number"
-                                    step="0.01"
-                                    placeholder="0.00"
-                                    {...field}
-                                    value={field.value || ''}
-                                    onChange={(e) => {
-                                      const value = e.target.value;
-                                      field.onChange(value === '' ? null : parseFloat(value));
-                                    }}
-                                  />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                          <FormField
-                            control={form.control}
-                            name="payment_reference_3"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel>Referencia 3</FormLabel>
-                                <FormControl>
-                                  <Input placeholder="Referencia de pago" {...field} value={field.value || ''} />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                        </div>
-
-                        {/* Payment Method 4 */}
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
-                          <FormField
-                            control={form.control}
-                            name="payment_method_4"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel>Método de Pago 4</FormLabel>
-                                <Select
-                                  onValueChange={(value) => field.onChange(value === 'none' ? null : value)}
-                                  value={field.value || 'none'}
-                                >
-                                  <FormControl>
-                                    <SelectTrigger>
-                                      <SelectValue placeholder="Seleccionar método" />
-                                    </SelectTrigger>
-                                  </FormControl>
-                                  <SelectContent className="z-[9999999]">
-                                    <SelectItem value="none">Sin método</SelectItem>
-                                    {paymentMethods.map((method) => (
-                                      <SelectItem key={method} value={method}>
-                                        {method}
-                                      </SelectItem>
-                                    ))}
-                                  </SelectContent>
-                                </Select>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                          <FormField
-                            control={form.control}
-                            name="payment_amount_4"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel>Monto 4</FormLabel>
-                                <FormControl>
-                                  <Input
-                                    type="number"
-                                    step="0.01"
-                                    placeholder="0.00"
-                                    {...field}
-                                    value={field.value || ''}
-                                    onChange={(e) => {
-                                      const value = e.target.value;
-                                      field.onChange(value === '' ? null : parseFloat(value));
-                                    }}
-                                  />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                          <FormField
-                            control={form.control}
-                            name="payment_reference_4"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel>Referencia 4</FormLabel>
-                                <FormControl>
-                                  <Input placeholder="Referencia de pago" {...field} value={field.value || ''} />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                        </div>
+                        {[1, 2, 3, 4].map((index) => {
+                          const methodField = `payment_method_${index}` as keyof EditCaseFormData;
+                          const amountField = `payment_amount_${index}` as keyof EditCaseFormData;
+                          const referenceField = `payment_reference_${index}` as keyof EditCaseFormData;
+                          
+                          return (
+                            <div key={index} className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
+                              <FormField
+                                control={form.control}
+                                name={methodField}
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormLabel>Método de Pago {index}</FormLabel>
+                                    <Select
+                                      onValueChange={(value) => field.onChange(value === 'none' ? null : value)}
+                                      value={field.value || 'none'}
+                                    >
+                                      <FormControl>
+                                        <SelectTrigger>
+                                          <SelectValue placeholder="Seleccionar método" />
+                                        </SelectTrigger>
+                                      </FormControl>
+                                      <SelectContent>
+                                        <SelectItem value="none">Sin método</SelectItem>
+                                        {paymentMethods.map((method) => (
+                                          <SelectItem key={method} value={method}>
+                                            {method}
+                                          </SelectItem>
+                                        ))}
+                                      </SelectContent>
+                                    </Select>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                              <FormField
+                                control={form.control}
+                                name={amountField}
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormLabel>Monto {index}</FormLabel>
+                                    <FormControl>
+                                      <Input
+                                        type="number"
+                                        step="0.01"
+                                        placeholder="0.00"
+                                        value={field.value || ''}
+                                        onChange={(e) => {
+                                          const value = e.target.value;
+                                          field.onChange(value === '' ? null : parseFloat(value));
+                                        }}
+                                      />
+                                    </FormControl>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                              <FormField
+                                control={form.control}
+                                name={referenceField}
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormLabel>Referencia {index}</FormLabel>
+                                    <FormControl>
+                                      <Input 
+                                        placeholder="Referencia de pago" 
+                                        value={field.value || ''} 
+                                        onChange={(e) => field.onChange(e.target.value || null)}
+                                      />
+                                    </FormControl>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                            </div>
+                          );
+                        })}
                       </div>
                     </div>
 
-                    {/* Comments Section */}
+                    {/* Additional Information */}
                     <div className="bg-white dark:bg-background rounded-lg p-4 border border-input">
-                      <div className="flex items-center gap-2 mb-3">
-                        <FileText className="w-5 h-5 text-blue-600 dark:text-blue-400" />
-                        <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Comentarios</h3>
+                      <div className="flex items-center gap-2 mb-4">
+                        <FileText className="text-blue-500 size-6" />
+                        <h3 className="text-lg sm:text-xl font-semibold">Información Adicional</h3>
                       </div>
                       <FormField
                         control={form.control}
                         name="comments"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>Comentarios del caso</FormLabel>
+                            <FormLabel>Comentarios</FormLabel>
                             <FormControl>
                               <Textarea 
                                 placeholder="Agregar comentarios adicionales..." 
                                 className="min-h-[100px]" 
-                                {...field} 
-                                value={field.value || ''}
+                                value={field.value || ''} 
+                                onChange={(e) => field.onChange(e.target.value || null)}
                               />
                             </FormControl>
                             <FormMessage />
@@ -1087,21 +710,32 @@ const UnifiedCaseModal: React.FC<UnifiedCaseModalProps> = ({
                     </div>
 
                     {/* Action Buttons */}
-                    <div className="flex flex-col sm:flex-row gap-3 pt-6 border-t border-gray-200 dark:border-gray-700">
+                    <div className="flex flex-col sm:flex-row gap-3 pt-4 border-t border-gray-200 dark:border-gray-700">
                       <Button 
                         type="button" 
                         variant="outline" 
-                        onClick={() => setIsEditing(false)} 
+                        onClick={() => setIsEditMode(false)} 
                         className="flex-1"
+                        disabled={isSaving}
                       >
                         Cancelar
                       </Button>
                       <Button 
                         type="submit" 
                         className="flex-1 bg-primary hover:bg-primary/80"
+                        disabled={isSaving}
                       >
-                        <Save className="w-4 h-4 mr-2" />
-                        Guardar Cambios
+                        {isSaving ? (
+                          <>
+                            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                            Guardando...
+                          </>
+                        ) : (
+                          <>
+                            <Save className="w-4 h-4 mr-2" />
+                            Guardar Cambios
+                          </>
+                        )}
                       </Button>
                     </div>
                   </form>
@@ -1110,12 +744,12 @@ const UnifiedCaseModal: React.FC<UnifiedCaseModalProps> = ({
                 <div className="p-4 sm:p-6 space-y-6">
                   {/* Patient Information */}
                   <div className="bg-white dark:bg-background rounded-lg p-4 border border-input transition-all duration-300">
-                    <div className="flex items-center gap-1.5 sm:gap-2 mb-3 sm:mb-4">
+                    <div className="flex items-center gap-2 mb-4">
                       <User className="text-blue-500 size-6" />
                       <h3 className="text-lg sm:text-xl font-semibold">Información del Paciente</h3>
                     </div>
-                    <div className="space-y-3 sm:space-y-4">
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
+                    <div className="space-y-4">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                           <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">Nombre completo:</p>
                           <p className="text-sm sm:text-base font-medium">{case_.full_name}</p>
@@ -1125,7 +759,7 @@ const UnifiedCaseModal: React.FC<UnifiedCaseModalProps> = ({
                           <p className="text-sm sm:text-base font-medium">{case_.id_number}</p>
                         </div>
                       </div>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                           <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">Fecha de nacimiento:</p>
                           <p className="text-sm sm:text-base font-medium">
@@ -1149,14 +783,14 @@ const UnifiedCaseModal: React.FC<UnifiedCaseModalProps> = ({
 
                   {/* Medical Information */}
                   <div className="bg-white dark:bg-background rounded-lg p-4 border border-input transition-all duration-300">
-                    <div className="flex items-center justify-between gap-1.5 sm:gap-2 mb-3 sm:mb-4">
+                    <div className="flex items-center justify-between gap-2 mb-4">
                       <div className="flex items-center gap-2">
                         <Microscope className="text-primary size-6" />
                         <h3 className="text-lg sm:text-xl font-semibold">Información Médica</h3>
                       </div>
                     </div>
-                    <div className="space-y-3 sm:space-y-4">
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
+                    <div className="space-y-4">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         {/* Exam Type */}
                         <div>
                           <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">Estudio:</p>
@@ -1170,7 +804,7 @@ const UnifiedCaseModal: React.FC<UnifiedCaseModalProps> = ({
                         </div>
                       </div>
 
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         {/* Origin */}
                         <div>
                           <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">Procedencia:</p>
@@ -1184,7 +818,7 @@ const UnifiedCaseModal: React.FC<UnifiedCaseModalProps> = ({
                         </div>
                       </div>
 
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         {/* Sample Type */}
                         <div>
                           <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">Muestra:</p>
@@ -1207,13 +841,13 @@ const UnifiedCaseModal: React.FC<UnifiedCaseModalProps> = ({
                   </div>
 
                   {/* Biopsy Information (only for biopsy cases) */}
-                  {isBiopsyCase && (
+                  {case_.exam_type?.toLowerCase() === 'biopsia' && (
                     <div className="bg-white dark:bg-background rounded-lg p-4 border border-input transition-all duration-300">
-                      <div className="flex items-center gap-1.5 sm:gap-2 mb-3 sm:mb-4">
+                      <div className="flex items-center gap-2 mb-4">
                         <FileText className="text-green-500 size-6" />
                         <h3 className="text-lg sm:text-xl font-semibold">Información de Biopsia</h3>
                       </div>
-                      <div className="space-y-3 sm:space-y-4">
+                      <div className="space-y-4">
                         {/* Material Remitido */}
                         <div>
                           <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">Material Remitido:</p>
@@ -1239,24 +873,22 @@ const UnifiedCaseModal: React.FC<UnifiedCaseModalProps> = ({
                         </div>
 
                         {/* Comentario */}
-                        {case_.comentario && (
-                          <div>
-                            <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">Comentario:</p>
-                            <p className="text-sm sm:text-base">{case_.comentario}</p>
-                          </div>
-                        )}
+                        <div>
+                          <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">Comentario:</p>
+                          <p className="text-sm sm:text-base">{case_.comentario || 'No especificado'}</p>
+                        </div>
                       </div>
                     </div>
                   )}
 
                   {/* Payment Information */}
                   <div className="bg-white dark:bg-background rounded-lg p-4 border border-input transition-all duration-300">
-                    <div className="flex items-center gap-1.5 sm:gap-2 mb-3 sm:mb-4">
+                    <div className="flex items-center gap-2 mb-4">
                       <DollarSign className="text-purple-500 size-6" />
                       <h3 className="text-lg sm:text-xl font-semibold">Información de Pago</h3>
                     </div>
-                    <div className="space-y-3 sm:space-y-4">
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
+                    <div className="space-y-4">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                           <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">Monto total:</p>
                           <p className="text-sm sm:text-base font-medium">${case_.total_amount.toLocaleString()}</p>
@@ -1275,7 +907,7 @@ const UnifiedCaseModal: React.FC<UnifiedCaseModalProps> = ({
 
                       {case_.remaining > 0 && (
                         <div className="bg-red-50 dark:bg-red-900/20 p-2 sm:p-3 rounded-lg border border-red-200 dark:border-red-800">
-                          <div className="flex items-center gap-1.5 sm:gap-2">
+                          <div className="flex items-center gap-2">
                             <AlertTriangle className="w-5 h-5 text-red-600 dark:text-red-400" />
                             <p className="text-xs sm:text-sm font-medium text-red-800 dark:text-red-300">
                               Monto pendiente: ${case_.remaining.toLocaleString()}
@@ -1285,55 +917,55 @@ const UnifiedCaseModal: React.FC<UnifiedCaseModalProps> = ({
                       )}
 
                       {/* Payment Methods */}
-                      <div className="space-y-2 sm:space-y-3">
+                      <div className="space-y-3">
                         <p className="text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300">Métodos de pago:</p>
                         {case_.payment_method_1 && (
-                          <div className="bg-gray-50 dark:bg-gray-800/50 p-2 sm:p-3 rounded-lg">
+                          <div className="bg-gray-50 dark:bg-gray-800/50 p-3 rounded-lg">
                             <div className="flex justify-between items-center">
                               <p className="text-xs sm:text-sm font-medium">{case_.payment_method_1}</p>
                               <p className="text-xs sm:text-sm font-medium">${case_.payment_amount_1?.toLocaleString() || 0}</p>
                             </div>
                             {case_.payment_reference_1 && (
-                              <p className="text-[10px] sm:text-xs text-gray-500 dark:text-gray-400 mt-0.5 sm:mt-1">
+                              <p className="text-[10px] sm:text-xs text-gray-500 dark:text-gray-400 mt-1">
                                 Ref: {case_.payment_reference_1}
                               </p>
                             )}
                           </div>
                         )}
                         {case_.payment_method_2 && (
-                          <div className="bg-gray-50 dark:bg-gray-800/50 p-2 sm:p-3 rounded-lg">
+                          <div className="bg-gray-50 dark:bg-gray-800/50 p-3 rounded-lg">
                             <div className="flex justify-between items-center">
                               <p className="text-xs sm:text-sm font-medium">{case_.payment_method_2}</p>
                               <p className="text-xs sm:text-sm font-medium">${case_.payment_amount_2?.toLocaleString() || 0}</p>
                             </div>
                             {case_.payment_reference_2 && (
-                              <p className="text-[10px] sm:text-xs text-gray-500 dark:text-gray-400 mt-0.5 sm:mt-1">
+                              <p className="text-[10px] sm:text-xs text-gray-500 dark:text-gray-400 mt-1">
                                 Ref: {case_.payment_reference_2}
                               </p>
                             )}
                           </div>
                         )}
                         {case_.payment_method_3 && (
-                          <div className="bg-gray-50 dark:bg-gray-800/50 p-2 sm:p-3 rounded-lg">
+                          <div className="bg-gray-50 dark:bg-gray-800/50 p-3 rounded-lg">
                             <div className="flex justify-between items-center">
                               <p className="text-xs sm:text-sm font-medium">{case_.payment_method_3}</p>
                               <p className="text-xs sm:text-sm font-medium">${case_.payment_amount_3?.toLocaleString() || 0}</p>
                             </div>
                             {case_.payment_reference_3 && (
-                              <p className="text-[10px] sm:text-xs text-gray-500 dark:text-gray-400 mt-0.5 sm:mt-1">
+                              <p className="text-[10px] sm:text-xs text-gray-500 dark:text-gray-400 mt-1">
                                 Ref: {case_.payment_reference_3}
                               </p>
                             )}
                           </div>
                         )}
                         {case_.payment_method_4 && (
-                          <div className="bg-gray-50 dark:bg-gray-800/50 p-2 sm:p-3 rounded-lg">
+                          <div className="bg-gray-50 dark:bg-gray-800/50 p-3 rounded-lg">
                             <div className="flex justify-between items-center">
                               <p className="text-xs sm:text-sm font-medium">{case_.payment_method_4}</p>
                               <p className="text-xs sm:text-sm font-medium">${case_.payment_amount_4?.toLocaleString() || 0}</p>
                             </div>
                             {case_.payment_reference_4 && (
-                              <p className="text-[10px] sm:text-xs text-gray-500 dark:text-gray-400 mt-0.5 sm:mt-1">
+                              <p className="text-[10px] sm:text-xs text-gray-500 dark:text-gray-400 mt-1">
                                 Ref: {case_.payment_reference_4}
                               </p>
                             )}
@@ -1345,18 +977,18 @@ const UnifiedCaseModal: React.FC<UnifiedCaseModalProps> = ({
 
                   {/* Additional Information */}
                   <div className="bg-white dark:bg-background rounded-lg p-4 border border-input transition-all duration-300">
-                    <div className="flex items-center gap-1.5 sm:gap-2 mb-3 sm:mb-4">
+                    <div className="flex items-center gap-2 mb-4">
                       <FileText className="text-blue-500 size-6" />
                       <h3 className="text-lg sm:text-xl font-semibold">Información Adicional</h3>
                     </div>
-                    <div className="space-y-3 sm:space-y-4">
+                    <div className="space-y-4">
                       {case_.comments && (
                         <div>
                           <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">Comentarios:</p>
                           <p className="text-sm sm:text-base">{case_.comments}</p>
                         </div>
                       )}
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                           <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">Fecha de creación:</p>
                           <p className="text-sm sm:text-base">
@@ -1374,102 +1006,10 @@ const UnifiedCaseModal: React.FC<UnifiedCaseModalProps> = ({
                       </div>
                     </div>
                   </div>
-
-                  {/* Action Buttons */}
-                  <div className="flex flex-col sm:flex-row gap-3 pt-6 border-t border-gray-200 dark:border-gray-700">
-                    {canDelete && (
-                      <Button
-                        onClick={() => setIsConfirmDeleteOpen(true)}
-                        variant="destructive"
-                        className="flex items-center gap-2"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                        Eliminar Caso
-                      </Button>
-                    )}
-                  </div>
                 </div>
               )}
             </div>
           </motion.div>
-
-          {/* Confirmation Modal for Save */}
-          <AnimatePresence>
-            {isConfirmSaveOpen && (
-              <>
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  className="fixed inset-0 bg-black/70 z-[9999999999]"
-                />
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.95 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.95 }}
-                  className="fixed inset-0 flex items-center justify-center z-[9999999999] p-4"
-                >
-                  <div className="bg-white dark:bg-background rounded-xl shadow-2xl max-w-md w-full max-h-[80vh] overflow-y-auto">
-                    <div className="p-6">
-                      <div className="flex items-center gap-3 mb-4">
-                        <div className="p-2 bg-orange-100 dark:bg-orange-900/30 rounded-lg">
-                          <AlertCircle className="w-6 h-6 text-orange-600 dark:text-orange-400" />
-                        </div>
-                        <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Confirmar Cambios</h3>
-                      </div>
-
-                      <p className="text-gray-600 dark:text-gray-400 mb-4">Se realizarán los siguientes cambios:</p>
-
-                      <div className="space-y-3 mb-6 max-h-60 overflow-y-auto">
-                        {changes.map((change, index) => (
-                          <div key={index} className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-3">
-                            <div className="font-medium text-gray-900 dark:text-gray-100 text-sm">
-                              {change.fieldLabel}
-                            </div>
-                            <div className="text-xs text-gray-600 dark:text-gray-400 mt-1">
-                              <span className="line-through">{formatValue(change.oldValue)}</span>
-                              {' → '}
-                              <span className="font-medium text-green-600 dark:text-green-400">
-                                {formatValue(change.newValue)}
-                              </span>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-
-                      <div className="flex gap-3">
-                        <Button
-                          variant="outline"
-                          onClick={() => setIsConfirmSaveOpen(false)}
-                          className="flex-1"
-                          disabled={isSaving}
-                        >
-                          Cancelar
-                        </Button>
-                        <Button
-                          onClick={handleConfirmSave}
-                          disabled={isSaving}
-                          className="flex-1 bg-green-600 hover:bg-green-700"
-                        >
-                          {isSaving ? (
-                            <>
-                              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                              Guardando...
-                            </>
-                          ) : (
-                            <>
-                              <CheckCircle className="w-4 h-4 mr-2" />
-                              Confirmar
-                            </>
-                          )}
-                        </Button>
-                      </div>
-                    </div>
-                  </div>
-                </motion.div>
-              </>
-            )}
-          </AnimatePresence>
 
           {/* Confirmation Modal for Delete */}
           <AnimatePresence>
@@ -1479,19 +1019,19 @@ const UnifiedCaseModal: React.FC<UnifiedCaseModalProps> = ({
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
-                  className="fixed inset-0 bg-black/70 z-[9999999999]"
+                  className="fixed inset-0 bg-black/70 z-[999999999]"
                 />
                 <motion.div
                   initial={{ opacity: 0, scale: 0.95 }}
                   animate={{ opacity: 1, scale: 1 }}
                   exit={{ opacity: 0, scale: 0.95 }}
-                  className="fixed inset-0 flex items-center justify-center z-[9999999999] p-4"
+                  className="fixed inset-0 flex items-center justify-center z-[999999999] p-4"
                 >
                   <div className="bg-white dark:bg-background rounded-xl shadow-2xl max-w-md w-full max-h-[80vh] overflow-y-auto">
                     <div className="p-6">
                       <div className="flex items-center gap-3 mb-4">
                         <div className="p-2 bg-red-100 dark:bg-red-900/30 rounded-lg">
-                          <AlertCircle className="w-6 h-6 text-red-600 dark:text-red-400" />
+                          <AlertTriangle className="w-6 h-6 text-red-600 dark:text-red-400" />
                         </div>
                         <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Confirmar Eliminación</h3>
                       </div>
@@ -1533,6 +1073,20 @@ const UnifiedCaseModal: React.FC<UnifiedCaseModalProps> = ({
               </>
             )}
           </AnimatePresence>
+
+          {/* Delete button that appears in view mode */}
+          {!isEditMode && canDelete && (
+            <div className="absolute bottom-4 right-4 z-[9999999]">
+              <Button
+                onClick={() => setIsConfirmDeleteOpen(true)}
+                variant="destructive"
+                className="flex items-center gap-2"
+              >
+                <Trash2 className="w-4 h-4" />
+                Eliminar Caso
+              </Button>
+            </div>
+          )}
         </>
       )}
     </AnimatePresence>

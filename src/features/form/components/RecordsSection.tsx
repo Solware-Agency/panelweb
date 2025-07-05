@@ -1,6 +1,5 @@
 import React, { useState, useCallback, useMemo } from 'react'
 import CasesTable from '@shared/components/cases/CasesTable'
-import CaseDetailPanel from '@shared/components/cases/CaseDetailPanel'
 import { Users, MapPin, Microscope, FileText, Activity, Maximize2, Download, Search } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@shared/components/ui/card'
 import { type MedicalRecord } from '@lib/supabase-service'
@@ -28,8 +27,6 @@ export const RecordsSection: React.FC<RecordsSectionProps> = ({
 	onSearch
 }) => {
 	const [searchTerm, setSearchTerm] = useState('')
-	const [selectedCase, setSelectedCase] = useState<MedicalRecord | null>(null)
-	const [isPanelOpen, setIsPanelOpen] = useState(false)
 	const { profile } = useUserProfile()
 	const [showPendingOnly, setShowPendingOnly] = useState(false)
 	const [selectedExamType, setSelectedExamType] = useState<string | null>(null)
@@ -141,17 +138,6 @@ export const RecordsSection: React.FC<RecordsSectionProps> = ({
 			'inmunohistoquimica': 0
 		}
 		
-		cases?.forEach((record: MedicalRecord) => {
-			if (!record.exam_type) return;
-			const type = record.exam_type.toLowerCase()
-			if (counts[type] !== undefined) {
-				counts[type]++
-			}
-		})
-		
-		return counts
-	}, [cases])
-
 	// Count PDF-ready cases
 	const pdfReadyCases = useMemo(() => {
 		return cases?.filter(c => {
@@ -400,7 +386,6 @@ export const RecordsSection: React.FC<RecordsSectionProps> = ({
 
 			{/* Cases Table */}
 			<CasesTable
-				onCaseSelect={handleCaseSelect}
 				cases={filteredCases}
 				isLoading={isLoading}
 				error={error}
@@ -409,9 +394,6 @@ export const RecordsSection: React.FC<RecordsSectionProps> = ({
 				setIsFullscreen={setIsFullscreen}
 				onSearch={onSearch}
 			/>
-
-			{/* Case Detail Panel */}
-			<CaseDetailPanel case_={selectedCase} isOpen={isPanelOpen} onClose={handlePanelClose} />
 		</div>
 	)
 }
