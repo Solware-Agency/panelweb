@@ -2,7 +2,7 @@ import React, { useState, useCallback, useMemo } from 'react'
 import { FixedSizeList as List } from 'react-window'
 import { useQuery } from '@tanstack/react-query'
 import { getMedicalRecords } from '@lib/supabase-service'
-import { Search, Filter, RefreshCw, User, Users, Phone, Mail, Calendar, ChevronUp, ChevronDown, UserCheck, AtSign } from 'lucide-react'
+import { Search, Filter, RefreshCw, User, Users, Phone, Mail, Calendar, ChevronUp, ChevronDown, UserCheck } from 'lucide-react'
 import { Card } from '@shared/components/ui/card'
 import { Input } from '@shared/components/ui/input'
 import { Button } from '@shared/components/ui/button'
@@ -355,59 +355,69 @@ const PatientsList: React.FC = React.memo(() => {
             </table>
             
             {sortedPatients.length > 0 ? (
-              <div className="max-h-[600px]">
+              <div className="max-h-[600px] overscroll-contain">
                 <List
                   height={600}
                   itemCount={sortedPatients.length}
-                  itemSize={70}
+                  itemSize={72}
                   width="100%"
-                  className="divide-y divide-gray-200 dark:divide-gray-700"
+                  className="divide-y divide-gray-200 dark:divide-gray-700 overscroll-contain"
                 >
                   {({ index, style }) => {
                     const patient = sortedPatients[index];
                     return (
-                      <div style={style} className="flex divide-y divide-gray-200 dark:divide-gray-700">
-                        <table className="w-full">
-                          <tbody>
-                            <tr className="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
-                              <td className="px-4 py-4">
-                                <div className="flex items-center">
-                                  <div className="flex-shrink-0 h-8 w-8 bg-gray-200 dark:bg-gray-700 rounded-full flex items-center justify-center">
-                                    <User className="h-4 w-4 text-gray-500 dark:text-gray-400" />
-                                  </div>
-                                  <div className="ml-3">
-                                    <p className="text-sm font-medium text-gray-900 dark:text-gray-100">{patient.full_name}</p>
-                                  </div>
-                                </div>
-                              </td>
-                              <td className="px-4 py-4 text-sm text-gray-900 dark:text-gray-100">{patient.id_number}</td>
-                              <td className="px-4 py-4 text-sm text-gray-900 dark:text-gray-100">
-                                {patient.date_of_birth ? (
-                                  <div>
-                                    <span>{format(parseISO(patient.date_of_birth), 'dd/MM/yyyy', { locale: es })}</span>
-                                    <span className="ml-2 text-xs text-blue-600 dark:text-blue-400">
-                                      ({getAgeDisplay(patient.date_of_birth)})
-                                    </span>
-                                  </div>
-                                ) : (
-                                  <span className="text-gray-500 dark:text-gray-400">No disponible</span>
-                                )}
-                              </td>
-                              <td className="px-4 py-4 text-sm text-gray-900 dark:text-gray-100">{patient.phone}</td>
-                              <td className="px-4 py-4 text-sm text-gray-900 dark:text-gray-100">
-                                {patient.email || <span className="text-gray-500 dark:text-gray-400">No disponible</span>}
-                              </td>
-                              <td className="px-4 py-4 text-sm text-gray-900 dark:text-gray-100">
-                                {format(new Date(patient.lastVisit), 'dd/MM/yyyy', { locale: es })}
-                              </td>
-                              <td className="px-4 py-4 text-center">
-                                <span className="px-2 py-1 text-xs font-medium rounded-full bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300">
-                                  {patient.totalVisits}
-                                </span>
-                              </td>
-                            </tr>
-                          </tbody>
-                        </table>
+                      <div 
+                        style={style} 
+                        className="flex items-center w-full hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors px-4 py-3"
+                      >
+                        {/* Name Cell - 20% width */}
+                        <div className="w-[20%] flex items-center min-w-0">
+                          <div className="flex-shrink-0 h-8 w-8 bg-gray-200 dark:bg-gray-700 rounded-full flex items-center justify-center mr-3">
+                            <User className="h-4 w-4 text-gray-500 dark:text-gray-400" />
+                          </div>
+                          <p className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">{patient.full_name}</p>
+                        </div>
+                        
+                        {/* ID Number Cell - 15% width */}
+                        <div className="w-[15%] px-4 text-sm text-gray-900 dark:text-gray-100">
+                          {patient.id_number}
+                        </div>
+                        
+                        {/* Date of Birth Cell - 20% width */}
+                        <div className="w-[20%] px-4 text-sm text-gray-900 dark:text-gray-100">
+                          {patient.date_of_birth ? (
+                            <div className="flex items-center">
+                              <span>{format(parseISO(patient.date_of_birth), 'dd/MM/yyyy', { locale: es })}</span>
+                              <span className="ml-2 text-xs text-blue-600 dark:text-blue-400">
+                                ({getAgeDisplay(patient.date_of_birth)})
+                              </span>
+                            </div>
+                          ) : (
+                            <span className="text-gray-500 dark:text-gray-400">No disponible</span>
+                          )}
+                        </div>
+                        
+                        {/* Phone Cell - 15% width */}
+                        <div className="w-[15%] px-4 text-sm text-gray-900 dark:text-gray-100">
+                          {patient.phone}
+                        </div>
+                        
+                        {/* Email Cell - 15% width */}
+                        <div className="w-[15%] px-4 text-sm text-gray-900 dark:text-gray-100 truncate">
+                          {patient.email || <span className="text-gray-500 dark:text-gray-400">No disponible</span>}
+                        </div>
+                        
+                        {/* Last Visit Cell - 10% width */}
+                        <div className="w-[10%] px-4 text-sm text-gray-900 dark:text-gray-100">
+                          {format(new Date(patient.lastVisit), 'dd/MM/yyyy', { locale: es })}
+                        </div>
+                        
+                        {/* Total Visits Cell - 5% width */}
+                        <div className="w-[5%] flex justify-center">
+                          <span className="px-2 py-1 text-xs font-medium rounded-full bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300">
+                            {patient.totalVisits}
+                          </span>
+                        </div>
                       </div>
                     );
                   }}
@@ -427,65 +437,74 @@ const PatientsList: React.FC = React.memo(() => {
 
         {/* Mobile view - cards */}
         <div className="md:hidden">
-          <div className="max-h-[500px] overflow-y-auto overscroll-contain">
+          <div className="max-h-[500px] overflow-y-auto overscroll-contain px-2">
             {sortedPatients.length > 0 ? (
-              <div className="divide-y divide-gray-200 dark:divide-gray-700">
-                {sortedPatients.map((patient) => (
-                  <div 
-                    key={`selected-${patient.id_number}`}
-                    className="p-4 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors"
-                  >
-                    <div className="flex items-center mb-3">
-                      <div className="flex-shrink-0 h-10 w-10 bg-gray-200 dark:bg-gray-700 rounded-full flex items-center justify-center">
-                        <User className="h-5 w-5 text-gray-500 dark:text-gray-400" />
-                      </div>
-                      <div className="ml-3">
-                        <p className="text-sm font-medium text-gray-900 dark:text-gray-100">{patient.full_name}</p>
-                        <p className="text-xs text-gray-500 dark:text-gray-400">Cédula: {patient.id_number}</p>
-                      </div>
-                    </div>
-                    
-                    <div className="grid grid-cols-1 gap-2 text-xs">
-                      <div className="flex items-center">
-                        <Calendar className="h-4 w-4 text-gray-400 mr-2" />
-                        <span className="text-gray-600 dark:text-gray-300">
-                          {patient.date_of_birth ? (
-                            <>
-                              {format(parseISO(patient.date_of_birth), 'dd/MM/yyyy', { locale: es })}
-                              <span className="ml-2 text-blue-600 dark:text-blue-400">
-                                ({getAgeDisplay(patient.date_of_birth)})
-                              </span>
-                            </>
-                          ) : (
-                            'Fecha de nacimiento no disponible'
-                          )}
-                        </span>
+              <List
+                height={500}
+                itemCount={sortedPatients.length}
+                itemSize={160}
+                width="100%"
+                className="overscroll-contain"
+              >
+                {({ index, style }) => {
+                  const patient = sortedPatients[index];
+                  return (
+                    <div 
+                      style={style}
+                      className="p-4 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors border-b border-gray-200 dark:border-gray-700"
+                    >
+                      <div className="flex items-center mb-3">
+                        <div className="flex-shrink-0 h-10 w-10 bg-gray-200 dark:bg-gray-700 rounded-full flex items-center justify-center">
+                          <User className="h-5 w-5 text-gray-500 dark:text-gray-400" />
+                        </div>
+                        <div className="ml-3">
+                          <p className="text-sm font-medium text-gray-900 dark:text-gray-100">{patient.full_name}</p>
+                          <p className="text-xs text-gray-500 dark:text-gray-400">Cédula: {patient.id_number}</p>
+                        </div>
                       </div>
                       
-                      <div className="flex items-center">
-                        <Phone className="h-4 w-4 text-gray-400 mr-2" />
-                        <span className="text-gray-600 dark:text-gray-300">{patient.phone}</span>
-                      </div>
-                      
-                      {patient.email && (
+                      <div className="grid grid-cols-1 gap-2 text-xs">
                         <div className="flex items-center">
-                          <Mail className="h-4 w-4 text-gray-400 mr-2" />
-                          <span className="text-gray-600 dark:text-gray-300">{patient.email}</span>
+                          <Calendar className="h-4 w-4 text-gray-400 mr-2 flex-shrink-0" />
+                          <span className="text-gray-600 dark:text-gray-300">
+                            {patient.date_of_birth ? (
+                              <>
+                                {format(parseISO(patient.date_of_birth), 'dd/MM/yyyy', { locale: es })}
+                                <span className="ml-2 text-blue-600 dark:text-blue-400">
+                                  ({getAgeDisplay(patient.date_of_birth)})
+                                </span>
+                              </>
+                            ) : (
+                              'Fecha de nacimiento no disponible'
+                            )}
+                          </span>
                         </div>
-                      )}
-                      
-                      <div className="flex items-center justify-between mt-2 pt-2 border-t border-gray-100 dark:border-gray-700">
-                        <div className="text-gray-500 dark:text-gray-400">
-                          Última visita: {format(new Date(patient.lastVisit), 'dd/MM/yyyy', { locale: es })}
+                        
+                        <div className="flex items-center">
+                          <Phone className="h-4 w-4 text-gray-400 mr-2 flex-shrink-0" />
+                          <span className="text-gray-600 dark:text-gray-300">{patient.phone}</span>
                         </div>
-                        <div className="px-2 py-1 text-xs font-medium rounded-full bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300">
-                          {patient.totalVisits} visita{patient.totalVisits !== 1 ? 's' : ''}
+                        
+                        {patient.email && (
+                          <div className="flex items-center">
+                            <Mail className="h-4 w-4 text-gray-400 mr-2 flex-shrink-0" />
+                            <span className="text-gray-600 dark:text-gray-300 break-all">{patient.email}</span>
+                          </div>
+                        )}
+                        
+                        <div className="flex items-center justify-between mt-2 pt-2 border-t border-gray-100 dark:border-gray-700">
+                          <div className="text-gray-500 dark:text-gray-400">
+                            Última visita: {format(new Date(patient.lastVisit), 'dd/MM/yyyy', { locale: es })}
+                          </div>
+                          <div className="px-2 py-1 text-xs font-medium rounded-full bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300">
+                            {patient.totalVisits} visita{patient.totalVisits !== 1 ? 's' : ''}
+                          </div>
                         </div>
                       </div>
                     </div>
-                  </div>
-                ))}
-              </div>
+                  );
+                }}
+              </List>
             ) : (
               <div className="p-8 text-center text-gray-500 dark:text-gray-400">
                 <User className="mx-auto h-12 w-12 text-gray-400 dark:text-gray-600 mb-4" />
