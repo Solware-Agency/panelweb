@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'motion/react'
 import { 
-  X, Save, Trash2, AlertCircle, Loader2, User, DollarSign, 
+  X, Save, Trash2, AlertCircle, Loader2, User, DollarSign, Edit2,
   FileText, Cake, Mail, Phone, Microscope, CheckCircle
 } from 'lucide-react'
 import { useForm } from 'react-hook-form'
