@@ -62,12 +62,15 @@ const CasesTable: React.FC<CasesTableProps> = ({
 	const [selectedCaseForGenerate, setSelectedCaseForGenerate] = useState<MedicalRecord | null>(null)
 	const [isGenerateModalOpen, setIsGenerateModalOpen] = useState(false)
 	const [isDownloading, setIsDownloading] = useState<string | null>(null)
+	const [selectedCaseForView, setSelectedCaseForView] = useState<MedicalRecord | null>(null)
+	const [isViewModalOpen, setIsViewModalOpen] = useState(false)
 	const [showPdfReadyOnly, setShowPdfReadyOnly] = useState(false)
 	const [selectedDoctors, setSelectedDoctors] = useState<string[]>([])
 	const [showDoctorFilter, setShowDoctorFilter] = useState(false)
 	const [isSearching, setIsSearching] = useState(false)
 
 	// Determine if user can edit, delete, or generate cases based on role
+	const canEdit = profile?.role === 'owner' || profile?.role === 'employee'
 	const canGenerate = profile?.role === 'owner' || profile?.role === 'admin'
 
 	// Use a ref to track if we're in the dashboard or form view
@@ -203,6 +206,12 @@ const CasesTable: React.FC<CasesTableProps> = ({
 	const handlePdfFilterToggle = useCallback(() => {
 		setShowPdfReadyOnly(!showPdfReadyOnly)
 	}, [showPdfReadyOnly])
+
+	const handleCaseSelect = useCallback((case_: MedicalRecord) => {
+		// Open the unified modal instead of the side panel
+		setSelectedCaseForView(case_);
+		setIsViewModalOpen(true);
+	}, []);
 
 	// Memoize the filtered and sorted cases to improve performance
 	const filteredAndSortedCases = useMemo(() => {
@@ -388,7 +397,7 @@ const CasesTable: React.FC<CasesTableProps> = ({
 					{/* Action buttons */}
 					<div className="flex gap-1 mt-3 pt-2 border-t border-gray-200 dark:border-gray-700">
 						<button
-							onClick={() => onCaseSelect(case_)}
+							onClick={() => handleCaseSelect(case_)}
 							className="flex-1 inline-flex items-center justify-center gap-1 px-3 py-2 text-xs font-medium text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 bg-blue-50 dark:bg-blue-900/20 hover:bg-blue-100 dark:hover:bg-blue-900/30 rounded-lg transition-colors"
 						>
 							<Eye className="w-3 h-3" />
@@ -422,7 +431,7 @@ const CasesTable: React.FC<CasesTableProps> = ({
 				</div>
 			)
 		},
-		[getStatusColor, onCaseSelect, handleGenerateCase, handleDownloadCase, isDownloading],
+		[getStatusColor, handleCaseSelect, handleGenerateCase, handleDownloadCase, isDownloading],
 	)
 
 	// Render loading state
@@ -766,7 +775,7 @@ const CasesTable: React.FC<CasesTableProps> = ({
 														<button
 															onClick={(e) => {
 																e.stopPropagation()
-																onCaseSelect(case_)
+																handleCaseSelect(case_)
 															}}
 															className="inline-flex items-center gap-1 px-3 py-1 text-xs font-medium text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 transition-colors"
 														>
@@ -1146,7 +1155,7 @@ const CasesTable: React.FC<CasesTableProps> = ({
 															<button
 																onClick={(e) => {
 																	e.stopPropagation()
-																	onCaseSelect(case_)
+																	handleCaseSelect(case_)
 																}}
 																className="inline-flex items-center gap-1 px-3 py-1 text-xs font-medium text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 transition-colors"
 															>
@@ -1221,6 +1230,24 @@ const CasesTable: React.FC<CasesTableProps> = ({
 					</div>
 				</div>
 			</div>
+
+			{/* Unified View/Edit Modal */}
+			<UnifiedCaseModal
+				case_={selectedCaseForView}
+				isOpen={isViewModalOpen}
+				onClose={() => {
+					setIsViewModalOpen(false);
+					setSelectedCaseForView(null);
+				}}
+				onSave={() => {
+					refetch();
+				}}
+				onDelete={() => {
+					setIsViewModalOpen(false);
+					setSelectedCaseForView(null);
+					refetch();
+				}}
+			/>
 
 			{/* Generate Biopsy Modal */}
 			<GenerateBiopsyModal
