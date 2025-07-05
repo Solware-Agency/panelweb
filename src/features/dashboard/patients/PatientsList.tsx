@@ -295,7 +295,7 @@ const PatientsList: React.FC = React.memo(() => {
             <table className="w-full">
               <thead className="bg-gray-50 dark:bg-gray-800/50 sticky top-0 z-10">
                 <tr>
-                  <th className="px-4 py-3 text-left">
+                  <th className="w-[20%] px-4 py-3 text-left">
                     <button
                       onClick={() => handleSort('full_name')}
                       className="flex items-center gap-2 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider hover:text-gray-700 dark:hover:text-gray-200"
@@ -304,7 +304,7 @@ const PatientsList: React.FC = React.memo(() => {
                       <SortIcon field="full_name" />
                     </button>
                   </th>
-                  <th className="px-4 py-3 text-left">
+                  <th className="w-[15%] px-4 py-3 text-left">
                     <button
                       onClick={() => handleSort('id_number')}
                       className="flex items-center gap-2 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider hover:text-gray-700 dark:hover:text-gray-200"
@@ -313,7 +313,7 @@ const PatientsList: React.FC = React.memo(() => {
                       <SortIcon field="id_number" />
                     </button>
                   </th>
-                  <th className="px-4 py-3 text-left">
+                  <th className="w-[20%] px-4 py-3 text-left">
                     <button
                       onClick={() => handleSort('date_of_birth')}
                       className="flex items-center gap-2 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider hover:text-gray-700 dark:hover:text-gray-200"
@@ -322,7 +322,7 @@ const PatientsList: React.FC = React.memo(() => {
                       <SortIcon field="date_of_birth" />
                     </button>
                   </th>
-                  <th className="px-4 py-3 text-left">
+                  <th className="w-[15%] px-4 py-3 text-left">
                     <button
                       onClick={() => handleSort('phone')}
                       className="flex items-center gap-2 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider hover:text-gray-700 dark:hover:text-gray-200"
@@ -331,7 +331,7 @@ const PatientsList: React.FC = React.memo(() => {
                       <SortIcon field="phone" />
                     </button>
                   </th>
-                  <th className="px-4 py-3 text-left">
+                  <th className="w-[15%] px-4 py-3 text-left">
                     <button
                       onClick={() => handleSort('email')}
                       className="flex items-center gap-2 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider hover:text-gray-700 dark:hover:text-gray-200"
@@ -340,12 +340,12 @@ const PatientsList: React.FC = React.memo(() => {
                       <SortIcon field="email" />
                     </button>
                   </th>
-                  <th className="px-4 py-3 text-left">
+                  <th className="w-[10%] px-4 py-3 text-left">
                     <span className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                       Última Visita
                     </span>
                   </th>
-                  <th className="px-4 py-3 text-center">
+                  <th className="w-[5%] px-4 py-3 text-center">
                     <span className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                       Total Visitas
                     </span>
@@ -371,7 +371,7 @@ const PatientsList: React.FC = React.memo(() => {
                         className="flex items-center w-full hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors px-4 py-3"
                       >
                         {/* Name Cell - 20% width */}
-                        <div className="w-[20%] flex items-center min-w-0">
+                        <div className="w-[20%] flex items-center min-w-0 pr-2">
                           <div className="flex-shrink-0 h-8 w-8 bg-gray-200 dark:bg-gray-700 rounded-full flex items-center justify-center mr-3">
                             <User className="h-4 w-4 text-gray-500 dark:text-gray-400" />
                           </div>
@@ -379,12 +379,12 @@ const PatientsList: React.FC = React.memo(() => {
                         </div>
                         
                         {/* ID Number Cell - 15% width */}
-                        <div className="w-[15%] px-4 text-sm text-gray-900 dark:text-gray-100">
+                        <div className="w-[15%] text-sm text-gray-900 dark:text-gray-100 px-4">
                           {patient.id_number}
                         </div>
                         
                         {/* Date of Birth Cell - 20% width */}
-                        <div className="w-[20%] px-4 text-sm text-gray-900 dark:text-gray-100">
+                        <div className="w-[20%] text-sm text-gray-900 dark:text-gray-100 px-4">
                           {patient.date_of_birth ? (
                             <div className="flex items-center">
                               <span>{format(parseISO(patient.date_of_birth), 'dd/MM/yyyy', { locale: es })}</span>
@@ -398,22 +398,22 @@ const PatientsList: React.FC = React.memo(() => {
                         </div>
                         
                         {/* Phone Cell - 15% width */}
-                        <div className="w-[15%] px-4 text-sm text-gray-900 dark:text-gray-100">
+                        <div className="w-[15%] text-sm text-gray-900 dark:text-gray-100 px-4">
                           {patient.phone}
                         </div>
                         
                         {/* Email Cell - 15% width */}
-                        <div className="w-[15%] px-4 text-sm text-gray-900 dark:text-gray-100 truncate">
+                        <div className="w-[15%] text-sm text-gray-900 dark:text-gray-100 truncate px-4">
                           {patient.email || <span className="text-gray-500 dark:text-gray-400">No disponible</span>}
                         </div>
                         
                         {/* Last Visit Cell - 10% width */}
-                        <div className="w-[10%] px-4 text-sm text-gray-900 dark:text-gray-100">
+                        <div className="w-[10%] text-sm text-gray-900 dark:text-gray-100 px-4">
                           {format(new Date(patient.lastVisit), 'dd/MM/yyyy', { locale: es })}
                         </div>
                         
                         {/* Total Visits Cell - 5% width */}
-                        <div className="w-[5%] flex justify-center">
+                        <div className="w-[5%] flex justify-center px-2">
                           <span className="px-2 py-1 text-xs font-medium rounded-full bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300">
                             {patient.totalVisits}
                           </span>
