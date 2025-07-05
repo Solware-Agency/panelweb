@@ -13,6 +13,7 @@ import {
 	Users,
 	Settings,
 	History,
+	User
 } from 'lucide-react'
 import { NavLink, useNavigate } from 'react-router-dom'
 import { signOut } from '@lib/supabase/auth'
@@ -227,7 +228,7 @@ const Sidebar: React.FC<SidebarProps> = ({
 
 				{/* Patients - For all roles */}
 				<NavLink
-					to="/patients"
+					to={isEmployee ? "/patients" : "/dashboard/patients"}
 					className={({ isActive }) =>
 						`flex justify-between items-center gap-2 sm:gap-3 cursor-pointer transition w-full py-2 px-1 rounded-md ${
 							isActive ? 'text-primary border-primary' : 'hover:text-primary'
@@ -237,7 +238,7 @@ const Sidebar: React.FC<SidebarProps> = ({
 					title={!showFullContent ? 'Pacientes' : undefined}
 				>
 					<div className="flex gap-3 items-center min-w-0">
-						<Users className="stroke-2 size-5 shrink-0" />
+						<User className="stroke-2 size-5 shrink-0" />
 						<p
 							className={`text-md whitespace-nowrap transition-all duration-300 ${
 								showFullContent ? 'opacity-100 w-auto' : 'opacity-0 w-0 overflow-hidden'

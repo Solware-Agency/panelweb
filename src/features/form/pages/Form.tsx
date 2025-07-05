@@ -12,7 +12,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@shared/components/ui/
 import { useNavigate } from 'react-router-dom'
 import { signOut } from '@lib/supabase/auth'
 import { getMedicalRecords, searchMedicalRecords } from '@lib/supabase-service'
-import { RefreshCw, Loader2, User } from 'lucide-react'
+import { RefreshCw, Loader2, User, Users } from 'lucide-react'
 import { useUserProfile } from '@shared/hooks/useUserProfile'
 import { DoctorsSection } from '@features/form/components/DoctorsSection'
 
@@ -84,7 +84,7 @@ function FormContent() {
 					to="/patients"
 					className="flex items-center gap-2 px-3 py-2 border border-input rounded-lg focus:ring-2 focus:ring-primary dark:bg-background dark:text-white text-sm hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors shadow-xl dark:shadow-black shadow-black/40"
 				>
-					<User className="w-4 h-4" />
+					<Users className="w-4 h-4" />
 					<span>Pacientes</span>
 				</Link>
 				{activeTab === 'records' && (
