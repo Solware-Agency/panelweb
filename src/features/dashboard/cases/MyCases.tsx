@@ -8,11 +8,14 @@ import { supabase } from '@lib/supabase/config'
 import { Card } from '@shared/components/ui/card'
 import { useAuth } from '@app/providers/AuthContext'
 import { useUserProfile } from '@shared/hooks/useUserProfile'
+import DoctorFilterPanel from '@shared/components/cases/DoctorFilterPanel'
 
 const MyCases: React.FC = () => {
 	const [selectedCase, setSelectedCase] = useState<MedicalRecord | null>(null)
 	const [isPanelOpen, setIsPanelOpen] = useState(false)
 	const [isFullscreen, setIsFullscreen] = useState(false)
+	const [selectedDoctors, setSelectedDoctors] = useState<string[]>([])
+	const [showDoctorFilter, setShowDoctorFilter] = useState(false)
 	const { user } = useAuth()
 	const { profile } = useUserProfile()
 
@@ -53,9 +56,28 @@ const MyCases: React.FC = () => {
 		setTimeout(() => setSelectedCase(null), 300)
 	}
 
+	// Handle doctor filter change
+	const handleDoctorFilterChange = (doctors: string[]) => {
+		setSelectedDoctors(doctors)
+	}
+
+	// Toggle doctor filter panel
+	const toggleDoctorFilter = () => {
+		setShowDoctorFilter(prev => !prev)
+	}
+
 	const handleRefresh = () => {
 		refetch()
 	}
+
+	// Filter cases by selected doctors
+	const filteredCases = React.useMemo(() => {
+		if (selectedDoctors.length === 0) return cases
+		
+		return cases.filter(caseItem => 
+			caseItem.treating_doctor && selectedDoctors.includes(caseItem.treating_doctor.trim())
+		)
+	}, [cases, selectedDoctors])
 
 	return (
 		<div className="p-3 sm:p-6">
@@ -96,6 +118,16 @@ const MyCases: React.FC = () => {
 				</Card>
 			</div>
 
+			{/* Doctor Filter Panel - Conditionally rendered */}
+			{showDoctorFilter && (
+				<div className="mb-6">
+					<DoctorFilterPanel 
+						cases={cases} 
+						onFilterChange={handleDoctorFilterChange}
+					/>
+				</div>
+			)}
+
 			{/* Page Title */}
 			<div className="mb-6">
 				<h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Mis Casos Generados</h1>
@@ -113,7 +145,7 @@ const MyCases: React.FC = () => {
 			{/* Cases Table */}
 			<CasesTable 
 				onCaseSelect={handleCaseSelect}
-				cases={cases}
+				cases={filteredCases}
 				isLoading={isLoading}
 				error={error}
 				refetch={refetch}

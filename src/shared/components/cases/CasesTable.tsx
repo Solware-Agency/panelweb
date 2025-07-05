@@ -23,6 +23,7 @@ import { Button } from '@shared/components/ui/button'
 import { useAuth } from '@app/providers/AuthContext'
 import { useUserProfile } from '@shared/hooks/useUserProfile'
 import GenerateBiopsyModal from './GenerateBiopsyModal'
+import DoctorFilterPanel from './DoctorFilterPanel'
 import { generatePDF } from '@shared/utils/pdf-generator'
 import UnifiedCaseModal from './UnifiedCaseModal'
 
@@ -65,6 +66,8 @@ const CasesTable: React.FC<CasesTableProps> = ({
 	const [selectedCaseForEdit, setSelectedCaseForEdit] = useState<MedicalRecord | null>(null)
 	const [isEditModalOpen, setIsEditModalOpen] = useState(false)
 	const [showPdfReadyOnly, setShowPdfReadyOnly] = useState(false)
+	const [selectedDoctors, setSelectedDoctors] = useState<string[]>([])
+	const [showDoctorFilter, setShowDoctorFilter] = useState(false)
 	const [isSearching, setIsSearching] = useState(false)
 	
 	// Determine if user can edit, delete, or generate cases based on role
@@ -205,6 +208,16 @@ const CasesTable: React.FC<CasesTableProps> = ({
 		}
 	}, [onSearch, searchTerm])
 
+	// Handle doctor filter change
+	const handleDoctorFilterChange = useCallback((doctors: string[]) => {
+		setSelectedDoctors(doctors)
+	}, [])
+
+	// Toggle doctor filter panel
+	const toggleDoctorFilter = useCallback(() => {
+		setShowDoctorFilter(prev => !prev)
+	}, [])
+
 	// Handle PDF filter toggle
 	const handlePdfFilterToggle = useCallback(() => {
 		setShowPdfReadyOnly(!showPdfReadyOnly)
@@ -222,6 +235,10 @@ const CasesTable: React.FC<CasesTableProps> = ({
 		let filtered = cases.filter((case_) => {
 			// Skip if case_ is null or undefined
 			if (!case_) return false
+
+			// Doctor filter
+			const matchesDoctor = selectedDoctors.length === 0 || 
+				(case_.treating_doctor && selectedDoctors.includes(case_.treating_doctor.trim()))
 
 			// Status filter
 			let matchesStatus = true
@@ -258,7 +275,7 @@ const CasesTable: React.FC<CasesTableProps> = ({
 					(case_.branch?.toLowerCase() || '').includes(searchTerm.toLowerCase())
 			}
 
-			return matchesStatus && matchesBranch && matchesExamType && matchesPdfReady && matchesSearch
+			return matchesStatus && matchesBranch && matchesExamType && matchesPdfReady && matchesSearch && matchesDoctor
 		})
 
 		// Apply sorting
@@ -294,6 +311,7 @@ const CasesTable: React.FC<CasesTableProps> = ({
 		showPdfReadyOnly,
 		searchTerm,
 		onSearch,
+		selectedDoctors,
 	])
 
 	const SortIcon = useCallback(
@@ -511,6 +529,7 @@ const CasesTable: React.FC<CasesTableProps> = ({
 							<div className="flex items-center gap-2">
 								<Filter className="size-4 text-gray-400 mr-2" />
 								<select
+									title="Filtrar por estado"
 									value={statusFilter}
 									onChange={(e) => setStatusFilter(e.target.value)}
 									className="px-3 py-2 border border-input rounded-lg focus:ring-2 focus:ring-primary dark:bg-background dark:text-white text-sm"
@@ -524,6 +543,7 @@ const CasesTable: React.FC<CasesTableProps> = ({
 							{/* Branch Filter - Only show if user doesn't have assigned branch */}
 							<div className="flex items-center gap-2">
 								<select
+									title="Filtrar por sede"
 									value={branchFilter}
 									onChange={(e) => setBranchFilter(e.target.value)}
 									className="px-3 py-2 border border-input rounded-lg focus:ring-2 focus:ring-primary dark:bg-background dark:text-white text-sm"
@@ -540,6 +560,7 @@ const CasesTable: React.FC<CasesTableProps> = ({
 							{/* Exam Type Filter */}
 							<div className="flex items-center gap-2">
 								<select
+									title="Filtrar por tipo de examen"
 									value={examTypeFilter}
 									onChange={(e) => setExamTypeFilter(e.target.value)}
 									className="px-3 py-2 border border-input rounded-lg focus:ring-2 focus:ring-primary dark:bg-background dark:text-white text-sm"
@@ -550,6 +571,20 @@ const CasesTable: React.FC<CasesTableProps> = ({
 									<option value="citologia">Citología</option>
 								</select>
 							</div>
+
+							{/* Doctor Filter Button */}
+							<Button
+								onClick={toggleDoctorFilter}
+								variant={showDoctorFilter ? "default" : "outline"}
+								className="flex items-center gap-2"
+								title="Filtrar por médico"
+							>
+								<Stethoscope className="w-4 h-4" />
+								<span className="hidden sm:inline">Médicos</span>
+								{selectedDoctors.length > 0 && (
+									<span className="bg-white dark:bg-gray-800 text-primary text-xs px-2 py-0.5 rounded-full">{selectedDoctors.length}</span>
+								)}
+							</Button>
 
 							{/* PDF Ready Filter */}
 							<div className="flex items-center gap-2">
@@ -579,8 +614,41 @@ const CasesTable: React.FC<CasesTableProps> = ({
 						</button>
 					</div>
 				</div>
+				
+				{/* Doctor Filter Panel - Conditionally rendered */}
+				{showDoctorFilter && (
+					<div className="mb-4">
+						<DoctorFilterPanel 
+							cases={cases} 
+							onFilterChange={handleDoctorFilterChange}
+						/>
+					</div>
+				)}
 
-				{/* Scrollable Content Area */}
+				{/* Active filters indicators */}
+				<div className="flex flex-wrap gap-2 mb-4">
+					{statusFilter !== 'all' && (
+						<div className="px-4 py-2 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg inline-block">
+							<span className="text-sm font-medium text-blue-800 dark:text-blue-300 flex items-center gap-2">
+								<Filter className="w-4 h-4" />
+								Estado: {statusFilter}
+							</span>
+						</div>
+					)}
+					
+					{selectedDoctors.length > 0 && (
+						<div className="px-4 py-2 bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800 rounded-lg inline-block">
+							<span className="text-sm font-medium text-purple-800 dark:text-purple-300 flex items-center gap-2">
+								<Stethoscope className="w-4 h-4" />
+								{selectedDoctors.length === 1 
+									? `Médico: ${selectedDoctors[0]}` 
+									: `${selectedDoctors.length} médicos seleccionados`}
+							</span>
+						</div>
+					)}
+				</div>
+
+				{/* Cases Table */}
 				<div className="flex-1 overflow-hidden">
 					{/* Mobile View - Cards */}
 					<div className="block lg:hidden h-full overflow-y-auto">
@@ -852,6 +920,7 @@ const CasesTable: React.FC<CasesTableProps> = ({
 							<div className="flex items-center gap-2">
 								<Filter className="w-4 h-4 text-gray-400" />
 								<select
+									title="Filtrar por estado"
 									value={statusFilter}
 									onChange={(e) => setStatusFilter(e.target.value)}
 									className="px-3 py-2 border border-input rounded-lg focus:ring-2 focus:ring-primary dark:bg-background dark:text-white text-sm"
@@ -865,6 +934,7 @@ const CasesTable: React.FC<CasesTableProps> = ({
 							{/* Branch Filter */}
 							<div className="flex items-center gap-2">
 								<select
+									title="Filtrar por sede"
 									value={branchFilter}
 									onChange={(e) => setBranchFilter(e.target.value)}
 									className="px-3 py-2 border border-input rounded-lg focus:ring-2 focus:ring-primary dark:bg-background dark:text-white text-sm"
@@ -881,6 +951,7 @@ const CasesTable: React.FC<CasesTableProps> = ({
 							{/* Exam Type Filter */}
 							<div className="flex items-center gap-2">
 								<select
+									title="Filtrar por tipo de examen"
 									value={examTypeFilter}
 									onChange={(e) => setExamTypeFilter(e.target.value)}
 									className="px-3 py-2 border border-input rounded-lg focus:ring-2 focus:ring-primary dark:bg-background dark:text-white text-sm"
@@ -891,6 +962,20 @@ const CasesTable: React.FC<CasesTableProps> = ({
 									<option value="citologia">Citología</option>
 								</select>
 							</div>
+
+							{/* Doctor Filter Button */}
+							<Button
+								onClick={toggleDoctorFilter}
+								variant={showDoctorFilter ? "default" : "outline"}
+								className="flex items-center gap-2"
+								title="Filtrar por médico"
+							>
+								<Stethoscope className="w-4 h-4" />
+								<span className="hidden sm:inline">Médicos</span>
+								{selectedDoctors.length > 0 && (
+									<span className="bg-white dark:bg-gray-800 text-primary text-xs px-2 py-0.5 rounded-full">{selectedDoctors.length}</span>
+								)}
+							</Button>
 
 							{/* PDF Ready Filter */}
 							<div className="flex items-center gap-2">
@@ -921,6 +1006,16 @@ const CasesTable: React.FC<CasesTableProps> = ({
 						</div>
 					</div>
 				</div>
+				
+				{/* Doctor Filter Panel - Conditionally rendered */}
+				{showDoctorFilter && (
+					<div className="mb-4">
+						<DoctorFilterPanel 
+							cases={cases} 
+							onFilterChange={handleDoctorFilterChange}
+						/>
+					</div>
+				)}
 
 				{/* Mobile View - Cards */}
 				<div className="block lg:hidden">
@@ -957,6 +1052,16 @@ const CasesTable: React.FC<CasesTableProps> = ({
 				<div className="hidden lg:block">
 					<div className="overflow-x-auto">
 						<div className="max-h-[60vh] overflow-y-auto">
+							{/* Doctor Filter Panel - Conditionally rendered */}
+							{showDoctorFilter && (
+								<div className="mb-4">
+									<DoctorFilterPanel 
+										cases={cases} 
+										onFilterChange={handleDoctorFilterChange}
+									/>
+								</div>
+							)}
+
 							<table className="w-full">
 								<thead className="bg-gray-50/50 dark:bg-background/50 backdrop-blur-[10px] sticky top-0 z-50">
 									<tr>
