@@ -654,6 +654,35 @@ export const updatePdfReadyStatus = async (id: string, isReady: boolean) => {
 	}
 }
 
+// Function to get all unique patients
+export const getAllUniquePatients = async () => {
+	try {
+		// Get all records
+		const { data, error } = await supabase
+			.from('medical_records_clean')
+			.select('id_number, full_name, date_of_birth, email, phone, created_at')
+			.order('created_at', { ascending: false })
+
+		if (error) {
+			console.error(`Error fetching patients from ${TABLE_NAME}:`, error)
+			return { data: null, error }
+		}
+
+		// Deduplicate by id_number
+		const uniquePatients = new Map()
+		data?.forEach(record => {
+			if (!uniquePatients.has(record.id_number)) {
+				uniquePatients.set(record.id_number, record)
+			}
+		})
+
+		return { data: Array.from(uniquePatients.values()), error: null }
+	} catch (error) {
+		console.error(`Error fetching unique patients from ${TABLE_NAME}:`, error)
+		return { data: null, error }
+	}
+}
+
 // Mantener compatibilidad con nombres anteriores
 export const insertCliente = insertMedicalRecord
 export const getClientes = getMedicalRecords

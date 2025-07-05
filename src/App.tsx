@@ -19,6 +19,7 @@ import MyCasesPage from '@features/dashboard/cases/MyCasesPage'
 import SettingsPage from '@features/dashboard/settings/SettingsPage'
 import ChangelogPage from '@features/dashboard/changelog/ChangelogPage'
 import Form from '@features/form/pages/Form'
+import PatientsPage from '@features/dashboard/patients/PatientsPage'
 import FormRoute from '@app/routes/FormRoute'
 
 // Create a client instance
@@ -78,8 +79,19 @@ function App() {
 							<Route path="cases" element={<CasesPage />} />
 							<Route path="my-cases" element={<MyCasesPage />} />
 							<Route path="settings" element={<SettingsPage />} />
+							<Route path="patients" element={<PatientsPage />} />
 							<Route path="changelog" element={<ChangelogPage />} />
 						</Route>
+
+						{/* Patients route accessible to all authenticated users */}
+						<Route
+							path="/patients"
+							element={
+								<PrivateRoute requiredRole={undefined}>
+									<PatientsPage />
+								</PrivateRoute>
+							}
+						/>
 					</Routes>
 				</div>
 			</BrowserRouter>
