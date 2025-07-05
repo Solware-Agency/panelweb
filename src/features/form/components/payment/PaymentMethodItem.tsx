@@ -34,7 +34,7 @@ export const PaymentMethodItem = memo(({ control, index, remove, inputStyles, fi
 	const handleRemove = useCallback(() => remove(index), [remove, index])
 
 	return (
-		<div className="grid grid-cols-1 md:grid-cols-4 gap-4 items-start bg-secondary p-4 rounded-lg">
+		<div className="grid grid-cols-1 md:grid-cols-4 gap-3 sm:gap-4 items-start bg-secondary p-3 sm:p-4 rounded-lg">
 			<FormField
 				control={control}
 				name={`payments.${index}.method`}
@@ -68,8 +68,8 @@ export const PaymentMethodItem = memo(({ control, index, remove, inputStyles, fi
 							Monto {index + 1} {currencyLabel}
 						</FormLabel>
 						<FormControl>
-							<div className="relative">
-								<span className="absolute inset-y-0 left-0 flex items-center pl-3 text-muted-foreground pointer-events-none">
+							<div className="relative flex items-center">
+								<span className="absolute left-0 flex items-center pl-3 text-muted-foreground pointer-events-none">
 									{currencySymbol}
 								</span>
 								<Input 
@@ -112,6 +112,7 @@ export const PaymentMethodItem = memo(({ control, index, remove, inputStyles, fi
 					size="icon"
 					className="text-destructive mt-8"
 					onClick={handleRemove}
+					aria-label="Eliminar método de pago"
 				>
 					<Trash2 className="h-4 w-4" />
 				</Button>

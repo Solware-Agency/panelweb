@@ -150,7 +150,9 @@ function FormContent() {
 export default function Form() {
 	return (
 		<ThemeProvider defaultTheme="system" storageKey="ui-theme">
-			<FormContent />
+			<div className="overflow-x-hidden">
+				<FormContent />
+			</div>
 		</ThemeProvider>
 	)
 }

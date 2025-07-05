@@ -784,22 +784,22 @@ const StatDetailPanel: React.FC<StatDetailPanelProps> = ({
           <motion.div
             initial={{ x: '100%' }}
             animate={{ x: 0 }}
-            exit={{ x: '100%' }}
+            exit={{ x: '100%' }} 
             transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-            className="fixed right-0 top-0 h-full w-full sm:w-2/3 lg:w-1/2 xl:w-2/5 bg-white dark:bg-background shadow-2xl z-[99999999] overflow-y-auto rounded-lg border-l border-input"
+            className="fixed right-0 top-0 h-full w-full sm:w-2/3 lg:w-1/2 xl:w-2/5 bg-white dark:bg-background shadow-2xl z-[99999999] overflow-y-auto rounded-lg border-l border-input flex flex-col"
           >
             {/* Header */}
-            <div className="sticky top-0 bg-white dark:bg-background border-b border-gray-200 dark:border-gray-700 p-4 sm:p-6 z-10">
+            <div className="sticky top-0 bg-white dark:bg-background border-b border-gray-200 dark:border-gray-700 p-3 sm:p-6 z-10">
               <div className="flex items-center justify-between">
                 <div>
-                  <h2 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-gray-100">{getStatTitle()}</h2>
-                  <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                  <h2 className="text-lg sm:text-2xl font-bold text-gray-900 dark:text-gray-100">{getStatTitle()}</h2>
+                  <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mt-1">
                     {selectedMonth && `Datos para ${format(selectedMonth, 'MMMM yyyy', { locale: es })}`}
                   </p>
                 </div>
                 <button
                   onClick={onClose}
-                  className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
+                  className="p-1.5 sm:p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
                 >
                   <X className="w-5 h-5 text-gray-500 dark:text-gray-400" />
                 </button>
@@ -807,7 +807,7 @@ const StatDetailPanel: React.FC<StatDetailPanelProps> = ({
             </div>
 
             {/* Content */}
-            <div className="p-4 sm:p-6">
+            <div className="p-3 sm:p-6 overflow-y-auto flex-1">
               {renderContent()}
             </div>
           </motion.div>

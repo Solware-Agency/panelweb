@@ -463,69 +463,81 @@ const MainUsers: React.FC = () => {
 
 	return (
 		<div className="p-3 sm:p-6">
-			{/* Estadísticas */}
-			<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6 sm:mb-8">
-				<Card className="hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 transition-all duration-300 shadow-lg">
-					<div className="bg-white dark:bg-background rounded-xl p-4 sm:p-6 transition-colors duration-300">
-						<div className="flex items-center justify-between mb-4">
-							<div className="p-2 sm:p-3 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
-								<Users className="w-5 h-5 sm:w-6 sm:h-6 text-blue-600 dark:text-blue-400" />
-							</div>
-						</div>
-						<div>
-							<h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">Total Usuarios</h3>
-							<p className="text-2xl sm:text-3xl font-bold text-gray-700 dark:text-gray-300">{stats.total}</p>
-						</div>
-					</div>
-				</Card>
+      {/* Page Title */}
+      <div className="mb-4 sm:mb-6">
+        <h1 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-gray-100">
+          {profile?.role === 'admin' ? 'Gestión de Médicos' : 'Gestión de Usuarios'}
+        </h1>
+        <p className="text-sm text-gray-600 dark:text-gray-400 mt-1 sm:mt-2">
+          {profile?.role === 'admin' 
+            ? 'Administra los médicos del sistema y sus permisos' 
+            : 'Administra los usuarios del sistema y sus permisos'}
+        </p>
+      </div>
 
-				<Card className="hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 transition-all duration-300 shadow-lg">
-					<div className="bg-white dark:bg-background rounded-xl p-4 sm:p-6 transition-colors duration-300">
-						<div className="flex items-center justify-between mb-4">
-							<div className="p-2 sm:p-3 bg-yellow-100 dark:bg-yellow-900/30 rounded-lg">
-								<Crown className="w-5 h-5 sm:w-6 sm:h-6 text-yellow-600 dark:text-yellow-400" />
-							</div>
-						</div>
-						<div>
-							<h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">Propietarios</h3>
-							<p className="text-2xl sm:text-3xl font-bold text-gray-700 dark:text-gray-300">{stats.owners}</p>
-						</div>
-					</div>
-				</Card>
+      {/* Estadísticas - Responsive Grid */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-4 mb-4 sm:mb-6">
+        <Card className="hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 transition-all duration-300 shadow-lg">
+          <div className="bg-white dark:bg-background rounded-xl p-3 sm:p-4 md:p-6 transition-colors duration-300">
+            <div className="flex items-center justify-between mb-2 sm:mb-4">
+              <div className="p-1.5 sm:p-2 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
+                <Users className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600 dark:text-blue-400" />
+              </div>
+            </div>
+            <div>
+              <h3 className="text-xs sm:text-sm font-medium text-gray-500 dark:text-gray-400">Total Usuarios</h3>
+              <p className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-700 dark:text-gray-300">{stats.total}</p>
+            </div>
+          </div>
+        </Card>
 
-				<Card className="hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 transition-all duration-300 shadow-lg">
-					<div className="bg-white dark:bg-background rounded-xl p-4 sm:p-6 transition-colors duration-300">
-						<div className="flex items-center justify-between mb-4">
-							<div className="p-2 sm:p-3 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
-								<Briefcase className="w-5 h-5 sm:w-6 sm:h-6 text-blue-600 dark:text-blue-400" />
-							</div>
-						</div>
-						<div>
-							<h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">Recepcionistas</h3>
-							<p className="text-2xl sm:text-3xl font-bold text-gray-700 dark:text-gray-300">{stats.employees}</p>
-						</div>
-					</div>
-				</Card>
+        <Card className="hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 transition-all duration-300 shadow-lg">
+          <div className="bg-white dark:bg-background rounded-xl p-3 sm:p-4 md:p-6 transition-colors duration-300">
+            <div className="flex items-center justify-between mb-2 sm:mb-4">
+              <div className="p-1.5 sm:p-2 bg-yellow-100 dark:bg-yellow-900/30 rounded-lg">
+                <Crown className="w-4 h-4 sm:w-5 sm:h-5 text-yellow-600 dark:text-yellow-400" />
+              </div>
+            </div>
+            <div>
+              <h3 className="text-xs sm:text-sm font-medium text-gray-500 dark:text-gray-400">Propietarios</h3>
+              <p className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-700 dark:text-gray-300">{stats.owners}</p>
+            </div>
+          </div>
+        </Card>
 
-				<Card className="hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 transition-all duration-300 shadow-lg">
-					<div className="bg-white dark:bg-background rounded-xl p-4 sm:p-6 transition-colors duration-300">
-						<div className="flex items-center justify-between mb-4">
-							<div className="p-2 sm:p-3 bg-purple-100 dark:bg-purple-900/30 rounded-lg">
-								<ShieldCheck className="w-5 h-5 sm:w-6 sm:h-6 text-purple-600 dark:text-purple-400" />
-							</div>
-						</div>
-						<div>
-							<h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">Administradores</h3>
-							<p className="text-2xl sm:text-3xl font-bold text-gray-700 dark:text-gray-300">{stats.admins}</p>
-						</div>
-					</div>
-				</Card>
-			</div>
+        <Card className="hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 transition-all duration-300 shadow-lg">
+          <div className="bg-white dark:bg-background rounded-xl p-3 sm:p-4 md:p-6 transition-colors duration-300">
+            <div className="flex items-center justify-between mb-2 sm:mb-4">
+              <div className="p-1.5 sm:p-2 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
+                <Briefcase className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600 dark:text-blue-400" />
+              </div>
+            </div>
+            <div>
+              <h3 className="text-xs sm:text-sm font-medium text-gray-500 dark:text-gray-400">Recepcionistas</h3>
+              <p className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-700 dark:text-gray-300">{stats.employees}</p>
+            </div>
+          </div>
+        </Card>
+
+        <Card className="hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 transition-all duration-300 shadow-lg">
+          <div className="bg-white dark:bg-background rounded-xl p-3 sm:p-4 md:p-6 transition-colors duration-300">
+            <div className="flex items-center justify-between mb-2 sm:mb-4">
+              <div className="p-1.5 sm:p-2 bg-purple-100 dark:bg-purple-900/30 rounded-lg">
+                <ShieldCheck className="w-4 h-4 sm:w-5 sm:h-5 text-purple-600 dark:text-purple-400" />
+              </div>
+            </div>
+            <div>
+              <h3 className="text-xs sm:text-sm font-medium text-gray-500 dark:text-gray-400">Administradores</h3>
+              <p className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-700 dark:text-gray-300">{stats.admins}</p>
+            </div>
+          </div>
+        </Card>
+      </div>
 
 			{/* Filtros y búsqueda */}
-			<Card className="hover:border-primary hover:shadow-lg hover:shadow-primary/20 transition-all duration-300 shadow-lg mb-6">
-				<div className="bg-white dark:bg-background rounded-xl p-4 sm:p-6 transition-colors duration-300">
-					<div className="flex flex-col sm:flex-row gap-4">
+			<Card className="hover:border-primary hover:shadow-lg hover:shadow-primary/20 transition-all duration-300 shadow-lg mb-4 sm:mb-6">
+				<div className="bg-white dark:bg-background rounded-xl p-3 sm:p-6 transition-colors duration-300">
+					<div className="flex flex-col sm:flex-row gap-2 sm:gap-4">
 						{/* Búsqueda */}
 						<div className="flex-1 relative">
 							<Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
@@ -607,27 +619,24 @@ const MainUsers: React.FC = () => {
 					</div>
 
 					{/* Contador de resultados */}
-					<div className="mt-4 text-sm text-gray-600 dark:text-gray-400">
+					<div className="mt-3 sm:mt-4 text-xs sm:text-sm text-gray-600 dark:text-gray-400">
 						Mostrando {filteredUsers.length} de {stats.total} usuarios
 					</div>
 				</div>
 			</Card>
 
 			{/* Tabla de usuarios */}
-			<Card className="hover:border-primary hover:shadow-lg hover:shadow-primary/20 transition-all duration-300 shadow-lg">
+			<Card className="hover:border-primary hover:shadow-lg hover:shadow-primary/20 transition-all duration-300 shadow-lg overflow-hidden">
 				<div className="bg-white dark:bg-background rounded-xl transition-colors duration-300">
 					{/* Vista móvil - Cards */}
-					<div className="block lg:hidden p-4">
-						<div className="space-y-4">
+					<div className="block lg:hidden p-3 sm:p-4">
+						<div className="space-y-3 sm:space-y-4">
 							{filteredUsers.map((user) => (
-								<div
-									key={user.id}
-									className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-4 border border-gray-200 dark:border-gray-700"
-								>
+								<div key={user.id} className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-3 sm:p-4 border border-gray-200 dark:border-gray-700">
 									{/* Header con rol y estado */}
-									<div className="flex items-center justify-between mb-3">
+									<div className="flex items-center justify-between mb-2 sm:mb-3">
 										<span
-											className={`inline-flex items-center gap-1 px-2 py-1 text-xs font-semibold rounded-full ${getRoleColor(
+											className={`inline-flex items-center gap-1 px-1.5 sm:px-2 py-0.5 sm:py-1 text-xs font-semibold rounded-full ${getRoleColor(
 												user.role,
 											)}`}
 										>
@@ -641,24 +650,24 @@ const MainUsers: React.FC = () => {
 									</div>
 
 									{/* Email */}
-									<div className="flex items-center gap-2 mb-2">
+									<div className="flex items-center gap-1.5 sm:gap-2 mb-1.5 sm:mb-2">
 										<Mail className="w-4 h-4 text-gray-600 dark:text-gray-400" />
-										<p className="font-medium text-gray-900 dark:text-gray-100 text-sm">{user.email}</p>
+										<p className="font-medium text-gray-900 dark:text-gray-100 text-xs sm:text-sm truncate">{user.email}</p>
 									</div>
 
 									{/* Display Name */}
 									{user.display_name && (
-										<div className="flex items-center gap-2 mb-2">
+										<div className="flex items-center gap-1.5 sm:gap-2 mb-1.5 sm:mb-2">
 											<User className="w-4 h-4 text-gray-600 dark:text-gray-400" />
-											<p className="font-medium text-gray-900 dark:text-gray-100 text-sm">{user.display_name}</p>
+											<p className="font-medium text-gray-900 dark:text-gray-100 text-xs sm:text-sm truncate">{user.display_name}</p>
 										</div>
 									)}
 
 									{/* Estado de aprobación */}
-									<div className="flex items-center gap-2 mb-2">
+									<div className="flex items-center gap-1.5 sm:gap-2 mb-1.5 sm:mb-2">
 										{getApprovalIcon(user.estado)}
 										<span
-											className={`inline-flex items-center gap-1 px-2 py-1 text-xs font-semibold rounded-full ${getApprovalColor(
+											className={`inline-flex items-center gap-1 px-1.5 sm:px-2 py-0.5 sm:py-1 text-xs font-semibold rounded-full ${getApprovalColor(
 												user.estado,
 											)}`}
 										>
@@ -667,12 +676,12 @@ const MainUsers: React.FC = () => {
 									</div>
 
 									{/* Sede asignada */}
-									<div className="flex items-center gap-2 mb-2">
+									<div className="flex items-center gap-1.5 sm:gap-2 mb-1.5 sm:mb-2">
 										<MapPin className="w-4 h-4 text-gray-600 dark:text-gray-400" />
 										<div className="flex items-center gap-2">
 											{user.assigned_branch ? (
 												<span
-													className={`inline-flex items-center gap-1 px-2 py-1 text-xs font-semibold rounded-full ${getBranchColor(
+													className={`inline-flex items-center gap-1 px-1.5 sm:px-2 py-0.5 sm:py-1 text-xs font-semibold rounded-full ${getBranchColor(
 														user.assigned_branch,
 													)}`}
 												>
@@ -685,9 +694,9 @@ const MainUsers: React.FC = () => {
 									</div>
 
 									{/* Fecha de registro */}
-									<div className="flex items-center gap-2 mb-3">
+									<div className="flex items-center gap-1.5 sm:gap-2 mb-2 sm:mb-3">
 										<Calendar className="w-4 h-4 text-gray-600 dark:text-gray-400" />
-										<p className="text-xs text-gray-500 dark:text-gray-400">
+										<p className="text-[10px] sm:text-xs text-gray-500 dark:text-gray-400">
 											Registrado: {format(new Date(user.created_at), 'dd/MM/yyyy HH:mm', { locale: es })}
 										</p>
 									</div>
@@ -791,7 +800,7 @@ const MainUsers: React.FC = () => {
 
 					{/* Vista desktop - Tabla */}
 					<div className="hidden lg:block overflow-x-auto">
-						<table className="w-full">
+						<table className="w-full responsive-table">
 							<thead className="bg-gray-50/50 dark:bg-background/50 backdrop-blur-[10px]">
 								<tr>
 									<th className="px-6 py-4 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
@@ -965,11 +974,11 @@ const MainUsers: React.FC = () => {
 			</Card>
 
 			{/* Instrucciones */}
-			<div className="mt-6 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
-				<h3 className="text-lg font-semibold text-blue-800 dark:text-blue-300 mb-2">
+			<div className="mt-4 sm:mt-6 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-3 sm:p-4">
+				<h3 className="text-base sm:text-lg font-semibold text-blue-800 dark:text-blue-300 mb-1 sm:mb-2">
 					{profile?.role === 'admin' ? 'Información de Médicos' : 'Instrucciones de Uso'}
 				</h3>
-				<ul className="list-disc list-inside space-y-2 text-sm text-blue-700 dark:text-blue-400">
+				<ul className="list-disc list-inside space-y-1 sm:space-y-2 text-xs sm:text-sm text-blue-700 dark:text-blue-400">
 					{profile?.role === 'admin' ? (
 						<>
 							<li>

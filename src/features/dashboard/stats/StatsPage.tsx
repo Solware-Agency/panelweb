@@ -58,13 +58,13 @@ const StatsPage: React.FC = () => {
 
 	return (
 		<>
-			<div className="p-3 sm:p-6">
+			<div className="p-2 sm:p-4 md:p-6 overflow-x-hidden">
 			{/* <div className="text-sm text-gray-600 dark:text-gray-400">
 							Mes seleccionado:{' '}
 							<span className="font-medium">{format(selectedMonth, 'MMMM yyyy', { locale: es })}</span>
 						</div> */}
 			{/* KPI Cards Grid */}
-			<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6 sm:mb-8">
+			<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-4 sm:mb-6 md:mb-8">
 				{/* Total Revenue Card */}
 				<StatCard
 					title="Ingresos Totales"
@@ -131,25 +131,25 @@ const StatsPage: React.FC = () => {
 			</div>
 
 			{/* Charts Section */}
-			<div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 mb-6 sm:mb-8">
+			<div className="grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-4 md:gap-6 mb-4 sm:mb-6 md:mb-8">
 				{/* 12-Month Revenue Trend Chart with Interactive Bars */}
 				<Card className="col-span-1 grid hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 transition-all duration-300 shadow-lg">
-					<div className="bg-white dark:bg-background rounded-xl p-4 sm:p-6 transition-colors duration-300">
-						<div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 sm:mb-6">
-							<h3 className="text-lg sm:text-xl font-bold text-gray-700 dark:text-gray-300 mb-2 sm:mb-0">
+					<div className="bg-white dark:bg-background rounded-xl p-3 sm:p-4 md:p-6 transition-colors duration-300">
+						<div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-3 sm:mb-4 md:mb-6">
+							<h3 className="text-base sm:text-lg md:text-xl font-bold text-gray-700 dark:text-gray-300 mb-2 sm:mb-0">
 								Tendencia de Ingresos
 							</h3>
-							<div className="flex items-center gap-4">
+							<div className="flex items-center gap-2 sm:gap-4">
 								<YearSelector
 									selectedYear={selectedYear}
 									onYearChange={handleYearChange}
 									minYear={2020}
 									maxYear={new Date().getFullYear() + 2}
 								/>
-								<span className="text-sm text-gray-600 dark:text-gray-400">12 meses de {selectedYear}</span>
+								<span className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">12 meses de {selectedYear}</span>
 							</div>
 						</div>
-						<div className="relative h-48 sm:h-64 flex items-end justify-between gap-1 sm:gap-2">
+						<div className="relative h-36 sm:h-48 md:h-64 flex items-end justify-between gap-0.5 sm:gap-1 md:gap-2">
 							{isLoading ? (
 								<div className="flex items-center justify-center w-full h-full">
 									<div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
@@ -177,7 +177,7 @@ const StatsPage: React.FC = () => {
 								})
 							)}
 						</div>
-						<div className="flex justify-between text-xs text-gray-500 dark:text-gray-400 mt-4 overflow-x-auto">
+						<div className="flex justify-between text-[10px] sm:text-xs text-gray-500 dark:text-gray-400 mt-2 sm:mt-4 overflow-x-auto scrollbar-hide">
 							{/* FIXED: Force Spanish month labels regardless of system language */}
 							{['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'].map((month) => (
 								<span key={month} className="flex-shrink-0">
@@ -185,20 +185,20 @@ const StatsPage: React.FC = () => {
 								</span>
 							))}
 						</div>
-						<div className="mt-4 text-center">
-							<p className="text-sm text-gray-600 dark:text-gray-400">Haz clic en una barra para seleccionar el mes</p>
+						<div className="mt-2 sm:mt-4 text-center">
+							<p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">Haz clic en una barra para seleccionar el mes</p>
 						</div>
 					</div>
 				</Card>
 
 				{/* Service Distribution by Branch */}
 				<Card className="col-span-1 grid hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 transition-all duration-300 shadow-lg">
-					<div className="bg-white dark:bg-background rounded-xl p-4 sm:p-6 transition-colors duration-300">
-						<h3 className="text-lg sm:text-xl font-bold text-gray-700 dark:text-gray-300 mb-4 sm:mb-6">
+					<div className="bg-white dark:bg-background rounded-xl p-3 sm:p-4 md:p-6 transition-colors duration-300">
+						<h3 className="text-base sm:text-lg md:text-xl font-bold text-gray-700 dark:text-gray-300 mb-3 sm:mb-4 md:mb-6">
 							Distribución por Sede
 						</h3>
-						<div className="flex items-center justify-center mb-4 sm:mb-6">
-							<div className="relative size-36 sm:size-48">
+						<div className="flex items-center justify-center mb-3 sm:mb-4 md:mb-6">
+							<div className="relative size-28 sm:size-36 md:size-48">
 								<svg className="size-full -rotate-90" viewBox="0 0 36 36">
 									<circle
 										cx="18"
@@ -281,11 +281,11 @@ const StatsPage: React.FC = () => {
 								)}
 							</div>
 						</div>
-						<div className="space-y-3">
+						<div className="space-y-2 sm:space-y-3">
 							{isLoading ? (
-								<div className="space-y-2">
+								<div className="space-y-1 sm:space-y-2">
 									{[1, 2, 3, 4].map((i) => (
-										<div key={i} className="animate-pulse bg-gray-200 dark:bg-gray-700 h-6 rounded"></div>
+										<div key={i} className="animate-pulse bg-gray-200 dark:bg-gray-700 h-5 sm:h-6 rounded"></div>
 									))}
 								</div>
 							) : (
@@ -319,15 +319,15 @@ const StatsPage: React.FC = () => {
 			</div>
 
 			{/* Detailed Tables */}
-			<div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
+			<div className="grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-4 md:gap-6">
 				{/* Performance Metrics by Exam Type (Normalized) */}
 				<Card className="col-span-1 grid hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 transition-all duration-300 shadow-lg">
-					<div className="bg-white dark:bg-background rounded-xl p-4 sm:p-6 transition-colors duration-300">
-						<h3 className="text-lg sm:text-xl font-bold text-gray-700 dark:text-gray-300 mb-4 sm:mb-6">
+					<div className="bg-white dark:bg-background rounded-xl p-3 sm:p-4 md:p-6 transition-colors duration-300">
+						<h3 className="text-base sm:text-lg md:text-xl font-bold text-gray-700 dark:text-gray-300 mb-3 sm:mb-4 md:mb-6">
 							Métricas por Tipo de Estudio
 						</h3>
-						<div className="overflow-x-auto">
-							<table className="w-full min-w-full">
+						<div className="overflow-x-auto responsive-table">
+							<table className="w-full min-w-[400px]">
 								<thead>
 									<tr className="border-b border-gray-200 dark:border-gray-700">
 										<th className="text-left py-3 text-gray-600 dark:text-gray-400 font-medium text-sm">Estudio</th>
@@ -365,11 +365,11 @@ const StatsPage: React.FC = () => {
 
 				{/* Status Metrics - UPDATED SECTION */}
 				<Card className="col-span-1 grid hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 transition-all duration-300 shadow-lg">
-					<div className="bg-white dark:bg-background rounded-xl p-4 sm:p-6 transition-colors duration-300">
-						<h3 className="text-lg sm:text-xl font-bold text-gray-700 dark:text-gray-300 mb-4 sm:mb-6">
+					<div className="bg-white dark:bg-background rounded-xl p-3 sm:p-4 md:p-6 transition-colors duration-300">
+						<h3 className="text-base sm:text-lg md:text-xl font-bold text-gray-700 dark:text-gray-300 mb-3 sm:mb-4 md:mb-6">
 							Estatus
 						</h3>
-						<div className="space-y-4 sm:space-y-6">
+						<div className="space-y-3 sm:space-y-4 md:space-y-6">
 							{/* Completed Cases */}
 							<div>
 								<div className="flex items-center justify-between mb-2">
@@ -484,17 +484,15 @@ const StatsPage: React.FC = () => {
 			</div>
 			
 			{/* Stat Detail Panel */}
-			{selectedStat && (
-				<StatDetailPanel
-					isOpen={isDetailPanelOpen}
-					onClose={handleDetailPanelClose}
-					statType={selectedStat}
-					stats={stats}
-					isLoading={isLoading}
-					selectedMonth={selectedMonth}
-					selectedYear={selectedYear}
-				/>
-			)}
+			<StatDetailPanel
+				isOpen={isDetailPanelOpen && selectedStat !== null}
+				onClose={handleDetailPanelClose}
+				statType={selectedStat || 'totalRevenue'}
+				stats={stats}
+				isLoading={isLoading}
+				selectedMonth={selectedMonth}
+				selectedYear={selectedYear}
+			/>
 		</>
 	)
 }

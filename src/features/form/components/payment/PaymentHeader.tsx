@@ -59,50 +59,50 @@ export const PaymentHeader = memo(({ control, inputStyles, exchangeRate, isLoadi
 	return (
 		<React.Fragment>
 			<FormField
-				control={control}
-				name="branch"
-				render={({ field }) => (
-					<FormItem>
-						<FormLabel>Sede *</FormLabel>
-						<Select 
-							onValueChange={field.onChange} 
-							value={field.value}
-							disabled={!!profile?.assigned_branch} // Disable if user has assigned branch
-						>
-							<FormControl>
-								<SelectTrigger className={inputStyles}>
-									<SelectValue placeholder="Seleccione una sede" />
-								</SelectTrigger>
-							</FormControl>
-							<SelectContent>
-								{!profile?.assigned_branch ? (
-									<>
-										<SelectItem value="PMG">PMG</SelectItem>
-										<SelectItem value="CPC">CPC</SelectItem>
-										<SelectItem value="CNX">CNX</SelectItem>
-										<SelectItem value="STX">STX</SelectItem>
-										<SelectItem value="MCY">MCY</SelectItem>
-									</>
-								) : (
-									<SelectItem value={profile.assigned_branch}>{profile.assigned_branch}</SelectItem>
-								)}
-							</SelectContent>
-						</Select>
-						{profile?.assigned_branch && (
-							<p className="text-xs text-muted-foreground mt-1">
-								Tu cuenta está limitada a la sede {profile.assigned_branch}
-							</p>
-						)}
-						<FormMessage />
-					</FormItem>
-				)}
-			/>
+        control={control}
+        name="branch"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel className="text-sm sm:text-base">Sede *</FormLabel>
+            <Select 
+              onValueChange={field.onChange} 
+              value={field.value}
+              disabled={!!profile?.assigned_branch} // Disable if user has assigned branch
+            >
+              <FormControl>
+                <SelectTrigger className={inputStyles}>
+                  <SelectValue placeholder="Seleccione una sede" />
+                </SelectTrigger>
+              </FormControl>
+              <SelectContent>
+                {!profile?.assigned_branch ? (
+                  <>
+                    <SelectItem value="PMG">PMG</SelectItem>
+                    <SelectItem value="CPC">CPC</SelectItem>
+                    <SelectItem value="CNX">CNX</SelectItem>
+                    <SelectItem value="STX">STX</SelectItem>
+                    <SelectItem value="MCY">MCY</SelectItem>
+                  </>
+                ) : (
+                  <SelectItem value={profile.assigned_branch}>{profile.assigned_branch}</SelectItem>
+                )}
+              </SelectContent>
+            </Select>
+            {profile?.assigned_branch && (
+              <p className="text-[10px] sm:text-xs text-muted-foreground mt-1">
+                Tu cuenta está limitada a la sede {profile.assigned_branch}
+              </p>
+            )}
+            <FormMessage />
+          </FormItem>
+        )}
+      />
 			<FormField
 				control={control}
 				name="totalAmount"
 				render={({ field }) => (
 					<FormItem>
-						<FormLabel>Monto Total ($)</FormLabel>
+						<FormLabel className="text-sm sm:text-base">Monto Total ($)</FormLabel>
 						<FormControl>
 							<Input 
 								type="text" 
@@ -119,8 +119,8 @@ export const PaymentHeader = memo(({ control, inputStyles, exchangeRate, isLoadi
 								className={inputStyles} 
 							/>
 						</FormControl>
-						{totalInVes && <p className="text-sm font-bold text-green-600">{totalInVes} VES</p>}
-						<p className="text-xs text-muted-foreground">
+						{totalInVes && <p className="text-xs sm:text-sm font-bold text-green-600">{totalInVes} VES</p>}
+						<p className="text-[10px] sm:text-xs text-muted-foreground">
 							{isLoadingRate ? 'Cargando tasa...' : `Tasa BCV: ${exchangeRate?.toFixed(2) || 'N/A'} VES/USD`}
 						</p>
 						<FormMessage />

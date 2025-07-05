@@ -44,10 +44,10 @@ export const PaymentMethodsList = memo(({
 	return (
 		<div className="space-y-4">
 			<div className="flex justify-between items-center mb-2">
-				<FormLabel className="font-semibold">Métodos de Pago</FormLabel>
+				<FormLabel className="font-semibold text-sm sm:text-base">Métodos de Pago</FormLabel>
 				{paymentStatus && (
 					<div
-						className={`text-sm font-bold px-3 py-1 rounded-full transition-all ${
+						className={`text-xs sm:text-sm font-bold px-2 sm:px-3 py-0.5 sm:py-1 rounded-full transition-all ${
 							isPaymentComplete ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
 						}`}
 					>
@@ -70,15 +70,15 @@ export const PaymentMethodsList = memo(({
 			<Button
 				type="button"
 				variant="outline"
-				size="sm"
+				size="sm" 
 				onClick={handleAppend}
 				disabled={!append || fields.length >= 4}
-				className="disabled:opacity-40"
+				className="disabled:opacity-40 text-xs sm:text-sm py-1 sm:py-2 px-2 sm:px-3"
 			>
 				<PlusCircle className="mr-2 h-4 w-4" />
 				Añadir método de pago
 			</Button>
-			{fields.length >= 4 && <div className="text-xs text-red-500">No puedes agregar más de 4 métodos de pago.</div>}
+			{fields.length >= 4 && <div className="text-[10px] sm:text-xs text-red-500">No puedes agregar más de 4 métodos de pago.</div>}
 		</div>
 	)
 })

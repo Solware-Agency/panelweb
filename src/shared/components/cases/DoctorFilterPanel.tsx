@@ -74,11 +74,11 @@ const DoctorFilterPanel: React.FC<DoctorFilterPanelProps> = ({
   }, [selectedDoctors, onFilterChange])
 
   return (
-    <Card className={`p-4 ${className}`}>
-      <div className="flex items-center justify-between mb-4">
+    <Card className={`p-3 sm:p-4 ${className}`}>
+      <div className="flex items-center justify-between mb-3 sm:mb-4">
         <div className="flex items-center gap-2">
           <Stethoscope className="h-5 w-5 text-primary" />
-          <h3 className="font-medium text-lg">Filtrar por Médico</h3>
+          <h3 className="font-medium text-base sm:text-lg">Filtrar por Médico</h3>
         </div>
         {selectedDoctors.length > 0 && (
           <Button 
@@ -116,10 +116,10 @@ const DoctorFilterPanel: React.FC<DoctorFilterPanelProps> = ({
         </Button>
       </div>
 
-      <div className="max-h-[400px] overflow-y-auto pr-2 space-y-2">
+      <div className="max-h-[300px] sm:max-h-[400px] overflow-y-auto pr-2 space-y-1 sm:space-y-2 scrollbar-hide">
         {filteredDoctors.length > 0 ? (
           filteredDoctors.map(doctor => (
-            <div key={doctor} className="flex items-center space-x-2 py-1 hover:bg-gray-50 dark:hover:bg-gray-800/50 px-2 rounded-md transition-colors">
+            <div key={doctor} className="flex items-center space-x-2 py-1 hover:bg-gray-50 dark:hover:bg-gray-800/50 px-2 rounded-md transition-colors text-sm">
               <Checkbox 
                 id={`doctor-${doctor}`} 
                 checked={selectedDoctors.includes(doctor)}
@@ -131,7 +131,7 @@ const DoctorFilterPanel: React.FC<DoctorFilterPanelProps> = ({
               >
                 {doctor}
               </Label>
-              <span className="text-xs text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded-full">
+              <span className="text-xs text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-800 px-2 py-0.5 rounded-full">
                 {cases.filter(c => c.treating_doctor === doctor).length}
               </span>
             </div>
@@ -144,18 +144,18 @@ const DoctorFilterPanel: React.FC<DoctorFilterPanelProps> = ({
       </div>
 
       {selectedDoctors.length > 0 && (
-        <div className="mt-4 pt-3 border-t border-gray-200 dark:border-gray-700">
+        <div className="mt-3 sm:mt-4 pt-2 sm:pt-3 border-t border-gray-200 dark:border-gray-700">
           <div className="flex items-center justify-between">
             <span className="text-sm font-medium">Médicos seleccionados:</span>
             <span className="text-sm font-bold text-primary">{selectedDoctors.length}</span>
           </div>
-          <div className="mt-2 flex flex-wrap gap-2">
+          <div className="mt-2 flex flex-wrap gap-1 sm:gap-2">
             {selectedDoctors.map(doctor => (
               <div 
                 key={`selected-${doctor}`}
-                className="bg-primary/10 text-primary text-xs px-2 py-1 rounded-full flex items-center gap-1"
+                className="bg-primary/10 text-primary text-xs px-2 py-0.5 sm:py-1 rounded-full flex items-center gap-1"
               >
-                <span>{doctor}</span>
+                <span className="max-w-[120px] sm:max-w-none truncate">{doctor}</span>
                 <button 
                   onClick={() => handleDoctorToggle(doctor)}
                   className="hover:text-primary/80"

@@ -70,12 +70,12 @@ export const PaymentSection = memo(({
 
 	return (
 		<Card className="transition-all duration-300 hover:border-primary hover:shadow-lg hover:shadow-primary/20">
-			<CardHeader>
-				<CardTitle>Pago</CardTitle>
-				<div className="w-20 h-1 bg-primary mt-1 rounded-full" />
+			<CardHeader className="p-4 sm:p-6">
+				<CardTitle className="text-lg sm:text-xl">Pago</CardTitle>
+				<div className="w-16 sm:w-20 h-1 bg-primary mt-1 rounded-full" />
 			</CardHeader>
-			<CardContent className="space-y-6">
-				<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+			<CardContent className="p-4 sm:p-6 pt-0 sm:pt-0 space-y-4 sm:space-y-6">
+				<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6">
 					<PaymentHeader
 						control={control}
 						inputStyles={inputStyles}

@@ -52,9 +52,9 @@ const Sidebar: React.FC<SidebarProps> = ({
 	const isEmployee = profile?.role === 'employee'
 
 	return (
-		<aside className="bg-white/80 dark:bg-background/50 shadow-lg hover:shadow-primary/50 backdrop-blur-[10px] flex flex-col justify-between h-screen py-8 px-5 gap-4 border-gray-600 text-gray-700 dark:text-white transition-all duration-300 ease-in-out overflow-hidden border-r border-input">
+		<aside className="bg-white/80 dark:bg-background/50 shadow-lg hover:shadow-primary/50 backdrop-blur-[10px] flex flex-col justify-between h-screen py-4 sm:py-8 px-3 sm:px-5 gap-4 border-gray-600 text-gray-700 dark:text-white transition-all duration-300 ease-in-out overflow-hidden border-r border-input">
 			<div className="flex flex-col items-start gap-6">
-				<div className="flex justify-between items-center w-full mb-5">
+				<div className="flex justify-between items-center w-full mb-3 sm:mb-5">
 					<div className="flex items-center gap-3">
 						<FavIcon fill='#e82084' className='size-8 shrink-0 -ml-1'/>
 						<p
@@ -69,7 +69,7 @@ const Sidebar: React.FC<SidebarProps> = ({
 					{onClose && isMobile && (
 						<button
 							onClick={onClose}
-							className="lg:hidden ml-2 p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors shrink-0"
+							className="lg:hidden ml-2 p-1.5 sm:p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors shrink-0"
 						>
 							<X className="w-5 h-5" />
 						</button>
@@ -79,10 +79,10 @@ const Sidebar: React.FC<SidebarProps> = ({
 				{/* Common menu items for all roles */}
 				{!isEmployee && !isAdmin && (
 					<>
-						<NavLink
+						<NavLink 
 							to="/dashboard/home"
 							className={({ isActive }) =>
-								`flex justify-between items-center gap-3 cursor-pointer transition w-full ${
+								`flex justify-between items-center gap-2 sm:gap-3 cursor-pointer transition w-full py-2 px-1 rounded-md ${
 									isActive ? 'text-primary border-primary' : 'hover:text-primary'
 								}`
 							}
@@ -109,7 +109,7 @@ const Sidebar: React.FC<SidebarProps> = ({
 						<NavLink
 							to="/dashboard/stats"
 							className={({ isActive }) =>
-								`flex justify-between items-center gap-3 cursor-pointer transition w-full ${
+								`flex justify-between items-center gap-2 sm:gap-3 cursor-pointer transition w-full py-2 px-1 rounded-md ${
 									isActive ? 'text-primary border-primary' : 'hover:text-primary'
 								}`
 							}
@@ -131,7 +131,7 @@ const Sidebar: React.FC<SidebarProps> = ({
 						<NavLink
 							to="/dashboard/reports"
 							className={({ isActive }) =>
-								`flex justify-between items-center gap-3 cursor-pointer transition w-full ${
+								`flex justify-between items-center gap-2 sm:gap-3 cursor-pointer transition w-full py-2 px-1 rounded-md ${
 									isActive ? 'text-primary border-primary' : 'hover:text-primary'
 								}`
 							}
@@ -157,7 +157,7 @@ const Sidebar: React.FC<SidebarProps> = ({
 						<NavLink
 							to="/dashboard/users"
 							className={({ isActive }) =>
-								`flex justify-between items-center gap-3 cursor-pointer transition w-full ${
+								`flex justify-between items-center gap-2 sm:gap-3 cursor-pointer transition w-full py-2 px-1 rounded-md ${
 									isActive ? 'text-primary border-primary' : 'hover:text-primary'
 								}`
 							}
@@ -181,7 +181,7 @@ const Sidebar: React.FC<SidebarProps> = ({
 						<NavLink
 							to="/dashboard/cases"
 							className={({ isActive }) =>
-								`flex justify-between items-center gap-3 cursor-pointer transition w-full ${
+								`flex justify-between items-center gap-2 sm:gap-3 cursor-pointer transition w-full py-2 px-1 rounded-md ${
 									isActive ? 'text-primary border-primary' : 'hover:text-primary'
 								}`
 							}
@@ -205,7 +205,7 @@ const Sidebar: React.FC<SidebarProps> = ({
 						<NavLink
 							to="/dashboard/my-cases"
 							className={({ isActive }) =>
-								`flex justify-between items-center gap-3 cursor-pointer transition w-full ${
+								`flex justify-between items-center gap-2 sm:gap-3 cursor-pointer transition w-full py-2 px-1 rounded-md ${
 									isActive ? 'text-primary border-primary' : 'hover:text-primary'
 								}`
 							}
@@ -230,7 +230,7 @@ const Sidebar: React.FC<SidebarProps> = ({
 					<NavLink
 						to="/dashboard/changelog" 
 						className={({ isActive }) => 
-							`flex justify-between items-center gap-3 cursor-pointer transition w-full ${
+							`flex justify-between items-center gap-2 sm:gap-3 cursor-pointer transition w-full py-2 px-1 rounded-md ${
 								isActive ? 'text-primary border-primary' : 'hover:text-primary'
 							}`
 						}
@@ -255,7 +255,7 @@ const Sidebar: React.FC<SidebarProps> = ({
 				<NavLink
 					to="/dashboard/settings"
 					className={({ isActive }) =>
-						`flex justify-between items-center gap-3 cursor-pointer transition w-full ${
+						`flex justify-between items-center gap-2 sm:gap-3 cursor-pointer transition w-full py-2 px-1 rounded-md ${
 							isActive ? 'text-primary border-primary' : 'hover:text-primary'
 						}`
 					}
@@ -275,7 +275,7 @@ const Sidebar: React.FC<SidebarProps> = ({
 				</NavLink>
 				<div
 					title={!showFullContent ? 'Fecha' : undefined}
-					className="flex items-center gap-3 cursor-pointer hover:text-primary transition"
+					className="flex items-center gap-2 sm:gap-3 cursor-pointer hover:text-primary transition py-2 px-1 rounded-md"
 				>
 					<Clock className="stroke-2 size-5 shrink-0" />
 					<p
@@ -289,7 +289,7 @@ const Sidebar: React.FC<SidebarProps> = ({
 				<div
 					onClick={toggleDarkMode}
 					title={!showFullContent ? 'Cambiar color' : undefined}
-					className="flex items-center gap-3 cursor-pointer hover:text-primary transition"
+					className="flex items-center gap-2 sm:gap-3 cursor-pointer hover:text-primary transition py-2 px-1 rounded-md"
 					aria-label={isDark ? 'Activar modo claro' : 'Activar modo oscuro'}
 				>
 					{isDark ? <Sun className="stroke-2 size-5 shrink-0" /> : <Moon className="stroke-2 size-5 shrink-0" />}
@@ -304,7 +304,7 @@ const Sidebar: React.FC<SidebarProps> = ({
 				<div
 					onClick={handleLogout}
 					title={!showFullContent ? 'Salir' : undefined}
-					className="flex items-center gap-3 cursor-pointer hover:text-red-500 transition"
+					className="flex items-center gap-2 sm:gap-3 cursor-pointer hover:text-red-500 transition py-2 px-1 rounded-md"
 				>
 					<LogOut className="stroke-2 size-5 shrink-0 text-red-500" />
 					<p

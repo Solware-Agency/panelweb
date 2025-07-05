@@ -2,6 +2,20 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer utilities {
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+  
+  .mobile-table-card {
+    @apply bg-white dark:bg-background rounded-lg p-4 border border-gray-200 dark:border-gray-700 hover:shadow-md transition-all;
+  }
+}
+
 @layer base {
   :root {
     --background: 240 10% 99%;
@@ -78,6 +92,7 @@
     @apply bg-background text-foreground font-sans;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    overflow-x: hidden;
   }
 }
 
@@ -89,4 +104,34 @@
 ::selection {
   background: hsl(330 81% 60%);
   color: white;
+}
+
+/* Responsive table styles */
+@media (max-width: 768px) {
+  .responsive-table {
+    display: block;
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  .responsive-table thead {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+}
+
+/* Improved mobile scrolling */
+@media (max-width: 640px) {
+  .mobile-scroll-container {
+    -webkit-overflow-scrolling: touch;
+    scroll-behavior: smooth;
+  }
+  
+  .mobile-card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1rem;
+  }
 }

@@ -41,12 +41,12 @@ const StatCard: React.FC<StatCardProps> = ({
       data-stat-type={statType}
     >
       <div className="bg-white dark:bg-background rounded-xl p-4 sm:p-6 transition-colors duration-300">
-        <div className="flex items-center justify-between mb-4">
-          <div className="p-2 sm:p-3 bg-gray-100 dark:bg-gray-800 rounded-lg">
+        <div className="flex items-center justify-between mb-3 sm:mb-4">
+          <div className="p-1.5 sm:p-3 bg-gray-100 dark:bg-gray-800 rounded-lg">
             {icon}
           </div>
           {trend && (
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1 sm:gap-2">
               <div className={`flex items-center ${trend.positive ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
                 {trend.icon}
                 <span className="text-xs sm:text-sm font-medium">{trend.value}</span>
@@ -56,9 +56,9 @@ const StatCard: React.FC<StatCardProps> = ({
         </div>
         <div>
           <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">{title}</h3>
-          <p className="text-2xl sm:text-3xl font-bold text-gray-700 dark:text-gray-300">{value}</p>
+          <p className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-700 dark:text-gray-300">{value}</p>
           {description && (
-            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">{description}</p>
+            <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-1">{description}</p>
           )}
         </div>
       </div>

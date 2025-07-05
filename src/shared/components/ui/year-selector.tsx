@@ -29,30 +29,30 @@ export const YearSelector: React.FC<YearSelectorProps> = ({
 
   return (
     <div className="flex items-center bg-white dark:bg-background rounded-lg border border-gray-200 dark:border-gray-700 p-1">
-      <Button
+      <Button 
         variant="ghost"
         size="sm"
         onClick={handlePreviousYear}
         disabled={selectedYear <= minYear}
-        className="h-8 w-8 p-0 hover:bg-gray-100 dark:hover:bg-gray-700"
+        className="h-6 sm:h-8 w-6 sm:w-8 p-0 hover:bg-gray-100 dark:hover:bg-gray-700"
       >
-        <ChevronLeft className="h-4 w-4" />
+        <ChevronLeft className="h-3 w-3 sm:h-4 sm:w-4" />
       </Button>
       
-      <div className="px-3 py-1 min-w-[60px] text-center">
-        <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+      <div className="px-2 sm:px-3 py-0.5 sm:py-1 min-w-[40px] sm:min-w-[60px] text-center">
+        <span className="text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300">
           {selectedYear}
         </span>
       </div>
       
-      <Button
+      <Button 
         variant="ghost"
         size="sm"
         onClick={handleNextYear}
         disabled={selectedYear >= maxYear}
-        className="h-8 w-8 p-0 hover:bg-gray-100 dark:hover:bg-gray-700"
+        className="h-6 sm:h-8 w-6 sm:w-8 p-0 hover:bg-gray-100 dark:hover:bg-gray-700"
       >
-        <ChevronRight className="h-4 w-4" />
+        <ChevronRight className="h-3 w-3 sm:h-4 sm:w-4" />
       </Button>
     </div>
   )

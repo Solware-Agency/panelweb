@@ -205,27 +205,27 @@ const GenerateBiopsyModal: React.FC<GenerateBiopsyModalProps> = ({ case_, isOpen
 					<motion.div
 						initial={{ x: '100%' }}
 						animate={{ x: 0 }}
-						exit={{ x: '100%' }}
+						exit={{ x: '100%' }} 
 						transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-						className="fixed right-0 top-0 h-full w-full sm:w-2/3 lg:w-1/2 xl:w-2/5 bg-white dark:bg-background shadow-2xl z-[999999999] overflow-y-auto border-l border-input"
+						className="fixed right-0 top-0 h-full w-full sm:w-2/3 lg:w-1/2 xl:w-2/5 bg-white dark:bg-background shadow-2xl z-[999999999] overflow-y-auto border-l border-input flex flex-col"
 					>
 						{/* Header */}
-						<div className="sticky top-0 bg-white dark:bg-background border-b border-gray-200 dark:border-gray-700 p-4 sm:p-6 z-10">
+						<div className="sticky top-0 bg-white dark:bg-background border-b border-gray-200 dark:border-gray-700 p-3 sm:p-6 z-10">
 							<div className="flex items-center justify-between">
 								<div>
-									<h2 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-gray-100">
+									<h2 className="text-lg sm:text-2xl font-bold text-gray-900 dark:text-gray-100">
 										Generar Caso de Biopsia
 									</h2>
-									<div className="flex items-center gap-2 mt-2">
-										<p className="text-sm text-gray-600 dark:text-gray-400">
+									<div className="flex items-center gap-1.5 sm:gap-2 mt-1 sm:mt-2">
+										<p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">
 											{case_.code || case_.id?.slice(-6).toUpperCase()}
 										</p>
-										<p className="text-sm text-gray-600 dark:text-gray-400">• {case_.full_name}</p>
+										<p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">• {case_.full_name}</p>
 									</div>
 								</div>
 								<button
 									onClick={onClose}
-									className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
+									className="p-1.5 sm:p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
 								>
 									<X className="w-5 h-5 text-gray-500 dark:text-gray-400" />
 								</button>
@@ -233,14 +233,14 @@ const GenerateBiopsyModal: React.FC<GenerateBiopsyModalProps> = ({ case_, isOpen
 						</div>
 
 						{/* Content */}
-						<div className="p-4 sm:p-6">
+						<div className="p-3 sm:p-6 overflow-y-auto flex-1">
 							<Form {...form}>
-								<form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
+								<form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4 sm:space-y-6">
 									{/* Material Remitido */}
-									<div className="space-y-4">
-										<div className="flex items-center gap-2">
+									<div className="space-y-3 sm:space-y-4">
+										<div className="flex items-center gap-1.5 sm:gap-2">
 											<Microscope className="w-5 h-5 text-blue-600 dark:text-blue-400" />
-											<h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Información del Caso</h3>
+											<h3 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-gray-100">Información del Caso</h3>
 										</div>
 
 										<FormField
@@ -252,7 +252,7 @@ const GenerateBiopsyModal: React.FC<GenerateBiopsyModalProps> = ({ case_, isOpen
 													<FormControl>
 														<Textarea
 															placeholder="Describa el material remitido para análisis..."
-															className="min-h-[80px] resize-y"
+															className="min-h-[60px] sm:min-h-[80px] resize-y text-sm"
 															{...field}
 														/>
 													</FormControl>
@@ -270,7 +270,7 @@ const GenerateBiopsyModal: React.FC<GenerateBiopsyModalProps> = ({ case_, isOpen
 													<FormControl>
 														<Textarea
 															placeholder="Información clínica relevante..."
-															className="min-h-[80px] resize-y"
+															className="min-h-[60px] sm:min-h-[80px] resize-y text-sm"
 															{...field}
 														/>
 													</FormControl>
@@ -288,7 +288,7 @@ const GenerateBiopsyModal: React.FC<GenerateBiopsyModalProps> = ({ case_, isOpen
 													<FormControl>
 														<Textarea
 															placeholder="Descripción macroscópica de la muestra..."
-															className="min-h-[100px] resize-y"
+															className="min-h-[80px] sm:min-h-[100px] resize-y text-sm"
 															{...field}
 														/>
 													</FormControl>
@@ -306,7 +306,7 @@ const GenerateBiopsyModal: React.FC<GenerateBiopsyModalProps> = ({ case_, isOpen
 													<FormControl>
 														<Textarea
 															placeholder="Diagnóstico basado en el análisis..."
-															className="min-h-[100px] resize-y"
+															className="min-h-[80px] sm:min-h-[100px] resize-y text-sm"
 															{...field}
 														/>
 													</FormControl>
@@ -324,7 +324,7 @@ const GenerateBiopsyModal: React.FC<GenerateBiopsyModalProps> = ({ case_, isOpen
 													<FormControl>
 														<Textarea
 															placeholder="Comentarios adicionales (opcional)..."
-															className="min-h-[80px] resize-y"
+															className="min-h-[60px] sm:min-h-[80px] resize-y text-sm"
 															{...field}
 														/>
 													</FormControl>
@@ -335,7 +335,7 @@ const GenerateBiopsyModal: React.FC<GenerateBiopsyModalProps> = ({ case_, isOpen
 									</div>
 
 									{/* Action Buttons */}
-									<div className="flex flex-col sm:flex-row gap-3 pt-6 border-t border-gray-200 dark:border-gray-700">
+									<div className="flex flex-col sm:flex-row gap-2 sm:gap-3 pt-4 sm:pt-6 border-t border-gray-200 dark:border-gray-700">
 										<Button type="button" variant="outline" onClick={onClose} className="flex-1">
 											Cancelar
 										</Button>

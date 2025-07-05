@@ -64,23 +64,23 @@ const CaseDetailPanel: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClos
 					<motion.div
 						initial={{ x: '100%' }}
 						animate={{ x: 0 }}
-						exit={{ x: '100%' }}
+						exit={{ x: '100%' }} 
 						transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-						className="fixed right-0 top-0 h-full w-full sm:w-2/3 lg:w-1/2 xl:w-2/5 bg-white dark:bg-background shadow-2xl z-[99999999] overflow-y-auto rounded-lg border-l border-input"
+						className="fixed right-0 top-0 h-full w-full sm:w-2/3 lg:w-1/2 xl:w-2/5 bg-white dark:bg-background shadow-2xl z-[99999999] overflow-y-auto rounded-lg border-l border-input flex flex-col"
 					>
 						{/* Header */}
-						<div className="sticky top-0 bg-white dark:bg-background border-b border-gray-200 dark:border-gray-700 p-4 sm:p-6 z-10">
+						<div className="sticky top-0 bg-white dark:bg-background border-b border-gray-200 dark:border-gray-700 p-3 sm:p-6 z-10">
 							<div className="flex items-center justify-between">
 								<div>
-									<h2 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-gray-100">Detalles del Caso</h2>
-									<div className="flex items-center gap-2 mt-2">
+									<h2 className="text-lg sm:text-2xl font-bold text-gray-900 dark:text-gray-100">Detalles del Caso</h2>
+									<div className="flex items-center gap-1.5 sm:gap-2 mt-1 sm:mt-2">
 										{case_.code && (
-											<span className="inline-flex items-center gap-1 px-2 py-1 text-xs font-semibold rounded-full bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300">
+											<span className="inline-flex items-center gap-1 px-1.5 sm:px-2 py-0.5 sm:py-1 text-xs font-semibold rounded-full bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300">
 												{case_.code}
 											</span>
 										)}
 										<span
-											className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(
+											className={`inline-flex px-1.5 sm:px-2 py-0.5 sm:py-1 text-xs font-semibold rounded-full ${getStatusColor(
 												case_.payment_status,
 											)}`}
 										>
@@ -91,14 +91,14 @@ const CaseDetailPanel: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClos
 								<div className="flex items-center gap-2">
 									<button
 										onClick={() => setIsEditModalOpen(true)}
-										className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
+										className="p-1.5 sm:p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
 										disabled={!canEdit}
 									>
 										<Edit2 className="w-5 h-5 text-blue-500 dark:text-blue-400" />
 									</button>
 									<button
 										onClick={onClose}
-										className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
+										className="p-1.5 sm:p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
 									>
 										<X className="w-5 h-5 text-gray-500 dark:text-gray-400" />
 									</button>
@@ -107,162 +107,162 @@ const CaseDetailPanel: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClos
 						</div>
 
 						{/* Content */}
-						<div className="p-4 sm:p-6 space-y-6">
+						<div className="p-3 sm:p-6 space-y-4 sm:space-y-6 overflow-y-auto flex-1">
 							{/* Patient Information */}
-							<div className="bg-white dark:bg-background rounded-lg p-4 border border-input transition-all duration-300">
-								<div className="flex items-center gap-2 mb-4">
+							<div className="bg-white dark:bg-background rounded-lg p-3 sm:p-4 border border-input transition-all duration-300">
+								<div className="flex items-center gap-1.5 sm:gap-2 mb-3 sm:mb-4">
 									<User className="text-blue-500 size-6" />
-									<h3 className="text-xl font-semibold">Información del Paciente</h3>
+									<h3 className="text-lg sm:text-xl font-semibold">Información del Paciente</h3>
 								</div>
-								<div className="space-y-4">
-									<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+								<div className="space-y-3 sm:space-y-4">
+									<div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
 										<div>
-											<p className="text-sm text-gray-500 dark:text-gray-400">Nombre completo:</p>
-											<p className="text-base font-medium">{case_.full_name}</p>
+											<p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">Nombre completo:</p>
+											<p className="text-sm sm:text-base font-medium">{case_.full_name}</p>
 										</div>
 										<div>
-											<p className="text-sm text-gray-500 dark:text-gray-400">Cédula:</p>
-											<p className="text-base font-medium">{case_.id_number}</p>
+											<p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">Cédula:</p>
+											<p className="text-sm sm:text-base font-medium">{case_.id_number}</p>
 										</div>
 									</div>
-									<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+									<div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
 										<div>
-											<p className="text-sm text-gray-500 dark:text-gray-400">Fecha de nacimiento:</p>
-											<p className="text-base font-medium">
+											<p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">Fecha de nacimiento:</p>
+											<p className="text-sm sm:text-base font-medium">
 												{formattedDateOfBirth}
-												{ageDisplay && <span className="ml-2 text-sm text-blue-600">({ageDisplay})</span>}
+												{ageDisplay && <span className="ml-2 text-xs sm:text-sm text-blue-600">({ageDisplay})</span>}
 											</p>
 										</div>
 										<div>
-											<p className="text-sm text-gray-500 dark:text-gray-400">Teléfono:</p>
-											<p className="text-base font-medium">{case_.phone}</p>
+											<p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">Teléfono:</p>
+											<p className="text-sm sm:text-base font-medium">{case_.phone}</p>
 										</div>
 									</div>
 									{case_.email && (
 										<div>
-											<p className="text-sm text-gray-500 dark:text-gray-400">Email:</p>
-											<p className="text-base font-medium">{case_.email}</p>
+											<p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">Email:</p>
+											<p className="text-sm sm:text-base font-medium break-words">{case_.email}</p>
 										</div>
 									)}
 								</div>
 							</div>
 
 							{/* Medical Information */}
-							<div className="bg-white dark:bg-background rounded-lg p-4 border border-input transition-all duration-300">
-								<div className="flex items-center justify-between gap-2 mb-4">
+							<div className="bg-white dark:bg-background rounded-lg p-3 sm:p-4 border border-input transition-all duration-300">
+								<div className="flex items-center justify-between gap-1.5 sm:gap-2 mb-3 sm:mb-4">
 									<div className="flex items-center gap-2">
 										<Microscope className="text-primary size-6" />
-										<h3 className="text-xl font-semibold">Información Médica</h3>
+										<h3 className="text-lg sm:text-xl font-semibold">Información Médica</h3>
 									</div>
 								</div>
-								<div className="space-y-4">
-									<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+								<div className="space-y-3 sm:space-y-4">
+									<div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
 										{/* Exam Type */}
 										<div>
-											<p className="text-sm text-gray-500 dark:text-gray-400">Estudio:</p>
-											<p className="text-base font-medium">{case_.exam_type}</p>
+											<p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">Estudio:</p>
+											<p className="text-sm sm:text-base font-medium">{case_.exam_type}</p>
 										</div>
 
 										{/* Treating Doctor */}
 										<div>
-											<p className="text-sm text-gray-500 dark:text-gray-400">Médico tratante:</p>
-											<p className="text-base font-medium">{case_.treating_doctor}</p>
+											<p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">Médico tratante:</p>
+											<p className="text-sm sm:text-base font-medium">{case_.treating_doctor}</p>
 										</div>
 									</div>
 
-									<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+									<div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
 										{/* Origin */}
 										<div>
-											<p className="text-sm text-gray-500 dark:text-gray-400">Procedencia:</p>
-											<p className="text-base font-medium">{case_.origin}</p>
+											<p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">Procedencia:</p>
+											<p className="text-sm sm:text-base font-medium">{case_.origin}</p>
 										</div>
 
 										{/* Branch */}
 										<div>
-											<p className="text-sm text-gray-500 dark:text-gray-400">Sede:</p>
-											<p className="text-base font-medium">{case_.branch}</p>
+											<p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">Sede:</p>
+											<p className="text-sm sm:text-base font-medium">{case_.branch}</p>
 										</div>
 									</div>
 
-									<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+									<div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
 										{/* Sample Type */}
 										<div>
-											<p className="text-sm text-gray-500 dark:text-gray-400">Muestra:</p>
-											<p className="text-base font-medium">{case_.sample_type}</p>
+											<p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">Muestra:</p>
+											<p className="text-sm sm:text-base font-medium">{case_.sample_type}</p>
 										</div>
 
 										{/* Number of Samples */}
 										<div>
-											<p className="text-sm text-gray-500 dark:text-gray-400">Cantidad de muestras:</p>
-											<p className="text-base font-medium">{case_.number_of_samples}</p>
+											<p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">Cantidad de muestras:</p>
+											<p className="text-sm sm:text-base font-medium">{case_.number_of_samples}</p>
 										</div>
 									</div>
 
 									{/* Registration Date */}
 									<div>
-										<p className="text-sm text-gray-500 dark:text-gray-400">Fecha de registro:</p>
-										<p className="text-base font-medium">{formattedDate}</p>
+										<p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">Fecha de registro:</p>
+										<p className="text-sm sm:text-base font-medium">{formattedDate}</p>
 									</div>
 								</div>
 							</div>
 
 							{/* Biopsy Information (only for biopsy cases) */}
 							{case_.exam_type?.toLowerCase() === 'biopsia' && (
-								<div className="bg-white dark:bg-background rounded-lg p-4 border border-input transition-all duration-300">
-									<div className="flex items-center gap-2 mb-4">
+								<div className="bg-white dark:bg-background rounded-lg p-3 sm:p-4 border border-input transition-all duration-300">
+									<div className="flex items-center gap-1.5 sm:gap-2 mb-3 sm:mb-4">
 										<FileText className="text-green-500 size-6" />
-										<h3 className="text-xl font-semibold">Información de Biopsia</h3>
+										<h3 className="text-lg sm:text-xl font-semibold">Información de Biopsia</h3>
 									</div>
-									<div className="space-y-4">
+									<div className="space-y-3 sm:space-y-4">
 										{/* Material Remitido */}
 										<div>
-											<p className="text-sm text-gray-500 dark:text-gray-400">Material Remitido:</p>
-											<p className="text-base">{case_.material_remitido || 'No especificado'}</p>
+											<p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">Material Remitido:</p>
+											<p className="text-sm sm:text-base">{case_.material_remitido || 'No especificado'}</p>
 										</div>
 
 										{/* Información Clínica */}
 										<div>
-											<p className="text-sm text-gray-500 dark:text-gray-400">Información Clínica:</p>
-											<p className="text-base">{case_.informacion_clinica || 'No especificado'}</p>
+											<p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">Información Clínica:</p>
+											<p className="text-sm sm:text-base">{case_.informacion_clinica || 'No especificado'}</p>
 										</div>
 
 										{/* Descripción Macroscópica */}
 										<div>
-											<p className="text-sm text-gray-500 dark:text-gray-400">Descripción Macroscópica:</p>
-											<p className="text-base">{case_.descripcion_macroscopica || 'No especificado'}</p>
+											<p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">Descripción Macroscópica:</p>
+											<p className="text-sm sm:text-base">{case_.descripcion_macroscopica || 'No especificado'}</p>
 										</div>
 
 										{/* Diagnóstico */}
 										<div>
-											<p className="text-sm text-gray-500 dark:text-gray-400">Diagnóstico:</p>
-											<p className="text-base">{case_.diagnostico || 'No especificado'}</p>
+											<p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">Diagnóstico:</p>
+											<p className="text-sm sm:text-base">{case_.diagnostico || 'No especificado'}</p>
 										</div>
 
 										{/* Comentario */}
 										<div>
-											<p className="text-sm text-gray-500 dark:text-gray-400">Comentario:</p>
-											<p className="text-base">{case_.comentario || 'No especificado'}</p>
+											<p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">Comentario:</p>
+											<p className="text-sm sm:text-base">{case_.comentario || 'No especificado'}</p>
 										</div>
 									</div>
 								</div>
 							)}
 
 							{/* Payment Information */}
-							<div className="bg-white dark:bg-background rounded-lg p-4 border border-input transition-all duration-300">
-								<div className="flex items-center gap-2 mb-4">
+							<div className="bg-white dark:bg-background rounded-lg p-3 sm:p-4 border border-input transition-all duration-300">
+								<div className="flex items-center gap-1.5 sm:gap-2 mb-3 sm:mb-4">
 									<DollarSign className="text-purple-500 size-6" />
-									<h3 className="text-xl font-semibold">Información de Pago</h3>
+									<h3 className="text-lg sm:text-xl font-semibold">Información de Pago</h3>
 								</div>
-								<div className="space-y-4">
-									<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+								<div className="space-y-3 sm:space-y-4">
+									<div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
 										<div>
-											<p className="text-sm text-gray-500 dark:text-gray-400">Monto total:</p>
-											<p className="text-base font-medium">${case_.total_amount.toLocaleString()}</p>
+											<p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">Monto total:</p>
+											<p className="text-sm sm:text-base font-medium">${case_.total_amount.toLocaleString()}</p>
 										</div>
 										<div>
-											<p className="text-sm text-gray-500 dark:text-gray-400">Estado de pago:</p>
+											<p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">Estado de pago:</p>
 											<div
-												className={`inline-flex px-2 py-1 text-sm font-semibold rounded-full ${getStatusColor(
+												className={`inline-flex px-1.5 sm:px-2 py-0.5 sm:py-1 text-xs sm:text-sm font-semibold rounded-full ${getStatusColor(
 													case_.payment_status,
 												)}`}
 											>
@@ -272,10 +272,10 @@ const CaseDetailPanel: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClos
 									</div>
 
 									{case_.remaining > 0 && (
-										<div className="bg-red-50 dark:bg-red-900/20 p-3 rounded-lg border border-red-200 dark:border-red-800">
-											<div className="flex items-center gap-2">
+										<div className="bg-red-50 dark:bg-red-900/20 p-2 sm:p-3 rounded-lg border border-red-200 dark:border-red-800">
+											<div className="flex items-center gap-1.5 sm:gap-2">
 												<AlertTriangle className="w-5 h-5 text-red-600 dark:text-red-400" />
-												<p className="text-sm font-medium text-red-800 dark:text-red-300">
+												<p className="text-xs sm:text-sm font-medium text-red-800 dark:text-red-300">
 													Monto pendiente: ${case_.remaining.toLocaleString()}
 												</p>
 											</div>
@@ -283,55 +283,55 @@ const CaseDetailPanel: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClos
 									)}
 
 									{/* Payment Methods */}
-									<div className="space-y-3">
-										<p className="text-sm font-medium text-gray-700 dark:text-gray-300">Métodos de pago:</p>
+									<div className="space-y-2 sm:space-y-3">
+										<p className="text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300">Métodos de pago:</p>
 										{case_.payment_method_1 && (
-											<div className="bg-gray-50 dark:bg-gray-800/50 p-3 rounded-lg">
-												<div className="flex justify-between">
-													<p className="text-sm font-medium">{case_.payment_method_1}</p>
-													<p className="text-sm font-medium">${case_.payment_amount_1?.toLocaleString() || 0}</p>
+											<div className="bg-gray-50 dark:bg-gray-800/50 p-2 sm:p-3 rounded-lg">
+												<div className="flex justify-between items-center">
+													<p className="text-xs sm:text-sm font-medium">{case_.payment_method_1}</p>
+													<p className="text-xs sm:text-sm font-medium">${case_.payment_amount_1?.toLocaleString() || 0}</p>
 												</div>
 												{case_.payment_reference_1 && (
-													<p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+													<p className="text-[10px] sm:text-xs text-gray-500 dark:text-gray-400 mt-0.5 sm:mt-1">
 														Ref: {case_.payment_reference_1}
 													</p>
 												)}
 											</div>
 										)}
 										{case_.payment_method_2 && (
-											<div className="bg-gray-50 dark:bg-gray-800/50 p-3 rounded-lg">
-												<div className="flex justify-between">
-													<p className="text-sm font-medium">{case_.payment_method_2}</p>
-													<p className="text-sm font-medium">${case_.payment_amount_2?.toLocaleString() || 0}</p>
+											<div className="bg-gray-50 dark:bg-gray-800/50 p-2 sm:p-3 rounded-lg">
+												<div className="flex justify-between items-center">
+													<p className="text-xs sm:text-sm font-medium">{case_.payment_method_2}</p>
+													<p className="text-xs sm:text-sm font-medium">${case_.payment_amount_2?.toLocaleString() || 0}</p>
 												</div>
 												{case_.payment_reference_2 && (
-													<p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+													<p className="text-[10px] sm:text-xs text-gray-500 dark:text-gray-400 mt-0.5 sm:mt-1">
 														Ref: {case_.payment_reference_2}
 													</p>
 												)}
 											</div>
 										)}
 										{case_.payment_method_3 && (
-											<div className="bg-gray-50 dark:bg-gray-800/50 p-3 rounded-lg">
-												<div className="flex justify-between">
-													<p className="text-sm font-medium">{case_.payment_method_3}</p>
-													<p className="text-sm font-medium">${case_.payment_amount_3?.toLocaleString() || 0}</p>
+											<div className="bg-gray-50 dark:bg-gray-800/50 p-2 sm:p-3 rounded-lg">
+												<div className="flex justify-between items-center">
+													<p className="text-xs sm:text-sm font-medium">{case_.payment_method_3}</p>
+													<p className="text-xs sm:text-sm font-medium">${case_.payment_amount_3?.toLocaleString() || 0}</p>
 												</div>
 												{case_.payment_reference_3 && (
-													<p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+													<p className="text-[10px] sm:text-xs text-gray-500 dark:text-gray-400 mt-0.5 sm:mt-1">
 														Ref: {case_.payment_reference_3}
 													</p>
 												)}
 											</div>
 										)}
 										{case_.payment_method_4 && (
-											<div className="bg-gray-50 dark:bg-gray-800/50 p-3 rounded-lg">
-												<div className="flex justify-between">
-													<p className="text-sm font-medium">{case_.payment_method_4}</p>
-													<p className="text-sm font-medium">${case_.payment_amount_4?.toLocaleString() || 0}</p>
+											<div className="bg-gray-50 dark:bg-gray-800/50 p-2 sm:p-3 rounded-lg">
+												<div className="flex justify-between items-center">
+													<p className="text-xs sm:text-sm font-medium">{case_.payment_method_4}</p>
+													<p className="text-xs sm:text-sm font-medium">${case_.payment_amount_4?.toLocaleString() || 0}</p>
 												</div>
 												{case_.payment_reference_4 && (
-													<p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+													<p className="text-[10px] sm:text-xs text-gray-500 dark:text-gray-400 mt-0.5 sm:mt-1">
 														Ref: {case_.payment_reference_4}
 													</p>
 												)}
@@ -342,22 +342,22 @@ const CaseDetailPanel: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClos
 							</div>
 
 							{/* Additional Information */}
-							<div className="bg-white dark:bg-background rounded-lg p-4 border border-input transition-all duration-300">
-								<div className="flex items-center gap-2 mb-4">
+							<div className="bg-white dark:bg-background rounded-lg p-3 sm:p-4 border border-input transition-all duration-300">
+								<div className="flex items-center gap-1.5 sm:gap-2 mb-3 sm:mb-4">
 									<FileText className="text-blue-500 size-6" />
-									<h3 className="text-xl font-semibold">Información Adicional</h3>
+									<h3 className="text-lg sm:text-xl font-semibold">Información Adicional</h3>
 								</div>
-								<div className="space-y-4">
+								<div className="space-y-3 sm:space-y-4">
 									{case_.comments && (
 										<div>
-											<p className="text-sm text-gray-500 dark:text-gray-400">Comentarios:</p>
-											<p className="text-base">{case_.comments}</p>
+											<p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">Comentarios:</p>
+											<p className="text-sm sm:text-base">{case_.comments}</p>
 										</div>
 									)}
-									<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+									<div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
 										<div>
-											<p className="text-sm text-gray-500 dark:text-gray-400">Fecha de creación:</p>
-											<p className="text-base">
+											<p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">Fecha de creación:</p>
+											<p className="text-sm sm:text-base">
 												{case_.created_at
 													? format(new Date(case_.created_at), 'dd/MM/yyyy HH:mm', { locale: es })
 													: 'N/A'}
@@ -365,8 +365,8 @@ const CaseDetailPanel: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClos
 										</div>
 										{case_.created_by_display_name && (
 											<div>
-												<p className="text-sm text-gray-500 dark:text-gray-400">Creado por:</p>
-												<p className="text-base">{case_.created_by_display_name}</p>
+												<p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">Creado por:</p>
+												<p className="text-sm sm:text-base">{case_.created_by_display_name}</p>
 											</div>
 										)}
 									</div>
@@ -374,7 +374,7 @@ const CaseDetailPanel: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClos
 							</div>
 
 							{/* Action Buttons */}
-							<div className="flex flex-col sm:flex-row gap-3 pt-6 border-t border-gray-200 dark:border-gray-700">
+							<div className="flex flex-col sm:flex-row gap-2 sm:gap-3 pt-4 sm:pt-6 border-t border-gray-200 dark:border-gray-700">
 								<Button variant="outline" onClick={onClose} className="flex-1">
 									Cerrar
 								</Button>

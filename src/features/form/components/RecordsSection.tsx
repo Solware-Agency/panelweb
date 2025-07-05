@@ -201,14 +201,14 @@ export const RecordsSection: React.FC<RecordsSectionProps> = ({
 	return (
 		<div>
 			{/* Header with search and refresh */}
-			<div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+			<div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-4 mb-4 sm:mb-6">
 				<div>
-					<div className="flex items-center gap-3">
-						<h2 className="text-2xl font-bold text-foreground">Registros de Clientes</h2>
+					<div className="flex items-center gap-2 sm:gap-3">
+						<h2 className="text-xl sm:text-2xl font-bold text-foreground">Registros de Clientes</h2>
 						{profile?.assigned_branch && (
-							<div className="flex items-center gap-2 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg px-3 py-1">
+							<div className="flex items-center gap-1.5 sm:gap-2 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg px-2 sm:px-3 py-0.5 sm:py-1">
 								<MapPin className="w-4 h-4 text-blue-600 dark:text-blue-400" />
-								<span className="text-sm font-medium text-blue-800 dark:text-blue-300">
+								<span className="text-xs sm:text-sm font-medium text-blue-800 dark:text-blue-300">
 									Sede: {profile.assigned_branch}
 								</span>
 							</div>
@@ -217,7 +217,7 @@ export const RecordsSection: React.FC<RecordsSectionProps> = ({
 				</div>
 				
 				{/* Search Bar */}
-				<div className="flex w-full sm:w-auto gap-2">
+				<div className="flex w-full sm:w-auto gap-1.5 sm:gap-2">
 					<div className="relative flex-1">
 						<Input
 							type="text"
@@ -243,7 +243,7 @@ export const RecordsSection: React.FC<RecordsSectionProps> = ({
 					<Button
 						onClick={() => setIsFullscreen(true)}
 						variant="outline"
-						className="flex items-center gap-2 whitespace-nowrap"
+						className="flex items-center gap-1 sm:gap-2 whitespace-nowrap text-xs sm:text-sm py-1.5 px-2 sm:py-2 sm:px-3"
 					>
 						<Maximize2 className="w-4 h-4" />
 						{isFullscreen ? "Salir" : "Expandir"}
@@ -252,8 +252,8 @@ export const RecordsSection: React.FC<RecordsSectionProps> = ({
 			</div>
 
 			{/* Statistics cards */}
-			<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
-				{/* Pending Cases Card */}
+			<div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2 sm:gap-4 mb-4 sm:mb-6">
+				{/* Pending Cases Card - Responsive */}
 				<Card 
 					className={`transition-all duration-300 hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 group cursor-pointer ${
 						showPendingOnly ? 'border-primary shadow-lg shadow-primary/20' : ''
@@ -261,11 +261,11 @@ export const RecordsSection: React.FC<RecordsSectionProps> = ({
 					onClick={handleTogglePendingFilter}
 				>
 					<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-						<CardTitle className="text-sm font-medium">Casos Pendientes</CardTitle>
+						<CardTitle className="text-xs sm:text-sm font-medium">Casos Pendientes</CardTitle>
 						<Users className={`h-4 w-4 ${showPendingOnly ? 'text-primary' : 'text-muted-foreground group-hover:text-primary/80'}`} />
 					</CardHeader>
 					<CardContent>
-						<div className="text-2xl font-bold">
+						<div className="text-xl sm:text-2xl font-bold">
 							{stats.total > 0 ? Math.round(((stats.total - stats.completed) / stats.total) * 100) : 0}%
 						</div>
 						<p className="text-xs text-muted-foreground">
@@ -282,11 +282,11 @@ export const RecordsSection: React.FC<RecordsSectionProps> = ({
 					onClick={handleTogglePdfFilter}
 				>
 					<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-						<CardTitle className="text-sm font-medium">PDF Disponibles</CardTitle>
+						<CardTitle className="text-xs sm:text-sm font-medium">PDF Disponibles</CardTitle>
 						<Download className={`h-4 w-4 ${showPdfReadyOnly ? 'text-primary' : 'text-muted-foreground group-hover:text-primary/80'}`} />
 					</CardHeader>
 					<CardContent>
-						<div className="text-2xl font-bold">
+						<div className="text-xl sm:text-2xl font-bold">
 							{pdfReadyCases}
 						</div>
 						<p className="text-xs text-muted-foreground">
@@ -303,11 +303,11 @@ export const RecordsSection: React.FC<RecordsSectionProps> = ({
 					onClick={() => handleExamTypeFilter('biopsia')}
 				>
 					<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-						<CardTitle className="text-sm font-medium">Biopsias</CardTitle>
+						<CardTitle className="text-xs sm:text-sm font-medium">Biopsias</CardTitle>
 						<Activity className={`h-4 w-4 ${selectedExamType === 'biopsia' ? 'text-primary' : 'text-muted-foreground group-hover:text-primary/80'}`} />
 					</CardHeader>
 					<CardContent>
-						<div className="text-2xl font-bold">
+						<div className="text-xl sm:text-2xl font-bold">
 							{examTypeCounts['biopsia'] || 0}
 						</div>
 						<p className="text-xs text-muted-foreground">
@@ -324,11 +324,11 @@ export const RecordsSection: React.FC<RecordsSectionProps> = ({
 					onClick={() => handleExamTypeFilter('citologia')}
 				>
 					<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-						<CardTitle className="text-sm font-medium">Citologías</CardTitle>
+						<CardTitle className="text-xs sm:text-sm font-medium">Citologías</CardTitle>
 						<FileText className={`h-4 w-4 ${selectedExamType === 'citologia' ? 'text-primary' : 'text-muted-foreground group-hover:text-primary/80'}`} />
 					</CardHeader>
 					<CardContent>
-						<div className="text-2xl font-bold">
+						<div className="text-xl sm:text-2xl font-bold">
 							{examTypeCounts['citologia'] || 0}
 						</div>
 						<p className="text-xs text-muted-foreground">
@@ -345,11 +345,11 @@ export const RecordsSection: React.FC<RecordsSectionProps> = ({
 					onClick={() => handleExamTypeFilter('inmunohistoquimica')}
 				>
 					<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-						<CardTitle className="text-sm font-medium">Inmunohistoquímica</CardTitle>
+						<CardTitle className="text-xs sm:text-sm font-medium truncate">Inmunohistoquímica</CardTitle>
 						<Microscope className={`h-4 w-4 ${selectedExamType === 'inmunohistoquimica' ? 'text-primary' : 'text-muted-foreground group-hover:text-primary/80'}`} />
 					</CardHeader>
 					<CardContent>
-						<div className="text-2xl font-bold">
+						<div className="text-xl sm:text-2xl font-bold">
 							{examTypeCounts['inmunohistoquimica'] || 0}
 						</div>
 						<p className="text-xs text-muted-foreground">
@@ -360,38 +360,38 @@ export const RecordsSection: React.FC<RecordsSectionProps> = ({
 			</div>
 
 			{/* Active filters indicators */}
-			<div className="flex flex-wrap gap-2 mb-4">
+			<div className="flex flex-wrap gap-1.5 sm:gap-2 mb-3 sm:mb-4">
 				{showPendingOnly && (
-					<div className="px-4 py-2 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg inline-block">
-						<span className="text-sm font-medium text-blue-800 dark:text-blue-300 flex items-center gap-2">
-							<Users className="w-4 h-4" />
+					<div className="px-2 sm:px-4 py-1 sm:py-2 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg inline-block">
+						<span className="text-xs sm:text-sm font-medium text-blue-800 dark:text-blue-300 flex items-center gap-1.5 sm:gap-2">
+							<Users className="w-3 h-3 sm:w-4 sm:h-4" />
 							Mostrando solo casos pendientes
 						</span>
 					</div>
 				)}
 				
 				{showPdfReadyOnly && (
-					<div className="px-4 py-2 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg inline-block">
-						<span className="text-sm font-medium text-green-800 dark:text-green-300 flex items-center gap-2">
-							<Download className="w-4 h-4" />
+					<div className="px-2 sm:px-4 py-1 sm:py-2 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg inline-block">
+						<span className="text-xs sm:text-sm font-medium text-green-800 dark:text-green-300 flex items-center gap-1.5 sm:gap-2">
+							<Download className="w-3 h-3 sm:w-4 sm:h-4" />
 							Mostrando solo casos con PDF disponible
 						</span>
 					</div>
 				)}
 				
 				{selectedExamType && (
-					<div className="px-4 py-2 bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800 rounded-lg inline-block">
-						<span className="text-sm font-medium text-purple-800 dark:text-purple-300 flex items-center gap-2">
-							{getExamTypeIcon(selectedExamType)}
+					<div className="px-2 sm:px-4 py-1 sm:py-2 bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800 rounded-lg inline-block">
+						<span className="text-xs sm:text-sm font-medium text-purple-800 dark:text-purple-300 flex items-center gap-1.5 sm:gap-2">
+							{getExamTypeIcon(selectedExamType)} 
 							Filtrando por: {selectedExamType.charAt(0).toUpperCase() + selectedExamType.slice(1)}
 						</span>
 					</div>
 				)}
 				
 				{searchTerm && (
-					<div className="px-4 py-2 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg inline-block">
-						<span className="text-sm font-medium text-blue-800 dark:text-blue-300 flex items-center gap-2">
-							<Search className="w-4 h-4" />
+					<div className="px-2 sm:px-4 py-1 sm:py-2 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg inline-block">
+						<span className="text-xs sm:text-sm font-medium text-blue-800 dark:text-blue-300 flex items-center gap-1.5 sm:gap-2">
+							<Search className="w-3 h-3 sm:w-4 sm:h-4" />
 							Resultados para: "{searchTerm}"
 						</span>
 					</div>

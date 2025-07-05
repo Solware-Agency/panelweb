@@ -62,9 +62,17 @@ const Layout: React.FC = () => {
 	return (
 		<div className="min-h-screen bg-white dark:bg-background transition-colors duration-300">
 			{/* Mobile overlay */}
-			{sidebarOpen && (
-				<div className="fixed inset-0 bg-black bg-opacity-50 z-[999998] lg:hidden" onClick={() => setSidebarOpen(false)} />
-			)}
+			<AnimatePresence>
+				{sidebarOpen && (
+					<motion.div 
+						initial={{ opacity: 0 }}
+						animate={{ opacity: 1 }}
+						exit={{ opacity: 0 }}
+						className="fixed inset-0 bg-black bg-opacity-50 z-[999998] lg:hidden" 
+						onClick={() => setSidebarOpen(false)} 
+					/>
+				)}
+			</AnimatePresence>
 
 			{/* Sidebar - Updated with collapsible behavior */}
 			<div
@@ -88,16 +96,16 @@ const Layout: React.FC = () => {
 			</div>
 
 			{/* Main content - Updated margin to accommodate collapsible sidebar */}
-			<div
+			<main
 				className={`min-h-screen flex flex-col transition-all duration-300 ease-in-out z-50 ${
 					sidebarExpanded ? 'lg:ml-56' : 'lg:ml-16'
 				}`}
 			>
 				<Header isDark={isDark} toggleDarkMode={toggleDarkMode} currentDate={currentDate} onMenuClick={toggleSidebar} />
-				<div className="flex-1">
+				<div className="flex-1 overflow-x-hidden">
 					<Outlet />
 				</div>
-			</div>
+			</main>
 		</div>
 	)
 }

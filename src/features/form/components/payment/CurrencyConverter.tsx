@@ -41,9 +41,9 @@ export const CurrencyConverter = memo(({
 	}, [setVesInputValue])
 
 	return (
-		<div className="space-y-4">
-			<div className="space-y-2">
-				<FormLabel>Convertidor USD a VES</FormLabel>
+		<div className="space-y-3 sm:space-y-4">
+			<div className="space-y-1.5 sm:space-y-2">
+				<FormLabel className="text-sm sm:text-base">Convertidor USD a VES</FormLabel>
 				<Input
 					type="text"
 					inputMode="decimal"
@@ -52,11 +52,11 @@ export const CurrencyConverter = memo(({
 					onChange={handleUsdChange}
 					className={inputStyles}
 				/>
-				{vesValue && <p className="text-sm font-bold text-green-600">{vesValue} VES</p>}
+				{vesValue && <p className="text-xs sm:text-sm font-bold text-green-600">{vesValue} VES</p>}
 			</div>
 			
-			<div className="space-y-2">
-				<FormLabel>Convertidor VES a USD</FormLabel>
+			<div className="space-y-1.5 sm:space-y-2">
+				<FormLabel className="text-sm sm:text-base">Convertidor VES a USD</FormLabel>
 				<Input
 					type="text"
 					inputMode="decimal"
@@ -65,10 +65,10 @@ export const CurrencyConverter = memo(({
 					onChange={handleVesChange}
 					className={inputStyles}
 				/>
-				{usdFromVes && <p className="text-sm font-bold text-green-600">{usdFromVes} USD</p>}
+				{usdFromVes && <p className="text-xs sm:text-sm font-bold text-green-600">{usdFromVes} USD</p>}
 			</div>
 			
-			<p className="text-xs text-muted-foreground">
+			<p className="text-[10px] sm:text-xs text-muted-foreground">
 				{isLoadingRate ? 'Cargando tasa...' : `Tasa BCV: ${exchangeRate?.toFixed(2) || 'N/A'} VES/USD`}
 			</p>
 		</div>

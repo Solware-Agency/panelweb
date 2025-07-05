@@ -57,20 +57,20 @@ export const PatientDataSection = memo(({ control, inputStyles }: PatientDataSec
 
 	return (
 		<Card className="transition-all duration-300 hover:border-primary hover:shadow-lg hover:shadow-primary/20">
-			<CardHeader>
-				<CardTitle className="flex items-center gap-2">
+			<CardHeader className="p-4 sm:p-6">
+				<CardTitle className="flex items-center gap-1.5 sm:gap-2 text-lg sm:text-xl">
 					Datos del Paciente
 					{isLoadingPatient && <Loader2 className="h-4 w-4 animate-spin text-primary" />}
 					{lastFilledPatient && !isLoadingPatient && (
-						<div className="flex items-center gap-1 text-green-600 text-sm">
+						<div className="flex items-center gap-1 text-green-600 text-xs sm:text-sm">
 							<CheckCircle className="h-4 w-4" />
 							<span>Datos de {lastFilledPatient} cargados</span>
 						</div>
 					)}
 				</CardTitle>
-				<div className="w-20 h-1 bg-primary mt-1 rounded-full" />
+				<div className="w-16 sm:w-20 h-1 bg-primary mt-1 rounded-full" />
 			</CardHeader>
-			<CardContent className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+			<CardContent className="p-4 sm:p-6 pt-0 sm:pt-0 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6">
 				{/* Nombre Completo - CON AUTOCOMPLETADO */}
 				<FormField
 					control={control}
@@ -105,7 +105,7 @@ export const PatientDataSection = memo(({ control, inputStyles }: PatientDataSec
 						<FormItem>
 							<FormLabel className="flex items-center gap-2">
 								Cédula *
-								<span className="text-xs text-green-600 bg-green-100 px-2 py-1 rounded-full">
+								<span className="text-[10px] sm:text-xs text-green-600 bg-green-100 px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full">
 									Autocompletado inteligente
 								</span>
 							</FormLabel>
@@ -125,7 +125,7 @@ export const PatientDataSection = memo(({ control, inputStyles }: PatientDataSec
 								/>
 							</FormControl>
 							<FormMessage />
-							<p className="text-xs text-gray-500 mt-1">
+							<p className="text-[10px] sm:text-xs text-gray-500 mt-1">
 								💡 Haz clic en una cédula para llenar automáticamente los datos del paciente
 							</p>
 						</FormItem>
@@ -170,7 +170,10 @@ export const PatientDataSection = memo(({ control, inputStyles }: PatientDataSec
 								<Cake className="w-4 h-4 text-pink-500" />
 								Fecha de Nacimiento *
 							</FormLabel>
-							<Popover open={isDateOfBirthCalendarOpen} onOpenChange={setIsDateOfBirthCalendarOpen}>
+							<Popover 
+								open={isDateOfBirthCalendarOpen} 
+								onOpenChange={setIsDateOfBirthCalendarOpen}
+							>
 								<PopoverTrigger asChild>
 									<FormControl>
 										<Button
@@ -185,7 +188,7 @@ export const PatientDataSection = memo(({ control, inputStyles }: PatientDataSec
 											{field.value ? (
 												<div className="flex items-center gap-2">
 													<span>{format(field.value, 'PPP', { locale: es })}</span>
-													{currentAge && (
+													{currentAge && window.innerWidth >= 640 && (
 														<span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">
 															{currentAge}
 														</span>
@@ -197,7 +200,7 @@ export const PatientDataSection = memo(({ control, inputStyles }: PatientDataSec
 										</Button>
 									</FormControl>
 								</PopoverTrigger>
-								<PopoverContent className="w-auto p-0">
+								<PopoverContent className="w-auto p-0 z-[9999]">
 									<Calendar
 										mode="single"
 										selected={field.value instanceof Date ? field.value : undefined}

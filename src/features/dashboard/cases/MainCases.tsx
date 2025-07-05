@@ -40,42 +40,50 @@ const MainCases: React.FC = () => {
 
 	return (
 		<div className="p-3 sm:p-6">
-			{/* Action Buttons */}
-			<div className="grid grid-cols-2 gap-3 sm:gap-4 mb-6 sm:mb-8">
-				<Card className="col-span-1 grid hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 transition-all duration-300 shadow-lg">
-					<button className="bg-white dark:bg-background rounded-xl p-3 sm:p-4 transition-colors duration-300 flex items-center gap-2 sm:gap-3">
-						<div className="p-1.5 sm:p-2 bg-green-100 dark:bg-green-900/30 rounded-lg">
-							<Download className="w-4 h-4 sm:w-5 sm:h-5 text-green-600 dark:text-green-400" />
-						</div>
-						<div className="text-left">
-							<p className="text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300">Exportar</p>
-							<p className="text-xs text-gray-500 dark:text-gray-400 hidden sm:block">Descargar datos</p>
-						</div>
-					</button>
-				</Card>
+      {/* Page Title */}
+      <div className="mb-4 sm:mb-6">
+        <h1 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-gray-100">Casos Médicos</h1>
+        <p className="text-sm text-gray-600 dark:text-gray-400 mt-1 sm:mt-2">
+          Gestiona todos los casos médicos registrados en el sistema
+        </p>
+      </div>
+      
+      {/* Action Buttons */}
+      <div className="grid grid-cols-2 gap-2 sm:gap-4 mb-4 sm:mb-6">
+        <Card className="col-span-1 grid hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 transition-all duration-300 shadow-lg">
+          <button className="bg-white dark:bg-background rounded-xl p-2 sm:p-4 transition-colors duration-300 flex items-center gap-2 sm:gap-3">
+            <div className="p-1 sm:p-2 bg-green-100 dark:bg-green-900/30 rounded-lg">
+              <Download className="w-3 h-3 sm:w-4 sm:h-4 md:w-5 md:h-5 text-green-600 dark:text-green-400" />
+            </div>
+            <div className="text-left">
+              <p className="text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300">Exportar</p>
+              <p className="text-[10px] text-gray-500 dark:text-gray-400 hidden sm:block">Descargar datos</p>
+            </div>
+          </button>
+        </Card>
 
-				<Card className="col-span-1 grid hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 transition-all duration-300 shadow-lg">
-					<button
-						onClick={handleRefresh}
-						disabled={isLoading}
-						className="bg-white dark:bg-background rounded-xl p-3 sm:p-4 transition-colors duration-300 flex items-center gap-2 sm:gap-3"
-					>
-						<div className="p-1.5 sm:p-2 bg-orange-100 dark:bg-orange-900/30 rounded-lg">
-							<RefreshCw
-								className={`w-4 h-4 sm:w-5 sm:h-5 text-orange-600 dark:text-orange-400 ${
-									isLoading ? 'animate-spin' : ''
-								}`}
-							/>
-						</div>
-						<div className="text-left">
-							<p className="text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300">
-								{isLoading ? 'Actualizando...' : 'Actualizar'}
-							</p>
-							<p className="text-xs text-gray-500 dark:text-gray-400 hidden sm:block">Recargar datos</p>
-						</div>
-					</button>
-				</Card>
-			</div>
+        <Card className="col-span-1 grid hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 transition-all duration-300 shadow-lg">
+          <button
+            onClick={handleRefresh}
+            disabled={isLoading}
+            className="bg-white dark:bg-background rounded-xl p-2 sm:p-4 transition-colors duration-300 flex items-center gap-2 sm:gap-3"
+          >
+            <div className="p-1 sm:p-2 bg-orange-100 dark:bg-orange-900/30 rounded-lg">
+              <RefreshCw
+                className={`w-3 h-3 sm:w-4 sm:h-4 md:w-5 md:h-5 text-orange-600 dark:text-orange-400 ${
+                  isLoading ? 'animate-spin' : ''
+                }`}
+              />
+            </div>
+            <div className="text-left">
+              <p className="text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300">
+                {isLoading ? 'Actualizando...' : 'Actualizar'}
+              </p>
+              <p className="text-[10px] text-gray-500 dark:text-gray-400 hidden sm:block">Recargar datos</p>
+            </div>
+          </button>
+        </Card>
+      </div>
 
 			{/* Cases Table */}
 			<CasesTable 

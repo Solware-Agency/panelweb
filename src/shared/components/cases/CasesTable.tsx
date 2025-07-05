@@ -492,14 +492,14 @@ const CasesTable: React.FC<CasesTableProps> = ({
 	// Fullscreen view
 	if (isFullscreen) {
 		return (
-			<div className="fixed inset-0 z-[999999] bg-white dark:bg-background h-screen flex flex-col">
+			<div className="fixed inset-0 z-[999999] bg-white dark:bg-background h-screen flex flex-col overflow-hidden">
 				{/* Fixed Header with Controls */}
-				<div className="flex-shrink-0 p-4 sm:p-6 border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-background">
-					<div className="flex flex-wrap items-center gap-4">
+				<div className="flex-shrink-0 p-3 sm:p-6 border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-background">
+					<div className="flex flex-wrap items-center gap-2 sm:gap-4">
 						{/* Search and Filters Row */}
-						<div className="flex flex-col sm:flex-row gap-4 flex-1">
+						<div className="flex flex-col sm:flex-row gap-2 sm:gap-4 flex-1">
 							{/* Search - Acortada */}
-							<div className="w-full sm:max-w-md relative">
+							<div className="w-full sm:max-w-md relative flex-1">
 								<Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
 								<input
 									type="text"
@@ -517,10 +517,10 @@ const CasesTable: React.FC<CasesTableProps> = ({
 							</div>
 
 							{/* Search Button */}
-							<Button
+							<Button 
 								onClick={handleSearchClick}
 								disabled={isSearching || !searchTerm.trim()}
-								className="whitespace-nowrap"
+								className="whitespace-nowrap sm:flex-none"
 							>
 								Buscar
 							</Button>
@@ -601,16 +601,16 @@ const CasesTable: React.FC<CasesTableProps> = ({
 						</div>
 
 						{/* Results count */}
-						<div className="text-sm text-gray-600 dark:text-gray-400">
+						<div className="text-sm text-gray-600 dark:text-gray-400 hidden sm:block">
 							Mostrando {filteredAndSortedCases.length} de {cases.length} casos
 						</div>
 
 						{/* Close button */}
 						<button
 							onClick={() => setIsFullscreen(false)}
-							className="text-gray-500 dark:text-gray-300 hover:text-red-500 dark:hover:text-red-400 text-sm border px-3 py-1 rounded-md"
+							className="text-gray-500 dark:text-gray-300 hover:text-red-500 dark:hover:text-red-400 text-sm border px-2 sm:px-3 py-1 rounded-md ml-auto sm:ml-0"
 						>
-							Cerrar ✕
+							<span className="hidden sm:inline">Cerrar</span> ✕
 						</button>
 					</div>
 				</div>
@@ -648,11 +648,11 @@ const CasesTable: React.FC<CasesTableProps> = ({
 					)}
 				</div>
 
-				{/* Cases Table */}
-				<div className="flex-1 overflow-hidden">
+				{/* Scrollable Content Area */}
+				<div className="flex-1 overflow-hidden mobile-scroll-container">
 					{/* Mobile View - Cards */}
-					<div className="block lg:hidden h-full overflow-y-auto">
-						<div className="p-4 space-y-4">
+					<div className="block lg:hidden h-full overflow-y-auto px-3 py-4">
+						<div className="space-y-3">
 							{filteredAndSortedCases.length > 0 ? (
 								filteredAndSortedCases.map((case_) => <CaseCard key={case_.id} case_={case_} />)
 							) : (
@@ -669,7 +669,7 @@ const CasesTable: React.FC<CasesTableProps> = ({
 
 					{/* Desktop View - Table with virtualization */}
 					<div className="hidden lg:block h-full overflow-y-auto">
-						<table className="w-full">
+						<table className="w-full responsive-table">
 							<thead className="bg-gray-50/50 dark:bg-background/50 backdrop-blur-[10px] sticky top-0 z-50">
 								<tr>
 									<th className="px-4 py-3 text-left">
@@ -883,14 +883,14 @@ const CasesTable: React.FC<CasesTableProps> = ({
 
 	return (
 		<>
-			<div className="bg-white dark:bg-background rounded-xl transition-colors duration-300 h-full">
+			<div className="bg-white dark:bg-background rounded-xl transition-colors duration-300 h-full overflow-hidden">
 				{/* Search and Filter Controls */}
-				<div className="p-4 sm:p-6 border-b border-gray-200 dark:border-gray-700">
-					<div className="flex flex-wrap items-center gap-4">
+				<div className="p-3 sm:p-6 border-b border-gray-200 dark:border-gray-700">
+					<div className="flex flex-wrap items-center gap-2 sm:gap-4">
 						{/* Search and Filters Row */}
-						<div className="flex flex-col sm:flex-row gap-4 flex-1">
+						<div className="flex flex-col sm:flex-row gap-2 sm:gap-4 flex-1 w-full">
 							{/* Search - Acortada */}
-							<div className="w-full sm:max-w-md relative">
+							<div className="w-full sm:max-w-md relative flex-1">
 								<Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
 								<input
 									type="text"
@@ -911,7 +911,7 @@ const CasesTable: React.FC<CasesTableProps> = ({
 							<Button
 								onClick={handleSearchClick}
 								disabled={isSearching || !searchTerm.trim()}
-								className="whitespace-nowrap"
+								className="whitespace-nowrap sm:flex-none"
 							>
 								Buscar
 							</Button>
@@ -1001,7 +1001,7 @@ const CasesTable: React.FC<CasesTableProps> = ({
 						</div>
 
 						{/* Results count */}
-						<div className="text-sm text-gray-600 dark:text-gray-400">
+						<div className="text-sm text-gray-600 dark:text-gray-400 hidden sm:block">
 							Mostrando {filteredAndSortedCases.length} de {cases.length} casos
 						</div>
 					</div>
@@ -1018,7 +1018,7 @@ const CasesTable: React.FC<CasesTableProps> = ({
 				)}
 
 				{/* Mobile View - Cards */}
-				<div className="block lg:hidden">
+				<div className="block lg:hidden overflow-hidden">
 					<div className="p-4 space-y-4 max-h-[60vh] overflow-y-auto">
 						{filteredAndSortedCases.length > 0 ? (
 							filteredAndSortedCases.slice(0, 50).map((case_) => <CaseCard key={case_.id} case_={case_} />)
@@ -1050,7 +1050,7 @@ const CasesTable: React.FC<CasesTableProps> = ({
 
 				{/* Desktop View - Table */}
 				<div className="hidden lg:block">
-					<div className="overflow-x-auto">
+					<div className="overflow-x-auto responsive-table">
 						<div className="max-h-[60vh] overflow-y-auto">
 							{/* Doctor Filter Panel - Conditionally rendered */}
 							{showDoctorFilter && (
@@ -1062,7 +1062,7 @@ const CasesTable: React.FC<CasesTableProps> = ({
 								</div>
 							)}
 
-							<table className="w-full">
+							<table className="w-full min-w-[800px]">
 								<thead className="bg-gray-50/50 dark:bg-background/50 backdrop-blur-[10px] sticky top-0 z-50">
 									<tr>
 										<th className="px-4 py-3 text-left">
@@ -1257,14 +1257,14 @@ const CasesTable: React.FC<CasesTableProps> = ({
 								</tbody>
 							</table>
 
-							{filteredAndSortedCases.length > 100 && (
-								<div className="text-center py-4 border-t border-gray-200 dark:border-gray-700">
+							{filteredAndSortedCases.length > 100 && !isFullscreen && (
+								<div className="text-center py-3 sm:py-4 border-t border-gray-200 dark:border-gray-700">
 									<p className="text-sm text-gray-500 dark:text-gray-400">
 										Mostrando 100 de {filteredAndSortedCases.length} casos
 									</p>
 									<button
 										onClick={() => setIsFullscreen(true)}
-										className="mt-2 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/80 transition-colors"
+										className="mt-2 px-3 sm:px-4 py-1.5 sm:py-2 bg-primary text-white rounded-lg hover:bg-primary/80 transition-colors text-sm"
 									>
 										Ver todos los casos
 									</button>
