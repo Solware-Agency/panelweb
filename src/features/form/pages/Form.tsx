@@ -12,7 +12,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@shared/components/ui/
 import { useNavigate } from 'react-router-dom'
 import { signOut } from '@lib/supabase/auth'
 import { getMedicalRecords, searchMedicalRecords } from '@lib/supabase-service'
-import { RefreshCw, Loader2 } from 'lucide-react'
+import { RefreshCw, Loader2, User } from 'lucide-react'
 import { useUserProfile } from '@shared/hooks/useUserProfile'
 import { DoctorsSection } from '@features/form/components/DoctorsSection'
 
