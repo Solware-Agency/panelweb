@@ -1,11 +1,33 @@
 import React, { useState, useEffect } from 'react'
-import { 
-  X, User, Stethoscope, CreditCard, FileText, CheckCircle, Hash, Cake, UserCheck, 
-  Edit, Trash2, Loader2, AlertCircle, Save, XCircle, Plus, DollarSign, History
+import {
+	X,
+	User,
+	Stethoscope,
+	CreditCard,
+	FileText,
+	CheckCircle,
+	Hash,
+	Cake,
+	UserCheck,
+	Edit,
+	Trash2,
+	Loader2,
+	AlertCircle,
+	Save,
+	XCircle,
+	Plus,
+	DollarSign,
+	History,
+	Eye,
 } from 'lucide-react'
 import { motion, AnimatePresence } from 'motion/react'
 import type { MedicalRecord } from '@lib/supabase-service'
-import { getAgeDisplay, deleteMedicalRecord, updateMedicalRecordWithLog, getChangeLogsForRecord } from '@lib/supabase-service'
+import {
+	getAgeDisplay,
+	deleteMedicalRecord,
+	updateMedicalRecordWithLog,
+	getChangeLogsForRecord,
+} from '@lib/supabase-service'
 import { format, parseISO } from 'date-fns'
 import { es } from 'date-fns/locale'
 import { useQuery } from '@tanstack/react-query'
@@ -21,15 +43,15 @@ import { Calendar } from '@shared/components/ui/calendar'
 import { cn } from '@shared/lib/cn'
 
 interface ChangeLogEntry {
-  id: string
-  medical_record_id: string
-  user_id: string
-  user_email: string
-  field_name: string
-  field_label: string
-  old_value: string | null
-  new_value: string | null
-  changed_at: string
+	id: string
+	medical_record_id: string
+	user_id: string
+	user_email: string
+	field_name: string
+	field_label: string
+	old_value: string | null
+	new_value: string | null
+	changed_at: string
 }
 
 interface CaseDetailPanelProps {
@@ -52,16 +74,16 @@ const CaseDetailPanel: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClos
 	const [newPayment, setNewPayment] = useState({
 		method: '',
 		amount: '',
-		reference: ''
+		reference: '',
 	})
 	const [isChangelogOpen, setIsChangelogOpen] = useState(false)
-	
+
 	// Query to get the user who created the record
 	const { data: creatorData } = useQuery({
 		queryKey: ['record-creator', case_?.id],
 		queryFn: async () => {
-			if (!case_) return null;
-			
+			if (!case_) return null
+
 			// First try to get creator info from the record itself (for new records)
 			if (case_.created_by && case_.created_by_display_name) {
 				return {
@@ -72,6 +94,8 @@ const CaseDetailPanel: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClos
 			}
 
 			// If not available, try to get from change logs
+			if (!case_.id) return null
+
 			const { data, error } = await supabase
 				.from('change_logs')
 				.select('user_id, user_email')
@@ -105,10 +129,10 @@ const CaseDetailPanel: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClos
 	})
 
 	// Query to get change logs for this record
-	const { 
-		data: changelogsData, 
+	const {
+		data: changelogsData,
 		isLoading: isLoadingChangelogs,
-		refetch: refetchChangelogs
+		refetch: refetchChangelogs,
 	} = useQuery({
 		queryKey: ['record-changelogs', case_?.id],
 		queryFn: async () => {
@@ -147,190 +171,190 @@ const CaseDetailPanel: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClos
 	}, [case_, isEditing])
 
 	const handleEditClick = () => {
-		if (!case_) return;
-		setIsEditing(true);
-	};
+		if (!case_) return
+		setIsEditing(true)
+	}
 
 	const handleCancelEdit = () => {
-		setIsEditing(false);
-		setEditedCase({});
-	};
+		setIsEditing(false)
+		setEditedCase({})
+	}
 
 	const handleDeleteClick = () => {
-		if (!case_) return;
-		setIsDeleteModalOpen(true);
-	};
+		if (!case_) return
+		setIsDeleteModalOpen(true)
+	}
 
 	const handleConfirmDelete = async () => {
-		if (!case_ || !user) return;
-		
-		setIsDeleting(true);
+		if (!case_ || !user) return
+
+		setIsDeleting(true)
 		try {
-			const { error } = await deleteMedicalRecord(case_.id!);
-			
+			const { error } = await deleteMedicalRecord(case_.id!)
+
 			if (error) {
-				throw error;
+				throw error
 			}
-			
+
 			toast({
 				title: '✅ Caso eliminado exitosamente',
 				description: `El caso ${case_.code || case_.id} ha sido eliminado.`,
 				className: 'bg-green-100 border-green-400 text-green-800',
-			});
-			
+			})
+
 			// Close modals and panel
-			setIsDeleteModalOpen(false);
-			onClose();
-			
+			setIsDeleteModalOpen(false)
+			onClose()
+
 			// Refresh data if callback provided
 			if (onCaseUpdated) {
-				onCaseUpdated();
+				onCaseUpdated()
 			}
 		} catch (error) {
-			console.error('Error deleting case:', error);
+			console.error('Error deleting case:', error)
 			toast({
 				title: '❌ Error al eliminar',
 				description: 'Hubo un problema al eliminar el caso. Inténtalo de nuevo.',
 				variant: 'destructive',
-			});
+			})
 		} finally {
-			setIsDeleting(false);
+			setIsDeleting(false)
 		}
-	};
+	}
 
 	const handleInputChange = (field: string, value: any) => {
-		setEditedCase(prev => ({
+		setEditedCase((prev) => ({
 			...prev,
-			[field]: value
-		}));
-	};
+			[field]: value,
+		}))
+	}
 
 	const handleSaveChanges = async () => {
-		if (!case_ || !user) return;
-		
-		setIsSaving(true);
+		if (!case_ || !user) return
+
+		setIsSaving(true)
 		try {
 			// Detect changes
-			const changes = [];
+			const changes = []
 			for (const [key, value] of Object.entries(editedCase)) {
 				// Skip if value hasn't changed
-				if (value === case_[key as keyof MedicalRecord]) continue;
-				
+				if (value === case_[key as keyof MedicalRecord]) continue
+
 				// Add to changes array
 				changes.push({
 					field: key,
 					fieldLabel: getFieldLabel(key),
 					oldValue: case_[key as keyof MedicalRecord],
-					newValue: value
-				});
+					newValue: value,
+				})
 			}
-			
+
 			if (changes.length === 0) {
 				toast({
 					title: 'Sin cambios',
 					description: 'No se detectaron cambios para guardar.',
 					variant: 'default',
-				});
-				setIsEditing(false);
-				setIsSaving(false);
-				return;
+				})
+				setIsEditing(false)
+				setIsSaving(false)
+				return
 			}
-			
+
 			// Update record with changes
 			const { error } = await updateMedicalRecordWithLog(
 				case_.id!,
 				editedCase,
 				changes,
 				user.id,
-				user.email || 'unknown@email.com'
-			);
-			
+				user.email || 'unknown@email.com',
+			)
+
 			if (error) {
-				throw error;
+				throw error
 			}
-			
+
 			toast({
 				title: '✅ Caso actualizado exitosamente',
 				description: `Se han guardado los cambios al caso ${case_.code || case_.id}.`,
 				className: 'bg-green-100 border-green-400 text-green-800',
-			});
-			
+			})
+
 			// Exit edit mode
-			setIsEditing(false);
-			
+			setIsEditing(false)
+
 			// Refresh data if callback provided
 			if (onCaseUpdated) {
-				onCaseUpdated();
+				onCaseUpdated()
 			}
 		} catch (error) {
-			console.error('Error updating case:', error);
+			console.error('Error updating case:', error)
 			toast({
 				title: '❌ Error al guardar',
 				description: 'Hubo un problema al guardar los cambios. Inténtalo de nuevo.',
 				variant: 'destructive',
-			});
+			})
 		} finally {
-			setIsSaving(false);
+			setIsSaving(false)
 		}
-	};
+	}
 
 	const handleAddPayment = () => {
-		if (!case_ || !editedCase) return;
-		
+		if (!case_ || !editedCase) return
+
 		// Find the first empty payment slot
-		let paymentSlot = 0;
+		let paymentSlot = 0
 		for (let i = 1; i <= 4; i++) {
-			const methodKey = `payment_method_${i}` as keyof MedicalRecord;
+			const methodKey = `payment_method_${i}` as keyof MedicalRecord
 			if (!editedCase[methodKey]) {
-				paymentSlot = i;
-				break;
+				paymentSlot = i
+				break
 			}
 		}
-		
+
 		if (paymentSlot === 0) {
 			toast({
 				title: '❌ Límite alcanzado',
 				description: 'Ya has agregado el máximo de 4 métodos de pago.',
 				variant: 'destructive',
-			});
-			return;
+			})
+			return
 		}
-		
+
 		// Add the new payment
-		setEditedCase(prev => ({
+		setEditedCase((prev) => ({
 			...prev,
 			[`payment_method_${paymentSlot}`]: newPayment.method,
 			[`payment_amount_${paymentSlot}`]: parseFloat(newPayment.amount),
-			[`payment_reference_${paymentSlot}`]: newPayment.reference
-		}));
-		
+			[`payment_reference_${paymentSlot}`]: newPayment.reference,
+		}))
+
 		// Reset form and close modal
 		setNewPayment({
 			method: '',
 			amount: '',
-			reference: ''
-		});
-		setIsAddPaymentModalOpen(false);
-	};
+			reference: '',
+		})
+		setIsAddPaymentModalOpen(false)
+	}
 
 	const handleRemovePayment = (index: number) => {
-		if (!case_ || !editedCase) return;
-		
+		if (!case_ || !editedCase) return
+
 		// Remove the payment
-		setEditedCase(prev => ({
+		setEditedCase((prev) => ({
 			...prev,
 			[`payment_method_${index}`]: null,
 			[`payment_amount_${index}`]: null,
-			[`payment_reference_${index}`]: null
-		}));
-	};
+			[`payment_reference_${index}`]: null,
+		}))
+	}
 
 	const toggleChangelog = () => {
-		setIsChangelogOpen(!isChangelogOpen);
+		setIsChangelogOpen(!isChangelogOpen)
 		if (!isChangelogOpen && case_?.id) {
-			refetchChangelogs();
+			refetchChangelogs()
 		}
-	};
+	}
 
 	if (!case_) return null
 
@@ -391,22 +415,22 @@ const CaseDetailPanel: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClos
 		</div>
 	)
 
-	const InfoRow = ({ 
-		label, 
-		value, 
-		field, 
+	const InfoRow = ({
+		label,
+		value,
+		field,
 		editable = true,
-		type = 'text'
-	}: { 
+		type = 'text',
+	}: {
 		label: string
 		value: string | number | undefined
 		field?: string
 		editable?: boolean
 		type?: 'text' | 'number' | 'email'
 	}) => {
-		const isEditableField = isEditing && editable && field;
-		const fieldValue = field ? (editedCase[field as keyof MedicalRecord] ?? value) : value;
-		
+		const isEditableField = isEditing && editable && field
+		const fieldValue = field ? editedCase[field as keyof MedicalRecord] ?? value : value
+
 		return (
 			<div className="flex flex-col sm:flex-row sm:justify-between py-2 border-b border-gray-200 dark:border-gray-700 last:border-b-0">
 				<span className="text-sm font-medium text-gray-600 dark:text-gray-400">{label}:</span>
@@ -414,7 +438,7 @@ const CaseDetailPanel: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClos
 					<div className="sm:w-1/2">
 						<Input
 							type={type}
-							value={fieldValue || ''}
+							value={String(fieldValue || '')}
 							onChange={(e) => handleInputChange(field!, e.target.value)}
 							className="text-sm border-dashed focus:border-primary focus:ring-primary bg-gray-50 dark:bg-gray-800/50"
 						/>
@@ -434,7 +458,7 @@ const CaseDetailPanel: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClos
 	const ageDisplay = case_.date_of_birth ? getAgeDisplay(case_.date_of_birth) : ''
 
 	// Función auxiliar para mostrar el símbolo correcto según el método
-	const getPaymentSymbol = (method?: string) => {
+	const getPaymentSymbol = (method?: string | null) => {
 		if (!method) return ''
 		const bolivares = ['Punto de venta', 'Pago móvil', 'Bs en efectivo']
 		return bolivares.includes(method) ? 'Bs' : '$'
@@ -443,25 +467,25 @@ const CaseDetailPanel: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClos
 	// Get action type display text and icon for changelog
 	const getActionTypeInfo = (log: ChangeLogEntry) => {
 		if (log.field_name === 'created_record') {
-			return { 
-				text: 'Creación', 
+			return {
+				text: 'Creación',
 				icon: <FileText className="w-4 h-4 text-green-600 dark:text-green-400" />,
 				bgColor: 'bg-green-100 dark:bg-green-900/30',
-				textColor: 'text-green-800 dark:text-green-300'
+				textColor: 'text-green-800 dark:text-green-300',
 			}
 		} else if (log.field_name === 'deleted_record') {
-			return { 
-				text: 'Eliminación', 
+			return {
+				text: 'Eliminación',
 				icon: <Trash2 className="w-4 h-4 text-red-600 dark:text-red-400" />,
 				bgColor: 'bg-red-100 dark:bg-red-900/30',
-				textColor: 'text-red-800 dark:text-red-300'
+				textColor: 'text-red-800 dark:text-red-300',
 			}
 		} else {
-			return { 
-				text: 'Edición', 
+			return {
+				text: 'Edición',
 				icon: <Eye className="w-4 h-4 text-blue-600 dark:text-blue-400" />,
 				bgColor: 'bg-blue-100 dark:bg-blue-900/30',
-				textColor: 'text-blue-800 dark:text-blue-300'
+				textColor: 'text-blue-800 dark:text-blue-300',
 			}
 		}
 	}
@@ -501,7 +525,9 @@ const CaseDetailPanel: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClos
 												className="text-xl sm:text-2xl font-bold border-dashed focus:border-primary focus:ring-primary bg-gray-50 dark:bg-gray-800/50"
 											/>
 										) : (
-											<h2 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-gray-100">{case_.full_name}</h2>
+											<h2 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-gray-100">
+												{case_.full_name}
+											</h2>
 										)}
 									</div>
 									<button
@@ -531,12 +557,12 @@ const CaseDetailPanel: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClos
 										</span>
 									)}
 								</div>
-								
+
 								{/* Action Buttons */}
 								<div className="flex gap-2 mt-4">
 									{isEditing ? (
 										<>
-											<Button 
+											<Button
 												onClick={handleSaveChanges}
 												disabled={isSaving}
 												className="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white"
@@ -553,7 +579,7 @@ const CaseDetailPanel: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClos
 													</>
 												)}
 											</Button>
-											<Button 
+											<Button
 												onClick={handleCancelEdit}
 												variant="outline"
 												className="flex items-center gap-2"
@@ -565,26 +591,18 @@ const CaseDetailPanel: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClos
 										</>
 									) : (
 										<>
-											<Button 
+											<Button
 												onClick={handleEditClick}
 												className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white"
 											>
 												<Edit className="w-4 h-4" />
 												Editar Caso
 											</Button>
-											<Button 
-												onClick={handleDeleteClick}
-												variant="destructive"
-												className="flex items-center gap-2"
-											>
+											<Button onClick={handleDeleteClick} variant="destructive" className="flex items-center gap-2">
 												<Trash2 className="w-4 h-4" />
 												Eliminar Caso
 											</Button>
-											<Button
-												onClick={toggleChangelog}
-												variant="outline"
-												className="flex items-center gap-2"
-											>
+											<Button onClick={toggleChangelog} variant="outline" className="flex items-center gap-2">
 												<History className="w-4 h-4" />
 												{isChangelogOpen ? 'Ocultar Historial' : 'Ver Historial'}
 											</Button>
@@ -610,11 +628,16 @@ const CaseDetailPanel: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClos
 										) : (
 											<div className="space-y-4 max-h-80 overflow-y-auto">
 												{changelogsData.data.map((log: ChangeLogEntry) => {
-													const actionInfo = getActionTypeInfo(log);
+													const actionInfo = getActionTypeInfo(log)
 													return (
-														<div key={log.id} className="border-b border-gray-200 dark:border-gray-700 pb-3 last:border-0">
+														<div
+															key={log.id}
+															className="border-b border-gray-200 dark:border-gray-700 pb-3 last:border-0"
+														>
 															<div className="flex justify-between items-start mb-2">
-																<div className={`inline-flex items-center gap-1 px-2 py-1 text-xs font-medium rounded-full ${actionInfo.bgColor} ${actionInfo.textColor}`}>
+																<div
+																	className={`inline-flex items-center gap-1 px-2 py-1 text-xs font-medium rounded-full ${actionInfo.bgColor} ${actionInfo.textColor}`}
+																>
 																	{actionInfo.icon}
 																	<span>{actionInfo.text}</span>
 																</div>
@@ -645,7 +668,7 @@ const CaseDetailPanel: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClos
 																</div>
 															)}
 														</div>
-													);
+													)
 												})}
 											</div>
 										)}
@@ -695,16 +718,8 @@ const CaseDetailPanel: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClos
 								{/* Patient Information */}
 								<InfoSection title="Información del Paciente" icon={User}>
 									<div className="space-y-1">
-										<InfoRow 
-											label="Nombre completo" 
-											value={case_.full_name} 
-											field="full_name"
-										/>
-										<InfoRow 
-											label="Cédula" 
-											value={case_.id_number} 
-											field="id_number"
-										/>
+										<InfoRow label="Nombre completo" value={case_.full_name} field="full_name" />
+										<InfoRow label="Cédula" value={case_.id_number} field="id_number" />
 										<div className="flex flex-col sm:flex-row sm:justify-between py-2 border-b border-gray-200 dark:border-gray-700">
 											<span className="text-sm font-medium text-gray-600 dark:text-gray-400 flex items-center gap-1">
 												<Cake className="w-4 h-4 text-pink-500" />
@@ -717,14 +732,16 @@ const CaseDetailPanel: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClos
 															<Button
 																variant="outline"
 																className={cn(
-																	"w-full justify-start text-left font-normal border-dashed bg-gray-50 dark:bg-gray-800/50",
-																	!editedCase.date_of_birth && "text-muted-foreground"
+																	'w-full justify-start text-left font-normal border-dashed bg-gray-50 dark:bg-gray-800/50',
+																	!editedCase.date_of_birth && 'text-muted-foreground',
 																)}
 															>
 																<Cake className="mr-2 h-4 w-4 text-pink-500" />
 																{editedCase.date_of_birth ? (
 																	<div className="flex items-center gap-2">
-																		<span>{format(parseISO(editedCase.date_of_birth as string), 'PPP', { locale: es })}</span>
+																		<span>
+																			{format(parseISO(editedCase.date_of_birth as string), 'PPP', { locale: es })}
+																		</span>
 																		{getAgeDisplay(editedCase.date_of_birth as string) && (
 																			<span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">
 																				{getAgeDisplay(editedCase.date_of_birth as string)}
@@ -748,17 +765,19 @@ const CaseDetailPanel: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClos
 														<PopoverContent className="w-auto p-0 z-[999999999]">
 															<Calendar
 																mode="single"
-																selected={editedCase.date_of_birth ? parseISO(editedCase.date_of_birth as string) : undefined}
+																selected={
+																	editedCase.date_of_birth ? parseISO(editedCase.date_of_birth as string) : undefined
+																}
 																onSelect={(date) => {
 																	if (date) {
-																		handleInputChange('date_of_birth', format(date, 'yyyy-MM-dd'));
-																		setIsDateOfBirthOpen(false);
+																		handleInputChange('date_of_birth', format(date, 'yyyy-MM-dd'))
+																		setIsDateOfBirthOpen(false)
 																	}
 																}}
 																disabled={(date) => {
-																	const today = new Date();
-																	const maxAge = new Date(today.getFullYear() - 150, today.getMonth(), today.getDate());
-																	return date > today || date < maxAge;
+																	const today = new Date()
+																	const maxAge = new Date(today.getFullYear() - 150, today.getMonth(), today.getDate())
+																	return date > today || date < maxAge
 																}}
 																initialFocus
 																locale={es}
@@ -775,22 +794,9 @@ const CaseDetailPanel: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClos
 												</div>
 											)}
 										</div>
-										<InfoRow 
-											label="Teléfono" 
-											value={case_.phone} 
-											field="phone"
-										/>
-										<InfoRow 
-											label="Email" 
-											value={case_.email || 'N/A'} 
-											field="email"
-											type="email"
-										/>
-										<InfoRow 
-											label="Relación" 
-											value={case_.relationship || 'N/A'} 
-											editable={false}
-										/>
+										<InfoRow label="Teléfono" value={case_.phone} field="phone" />
+										<InfoRow label="Email" value={case_.email || 'N/A'} field="email" type="email" />
+										<InfoRow label="Relación" value={case_.relationship || 'N/A'} editable={false} />
 									</div>
 								</InfoSection>
 
@@ -803,7 +809,11 @@ const CaseDetailPanel: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClos
 										<InfoRow label="Sede" value={case_.branch} editable={false} />
 										<InfoRow label="Muestra" value={case_.sample_type} editable={false} />
 										<InfoRow label="Cantidad de muestras" value={case_.number_of_samples} editable={false} />
-										<InfoRow label="Fecha de registro" value={new Date(case_.date || '').toLocaleDateString('es-ES')} editable={false} />
+										<InfoRow
+											label="Fecha de registro"
+											value={new Date(case_.date || '').toLocaleDateString('es-ES')}
+											editable={false}
+										/>
 									</div>
 								</InfoSection>
 
@@ -820,15 +830,15 @@ const CaseDetailPanel: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClos
 										<div className="flex items-center justify-between mb-2">
 											<h4 className="text-sm font-medium text-gray-700 dark:text-gray-300">Formas de Pago:</h4>
 											{isEditing && (
-												<Button 
-													size="sm" 
-													variant="outline" 
+												<Button
+													size="sm"
+													variant="outline"
 													onClick={() => setIsAddPaymentModalOpen(true)}
 													className="text-xs flex items-center gap-1"
 													disabled={
-														!!editedCase.payment_method_1 && 
-														!!editedCase.payment_method_2 && 
-														!!editedCase.payment_method_3 && 
+														!!editedCase.payment_method_1 &&
+														!!editedCase.payment_method_2 &&
+														!!editedCase.payment_method_3 &&
 														!!editedCase.payment_method_4
 													}
 												>
@@ -872,7 +882,9 @@ const CaseDetailPanel: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClos
 																	/>
 																</div>
 																<div>
-																	<label className="text-xs text-gray-500 dark:text-gray-400 mb-1 block">Referencia</label>
+																	<label className="text-xs text-gray-500 dark:text-gray-400 mb-1 block">
+																		Referencia
+																	</label>
 																	<Input
 																		value={editedCase.payment_reference_1 || ''}
 																		onChange={(e) => handleInputChange('payment_reference_1', e.target.value)}
@@ -895,11 +907,12 @@ const CaseDetailPanel: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClos
 															</span>
 														</div>
 													)}
-													{(case_.payment_reference_1 || (isEditing && editedCase.payment_reference_1)) && !isEditing && (
-														<div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-															Ref: {editedCase.payment_reference_1 || case_.payment_reference_1}
-														</div>
-													)}
+													{(case_.payment_reference_1 || (isEditing && editedCase.payment_reference_1)) &&
+														!isEditing && (
+															<div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+																Ref: {editedCase.payment_reference_1 || case_.payment_reference_1}
+															</div>
+														)}
 												</div>
 											)}
 
@@ -937,7 +950,9 @@ const CaseDetailPanel: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClos
 																	/>
 																</div>
 																<div>
-																	<label className="text-xs text-gray-500 dark:text-gray-400 mb-1 block">Referencia</label>
+																	<label className="text-xs text-gray-500 dark:text-gray-400 mb-1 block">
+																		Referencia
+																	</label>
 																	<Input
 																		value={editedCase.payment_reference_2 || ''}
 																		onChange={(e) => handleInputChange('payment_reference_2', e.target.value)}
@@ -960,11 +975,12 @@ const CaseDetailPanel: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClos
 															</span>
 														</div>
 													)}
-													{(case_.payment_reference_2 || (isEditing && editedCase.payment_reference_2)) && !isEditing && (
-														<div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-															Ref: {editedCase.payment_reference_2 || case_.payment_reference_2}
-														</div>
-													)}
+													{(case_.payment_reference_2 || (isEditing && editedCase.payment_reference_2)) &&
+														!isEditing && (
+															<div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+																Ref: {editedCase.payment_reference_2 || case_.payment_reference_2}
+															</div>
+														)}
 												</div>
 											)}
 
@@ -1002,7 +1018,9 @@ const CaseDetailPanel: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClos
 																	/>
 																</div>
 																<div>
-																	<label className="text-xs text-gray-500 dark:text-gray-400 mb-1 block">Referencia</label>
+																	<label className="text-xs text-gray-500 dark:text-gray-400 mb-1 block">
+																		Referencia
+																	</label>
 																	<Input
 																		value={editedCase.payment_reference_3 || ''}
 																		onChange={(e) => handleInputChange('payment_reference_3', e.target.value)}
@@ -1025,11 +1043,12 @@ const CaseDetailPanel: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClos
 															</span>
 														</div>
 													)}
-													{(case_.payment_reference_3 || (isEditing && editedCase.payment_reference_3)) && !isEditing && (
-														<div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-															Ref: {editedCase.payment_reference_3 || case_.payment_reference_3}
-														</div>
-													)}
+													{(case_.payment_reference_3 || (isEditing && editedCase.payment_reference_3)) &&
+														!isEditing && (
+															<div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+																Ref: {editedCase.payment_reference_3 || case_.payment_reference_3}
+															</div>
+														)}
 												</div>
 											)}
 
@@ -1067,7 +1086,9 @@ const CaseDetailPanel: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClos
 																	/>
 																</div>
 																<div>
-																	<label className="text-xs text-gray-500 dark:text-gray-400 mb-1 block">Referencia</label>
+																	<label className="text-xs text-gray-500 dark:text-gray-400 mb-1 block">
+																		Referencia
+																	</label>
 																	<Input
 																		value={editedCase.payment_reference_4 || ''}
 																		onChange={(e) => handleInputChange('payment_reference_4', e.target.value)}
@@ -1090,11 +1111,12 @@ const CaseDetailPanel: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClos
 															</span>
 														</div>
 													)}
-													{(case_.payment_reference_4 || (isEditing && editedCase.payment_reference_4)) && !isEditing && (
-														<div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-															Ref: {editedCase.payment_reference_4 || case_.payment_reference_4}
-														</div>
-													)}
+													{(case_.payment_reference_4 || (isEditing && editedCase.payment_reference_4)) &&
+														!isEditing && (
+															<div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+																Ref: {editedCase.payment_reference_4 || case_.payment_reference_4}
+															</div>
+														)}
 												</div>
 											)}
 										</div>
@@ -1136,7 +1158,7 @@ const CaseDetailPanel: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClos
 								<div className="flex gap-2 pt-4 border-t border-gray-200 dark:border-gray-700">
 									{isEditing ? (
 										<>
-											<Button 
+											<Button
 												onClick={handleSaveChanges}
 												disabled={isSaving}
 												className="flex-1 flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white"
@@ -1153,7 +1175,7 @@ const CaseDetailPanel: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClos
 													</>
 												)}
 											</Button>
-											<Button 
+											<Button
 												onClick={handleCancelEdit}
 												variant="outline"
 												className="flex-1 flex items-center gap-2"
@@ -1165,14 +1187,14 @@ const CaseDetailPanel: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClos
 										</>
 									) : (
 										<>
-											<Button 
+											<Button
 												onClick={handleEditClick}
 												className="flex-1 flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white"
 											>
 												<Edit className="w-4 h-4" />
 												Editar Caso
 											</Button>
-											<Button 
+											<Button
 												onClick={handleDeleteClick}
 												variant="destructive"
 												className="flex-1 flex items-center gap-2"
@@ -1188,7 +1210,7 @@ const CaseDetailPanel: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClos
 					</>
 				)}
 			</AnimatePresence>
-			
+
 			{/* Delete Confirmation Modal */}
 			{isDeleteModalOpen && (
 				<div className="fixed inset-0 z-[999999999] flex items-center justify-center bg-black/50">
@@ -1199,11 +1221,11 @@ const CaseDetailPanel: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClos
 							</div>
 							<h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Confirmar eliminación</h3>
 						</div>
-						
+
 						<p className="text-gray-700 dark:text-gray-300 mb-6">
 							¿Estás seguro de que quieres eliminar este caso? Esta acción no se puede deshacer.
 						</p>
-						
+
 						<div className="flex flex-col sm:flex-row gap-3 sm:justify-end">
 							<button
 								onClick={() => setIsDeleteModalOpen(false)}
@@ -1251,7 +1273,7 @@ const CaseDetailPanel: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClos
 								<X className="w-5 h-5 text-gray-500 dark:text-gray-400" />
 							</button>
 						</div>
-						
+
 						<div className="space-y-4 mb-6">
 							<div>
 								<label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
@@ -1259,7 +1281,7 @@ const CaseDetailPanel: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClos
 								</label>
 								<Select
 									value={newPayment.method}
-									onValueChange={(value) => setNewPayment({...newPayment, method: value})}
+									onValueChange={(value) => setNewPayment({ ...newPayment, method: value })}
 								>
 									<SelectTrigger className="w-full">
 										<SelectValue placeholder="Seleccionar método" />
@@ -1273,36 +1295,29 @@ const CaseDetailPanel: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClos
 									</SelectContent>
 								</Select>
 							</div>
-							
+
 							<div>
-								<label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-									Monto
-								</label>
+								<label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Monto</label>
 								<Input
 									type="number"
 									value={newPayment.amount}
-									onChange={(e) => setNewPayment({...newPayment, amount: e.target.value})}
+									onChange={(e) => setNewPayment({ ...newPayment, amount: e.target.value })}
 									placeholder="0.00"
 								/>
 							</div>
-							
+
 							<div>
-								<label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-									Referencia
-								</label>
+								<label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Referencia</label>
 								<Input
 									value={newPayment.reference}
-									onChange={(e) => setNewPayment({...newPayment, reference: e.target.value})}
+									onChange={(e) => setNewPayment({ ...newPayment, reference: e.target.value })}
 									placeholder="Referencia de pago"
 								/>
 							</div>
 						</div>
-						
+
 						<div className="flex flex-col sm:flex-row gap-3 sm:justify-end">
-							<Button
-								variant="outline"
-								onClick={() => setIsAddPaymentModalOpen(false)}
-							>
+							<Button variant="outline" onClick={() => setIsAddPaymentModalOpen(false)}>
 								Cancelar
 							</Button>
 							<Button

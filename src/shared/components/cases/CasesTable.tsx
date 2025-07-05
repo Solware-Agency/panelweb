@@ -69,7 +69,7 @@ const CasesTable: React.FC<CasesTableProps> = ({
 	const [selectedDoctors, setSelectedDoctors] = useState<string[]>([])
 	const [showDoctorFilter, setShowDoctorFilter] = useState(false)
 	const [isSearching, setIsSearching] = useState(false)
-	
+
 	// Determine if user can edit, delete, or generate cases based on role
 	const canEdit = profile?.role === 'owner' || profile?.role === 'employee'
 	const canGenerate = profile?.role === 'owner' || profile?.role === 'admin'
@@ -114,7 +114,7 @@ const CasesTable: React.FC<CasesTableProps> = ({
 				})
 				return
 			}
-			
+
 			// Check if this is a biopsy case
 			if (case_.exam_type?.toLowerCase() !== 'biopsia') {
 				toast({
@@ -131,20 +131,23 @@ const CasesTable: React.FC<CasesTableProps> = ({
 		[toast, canGenerate],
 	)
 
-	const handleEditCase = useCallback((case_: MedicalRecord) => {
-		// Check if user has permission to edit cases
-		if (!canEdit) {
-			toast({
-				title: '❌ Permiso denegado',
-				description: 'No tienes permisos para editar casos.',
-				variant: 'destructive',
-			})
-			return
-		}
-		
-		setSelectedCaseForEdit(case_)
-		setIsEditModalOpen(true)
-	}, [canEdit, toast])
+	const handleEditCase = useCallback(
+		(case_: MedicalRecord) => {
+			// Check if user has permission to edit cases
+			if (!canEdit) {
+				toast({
+					title: '❌ Permiso denegado',
+					description: 'No tienes permisos para editar casos.',
+					variant: 'destructive',
+				})
+				return
+			}
+
+			setSelectedCaseForEdit(case_)
+			setIsEditModalOpen(true)
+		},
+		[canEdit, toast],
+	)
 
 	const handleDownloadCase = useCallback(
 		async (case_: MedicalRecord) => {
@@ -215,7 +218,7 @@ const CasesTable: React.FC<CasesTableProps> = ({
 
 	// Toggle doctor filter panel
 	const toggleDoctorFilter = useCallback(() => {
-		setShowDoctorFilter(prev => !prev)
+		setShowDoctorFilter((prev) => !prev)
 	}, [])
 
 	// Handle PDF filter toggle
@@ -237,7 +240,8 @@ const CasesTable: React.FC<CasesTableProps> = ({
 			if (!case_) return false
 
 			// Doctor filter
-			const matchesDoctor = selectedDoctors.length === 0 || 
+			const matchesDoctor =
+				selectedDoctors.length === 0 ||
 				(case_.treating_doctor && selectedDoctors.includes(case_.treating_doctor.trim()))
 
 			// Status filter
@@ -517,7 +521,7 @@ const CasesTable: React.FC<CasesTableProps> = ({
 							</div>
 
 							{/* Search Button */}
-							<Button 
+							<Button
 								onClick={handleSearchClick}
 								disabled={isSearching || !searchTerm.trim()}
 								className="whitespace-nowrap sm:flex-none"
@@ -575,14 +579,16 @@ const CasesTable: React.FC<CasesTableProps> = ({
 							{/* Doctor Filter Button */}
 							<Button
 								onClick={toggleDoctorFilter}
-								variant={showDoctorFilter ? "default" : "outline"}
+								variant={showDoctorFilter ? 'default' : 'outline'}
 								className="flex items-center gap-2"
 								title="Filtrar por médico"
 							>
 								<Stethoscope className="w-4 h-4" />
 								<span className="hidden sm:inline">Médicos</span>
 								{selectedDoctors.length > 0 && (
-									<span className="bg-white dark:bg-gray-800 text-primary text-xs px-2 py-0.5 rounded-full">{selectedDoctors.length}</span>
+									<span className="bg-white dark:bg-gray-800 text-primary text-xs px-2 py-0.5 rounded-full">
+										{selectedDoctors.length}
+									</span>
 								)}
 							</Button>
 
@@ -614,14 +620,11 @@ const CasesTable: React.FC<CasesTableProps> = ({
 						</button>
 					</div>
 				</div>
-				
+
 				{/* Doctor Filter Panel - Conditionally rendered */}
 				{showDoctorFilter && (
 					<div className="mb-4">
-						<DoctorFilterPanel 
-							cases={cases} 
-							onFilterChange={handleDoctorFilterChange}
-						/>
+						<DoctorFilterPanel cases={cases} onFilterChange={handleDoctorFilterChange} />
 					</div>
 				)}
 
@@ -635,13 +638,13 @@ const CasesTable: React.FC<CasesTableProps> = ({
 							</span>
 						</div>
 					)}
-					
+
 					{selectedDoctors.length > 0 && (
 						<div className="px-4 py-2 bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800 rounded-lg inline-block">
 							<span className="text-sm font-medium text-purple-800 dark:text-purple-300 flex items-center gap-2">
 								<Stethoscope className="w-4 h-4" />
-								{selectedDoctors.length === 1 
-									? `Médico: ${selectedDoctors[0]}` 
+								{selectedDoctors.length === 1
+									? `Médico: ${selectedDoctors[0]}`
 									: `${selectedDoctors.length} médicos seleccionados`}
 							</span>
 						</div>
@@ -908,7 +911,7 @@ const CasesTable: React.FC<CasesTableProps> = ({
 							</div>
 
 							{/* Search Button */}
-							<Button 
+							<Button
 								onClick={handleSearchClick}
 								disabled={isSearching || !searchTerm.trim()}
 								className="col-span-1 sm:col-span-1 lg:col-span-1 whitespace-nowrap"
@@ -966,14 +969,16 @@ const CasesTable: React.FC<CasesTableProps> = ({
 							{/* Doctor Filter Button */}
 							<Button
 								onClick={toggleDoctorFilter}
-								variant={showDoctorFilter ? "default" : "outline"}
+								variant={showDoctorFilter ? 'default' : 'outline'}
 								className="flex items-center gap-2"
 								title="Filtrar por médico"
 							>
 								<Stethoscope className="w-4 h-4" />
 								<span className="hidden sm:inline">Médicos</span>
 								{selectedDoctors.length > 0 && (
-									<span className="bg-white dark:bg-gray-800 text-primary text-xs px-2 py-0.5 rounded-full">{selectedDoctors.length}</span>
+									<span className="bg-white dark:bg-gray-800 text-primary text-xs px-2 py-0.5 rounded-full">
+										{selectedDoctors.length}
+									</span>
 								)}
 							</Button>
 
@@ -1006,14 +1011,11 @@ const CasesTable: React.FC<CasesTableProps> = ({
 						</div>
 					</div>
 				</div>
-				
+
 				{/* Doctor Filter Panel - Conditionally rendered */}
 				{showDoctorFilter && (
 					<div className="mb-4">
-						<DoctorFilterPanel 
-							cases={cases} 
-							onFilterChange={handleDoctorFilterChange}
-						/>
+						<DoctorFilterPanel cases={cases} onFilterChange={handleDoctorFilterChange} />
 					</div>
 				)}
 
@@ -1055,10 +1057,7 @@ const CasesTable: React.FC<CasesTableProps> = ({
 							{/* Doctor Filter Panel - Conditionally rendered */}
 							{showDoctorFilter && (
 								<div className="mb-4">
-									<DoctorFilterPanel 
-										cases={cases} 
-										onFilterChange={handleDoctorFilterChange}
-									/>
+									<DoctorFilterPanel cases={cases} onFilterChange={handleDoctorFilterChange} />
 								</div>
 							)}
 
@@ -1194,17 +1193,6 @@ const CasesTable: React.FC<CasesTableProps> = ({
 															>
 																<Eye className="w-3 h-3" />
 																Ver
-															</button>
-															<button
-																onClick={(e) => {
-																	e.stopPropagation()
-																	handleEditCase(case_)
-																}}
-																disabled={!canEdit}
-																className="inline-flex items-center gap-1 px-3 py-1 text-xs font-medium text-purple-600 dark:text-purple-400 hover:text-purple-800 dark:hover:text-purple-300 transition-colors"
-															>
-																<Edit2 className="w-3 h-3" />
-																Editar
 															</button>
 															{isBiopsyCase && (
 																<button

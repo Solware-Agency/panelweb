@@ -46,12 +46,12 @@ function MainHome() {
 		// Update selected month to the same month in the new year
 		setSelectedMonth(new Date(year, selectedMonth.getMonth(), 1))
 	}
-	
+
 	const handleStatCardClick = (statType: StatType) => {
 		setSelectedStat(statType)
 		setIsDetailPanelOpen(true)
 	}
-	
+
 	const handleDetailPanelClose = () => {
 		setIsDetailPanelOpen(false)
 	}
@@ -60,45 +60,43 @@ function MainHome() {
 		<div className="overflow-x-hidden">
 			<main className="p-2 sm:p-5">
 				{/* Welcome Banner - Full width on mobile */}
-				<Card 
-					className="mb-3 sm:mb-4 dark:bg-background bg-white rounded-xl py-3 sm:py-6 px-3 sm:px-8 flex flex-col sm:flex-row items-center justify-between shadow-lg cursor-pointer transition-all duration-300 hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20"
-					onClick={() => handleStatCardClick('totalRevenue')}
-				>
-					<div className="flex-1 text-center sm:text-left mb-3 sm:mb-0">
-						<div className="flex flex-col sm:flex-row items-center sm:items-start gap-2 sm:gap-3 mb-2">
-							<div>
-								<h1 className="text-xl sm:text-2xl md:text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 bg-clip-text text-transparent">
-									¡Bienvenido a Conspat!
-								</h1>
-								<div className="flex items-center justify-center sm:justify-start gap-2 mt-1 font-semibold">
-									{profile?.display_name && (
-										<span className="text-sm sm:text-md text-primary">
-											{profile.display_name}
-										</span>
-									)} 
-								</div>
-							</div>
-						</div>
-						<p className="text-gray-600 dark:text-gray-300 mb-2 sm:mb-4 text-sm sm:text-base md:text-lg">
-							Gestiona tus ingresos y estadisticas de empresa.
-						</p>
-					</div>
-					<div className="relative">
-						<div className="absolute inset-0 bg-gradient-to-r from-blue-400 to-purple-500 rounded-full blur-xl opacity-5 animate-pulse"></div>
-						<EyeTrackingComponent
-							className={
-								'size-20 sm:size-28 md:size-32 lg:size-40 drop-shadow-[0px_5px_10px_rgba(59,130,246,0.3)] dark:drop-shadow-[0px_5px_10px_rgba(147,197,253,0.3)] transition-all duration-300 hover:scale-105 relative z-10'
-							}
-						/>
-					</div>
-				</Card>
-				
+
 				{/* Mobile-first responsive grid */}
 				<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-3 sm:gap-4">
+					<Card
+						className="col-span-1 sm:col-span-2 lg:col-span-6 row-span-1 lg:row-span-1 dark:bg-background bg-white rounded-xl py-3 sm:py-6 px-3 sm:px-8 flex flex-col sm:flex-row items-center justify-between shadow-lg cursor-pointer transition-all duration-300 hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20"
+						onClick={() => handleStatCardClick('totalRevenue')}
+					>
+						<div className="flex-1 text-center sm:text-left mb-3 sm:mb-0">
+							<div className="flex flex-col sm:flex-row items-center sm:items-start gap-2 sm:gap-3 mb-2">
+								<div>
+									<h1 className="text-xl sm:text-2xl md:text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 bg-clip-text text-transparent">
+										¡Bienvenido a Conspat!
+									</h1>
+									<div className="flex items-center justify-center sm:justify-start gap-2 mt-1 font-semibold">
+										{profile?.display_name && (
+											<span className="text-sm sm:text-md text-primary">{profile.display_name}</span>
+										)}
+									</div>
+								</div>
+							</div>
+							<p className="text-gray-600 dark:text-gray-300 mb-2 sm:mb-4 text-sm sm:text-base md:text-lg">
+								Gestiona tus ingresos y estadisticas de empresa.
+							</p>
+						</div>
+						<div className="relative">
+							<div className="absolute inset-0 bg-gradient-to-r from-blue-400 to-purple-500 rounded-full blur-xl opacity-5 animate-pulse"></div>
+							<EyeTrackingComponent
+								className={
+									'size-20 sm:size-28 md:size-32 lg:size-40 drop-shadow-[0px_5px_10px_rgba(59,130,246,0.3)] dark:drop-shadow-[0px_5px_10px_rgba(147,197,253,0.3)] transition-all duration-300 hover:scale-105 relative z-10'
+								}
+							/>
+						</div>
+					</Card>
 
 					{/* Grid 2 - Revenue by Branch Chart */}
-					<Card 
-						className="col-span-1 sm:col-span-2 lg:col-span-6 row-span-1 lg:row-span-2 dark:bg-background bg-white rounded-xl py-3 sm:py-6 px-3 sm:px-6 md:px-8 transition-all duration-300 cursor-pointer group shadow-lg h-full hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20" 
+					<Card
+						className="col-span-1 sm:col-span-2 lg:col-span-6 row-span-1 lg:row-span-2 dark:bg-background bg-white rounded-xl py-3 sm:py-6 px-3 sm:px-6 md:px-8 transition-all duration-300 cursor-pointer group shadow-lg h-full hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20"
 						onClick={() => handleStatCardClick('branchRevenue')}
 					>
 						<div className="h-full flex flex-col">
@@ -111,7 +109,9 @@ function MainHome() {
 									</div>
 								</div>
 								<div className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1 sm:py-2 bg-purple-100 dark:bg-purple-900/30 rounded-lg group-hover:bg-purple-200 dark:group-hover:bg-purple-900/50 transition-colors">
-									<span className="text-xs sm:text-sm font-medium text-purple-700 dark:text-purple-300">Ver detalles</span>
+									<span className="text-xs sm:text-sm font-medium text-purple-700 dark:text-purple-300">
+										Ver detalles
+									</span>
 									<ArrowRight className="w-4 h-4 text-purple-600 dark:text-purple-400 group-hover:translate-x-1 transition-transform" />
 								</div>
 							</div>
@@ -145,16 +145,16 @@ function MainHome() {
 														r="14"
 														fill="none"
 														className={`stroke-current ${colors[index % colors.length]}`}
-														strokeWidth={hoveredBranchIndex === index ? "5" : "4"}
+														strokeWidth={hoveredBranchIndex === index ? '5' : '4'}
 														strokeDasharray={`${branch.percentage} ${100 - branch.percentage}`}
 														strokeDashoffset={-offset}
 														strokeLinecap="round"
 														onMouseEnter={() => setHoveredBranchIndex(index)}
 														onMouseLeave={() => setHoveredBranchIndex(null)}
-														style={{ 
+														style={{
 															cursor: 'pointer',
 															filter: hoveredBranchIndex === index ? 'drop-shadow(0 0 3px currentColor)' : 'none',
-															transition: 'all 0.2s ease'
+															transition: 'all 0.2s ease',
 														}}
 													></circle>
 												)
@@ -175,7 +175,10 @@ function MainHome() {
 									{isLoading ? (
 										<div className="space-y-2 sm:space-y-3">
 											{[1, 2, 3].map((i) => (
-												<div key={i} className="animate-pulse bg-gray-200 dark:bg-gray-700 h-10 sm:h-12 rounded-xl"></div>
+												<div
+													key={i}
+													className="animate-pulse bg-gray-200 dark:bg-gray-700 h-10 sm:h-12 rounded-xl"
+												></div>
 											))}
 										</div>
 									) : (
@@ -217,13 +220,21 @@ function MainHome() {
 											const color = colors[index % colors.length]
 											return (
 												<div
-													key={branch.branch} 
-													className={`flex items-center justify-between p-1.5 sm:p-2 md:p-3 bg-gradient-to-r ${color.bg} rounded-xl border ${color.border} relative ${color.hover} transition-all duration-300 ${hoveredBranchIndex === index ? 'scale-105 shadow-md' : ''}`}
+													key={branch.branch}
+													className={`flex items-center justify-between p-1.5 sm:p-2 md:p-3 bg-gradient-to-r ${
+														color.bg
+													} rounded-xl border ${color.border} relative ${color.hover} transition-all duration-300 ${
+														hoveredBranchIndex === index ? 'scale-105 shadow-md' : ''
+													}`}
 													onMouseEnter={() => setHoveredBranchIndex(index)}
 													onMouseLeave={() => setHoveredBranchIndex(null)}
 												>
 													<div className="flex items-center gap-1 sm:gap-2">
-														<div className={`w-2 h-2 sm:w-3 sm:h-3 md:w-4 md:h-4 ${color.dot} rounded-full shadow-lg ${hoveredBranchIndex === index ? 'animate-pulse' : ''}`}></div>
+														<div
+															className={`w-2 h-2 sm:w-3 sm:h-3 md:w-4 md:h-4 ${color.dot} rounded-full shadow-lg ${
+																hoveredBranchIndex === index ? 'animate-pulse' : ''
+															}`}
+														></div>
 														<div>
 															<p className="font-medium text-gray-700 dark:text-gray-300 text-xs sm:text-sm md:text-base">
 																{branch.branch}
@@ -235,14 +246,12 @@ function MainHome() {
 															{formatCurrency(branch.revenue)}
 														</span>
 													</div>
-													
+
 													{/* Interactive Tooltip */}
 													{hoveredBranchIndex === index && (
 														<div className="absolute bottom-full left-1/2 transform -translate-x-1/2 z-10 bg-white dark:bg-gray-800 rounded-lg p-3 shadow-lg min-w-[180px] border border-gray-200 dark:border-gray-700 mb-2 animate-fade-in">
 															<div className="text-center mb-2">
-																<h3 className="font-bold text-gray-900 dark:text-gray-100">
-																	{branch.branch}
-																</h3>
+																<h3 className="font-bold text-gray-900 dark:text-gray-100">{branch.branch}</h3>
 																<div className="w-full h-0.5 bg-gray-200 dark:bg-gray-700 my-1"></div>
 															</div>
 															<div className="grid grid-cols-2 gap-2 text-sm">
@@ -279,49 +288,49 @@ function MainHome() {
 
 					{/* Grid 3 - KPI Card: Monthly Revenue */}
 					<StatCard
-                        title="Ingresos Mensuales"
-                        value={isLoading ? '...' : formatCurrency(stats?.monthlyRevenue || 0)}
-                        description={format(selectedMonth, 'MMMM yyyy', { locale: es })}
-                        icon={<DollarSign className="w-5 h-5 sm:w-6 sm:h-6 text-green-600 dark:text-green-400" />}
-                        trend={{
-                            value: isLoading ? '...' : '+12.5%',
-                            icon: <TrendingUp className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />,
-                            positive: true
-                        }}
-                        onClick={() => handleStatCardClick('monthlyRevenue')}
-                        className="col-span-1 sm:col-span-1 lg:col-span-3 row-span-1 lg:row-span-1"
-                        statType="monthlyRevenue"
-                        isSelected={selectedStat === 'monthlyRevenue' && isDetailPanelOpen}
-                    />
+						title="Ingresos Mensuales"
+						value={isLoading ? '...' : formatCurrency(stats?.monthlyRevenue || 0)}
+						description={format(selectedMonth, 'MMMM yyyy', { locale: es })}
+						icon={<DollarSign className="w-5 h-5 sm:w-6 sm:h-6 text-green-600 dark:text-green-400" />}
+						trend={{
+							value: isLoading ? '...' : '+12.5%',
+							icon: <TrendingUp className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />,
+							positive: true,
+						}}
+						onClick={() => handleStatCardClick('monthlyRevenue')}
+						className="col-span-1 sm:col-span-1 lg:col-span-3 row-span-1 lg:row-span-1"
+						statType="monthlyRevenue"
+						isSelected={selectedStat === 'monthlyRevenue' && isDetailPanelOpen}
+					/>
 
 					{/* Grid 4 - KPI Card: Total de Casos */}
 					<StatCard
-                        title="Total de Casos"
-                        value={isLoading ? '...' : stats?.totalCases || 0}
-                        description="casos registrados"
-                        icon={<Users className="w-5 h-5 sm:w-6 sm:h-6 text-blue-600 dark:text-blue-400" />}
-                        trend={{
-                            value: isLoading ? '...' : `+${stats?.newPatientsThisMonth || 0}`,
-                            icon: <TrendingUp className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />,
-                            positive: true
-                        }}
-                        onClick={() => handleStatCardClick('totalCases')}
-                        className="col-span-1 sm:col-span-1 lg:col-span-3 row-span-1 lg:row-span-1"
-                        statType="totalCases"
-                        isSelected={selectedStat === 'totalCases' && isDetailPanelOpen}
-                    />
+						title="Total de Casos"
+						value={isLoading ? '...' : stats?.totalCases || 0}
+						description="casos registrados"
+						icon={<Users className="w-5 h-5 sm:w-6 sm:h-6 text-blue-600 dark:text-blue-400" />}
+						trend={{
+							value: isLoading ? '...' : `+${stats?.newPatientsThisMonth || 0}`,
+							icon: <TrendingUp className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />,
+							positive: true,
+						}}
+						onClick={() => handleStatCardClick('totalCases')}
+						className="col-span-1 sm:col-span-1 lg:col-span-3 row-span-1 lg:row-span-1"
+						statType="totalCases"
+						isSelected={selectedStat === 'totalCases' && isDetailPanelOpen}
+					/>
 
 					{/* Grid 5 - Médicos Tratantes */}
-					<Card
-						className="col-span-1 sm:col-span-2 lg:col-span-3 row-span-1 lg:row-span-3 dark:bg-background bg-white rounded-xl p-3 sm:p-4 transition-all duration-300 flex flex-col cursor-pointer shadow-lg hover:bg-white/90 group h-full hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20"
-					>
+					<Card className="col-span-1 sm:col-span-2 lg:col-span-3 row-span-1 lg:row-span-3 dark:bg-background bg-white rounded-xl p-3 sm:p-4 transition-all duration-300 flex flex-col cursor-pointer shadow-lg hover:bg-white/90 group h-full hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20">
 						<div className="h-full flex flex-col" onClick={() => navigate('/dashboard/reports')}>
 							<div className="flex items-center justify-between mb-3 sm:mb-4">
 								<div className="flex items-center gap-1.5 sm:gap-3">
 									<div className="p-1.5 sm:p-2 bg-purple-100 dark:bg-purple-900/30 rounded-lg">
 										<Stethoscope className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 text-purple-600 dark:text-purple-400" />
 									</div>
-									<h3 className="text-sm sm:text-base md:text-lg font-bold text-gray-700 dark:text-gray-300">Médicos Tratantes</h3>
+									<h3 className="text-sm sm:text-base md:text-lg font-bold text-gray-700 dark:text-gray-300">
+										Médicos Tratantes
+									</h3>
 								</div>
 								<ArrowRight className="w-3 h-3 sm:w-4 sm:h-4 text-gray-400 group-hover:text-blue-500 transition-colors" />
 							</div>
@@ -337,10 +346,15 @@ function MainHome() {
 									stats.topTreatingDoctors.slice(0, 3).map((doctor, index) => {
 										const colors = ['bg-blue-500', 'bg-green-500', 'bg-orange-500']
 										return (
-											<div key={doctor.doctor} className="flex items-center gap-1.5 sm:gap-3 p-1.5 sm:p-3 hover:bg-gray-50 dark:hover:bg-gray-800/50 rounded-lg transition">
+											<div
+												key={doctor.doctor}
+												className="flex items-center gap-1.5 sm:gap-3 p-1.5 sm:p-3 hover:bg-gray-50 dark:hover:bg-gray-800/50 rounded-lg transition"
+											>
 												<div className={`w-2 h-2 sm:w-3 sm:h-3 rounded-full ${colors[index % colors.length]}`}></div>
 												<div className="flex-1 min-w-0">
-													<p className="text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 truncate">{doctor.doctor}</p>
+													<p className="text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 truncate">
+														{doctor.doctor}
+													</p>
 													<p className="text-xs text-gray-500 dark:text-gray-400">
 														{doctor.cases} caso{doctor.cases !== 1 ? 's' : ''} • {formatCurrency(doctor.revenue)}
 													</p>
@@ -361,8 +375,8 @@ function MainHome() {
 					</Card>
 
 					{/* Grid 6 - 12-Month Sales Trend Chart with Year Selector */}
-					<Card 
-						className="col-span-1 sm:col-span-2 lg:col-span-6 row-span-1 lg:row-span-2 dark:bg-background bg-white rounded-xl py-3 sm:py-5 px-3 sm:px-6 transition-all duration-300 cursor-pointer shadow-lg hover:bg-white/90 group h-full hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20" 
+					<Card
+						className="col-span-1 sm:col-span-2 lg:col-span-9 row-span-1 lg:row-span-2 dark:bg-background bg-white rounded-xl py-3 sm:py-5 px-3 sm:px-6 transition-all duration-300 cursor-pointer shadow-lg hover:bg-white/90 group h-full hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20"
 						onClick={() => handleStatCardClick('totalRevenue')}
 					>
 						<div className="h-full flex flex-col">
@@ -378,7 +392,9 @@ function MainHome() {
 										minYear={2020}
 										maxYear={new Date().getFullYear() + 2}
 									/>
-									<span className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">12 meses de {selectedYear}</span>
+									<span className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">
+										12 meses de {selectedYear}
+									</span>
 								</div>
 							</div>
 							<div className="relative h-14 sm:h-18 md:h-20 lg:h-24 flex items-end justify-between gap-0.5 sm:gap-1 md:gap-2">
@@ -419,8 +435,8 @@ function MainHome() {
 					</Card>
 
 					{/* Grid 7 - Top Exam Types (Normalized) */}
-					<Card 
-						className="col-span-1 sm:col-span-2 lg:col-span-6 row-span-1 lg:row-span-1 dark:bg-background bg-white rounded-xl py-3 sm:py-5 px-3 sm:px-6 transition-all duration-300 cursor-pointer shadow-lg hover:bg-white/90 group h-full hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20" 
+					<Card
+						className="col-span-1 sm:col-span-2 lg:col-span-6 row-span-1 lg:row-span-1 dark:bg-background bg-white rounded-xl py-3 sm:py-5 px-3 sm:px-6 transition-all duration-300 cursor-pointer shadow-lg hover:bg-white/90 group h-full hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20"
 						onClick={() => handleStatCardClick('examTypes')}
 					>
 						<div className="h-full flex flex-col">
@@ -454,7 +470,7 @@ function MainHome() {
 												bg: 'from-orange-50 to-orange-100 dark:from-orange-900/20 dark:to-orange-800/20',
 												text: 'text-orange-600 dark:text-orange-400',
 												badge: 'bg-orange-500',
-											}
+											},
 										]
 										const color = colors[index]
 										return (
@@ -463,14 +479,18 @@ function MainHome() {
 												className={`flex items-center justify-between p-1.5 sm:p-2 md:p-3 bg-gradient-to-r ${color.bg} rounded-lg`}
 											>
 												<div className="flex items-center gap-1.5 sm:gap-2 md:gap-3">
-													<div 
+													<div
 														className={`w-5 h-5 sm:w-6 sm:h-6 md:w-8 md:h-8 ${color.badge} rounded-lg flex items-center justify-center`}
 													>
 														<span className="text-white font-bold text-[10px] sm:text-xs md:text-sm">{index + 1}</span>
 													</div>
 													<div>
-														<p className="text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300">{exam.examType}</p>
-														<p className="text-[10px] sm:text-xs text-gray-500 dark:text-gray-400">{exam.count} casos</p>
+														<p className="text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300">
+															{exam.examType}
+														</p>
+														<p className="text-[10px] sm:text-xs text-gray-500 dark:text-gray-400">
+															{exam.count} casos
+														</p>
 													</div>
 												</div>
 												<span className={`text-sm sm:text-base md:text-lg font-bold ${color.text}`}>
@@ -485,13 +505,15 @@ function MainHome() {
 					</Card>
 
 					{/* Grid 8 - Quick Actions & Status Indicators */}
-					<Card 
-						className="col-span-1 sm:col-span-2 lg:col-span-3 row-span-1 lg:row-span-1 dark:bg-background bg-white rounded-xl py-3 sm:py-5 px-3 sm:px-6 transition-all duration-300 h-full hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 shadow-lg" 
+					<Card
+						className="col-span-1 sm:col-span-2 lg:col-span-3 row-span-1 lg:row-span-1 dark:bg-background bg-white rounded-xl py-3 sm:py-5 px-3 sm:px-6 transition-all duration-300 h-full hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 shadow-lg"
 						onClick={() => handleStatCardClick('incompleteCases')}
 					>
 						<div className="h-full flex flex-col">
 							<div className="flex items-center justify-between mb-3 sm:mb-4">
-								<h3 className="text-sm sm:text-base md:text-lg font-bold text-gray-700 dark:text-gray-300">Estado del Sistema</h3>
+								<h3 className="text-sm sm:text-base md:text-lg font-bold text-gray-700 dark:text-gray-300">
+									Estado del Sistema
+								</h3>
 								<div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
 							</div>
 							<div className="space-y-1.5 sm:space-y-2 md:space-y-3 flex-1">
@@ -499,7 +521,9 @@ function MainHome() {
 								<div className="p-1.5 sm:p-2 md:p-3 bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-800 rounded-lg">
 									<div className="flex items-center gap-1.5 sm:gap-2 mb-0.5 sm:mb-1">
 										<AlertTriangle className="w-4 h-4 text-orange-500 dark:text-orange-400" />
-										<span className="text-xs sm:text-sm font-medium text-orange-800 dark:text-orange-400">Casos Incompletos</span>
+										<span className="text-xs sm:text-sm font-medium text-orange-800 dark:text-orange-400">
+											Casos Incompletos
+										</span>
 									</div>
 									<p className="text-[10px] sm:text-xs text-orange-700 dark:text-orange-300">
 										{isLoading ? 'Cargando...' : `${stats?.incompleteCases || 0} casos pendientes de completar`}
@@ -510,7 +534,9 @@ function MainHome() {
 								<div className="p-1.5 sm:p-2 md:p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
 									<div className="flex items-center gap-1.5 sm:gap-2 mb-0.5 sm:mb-1">
 										<Clock className="w-4 h-4 text-red-500 dark:text-red-400" />
-										<span className="text-xs sm:text-sm font-medium text-red-800 dark:text-red-400">Pagos Pendientes</span>
+										<span className="text-xs sm:text-sm font-medium text-red-800 dark:text-red-400">
+											Pagos Pendientes
+										</span>
 									</div>
 									<p className="text-[10px] sm:text-xs text-red-700 dark:text-red-300">
 										{isLoading ? 'Cargando...' : `${formatCurrency(stats?.pendingPayments || 0)} por cobrar`}
@@ -519,10 +545,10 @@ function MainHome() {
 
 								{/* Quick Actions */}
 								<button
-									className="w-full p-1.5 sm:p-2 md:p-3 bg-primary hover:bg-primary/80 text-white rounded-lg transition flex items-center justify-center gap-1.5 sm:gap-2 text-xs sm:text-sm md:text-base" 
+									className="w-full p-1.5 sm:p-2 md:p-3 bg-primary hover:bg-primary/80 text-white rounded-lg transition flex items-center justify-center gap-1.5 sm:gap-2 text-xs sm:text-sm md:text-base"
 									onClick={(e) => {
-										e.stopPropagation();
-										navigate('/dashboard/stats');
+										e.stopPropagation()
+										navigate('/dashboard/stats')
 									}}
 								>
 									<BarChart3 className="w-4 h-4" />
@@ -534,7 +560,7 @@ function MainHome() {
 					</Card>
 				</div>
 			</main>
-			
+
 			{/* Stat Detail Panel - Responsive */}
 			{selectedStat && (
 				<StatDetailPanel

@@ -53,7 +53,7 @@ const Sidebar: React.FC<SidebarProps> = ({
 
 	return (
 		<aside className="bg-white/80 dark:bg-background/50 shadow-lg hover:shadow-primary/50 backdrop-blur-[10px] flex flex-col justify-between h-screen py-4 sm:py-8 px-3 sm:px-5 gap-4 border-gray-600 text-gray-700 dark:text-white transition-all duration-300 ease-in-out overflow-hidden border-r border-input">
-			<div className="flex flex-col items-start gap-6">
+			<div className="flex flex-col items-start gap-4">
 				<div className="flex justify-between items-center w-full mb-3 sm:mb-5">
 					<div className="flex items-center gap-3">
 						<FavIcon fill='#e82084' className='size-8 shrink-0 -ml-1'/>

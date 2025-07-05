@@ -6,7 +6,6 @@ import { getAgeDisplay } from '@lib/supabase-service'
 import { format, parseISO } from 'date-fns'
 import { es } from 'date-fns/locale'
 import { useUserProfile } from '@shared/hooks/useUserProfile'
-import { Button } from '@shared/components/ui/button'
 import UnifiedCaseModal from './UnifiedCaseModal'
 
 interface CaseDetailPanelProps {
@@ -371,21 +370,6 @@ const CaseDetailPanel: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClos
 										)}
 									</div>
 								</div>
-							</div>
-
-							{/* Action Buttons */}
-							<div className="flex flex-col sm:flex-row gap-2 sm:gap-3 pt-4 sm:pt-6 border-t border-gray-200 dark:border-gray-700">
-								<Button variant="outline" onClick={onClose} className="flex-1">
-									Cerrar
-								</Button>
-								<Button 
-									onClick={() => setIsEditModalOpen(true)} 
-									className="flex-1 bg-primary hover:bg-primary/80"
-									disabled={!canEdit}
-								>
-									<Edit2 className="w-4 h-4 mr-2" />
-									Editar
-								</Button>
 							</div>
 						</div>
 					</motion.div>
