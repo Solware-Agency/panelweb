@@ -366,18 +366,16 @@ const CaseDetailPanel: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClos
 					{/* Unified Edit Modal */}
 					<UnifiedCaseModal
 						case_={case_}
-			{isEditModalOpen && (
-				<UnifiedCaseModal
-					case_={case_}
-					isOpen={isEditModalOpen}
-					onClose={() => setIsEditModalOpen(false)}
-					onSave={() => {
-						onClose()
-					}}
-					onDelete={() => {
-						onClose()
-					}}
-				/>
+						isOpen={isEditModalOpen}
+						onClose={() => setIsEditModalOpen(false)}
+						onSave={() => {
+							onClose()
+						}}
+						onDelete={() => {
+							onClose()
+						}}
+					/>
+				</>
 			)}
 		</AnimatePresence>
 	)
