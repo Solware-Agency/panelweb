@@ -3,6 +3,9 @@ import { TrendingUp, Users, DollarSign, ArrowRight, BarChart3, AlertTriangle, Cl
 import { useNavigate } from 'react-router-dom'
 import { useDashboardStats } from '@shared/hooks/useDashboardStats'
 import { YearSelector } from '@shared/components/ui/year-selector'
+import StatCard from '@shared/components/ui/stat-card'
+import StatDetailPanel from '@shared/components/ui/stat-detail-panel'
+import { StatType } from '@shared/components/ui/stat-detail-panel'
 import { Card } from '@shared/components/ui/card'
 import { useState } from 'react'
 import { format } from 'date-fns'
@@ -16,6 +19,8 @@ function MainHome() {
 	const { data: stats, isLoading, error } = useDashboardStats(selectedMonth, selectedYear)
 	const { profile } = useUserProfile()
 	const [hoveredBranchIndex, setHoveredBranchIndex] = useState<number | null>(null)
+	const [selectedStat, setSelectedStat] = useState<StatType | null>(null)
+	const [isDetailPanelOpen, setIsDetailPanelOpen] = useState(false)
 
 	if (error) {
 		console.error('Error loading dashboard stats:', error)
@@ -41,6 +46,15 @@ function MainHome() {
 		// Update selected month to the same month in the new year
 		setSelectedMonth(new Date(year, selectedMonth.getMonth(), 1))
 	}
+	
+	const handleStatCardClick = (statType: StatType) => {
+		setSelectedStat(statType)
+		setIsDetailPanelOpen(true)
+	}
+	
+	const handleDetailPanelClose = () => {
+		setIsDetailPanelOpen(false)
+	}
 
 	return (
 		<>
@@ -48,7 +62,10 @@ function MainHome() {
 				{/* Mobile-first responsive grid */}
 				<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-4">
 					{/* Grid 1 - Enhanced Welcome Section */}
-					<Card className="col-span-1 sm:col-span-2 lg:col-span-3 row-span-1 lg:row-span-2 dark:bg-background bg-white rounded-xl py-4 sm:py-6 px-4 sm:px-8 flex flex-col sm:flex-row items-center justify-between shadow-lg h-full cursor-pointer transition-all duration-300 hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20">
+					<Card 
+						className="col-span-1 sm:col-span-2 lg:col-span-3 row-span-1 lg:row-span-2 dark:bg-background bg-white rounded-xl py-4 sm:py-6 px-4 sm:px-8 flex flex-col sm:flex-row items-center justify-between shadow-lg h-full cursor-pointer transition-all duration-300 hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20"
+						onClick={() => handleStatCardClick('totalRevenue')}
+					>
 						<div className="flex-1 text-center sm:text-left mb-4 sm:mb-0 ">
 							<div className="flex flex-col sm:flex-row items-center sm:items-start gap-3 mb-2">
 								<div>
@@ -79,10 +96,11 @@ function MainHome() {
 					</Card>
 
 					{/* Grid 2 - Revenue by Branch Chart */}
-					<Card
-						className="col-span-1 sm:col-span-2 lg:col-span-3 row-span-1 lg:row-span-2 dark:bg-background bg-white rounded-xl py-4 sm:py-6 px-4 sm:px-8 transition-all duration-300 cursor-pointer group shadow-lg h-full hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20"
+					<Card 
+						className="col-span-1 sm:col-span-2 lg:col-span-3 row-span-1 lg:row-span-2 dark:bg-background bg-white rounded-xl py-4 sm:py-6 px-4 sm:px-8 transition-all duration-300 cursor-pointer group shadow-lg h-full hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20" 
+						onClick={() => handleStatCardClick('branchRevenue')}
 					>
-						<div className="h-full flex flex-col" onClick={() => navigate('/dashboard/stats')}>
+						<div className="h-full flex flex-col">
 							<div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 sm:mb-6">
 								<div className="flex items-center gap-3 mb-3 sm:mb-0">
 									<div>
@@ -259,62 +277,38 @@ function MainHome() {
 					</Card>
 
 					{/* Grid 3 - KPI Card: Monthly Revenue */}
-					<Card
-						className="col-span-1 sm:col-span-1 lg:col-span-2 row-span-1 lg:row-span-2 dark:bg-background bg-white rounded-xl py-4 sm:py-5 px-4 sm:px-6 transition-all duration-300 flex flex-col justify-between cursor-pointer shadow-lg hover:bg-white/90 group h-full hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20"
-					>
-						<div className="h-full flex flex-col justify-between" onClick={() => navigate('/dashboard/stats')}>
-							<div className="flex items-center justify-between mb-4">
-								<div className="p-2 bg-green-100 dark:bg-green-900/30 rounded-lg">
-									<DollarSign className="w-5 h-5 sm:w-6 sm:h-6 text-green-600 dark:text-green-400" />
-								</div>
-								<div className="flex items-center gap-2">
-									<div className="flex items-center text-green-600 dark:text-green-400">
-										<TrendingUp className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
-										<span className="text-xs sm:text-sm font-medium">{isLoading ? '...' : '+12.5%'}</span>
-									</div>
-									<ArrowRight className="w-3 h-3 sm:w-4 sm:h-4 text-gray-400 group-hover:text-blue-500 transition-colors" />
-								</div>
-							</div>
-							<div>
-								<h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">Ingresos Mensuales</h3>
-								<p className="text-xl sm:text-2xl font-bold text-gray-700 dark:text-gray-300">
-									{isLoading ? '...' : formatCurrency(stats?.monthlyRevenue || 0)}
-								</p>
-								<p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-									{format(selectedMonth, 'MMMM yyyy', { locale: es })}
-								</p>
-							</div>
-						</div>
-					</Card>
+					<StatCard
+						title="Ingresos Mensuales"
+						value={isLoading ? '...' : formatCurrency(stats?.monthlyRevenue || 0)}
+						description={format(selectedMonth, 'MMMM yyyy', { locale: es })}
+						icon={<DollarSign className="w-5 h-5 sm:w-6 sm:h-6 text-green-600 dark:text-green-400" />}
+						trend={{
+							value: isLoading ? '...' : '+12.5%',
+							icon: <TrendingUp className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />,
+							positive: true
+						}}
+						onClick={() => handleStatCardClick('monthlyRevenue')}
+						className="col-span-1 sm:col-span-1 lg:col-span-2 row-span-1 lg:row-span-2"
+						statType="monthlyRevenue"
+						isSelected={selectedStat === 'monthlyRevenue' && isDetailPanelOpen}
+					/>
 
 					{/* Grid 4 - KPI Card: Total de Casos */}
-					<Card
-						className="col-span-1 sm:col-span-1 lg:col-span-2 row-span-1 lg:row-span-2 dark:bg-background bg-white rounded-xl py-4 sm:py-5 px-4 sm:px-6 transition-all duration-300 flex flex-col justify-between cursor-pointer shadow-lg hover:bg-white/90 group h-full hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20"
-					>
-						<div className="h-full flex flex-col justify-between" onClick={() => navigate('/dashboard/stats')}>
-							<div className="flex items-center justify-between mb-4">
-								<div className="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
-									<Users className="w-5 h-5 sm:w-6 sm:h-6 text-blue-600 dark:text-blue-400" />
-								</div>
-								<div className="flex items-center gap-2">
-									<div className="flex items-center text-blue-600 dark:text-blue-400">
-										<TrendingUp className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
-										<span className="text-xs sm:text-sm font-medium">
-											{isLoading ? '...' : `+${stats?.newPatientsThisMonth || 0}`}
-										</span>
-									</div>
-									<ArrowRight className="w-3 h-3 sm:w-4 sm:h-4 text-gray-400 group-hover:text-blue-500 transition-colors" />
-								</div>
-							</div>
-							<div>
-								<h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">Total de Casos</h3>
-								<p className="text-xl sm:text-2xl font-bold text-gray-700 dark:text-gray-300">
-									{isLoading ? '...' : stats?.totalCases || 0}
-								</p>
-								<p className="text-xs text-gray-500 dark:text-gray-400 mt-1">casos registrados</p>
-							</div>
-						</div>
-					</Card>
+					<StatCard
+						title="Total de Casos"
+						value={isLoading ? '...' : stats?.totalCases || 0}
+						description="casos registrados"
+						icon={<Users className="w-5 h-5 sm:w-6 sm:h-6 text-blue-600 dark:text-blue-400" />}
+						trend={{
+							value: isLoading ? '...' : `+${stats?.newPatientsThisMonth || 0}`,
+							icon: <TrendingUp className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />,
+							positive: true
+						}}
+						onClick={() => handleStatCardClick('totalCases')}
+						className="col-span-1 sm:col-span-1 lg:col-span-2 row-span-1 lg:row-span-2"
+						statType="totalCases"
+						isSelected={selectedStat === 'totalCases' && isDetailPanelOpen}
+					/>
 
 					{/* Grid 5 - Médicos Tratantes */}
 					<Card
@@ -366,8 +360,9 @@ function MainHome() {
 					</Card>
 
 					{/* Grid 6 - 12-Month Sales Trend Chart with Year Selector */}
-					<Card
-						className="col-span-1 sm:col-span-2 lg:col-span-4 row-span-1 lg:row-span-2 dark:bg-background bg-white rounded-xl py-4 sm:py-5 px-4 sm:px-6 transition-all duration-300 cursor-pointer shadow-lg hover:bg-white/90 group h-full hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20"
+					<Card 
+						className="col-span-1 sm:col-span-2 lg:col-span-4 row-span-1 lg:row-span-2 dark:bg-background bg-white rounded-xl py-4 sm:py-5 px-4 sm:px-6 transition-all duration-300 cursor-pointer shadow-lg hover:bg-white/90 group h-full hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20" 
+						onClick={() => handleStatCardClick('totalRevenue')}
 					>
 						<div className="h-full flex flex-col">
 							<div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4">
@@ -423,10 +418,11 @@ function MainHome() {
 					</Card>
 
 					{/* Grid 7 - Top Exam Types (Normalized) */}
-					<Card
-						className="col-span-1 sm:col-span-2 lg:col-span-3 row-span-1 lg:row-span-2 dark:bg-background bg-white rounded-xl py-4 sm:py-5 px-4 sm:px-6 transition-all duration-300 cursor-pointer shadow-lg hover:bg-white/90 group h-full hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20"
+					<Card 
+						className="col-span-1 sm:col-span-2 lg:col-span-3 row-span-1 lg:row-span-2 dark:bg-background bg-white rounded-xl py-4 sm:py-5 px-4 sm:px-6 transition-all duration-300 cursor-pointer shadow-lg hover:bg-white/90 group h-full hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20" 
+						onClick={() => handleStatCardClick('examTypes')}
 					>
-						<div className="h-full flex flex-col" onClick={() => navigate('/dashboard/reports')}>
+						<div className="h-full flex flex-col">
 							<div className="flex items-center justify-between mb-4">
 								<h3 className="text-base sm:text-lg font-bold text-gray-700 dark:text-gray-300">
 									Estudios Más Frecuentes
@@ -488,8 +484,9 @@ function MainHome() {
 					</Card>
 
 					{/* Grid 8 - Quick Actions & Status Indicators */}
-					<Card
-						className="col-span-1 sm:col-span-2 lg:col-span-3 row-span-1 lg:row-span-2 dark:bg-background bg-white rounded-xl py-4 sm:py-5 px-4 sm:px-6 transition-all duration-300 h-full hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 shadow-lg"
+					<Card 
+						className="col-span-1 sm:col-span-2 lg:col-span-3 row-span-1 lg:row-span-2 dark:bg-background bg-white rounded-xl py-4 sm:py-5 px-4 sm:px-6 transition-all duration-300 h-full hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 shadow-lg" 
+						onClick={() => handleStatCardClick('incompleteCases')}
 					>
 						<div className="h-full flex flex-col">
 							<div className="flex items-center justify-between mb-4">
@@ -500,7 +497,7 @@ function MainHome() {
 								{/* Incomplete Cases Alert */}
 								<div className="p-2 sm:p-3 bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-800 rounded-lg">
 									<div className="flex items-center gap-2 mb-1">
-										<AlertTriangle className="w-4 h-4 text-orange-500" />
+										<AlertTriangle className="w-4 h-4 text-orange-500 dark:text-orange-400" />
 										<span className="text-sm font-medium text-orange-800 dark:text-orange-400">Casos Incompletos</span>
 									</div>
 									<p className="text-xs text-orange-700 dark:text-orange-300">
@@ -511,7 +508,7 @@ function MainHome() {
 								{/* Pending Payments Alert */}
 								<div className="p-2 sm:p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
 									<div className="flex items-center gap-2 mb-1">
-										<Clock className="w-4 h-4 text-red-500" />
+										<Clock className="w-4 h-4 text-red-500 dark:text-red-400" />
 										<span className="text-sm font-medium text-red-800 dark:text-red-400">Pagos Pendientes</span>
 									</div>
 									<p className="text-xs text-red-700 dark:text-red-300">
@@ -521,8 +518,11 @@ function MainHome() {
 
 								{/* Quick Actions */}
 								<button
-									className="w-full p-2 sm:p-3 bg-primary hover:bg-primary/80 text-white rounded-lg transition flex items-center justify-center gap-2 text-sm sm:text-base"
-									onClick={() => navigate('/dashboard/stats')}
+									className="w-full p-2 sm:p-3 bg-primary hover:bg-primary/80 text-white rounded-lg transition flex items-center justify-center gap-2 text-sm sm:text-base" 
+									onClick={(e) => {
+										e.stopPropagation();
+										navigate('/dashboard/stats');
+									}}
 								>
 									<BarChart3 className="w-4 h-4" />
 									<span className="hidden sm:inline">Ver Estadísticas Completas</span>
@@ -533,6 +533,19 @@ function MainHome() {
 					</Card>
 				</div>
 			</main>
+			
+			{/* Stat Detail Panel */}
+			{selectedStat && (
+				<StatDetailPanel
+					isOpen={isDetailPanelOpen}
+					onClose={handleDetailPanelClose}
+					statType={selectedStat}
+					stats={stats}
+					isLoading={isLoading}
+					selectedMonth={selectedMonth}
+					selectedYear={selectedYear}
+				/>
+			)}
 		</>
 	)
 }

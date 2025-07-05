@@ -2,6 +2,9 @@ import React, { useState } from 'react'
 import { Users, DollarSign, ShoppingCart, ArrowUpRight, AlertTriangle, Clock, CheckCircle, XCircle } from 'lucide-react'
 import { useDashboardStats } from '@shared/hooks/useDashboardStats'
 import { YearSelector } from '@shared/components/ui/year-selector'
+import StatCard from '@shared/components/ui/stat-card'
+import StatDetailPanel from '@shared/components/ui/stat-detail-panel'
+import { StatType } from '@shared/components/ui/stat-detail-panel'
 import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
 import { Card } from '@shared/components/ui/card'
@@ -10,6 +13,8 @@ const StatsPage: React.FC = () => {
 	const [selectedMonth, setSelectedMonth] = useState<Date>(new Date())
 	const [selectedYear, setSelectedYear] = useState<number>(new Date().getFullYear())
 	const { data: stats, isLoading, error } = useDashboardStats(selectedMonth, selectedYear)
+	const [selectedStat, setSelectedStat] = useState<StatType | null>(null)
+	const [isDetailPanelOpen, setIsDetailPanelOpen] = useState(false)
 	const [hoveredSegmentIndex, setHoveredSegmentIndex] = useState<number | null>(null)
 
 	if (error) {
@@ -37,6 +42,15 @@ const StatsPage: React.FC = () => {
 		setSelectedMonth(new Date(year, selectedMonth.getMonth(), 1))
 	}
 
+	const handleStatCardClick = (statType: StatType) => {
+		setSelectedStat(statType)
+		setIsDetailPanelOpen(true)
+	}
+	
+	const handleDetailPanelClose = () => {
+		setIsDetailPanelOpen(false)
+	}
+
 	// Calculate some additional metrics
 	const averageRevenuePerCase = stats?.totalCases ? stats.totalRevenue / stats.totalCases : 0
 	const completionRate = stats?.totalCases ? (stats.completedCases / stats.totalCases) * 100 : 0
@@ -51,104 +65,68 @@ const StatsPage: React.FC = () => {
 			{/* KPI Cards Grid */}
 			<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6 sm:mb-8">
 				{/* Total Revenue Card */}
-				<Card className="col-span-1 grid hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 transition-all duration-300 shadow-lg">
-					<div className="bg-white dark:bg-background rounded-xl p-4 sm:p-6 transition-colors duration-300">
-						<div className="flex items-center justify-between mb-4">
-							<div className="p-2 sm:p-3 bg-green-100 dark:bg-green-900/30 rounded-lg">
-								<DollarSign className="w-5 h-5 sm:w-6 sm:h-6 text-green-600 dark:text-green-400" />
-							</div>
-							<div className="flex items-center text-green-600 dark:text-green-400">
-								<ArrowUpRight className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
-								<span className="text-xs sm:text-sm font-medium">{isLoading ? '...' : '+12.5%'}</span>
-							</div>
-						</div>
-						<div>
-							<h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">Ingresos Totales</h3>
-							<p className="text-2xl sm:text-3xl font-bold text-gray-700 dark:text-gray-300">
-								{isLoading ? '...' : formatCurrency(stats?.totalRevenue || 0)}
-							</p>
-							<p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-								Este mes: {isLoading ? '...' : formatCurrency(stats?.monthlyRevenue || 0)}
-							</p>
-						</div>
-					</div>
-				</Card>
+				<StatCard
+					title="Ingresos Totales"
+					value={isLoading ? '...' : formatCurrency(stats?.totalRevenue || 0)}
+					description={`Este mes: ${isLoading ? '...' : formatCurrency(stats?.monthlyRevenue || 0)}`}
+					icon={<DollarSign className="w-5 h-5 sm:w-6 sm:h-6 text-green-600 dark:text-green-400" />}
+					trend={{
+						value: isLoading ? '...' : '+12.5%',
+						icon: <ArrowUpRight className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />,
+						positive: true
+					}}
+					onClick={() => handleStatCardClick('totalRevenue')}
+					statType="totalRevenue"
+					isSelected={selectedStat === 'totalRevenue' && isDetailPanelOpen}
+				/>
 
 				{/* Active Users Card */}
-				<Card className="col-span-1 grid hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 transition-all duration-300 shadow-lg">
-					<div className="bg-white dark:bg-background rounded-xl p-4 sm:p-6 transition-colors duration-300">
-						<div className="flex items-center justify-between mb-4">
-							<div className="p-2 sm:p-3 rounded-lg">
-								<Users className="w-5 h-5 sm:w-6 sm:h-6 text-blue-600 dark:text-blue-400" />
-							</div>
-							<div className="flex items-center text-blue-600 dark:text-blue-400">
-								<ArrowUpRight className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
-								<span className="text-xs sm:text-sm font-medium">
-									{isLoading ? '...' : `+${stats?.newPatientsThisMonth || 0}`}
-								</span>
-							</div>
-						</div>
-						<div>
-							<h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">Pacientes Activos</h3>
-							<p className="text-2xl sm:text-3xl font-bold text-gray-700 dark:text-gray-300">
-								{isLoading ? '...' : stats?.uniquePatients || 0}
-							</p>
-							<p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-								Nuevos este mes: {isLoading ? '...' : stats?.newPatientsThisMonth || 0}
-							</p>
-						</div>
-					</div>
-				</Card>
+				<StatCard
+					title="Pacientes Activos"
+					value={isLoading ? '...' : stats?.uniquePatients || 0}
+					description={`Nuevos este mes: ${isLoading ? '...' : stats?.newPatientsThisMonth || 0}`}
+					icon={<Users className="w-5 h-5 sm:w-6 sm:h-6 text-blue-600 dark:text-blue-400" />}
+					trend={{
+						value: isLoading ? '...' : `+${stats?.newPatientsThisMonth || 0}`,
+						icon: <ArrowUpRight className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />,
+						positive: true
+					}}
+					onClick={() => handleStatCardClick('uniquePatients')}
+					statType="uniquePatients"
+					isSelected={selectedStat === 'uniquePatients' && isDetailPanelOpen}
+				/>
 
 				{/* Completed Projects Card */}
-				<Card className="col-span-1 grid hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 transition-all duration-300 shadow-lg">
-					<div className="bg-white dark:bg-background rounded-xl p-4 sm:p-6 transition-colors duration-300">
-						<div className="flex items-center justify-between mb-4">
-							<div className="p-2 sm:p-3 rounded-lg">
-								<ShoppingCart className="w-5 h-5 sm:w-6 sm:h-6 text-purple-600 dark:text-purple-400" />
-							</div>
-							<div className="flex items-center text-purple-600 dark:text-purple-400">
-								<ArrowUpRight className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
-								<span className="text-xs sm:text-sm font-medium">
-									{isLoading ? '...' : `${completionRate.toFixed(1)}%`}
-								</span>
-							</div>
-						</div>
-						<div>
-							<h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">Casos Completados</h3>
-							<p className="text-2xl sm:text-3xl font-bold text-gray-700 dark:text-gray-300">
-								{isLoading ? '...' : stats?.completedCases || 0}
-							</p>
-							<p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-								Total casos: {isLoading ? '...' : stats?.totalCases || 0}
-							</p>
-						</div>
-					</div>
-				</Card>
+				<StatCard
+					title="Casos Completados"
+					value={isLoading ? '...' : stats?.completedCases || 0}
+					description={`Total casos: ${isLoading ? '...' : stats?.totalCases || 0}`}
+					icon={<ShoppingCart className="w-5 h-5 sm:w-6 sm:h-6 text-purple-600 dark:text-purple-400" />}
+					trend={{
+						value: isLoading ? '...' : `${completionRate.toFixed(1)}%`,
+						icon: <ArrowUpRight className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />,
+						positive: true
+					}}
+					onClick={() => handleStatCardClick('completedCases')}
+					statType="completedCases"
+					isSelected={selectedStat === 'completedCases' && isDetailPanelOpen}
+				/>
 
 				{/* Incomplete Cases Card */}
-				<Card className="col-span-1 grid hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 transition-all duration-300 shadow-lg">
-					<div className="bg-white dark:bg-background rounded-xl p-4 sm:p-6 transition-colors duration-300">
-						<div className="flex items-center justify-between mb-4">
-							<div className="p-2 sm:p-3 rounded-lg">
-								<AlertTriangle className="w-5 h-5 sm:w-6 sm:h-6 text-orange-600 dark:text-orange-400" />
-							</div>
-							<div className="flex items-center text-orange-600 dark:text-orange-400">
-								<Clock className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
-								<span className="text-xs sm:text-sm font-medium">Pendientes</span>
-							</div>
-						</div>
-						<div>
-							<h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">Casos Incompletos</h3>
-							<p className="text-2xl sm:text-3xl font-bold text-gray-700 dark:text-gray-300">
-								{isLoading ? '...' : stats?.incompleteCases || 0}
-							</p>
-							<p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-								Pagos pendientes: {isLoading ? '...' : formatCurrency(stats?.pendingPayments || 0)}
-							</p>
-						</div>
-					</div>
-				</Card>
+				<StatCard
+					title="Casos Incompletos"
+					value={isLoading ? '...' : stats?.incompleteCases || 0}
+					description={`Pagos pendientes: ${isLoading ? '...' : formatCurrency(stats?.pendingPayments || 0)}`}
+					icon={<AlertTriangle className="w-5 h-5 sm:w-6 sm:h-6 text-orange-600 dark:text-orange-400" />}
+					trend={{
+						value: "Pendientes",
+						icon: <Clock className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />,
+						positive: false
+					}}
+					onClick={() => handleStatCardClick('incompleteCases')}
+					statType="incompleteCases"
+					isSelected={selectedStat === 'incompleteCases' && isDetailPanelOpen}
+				/>
 			</div>
 
 			{/* Charts Section */}
@@ -503,6 +481,19 @@ const StatsPage: React.FC = () => {
 				</Card>
 			</div>
 		</div>
+		
+		{/* Stat Detail Panel */}
+		{selectedStat && (
+			<StatDetailPanel
+				isOpen={isDetailPanelOpen}
+				onClose={handleDetailPanelClose}
+				statType={selectedStat}
+				stats={stats}
+				isLoading={isLoading}
+				selectedMonth={selectedMonth}
+				selectedYear={selectedYear}
+			/>
+		)}
 	)
 }
 
