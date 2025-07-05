@@ -228,8 +228,8 @@ const Sidebar: React.FC<SidebarProps> = ({
 				{/* Changelog - Only for owners */}
 				{isOwner && (
 					<NavLink
-						to="/dashboard/changelog"
-						className={({ isActive }) =>
+						to="/dashboard/changelog" 
+						className={({ isActive }) => 
 							`flex justify-between items-center gap-3 cursor-pointer transition w-full ${
 								isActive ? 'text-primary border-primary' : 'hover:text-primary'
 							}`

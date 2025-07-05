@@ -626,32 +626,7 @@ export const getMedicalRecordsStats = async () => {
 }
 
 // Function to update PDF ready status
-export const updatePdfReadyStatus = async (id: string, pdfReady: boolean) => {
-	try {
-		console.log(`🔄 Updating PDF ready status for record ${id} to ${pdfReady}`)
-
-		const { data, error } = await supabase
-			.from(TABLE_NAME)
-			.update({ 
-				pdf_en_ready: pdfReady,
-				updated_at: new Date().toISOString()
-			})
-			.eq('id', id)
-			.select()
-			.single()
-
-		if (error) {
-			console.error(`❌ Error updating PDF ready status:`, error)
-			return { data: null, error }
-		}
-
-		console.log(`✅ PDF ready status updated successfully:`, data)
-		return { data, error: null }
-	} catch (error) {
-		console.error(`❌ Error updating PDF ready status:`, error)
-		return { data: null, error }
-	}
-}
+export const updatePdfReadyStatus = async (id: string, isReady: boolean) => {
 
 // Mantener compatibilidad con nombres anteriores
 export const insertCliente = insertMedicalRecord
