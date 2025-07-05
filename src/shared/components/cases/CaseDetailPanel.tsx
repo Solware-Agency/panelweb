@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { motion, AnimatePresence } from 'motion/react'
-import { X, Edit2, User, FileText, DollarSign, AlertTriangle, Microscope } from 'lucide-react'
+import { X, User, FileText, DollarSign, AlertTriangle, Microscope } from 'lucide-react'
 import type { MedicalRecord } from '@lib/supabase-service'
 import { getAgeDisplay } from '@lib/supabase-service'
 import { format, parseISO } from 'date-fns'
@@ -16,10 +16,6 @@ interface CaseDetailPanelProps {
 
 const CaseDetailPanel: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClose }) => {
 	const [isEditModalOpen, setIsEditModalOpen] = useState(false)
-	const { profile } = useUserProfile()
-	
-	// Determine if user can edit cases based on role
-	const canEdit = profile?.role === 'owner' || profile?.role === 'employee'
 
 	if (!case_) return null
 
@@ -72,7 +68,7 @@ const CaseDetailPanel: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClos
 							<div className="flex items-center justify-between">
 								<div>
 									<h2 className="text-lg sm:text-2xl font-bold text-gray-900 dark:text-gray-100">Detalles del Caso</h2>
-									<div className="flex items-center gap-1.5 sm:gap-2 mt-1 sm:mt-2">
+									<div className="flex items-center gap-1.5 sm:gap-2 mt-1 sm:mt-2 flex-wrap">
 										{case_.code && (
 											<span className="inline-flex items-center gap-1 px-1.5 sm:px-2 py-0.5 sm:py-1 text-xs font-semibold rounded-full bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300">
 												{case_.code}
@@ -88,13 +84,6 @@ const CaseDetailPanel: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClos
 									</div>
 								</div>
 								<div className="flex items-center gap-2">
-									<button
-										onClick={() => setIsEditModalOpen(true)}
-										className="p-1.5 sm:p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
-										disabled={!canEdit}
-									>
-										<Edit2 className="w-5 h-5 text-blue-500 dark:text-blue-400" />
-									</button>
 									<button
 										onClick={onClose}
 										className="p-1.5 sm:p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
@@ -377,16 +366,18 @@ const CaseDetailPanel: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClos
 					{/* Unified Edit Modal */}
 					<UnifiedCaseModal
 						case_={case_}
-						isOpen={isEditModalOpen}
-						onClose={() => setIsEditModalOpen(false)}
-						onSave={() => {
-							onClose()
-						}}
-						onDelete={() => {
-							onClose()
-						}}
-					/>
-				</>
+			{isEditModalOpen && (
+				<UnifiedCaseModal
+					case_={case_}
+					isOpen={isEditModalOpen}
+					onClose={() => setIsEditModalOpen(false)}
+					onSave={() => {
+						onClose()
+					}}
+					onDelete={() => {
+						onClose()
+					}}
+				/>
 			)}
 		</AnimatePresence>
 	)
