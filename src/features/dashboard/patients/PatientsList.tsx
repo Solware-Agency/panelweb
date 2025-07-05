@@ -1,7 +1,7 @@
 import React, { useState, useCallback, useMemo } from 'react'
 import { FixedSizeList as List } from 'react-window'
 import { useQuery } from '@tanstack/react-query'
-import { getMedicalRecords } from '@lib/supabase-service'
+import { getMedicalRecords, type MedicalRecord } from '@lib/supabase-service'
 import { Search, Filter, RefreshCw, User, Users, Phone, Mail, Calendar, ChevronUp, ChevronDown, UserCheck } from 'lucide-react'
 import { Card } from '@shared/components/ui/card'
 import { Input } from '@shared/components/ui/input'
@@ -10,6 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { getAgeDisplay } from '@lib/supabase-service'
 import { format, parseISO } from 'date-fns'
 import { es } from 'date-fns/locale'
+import PatientHistoryModal from '@shared/components/patients/PatientHistoryModal'
 
 // Define interface for patient data
 type SortField = 'full_name' | 'id_number' | 'date_of_birth' | 'phone' | 'email'
@@ -31,6 +32,8 @@ const PatientsList: React.FC = React.memo(() => {
   const [sortField, setSortField] = useState<SortField>('full_name')
   const [sortDirection, setSortDirection] = useState<SortDirection>('asc')
   const [isSearching, setIsSearching] = useState(false)
+  const [selectedPatient, setSelectedPatient] = useState<PatientData | null>(null)
+  const [isModalOpen, setIsModalOpen] = useState(false)
 
   // Fetch all medical records - add refetchOnWindowFocus: false to prevent unnecessary refetches
   const { data: recordsData, isLoading, error, refetch } = useQuery({
@@ -143,6 +146,12 @@ const PatientsList: React.FC = React.memo(() => {
       setSortDirection('asc')
     }
   }, [sortField, sortDirection])
+
+  // Handle patient selection
+  const handlePatientClick = useCallback((patient: PatientData) => {
+    setSelectedPatient(patient)
+    setIsModalOpen(true)
+  }, [])
 
   // Handle search
   const handleSearchChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
@@ -369,6 +378,7 @@ const PatientsList: React.FC = React.memo(() => {
                       <div 
                         style={style} 
                         className="flex items-center w-full hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors px-4 py-3"
+                        onClick={() => handlePatientClick(patient)}
                       >
                         {/* Name Cell - 20% width */}
                         <div className="w-[20%] flex items-center min-w-0 pr-2">
@@ -452,6 +462,7 @@ const PatientsList: React.FC = React.memo(() => {
                     <div 
                       style={style}
                       className="p-4 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors border-b border-gray-200 dark:border-gray-700"
+                      onClick={() => handlePatientClick(patient)}
                     >
                       <div className="flex items-center mb-3">
                         <div className="flex-shrink-0 h-10 w-10 bg-gray-200 dark:bg-gray-700 rounded-full flex items-center justify-center">
@@ -517,6 +528,13 @@ const PatientsList: React.FC = React.memo(() => {
           </div>
         </div>
       </Card>
+      
+      {/* Patient History Modal */}
+      <PatientHistoryModal 
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        patient={selectedPatient}
+      />
     </div>
   )
 })
