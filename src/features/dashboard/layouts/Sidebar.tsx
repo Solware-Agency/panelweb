@@ -13,13 +13,99 @@ import {
 	Users,
 	Settings,
 	History,
-	User
+	User,
+	ChevronDown,
+	ChevronRight,
+	Folder
 } from 'lucide-react'
 import { NavLink, useNavigate } from 'react-router-dom'
 import { signOut } from '@lib/supabase/auth'
 import FavIcon from '@shared/components/icons/FavIcon'
 import { useUserProfile } from '@shared/hooks/useUserProfile'
+import { cn } from '@shared/lib/cn'
 
+interface NavItemProps {
+	to: string
+	icon: React.ReactNode
+	label: string
+	showFullContent: boolean
+	onClick?: () => void
+	title?: string
+}
+
+interface NavGroupProps {
+	icon: React.ReactNode
+	label: string
+	showFullContent: boolean
+	isExpanded: boolean
+	onToggle: () => void
+	children: React.ReactNode
+}
+
+const NavItem: React.FC<NavItemProps> = ({ to, icon, label, showFullContent, onClick, title }) => {
+	return (
+		<NavLink 
+			to={to}
+			className={({ isActive }) =>
+				`flex justify-between items-center gap-2 sm:gap-3 cursor-pointer transition w-full py-2 px-1 rounded-md ${
+					isActive ? 'text-primary border-primary' : 'hover:text-primary'
+				}`
+			}
+			onClick={onClick}
+			title={!showFullContent ? title || label : undefined}
+		>
+			<div className="flex gap-3 items-center min-w-0">
+				{icon}
+				<p
+					className={`text-md whitespace-nowrap transition-all duration-300 ${
+						showFullContent ? 'opacity-100 w-auto' : 'opacity-0 w-0 overflow-hidden'
+					}`}
+				>
+					{label}
+				</p>
+			</div>
+		</NavLink>
+	)
+}
+
+const NavGroup: React.FC<NavGroupProps> = ({ icon, label, showFullContent, isExpanded, onToggle, children }) => {
+	return (
+		<div className="space-y-1">
+			<button
+				onClick={onToggle}
+				className={`flex justify-between items-center gap-2 sm:gap-3 cursor-pointer transition w-full py-2 px-1 rounded-md hover:text-primary ${
+					isExpanded ? 'text-primary' : ''
+				}`}
+				title={!showFullContent ? label : undefined}
+			>
+				<div className="flex gap-3 items-center min-w-0">
+					{icon}
+					<p
+						className={`text-md whitespace-nowrap transition-all duration-300 ${
+							showFullContent ? 'opacity-100 w-auto' : 'opacity-0 w-0 overflow-hidden'
+						}`}
+					>
+						{label}
+					</p>
+				</div>
+				{showFullContent && (
+					<div className="transition-transform duration-200">
+						{isExpanded ? <ChevronDown className="size-4" /> : <ChevronRight className="size-4" />}
+					</div>
+				)}
+			</button>
+			
+			<div 
+				className={cn(
+					"pl-2 space-y-1 overflow-hidden transition-all duration-200",
+					isExpanded ? "max-h-96" : "max-h-0"
+				)}
+			>
+				{children}
+			</div>
+		</div>
+	)
+}
 interface SidebarProps {
 	onClose?: () => void
 	isExpanded?: boolean
@@ -41,6 +127,17 @@ const Sidebar: React.FC<SidebarProps> = ({
 	const showFullContent = isMobile || isExpanded
 	const navigate = useNavigate()
 	const { profile } = useUserProfile()
+	const [expandedGroups, setExpandedGroups] = React.useState<Record<string, boolean>>({
+		clinical: true,
+		reports: false
+	})
+
+	const toggleGroup = (groupName: string) => {
+		setExpandedGroups(prev => ({
+			...prev,
+			[groupName]: !prev[groupName]
+		}))
+	}
 
 	const handleLogout = async () => {
 		await signOut()
@@ -77,226 +174,111 @@ const Sidebar: React.FC<SidebarProps> = ({
 					)}
 				</div>
 
+			<div className="flex flex-col justify-center gap-4">
 				{/* Common menu items for all roles */}
 				{!isEmployee && !isAdmin && (
-					<>
-						<NavLink 
-							to="/dashboard/home"
-							className={({ isActive }) =>
-								`flex justify-between items-center gap-2 sm:gap-3 cursor-pointer transition w-full py-2 px-1 rounded-md ${
-									isActive ? 'text-primary border-primary' : 'hover:text-primary'
-								}`
-							}
-							onClick={onClose}
-							title={!showFullContent ? 'Inicio' : undefined}
-						>
-							<div className="flex gap-3 items-center min-w-0">
-								<Home className="stroke-2 size-5 shrink-0" />
-								<p
-									className={`text-md whitespace-nowrap transition-all duration-300 ${
-										showFullContent ? 'opacity-100 w-auto' : 'opacity-0 w-0 overflow-hidden'
-									}`}
-								>
-									Inicio
-								</p>
-							</div>
-						</NavLink>
-					</>
+					<NavItem
+						to="/dashboard/home"
+						icon={<Home className="stroke-2 size-5 shrink-0" />}
+						label="Inicio"
+						showFullContent={showFullContent}
+						onClick={onClose}
+					/>
 				)}
-
-				{/* Stats and Reports - Only for owner */}
+				
+				{/* Clinical Group - Cases, Patients, My Cases */}
+				<NavGroup
+					icon={<Folder className="stroke-2 size-5 shrink-0" />}
+					label="Clínico"
+					showFullContent={showFullContent}
+					isExpanded={expandedGroups.clinical}
+					onToggle={() => toggleGroup('clinical')}
+				>
+					{/* Cases - For all roles */}
+					<NavItem
+						to="/dashboard/cases"
+						icon={<FolderInput className="stroke-2 size-5 shrink-0" />}
+						label="Casos"
+						showFullContent={showFullContent}
+						onClick={onClose}
+					/>
+					
+					{/* My Cases - Only for admin */}
+					{isAdmin && (
+						<NavItem
+							to="/dashboard/my-cases"
+							icon={<Microscope className="stroke-2 size-5 shrink-0" />}
+							label="Mis Casos"
+							showFullContent={showFullContent}
+							onClick={onClose}
+						/>
+					)}
+					
+					{/* Patients - For all roles */}
+					<NavItem
+						to={isEmployee ? "/patients" : "/dashboard/patients"}
+						icon={<User className="stroke-2 size-5 shrink-0" />}
+						label="Pacientes"
+						showFullContent={showFullContent}
+						onClick={onClose}
+					/>
+				</NavGroup>
+				
+				{/* Reports Group - Stats, Reports, Changelog */}
 				{isOwner && (
-					<>
-						<NavLink
+					<NavGroup
+						icon={<FileText className="stroke-2 size-5 shrink-0" />}
+						label="Reportes"
+						showFullContent={showFullContent}
+						isExpanded={expandedGroups.reports}
+						onToggle={() => toggleGroup('reports')}
+					>
+						<NavItem
 							to="/dashboard/stats"
-							className={({ isActive }) =>
-								`flex justify-between items-center gap-2 sm:gap-3 cursor-pointer transition w-full py-2 px-1 rounded-md ${
-									isActive ? 'text-primary border-primary' : 'hover:text-primary'
-								}`
-							}
+							icon={<PieChart className="stroke-2 size-5 shrink-0" />}
+							label="Estadísticas"
+							showFullContent={showFullContent}
 							onClick={onClose}
-							title={!showFullContent ? 'Estadisticas' : undefined}
-						>
-							<div className="flex gap-3 items-center min-w-0">
-								<PieChart className="stroke-2 size-5 shrink-0" />
-								<p
-									className={`text-md whitespace-nowrap transition-all duration-300 ${
-										showFullContent ? 'opacity-100 w-auto' : 'opacity-0 w-0 overflow-hidden'
-									}`}
-								>
-									Estadisticas
-								</p>
-							</div>
-						</NavLink>
-
-						<NavLink
+						/>
+						
+						<NavItem
 							to="/dashboard/reports"
-							className={({ isActive }) =>
-								`flex justify-between items-center gap-2 sm:gap-3 cursor-pointer transition w-full py-2 px-1 rounded-md ${
-									isActive ? 'text-primary border-primary' : 'hover:text-primary'
-								}`
-							}
+							icon={<FileText className="stroke-2 size-5 shrink-0" />}
+							label="Reportes"
+							showFullContent={showFullContent}
 							onClick={onClose}
-							title={!showFullContent ? 'Reportes' : undefined}
-						>
-							<div className="flex gap-3 items-center min-w-0">
-								<FileText className="stroke-2 size-5 shrink-0" />
-								<p
-									className={`text-md whitespace-nowrap transition-all duration-300 ${
-										showFullContent ? 'opacity-100 w-auto' : 'opacity-0 w-0 overflow-hidden'
-									}`}
-								>
-									Reportes
-								</p>
-							</div>
-						</NavLink>
-					</>
+						/>
+						
+						<NavItem
+							to="/dashboard/changelog"
+							icon={<History className="stroke-2 size-5 shrink-0" />}
+							label="Historial"
+							showFullContent={showFullContent}
+							onClick={onClose}
+						/>
+					</NavGroup>
 				)}
-
+				
 				{/* Users - For owner and admin */}
 				{(isOwner || isAdmin) && (
-						<NavLink
-							to="/dashboard/users"
-							className={({ isActive }) =>
-								`flex justify-between items-center gap-2 sm:gap-3 cursor-pointer transition w-full py-2 px-1 rounded-md ${
-									isActive ? 'text-primary border-primary' : 'hover:text-primary'
-								}`
-							}
-							onClick={onClose}
-							title={!showFullContent ? 'Usuarios' : undefined}
-						>
-							<div className="flex gap-3 items-center min-w-0">
-								<Users className="stroke-2 size-5 shrink-0" />
-								<p
-									className={`text-md whitespace-nowrap transition-all duration-300 ${
-										showFullContent ? 'opacity-100 w-auto' : 'opacity-0 w-0 overflow-hidden'
-									}`}
-								>
-									Usuarios
-								</p>
-							</div>
-						</NavLink>
-				)}
-
-				{/* Cases - For all roles */}
-						<NavLink
-							to="/dashboard/cases"
-							className={({ isActive }) =>
-								`flex justify-between items-center gap-2 sm:gap-3 cursor-pointer transition w-full py-2 px-1 rounded-md ${
-									isActive ? 'text-primary border-primary' : 'hover:text-primary'
-								}`
-							}
-							onClick={onClose}
-							title={!showFullContent ? 'Casos' : undefined}
-						>
-							<div className="flex gap-3 items-center min-w-0">
-								<FolderInput className="stroke-2 size-5 shrink-0" />
-								<p
-									className={`text-md whitespace-nowrap transition-all duration-300 ${
-										showFullContent ? 'opacity-100 w-auto' : 'opacity-0 w-0 overflow-hidden'
-									}`}
-								>
-									Casos
-								</p>
-							</div>
-						</NavLink>
-				
-				{/* My Cases - Only for admin */}
-				{isAdmin && (
-						<NavLink
-							to="/dashboard/my-cases"
-							className={({ isActive }) =>
-								`flex justify-between items-center gap-2 sm:gap-3 cursor-pointer transition w-full py-2 px-1 rounded-md ${
-									isActive ? 'text-primary border-primary' : 'hover:text-primary'
-								}`
-							}
-							onClick={onClose}
-							title={!showFullContent ? 'Mis Casos' : undefined}
-						>
-							<div className="flex gap-3 items-center min-w-0">
-								<Microscope className="stroke-2 size-5 shrink-0" />
-								<p
-									className={`text-md whitespace-nowrap transition-all duration-300 ${
-										showFullContent ? 'opacity-100 w-auto' : 'opacity-0 w-0 overflow-hidden'
-									}`}
-								>
-									Mis Casos
-								</p>
-							</div>
-						</NavLink>
-				)}
-
-				{/* Patients - For all roles */}
-				<NavLink
-					to={isEmployee ? "/patients" : "/dashboard/patients"}
-					className={({ isActive }) =>
-						`flex justify-between items-center gap-2 sm:gap-3 cursor-pointer transition w-full py-2 px-1 rounded-md ${
-							isActive ? 'text-primary border-primary' : 'hover:text-primary'
-						}`
-					}
-					onClick={onClose}
-					title={!showFullContent ? 'Pacientes' : undefined}
-				>
-					<div className="flex gap-3 items-center min-w-0">
-						<User className="stroke-2 size-5 shrink-0" />
-						<p
-							className={`text-md whitespace-nowrap transition-all duration-300 ${
-								showFullContent ? 'opacity-100 w-auto' : 'opacity-0 w-0 overflow-hidden'
-							}`}
-						>
-							Pacientes
-						</p>
-					</div>
-				</NavLink>
-				
-				{/* Changelog - Only for owners */}
-				{isOwner && (
-					<NavLink
-						to="/dashboard/changelog" 
-						className={({ isActive }) => 
-							`flex justify-between items-center gap-2 sm:gap-3 cursor-pointer transition w-full py-2 px-1 rounded-md ${
-								isActive ? 'text-primary border-primary' : 'hover:text-primary'
-							}`
-						}
+					<NavItem
+						to="/dashboard/users"
+						icon={<Users className="stroke-2 size-5 shrink-0" />}
+						label="Usuarios"
+						showFullContent={showFullContent}
 						onClick={onClose}
-						title={!showFullContent ? 'Historial de Cambios' : undefined}
-					>
-						<div className="flex gap-3 items-center min-w-0">
-							<History className="stroke-2 size-5 shrink-0" />
-							<p
-								className={`text-md whitespace-nowrap transition-all duration-300 ${
-									showFullContent ? 'opacity-100 w-auto' : 'opacity-0 w-0 overflow-hidden'
-								}`}
-							>
-								Historial
-							</p>
-						</div>
-					</NavLink>
+					/>
 				)}
 			</div>
 
 			<div className="flex flex-col justify-center gap-4">
-				<NavLink
+				<NavItem
 					to="/dashboard/settings"
-					className={({ isActive }) =>
-						`flex justify-between items-center gap-2 sm:gap-3 cursor-pointer transition w-full py-2 px-1 rounded-md ${
-							isActive ? 'text-primary border-primary' : 'hover:text-primary'
-						}`
-					}
+					icon={<Settings className="stroke-2 size-5 shrink-0" />}
+					label="Ajustes"
+					showFullContent={showFullContent}
 					onClick={onClose}
-					title={!showFullContent ? 'Ajustes' : undefined}
-				>
-					<div className="flex gap-3 items-center min-w-0">
-						<Settings className="stroke-2 size-5 shrink-0" />
-						<p
-							className={`text-md whitespace-nowrap transition-all duration-300 ${
-								showFullContent ? 'opacity-100 w-auto' : 'opacity-0 w-0 overflow-hidden'
-							}`}
-						>
-							Ajustes
-						</p>
-					</div>
-				</NavLink>
+				/>
 				<div
 					title={!showFullContent ? 'Fecha' : undefined}
 					className="flex items-center gap-2 sm:gap-3 cursor-pointer hover:text-primary transition py-2 px-1 rounded-md"
