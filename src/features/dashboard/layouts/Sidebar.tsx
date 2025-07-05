@@ -18,7 +18,6 @@ import { NavLink, useNavigate } from 'react-router-dom'
 import { signOut } from '@lib/supabase/auth'
 import FavIcon from '@shared/components/icons/FavIcon'
 import { useUserProfile } from '@shared/hooks/useUserProfile'
-import { useAuth } from '@app/providers/AuthContext'
 
 interface SidebarProps {
 	onClose?: () => void
@@ -41,12 +40,9 @@ const Sidebar: React.FC<SidebarProps> = ({
 	const showFullContent = isMobile || isExpanded
 	const navigate = useNavigate()
 	const { profile } = useUserProfile()
-	const { session } = useAuth()
 
 	const handleLogout = async () => {
-		if (session) {
-			await signOut()
-		}
+		await signOut()
 		navigate('/')
 	}
 

@@ -1,18 +1,14 @@
 import { Clock, ArrowLeft } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { signOut } from '@lib/supabase/auth'
-import { useAuth } from '@app/providers/AuthContext'
 import Aurora from '@shared/components/ui/Aurora'
 import FadeContent from '@shared/components/ui/FadeContent'
 
 function PendingApprovalPage() {
   const navigate = useNavigate()
-  const { session } = useAuth()
 
   const handleLogout = async () => {
-    if (session) {
-      await signOut()
-    }
+    await signOut()
     navigate('/')
   }
 

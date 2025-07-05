@@ -1,17 +1,14 @@
 import { useNavigate } from 'react-router-dom'
 import { signOut } from '@lib/supabase/auth'
 import { useUserProfile } from '@shared/hooks/useUserProfile'
-import { useAuth } from '@app/providers/AuthContext'
 
 function Header() {
 	const navigate = useNavigate()
 	const { profile } = useUserProfile()
-	const { session } = useAuth()
 
 	const handleLogout = async () => {
-		if (session) {
-			await signOut()
-		}
+		await signOut()
+		navigate('/')
 	}
 	return (
 		<header className="flex justify-between items-center bg-white/80 dark:bg-gray-900/80 backdrop-blur-[10px] rounded-bl-xl transition-colors duration-300 sticky top-0 left-0 z-50 p-4">

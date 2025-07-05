@@ -112,26 +112,12 @@ export const signOut = async (): Promise<{ error: AuthError | null }> => {
 		// This is not an error condition we need to report
 		if (error && error.message?.includes('Session from session_id claim in JWT does not exist')) {
 			console.log('Session already expired or invalid - user effectively logged out')
-			// Force a complete page reload to reset application state
-			window.location.href = '/'
 			return { error: null }
-		}
-		
-		// For any other error or successful logout, also force page reload
-		if (error) {
-			console.error('Logout error:', error)
-			// Still force reload even on error to clear stale state
-			window.location.href = '/'
-		} else {
-			// Successful logout - force page reload to reset all state
-			window.location.href = '/'
 		}
 		
 		return { error }
 	} catch (err) {
 		console.error('Unexpected signout error:', err)
-		// Force page reload even on unexpected errors
-		window.location.href = '/'
 		return {
 			error: {
 				message: 'An unexpected error occurred during signout',
