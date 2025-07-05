@@ -107,6 +107,14 @@ export const signIn = async (email: string, password: string): Promise<AuthRespo
 export const signOut = async (): Promise<{ error: AuthError | null }> => {
 	try {
 		const { error } = await supabase.auth.signOut()
+		
+		// If the session doesn't exist, the user is effectively logged out
+		// This is not an error condition we need to report
+		if (error && error.message?.includes('Session from session_id claim in JWT does not exist')) {
+			console.log('Session already expired or invalid - user effectively logged out')
+			return { error: null }
+		}
+		
 		return { error }
 	} catch (err) {
 		console.error('Unexpected signout error:', err)
