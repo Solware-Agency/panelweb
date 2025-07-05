@@ -106,6 +106,7 @@ const NavGroup: React.FC<NavGroupProps> = ({ icon, label, showFullContent, isExp
 		</div>
 	)
 }
+
 interface SidebarProps {
 	onClose?: () => void
 	isExpanded?: boolean
@@ -174,101 +175,102 @@ const Sidebar: React.FC<SidebarProps> = ({
 					)}
 				</div>
 
-			<div className="flex flex-col justify-center gap-4">
-				{/* Common menu items for all roles */}
-				{!isEmployee && !isAdmin && (
-					<NavItem
-						to="/dashboard/home"
-						icon={<Home className="stroke-2 size-5 shrink-0" />}
-						label="Inicio"
-						showFullContent={showFullContent}
-						onClick={onClose}
-					/>
-				)}
-				
-				{/* Clinical Group - Cases, Patients, My Cases */}
-				<NavGroup
-					icon={<Folder className="stroke-2 size-5 shrink-0" />}
-					label="Clínico"
-					showFullContent={showFullContent}
-					isExpanded={expandedGroups.clinical}
-					onToggle={() => toggleGroup('clinical')}
-				>
-					{/* Cases - For all roles */}
-					<NavItem
-						to="/dashboard/cases"
-						icon={<FolderInput className="stroke-2 size-5 shrink-0" />}
-						label="Casos"
-						showFullContent={showFullContent}
-						onClick={onClose}
-					/>
-					
-					{/* My Cases - Only for admin */}
-					{isAdmin && (
+				<div className="flex flex-col justify-center gap-4">
+					{/* Common menu items for all roles */}
+					{!isEmployee && !isAdmin && (
 						<NavItem
-							to="/dashboard/my-cases"
-							icon={<Microscope className="stroke-2 size-5 shrink-0" />}
-							label="Mis Casos"
+							to="/dashboard/home"
+							icon={<Home className="stroke-2 size-5 shrink-0" />}
+							label="Inicio"
 							showFullContent={showFullContent}
 							onClick={onClose}
 						/>
 					)}
 					
-					{/* Patients - For all roles */}
-					<NavItem
-						to={isEmployee ? "/patients" : "/dashboard/patients"}
-						icon={<User className="stroke-2 size-5 shrink-0" />}
-						label="Pacientes"
-						showFullContent={showFullContent}
-						onClick={onClose}
-					/>
-				</NavGroup>
-				
-				{/* Reports Group - Stats, Reports, Changelog */}
-				{isOwner && (
+					{/* Clinical Group - Cases, Patients, My Cases */}
 					<NavGroup
-						icon={<FileText className="stroke-2 size-5 shrink-0" />}
-						label="Reportes"
+						icon={<Folder className="stroke-2 size-5 shrink-0" />}
+						label="Clínico"
 						showFullContent={showFullContent}
-						isExpanded={expandedGroups.reports}
-						onToggle={() => toggleGroup('reports')}
+						isExpanded={expandedGroups.clinical}
+						onToggle={() => toggleGroup('clinical')}
 					>
+						{/* Cases - For all roles */}
 						<NavItem
-							to="/dashboard/stats"
-							icon={<PieChart className="stroke-2 size-5 shrink-0" />}
-							label="Estadísticas"
+							to="/dashboard/cases"
+							icon={<FolderInput className="stroke-2 size-5 shrink-0" />}
+							label="Casos"
 							showFullContent={showFullContent}
 							onClick={onClose}
 						/>
 						
-						<NavItem
-							to="/dashboard/reports"
-							icon={<FileText className="stroke-2 size-5 shrink-0" />}
-							label="Reportes"
-							showFullContent={showFullContent}
-							onClick={onClose}
-						/>
+						{/* My Cases - Only for admin */}
+						{isAdmin && (
+							<NavItem
+								to="/dashboard/my-cases"
+								icon={<Microscope className="stroke-2 size-5 shrink-0" />}
+								label="Mis Casos"
+								showFullContent={showFullContent}
+								onClick={onClose}
+							/>
+						)}
 						
+						{/* Patients - For all roles */}
 						<NavItem
-							to="/dashboard/changelog"
-							icon={<History className="stroke-2 size-5 shrink-0" />}
-							label="Historial"
+							to={isEmployee ? "/patients" : "/dashboard/patients"}
+							icon={<User className="stroke-2 size-5 shrink-0" />}
+							label="Pacientes"
 							showFullContent={showFullContent}
 							onClick={onClose}
 						/>
 					</NavGroup>
-				)}
-				
-				{/* Users - For owner and admin */}
-				{(isOwner || isAdmin) && (
-					<NavItem
-						to="/dashboard/users"
-						icon={<Users className="stroke-2 size-5 shrink-0" />}
-						label="Usuarios"
-						showFullContent={showFullContent}
-						onClick={onClose}
-					/>
-				)}
+					
+					{/* Reports Group - Stats, Reports, Changelog */}
+					{isOwner && (
+						<NavGroup
+							icon={<FileText className="stroke-2 size-5 shrink-0" />}
+							label="Reportes"
+							showFullContent={showFullContent}
+							isExpanded={expandedGroups.reports}
+							onToggle={() => toggleGroup('reports')}
+						>
+							<NavItem
+								to="/dashboard/stats"
+								icon={<PieChart className="stroke-2 size-5 shrink-0" />}
+								label="Estadísticas"
+								showFullContent={showFullContent}
+								onClick={onClose}
+							/>
+							
+							<NavItem
+								to="/dashboard/reports"
+								icon={<FileText className="stroke-2 size-5 shrink-0" />}
+								label="Reportes"
+								showFullContent={showFullContent}
+								onClick={onClose}
+							/>
+							
+							<NavItem
+								to="/dashboard/changelog"
+								icon={<History className="stroke-2 size-5 shrink-0" />}
+								label="Historial"
+								showFullContent={showFullContent}
+								onClick={onClose}
+							/>
+						</NavGroup>
+					)}
+					
+					{/* Users - For owner and admin */}
+					{(isOwner || isAdmin) && (
+						<NavItem
+							to="/dashboard/users"
+							icon={<Users className="stroke-2 size-5 shrink-0" />}
+							label="Usuarios"
+							showFullContent={showFullContent}
+							onClick={onClose}
+						/>
+					)}
+				</div>
 			</div>
 
 			<div className="flex flex-col justify-center gap-4">
