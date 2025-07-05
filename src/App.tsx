@@ -18,8 +18,8 @@ import CasesPage from '@features/dashboard/cases/CasesPage'
 import MyCasesPage from '@features/dashboard/cases/MyCasesPage'
 import SettingsPage from '@features/dashboard/settings/SettingsPage'
 import ChangelogPage from '@features/dashboard/changelog/ChangelogPage'
-import PatientsPage from '@features/dashboard/patients/PatientsPage'
 import Form from '@features/form/pages/Form'
+import PatientsPage from '@features/dashboard/patients/PatientsPage'
 import FormRoute from '@app/routes/FormRoute'
 
 // Create a client instance
@@ -88,7 +88,7 @@ function App() {
 							path="/patients"
 							element={
 								<PrivateRoute requiredRole={undefined}>
-									<div>Patients Page - Component needs to be created</div>
+									<PatientsPage />
 								</PrivateRoute>
 							}
 						/>

@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useCallback } from 'react'
 import { useQuery } from '@tanstack/react-query'
-import { getAllUniquePatients } from '@lib/supabase-service'
+import { supabase } from '@lib/supabase/config'
 import { Card } from '@shared/components/ui/card'
 import { Input } from '@shared/components/ui/input'
 import { Button } from '@shared/components/ui/button'
@@ -42,22 +42,48 @@ const PatientsList: React.FC = () => {
   const [sortDirection, setSortDirection] = useState<SortDirection>('desc')
   const [isSearching, setIsSearching] = useState(false)
 
-  // Query to fetch all unique patients
-  const { data: patients, isLoading, error, refetch } = useQuery({
+  // Query to fetch all medical records
+  const { data: records, isLoading, error, refetch } = useQuery({
     queryKey: ['patients-list'],
     queryFn: async () => {
-      const { data, error } = await getAllUniquePatients()
-      if (error) throw error
-      return data || []
+      try {
+        const { data, error } = await supabase
+          .from('medical_records_clean')
+          .select('id_number, full_name, date_of_birth, email, phone, created_at')
+          .order('created_at', { ascending: false })
+        
+        if (error) throw error
+        
+        return data || []
+      } catch (error) {
+        console.error('Error fetching patients:', error)
+        throw error
+      }
     },
     staleTime: 1000 * 60 * 5, // 5 minutes
   })
 
+  // Extract unique patients by id_number
+  const uniquePatients = useMemo(() => {
+    if (!records) return []
+    
+    const patientsMap = new Map<string, Patient>()
+    
+    records.forEach(record => {
+      // Only add if this id_number hasn't been seen before
+      if (!patientsMap.has(record.id_number)) {
+        patientsMap.set(record.id_number, record)
+      }
+    })
+    
+    return Array.from(patientsMap.values())
+  }, [records])
+
   // Filter patients based on search term
   const filteredPatients = useMemo(() => {
-    if (!patients || !patients.length) return []
+    if (!uniquePatients.length) return []
     
-    return patients.filter(patient => {
+    return uniquePatients.filter(patient => {
       const searchLower = searchTerm.toLowerCase()
       return (
         patient.full_name.toLowerCase().includes(searchLower) ||
@@ -66,7 +92,7 @@ const PatientsList: React.FC = () => {
         patient.phone.toLowerCase().includes(searchLower)
       )
     })
-  }, [patients, searchTerm])
+  }, [uniquePatients, searchTerm])
 
   // Sort patients
   const sortedPatients = useMemo(() => {
@@ -241,7 +267,7 @@ const PatientsList: React.FC = () => {
               <div>
                 <p className="text-sm text-blue-700 dark:text-blue-300">Total de Pacientes</p>
                 <p className="text-2xl font-bold text-blue-800 dark:text-blue-200">
-                  {isLoading ? '...' : patients?.length || 0}
+                  {isLoading ? '...' : uniquePatients.length}
                 </p>
               </div>
             </div>
@@ -255,7 +281,7 @@ const PatientsList: React.FC = () => {
               <div>
                 <p className="text-sm text-green-700 dark:text-green-300">Pacientes con Fecha de Nacimiento</p>
                 <p className="text-2xl font-bold text-green-800 dark:text-green-200">
-                  {isLoading ? '...' : patients?.filter(p => !!p.date_of_birth).length || 0}
+                  {isLoading ? '...' : uniquePatients.filter(p => !!p.date_of_birth).length}
                 </p>
               </div>
             </div>
@@ -269,7 +295,7 @@ const PatientsList: React.FC = () => {
               <div>
                 <p className="text-sm text-purple-700 dark:text-purple-300">Pacientes con Email</p>
                 <p className="text-2xl font-bold text-purple-800 dark:text-purple-200">
-                  {isLoading ? '...' : patients?.filter(p => !!p.email).length || 0}
+                  {isLoading ? '...' : uniquePatients.filter(p => !!p.email).length}
                 </p>
               </div>
             </div>
