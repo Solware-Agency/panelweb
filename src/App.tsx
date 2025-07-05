@@ -18,6 +18,7 @@ import CasesPage from '@features/dashboard/cases/CasesPage'
 import MyCasesPage from '@features/dashboard/cases/MyCasesPage'
 import SettingsPage from '@features/dashboard/settings/SettingsPage'
 import ChangelogPage from '@features/dashboard/changelog/ChangelogPage'
+import PatientsPage from '@features/dashboard/patients/PatientsPage'
 import Form from '@features/form/pages/Form'
 import FormRoute from '@app/routes/FormRoute'
 
