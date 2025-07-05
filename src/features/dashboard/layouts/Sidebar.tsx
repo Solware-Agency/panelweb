@@ -77,7 +77,7 @@ const Sidebar: React.FC<SidebarProps> = ({
 				</div>
 
 				{/* Common menu items for all roles */}
-				{!isEmployee && (
+				{!isEmployee && !isAdmin && (
 					<>
 						<NavLink
 							to="/dashboard/home"
