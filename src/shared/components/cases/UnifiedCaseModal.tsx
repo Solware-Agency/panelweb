@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { motion, AnimatePresence } from 'motion/react'
-import { AlertTriangle, Trash2, Loader2, Edit, X, Save, User, FileText, DollarSign, Microscope, Calendar, Mail, Phone, Cake } from 'lucide-react'
+import { AlertTriangle, Trash2, Loader2, Edit, X, Save, User, FileText, DollarSign, Microscope, Calendar, Mail, Phone, Cake, PlusCircle } from 'lucide-react'
 import type { MedicalRecord } from '@lib/supabase-service'
 import { updateMedicalRecordWithLog, deleteMedicalRecord, getAgeDisplay } from '@lib/supabase-service'
 import { Button } from '@shared/components/ui/button'
@@ -12,6 +12,9 @@ import { Textarea } from '@shared/components/ui/textarea'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@shared/components/ui/select'
 import { format, parseISO } from 'date-fns'
 import { es } from 'date-fns/locale'
+import { Popover, PopoverContent, PopoverTrigger } from '@shared/components/ui/popover'
+import { Calendar as CalendarComponent } from '@shared/components/ui/calendar'
+import { cn } from '@shared/lib/cn'
 
 interface UnifiedCaseModalProps {
 	case_: MedicalRecord | null
@@ -27,6 +30,7 @@ const UnifiedCaseModal: React.FC<UnifiedCaseModalProps> = ({ case_, isOpen, onCl
 	const [isEditing, setIsEditing] = useState(false)
 	const [isSaving, setIsSaving] = useState(false)
 	const [formData, setFormData] = useState<Partial<MedicalRecord>>({})
+	const [isDateOfBirthOpen, setIsDateOfBirthOpen] = useState(false)
 	const { toast } = useToast()
 	const { user } = useAuth()
 	const { profile } = useUserProfile()
@@ -43,6 +47,7 @@ const UnifiedCaseModal: React.FC<UnifiedCaseModalProps> = ({ case_, isOpen, onCl
 				id_number: case_.id_number,
 				phone: case_.phone,
 				email: case_.email,
+				date_of_birth: case_.date_of_birth,
 				exam_type: case_.exam_type,
 				origin: case_.origin,
 				treating_doctor: case_.treating_doctor,
@@ -73,6 +78,58 @@ const UnifiedCaseModal: React.FC<UnifiedCaseModalProps> = ({ case_, isOpen, onCl
 			setIsEditing(false)
 		}
 	}, [isOpen])
+
+	// Function to add a new payment method
+	const addPaymentMethod = () => {
+		// Find the first empty payment method slot
+		if (!formData.payment_method_1) {
+			setFormData(prev => ({
+				...prev,
+				payment_method_1: '',
+				payment_amount_1: 0,
+				payment_reference_1: ''
+			}));
+		} else if (!formData.payment_method_2) {
+			setFormData(prev => ({
+				...prev,
+				payment_method_2: '',
+				payment_amount_2: 0,
+				payment_reference_2: ''
+			}));
+		} else if (!formData.payment_method_3) {
+			setFormData(prev => ({
+				...prev,
+				payment_method_3: '',
+				payment_amount_3: 0,
+				payment_reference_3: ''
+			}));
+		} else if (!formData.payment_method_4) {
+			setFormData(prev => ({
+				...prev,
+				payment_method_4: '',
+				payment_amount_4: 0,
+				payment_reference_4: ''
+			}));
+		} else {
+			toast({
+				title: 'Límite alcanzado',
+				description: 'No se pueden agregar más de 4 métodos de pago.',
+				variant: 'destructive',
+			});
+		}
+	};
+
+	// Function to remove a payment method
+	const removePaymentMethod = (index: number) => {
+		setFormData(prev => {
+			const updated = { ...prev };
+			// Clear the specified payment method
+			updated[`payment_method_${index}` as keyof typeof updated] = null;
+			updated[`payment_amount_${index}` as keyof typeof updated] = null;
+			updated[`payment_reference_${index}` as keyof typeof updated] = null;
+			return updated;
+		});
+	};
 
 	const handleInputChange = (field: keyof MedicalRecord, value: any) => {
 		setFormData(prev => ({
@@ -341,10 +398,59 @@ const UnifiedCaseModal: React.FC<UnifiedCaseModalProps> = ({ case_, isOpen, onCl
 										<div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
 											<div>
 												<p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">Fecha de nacimiento:</p>
-												<p className="text-sm sm:text-base font-medium">
-													{formattedDateOfBirth}
-													{ageDisplay && <span className="ml-2 text-xs sm:text-sm text-blue-600">({ageDisplay})</span>}
-												</p>
+												{isEditing ? (
+													<div className="mt-1">
+														<Popover open={isDateOfBirthOpen} onOpenChange={setIsDateOfBirthOpen}>
+															<PopoverTrigger asChild>
+																<Button
+																	variant="outline"
+																	className={cn(
+																		"w-full justify-start text-left font-normal",
+																		!formData.date_of_birth && "text-muted-foreground"
+																	)}
+																>
+																	<Cake className="mr-2 h-4 w-4 text-pink-500" />
+																	{formData.date_of_birth ? (
+																		<div className="flex items-center gap-2">
+																			<span>{format(parseISO(formData.date_of_birth as string), 'PPP', { locale: es })}</span>
+																			{formData.date_of_birth && (
+																				<span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">
+																					{getAgeDisplay(formData.date_of_birth as string)}
+																				</span>
+																			)}
+																		</div>
+																	) : (
+																		<span>Selecciona fecha de nacimiento</span>
+																	)}
+																</Button>
+															</PopoverTrigger>
+															<PopoverContent className="w-auto p-0 z-[9999999]">
+																<CalendarComponent
+																	mode="single"
+																	selected={formData.date_of_birth ? parseISO(formData.date_of_birth as string) : undefined}
+																	onSelect={(date) => {
+																		if (date) {
+																			handleInputChange('date_of_birth', format(date, 'yyyy-MM-dd'));
+																			setIsDateOfBirthOpen(false);
+																		}
+																	}}
+																	disabled={(date) => {
+																		const today = new Date();
+																		const maxAge = new Date(today.getFullYear() - 150, today.getMonth(), today.getDate());
+																		return date > today || date < maxAge;
+																	}}
+																	initialFocus
+																	locale={es}
+																/>
+															</PopoverContent>
+														</Popover>
+													</div>
+												) : (
+													<p className="text-sm sm:text-base font-medium">
+														{formattedDateOfBirth}
+														{ageDisplay && <span className="ml-2 text-xs sm:text-sm text-blue-600">({ageDisplay})</span>}
+													</p>
+												)}
 											</div>
 											<div>
 												<p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">Teléfono:</p>
@@ -545,8 +651,21 @@ const UnifiedCaseModal: React.FC<UnifiedCaseModalProps> = ({ case_, isOpen, onCl
 								{/* Payment Information */}
 								<div className="bg-white dark:bg-background rounded-lg p-3 sm:p-4 border border-input transition-all duration-300">
 									<div className="flex items-center gap-1.5 sm:gap-2 mb-3 sm:mb-4">
-										<DollarSign className="text-purple-500 size-6" />
-										<h3 className="text-lg sm:text-xl font-semibold">Información de Pago</h3>
+										<div className="flex items-center gap-2">
+											<DollarSign className="text-purple-500 size-6" />
+											<h3 className="text-lg sm:text-xl font-semibold">Información de Pago</h3>
+										</div>
+										{isEditing && (
+											<Button 
+												variant="outline" 
+												size="sm" 
+												onClick={addPaymentMethod}
+												className="ml-auto text-xs"
+											>
+												<PlusCircle className="w-3 h-3 mr-1" />
+												Agregar Método
+											</Button>
+										)}
 									</div>
 									<div className="space-y-3 sm:space-y-4">
 										<div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
@@ -579,56 +698,274 @@ const UnifiedCaseModal: React.FC<UnifiedCaseModalProps> = ({ case_, isOpen, onCl
 
 										{/* Payment Methods */}
 										<div className="space-y-2 sm:space-y-3">
-											<p className="text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300">Métodos de pago:</p>
-											{case_.payment_method_1 && (
+											<p className="text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300">
+												Métodos de pago:
+											</p>
+											
+											{/* Payment Method 1 */}
+											{(isEditing || case_.payment_method_1) && (
 												<div className="bg-gray-50 dark:bg-gray-800/50 p-2 sm:p-3 rounded-lg">
-													<div className="flex justify-between items-center">
-														<p className="text-xs sm:text-sm font-medium">{case_.payment_method_1}</p>
-														<p className="text-xs sm:text-sm font-medium">${case_.payment_amount_1?.toLocaleString() || 0}</p>
-													</div>
-													{case_.payment_reference_1 && (
-														<p className="text-[10px] sm:text-xs text-gray-500 dark:text-gray-400 mt-0.5 sm:mt-1">
-															Ref: {case_.payment_reference_1}
-														</p>
+													{isEditing ? (
+														<div className="grid grid-cols-1 md:grid-cols-3 gap-2">
+															<div>
+																<p className="text-xs text-gray-500 dark:text-gray-400 mb-1">Método:</p>
+																<Select
+																	value={formData.payment_method_1 || ''}
+																	onValueChange={(value) => handleInputChange('payment_method_1', value)}
+																>
+																	<SelectTrigger>
+																		<SelectValue placeholder="Seleccionar método" />
+																	</SelectTrigger>
+																	<SelectContent>
+																		<SelectItem value="Punto de venta">Punto de venta</SelectItem>
+																		<SelectItem value="Dólares en efectivo">Dólares en efectivo</SelectItem>
+																		<SelectItem value="Zelle">Zelle</SelectItem>
+																		<SelectItem value="Pago móvil">Pago móvil</SelectItem>
+																		<SelectItem value="Bs en efectivo">Bs en efectivo</SelectItem>
+																	</SelectContent>
+																</Select>
+															</div>
+															<div>
+																<p className="text-xs text-gray-500 dark:text-gray-400 mb-1">Monto:</p>
+																<Input
+																	type="number"
+																	value={formData.payment_amount_1 || ''}
+																	onChange={(e) => handleInputChange('payment_amount_1', parseFloat(e.target.value))}
+																	placeholder="0.00"
+																/>
+															</div>
+															<div className="flex items-end gap-2">
+																<div className="flex-1">
+																	<p className="text-xs text-gray-500 dark:text-gray-400 mb-1">Referencia:</p>
+																	<Input
+																		value={formData.payment_reference_1 || ''}
+																		onChange={(e) => handleInputChange('payment_reference_1', e.target.value)}
+																		placeholder="Referencia"
+																	/>
+																</div>
+																<Button 
+																	variant="ghost" 
+																	size="sm" 
+																	onClick={() => removePaymentMethod(1)}
+																	className="text-red-500 hover:text-red-700 hover:bg-red-100"
+																>
+																	<X className="w-4 h-4" />
+																</Button>
+															</div>
+														</div>
+													) : (
+														<>
+															<div className="flex justify-between items-center">
+																<p className="text-xs sm:text-sm font-medium">{case_.payment_method_1}</p>
+																<p className="text-xs sm:text-sm font-medium">${case_.payment_amount_1?.toLocaleString() || 0}</p>
+															</div>
+															{case_.payment_reference_1 && (
+																<p className="text-[10px] sm:text-xs text-gray-500 dark:text-gray-400 mt-0.5 sm:mt-1">
+																	Ref: {case_.payment_reference_1}
+																</p>
+															)}
+														</>
 													)}
 												</div>
 											)}
-											{case_.payment_method_2 && (
+											
+											{/* Payment Method 2 */}
+											{(isEditing || case_.payment_method_2) && (
 												<div className="bg-gray-50 dark:bg-gray-800/50 p-2 sm:p-3 rounded-lg">
-													<div className="flex justify-between items-center">
-														<p className="text-xs sm:text-sm font-medium">{case_.payment_method_2}</p>
-														<p className="text-xs sm:text-sm font-medium">${case_.payment_amount_2?.toLocaleString() || 0}</p>
-													</div>
-													{case_.payment_reference_2 && (
-														<p className="text-[10px] sm:text-xs text-gray-500 dark:text-gray-400 mt-0.5 sm:mt-1">
-															Ref: {case_.payment_reference_2}
-														</p>
+													{isEditing ? (
+														<div className="grid grid-cols-1 md:grid-cols-3 gap-2">
+															<div>
+																<p className="text-xs text-gray-500 dark:text-gray-400 mb-1">Método:</p>
+																<Select
+																	value={formData.payment_method_2 || ''}
+																	onValueChange={(value) => handleInputChange('payment_method_2', value)}
+																>
+																	<SelectTrigger>
+																		<SelectValue placeholder="Seleccionar método" />
+																	</SelectTrigger>
+																	<SelectContent>
+																		<SelectItem value="Punto de venta">Punto de venta</SelectItem>
+																		<SelectItem value="Dólares en efectivo">Dólares en efectivo</SelectItem>
+																		<SelectItem value="Zelle">Zelle</SelectItem>
+																		<SelectItem value="Pago móvil">Pago móvil</SelectItem>
+																		<SelectItem value="Bs en efectivo">Bs en efectivo</SelectItem>
+																	</SelectContent>
+																</Select>
+															</div>
+															<div>
+																<p className="text-xs text-gray-500 dark:text-gray-400 mb-1">Monto:</p>
+																<Input
+																	type="number"
+																	value={formData.payment_amount_2 || ''}
+																	onChange={(e) => handleInputChange('payment_amount_2', parseFloat(e.target.value))}
+																	placeholder="0.00"
+																/>
+															</div>
+															<div className="flex items-end gap-2">
+																<div className="flex-1">
+																	<p className="text-xs text-gray-500 dark:text-gray-400 mb-1">Referencia:</p>
+																	<Input
+																		value={formData.payment_reference_2 || ''}
+																		onChange={(e) => handleInputChange('payment_reference_2', e.target.value)}
+																		placeholder="Referencia"
+																	/>
+																</div>
+																<Button 
+																	variant="ghost" 
+																	size="sm" 
+																	onClick={() => removePaymentMethod(2)}
+																	className="text-red-500 hover:text-red-700 hover:bg-red-100"
+																>
+																	<X className="w-4 h-4" />
+																</Button>
+															</div>
+														</div>
+													) : (
+														<>
+															<div className="flex justify-between items-center">
+																<p className="text-xs sm:text-sm font-medium">{case_.payment_method_2}</p>
+																<p className="text-xs sm:text-sm font-medium">${case_.payment_amount_2?.toLocaleString() || 0}</p>
+															</div>
+															{case_.payment_reference_2 && (
+																<p className="text-[10px] sm:text-xs text-gray-500 dark:text-gray-400 mt-0.5 sm:mt-1">
+																	Ref: {case_.payment_reference_2}
+																</p>
+															)}
+														</>
 													)}
 												</div>
 											)}
-											{case_.payment_method_3 && (
+											
+											{/* Payment Method 3 */}
+											{(isEditing || case_.payment_method_3) && (
 												<div className="bg-gray-50 dark:bg-gray-800/50 p-2 sm:p-3 rounded-lg">
-													<div className="flex justify-between items-center">
-														<p className="text-xs sm:text-sm font-medium">{case_.payment_method_3}</p>
-														<p className="text-xs sm:text-sm font-medium">${case_.payment_amount_3?.toLocaleString() || 0}</p>
-													</div>
-													{case_.payment_reference_3 && (
-														<p className="text-[10px] sm:text-xs text-gray-500 dark:text-gray-400 mt-0.5 sm:mt-1">
-															Ref: {case_.payment_reference_3}
-														</p>
+													{isEditing ? (
+														<div className="grid grid-cols-1 md:grid-cols-3 gap-2">
+															<div>
+																<p className="text-xs text-gray-500 dark:text-gray-400 mb-1">Método:</p>
+																<Select
+																	value={formData.payment_method_3 || ''}
+																	onValueChange={(value) => handleInputChange('payment_method_3', value)}
+																>
+																	<SelectTrigger>
+																		<SelectValue placeholder="Seleccionar método" />
+																	</SelectTrigger>
+																	<SelectContent>
+																		<SelectItem value="Punto de venta">Punto de venta</SelectItem>
+																		<SelectItem value="Dólares en efectivo">Dólares en efectivo</SelectItem>
+																		<SelectItem value="Zelle">Zelle</SelectItem>
+																		<SelectItem value="Pago móvil">Pago móvil</SelectItem>
+																		<SelectItem value="Bs en efectivo">Bs en efectivo</SelectItem>
+																	</SelectContent>
+																</Select>
+															</div>
+															<div>
+																<p className="text-xs text-gray-500 dark:text-gray-400 mb-1">Monto:</p>
+																<Input
+																	type="number"
+																	value={formData.payment_amount_3 || ''}
+																	onChange={(e) => handleInputChange('payment_amount_3', parseFloat(e.target.value))}
+																	placeholder="0.00"
+																/>
+															</div>
+															<div className="flex items-end gap-2">
+																<div className="flex-1">
+																	<p className="text-xs text-gray-500 dark:text-gray-400 mb-1">Referencia:</p>
+																	<Input
+																		value={formData.payment_reference_3 || ''}
+																		onChange={(e) => handleInputChange('payment_reference_3', e.target.value)}
+																		placeholder="Referencia"
+																	/>
+																</div>
+																<Button 
+																	variant="ghost" 
+																	size="sm" 
+																	onClick={() => removePaymentMethod(3)}
+																	className="text-red-500 hover:text-red-700 hover:bg-red-100"
+																>
+																	<X className="w-4 h-4" />
+																</Button>
+															</div>
+														</div>
+													) : (
+														<>
+															<div className="flex justify-between items-center">
+																<p className="text-xs sm:text-sm font-medium">{case_.payment_method_3}</p>
+																<p className="text-xs sm:text-sm font-medium">${case_.payment_amount_3?.toLocaleString() || 0}</p>
+															</div>
+															{case_.payment_reference_3 && (
+																<p className="text-[10px] sm:text-xs text-gray-500 dark:text-gray-400 mt-0.5 sm:mt-1">
+																	Ref: {case_.payment_reference_3}
+																</p>
+															)}
+														</>
 													)}
 												</div>
 											)}
-											{case_.payment_method_4 && (
+											
+											{/* Payment Method 4 */}
+											{(isEditing || case_.payment_method_4) && (
 												<div className="bg-gray-50 dark:bg-gray-800/50 p-2 sm:p-3 rounded-lg">
-													<div className="flex justify-between items-center">
-														<p className="text-xs sm:text-sm font-medium">{case_.payment_method_4}</p>
-														<p className="text-xs sm:text-sm font-medium">${case_.payment_amount_4?.toLocaleString() || 0}</p>
-													</div>
-													{case_.payment_reference_4 && (
-														<p className="text-[10px] sm:text-xs text-gray-500 dark:text-gray-400 mt-0.5 sm:mt-1">
-															Ref: {case_.payment_reference_4}
-														</p>
+													{isEditing ? (
+														<div className="grid grid-cols-1 md:grid-cols-3 gap-2">
+															<div>
+																<p className="text-xs text-gray-500 dark:text-gray-400 mb-1">Método:</p>
+																<Select
+																	value={formData.payment_method_4 || ''}
+																	onValueChange={(value) => handleInputChange('payment_method_4', value)}
+																>
+																	<SelectTrigger>
+																		<SelectValue placeholder="Seleccionar método" />
+																	</SelectTrigger>
+																	<SelectContent>
+																		<SelectItem value="Punto de venta">Punto de venta</SelectItem>
+																		<SelectItem value="Dólares en efectivo">Dólares en efectivo</SelectItem>
+																		<SelectItem value="Zelle">Zelle</SelectItem>
+																		<SelectItem value="Pago móvil">Pago móvil</SelectItem>
+																		<SelectItem value="Bs en efectivo">Bs en efectivo</SelectItem>
+																	</SelectContent>
+																</Select>
+															</div>
+															<div>
+																<p className="text-xs text-gray-500 dark:text-gray-400 mb-1">Monto:</p>
+																<Input
+																	type="number"
+																	value={formData.payment_amount_4 || ''}
+																	onChange={(e) => handleInputChange('payment_amount_4', parseFloat(e.target.value))}
+																	placeholder="0.00"
+																/>
+															</div>
+															<div className="flex items-end gap-2">
+																<div className="flex-1">
+																	<p className="text-xs text-gray-500 dark:text-gray-400 mb-1">Referencia:</p>
+																	<Input
+																		value={formData.payment_reference_4 || ''}
+																		onChange={(e) => handleInputChange('payment_reference_4', e.target.value)}
+																		placeholder="Referencia"
+																	/>
+																</div>
+																<Button 
+																	variant="ghost" 
+																	size="sm" 
+																	onClick={() => removePaymentMethod(4)}
+																	className="text-red-500 hover:text-red-700 hover:bg-red-100"
+																>
+																	<X className="w-4 h-4" />
+																</Button>
+															</div>
+														</div>
+													) : (
+														<>
+															<div className="flex justify-between items-center">
+																<p className="text-xs sm:text-sm font-medium">{case_.payment_method_4}</p>
+																<p className="text-xs sm:text-sm font-medium">${case_.payment_amount_4?.toLocaleString() || 0}</p>
+															</div>
+															{case_.payment_reference_4 && (
+																<p className="text-[10px] sm:text-xs text-gray-500 dark:text-gray-400 mt-0.5 sm:mt-1">
+																	Ref: {case_.payment_reference_4}
+																</p>
+															)}
+														</>
 													)}
 												</div>
 											)}
@@ -693,6 +1030,7 @@ const UnifiedCaseModal: React.FC<UnifiedCaseModalProps> = ({ case_, isOpen, onCl
 														full_name: case_.full_name,
 														id_number: case_.id_number,
 														phone: case_.phone,
+														date_of_birth: case_.date_of_birth,
 														email: case_.email,
 														exam_type: case_.exam_type,
 														origin: case_.origin,
