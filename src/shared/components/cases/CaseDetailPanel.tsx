@@ -1,12 +1,13 @@
 import React, { useState } from 'react'
 import { motion, AnimatePresence } from 'motion/react'
-import { X, User, FileText, DollarSign, AlertTriangle, Microscope } from 'lucide-react'
+import { X, User, FileText, DollarSign, AlertTriangle, Microscope, Edit2 } from 'lucide-react'
 import type { MedicalRecord } from '@lib/supabase-service'
 import { getAgeDisplay } from '@lib/supabase-service'
 import { format, parseISO } from 'date-fns'
 import { es } from 'date-fns/locale'
 import { useUserProfile } from '@shared/hooks/useUserProfile'
 import UnifiedCaseModal from './UnifiedCaseModal'
+import { Button } from '@shared/components/ui/button'
 
 interface CaseDetailPanelProps {
 	case_: MedicalRecord | null
@@ -16,6 +17,10 @@ interface CaseDetailPanelProps {
 
 const CaseDetailPanel: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClose }) => {
 	const [isEditModalOpen, setIsEditModalOpen] = useState(false)
+	const { profile } = useUserProfile()
+	
+	// Determine if user can edit cases based on role
+	const canEdit = profile?.role === 'owner' || profile?.role === 'employee'
 
 	if (!case_) return null
 
@@ -84,6 +89,17 @@ const CaseDetailPanel: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClos
 									</div>
 								</div>
 								<div className="flex items-center gap-2">
+									{canEdit && (
+										<Button
+											onClick={() => setIsEditModalOpen(true)}
+											variant="outline"
+											size="sm"
+											className="flex items-center gap-1 text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300"
+										>
+											<Edit2 className="w-4 h-4" />
+											Editar
+										</Button>
+									)}
 									<button
 										onClick={onClose}
 										className="p-1.5 sm:p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
@@ -363,13 +379,15 @@ const CaseDetailPanel: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClos
 						</div>
 					</motion.div>
 
-					{/* Unified Edit Modal */}
+					{/* Edit Modal */}
 					<UnifiedCaseModal
 						case_={case_}
 						isOpen={isEditModalOpen}
 						onClose={() => setIsEditModalOpen(false)}
 						onSave={() => {
-							onClose()
+							// Refresh data but don't close the detail panel
+							// Just close the edit modal
+							setIsEditModalOpen(false)
 						}}
 						onDelete={() => {
 							onClose()

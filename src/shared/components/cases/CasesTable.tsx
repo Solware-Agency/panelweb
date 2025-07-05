@@ -25,6 +25,7 @@ import { useUserProfile } from '@shared/hooks/useUserProfile'
 import GenerateBiopsyModal from './GenerateBiopsyModal'
 import DoctorFilterPanel from './DoctorFilterPanel'
 import UnifiedCaseModal from './UnifiedCaseModal'
+import { generatePDF } from '@shared/utils/pdf-generator'
 
 interface CasesTableProps {
 	onCaseSelect: (case_: MedicalRecord) => void
