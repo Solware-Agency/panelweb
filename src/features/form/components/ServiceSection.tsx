@@ -6,7 +6,7 @@ import { AutocompleteInput } from '@shared/components/ui/autocomplete-input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@shared/components/ui/select'
 import { Card, CardContent, CardHeader, CardTitle } from '@shared/components/ui/card'
 import { useUserProfile } from '@shared/hooks/useUserProfile'
-import { useEffect, memo, useCallback } from 'react'
+import { useEffect, memo } from 'react'
 
 interface ServiceSectionProps {
 	control: Control<FormValues>

@@ -1,11 +1,10 @@
-import React, { useState } from 'react'
+import React from 'react'
 import { motion, AnimatePresence } from 'motion/react'
 import { X, User, FileText, DollarSign, AlertTriangle, Microscope } from 'lucide-react'
 import type { MedicalRecord } from '@lib/supabase-service'
 import { getAgeDisplay } from '@lib/supabase-service'
 import { format, parseISO } from 'date-fns'
 import { es } from 'date-fns/locale'
-import { useUserProfile } from '@shared/hooks/useUserProfile'
 
 interface CaseDetailPanelProps {
 	case_: MedicalRecord | null
@@ -14,7 +13,7 @@ interface CaseDetailPanelProps {
 	onCaseSelect: (case_: MedicalRecord) => void
 }
 
-const CaseDetailPanel: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClose, onCaseSelect }) => {
+const CaseDetailPanel: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClose }) => {
 	if (!case_) return null
 
 	// Format date for display

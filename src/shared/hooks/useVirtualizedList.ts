@@ -8,14 +8,14 @@ interface UseVirtualizedListProps<T> {
 }
 
 interface UseVirtualizedListReturn<T> {
-  virtualItems: {
-    index: number;
-    item: T;
-    offsetTop: number;
-  }[];
-  totalHeight: number;
-  scrollToIndex: (index: number) => void;
-  containerRef: React.RefObject<HTMLDivElement>;
+	virtualItems: {
+		index: number
+		item: T
+		offsetTop: number
+	}[]
+	totalHeight: number
+	scrollToIndex: (index: number) => void
+	containerRef: React.RefObject<HTMLDivElement | null>
 }
 
 export function useVirtualizedList<T>({

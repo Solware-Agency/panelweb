@@ -73,17 +73,6 @@ export const RecordsSection: React.FC<RecordsSectionProps> = ({
 		return filtered
 	}, [cases, profile, showPendingOnly, selectedExamType, showPdfReadyOnly])
 
-	const handleCaseSelect = useCallback((case_: MedicalRecord) => {
-		setSelectedCase(case_)
-		setIsPanelOpen(true)
-	}, [])
-
-	const handlePanelClose = useCallback(() => {
-		setIsPanelOpen(false)
-		// Delay clearing selected case to allow animation to complete
-		setTimeout(() => setSelectedCase(null), 300)
-	}, [])
-
 	// Calculate statistics
 	const stats = useMemo(() => {
 		if (!filteredCases || filteredCases.length === 0) {

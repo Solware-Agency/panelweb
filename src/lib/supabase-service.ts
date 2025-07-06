@@ -52,9 +52,6 @@ export interface MedicalRecord {
 	generated_by?: string | null
 	generated_by_display_name?: string | null
 	generated_at?: string | null
-	generated_by?: string | null
-	generated_by_display_name?: string | null
-	generated_at?: string | null
 }
 
 export interface ChangeLog {
@@ -89,7 +86,7 @@ export const getAgeDisplay = (dateOfBirth: string): string => {
 		const birthDate = parseISO(dateOfBirth)
 		const now = new Date()
 		const years = differenceInYears(now, birthDate)
-		
+
 		if (years === 0) {
 			// For babies, show months
 			const months = differenceInMonths(now, birthDate)
@@ -159,24 +156,19 @@ export const insertMedicalRecord = async (
 
 		// Generar el código único ANTES de la inserción
 		console.log('🔢 Generando código único...')
-		const newCode = await generateMedicalRecordCode(
-			formData.examType,
-			formData.registrationDate
-		)
+		const newCode = await generateMedicalRecordCode(formData.examType, formData.registrationDate)
 		console.log(`✅ Código generado: ${newCode}`)
 
 		// Get current user info for tracking who created the record
-		const { data: { user } } = await supabase.auth.getUser()
-		
+		const {
+			data: { user },
+		} = await supabase.auth.getUser()
+
 		// Get user's display name from profiles
 		let displayName = null
 		if (user) {
-			const { data: profileData } = await supabase
-				.from('profiles')
-				.select('display_name')
-				.eq('id', user.id)
-				.single()
-				
+			const { data: profileData } = await supabase.from('profiles').select('display_name').eq('id', user.id).single()
+
 			displayName = profileData?.display_name || user.user_metadata?.display_name || null
 		}
 
@@ -220,7 +212,7 @@ export const insertMedicalRecord = async (
 			descripcion_macroscopica: undefined,
 			diagnostico: undefined,
 			comentario: undefined,
-			pdf_en_ready: false
+			pdf_en_ready: false,
 		}
 
 		console.log(`💾 Insertando datos en tabla ${TABLE_NAME}:`, recordData)
@@ -265,7 +257,7 @@ export const insertMedicalRecord = async (
 						},
 					}
 				}
-				
+
 				return {
 					data: null,
 					error: {
@@ -292,27 +284,24 @@ export const insertMedicalRecord = async (
 		}
 		console.log(`✅ Registro médico insertado exitosamente en ${TABLE_NAME}:`, data)
 		console.log(`🎯 Código asignado: ${data.code}`)
-		
+
 		// If user is available, log the creation in change_logs
 		if (user) {
 			try {
-				await saveChangeLog(
-					data.id,
-					user.id,
-					user.email || 'unknown@email.com',
-					[{
+				await saveChangeLog(data.id, user.id, user.email || 'unknown@email.com', [
+					{
 						field: 'created_record',
 						fieldLabel: 'Registro Creado',
 						oldValue: null,
-						newValue: `Registro médico creado: ${data.code || data.id}`
-					}]
-				)
+						newValue: `Registro médico creado: ${data.code || data.id}`,
+					},
+				])
 			} catch (logError) {
 				console.error('Error logging record creation:', logError)
 				// Continue even if logging fails
 			}
 		}
-		
+
 		return { data: data as MedicalRecord, error: null }
 	} catch (error) {
 		console.error(`❌ Error inesperado insertando en ${TABLE_NAME}:`, error)
@@ -336,10 +325,7 @@ export const insertMedicalRecord = async (
 export const getMedicalRecords = async () => {
 	try {
 		// Fetch all records without pagination
-		const { data, error } = await supabase
-			.from(TABLE_NAME)
-			.select('*')
-			.order('created_at', { ascending: false })
+		const { data, error } = await supabase.from(TABLE_NAME).select('*').order('created_at', { ascending: false })
 
 		return { data, error }
 	} catch (error) {
@@ -365,7 +351,9 @@ export const searchMedicalRecords = async (searchTerm: string) => {
 		const { data, error } = await supabase
 			.from(TABLE_NAME)
 			.select('*')
-			.or(`full_name.ilike.%${searchTerm}%,id_number.ilike.%${searchTerm}%,phone.ilike.%${searchTerm}%,code.ilike.%${searchTerm}%,treating_doctor.ilike.%${searchTerm}%`)
+			.or(
+				`full_name.ilike.%${searchTerm}%,id_number.ilike.%${searchTerm}%,phone.ilike.%${searchTerm}%,code.ilike.%${searchTerm}%,treating_doctor.ilike.%${searchTerm}%`,
+			)
 			.order('created_at', { ascending: false })
 
 		return { data, error }
@@ -397,7 +385,7 @@ export const updateMedicalRecord = async (id: string, updates: Partial<MedicalRe
 			...updates,
 			payment_status: paymentStatus || 'N/A',
 			remaining: missingAmount,
-			updated_at: new Date().toISOString()
+			updated_at: new Date().toISOString(),
 		}
 
 		console.log(`💰 Calculated payment status: ${paymentStatus}, remaining: ${missingAmount}`)
@@ -425,36 +413,35 @@ export const updateMedicalRecord = async (id: string, updates: Partial<MedicalRe
 export const deleteMedicalRecord = async (id: string) => {
 	try {
 		console.log(`🗑️ Deleting medical record ${id} from ${TABLE_NAME}`)
-		
+
 		// Get record details before deleting for the log
 		const { data: recordToDelete, error: fetchError } = await getMedicalRecordById(id)
-		
+
 		// If record doesn't exist, treat as successful deletion
-		if (fetchError && fetchError.code === 'PGRST116') {
+		if (fetchError && (fetchError as any).code === 'PGRST116') {
 			console.log(`⚠️ Record ${id} not found, treating as already deleted`)
 			return { data: null, error: null }
 		}
-		
+
 		if (fetchError) {
 			console.error(`❌ Error fetching record before deletion:`, fetchError)
 			return { data: null, error: fetchError }
 		}
-		
+
 		// Log the deletion action first
 		try {
-			const { data: { user } } = await supabase.auth.getUser()
+			const {
+				data: { user },
+			} = await supabase.auth.getUser()
 			if (user && recordToDelete) {
-				await saveChangeLog(
-					id,
-					user.id,
-					user.email || 'unknown@email.com',
-					[{
+				await saveChangeLog(id, user.id, user.email || 'unknown@email.com', [
+					{
 						field: 'deleted_record',
 						fieldLabel: 'Registro Eliminado',
 						oldValue: `${recordToDelete.code || id} - ${recordToDelete.full_name}`,
-						newValue: null
-					}]
-				)
+						newValue: null,
+					},
+				])
 				console.log(`✅ Deletion logged successfully for record ${id}`)
 			} else {
 				console.warn('⚠️ Could not log deletion: User or record not found')
@@ -463,7 +450,7 @@ export const deleteMedicalRecord = async (id: string) => {
 			console.error('❌ Error logging record deletion:', logError)
 			// Continue with deletion even if logging fails
 		}
-		
+
 		// Perform the actual deletion
 		const { data, error } = await supabase.from(TABLE_NAME).delete().eq('id', id).select()
 

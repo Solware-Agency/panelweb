@@ -12,8 +12,6 @@ import {
 	FileText,
 	Download,
 	Maximize2,
-	Edit,
-	Edit2,
 } from 'lucide-react'
 import type { MedicalRecord } from '@lib/supabase-service'
 import { getAgeDisplay } from '@lib/supabase-service'
@@ -36,6 +34,7 @@ interface CasesTableProps {
 	isFullscreen: boolean
 	setIsFullscreen: (value: boolean) => void
 	onSearch?: (term: string) => void
+	onCaseSelect?: (case_: MedicalRecord) => void
 }
 
 type SortField = 'id' | 'created_at' | 'full_name' | 'date_of_birth' | 'total_amount' | 'code'
@@ -49,6 +48,7 @@ const CasesTable: React.FC<CasesTableProps> = ({
 	isFullscreen,
 	setIsFullscreen,
 	onSearch,
+	onCaseSelect,
 }) => {
 	useAuth()
 	const { profile } = useUserProfile()
@@ -70,7 +70,6 @@ const CasesTable: React.FC<CasesTableProps> = ({
 	const [isSearching, setIsSearching] = useState(false)
 
 	// Determine if user can edit, delete, or generate cases based on role
-	const canEdit = profile?.role === 'owner' || profile?.role === 'employee'
 	const canGenerate = profile?.role === 'owner' || profile?.role === 'admin'
 
 	// Use a ref to track if we're in the dashboard or form view
@@ -207,11 +206,19 @@ const CasesTable: React.FC<CasesTableProps> = ({
 		setShowPdfReadyOnly(!showPdfReadyOnly)
 	}, [showPdfReadyOnly])
 
-	const handleCaseSelect = useCallback((case_: MedicalRecord) => {
-		// Open the unified modal instead of the side panel
-		setSelectedCaseForView(case_);
-		setIsViewModalOpen(true);
-	}, []);
+	const handleCaseSelect = useCallback(
+		(case_: MedicalRecord) => {
+			// If onCaseSelect prop is provided, use it (for external selection)
+			if (onCaseSelect) {
+				onCaseSelect(case_)
+			} else {
+				// Otherwise, handle selection locally with modal
+				setSelectedCaseForView(case_)
+				setIsViewModalOpen(true)
+			}
+		},
+		[onCaseSelect],
+	)
 
 	// Memoize the filtered and sorted cases to improve performance
 	const filteredAndSortedCases = useMemo(() => {
@@ -1236,16 +1243,16 @@ const CasesTable: React.FC<CasesTableProps> = ({
 				case_={selectedCaseForView}
 				isOpen={isViewModalOpen}
 				onClose={() => {
-					setIsViewModalOpen(false);
-					setSelectedCaseForView(null);
+					setIsViewModalOpen(false)
+					setSelectedCaseForView(null)
 				}}
 				onSave={() => {
-					refetch();
+					refetch()
 				}}
 				onDelete={() => {
-					setIsViewModalOpen(false);
-					setSelectedCaseForView(null);
-					refetch();
+					setIsViewModalOpen(false)
+					setSelectedCaseForView(null)
+					refetch()
 				}}
 			/>
 

@@ -1,4 +1,4 @@
-import React, { memo, useCallback } from 'react'
+import React, { memo } from 'react'
 import { type Control, useWatch } from 'react-hook-form'
 import { type FormValues } from '@features/form/lib/form-schema'
 import { FormField, FormItem, FormLabel, FormControl, FormMessage } from '@shared/components/ui/form'
@@ -47,14 +47,6 @@ export const PaymentHeader = memo(({ control, inputStyles, exchangeRate, isLoadi
 	}, [totalAmount, exchangeRate])
 
 	// Memoize the amount change handler to prevent re-renders
-	const handleAmountChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-		const value = e.target.value;
-		// Only allow numbers and a single decimal point
-		if (value === '' || /^[0-9]*\.?[0-9]*$/.test(value)) {
-			return value === '' ? 0 : parseFloat(value);
-		}
-		return e.target.value;
-	}, []);
 
 	return (
 		<React.Fragment>

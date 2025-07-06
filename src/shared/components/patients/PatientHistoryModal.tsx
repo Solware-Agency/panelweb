@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { motion, AnimatePresence } from 'motion/react'
-import { X, User, FileText, DollarSign, Calendar, Phone, Mail, Cake, Search, RefreshCw } from 'lucide-react'
+import { X, User, FileText, Calendar, Phone, Mail, Cake, Search, RefreshCw } from 'lucide-react'
 import { format, parseISO } from 'date-fns'
 import { es } from 'date-fns/locale'
 import { useQuery } from '@tanstack/react-query'
