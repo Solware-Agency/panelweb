@@ -25,6 +25,7 @@ import {
 	updateUserApprovalStatus,
 } from '@lib/supabase/user-management'
 import { useAuth } from '@app/providers/AuthContext'
+import { useUserProfile } from '@shared/hooks/useUserProfile'
 import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
 import { useToast } from '@shared/hooks/use-toast'
@@ -53,7 +54,8 @@ interface UserProfile {
 }
 
 const MainUsers: React.FC = () => {
-	const { user: currentUser, profile } = useAuth()
+	const { user: currentUser } = useAuth()
+	const { profile } = useUserProfile()
 	const { toast } = useToast()
 	const [searchTerm, setSearchTerm] = useState('')
 	const [roleFilter, setRoleFilter] = useState<string>('all')
@@ -395,7 +397,7 @@ const MainUsers: React.FC = () => {
 			if (profile?.role === 'admin' && user.role !== 'admin') {
 				return false
 			}
-			
+
 			const matchesSearch =
 				user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
 				(user.display_name || '').toLowerCase().includes(searchTerm.toLowerCase())
@@ -463,76 +465,84 @@ const MainUsers: React.FC = () => {
 
 	return (
 		<div className="p-3 sm:p-6">
-      {/* Page Title */}
-      <div className="mb-4 sm:mb-6">
-        <h1 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-gray-100">
-          {profile?.role === 'admin' ? 'Gestión de Médicos' : 'Gestión de Usuarios'}
-        </h1>
-        <p className="text-sm text-gray-600 dark:text-gray-400 mt-1 sm:mt-2">
-          {profile?.role === 'admin' 
-            ? 'Administra los médicos del sistema y sus permisos' 
-            : 'Administra los usuarios del sistema y sus permisos'}
-        </p>
-      </div>
+			{/* Page Title */}
+			<div className="mb-4 sm:mb-6">
+				<h1 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-gray-100">
+					{profile?.role === 'admin' ? 'Gestión de Médicos' : 'Gestión de Usuarios'}
+				</h1>
+				<p className="text-sm text-gray-600 dark:text-gray-400 mt-1 sm:mt-2">
+					{profile?.role === 'admin'
+						? 'Administra los médicos del sistema y sus permisos'
+						: 'Administra los usuarios del sistema y sus permisos'}
+				</p>
+			</div>
 
-      {/* Estadísticas - Responsive Grid */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3 mb-3 sm:mb-5">
-        <Card className="hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 transition-all duration-300 shadow-lg">
-          <div className="bg-white dark:bg-background rounded-xl p-3 sm:p-4 md:p-6 transition-colors duration-300">
-            <div className="flex items-center justify-between mb-2 sm:mb-4">
-              <div className="p-1.5 sm:p-2 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
-                <Users className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600 dark:text-blue-400" />
-              </div>
-            </div>
-            <div>
-              <h3 className="text-xs sm:text-sm font-medium text-gray-500 dark:text-gray-400">Total Usuarios</h3>
-              <p className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-700 dark:text-gray-300">{stats.total}</p>
-            </div>
-          </div>
-        </Card>
+			{/* Estadísticas - Responsive Grid */}
+			<div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3 mb-3 sm:mb-5">
+				<Card className="hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 transition-all duration-300 shadow-lg">
+					<div className="bg-white dark:bg-background rounded-xl p-3 sm:p-4 md:p-6 transition-colors duration-300">
+						<div className="flex items-center justify-between mb-2 sm:mb-4">
+							<div className="p-1.5 sm:p-2 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
+								<Users className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600 dark:text-blue-400" />
+							</div>
+						</div>
+						<div>
+							<h3 className="text-xs sm:text-sm font-medium text-gray-500 dark:text-gray-400">Total Usuarios</h3>
+							<p className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-700 dark:text-gray-300">
+								{stats.total}
+							</p>
+						</div>
+					</div>
+				</Card>
 
-        <Card className="hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 transition-all duration-300 shadow-lg">
-          <div className="bg-white dark:bg-background rounded-xl p-3 sm:p-4 md:p-6 transition-colors duration-300">
-            <div className="flex items-center justify-between mb-2 sm:mb-4">
-              <div className="p-1.5 sm:p-2 bg-yellow-100 dark:bg-yellow-900/30 rounded-lg">
-                <Crown className="w-4 h-4 sm:w-5 sm:h-5 text-yellow-600 dark:text-yellow-400" />
-              </div>
-            </div>
-            <div>
-              <h3 className="text-xs sm:text-sm font-medium text-gray-500 dark:text-gray-400">Propietarios</h3>
-              <p className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-700 dark:text-gray-300">{stats.owners}</p>
-            </div>
-          </div>
-        </Card>
+				<Card className="hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 transition-all duration-300 shadow-lg">
+					<div className="bg-white dark:bg-background rounded-xl p-3 sm:p-4 md:p-6 transition-colors duration-300">
+						<div className="flex items-center justify-between mb-2 sm:mb-4">
+							<div className="p-1.5 sm:p-2 bg-yellow-100 dark:bg-yellow-900/30 rounded-lg">
+								<Crown className="w-4 h-4 sm:w-5 sm:h-5 text-yellow-600 dark:text-yellow-400" />
+							</div>
+						</div>
+						<div>
+							<h3 className="text-xs sm:text-sm font-medium text-gray-500 dark:text-gray-400">Propietarios</h3>
+							<p className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-700 dark:text-gray-300">
+								{stats.owners}
+							</p>
+						</div>
+					</div>
+				</Card>
 
-        <Card className="hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 transition-all duration-300 shadow-lg">
-          <div className="bg-white dark:bg-background rounded-xl p-3 sm:p-4 md:p-6 transition-colors duration-300">
-            <div className="flex items-center justify-between mb-2 sm:mb-4">
-              <div className="p-1.5 sm:p-2 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
-                <Briefcase className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600 dark:text-blue-400" />
-              </div>
-            </div>
-            <div>
-              <h3 className="text-xs sm:text-sm font-medium text-gray-500 dark:text-gray-400">Recepcionistas</h3>
-              <p className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-700 dark:text-gray-300">{stats.employees}</p>
-            </div>
-          </div>
-        </Card>
+				<Card className="hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 transition-all duration-300 shadow-lg">
+					<div className="bg-white dark:bg-background rounded-xl p-3 sm:p-4 md:p-6 transition-colors duration-300">
+						<div className="flex items-center justify-between mb-2 sm:mb-4">
+							<div className="p-1.5 sm:p-2 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
+								<Briefcase className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600 dark:text-blue-400" />
+							</div>
+						</div>
+						<div>
+							<h3 className="text-xs sm:text-sm font-medium text-gray-500 dark:text-gray-400">Recepcionistas</h3>
+							<p className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-700 dark:text-gray-300">
+								{stats.employees}
+							</p>
+						</div>
+					</div>
+				</Card>
 
-        <Card className="hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 transition-all duration-300 shadow-lg">
-          <div className="bg-white dark:bg-background rounded-xl p-3 sm:p-4 md:p-6 transition-colors duration-300">
-            <div className="flex items-center justify-between mb-2 sm:mb-4">
-              <div className="p-1.5 sm:p-2 bg-purple-100 dark:bg-purple-900/30 rounded-lg">
-                <ShieldCheck className="w-4 h-4 sm:w-5 sm:h-5 text-purple-600 dark:text-purple-400" />
-              </div>
-            </div>
-            <div>
-              <h3 className="text-xs sm:text-sm font-medium text-gray-500 dark:text-gray-400">Administradores</h3>
-              <p className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-700 dark:text-gray-300">{stats.admins}</p>
-            </div>
-          </div>
-        </Card>
-      </div>
+				<Card className="hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 transition-all duration-300 shadow-lg">
+					<div className="bg-white dark:bg-background rounded-xl p-3 sm:p-4 md:p-6 transition-colors duration-300">
+						<div className="flex items-center justify-between mb-2 sm:mb-4">
+							<div className="p-1.5 sm:p-2 bg-purple-100 dark:bg-purple-900/30 rounded-lg">
+								<ShieldCheck className="w-4 h-4 sm:w-5 sm:h-5 text-purple-600 dark:text-purple-400" />
+							</div>
+						</div>
+						<div>
+							<h3 className="text-xs sm:text-sm font-medium text-gray-500 dark:text-gray-400">Administradores</h3>
+							<p className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-700 dark:text-gray-300">
+								{stats.admins}
+							</p>
+						</div>
+					</div>
+				</Card>
+			</div>
 
 			{/* Filtros y búsqueda */}
 			<Card className="hover:border-primary hover:shadow-lg hover:shadow-primary/20 transition-all duration-300 shadow-lg mb-3 sm:mb-5">
@@ -558,12 +568,15 @@ const MainUsers: React.FC = () => {
 									<SelectValue placeholder={profile?.role === 'admin' ? 'Médicos' : 'Filtrar por rol'} />
 								</SelectTrigger>
 								<SelectContent>
-									{roleFilterOptions.map(role => (
+									{roleFilterOptions.map((role) => (
 										<SelectItem key={role} value={role}>
-											{role === 'all' ? 'Todos los roles' : 
-											 role === 'owner' ? 'Propietarios' : 
-											 role === 'employee' ? 'Recepcionistas' : 
-											 'Médicos'}
+											{role === 'all'
+												? 'Todos los roles'
+												: role === 'owner'
+												? 'Propietarios'
+												: role === 'employee'
+												? 'Recepcionistas'
+												: 'Médicos'}
 										</SelectItem>
 									))}
 								</SelectContent>
@@ -632,7 +645,10 @@ const MainUsers: React.FC = () => {
 					<div className="block lg:hidden p-3 sm:p-4">
 						<div className="space-y-3 sm:space-y-4">
 							{filteredUsers.map((user) => (
-								<div key={user.id} className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-3 sm:p-4 border border-gray-200 dark:border-gray-700">
+								<div
+									key={user.id}
+									className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-3 sm:p-4 border border-gray-200 dark:border-gray-700"
+								>
 									{/* Header con rol y estado */}
 									<div className="flex items-center justify-between mb-2 sm:mb-3">
 										<span
@@ -652,14 +668,18 @@ const MainUsers: React.FC = () => {
 									{/* Email */}
 									<div className="flex items-center gap-1.5 sm:gap-2 mb-1.5 sm:mb-2">
 										<Mail className="w-4 h-4 text-gray-600 dark:text-gray-400" />
-										<p className="font-medium text-gray-900 dark:text-gray-100 text-xs sm:text-sm truncate">{user.email}</p>
+										<p className="font-medium text-gray-900 dark:text-gray-100 text-xs sm:text-sm truncate">
+											{user.email}
+										</p>
 									</div>
 
 									{/* Display Name */}
 									{user.display_name && (
 										<div className="flex items-center gap-1.5 sm:gap-2 mb-1.5 sm:mb-2">
 											<User className="w-4 h-4 text-gray-600 dark:text-gray-400" />
-											<p className="font-medium text-gray-900 dark:text-gray-100 text-xs sm:text-sm truncate">{user.display_name}</p>
+											<p className="font-medium text-gray-900 dark:text-gray-100 text-xs sm:text-sm truncate">
+												{user.display_name}
+											</p>
 										</div>
 									)}
 
@@ -962,9 +982,7 @@ const MainUsers: React.FC = () => {
 							<div className="text-gray-500 dark:text-gray-400">
 								<Users className="w-12 h-12 mx-auto mb-4 opacity-50" />
 								<p className="text-lg font-medium">
-									{profile?.role === 'admin' 
-										? 'No se encontraron médicos' 
-										: 'No se encontraron usuarios'}
+									{profile?.role === 'admin' ? 'No se encontraron médicos' : 'No se encontraron usuarios'}
 								</p>
 								<p className="text-sm">Intenta ajustar los filtros de búsqueda</p>
 							</div>
@@ -985,8 +1003,8 @@ const MainUsers: React.FC = () => {
 								<strong>Médicos:</strong> En esta sección puedes ver y gestionar los usuarios con rol de médico.
 							</li>
 							<li>
-								<strong>Asignación de Sede:</strong> Los médicos con una sede asignada solo podrán ver los casos
-								médicos de esa sede.
+								<strong>Asignación de Sede:</strong> Los médicos con una sede asignada solo podrán ver los casos médicos
+								de esa sede.
 							</li>
 							<li>
 								<strong>Generación de Casos:</strong> Los médicos pueden generar diagnósticos para casos de biopsia.

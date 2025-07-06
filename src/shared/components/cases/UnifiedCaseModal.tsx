@@ -1,6 +1,19 @@
 import React, { useState } from 'react'
 import { motion, AnimatePresence } from 'motion/react'
-import { AlertTriangle, Trash2, Loader2, Edit, X, Save, User, FileText, DollarSign, Microscope, Calendar, Mail, Phone, Cake, PlusCircle } from 'lucide-react'
+import {
+	AlertTriangle,
+	Trash2,
+	Loader2,
+	Edit,
+	X,
+	Save,
+	User,
+	FileText,
+	DollarSign,
+	Microscope,
+	Cake,
+	PlusCircle,
+} from 'lucide-react'
 import type { MedicalRecord } from '@lib/supabase-service'
 import { updateMedicalRecordWithLog, deleteMedicalRecord, getAgeDisplay } from '@lib/supabase-service'
 import { Button } from '@shared/components/ui/button'
@@ -83,58 +96,58 @@ const UnifiedCaseModal: React.FC<UnifiedCaseModalProps> = ({ case_, isOpen, onCl
 	const addPaymentMethod = () => {
 		// Find the first empty payment method slot
 		if (!formData.payment_method_1) {
-			setFormData(prev => ({
+			setFormData((prev) => ({
 				...prev,
 				payment_method_1: '',
 				payment_amount_1: 0,
-				payment_reference_1: ''
-			}));
+				payment_reference_1: '',
+			}))
 		} else if (!formData.payment_method_2) {
-			setFormData(prev => ({
+			setFormData((prev) => ({
 				...prev,
 				payment_method_2: '',
 				payment_amount_2: 0,
-				payment_reference_2: ''
-			}));
+				payment_reference_2: '',
+			}))
 		} else if (!formData.payment_method_3) {
-			setFormData(prev => ({
+			setFormData((prev) => ({
 				...prev,
 				payment_method_3: '',
 				payment_amount_3: 0,
-				payment_reference_3: ''
-			}));
+				payment_reference_3: '',
+			}))
 		} else if (!formData.payment_method_4) {
-			setFormData(prev => ({
+			setFormData((prev) => ({
 				...prev,
 				payment_method_4: '',
 				payment_amount_4: 0,
-				payment_reference_4: ''
-			}));
+				payment_reference_4: '',
+			}))
 		} else {
 			toast({
 				title: 'Límite alcanzado',
 				description: 'No se pueden agregar más de 4 métodos de pago.',
 				variant: 'destructive',
-			});
+			})
 		}
-	};
+	}
 
 	// Function to remove a payment method
 	const removePaymentMethod = (index: number) => {
-		setFormData(prev => {
-			const updated = { ...prev };
+		setFormData((prev) => {
+			const updated = { ...prev }
 			// Clear the specified payment method
-			updated[`payment_method_${index}` as keyof typeof updated] = null;
-			updated[`payment_amount_${index}` as keyof typeof updated] = null;
-			updated[`payment_reference_${index}` as keyof typeof updated] = null;
-			return updated;
-		});
-	};
+			updated[`payment_method_${index}` as keyof typeof updated] = undefined
+			updated[`payment_amount_${index}` as keyof typeof updated] = undefined
+			updated[`payment_reference_${index}` as keyof typeof updated] = undefined
+			return updated
+		})
+	}
 
 	const handleInputChange = (field: keyof MedicalRecord, value: any) => {
-		setFormData(prev => ({
+		setFormData((prev) => ({
 			...prev,
-			[field]: value
+			[field]: value,
 		}))
 	}
 
@@ -145,7 +158,7 @@ const UnifiedCaseModal: React.FC<UnifiedCaseModalProps> = ({ case_, isOpen, onCl
 		try {
 			// Prepare changes for logging
 			const changes = []
-			
+
 			// Compare each field and add to changes if different
 			for (const [key, value] of Object.entries(formData)) {
 				const oldValue = case_[key as keyof MedicalRecord]
@@ -154,7 +167,7 @@ const UnifiedCaseModal: React.FC<UnifiedCaseModalProps> = ({ case_, isOpen, onCl
 						field: key,
 						fieldLabel: getFieldLabel(key),
 						oldValue,
-						newValue: value
+						newValue: value,
 					})
 				}
 			}
@@ -405,14 +418,16 @@ const UnifiedCaseModal: React.FC<UnifiedCaseModalProps> = ({ case_, isOpen, onCl
 																<Button
 																	variant="outline"
 																	className={cn(
-																		"w-full justify-start text-left font-normal",
-																		!formData.date_of_birth && "text-muted-foreground"
+																		'w-full justify-start text-left font-normal',
+																		!formData.date_of_birth && 'text-muted-foreground',
 																	)}
 																>
 																	<Cake className="mr-2 h-4 w-4 text-pink-500" />
 																	{formData.date_of_birth ? (
 																		<div className="flex items-center gap-2">
-																			<span>{format(parseISO(formData.date_of_birth as string), 'PPP', { locale: es })}</span>
+																			<span>
+																				{format(parseISO(formData.date_of_birth as string), 'PPP', { locale: es })}
+																			</span>
 																			{formData.date_of_birth && (
 																				<span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">
 																					{getAgeDisplay(formData.date_of_birth as string)}
@@ -427,17 +442,23 @@ const UnifiedCaseModal: React.FC<UnifiedCaseModalProps> = ({ case_, isOpen, onCl
 															<PopoverContent className="w-auto p-0 z-[9999999]">
 																<CalendarComponent
 																	mode="single"
-																	selected={formData.date_of_birth ? parseISO(formData.date_of_birth as string) : undefined}
+																	selected={
+																		formData.date_of_birth ? parseISO(formData.date_of_birth as string) : undefined
+																	}
 																	onSelect={(date) => {
 																		if (date) {
-																			handleInputChange('date_of_birth', format(date, 'yyyy-MM-dd'));
-																			setIsDateOfBirthOpen(false);
+																			handleInputChange('date_of_birth', format(date, 'yyyy-MM-dd'))
+																			setIsDateOfBirthOpen(false)
 																		}
 																	}}
 																	disabled={(date) => {
-																		const today = new Date();
-																		const maxAge = new Date(today.getFullYear() - 150, today.getMonth(), today.getDate());
-																		return date > today || date < maxAge;
+																		const today = new Date()
+																		const maxAge = new Date(
+																			today.getFullYear() - 150,
+																			today.getMonth(),
+																			today.getDate(),
+																		)
+																		return date > today || date < maxAge
 																	}}
 																	initialFocus
 																	locale={es}
@@ -448,7 +469,9 @@ const UnifiedCaseModal: React.FC<UnifiedCaseModalProps> = ({ case_, isOpen, onCl
 												) : (
 													<p className="text-sm sm:text-base font-medium">
 														{formattedDateOfBirth}
-														{ageDisplay && <span className="ml-2 text-xs sm:text-sm text-blue-600">({ageDisplay})</span>}
+														{ageDisplay && (
+															<span className="ml-2 text-xs sm:text-sm text-blue-600">({ageDisplay})</span>
+														)}
 													</p>
 												)}
 											</div>
@@ -656,12 +679,7 @@ const UnifiedCaseModal: React.FC<UnifiedCaseModalProps> = ({ case_, isOpen, onCl
 											<h3 className="text-lg sm:text-xl font-semibold">Información de Pago</h3>
 										</div>
 										{isEditing && (
-											<Button 
-												variant="outline" 
-												size="sm" 
-												onClick={addPaymentMethod}
-												className="ml-auto text-xs"
-											>
+											<Button variant="outline" size="sm" onClick={addPaymentMethod} className="ml-auto text-xs">
 												<PlusCircle className="w-3 h-3 mr-1" />
 												Agregar Método
 											</Button>
@@ -701,7 +719,7 @@ const UnifiedCaseModal: React.FC<UnifiedCaseModalProps> = ({ case_, isOpen, onCl
 											<p className="text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300">
 												Métodos de pago:
 											</p>
-											
+
 											{/* Payment Method 1 */}
 											{(isEditing || case_.payment_method_1) && (
 												<div className="bg-gray-50 dark:bg-gray-800/50 p-2 sm:p-3 rounded-lg">
@@ -743,9 +761,9 @@ const UnifiedCaseModal: React.FC<UnifiedCaseModalProps> = ({ case_, isOpen, onCl
 																		placeholder="Referencia"
 																	/>
 																</div>
-																<Button 
-																	variant="ghost" 
-																	size="sm" 
+																<Button
+																	variant="ghost"
+																	size="sm"
 																	onClick={() => removePaymentMethod(1)}
 																	className="text-red-500 hover:text-red-700 hover:bg-red-100"
 																>
@@ -757,7 +775,9 @@ const UnifiedCaseModal: React.FC<UnifiedCaseModalProps> = ({ case_, isOpen, onCl
 														<>
 															<div className="flex justify-between items-center">
 																<p className="text-xs sm:text-sm font-medium">{case_.payment_method_1}</p>
-																<p className="text-xs sm:text-sm font-medium">${case_.payment_amount_1?.toLocaleString() || 0}</p>
+																<p className="text-xs sm:text-sm font-medium">
+																	${case_.payment_amount_1?.toLocaleString() || 0}
+																</p>
 															</div>
 															{case_.payment_reference_1 && (
 																<p className="text-[10px] sm:text-xs text-gray-500 dark:text-gray-400 mt-0.5 sm:mt-1">
@@ -768,7 +788,7 @@ const UnifiedCaseModal: React.FC<UnifiedCaseModalProps> = ({ case_, isOpen, onCl
 													)}
 												</div>
 											)}
-											
+
 											{/* Payment Method 2 */}
 											{(isEditing || case_.payment_method_2) && (
 												<div className="bg-gray-50 dark:bg-gray-800/50 p-2 sm:p-3 rounded-lg">
@@ -810,9 +830,9 @@ const UnifiedCaseModal: React.FC<UnifiedCaseModalProps> = ({ case_, isOpen, onCl
 																		placeholder="Referencia"
 																	/>
 																</div>
-																<Button 
-																	variant="ghost" 
-																	size="sm" 
+																<Button
+																	variant="ghost"
+																	size="sm"
 																	onClick={() => removePaymentMethod(2)}
 																	className="text-red-500 hover:text-red-700 hover:bg-red-100"
 																>
@@ -824,7 +844,9 @@ const UnifiedCaseModal: React.FC<UnifiedCaseModalProps> = ({ case_, isOpen, onCl
 														<>
 															<div className="flex justify-between items-center">
 																<p className="text-xs sm:text-sm font-medium">{case_.payment_method_2}</p>
-																<p className="text-xs sm:text-sm font-medium">${case_.payment_amount_2?.toLocaleString() || 0}</p>
+																<p className="text-xs sm:text-sm font-medium">
+																	${case_.payment_amount_2?.toLocaleString() || 0}
+																</p>
 															</div>
 															{case_.payment_reference_2 && (
 																<p className="text-[10px] sm:text-xs text-gray-500 dark:text-gray-400 mt-0.5 sm:mt-1">
@@ -835,7 +857,7 @@ const UnifiedCaseModal: React.FC<UnifiedCaseModalProps> = ({ case_, isOpen, onCl
 													)}
 												</div>
 											)}
-											
+
 											{/* Payment Method 3 */}
 											{(isEditing || case_.payment_method_3) && (
 												<div className="bg-gray-50 dark:bg-gray-800/50 p-2 sm:p-3 rounded-lg">
@@ -877,9 +899,9 @@ const UnifiedCaseModal: React.FC<UnifiedCaseModalProps> = ({ case_, isOpen, onCl
 																		placeholder="Referencia"
 																	/>
 																</div>
-																<Button 
-																	variant="ghost" 
-																	size="sm" 
+																<Button
+																	variant="ghost"
+																	size="sm"
 																	onClick={() => removePaymentMethod(3)}
 																	className="text-red-500 hover:text-red-700 hover:bg-red-100"
 																>
@@ -891,7 +913,9 @@ const UnifiedCaseModal: React.FC<UnifiedCaseModalProps> = ({ case_, isOpen, onCl
 														<>
 															<div className="flex justify-between items-center">
 																<p className="text-xs sm:text-sm font-medium">{case_.payment_method_3}</p>
-																<p className="text-xs sm:text-sm font-medium">${case_.payment_amount_3?.toLocaleString() || 0}</p>
+																<p className="text-xs sm:text-sm font-medium">
+																	${case_.payment_amount_3?.toLocaleString() || 0}
+																</p>
 															</div>
 															{case_.payment_reference_3 && (
 																<p className="text-[10px] sm:text-xs text-gray-500 dark:text-gray-400 mt-0.5 sm:mt-1">
@@ -902,7 +926,7 @@ const UnifiedCaseModal: React.FC<UnifiedCaseModalProps> = ({ case_, isOpen, onCl
 													)}
 												</div>
 											)}
-											
+
 											{/* Payment Method 4 */}
 											{(isEditing || case_.payment_method_4) && (
 												<div className="bg-gray-50 dark:bg-gray-800/50 p-2 sm:p-3 rounded-lg">
@@ -944,9 +968,9 @@ const UnifiedCaseModal: React.FC<UnifiedCaseModalProps> = ({ case_, isOpen, onCl
 																		placeholder="Referencia"
 																	/>
 																</div>
-																<Button 
-																	variant="ghost" 
-																	size="sm" 
+																<Button
+																	variant="ghost"
+																	size="sm"
 																	onClick={() => removePaymentMethod(4)}
 																	className="text-red-500 hover:text-red-700 hover:bg-red-100"
 																>
@@ -958,7 +982,9 @@ const UnifiedCaseModal: React.FC<UnifiedCaseModalProps> = ({ case_, isOpen, onCl
 														<>
 															<div className="flex justify-between items-center">
 																<p className="text-xs sm:text-sm font-medium">{case_.payment_method_4}</p>
-																<p className="text-xs sm:text-sm font-medium">${case_.payment_amount_4?.toLocaleString() || 0}</p>
+																<p className="text-xs sm:text-sm font-medium">
+																	${case_.payment_amount_4?.toLocaleString() || 0}
+																</p>
 															</div>
 															{case_.payment_reference_4 && (
 																<p className="text-[10px] sm:text-xs text-gray-500 dark:text-gray-400 mt-0.5 sm:mt-1">
@@ -1059,11 +1085,7 @@ const UnifiedCaseModal: React.FC<UnifiedCaseModalProps> = ({ case_, isOpen, onCl
 										>
 											Cancelar
 										</Button>
-										<Button
-											onClick={handleSave}
-											className="flex-1 bg-primary hover:bg-primary/80"
-											disabled={isSaving}
-										>
+										<Button onClick={handleSave} className="flex-1 bg-primary hover:bg-primary/80" disabled={isSaving}>
 											{isSaving ? (
 												<>
 													<Loader2 className="w-4 h-4 mr-2 animate-spin" />
@@ -1117,7 +1139,9 @@ const UnifiedCaseModal: React.FC<UnifiedCaseModalProps> = ({ case_, isOpen, onCl
 												<div className="p-2 bg-red-100 dark:bg-red-900/30 rounded-lg">
 													<AlertTriangle className="w-6 h-6 text-red-600 dark:text-red-400" />
 												</div>
-												<h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Confirmar Eliminación</h3>
+												<h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+													Confirmar Eliminación
+												</h3>
 											</div>
 
 											<p className="text-gray-600 dark:text-gray-400 mb-4">

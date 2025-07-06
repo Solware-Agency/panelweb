@@ -1,6 +1,5 @@
 import React from 'react'
 import PatientsList from './PatientsList'
-import { Card } from '@shared/components/ui/card'
 
 const PatientsPage: React.FC = () => {
 	return (

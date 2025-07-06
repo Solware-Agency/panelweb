@@ -21,7 +21,7 @@ export const PaymentMethodItem = memo(({ control, index, remove, inputStyles, fi
 	const paymentMethod = useWatch({ control, name: `payments.${index}.method` })
 	
 	// Use useMemo to prevent unnecessary recalculations
-	const { isBolivares, currencyLabel, currencySymbol } = useMemo(() => {
+	const { currencyLabel, currencySymbol } = useMemo(() => {
 		const isBolivares = isBolivaresMethod(paymentMethod)
 		return {
 			isBolivares,

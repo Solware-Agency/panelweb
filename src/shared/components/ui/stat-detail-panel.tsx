@@ -1,7 +1,6 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { X, BarChart3, DollarSign, Users, Clock, CheckCircle, XCircle } from 'lucide-react';
-import { Card } from '@shared/components/ui/card';
 import { Button } from '@shared/components/ui/button';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
@@ -33,9 +32,7 @@ const StatDetailPanel: React.FC<StatDetailPanelProps> = ({
   statType,
   stats,
   isLoading,
-  selectedMonth,
-  selectedYear
-}) => {
+  selectedMonth}) => {
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('es-VE', {
       style: 'currency',
@@ -572,7 +569,7 @@ const StatDetailPanel: React.FC<StatDetailPanelProps> = ({
             <div className="bg-white dark:bg-gray-800 rounded-lg p-6 border border-gray-200 dark:border-gray-700">
               <h3 className="text-xl font-bold mb-4 text-gray-900 dark:text-gray-100">Tendencia de Nuevos Pacientes</h3>
               <div className="h-40 flex items-end justify-between gap-1">
-                {stats.salesTrendByMonth && stats.salesTrendByMonth.map((month: any, index: number) => {
+                {stats.salesTrendByMonth && stats.salesTrendByMonth.map((_month: any, index: number) => {
                   // This is a placeholder - in a real implementation, you'd have actual new patients data per month
                   const height = 20 + Math.random() * 80; // Random height between 20% and 100%
                   

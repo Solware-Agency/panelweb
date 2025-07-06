@@ -16,7 +16,7 @@ import {
 	User,
 	ChevronDown,
 	ChevronRight,
-	Folder
+	Folder,
 } from 'lucide-react'
 import { NavLink, useNavigate } from 'react-router-dom'
 import { signOut } from '@lib/supabase/auth'
@@ -44,7 +44,7 @@ interface NavGroupProps {
 
 const NavItem: React.FC<NavItemProps> = ({ to, icon, label, showFullContent, onClick, title }) => {
 	return (
-		<NavLink 
+		<NavLink
 			to={to}
 			className={({ isActive }) =>
 				`flex justify-between items-center gap-2 sm:gap-3 cursor-pointer transition w-full py-2 px-1 rounded-md ${
@@ -94,11 +94,11 @@ const NavGroup: React.FC<NavGroupProps> = ({ icon, label, showFullContent, isExp
 					</div>
 				)}
 			</button>
-			
-			<div 
+
+			<div
 				className={cn(
-					"pl-2 space-y-1 overflow-hidden transition-all duration-200",
-					isExpanded ? "max-h-96" : "max-h-0"
+					'pl-2 space-y-1 overflow-hidden transition-all duration-200',
+					isExpanded ? 'max-h-96' : 'max-h-0',
 				)}
 			>
 				{children}
@@ -130,15 +130,25 @@ const Sidebar: React.FC<SidebarProps> = ({
 	const { profile } = useUserProfile()
 	const [expandedGroups, setExpandedGroups] = React.useState<Record<string, boolean>>({
 		clinical: true,
-		reports: false
+		reports: false,
 	})
 
 	const toggleGroup = (groupName: string) => {
-		setExpandedGroups(prev => ({
+		setExpandedGroups((prev) => ({
 			...prev,
-			[groupName]: !prev[groupName]
+			[groupName]: !prev[groupName],
 		}))
 	}
+
+	// Collapse all groups when sidebar is collapsed
+	React.useEffect(() => {
+		if (!showFullContent) {
+			setExpandedGroups({
+				clinical: false,
+				reports: false,
+			})
+		}
+	}, [showFullContent])
 
 	const handleLogout = async () => {
 		await signOut()
@@ -155,7 +165,7 @@ const Sidebar: React.FC<SidebarProps> = ({
 			<div className="flex flex-col items-start gap-4">
 				<div className="flex justify-between items-center w-full mb-3 sm:mb-5">
 					<div className="flex items-center gap-3">
-						<FavIcon fill='#e82084' className='size-8 shrink-0 -ml-1'/>
+						<FavIcon fill="#e82084" className="size-8 shrink-0 -ml-1" />
 						<p
 							className={`text-2xl font-bold whitespace-nowrap transition-all duration-300 ${
 								showFullContent ? 'opacity-100 w-auto' : 'opacity-0 w-0 overflow-hidden'
@@ -186,7 +196,7 @@ const Sidebar: React.FC<SidebarProps> = ({
 							onClick={onClose}
 						/>
 					)}
-					
+
 					{/* Clinical Group - Cases, Patients, My Cases */}
 					<NavGroup
 						icon={<Folder className="stroke-2 size-5 shrink-0" />}
@@ -203,7 +213,7 @@ const Sidebar: React.FC<SidebarProps> = ({
 							showFullContent={showFullContent}
 							onClick={onClose}
 						/>
-						
+
 						{/* My Cases - Only for admin */}
 						{isAdmin && (
 							<NavItem
@@ -214,17 +224,17 @@ const Sidebar: React.FC<SidebarProps> = ({
 								onClick={onClose}
 							/>
 						)}
-						
+
 						{/* Patients - For all roles */}
 						<NavItem
-							to={isEmployee ? "/patients" : "/dashboard/patients"}
+							to={isEmployee ? '/patients' : '/dashboard/patients'}
 							icon={<User className="stroke-2 size-5 shrink-0" />}
 							label="Pacientes"
 							showFullContent={showFullContent}
 							onClick={onClose}
 						/>
 					</NavGroup>
-					
+
 					{/* Reports Group - Stats, Reports, Changelog */}
 					{isOwner && (
 						<NavGroup
@@ -241,7 +251,7 @@ const Sidebar: React.FC<SidebarProps> = ({
 								showFullContent={showFullContent}
 								onClick={onClose}
 							/>
-							
+
 							<NavItem
 								to="/dashboard/reports"
 								icon={<FileText className="stroke-2 size-5 shrink-0" />}
@@ -249,7 +259,7 @@ const Sidebar: React.FC<SidebarProps> = ({
 								showFullContent={showFullContent}
 								onClick={onClose}
 							/>
-							
+
 							<NavItem
 								to="/dashboard/changelog"
 								icon={<History className="stroke-2 size-5 shrink-0" />}
@@ -259,7 +269,7 @@ const Sidebar: React.FC<SidebarProps> = ({
 							/>
 						</NavGroup>
 					)}
-					
+
 					{/* Users - For owner and admin */}
 					{(isOwner || isAdmin) && (
 						<NavItem
@@ -273,7 +283,7 @@ const Sidebar: React.FC<SidebarProps> = ({
 				</div>
 			</div>
 
-			<div className="flex flex-col justify-center gap-4">
+			<div className="flex flex-col justify-center gap-1">
 				<NavItem
 					to="/dashboard/settings"
 					icon={<Settings className="stroke-2 size-5 shrink-0" />}
