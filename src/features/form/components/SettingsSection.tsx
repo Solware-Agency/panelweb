@@ -349,7 +349,7 @@ export const SettingsSection: React.FC = () => {
                 <h3 className="font-medium text-green-800 dark:text-green-300 mb-2">Estado de la cuenta</h3>
                 <div className="flex items-center gap-2">
                   <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                  <p className="text-green-700 dark:text-green-400">Activa</p>
+                  <p className="text-green-700 dark:text-green-400">Aprobada</p>
                 </div>
               </div>
             </div>

@@ -866,9 +866,9 @@ const CasesTable: React.FC<CasesTableProps> = ({
 				<div className="p-3 sm:p-6 border-b border-gray-200 dark:border-gray-700">
 					<div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4">
 						{/* Search and Filters Row */}
-						<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3 w-full">
+						<div className="flex flex-wrap items-center gap-2 sm:gap-3 w-full">
 							{/* Search - Acortada */}
-							<div className="col-span-1 sm:col-span-1 lg:col-span-1 relative">
+							<div className="flex-1 min-w-[200px] relative">
 								<Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
 								<input
 									type="text"
@@ -889,14 +889,13 @@ const CasesTable: React.FC<CasesTableProps> = ({
 							<Button
 								onClick={handleSearchClick}
 								disabled={isSearching || !searchTerm.trim()}
-								className="col-span-1 sm:col-span-1 lg:col-span-1 whitespace-nowrap"
+								className="whitespace-nowrap flex-shrink-0"
 							>
 								Buscar
 							</Button>
 
 							{/* Status Filter - Updated with only Completado and Incompleto */}
-							<div className="col-span-1 sm:col-span-1 lg:col-span-1 flex items-center gap-2">
-								<Filter className="w-4 h-4 text-gray-400" />
+							<div className="flex items-center gap-2 flex-shrink-0">
 								<select
 									title="Filtrar por estado"
 									value={statusFilter}
@@ -910,7 +909,7 @@ const CasesTable: React.FC<CasesTableProps> = ({
 							</div>
 
 							{/* Branch Filter */}
-							<div className="col-span-1 sm:col-span-1 lg:col-span-1 flex items-center gap-2">
+							<div className="flex items-center gap-2 flex-shrink-0">
 								<select
 									title="Filtrar por sede"
 									value={branchFilter}
@@ -927,7 +926,7 @@ const CasesTable: React.FC<CasesTableProps> = ({
 							</div>
 
 							{/* Exam Type Filter */}
-							<div className="flex items-center gap-2">
+							<div className="flex items-center gap-2 flex-shrink-0">
 								<select
 									title="Filtrar por tipo de examen"
 									value={examTypeFilter}
@@ -945,7 +944,7 @@ const CasesTable: React.FC<CasesTableProps> = ({
 							<Button
 								onClick={toggleDoctorFilter}
 								variant={showDoctorFilter ? 'default' : 'outline'}
-								className="flex items-center gap-2"
+								className="flex items-center gap-2 flex-shrink-0"
 								title="Filtrar por médico"
 							>
 								<Stethoscope className="w-4 h-4" />
@@ -957,8 +956,17 @@ const CasesTable: React.FC<CasesTableProps> = ({
 								)}
 							</Button>
 
+							{/* Fullscreen Button */}
+							<button
+								onClick={() => setIsFullscreen(true)}
+								className="hidden lg:flex items-center gap-2 px-3 py-2 border border-input rounded-lg focus:ring-2 focus:ring-primary dark:bg-background dark:text-white text-sm hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors flex-shrink-0 whitespace-nowrap"
+							>
+								<Maximize2 className="w-4 h-4" />
+								Expandir
+							</button>
+
 							{/* PDF Ready Filter */}
-							<div className="flex items-center gap-2">
+							<div className="flex items-center gap-2 flex-shrink-0">
 								<label className="flex items-center gap-2 cursor-pointer">
 									<input
 										type="checkbox"
@@ -966,23 +974,14 @@ const CasesTable: React.FC<CasesTableProps> = ({
 										onChange={handlePdfFilterToggle}
 										className="rounded border-gray-300 text-primary focus:ring-primary"
 									/>
-									<span className="text-sm">Solo PDF disponibles</span>
+									<span className="text-sm">PDF disponibles</span>
 								</label>
 							</div>
 
-							{/* Fullscreen Button */}
-							<button
-								onClick={() => setIsFullscreen(true)}
-								className="hidden lg:flex px-3 py-2 border border-input rounded-lg focus:ring-2 focus:ring-primary dark:bg-background dark:text-white text-sm items-center gap-2 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
-							>
-								<Maximize2 className="w-4 h-4" />
-								Expandir
-							</button>
-						</div>
-
-						{/* Results count */}
-						<div className="text-sm text-gray-600 dark:text-gray-400 hidden sm:block">
-							Mostrando {filteredAndSortedCases.length} de {cases.length} casos
+							{/* Results count */}
+							<div className="text-sm text-gray-600 dark:text-gray-400 hidden sm:flex">
+								Mostrando {filteredAndSortedCases.length} de {cases.length} casos
+							</div>
 						</div>
 					</div>
 				</div>
@@ -1029,13 +1028,6 @@ const CasesTable: React.FC<CasesTableProps> = ({
 				<div className="hidden lg:block">
 					<div className="overflow-x-auto responsive-table">
 						<div className="max-h-[60vh] overflow-y-auto">
-							{/* Doctor Filter Panel - Conditionally rendered */}
-							{showDoctorFilter && (
-								<div className="mb-4">
-									<DoctorFilterPanel cases={cases} onFilterChange={handleDoctorFilterChange} />
-								</div>
-							)}
-
 							<table className="w-full min-w-[800px]">
 								<thead className="bg-gray-50/50 dark:bg-background/50 backdrop-blur-[10px] sticky top-0 z-50">
 									<tr>

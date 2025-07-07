@@ -18,7 +18,7 @@ import {
 	ChevronRight,
 	Folder,
 } from 'lucide-react'
-import { NavLink, useNavigate } from 'react-router-dom'
+import { NavLink, useNavigate, useLocation } from 'react-router-dom'
 import { signOut } from '@lib/supabase/auth'
 import FavIcon from '@shared/components/icons/FavIcon'
 import { useUserProfile } from '@shared/hooks/useUserProfile'
@@ -40,6 +40,7 @@ interface NavGroupProps {
 	isExpanded: boolean
 	onToggle: () => void
 	children: React.ReactNode
+	childPaths: string[] // Array de rutas de los items hijos
 }
 
 const NavItem: React.FC<NavItemProps> = ({ to, icon, label, showFullContent, onClick, title }) => {
@@ -47,7 +48,7 @@ const NavItem: React.FC<NavItemProps> = ({ to, icon, label, showFullContent, onC
 		<NavLink
 			to={to}
 			className={({ isActive }) =>
-				`flex justify-between items-center gap-2 sm:gap-3 cursor-pointer transition w-full py-2 px-1 rounded-md ${
+				`flex justify-between items-center gap-2 sm:gap-3 cursor-pointer w-full py-2 px-1 rounded-md transition-all duration-300 ${
 					isActive ? 'text-primary border-primary' : 'hover:text-primary'
 				}`
 			}
@@ -68,13 +69,26 @@ const NavItem: React.FC<NavItemProps> = ({ to, icon, label, showFullContent, onC
 	)
 }
 
-const NavGroup: React.FC<NavGroupProps> = ({ icon, label, showFullContent, isExpanded, onToggle, children }) => {
+const NavGroup: React.FC<NavGroupProps> = ({
+	icon,
+	label,
+	showFullContent,
+	isExpanded,
+	onToggle,
+	children,
+	childPaths,
+}) => {
+	const location = useLocation()
+
+	// Verificar si algún item hijo está activo
+	const isChildActive = childPaths.some((path) => location.pathname === path)
+
 	return (
 		<div className="space-y-1">
 			<button
 				onClick={onToggle}
-				className={`flex justify-between items-center gap-2 sm:gap-3 cursor-pointer transition w-full py-2 px-1 rounded-md hover:text-primary ${
-					isExpanded ? 'text-primary' : ''
+				className={`flex justify-between items-center gap-2 sm:gap-3 cursor-pointer w-full py-2 px-1 rounded-md transition-all duration-300 ${
+					isExpanded || isChildActive ? 'text-primary' : 'hover:text-primary'
 				}`}
 				title={!showFullContent ? label : undefined}
 			>
@@ -127,7 +141,17 @@ const Sidebar: React.FC<SidebarProps> = ({
 	// For mobile, always show full sidebar. For desktop, use isExpanded state
 	const showFullContent = isMobile || isExpanded
 	const navigate = useNavigate()
+	const location = useLocation()
 	const { profile } = useUserProfile()
+
+	// Definir las rutas de cada grupo
+	const clinicalPaths = ['/dashboard/cases', '/dashboard/my-cases', '/dashboard/patients', '/patients']
+	const reportsPaths = ['/dashboard/stats', '/dashboard/reports', '/dashboard/changelog']
+
+	// Verificar si algún item de cada grupo está activo
+	const isClinicalActive = clinicalPaths.some((path) => location.pathname === path)
+	const isReportsActive = reportsPaths.some((path) => location.pathname === path)
+
 	const [expandedGroups, setExpandedGroups] = React.useState<Record<string, boolean>>({
 		clinical: true,
 		reports: false,
@@ -139,6 +163,26 @@ const Sidebar: React.FC<SidebarProps> = ({
 			[groupName]: !prev[groupName],
 		}))
 	}
+
+	// Auto-expandir grupos cuando un item hijo está activo
+	React.useEffect(() => {
+		// Solo auto-expandir si el sidebar está expandido (showFullContent es true)
+		if (showFullContent) {
+			if (isClinicalActive && !expandedGroups.clinical) {
+				setExpandedGroups((prev) => ({ ...prev, clinical: true }))
+			}
+			if (isReportsActive && !expandedGroups.reports) {
+				setExpandedGroups((prev) => ({ ...prev, reports: true }))
+			}
+		}
+	}, [
+		location.pathname,
+		isClinicalActive,
+		isReportsActive,
+		expandedGroups.clinical,
+		expandedGroups.reports,
+		showFullContent,
+	])
 
 	// Collapse all groups when sidebar is collapsed
 	React.useEffect(() => {
@@ -197,43 +241,82 @@ const Sidebar: React.FC<SidebarProps> = ({
 						/>
 					)}
 
-					{/* Clinical Group - Cases, Patients, My Cases */}
-					<NavGroup
-						icon={<Folder className="stroke-2 size-5 shrink-0" />}
-						label="Clínico"
-						showFullContent={showFullContent}
-						isExpanded={expandedGroups.clinical}
-						onToggle={() => toggleGroup('clinical')}
-					>
-						{/* Cases - For all roles */}
-						<NavItem
-							to="/dashboard/cases"
-							icon={<FolderInput className="stroke-2 size-5 shrink-0" />}
-							label="Casos"
-							showFullContent={showFullContent}
-							onClick={onClose}
-						/>
-
-						{/* My Cases - Only for admin */}
-						{isAdmin && (
+					{/* Employee specific routes */}
+					{isEmployee && (
+						<>
 							<NavItem
-								to="/dashboard/my-cases"
-								icon={<Microscope className="stroke-2 size-5 shrink-0" />}
-								label="Mis Casos"
+								to="/form"
+								icon={<FileText className="stroke-2 size-5 shrink-0" />}
+								label="Formulario"
 								showFullContent={showFullContent}
 								onClick={onClose}
 							/>
-						)}
+							<NavItem
+								to="/form/records"
+								icon={<FolderInput className="stroke-2 size-5 shrink-0" />}
+								label="Registros"
+								showFullContent={showFullContent}
+								onClick={onClose}
+							/>
+							<NavItem
+								to="/form/doctors"
+								icon={<User className="stroke-2 size-5 shrink-0" />}
+								label="Médicos"
+								showFullContent={showFullContent}
+								onClick={onClose}
+							/>
+							<NavItem
+								to="/form/patients"
+								icon={<Users className="stroke-2 size-5 shrink-0" />}
+								label="Pacientes"
+								showFullContent={showFullContent}
+								onClick={onClose}
+							/>
+						</>
+					)}
 
-						{/* Patients - For all roles */}
-						<NavItem
-							to={isEmployee ? '/patients' : '/dashboard/patients'}
-							icon={<User className="stroke-2 size-5 shrink-0" />}
-							label="Pacientes"
+					{/* Clinical Group - Cases, Patients, My Cases */}
+					{(isAdmin || isOwner) && (
+						<NavGroup
+							icon={<Folder className="stroke-2 size-5 shrink-0" />}
+							label="Clínico"
 							showFullContent={showFullContent}
-							onClick={onClose}
-						/>
-					</NavGroup>
+							isExpanded={expandedGroups.clinical}
+							onToggle={() => toggleGroup('clinical')}
+							childPaths={clinicalPaths}
+						>
+							{/* Cases - For all roles */}
+							<NavItem
+								to="/dashboard/cases"
+								icon={<FolderInput className="stroke-2 size-5 shrink-0" />}
+								label="Casos"
+								showFullContent={showFullContent}
+								onClick={onClose}
+							/>
+
+							{/* My Cases - Only for admin */}
+							{isAdmin && (
+								<NavItem
+									to="/dashboard/my-cases"
+									icon={<Microscope className="stroke-2 size-5 shrink-0" />}
+									label="Mis Casos"
+									showFullContent={showFullContent}
+									onClick={onClose}
+								/>
+							)}
+
+							{/* Patients - For all roles */}
+							{(isOwner || isEmployee) && (
+								<NavItem
+									to={isEmployee ? '/patients' : '/dashboard/patients'}
+									icon={<User className="stroke-2 size-5 shrink-0" />}
+									label="Pacientes"
+									showFullContent={showFullContent}
+									onClick={onClose}
+								/>
+							)}
+						</NavGroup>
+					)}
 
 					{/* Reports Group - Stats, Reports, Changelog */}
 					{isOwner && (
@@ -243,6 +326,7 @@ const Sidebar: React.FC<SidebarProps> = ({
 							showFullContent={showFullContent}
 							isExpanded={expandedGroups.reports}
 							onToggle={() => toggleGroup('reports')}
+							childPaths={reportsPaths}
 						>
 							<NavItem
 								to="/dashboard/stats"
@@ -284,16 +368,28 @@ const Sidebar: React.FC<SidebarProps> = ({
 			</div>
 
 			<div className="flex flex-col justify-center gap-1">
-				<NavItem
-					to="/dashboard/settings"
-					icon={<Settings className="stroke-2 size-5 shrink-0" />}
-					label="Ajustes"
-					showFullContent={showFullContent}
-					onClick={onClose}
-				/>
+				{isEmployee && (
+					<NavItem
+						to="/form/settings"
+						icon={<Settings className="stroke-2 size-5 shrink-0" />}
+						label="Ajustes"
+						showFullContent={showFullContent}
+						onClick={onClose}
+					/>
+				)}
+
+				{!isEmployee && (
+					<NavItem
+						to="/dashboard/settings"
+						icon={<Settings className="stroke-2 size-5 shrink-0" />}
+						label="Ajustes"
+						showFullContent={showFullContent}
+						onClick={onClose}
+					/>
+				)}
 				<div
 					title={!showFullContent ? 'Fecha' : undefined}
-					className="flex items-center gap-2 sm:gap-3 cursor-pointer hover:text-primary transition py-2 px-1 rounded-md"
+					className="flex items-center gap-2 sm:gap-3 cursor-pointer hover:text-primary py-2 px-1 rounded-md transition-all duration-300"
 				>
 					<Clock className="stroke-2 size-5 shrink-0" />
 					<p
@@ -307,7 +403,7 @@ const Sidebar: React.FC<SidebarProps> = ({
 				<div
 					onClick={toggleDarkMode}
 					title={!showFullContent ? 'Cambiar color' : undefined}
-					className="flex items-center gap-2 sm:gap-3 cursor-pointer hover:text-primary transition py-2 px-1 rounded-md"
+					className="flex items-center gap-2 sm:gap-3 cursor-pointer hover:text-primary py-2 px-1 rounded-md transition-all duration-300"
 					aria-label={isDark ? 'Activar modo claro' : 'Activar modo oscuro'}
 				>
 					{isDark ? <Sun className="stroke-2 size-5 shrink-0" /> : <Moon className="stroke-2 size-5 shrink-0" />}
@@ -322,7 +418,7 @@ const Sidebar: React.FC<SidebarProps> = ({
 				<div
 					onClick={handleLogout}
 					title={!showFullContent ? 'Salir' : undefined}
-					className="flex items-center gap-2 sm:gap-3 cursor-pointer hover:text-red-500 transition py-2 px-1 rounded-md"
+					className="flex items-center gap-2 sm:gap-3 cursor-pointer hover:text-red-500 py-2 px-1 rounded-md transition-all duration-300"
 				>
 					<LogOut className="stroke-2 size-5 shrink-0 text-red-500" />
 					<p

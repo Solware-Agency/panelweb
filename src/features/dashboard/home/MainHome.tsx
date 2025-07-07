@@ -64,13 +64,13 @@ function MainHome() {
 				{/* Mobile-first responsive grid */}
 				<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-3 sm:gap-4">
 					<Card
-						className="col-span-1 sm:col-span-2 lg:col-span-6 row-span-1 lg:row-span-1 dark:bg-background bg-white rounded-xl py-3 sm:py-6 px-3 sm:px-8 flex flex-col sm:flex-row items-center justify-between shadow-lg cursor-pointer transition-all duration-300 hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20"
+						className="col-span-1 sm:col-span-2 lg:col-span-6 row-span-1 lg:row-span-1 dark:bg-background bg-white rounded-xl py-3 sm:py-6 px-3 sm:px-8 flex flex-col sm:flex-row items-center justify-between shadow-lg cursor-pointer hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 transition-all duration-300"
 						onClick={() => handleStatCardClick('totalRevenue')}
 					>
 						<div className="flex-1 text-center sm:text-left mb-3 sm:mb-0">
 							<div className="flex flex-col sm:flex-row items-center sm:items-start gap-2 sm:gap-3 mb-2">
 								<div>
-									<h1 className="text-xl sm:text-2xl md:text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 bg-clip-text text-transparent">
+									<h1 className="text-xl sm:text-2xl md:text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 bg-clip-text text-transparent transition-all duration-300">
 										¡Bienvenido a Conspat!
 									</h1>
 									<div className="flex items-center justify-center sm:justify-start gap-2 mt-1 font-semibold">
@@ -80,7 +80,7 @@ function MainHome() {
 									</div>
 								</div>
 							</div>
-							<p className="text-gray-600 dark:text-gray-300 mb-2 sm:mb-4 text-sm sm:text-base md:text-lg">
+							<p className="text-gray-600 dark:text-gray-300 mb-2 sm:mb-4 text-sm sm:text-base md:text-lg transition-all duration-300">
 								Gestiona tus ingresos y estadisticas de empresa.
 							</p>
 						</div>
@@ -88,7 +88,7 @@ function MainHome() {
 							<div className="absolute inset-0 bg-gradient-to-r from-blue-400 to-purple-500 rounded-full blur-xl opacity-5 animate-pulse"></div>
 							<EyeTrackingComponent
 								className={
-									'size-20 sm:size-28 md:size-32 lg:size-40 drop-shadow-[0px_5px_10px_rgba(59,130,246,0.3)] dark:drop-shadow-[0px_5px_10px_rgba(147,197,253,0.3)] transition-all duration-300 hover:scale-105 relative z-10'
+									'size-20 sm:size-28 md:size-32 lg:size-40 drop-shadow-[0px_5px_10px_rgba(59,130,246,0.3)] dark:drop-shadow-[0px_5px_10px_rgba(147,197,253,0.3)] hover:scale-105 relative z-10 transition-all duration-300'
 								}
 							/>
 						</div>
@@ -96,23 +96,23 @@ function MainHome() {
 
 					{/* Grid 2 - Revenue by Branch Chart */}
 					<Card
-						className="col-span-1 sm:col-span-2 lg:col-span-6 row-span-1 lg:row-span-2 dark:bg-background bg-white rounded-xl py-3 sm:py-6 px-3 sm:px-6 md:px-8 transition-all duration-300 cursor-pointer group shadow-lg h-full hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20"
+						className="col-span-1 sm:col-span-2 lg:col-span-6 row-span-1 lg:row-span-2 dark:bg-background bg-white rounded-xl py-3 sm:py-6 px-3 sm:px-6 md:px-8 cursor-pointer group shadow-lg h-full hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 transition-all duration-300"
 						onClick={() => handleStatCardClick('branchRevenue')}
 					>
 						<div className="h-full flex flex-col">
 							<div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-3 sm:mb-4 md:mb-6">
 								<div className="flex items-center gap-2 sm:gap-3 mb-2 sm:mb-0">
 									<div>
-										<h2 className="text-lg sm:text-xl md:text-2xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 dark:from-purple-400 dark:to-pink-400 bg-clip-text text-transparent">
+										<h2 className="text-lg sm:text-xl md:text-2xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 dark:from-purple-400 dark:to-pink-400 bg-clip-text text-transparent transition-all duration-300">
 											Ingresos por Sede
 										</h2>
 									</div>
 								</div>
-								<div className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1 sm:py-2 bg-purple-100 dark:bg-purple-900/30 rounded-lg group-hover:bg-purple-200 dark:group-hover:bg-purple-900/50 transition-colors">
-									<span className="text-xs sm:text-sm font-medium text-purple-700 dark:text-purple-300">
+								<div className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1 sm:py-2 bg-purple-100 dark:bg-purple-900/30 rounded-lg group-hover:bg-purple-200 dark:group-hover:bg-purple-900/50 transition-all duration-300">
+									<span className="text-xs sm:text-sm font-medium text-purple-700 dark:text-purple-300 transition-all duration-300">
 										Ver detalles
 									</span>
-									<ArrowRight className="w-4 h-4 text-purple-600 dark:text-purple-400 group-hover:translate-x-1 transition-transform" />
+									<ArrowRight className="w-4 h-4 text-purple-600 dark:text-purple-400 group-hover:translate-x-1 transition-all duration-300" />
 								</div>
 							</div>
 
@@ -125,7 +125,7 @@ function MainHome() {
 												cy="18"
 												r="14"
 												fill="none"
-												className="stroke-current text-gray-200 dark:text-neutral-700"
+												className="stroke-current text-gray-200 dark:text-neutral-700 transition-all duration-300"
 												strokeWidth="4"
 											></circle>
 											{stats?.revenueByBranch.map((branch, index) => {
@@ -162,10 +162,10 @@ function MainHome() {
 										</svg>
 										<div className="absolute inset-0 flex items-center justify-center">
 											<div className="text-center">
-												<p className="text-xl font-bold text-gray-700 dark:text-gray-300">
+												<p className="text-xl font-bold text-gray-700 dark:text-gray-300 transition-all duration-300">
 													{isLoading ? '...' : formatCurrency(stats?.totalRevenue || 0)}
 												</p>
-												<p className="text-xs text-gray-500 dark:text-gray-400">Total</p>
+												<p className="text-xs text-gray-500 dark:text-gray-400 transition-all duration-300">Total</p>
 											</div>
 										</div>
 									</div>
@@ -236,7 +236,7 @@ function MainHome() {
 															}`}
 														></div>
 														<div>
-															<p className="font-medium text-gray-700 dark:text-gray-300 text-xs sm:text-sm md:text-base">
+															<p className="font-medium text-gray-700 dark:text-gray-300 text-xs sm:text-sm md:text-base transition-all duration-300">
 																{branch.branch}
 															</p>
 														</div>
@@ -249,32 +249,40 @@ function MainHome() {
 
 													{/* Interactive Tooltip */}
 													{hoveredBranchIndex === index && (
-														<div className="absolute bottom-full left-1/2 transform -translate-x-1/2 z-10 bg-white dark:bg-gray-800 rounded-lg p-3 shadow-lg min-w-[180px] border border-gray-200 dark:border-gray-700 mb-2 animate-fade-in">
+														<div className="absolute bottom-full left-1/2 transform -translate-x-1/2 z-10 bg-white dark:bg-gray-800 rounded-lg p-3 shadow-lg min-w-[180px] border border-gray-200 dark:border-gray-700 mb-2 animate-fade-in transition-all duration-300">
 															<div className="text-center mb-2">
-																<h3 className="font-bold text-gray-900 dark:text-gray-100">{branch.branch}</h3>
-																<div className="w-full h-0.5 bg-gray-200 dark:bg-gray-700 my-1"></div>
+																<h3 className="font-bold text-gray-900 dark:text-gray-100 transition-all duration-300">
+																	{branch.branch}
+																</h3>
+																<div className="w-full h-0.5 bg-gray-200 dark:bg-gray-700 my-1 transition-all duration-300"></div>
 															</div>
 															<div className="grid grid-cols-2 gap-2 text-sm">
 																<div>
-																	<p className="text-gray-500 dark:text-gray-400">Ingresos:</p>
-																	<p className="font-bold text-gray-900 dark:text-gray-100">
+																	<p className="text-gray-500 dark:text-gray-400 transition-all duration-300">
+																		Ingresos:
+																	</p>
+																	<p className="font-bold text-gray-900 dark:text-gray-100 transition-all duration-300">
 																		{formatCurrency(branch.revenue)}
 																	</p>
 																</div>
 																<div>
-																	<p className="text-gray-500 dark:text-gray-400">Porcentaje:</p>
-																	<p className="font-bold text-gray-900 dark:text-gray-100">
+																	<p className="text-gray-500 dark:text-gray-400 transition-all duration-300">
+																		Porcentaje:
+																	</p>
+																	<p className="font-bold text-gray-900 dark:text-gray-100 transition-all duration-300">
 																		{branch.percentage.toFixed(1)}%
 																	</p>
 																</div>
 																<div className="col-span-2">
-																	<p className="text-gray-500 dark:text-gray-400">Período:</p>
-																	<p className="font-bold text-gray-900 dark:text-gray-100">
+																	<p className="text-gray-500 dark:text-gray-400 transition-all duration-300">
+																		Período:
+																	</p>
+																	<p className="font-bold text-gray-900 dark:text-gray-100 transition-all duration-300">
 																		{format(selectedMonth, 'MMMM yyyy', { locale: es })}
 																	</p>
 																</div>
 															</div>
-															<div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 w-4 h-4 rotate-45 bg-white dark:bg-gray-800 border-r border-b border-gray-200 dark:border-gray-700"></div>
+															<div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 w-4 h-4 rotate-45 bg-white dark:bg-gray-800 border-r border-b border-gray-200 dark:border-gray-700 transition-all duration-300"></div>
 														</div>
 													)}
 												</div>
@@ -291,14 +299,16 @@ function MainHome() {
 						title="Ingresos Mensuales"
 						value={isLoading ? '...' : formatCurrency(stats?.monthlyRevenue || 0)}
 						description={format(selectedMonth, 'MMMM yyyy', { locale: es })}
-						icon={<DollarSign className="w-5 h-5 sm:w-6 sm:h-6 text-green-600 dark:text-green-400" />}
+						icon={
+							<DollarSign className="w-5 h-5 sm:w-6 sm:h-6 text-green-600 dark:text-green-400 transition-all duration-300" />
+						}
 						trend={{
 							value: isLoading ? '...' : '+12.5%',
 							icon: <TrendingUp className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />,
 							positive: true,
 						}}
 						onClick={() => handleStatCardClick('monthlyRevenue')}
-						className="col-span-1 sm:col-span-1 lg:col-span-3 row-span-1 lg:row-span-1"
+						className="col-span-1 sm:col-span-1 lg:col-span-3 row-span-1 lg:row-span-1 transition-all duration-300"
 						statType="monthlyRevenue"
 						isSelected={selectedStat === 'monthlyRevenue' && isDetailPanelOpen}
 					/>
@@ -308,27 +318,29 @@ function MainHome() {
 						title="Total de Casos"
 						value={isLoading ? '...' : stats?.totalCases || 0}
 						description="casos registrados"
-						icon={<Users className="w-5 h-5 sm:w-6 sm:h-6 text-blue-600 dark:text-blue-400" />}
+						icon={
+							<Users className="w-5 h-5 sm:w-6 sm:h-6 text-blue-600 dark:text-blue-400 transition-all duration-300" />
+						}
 						trend={{
 							value: isLoading ? '...' : `+${stats?.newPatientsThisMonth || 0}`,
 							icon: <TrendingUp className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />,
 							positive: true,
 						}}
 						onClick={() => handleStatCardClick('totalCases')}
-						className="col-span-1 sm:col-span-1 lg:col-span-3 row-span-1 lg:row-span-1"
+						className="col-span-1 sm:col-span-1 lg:col-span-3 row-span-1 lg:row-span-1 transition-all duration-300"
 						statType="totalCases"
 						isSelected={selectedStat === 'totalCases' && isDetailPanelOpen}
 					/>
 
 					{/* Grid 5 - Médicos Tratantes */}
-					<Card className="col-span-1 sm:col-span-2 lg:col-span-3 row-span-1 lg:row-span-3 dark:bg-background bg-white rounded-xl p-3 sm:p-4 transition-all duration-300 flex flex-col cursor-pointer shadow-lg hover:bg-white/90 group h-full hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20">
+					<Card className="col-span-1 sm:col-span-2 lg:col-span-3 row-span-1 lg:row-span-3 dark:bg-background bg-white rounded-xl p-3 sm:p-4 flex flex-col cursor-pointer shadow-lg hover:bg-white/90 group h-full hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 transition-all duration-300">
 						<div className="h-full flex flex-col" onClick={() => navigate('/dashboard/reports')}>
 							<div className="flex items-center justify-between mb-3 sm:mb-4">
 								<div className="flex items-center gap-1.5 sm:gap-3">
 									<div className="p-1.5 sm:p-2 bg-purple-100 dark:bg-purple-900/30 rounded-lg">
-										<Stethoscope className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 text-purple-600 dark:text-purple-400" />
+										<Stethoscope className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 text-purple-600 dark:text-purple-400 transition-all duration-300" />
 									</div>
-									<h3 className="text-sm sm:text-base md:text-lg font-bold text-gray-700 dark:text-gray-300">
+									<h3 className="text-sm sm:text-base md:text-lg font-bold text-gray-700 dark:text-gray-300 transition-all duration-300">
 										Médicos Tratantes
 									</h3>
 								</div>
@@ -348,14 +360,14 @@ function MainHome() {
 										return (
 											<div
 												key={doctor.doctor}
-												className="flex items-center gap-1.5 sm:gap-3 p-1.5 sm:p-3 hover:bg-gray-50 dark:hover:bg-gray-800/50 rounded-lg transition"
+												className="flex items-center gap-1.5 sm:gap-3 p-1.5 sm:p-3 hover:bg-gray-50 dark:hover:bg-gray-800/50 rounded-lg transition-all duration-300"
 											>
 												<div className={`w-2 h-2 sm:w-3 sm:h-3 rounded-full ${colors[index % colors.length]}`}></div>
 												<div className="flex-1 min-w-0">
-													<p className="text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 truncate">
+													<p className="text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 truncate transition-all duration-300">
 														{doctor.doctor}
 													</p>
-													<p className="text-xs text-gray-500 dark:text-gray-400">
+													<p className="text-xs text-gray-500 dark:text-gray-400 transition-all duration-300">
 														{doctor.cases} caso{doctor.cases !== 1 ? 's' : ''} • {formatCurrency(doctor.revenue)}
 													</p>
 												</div>
@@ -365,8 +377,10 @@ function MainHome() {
 								) : (
 									<div className="flex items-center justify-center h-full">
 										<div className="text-center">
-											<Stethoscope className="w-8 h-8 text-gray-300 dark:text-gray-600 mx-auto mb-2" />
-											<p className="text-sm text-gray-500 dark:text-gray-400">No hay datos de médicos</p>
+											<Stethoscope className="w-8 h-8 text-gray-300 dark:text-gray-600 mx-auto mb-2 transition-all duration-300" />
+											<p className="text-sm text-gray-500 dark:text-gray-400 transition-all duration-300">
+												No hay datos de médicos
+											</p>
 										</div>
 									</div>
 								)}
@@ -376,12 +390,12 @@ function MainHome() {
 
 					{/* Grid 6 - 12-Month Sales Trend Chart with Year Selector */}
 					<Card
-						className="col-span-1 sm:col-span-2 lg:col-span-9 row-span-1 lg:row-span-2 dark:bg-background bg-white rounded-xl py-3 sm:py-5 px-3 sm:px-6 transition-all duration-300 cursor-pointer shadow-lg hover:bg-white/90 group h-full hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20"
+						className="col-span-1 sm:col-span-2 lg:col-span-9 row-span-1 lg:row-span-2 dark:bg-background bg-white rounded-xl py-3 sm:py-5 px-3 sm:px-6 cursor-pointer shadow-lg hover:bg-white/90 group h-full hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 transition-all duration-300"
 						onClick={() => handleStatCardClick('totalRevenue')}
 					>
 						<div className="h-full flex flex-col">
 							<div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-3 sm:mb-4">
-								<h3 className="text-sm sm:text-base md:text-lg font-bold text-gray-700 dark:text-gray-300 mb-2 sm:mb-0">
+								<h3 className="text-sm sm:text-base md:text-lg font-bold text-gray-700 dark:text-gray-300 mb-2 sm:mb-0 transition-all duration-300">
 									Tendencia de Ventas
 								</h3>
 								{/* Year Selector with Arrows */}
@@ -392,7 +406,7 @@ function MainHome() {
 										minYear={2020}
 										maxYear={new Date().getFullYear() + 2}
 									/>
-									<span className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">
+									<span className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 transition-all duration-300">
 										12 meses de {selectedYear}
 									</span>
 								</div>
@@ -425,7 +439,7 @@ function MainHome() {
 									})
 								)}
 							</div>
-							<div className="flex justify-between text-[10px] sm:text-xs text-gray-500 dark:text-gray-400 mt-1 sm:mt-2 overflow-x-auto scrollbar-hide">
+							<div className="flex justify-between text-[10px] sm:text-xs text-gray-500 dark:text-gray-400 mt-1 sm:mt-2 overflow-x-auto scrollbar-hide transition-all duration-300">
 								{/* FIXED: Force Spanish month labels regardless of system language */}
 								{['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'].map((m) => (
 									<span key={m}>{m}</span>
@@ -436,12 +450,12 @@ function MainHome() {
 
 					{/* Grid 7 - Top Exam Types (Normalized) */}
 					<Card
-						className="col-span-1 sm:col-span-2 lg:col-span-6 row-span-1 lg:row-span-1 dark:bg-background bg-white rounded-xl py-3 sm:py-5 px-3 sm:px-6 transition-all duration-300 cursor-pointer shadow-lg hover:bg-white/90 group h-full hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20"
+						className="col-span-1 sm:col-span-2 lg:col-span-6 row-span-1 lg:row-span-1 dark:bg-background bg-white rounded-xl py-3 sm:py-5 px-3 sm:px-6 cursor-pointer shadow-lg hover:bg-white/90 group h-full hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 transition-all duration-300"
 						onClick={() => handleStatCardClick('examTypes')}
 					>
 						<div className="h-full flex flex-col">
 							<div className="flex items-center justify-between mb-3 sm:mb-4">
-								<h3 className="text-sm sm:text-base md:text-lg font-bold text-gray-700 dark:text-gray-300">
+								<h3 className="text-sm sm:text-base md:text-lg font-bold text-gray-700 dark:text-gray-300 transition-all duration-300">
 									Estudios Más Frecuentes
 								</h3>
 								<ArrowRight className="w-3 h-3 sm:w-4 sm:h-4 text-gray-400 group-hover:text-blue-500 transition-colors" />
@@ -485,10 +499,10 @@ function MainHome() {
 														<span className="text-white font-bold text-[10px] sm:text-xs md:text-sm">{index + 1}</span>
 													</div>
 													<div>
-														<p className="text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300">
+														<p className="text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 transition-all duration-300">
 															{exam.examType}
 														</p>
-														<p className="text-[10px] sm:text-xs text-gray-500 dark:text-gray-400">
+														<p className="text-[10px] sm:text-xs text-gray-500 dark:text-gray-400 transition-all duration-300">
 															{exam.count} casos
 														</p>
 													</div>
@@ -506,12 +520,12 @@ function MainHome() {
 
 					{/* Grid 8 - Quick Actions & Status Indicators */}
 					<Card
-						className="col-span-1 sm:col-span-2 lg:col-span-3 row-span-1 lg:row-span-1 dark:bg-background bg-white rounded-xl py-3 sm:py-5 px-3 sm:px-6 transition-all duration-300 h-full hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 shadow-lg"
+						className="col-span-1 sm:col-span-2 lg:col-span-3 row-span-1 lg:row-span-1 dark:bg-background bg-white rounded-xl py-3 sm:py-5 px-3 sm:px-6 h-full hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 shadow-lg transition-all duration-300"
 						onClick={() => handleStatCardClick('incompleteCases')}
 					>
 						<div className="h-full flex flex-col">
 							<div className="flex items-center justify-between mb-3 sm:mb-4">
-								<h3 className="text-sm sm:text-base md:text-lg font-bold text-gray-700 dark:text-gray-300">
+								<h3 className="text-sm sm:text-base md:text-lg font-bold text-gray-700 dark:text-gray-300 transition-all duration-300">
 									Estado del Sistema
 								</h3>
 								<div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
@@ -521,11 +535,11 @@ function MainHome() {
 								<div className="p-1.5 sm:p-2 md:p-3 bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-800 rounded-lg">
 									<div className="flex items-center gap-1.5 sm:gap-2 mb-0.5 sm:mb-1">
 										<AlertTriangle className="w-4 h-4 text-orange-500 dark:text-orange-400" />
-										<span className="text-xs sm:text-sm font-medium text-orange-800 dark:text-orange-400">
+										<span className="text-xs sm:text-sm font-medium text-orange-800 dark:text-orange-400 transition-all duration-300">
 											Casos Incompletos
 										</span>
 									</div>
-									<p className="text-[10px] sm:text-xs text-orange-700 dark:text-orange-300">
+									<p className="text-[10px] sm:text-xs text-orange-700 dark:text-orange-300 transition-all duration-300">
 										{isLoading ? 'Cargando...' : `${stats?.incompleteCases || 0} casos pendientes de completar`}
 									</p>
 								</div>
@@ -534,11 +548,11 @@ function MainHome() {
 								<div className="p-1.5 sm:p-2 md:p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
 									<div className="flex items-center gap-1.5 sm:gap-2 mb-0.5 sm:mb-1">
 										<Clock className="w-4 h-4 text-red-500 dark:text-red-400" />
-										<span className="text-xs sm:text-sm font-medium text-red-800 dark:text-red-400">
+										<span className="text-xs sm:text-sm font-medium text-red-800 dark:text-red-400 transition-all duration-300">
 											Pagos Pendientes
 										</span>
 									</div>
-									<p className="text-[10px] sm:text-xs text-red-700 dark:text-red-300">
+									<p className="text-[10px] sm:text-xs text-red-700 dark:text-red-300 transition-all duration-300">
 										{isLoading ? 'Cargando...' : `${formatCurrency(stats?.pendingPayments || 0)} por cobrar`}
 									</p>
 								</div>

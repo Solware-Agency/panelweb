@@ -2,7 +2,7 @@ import React, { useState, useCallback, useMemo } from 'react'
 import { FixedSizeList as List } from 'react-window'
 import { useQuery } from '@tanstack/react-query'
 import { getMedicalRecords } from '@lib/supabase-service'
-import { Search, RefreshCw, User, Users, Phone, Mail, Calendar, ChevronUp, ChevronDown, UserCheck } from 'lucide-react'
+import { Search, RefreshCw, User, Phone, Mail, Calendar, ChevronUp, ChevronDown } from 'lucide-react'
 import { Card } from '@shared/components/ui/card'
 import { Input } from '@shared/components/ui/input'
 import { Button } from '@shared/components/ui/button'
@@ -188,17 +188,6 @@ const PatientsList: React.FC = React.memo(() => {
 	)
 
 	// Calculate statistics
-	const stats = useMemo(() => {
-		const totalPatients = patients.length
-		const patientsWithEmail = patients.filter((p) => p.email).length
-		const totalVisits = patients.reduce((sum, p) => sum + p.totalVisits, 0)
-
-		return {
-			totalPatients,
-			patientsWithEmail,
-			totalVisits,
-		}
-	}, [patients])
 
 	// Loading state
 	if (isLoading) {
@@ -264,45 +253,6 @@ const PatientsList: React.FC = React.memo(() => {
 					</Button>
 				</div>
 			</Card>
-
-			{/* Stats */}
-			<div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
-				<Card className="p-4">
-					<div className="flex items-center">
-						<div className="p-3 bg-blue-100 dark:bg-blue-900/30 rounded-full">
-							<Users className="h-5 w-5 text-blue-600 dark:text-blue-400" />
-						</div>
-						<div className="ml-4">
-							<p className="text-sm text-gray-500 dark:text-gray-400">Total Pacientes</p>
-							<p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{stats.totalPatients}</p>
-						</div>
-					</div>
-				</Card>
-
-				<Card className="p-4">
-					<div className="flex items-center">
-						<div className="p-3 bg-purple-100 dark:bg-purple-900/30 rounded-full">
-							<UserCheck className="h-5 w-5 text-purple-600 dark:text-purple-400" />
-						</div>
-						<div className="ml-4">
-							<p className="text-sm text-gray-500 dark:text-gray-400">Pacientes con Email</p>
-							<p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{stats.patientsWithEmail}</p>
-						</div>
-					</div>
-				</Card>
-
-				<Card className="p-4">
-					<div className="flex items-center">
-						<div className="p-3 bg-green-100 dark:bg-green-900/30 rounded-full">
-							<Calendar className="h-5 w-5 text-purple-600 dark:text-purple-400" />
-						</div>
-						<div className="ml-4">
-							<p className="text-sm text-gray-500 dark:text-gray-400">Visitas Totales</p>
-							<p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{stats.totalVisits}</p>
-						</div>
-					</div>
-				</Card>
-			</div>
 
 			{/* Patients table */}
 			<Card className="overflow-hidden">

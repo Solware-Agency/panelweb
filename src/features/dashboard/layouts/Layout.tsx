@@ -3,7 +3,7 @@ import { Outlet } from 'react-router-dom'
 import { AnimatePresence, motion } from 'framer-motion'
 import { useDarkMode } from '@shared/hooks/useDarkMode'
 import Header from './Header'
-import Sidebar from './Sidebar'
+import Sidebar from '../../../shared/components/Sidebar'
 
 const Layout: React.FC = () => {
 	const { isDark, setIsDark } = useDarkMode()
