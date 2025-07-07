@@ -58,6 +58,40 @@ function App() {
 							}
 						/>
 
+						{/* Form sub-routes for Employee users */}
+						<Route
+							path="/form/records"
+							element={
+								<FormRoute>
+									<Form />
+								</FormRoute>
+							}
+						/>
+						<Route
+							path="/form/doctors"
+							element={
+								<FormRoute>
+									<Form />
+								</FormRoute>
+							}
+						/>
+						<Route
+							path="/form/patients"
+							element={
+								<FormRoute>
+									<Form />
+								</FormRoute>
+							}
+						/>
+						<Route
+							path="/form/settings"
+							element={
+								<FormRoute>
+									<Form />
+								</FormRoute>
+							}
+						/>
+
 						{/* Default route */}
 						<Route path="/" element={<LoginPage />} />
 
@@ -82,7 +116,6 @@ function App() {
 							<Route path="patients" element={<PatientsPage />} />
 							<Route path="changelog" element={<ChangelogPage />} />
 						</Route>
-
 					</Routes>
 				</div>
 			</BrowserRouter>

@@ -46,7 +46,7 @@ interface ChangeLogEntry {
 
 const ChangelogTable: React.FC = () => {
 	const { toast } = useToast()
-	const { profile } = useUserProfile()
+	useUserProfile()
 	const [searchTerm, setSearchTerm] = useState('')
 	const [actionFilter, setActionFilter] = useState<string>('all')
 	const [dateFilter, setDateFilter] = useState<Date | undefined>(undefined)
@@ -58,7 +58,6 @@ const ChangelogTable: React.FC = () => {
 	const [logToDelete, setLogToDelete] = useState<string | null>(null)
 
 	// Check if user is owner (only owners can delete logs)
-	const isOwner = profile?.role === 'owner'
 
 	// Query to fetch change logs
 	const {
@@ -111,19 +110,6 @@ const ChangelogTable: React.FC = () => {
 	}, [logsData?.data, searchTerm, actionFilter, dateFilter])
 
 	// Function to delete a change log entry (only for owners)
-	const handleDeleteLog = async (id: string) => {
-		if (!isOwner) {
-			toast({
-				title: '❌ Permiso denegado',
-				description: 'Solo los propietarios pueden eliminar registros del historial.',
-				variant: 'destructive',
-			})
-			return
-		}
-
-		setLogToDelete(id)
-		setIsConfirmDeleteOpen(true)
-	}
 
 	// Function to confirm deletion
 	const confirmDelete = async () => {
@@ -160,12 +146,6 @@ const ChangelogTable: React.FC = () => {
 	}
 
 	// Function to view the case details
-	const handleViewCase = (caseId: string) => {
-		// Navigate to case details or open case detail panel
-		console.log('View case:', caseId)
-		// This would typically navigate to the case detail page or open a modal
-		window.location.href = '/dashboard/cases'
-	}
 
 	// Function to clear filters
 	const clearFilters = () => {
@@ -350,13 +330,6 @@ const ChangelogTable: React.FC = () => {
 											Detalles
 										</div>
 									</th>
-									{isOwner && (
-										<th className="px-4 py-3 text-center">
-											<div className="flex items-center justify-center gap-2 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-												Acciones
-											</div>
-										</th>
-									)}
 								</tr>
 							</thead>
 							<tbody className="divide-y divide-gray-200 dark:divide-gray-700">
@@ -432,37 +405,6 @@ const ChangelogTable: React.FC = () => {
 													)}
 												</div>
 											</td>
-
-											{/* Actions (only for owners) */}
-											{isOwner && (
-												<td className="px-4 py-4 text-center">
-													<div className="flex items-center justify-center gap-2">
-														{log.medical_records_clean?.id && (
-															<Button
-																variant="ghost"
-																size="sm"
-																onClick={() => handleViewCase(log.medical_records_clean!.id)}
-																className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300"
-															>
-																<Eye className="w-4 h-4" />
-															</Button>
-														)}
-														<Button
-															variant="ghost"
-															size="sm"
-															onClick={() => handleDeleteLog(log.id)}
-															className="text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300"
-															disabled={isDeleting === log.id}
-														>
-															{isDeleting === log.id ? (
-																<RefreshCw className="w-4 h-4 animate-spin" />
-															) : (
-																<Trash2 className="w-4 h-4" />
-															)}
-														</Button>
-													</div>
-												</td>
-											)}
 										</tr>
 									)
 								})}
