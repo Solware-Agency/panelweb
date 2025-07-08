@@ -4,7 +4,7 @@ import { useDarkMode } from '@shared/hooks/useDarkMode'
 import { Button } from '@shared/components/ui/button'
 
 export function ThemeToggle() {
-	const { isDark, toggleDarkMode } = useDarkMode()
+	const { toggleDarkMode } = useDarkMode()
 
 	return (
 		<Button

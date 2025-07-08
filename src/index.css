@@ -86,9 +86,6 @@
 }
 
 @layer base {
-  html {
-    /* Sin transiciones para cambio instantáneo */
-  }
 
   * {
     @apply border-border;
