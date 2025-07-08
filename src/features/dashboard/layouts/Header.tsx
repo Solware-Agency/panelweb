@@ -10,7 +10,7 @@ interface HeaderProps {
 
 const Header: React.FC<HeaderProps> = ({ onMenuClick }) => {
 	return (
-		<div className="bg-white dark:bg-background/50 backdrop-blur-[10px] transition-colors duration-300 sticky top-0 left-0 z-30 shadow-xl lg:hidden border-b border-input w-full">
+		<div className="bg-white dark:bg-background/50 backdrop-blur-[10px] sticky top-0 left-0 z-30 shadow-xl lg:hidden border-b border-input w-full">
 			<header className="flex justify-between items-center px-3 sm:px-6 py-3 sm:py-4">
 				{/* Mobile menu button and search */}
 				<div className="flex items-center gap-3">

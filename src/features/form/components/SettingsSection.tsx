@@ -165,7 +165,7 @@ export const SettingsSection: React.FC = () => {
       
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Profile Information */}
-        <Card className="transition-all duration-300 hover:border-primary hover:shadow-lg hover:shadow-primary/20">
+        <Card className="hover:border-primary hover:shadow-lg hover:shadow-primary/20">
           <div className="p-6">
             <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
               <User className="text-primary" />
@@ -241,7 +241,7 @@ export const SettingsSection: React.FC = () => {
         </Card>
         
         {/* Password Update */}
-        <Card className="transition-all duration-300 hover:border-primary hover:shadow-lg hover:shadow-primary/20">
+        <Card className="hover:border-primary hover:shadow-lg hover:shadow-primary/20">
           <div className="p-6">
             <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
               <Key className="text-primary" />
@@ -330,7 +330,7 @@ export const SettingsSection: React.FC = () => {
       </div>
       
       {/* Security Information */}
-      <Card className="mt-6 transition-all duration-300 hover:border-primary hover:shadow-lg hover:shadow-primary/20">
+      <Card className="mt-6 hover:border-primary hover:shadow-lg hover:shadow-primary/20">
         <div className="p-6">
           <h2 className="text-xl font-semibold mb-4">Información de Seguridad</h2>
           

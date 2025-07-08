@@ -50,8 +50,8 @@ const MainCases: React.FC = () => {
 
 			{/* Action Buttons */}
 			<div className="grid grid-cols-2 gap-2 sm:gap-4 mb-4 sm:mb-6">
-				<Card className="col-span-1 grid hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 transition-all duration-300 shadow-lg">
-					<button className="bg-white dark:bg-background rounded-xl p-2 sm:p-4 transition-colors duration-300 flex items-center gap-2 sm:gap-3">
+				<Card className="col-span-1 grid hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 shadow-lg">
+					<button className="bg-white dark:bg-background rounded-xl p-2 sm:p-4 flex items-center gap-2 sm:gap-3">
 						<div className="p-1 sm:p-2 bg-green-100 dark:bg-green-900/30 rounded-lg">
 							<Download className="w-3 h-3 sm:w-4 sm:h-4 md:w-5 md:h-5 text-green-600 dark:text-green-400" />
 						</div>
@@ -62,11 +62,11 @@ const MainCases: React.FC = () => {
 					</button>
 				</Card>
 
-				<Card className="col-span-1 grid hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 transition-all duration-300 shadow-lg">
+				<Card className="col-span-1 grid hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 shadow-lg">
 					<button
 						onClick={handleRefresh}
 						disabled={isLoading}
-						className="bg-white dark:bg-background rounded-xl p-2 sm:p-4 transition-colors duration-300 flex items-center gap-2 sm:gap-3"
+						className="bg-white dark:bg-background rounded-xl p-2 sm:p-4 flex items-center gap-2 sm:gap-3"
 					>
 						<div className="p-1 sm:p-2 bg-orange-100 dark:bg-orange-900/30 rounded-lg">
 							<RefreshCw

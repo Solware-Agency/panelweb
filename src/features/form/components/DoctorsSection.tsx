@@ -8,7 +8,7 @@ export const DoctorsSection: React.FC = () => {
       <h1 className="text-2xl font-bold mb-6">Médicos Tratantes</h1>
       
       <div className="grid grid-cols-1 gap-6">
-        <Card className="transition-all duration-300 hover:border-primary hover:shadow-lg hover:shadow-primary/20">
+        <Card className="hover:border-primary hover:shadow-lg hover:shadow-primary/20">
           <div className="p-6">
             <div className="flex items-center gap-2 mb-4">
               <Stethoscope className="text-primary size-6" />

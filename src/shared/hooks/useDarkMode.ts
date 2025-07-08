@@ -12,21 +12,17 @@ export const useDarkMode = () => {
 
 	useEffect(() => {
 		const root = window.document.documentElement
-		const transitionDuration = 300 // ms
 
+		// Eliminar todas las clases de tema primero
+		root.classList.remove('light', 'dark')
+
+		// Aplicar la clase apropiada
 		if (isDark) {
 			root.classList.add('dark')
 			localStorage.setItem('theme', 'dark')
 		} else {
-			// Agregar una pequeña transición al cambiar el tema
-			root.style.transition = `background-color ${transitionDuration}ms ease-in-out`
-			root.classList.remove('dark')
+			root.classList.add('light')
 			localStorage.setItem('theme', 'light')
-
-			// Limpiar la propiedad de transición después de que se complete
-			setTimeout(() => {
-				root.style.transition = ''
-			}, transitionDuration)
 		}
 	}, [isDark])
 
@@ -35,12 +31,20 @@ export const useDarkMode = () => {
 		const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
 
 		const handleChange = (e: MediaQueryListEvent) => {
-			setIsDark(e.matches)
+			// Solo cambiar si no hay tema guardado en localStorage
+			const savedTheme = localStorage.getItem('theme')
+			if (!savedTheme) {
+				setIsDark(e.matches)
+			}
 		}
 
 		mediaQuery.addEventListener('change', handleChange)
 		return () => mediaQuery.removeEventListener('change', handleChange)
 	}, [])
 
-	return { isDark, setIsDark }
+	const toggleDarkMode = () => {
+		setIsDark((prev) => !prev)
+	}
+
+	return { isDark, setIsDark, toggleDarkMode }
 }

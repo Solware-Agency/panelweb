@@ -7,12 +7,14 @@
     -ms-overflow-style: none;
     scrollbar-width: none;
   }
+
   .scrollbar-hide::-webkit-scrollbar {
     display: none;
   }
-  
+
   .mobile-table-card {
-    @apply bg-white dark:bg-background rounded-lg p-4 border border-gray-200 dark:border-gray-700 hover:shadow-md transition-all;
+    @apply bg-white dark: bg-background rounded-lg p-4 border border-gray-200 dark:border-gray-700 hover:shadow-md;
+    transition: transform 200ms ease-in-out, box-shadow 200ms ease-in-out;
   }
 }
 
@@ -84,8 +86,14 @@
 }
 
 @layer base {
+  html {
+    /* Sin transiciones para cambio instantáneo */
+  }
+
   * {
-    @apply border-border transition-colors duration-200;
+    @apply border-border;
+    /* Solo mantener transiciones para efectos hover/focus, no para cambios de tema */
+    transition: transform 200ms ease-in-out, opacity 200ms ease-in-out;
   }
 
   body {
@@ -93,10 +101,12 @@
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     overflow-x: hidden;
+    /* Sin transiciones para cambio instantáneo */
   }
 }
 
-::-moz-selection { /* Para Firefox */
+::-moz-selection {
+  /* Para Firefox */
   background: hsl(330 81% 60%);
   color: white;
 }
@@ -114,7 +124,7 @@
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
   }
-  
+
   .responsive-table thead {
     position: sticky;
     top: 0;
@@ -128,7 +138,7 @@
     -webkit-overflow-scrolling: touch;
     scroll-behavior: smooth;
   }
-  
+
   .mobile-card-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
