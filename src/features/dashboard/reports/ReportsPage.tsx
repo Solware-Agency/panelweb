@@ -45,21 +45,21 @@ const ReportsPage: React.FC = () => {
 			<div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-5 mb-4 sm:mb-6">
 				{/* Doctor Revenue Report */}
 				<DoctorRevenueReport />
-				
+
 				{/* Origin Revenue Report */}
 				<OriginRevenueReport />
 			</div>
-			
+
 			<div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-5 mb-4 sm:mb-6">
 				{/* Exam Type Report */}
 				<ExamTypeReport />
-				
+
 				{/* Branch Report */}
 				<BranchRevenueReport />
 			</div>
 			{/* Pending Payments Section */}
 			<Card className="col-span-1 grid hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 transition-all duration-300 shadow-lg mb-5 sm:mb-6">
-				<div className="bg-white dark:bg-background rounded-xl p-4 sm:p-6 transition-colors duration-300">
+				<div className="bg-white dark:bg-background rounded-xl p-4 sm:p-6">
 					<div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 sm:mb-6">
 						<h3 className="text-lg sm:text-xl font-bold text-gray-700 dark:text-gray-300 mb-2 sm:mb-0 flex items-center gap-2">
 							<AlertCircle className="w-5 h-5 text-red-500" />
@@ -86,14 +86,12 @@ const ReportsPage: React.FC = () => {
 								</div>
 							</div>
 							<div className="w-full bg-red-200 dark:bg-red-800/50 rounded-full h-3">
-								<div 
+								<div
 									className="bg-red-500 h-3 rounded-full flex items-center justify-end pr-2"
 									style={{ width: `${Math.min(pendingPaymentsPercentage, 100)}%` }}
 								>
 									{pendingPaymentsPercentage > 15 && (
-										<span className="text-xs text-white font-medium">
-											{pendingPaymentsPercentage.toFixed(1)}%
-										</span>
+										<span className="text-xs text-white font-medium">{pendingPaymentsPercentage.toFixed(1)}%</span>
 									)}
 								</div>
 							</div>
@@ -118,20 +116,20 @@ const ReportsPage: React.FC = () => {
 								</div>
 							</div>
 							<div className="w-full bg-orange-200 dark:bg-orange-800/50 rounded-full h-3">
-								<div 
+								<div
 									className="bg-orange-500 h-3 rounded-full flex items-center justify-end pr-2"
-									style={{ 
-										width: `${stats?.totalCases ? (stats.incompleteCases / stats.totalCases) * 100 : 0}%` 
+									style={{
+										width: `${stats?.totalCases ? (stats.incompleteCases / stats.totalCases) * 100 : 0}%`,
 									}}
 								>
-									{stats?.totalCases && ((stats.incompleteCases / stats.totalCases) * 100) > 15 && (
+									{stats?.totalCases && (stats.incompleteCases / stats.totalCases) * 100 > 15 && (
 										<span className="text-xs text-white font-medium">
 											{((stats.incompleteCases / stats.totalCases) * 100).toFixed(1)}%
 										</span>
 									)}
 								</div>
 							</div>
-							{stats?.totalCases && ((stats.incompleteCases / stats.totalCases) * 100) <= 15 && (
+							{stats?.totalCases && (stats.incompleteCases / stats.totalCases) * 100 <= 15 && (
 								<div className="text-xs text-orange-700 dark:text-orange-300 mt-1">
 									{((stats.incompleteCases / stats.totalCases) * 100).toFixed(1)}% del total de casos
 								</div>
@@ -155,10 +153,10 @@ const ReportsPage: React.FC = () => {
 									</span>
 								</div>
 								<div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2.5">
-									<div 
+									<div
 										className="bg-green-500 h-2.5 rounded-full"
-										style={{ 
-											width: `${stats?.totalCases ? (stats.completedCases / stats.totalCases) * 100 : 0}%` 
+										style={{
+											width: `${stats?.totalCases ? (stats.completedCases / stats.totalCases) * 100 : 0}%`,
 										}}
 									></div>
 								</div>
@@ -179,10 +177,10 @@ const ReportsPage: React.FC = () => {
 									</span>
 								</div>
 								<div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2.5">
-									<div 
+									<div
 										className="bg-red-500 h-2.5 rounded-full"
-										style={{ 
-											width: `${stats?.totalCases ? (stats.incompleteCases / stats.totalCases) * 100 : 0}%` 
+										style={{
+											width: `${stats?.totalCases ? (stats.incompleteCases / stats.totalCases) * 100 : 0}%`,
 										}}
 									></div>
 								</div>
@@ -197,39 +195,43 @@ const ReportsPage: React.FC = () => {
 
 			{/* Performance Summary */}
 			<Card className="col-span-1 grid hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 transition-all duration-300 shadow-lg mb-2">
-				<div className="bg-white dark:bg-background rounded-xl p-4 sm:p-6 transition-colors duration-300">
+				<div className="bg-white dark:bg-background rounded-xl p-4 sm:p-6">
 					<h3 className="text-lg sm:text-xl font-bold text-gray-700 dark:text-gray-300 mb-4 sm:mb-6">
 						Resumen de Rendimiento
 					</h3>
 					<div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
 						{[
-							{ 
-								title: 'Casos Completados', 
-								value: isLoading ? '...' : (stats?.completedCases || 0).toString(), 
-								change: '+15%', 
-								color: 'blue', 
-								icon: FileText 
+							{
+								title: 'Casos Completados',
+								value: isLoading ? '...' : (stats?.completedCases || 0).toString(),
+								change: '+15%',
+								color: 'blue',
+								icon: FileText,
 							},
-							{ 
-								title: 'Tiempo Promedio', 
-								value: '3 días', 
-								change: '-8%', 
-								color: 'green', 
-								icon: Calendar 
+							{
+								title: 'Tiempo Promedio',
+								value: '3 días',
+								change: '-8%',
+								color: 'green',
+								icon: Calendar,
 							},
-							{ 
-								title: 'Margen de Ganancia', 
-								value: '68%', 
-								change: '+5%', 
-								color: 'purple', 
-								icon: TrendingUp 
+							{
+								title: 'Margen de Ganancia',
+								value: '68%',
+								change: '+5%',
+								color: 'purple',
+								icon: TrendingUp,
 							},
-							{ 
-								title: 'Eficiencia del Servicio', 
-								value: isLoading ? '...' : stats?.totalCases ? `${((stats.completedCases / stats.totalCases) * 100).toFixed(0)}%` : '0%', 
-								change: '+12%', 
-								color: 'orange', 
-								icon: Award 
+							{
+								title: 'Eficiencia del Servicio',
+								value: isLoading
+									? '...'
+									: stats?.totalCases
+									? `${((stats.completedCases / stats.totalCases) * 100).toFixed(0)}%`
+									: '0%',
+								change: '+12%',
+								color: 'orange',
+								icon: Award,
 							},
 						].map((metric, index) => (
 							<div key={index} className="text-center">
@@ -238,10 +240,10 @@ const ReportsPage: React.FC = () => {
 										metric.color === 'blue'
 											? 'bg-blue-100 dark:bg-blue-900/30'
 											: metric.color === 'green'
-												? 'bg-green-100 dark:bg-green-900/30'
-												: metric.color === 'purple'
-													? 'bg-purple-100 dark:bg-purple-900/30'
-													: 'bg-orange-100 dark:bg-orange-900/30'
+											? 'bg-green-100 dark:bg-green-900/30'
+											: metric.color === 'purple'
+											? 'bg-purple-100 dark:bg-purple-900/30'
+											: 'bg-orange-100 dark:bg-orange-900/30'
 									}`}
 								>
 									<metric.icon
@@ -249,10 +251,10 @@ const ReportsPage: React.FC = () => {
 											metric.color === 'blue'
 												? 'text-blue-600 dark:text-blue-400'
 												: metric.color === 'green'
-													? 'text-green-600 dark:text-green-400'
-													: metric.color === 'purple'
-														? 'text-purple-600 dark:text-purple-400'
-														: 'text-orange-600 dark:text-orange-400'
+												? 'text-green-600 dark:text-green-400'
+												: metric.color === 'purple'
+												? 'text-purple-600 dark:text-purple-400'
+												: 'text-orange-600 dark:text-orange-400'
 										}`}
 									/>
 								</div>

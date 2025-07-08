@@ -480,7 +480,7 @@ const MainUsers: React.FC = () => {
 			{/* Estadísticas - Responsive Grid */}
 			<div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3 mb-3 sm:mb-5">
 				<Card className="hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 transition-all duration-300 shadow-lg">
-					<div className="bg-white dark:bg-background rounded-xl p-3 sm:p-4 md:p-6 transition-colors duration-300">
+					<div className="bg-white dark:bg-background rounded-xl p-3 sm:p-4 md:p-6">
 						<div className="flex items-center justify-between mb-2 sm:mb-4">
 							<div className="p-1.5 sm:p-2 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
 								<Users className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600 dark:text-blue-400" />
@@ -496,7 +496,7 @@ const MainUsers: React.FC = () => {
 				</Card>
 
 				<Card className="hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 transition-all duration-300 shadow-lg">
-					<div className="bg-white dark:bg-background rounded-xl p-3 sm:p-4 md:p-6 transition-colors duration-300">
+					<div className="bg-white dark:bg-background rounded-xl p-3 sm:p-4 md:p-6">
 						<div className="flex items-center justify-between mb-2 sm:mb-4">
 							<div className="p-1.5 sm:p-2 bg-yellow-100 dark:bg-yellow-900/30 rounded-lg">
 								<Crown className="w-4 h-4 sm:w-5 sm:h-5 text-yellow-600 dark:text-yellow-400" />
@@ -512,7 +512,7 @@ const MainUsers: React.FC = () => {
 				</Card>
 
 				<Card className="hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 transition-all duration-300 shadow-lg">
-					<div className="bg-white dark:bg-background rounded-xl p-3 sm:p-4 md:p-6 transition-colors duration-300">
+					<div className="bg-white dark:bg-background rounded-xl p-3 sm:p-4 md:p-6">
 						<div className="flex items-center justify-between mb-2 sm:mb-4">
 							<div className="p-1.5 sm:p-2 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
 								<Briefcase className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600 dark:text-blue-400" />
@@ -528,7 +528,7 @@ const MainUsers: React.FC = () => {
 				</Card>
 
 				<Card className="hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 transition-all duration-300 shadow-lg">
-					<div className="bg-white dark:bg-background rounded-xl p-3 sm:p-4 md:p-6 transition-colors duration-300">
+					<div className="bg-white dark:bg-background rounded-xl p-3 sm:p-4 md:p-6">
 						<div className="flex items-center justify-between mb-2 sm:mb-4">
 							<div className="p-1.5 sm:p-2 bg-purple-100 dark:bg-purple-900/30 rounded-lg">
 								<ShieldCheck className="w-4 h-4 sm:w-5 sm:h-5 text-purple-600 dark:text-purple-400" />
@@ -546,7 +546,7 @@ const MainUsers: React.FC = () => {
 
 			{/* Filtros y búsqueda */}
 			<Card className="hover:border-primary hover:shadow-lg hover:shadow-primary/20 transition-all duration-300 shadow-lg mb-3 sm:mb-5">
-				<div className="bg-white dark:bg-background rounded-xl p-3 sm:p-6 transition-colors duration-300">
+				<div className="bg-white dark:bg-background rounded-xl p-3 sm:p-6">
 					<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-6 gap-2 sm:gap-3">
 						{/* Búsqueda */}
 						<div className="col-span-1 sm:col-span-2 lg:col-span-2 xl:col-span-2 relative">
@@ -640,7 +640,7 @@ const MainUsers: React.FC = () => {
 
 			{/* Tabla de usuarios */}
 			<Card className="hover:border-primary hover:shadow-lg hover:shadow-primary/20 transition-all duration-300 shadow-lg overflow-hidden">
-				<div className="bg-white dark:bg-background rounded-xl transition-colors duration-300">
+				<div className="bg-white dark:bg-background rounded-xl">
 					{/* Vista móvil - Cards */}
 					<div className="block lg:hidden p-3 sm:p-4">
 						<div className="space-y-3 sm:space-y-4">

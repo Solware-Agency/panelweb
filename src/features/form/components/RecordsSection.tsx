@@ -196,7 +196,7 @@ export const RecordsSection: React.FC<RecordsSectionProps> = ({
 			<div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2 sm:gap-4 mb-4 sm:mb-6">
 				{/* Pending Cases Card - Responsive */}
 				<Card
-					className={`transition-all duration-300 hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 group cursor-pointer ${
+					className={`hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 group cursor-pointer ${
 						showPendingOnly ? 'border-primary shadow-lg shadow-primary/20' : ''
 					}`}
 					onClick={handleTogglePendingFilter}
@@ -221,7 +221,7 @@ export const RecordsSection: React.FC<RecordsSectionProps> = ({
 
 				{/* PDF Ready Cases Card */}
 				<Card
-					className={`transition-all duration-300 hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 group cursor-pointer ${
+					className={`hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 group cursor-pointer ${
 						showPdfReadyOnly ? 'border-primary shadow-lg shadow-primary/20' : ''
 					}`}
 					onClick={handleTogglePdfFilter}
@@ -242,7 +242,7 @@ export const RecordsSection: React.FC<RecordsSectionProps> = ({
 
 				{/* Biopsia Card */}
 				<Card
-					className={`transition-all duration-300 hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 group cursor-pointer ${
+					className={`hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 group cursor-pointer ${
 						selectedExamType === 'biopsia' ? 'border-primary shadow-lg shadow-primary/20' : ''
 					}`}
 					onClick={() => handleExamTypeFilter('biopsia')}
@@ -263,7 +263,7 @@ export const RecordsSection: React.FC<RecordsSectionProps> = ({
 
 				{/* Citología Card */}
 				<Card
-					className={`transition-all duration-300 hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 group cursor-pointer ${
+					className={`hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 group cursor-pointer ${
 						selectedExamType === 'citologia' ? 'border-primary shadow-lg shadow-primary/20' : ''
 					}`}
 					onClick={() => handleExamTypeFilter('citologia')}
@@ -284,7 +284,7 @@ export const RecordsSection: React.FC<RecordsSectionProps> = ({
 
 				{/* Inmunohistoquímica Card */}
 				<Card
-					className={`transition-all duration-300 hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 group cursor-pointer ${
+					className={`hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 group cursor-pointer ${
 						selectedExamType === 'inmunohistoquimica' ? 'border-primary shadow-lg shadow-primary/20' : ''
 					}`}
 					onClick={() => handleExamTypeFilter('inmunohistoquimica')}

@@ -6,7 +6,7 @@ import Header from './Header'
 import Sidebar from '../../../shared/components/Sidebar'
 
 const Layout: React.FC = () => {
-	const { isDark, setIsDark } = useDarkMode()
+	const { isDark, toggleDarkMode } = useDarkMode()
 	const [currentDate, setCurrentDate] = useState('')
 	const [sidebarOpen, setSidebarOpen] = useState(false)
 	const [sidebarExpanded, setSidebarExpanded] = useState(false) // New state for hover expansion
@@ -44,10 +44,6 @@ const Layout: React.FC = () => {
 		return () => clearTimeout(timer)
 	}, [])
 
-	const toggleDarkMode = () => {
-		setIsDark(!isDark)
-	}
-
 	const toggleSidebar = () => {
 		setSidebarOpen(!sidebarOpen)
 	}
@@ -61,16 +57,16 @@ const Layout: React.FC = () => {
 	}
 
 	return (
-		<div className="min-h-screen bg-white dark:bg-background transition-colors duration-300">
+		<div className="min-h-screen bg-white dark:bg-background">
 			{/* Mobile overlay */}
 			<AnimatePresence>
 				{sidebarOpen && (
-					<motion.div 
+					<motion.div
 						initial={{ opacity: 0 }}
 						animate={{ opacity: 1 }}
 						exit={{ opacity: 0 }}
-						className="fixed inset-0 bg-black bg-opacity-50 z-[999998] lg:hidden" 
-						onClick={() => setSidebarOpen(false)} 
+						className="fixed inset-0 bg-black bg-opacity-50 z-[999998] lg:hidden transition-all duration-300 ease-in-out"
+						onClick={() => setSidebarOpen(false)}
 					/>
 				)}
 			</AnimatePresence>
@@ -97,11 +93,7 @@ const Layout: React.FC = () => {
 			</div>
 
 			{/* Main content - Updated margin to accommodate collapsible sidebar */}
-			<main
-				className={`min-h-screen flex flex-col transition-all duration-300 ease-in-out z-50 ${
-					sidebarExpanded ? 'lg:ml-56' : 'lg:ml-16'
-				}`}
-			>
+			<main className={`min-h-screen flex flex-col z-50 ${sidebarExpanded ? 'lg:ml-56' : 'lg:ml-16'}`}>
 				<Header isDark={isDark} toggleDarkMode={toggleDarkMode} currentDate={currentDate} onMenuClick={toggleSidebar} />
 				<div className="flex-1 overflow-x-hidden">
 					<Outlet />

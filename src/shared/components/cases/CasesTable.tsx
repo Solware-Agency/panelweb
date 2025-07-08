@@ -334,7 +334,7 @@ const CasesTable: React.FC<CasesTableProps> = ({
 			const hasDownloadableContent = isBiopsyCase && !!case_.diagnostico
 
 			return (
-				<div className="bg-white dark:bg-background rounded-lg p-4 border border-gray-200 dark:border-gray-700 hover:shadow-md transition-all">
+				<div className="bg-white dark:bg-background rounded-lg p-4 border border-gray-200 dark:border-gray-700 hover:shadow-md">
 					{/* Header with status and code */}
 					<div className="flex items-center justify-between mb-3">
 						<span
@@ -405,7 +405,7 @@ const CasesTable: React.FC<CasesTableProps> = ({
 					<div className="flex gap-1 mt-3 pt-2 border-t border-gray-200 dark:border-gray-700">
 						<button
 							onClick={() => handleCaseSelect(case_)}
-							className="flex-1 inline-flex items-center justify-center gap-1 px-3 py-2 text-xs font-medium text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 bg-blue-50 dark:bg-blue-900/20 hover:bg-blue-100 dark:hover:bg-blue-900/30 rounded-lg transition-colors"
+							className="flex-1 inline-flex items-center justify-center gap-1 px-3 py-2 text-xs font-medium text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 bg-blue-50 dark:bg-blue-900/20 hover:bg-blue-100 dark:hover:bg-blue-900/30 rounded-lg"
 						>
 							<Eye className="w-3 h-3" />
 							Ver
@@ -413,7 +413,7 @@ const CasesTable: React.FC<CasesTableProps> = ({
 						{isBiopsyCase && (
 							<button
 								onClick={() => handleGenerateCase(case_)}
-								className="flex-1 inline-flex items-center justify-center gap-1 px-3 py-2 text-xs font-medium text-green-600 dark:text-green-400 hover:text-green-800 dark:hover:text-green-300 bg-green-50 dark:bg-green-900/20 hover:bg-green-100 dark:hover:bg-green-900/30 rounded-lg transition-colors"
+								className="flex-1 inline-flex items-center justify-center gap-1 px-3 py-2 text-xs font-medium text-green-600 dark:text-green-400 hover:text-green-800 dark:hover:text-green-300 bg-green-50 dark:bg-green-900/20 hover:bg-green-100 dark:hover:bg-green-900/30 rounded-lg"
 								disabled={!canGenerate}
 							>
 								<FileText className="w-3 h-3" />
@@ -423,7 +423,7 @@ const CasesTable: React.FC<CasesTableProps> = ({
 						{hasDownloadableContent && (
 							<button
 								onClick={() => handleDownloadCase(case_)}
-								className="flex-1 inline-flex items-center justify-center gap-1 px-3 py-2 text-xs font-medium text-orange-600 dark:text-orange-400 hover:text-orange-800 dark:hover:text-orange-300 bg-orange-50 dark:bg-orange-900/20 hover:bg-orange-100 dark:hover:bg-orange-900/30 rounded-lg transition-colors"
+								className="flex-1 inline-flex items-center justify-center gap-1 px-3 py-2 text-xs font-medium text-orange-600 dark:text-orange-400 hover:text-orange-800 dark:hover:text-orange-300 bg-orange-50 dark:bg-orange-900/20 hover:bg-orange-100 dark:hover:bg-orange-900/30 rounded-lg"
 								disabled={isDownloading === case_.id}
 							>
 								{isDownloading === case_.id ? (
@@ -444,7 +444,7 @@ const CasesTable: React.FC<CasesTableProps> = ({
 	// Render loading state
 	if (isLoading) {
 		return (
-			<div className="bg-white dark:bg-background rounded-xl transition-colors duration-300 h-full">
+			<div className="bg-white dark:bg-background rounded-xl h-full">
 				<div className="p-4 sm:p-6 border-b border-gray-200 dark:border-gray-700">
 					<div className="flex items-center justify-center py-12">
 						<div className="flex items-center gap-3">
@@ -460,7 +460,7 @@ const CasesTable: React.FC<CasesTableProps> = ({
 	// Render error state
 	if (error) {
 		return (
-			<div className="bg-white dark:bg-background rounded-xl transition-colors duration-300 h-full">
+			<div className="bg-white dark:bg-background rounded-xl h-full">
 				<div className="p-4 sm:p-6 border-b border-gray-200 dark:border-gray-700">
 					<div className="text-center py-12">
 						<div className="text-red-500 dark:text-red-400">
@@ -468,7 +468,7 @@ const CasesTable: React.FC<CasesTableProps> = ({
 							<p className="text-sm mt-2">Verifica tu conexión a internet o contacta al administrador</p>
 							<button
 								onClick={() => refetch()}
-								className="mt-4 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+								className="mt-4 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
 							>
 								Reintentar
 							</button>
@@ -722,7 +722,7 @@ const CasesTable: React.FC<CasesTableProps> = ({
 										const hasDownloadableContent = isBiopsyCase && !!case_.diagnostico
 
 										return (
-											<tr key={case_.id} className="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
+											<tr key={case_.id} className="hover:bg-gray-50 dark:hover:bg-gray-800/50">
 												<td className="px-4 py-4">
 													<div className="flex flex-col items-start space-y-1 text-left">
 														{case_.code && (
@@ -784,7 +784,7 @@ const CasesTable: React.FC<CasesTableProps> = ({
 																e.stopPropagation()
 																handleCaseSelect(case_)
 															}}
-															className="inline-flex items-center gap-1 px-3 py-1 text-xs font-medium text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 transition-colors"
+															className="inline-flex items-center gap-1 px-3 py-1 text-xs font-medium text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300"
 														>
 															<Eye className="w-3 h-3" />
 															Ver
@@ -796,7 +796,7 @@ const CasesTable: React.FC<CasesTableProps> = ({
 																	handleGenerateCase(case_)
 																}}
 																disabled={!canGenerate}
-																className="inline-flex items-center gap-1 px-3 py-1 text-xs font-medium text-green-600 dark:text-green-400 hover:text-green-800 dark:hover:text-green-300 transition-colors"
+																className="inline-flex items-center gap-1 px-3 py-1 text-xs font-medium text-green-600 dark:text-green-400 hover:text-green-800 dark:hover:text-green-300"
 															>
 																<FileText className="w-3 h-3" />
 																Generar
@@ -808,7 +808,7 @@ const CasesTable: React.FC<CasesTableProps> = ({
 																	e.stopPropagation()
 																	handleDownloadCase(case_)
 																}}
-																className="inline-flex items-center gap-1 px-3 py-1 text-xs font-medium text-orange-600 dark:text-orange-400 hover:text-orange-800 dark:hover:text-orange-300 transition-colors"
+																className="inline-flex items-center gap-1 px-3 py-1 text-xs font-medium text-orange-600 dark:text-orange-400 hover:text-orange-800 dark:hover:text-orange-300"
 																disabled={isDownloading === case_.id}
 															>
 																{isDownloading === case_.id ? (
@@ -847,7 +847,7 @@ const CasesTable: React.FC<CasesTableProps> = ({
 								</p>
 								<button
 									onClick={() => setIsFullscreen(true)}
-									className="mt-2 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/80 transition-colors"
+									className="mt-2 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/80"
 								>
 									Ver todos los casos
 								</button>
@@ -861,7 +861,7 @@ const CasesTable: React.FC<CasesTableProps> = ({
 
 	return (
 		<>
-			<div className="bg-white dark:bg-background rounded-xl transition-colors duration-300 h-full overflow-hidden">
+			<div className="bg-white dark:bg-background rounded-xl h-full overflow-hidden">
 				{/* Search and Filter Controls */}
 				<div className="p-3 sm:p-6 border-b border-gray-200 dark:border-gray-700">
 					<div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4">
@@ -959,7 +959,7 @@ const CasesTable: React.FC<CasesTableProps> = ({
 							{/* Fullscreen Button */}
 							<button
 								onClick={() => setIsFullscreen(true)}
-								className="hidden lg:flex items-center gap-2 px-3 py-2 border border-input rounded-lg focus:ring-2 focus:ring-primary dark:bg-background dark:text-white text-sm hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors flex-shrink-0 whitespace-nowrap"
+								className="hidden lg:flex items-center gap-2 px-3 py-2 border border-input rounded-lg focus:ring-2 focus:ring-primary dark:bg-background dark:text-white text-sm hover:bg-gray-50 dark:hover:bg-gray-800 flex-shrink-0 whitespace-nowrap"
 							>
 								<Maximize2 className="w-4 h-4" />
 								Expandir
@@ -1015,7 +1015,7 @@ const CasesTable: React.FC<CasesTableProps> = ({
 								</p>
 								<button
 									onClick={() => setIsFullscreen(true)}
-									className="mt-2 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/80 transition-colors"
+									className="mt-2 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/80"
 								>
 									Ver todos los casos
 								</button>
@@ -1092,7 +1092,7 @@ const CasesTable: React.FC<CasesTableProps> = ({
 											const hasDownloadableContent = isBiopsyCase && !!case_.diagnostico
 
 											return (
-												<tr key={case_.id} className="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
+												<tr key={case_.id} className="hover:bg-gray-50 dark:hover:bg-gray-800/50">
 													<td className="px-4 py-4">
 														<div className="flex flex-col items-start space-y-1 text-left">
 															{case_.code && (
@@ -1156,7 +1156,7 @@ const CasesTable: React.FC<CasesTableProps> = ({
 																	e.stopPropagation()
 																	handleCaseSelect(case_)
 																}}
-																className="inline-flex items-center gap-1 px-3 py-1 text-xs font-medium text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 transition-colors"
+																className="inline-flex items-center gap-1 px-3 py-1 text-xs font-medium text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300"
 															>
 																<Eye className="w-3 h-3" />
 																Ver
@@ -1168,7 +1168,7 @@ const CasesTable: React.FC<CasesTableProps> = ({
 																		handleGenerateCase(case_)
 																	}}
 																	disabled={!canGenerate}
-																	className="inline-flex items-center gap-1 px-3 py-1 text-xs font-medium text-green-600 dark:text-green-400 hover:text-green-800 dark:hover:text-green-300 transition-colors"
+																	className="inline-flex items-center gap-1 px-3 py-1 text-xs font-medium text-green-600 dark:text-green-400 hover:text-green-800 dark:hover:text-green-300"
 																>
 																	<FileText className="w-3 h-3" />
 																	Generar
@@ -1180,7 +1180,7 @@ const CasesTable: React.FC<CasesTableProps> = ({
 																		e.stopPropagation()
 																		handleDownloadCase(case_)
 																	}}
-																	className="inline-flex items-center gap-1 px-3 py-1 text-xs font-medium text-orange-600 dark:text-orange-400 hover:text-orange-800 dark:hover:text-orange-300 transition-colors"
+																	className="inline-flex items-center gap-1 px-3 py-1 text-xs font-medium text-orange-600 dark:text-orange-400 hover:text-orange-800 dark:hover:text-orange-300"
 																	disabled={isDownloading === case_.id}
 																>
 																	{isDownloading === case_.id ? (
@@ -1219,7 +1219,7 @@ const CasesTable: React.FC<CasesTableProps> = ({
 									</p>
 									<button
 										onClick={() => setIsFullscreen(true)}
-										className="mt-2 px-3 sm:px-4 py-1.5 sm:py-2 bg-primary text-white rounded-lg hover:bg-primary/80 transition-colors text-sm"
+										className="mt-2 px-3 sm:px-4 py-1.5 sm:py-2 bg-primary text-white rounded-lg hover:bg-primary/80 text-sm"
 									>
 										Ver todos los casos
 									</button>

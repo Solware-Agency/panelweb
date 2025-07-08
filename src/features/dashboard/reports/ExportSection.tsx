@@ -320,118 +320,137 @@ const ExportSection: React.FC = () => {
   }
 
   return (
-    <Card className="col-span-1 grid hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 transition-all duration-300 shadow-lg mb-6">
-      <div className="bg-white dark:bg-background rounded-xl p-4 sm:p-6 transition-colors duration-300">
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 sm:mb-6">
-          <h3 className="text-lg sm:text-xl font-bold text-gray-700 dark:text-gray-300 mb-2 sm:mb-0 flex items-center gap-2">
-            <FileText className="w-5 h-5 text-blue-500" />
-            Exportar Reportes
-          </h3>
-        </div>
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-          <div className="space-y-4">
-            <h4 className="font-semibold text-gray-700 dark:text-gray-300 flex items-center gap-2">
-              <CheckSquare className="w-4 h-4 text-primary" />
-              Selecciona las secciones a incluir:
-            </h4>
-            
-            <div className="space-y-3">
-              <div className="flex items-center space-x-2">
-                <Checkbox 
-                  id="doctors" 
-                  checked={includeDoctors} 
-                  onCheckedChange={(checked) => setIncludeDoctors(checked === true)}
-                />
-                <Label htmlFor="doctors" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-                  Ingresos por Médico Tratante
-                </Label>
-              </div>
-              
-              <div className="flex items-center space-x-2">
-                <Checkbox 
-                  id="origins" 
-                  checked={includeOrigins} 
-                  onCheckedChange={(checked) => setIncludeOrigins(checked === true)}
-                />
-                <Label htmlFor="origins" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-                  Ingresos por Procedencia
-                </Label>
-              </div>
-              
-              <div className="flex items-center space-x-2">
-                <Checkbox 
-                  id="examTypes" 
-                  checked={includeExamTypes} 
-                  onCheckedChange={(checked) => setIncludeExamTypes(checked === true)}
-                />
-                <Label htmlFor="examTypes" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-                  Ingresos por Tipo de Examen
-                </Label>
-              </div>
-              
-              <div className="flex items-center space-x-2">
-                <Checkbox 
-                  id="branches" 
-                  checked={includeBranches} 
-                  onCheckedChange={(checked) => setIncludeBranches(checked === true)}
-                />
-                <Label htmlFor="branches" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-                  Ingresos por Sede
-                </Label>
-              </div>
-              
-              <div className="flex items-center space-x-2">
-                <Checkbox 
-                  id="paymentStatus" 
-                  checked={includePaymentStatus} 
-                  onCheckedChange={(checked) => setIncludePaymentStatus(checked === true)}
-                />
-                <Label htmlFor="paymentStatus" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-                  Estado de Pagos
-                </Label>
-              </div>
-            </div>
-          </div>
-          
-          <div className="flex flex-col justify-between">
-            <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg border border-blue-200 dark:border-blue-800 mb-4">
-              <h4 className="font-semibold text-blue-800 dark:text-blue-300 mb-2">Información del Reporte</h4>
-              <ul className="text-sm text-blue-700 dark:text-blue-400 space-y-1">
-                <li>• Incluye resumen general de ingresos</li>
-                <li>• Formato PDF optimizado para impresión</li>
-                <li>• Datos actualizados al {format(new Date(), 'PPP', { locale: es })}</li>
-                <li>• Selecciona las secciones que deseas incluir</li>
-              </ul>
-            </div>
-            
-            <Button
-              onClick={handleExportPDF}
-              disabled={isExporting || isLoading || (!includeDoctors && !includeOrigins && !includeExamTypes && !includeBranches && !includePaymentStatus)}
-              className="w-full bg-primary hover:bg-primary/80 text-white"
-            >
-              {isExporting ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Generando PDF...
-                </>
-              ) : (
-                <>
-                  <Download className="mr-2 h-4 w-4" />
-                  Exportar PDF
-                </>
-              )}
-            </Button>
-          </div>
-        </div>
-        
-        <div className="text-xs text-gray-500 dark:text-gray-400 border-t border-gray-200 dark:border-gray-700 pt-4">
-          <p>El reporte se generará en formato PDF y se descargará automáticamente.</p>
-          <p>Para mejores resultados, selecciona al menos una sección para incluir en el reporte.</p>
-        </div>
-      </div>
-    </Card>
-  )
+		<Card className="col-span-1 grid hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 transition-all duration-300 shadow-lg mb-6">
+			<div className="bg-white dark:bg-background rounded-xl p-4 sm:p-6">
+				<div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 sm:mb-6">
+					<h3 className="text-lg sm:text-xl font-bold text-gray-700 dark:text-gray-300 mb-2 sm:mb-0 flex items-center gap-2">
+						<FileText className="w-5 h-5 text-blue-500" />
+						Exportar Reportes
+					</h3>
+				</div>
+
+				<div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+					<div className="space-y-4">
+						<h4 className="font-semibold text-gray-700 dark:text-gray-300 flex items-center gap-2">
+							<CheckSquare className="w-4 h-4 text-primary" />
+							Selecciona las secciones a incluir:
+						</h4>
+
+						<div className="space-y-3">
+							<div className="flex items-center space-x-2">
+								<Checkbox
+									id="doctors"
+									checked={includeDoctors}
+									onCheckedChange={(checked) => setIncludeDoctors(checked === true)}
+								/>
+								<Label
+									htmlFor="doctors"
+									className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+								>
+									Ingresos por Médico Tratante
+								</Label>
+							</div>
+
+							<div className="flex items-center space-x-2">
+								<Checkbox
+									id="origins"
+									checked={includeOrigins}
+									onCheckedChange={(checked) => setIncludeOrigins(checked === true)}
+								/>
+								<Label
+									htmlFor="origins"
+									className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+								>
+									Ingresos por Procedencia
+								</Label>
+							</div>
+
+							<div className="flex items-center space-x-2">
+								<Checkbox
+									id="examTypes"
+									checked={includeExamTypes}
+									onCheckedChange={(checked) => setIncludeExamTypes(checked === true)}
+								/>
+								<Label
+									htmlFor="examTypes"
+									className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+								>
+									Ingresos por Tipo de Examen
+								</Label>
+							</div>
+
+							<div className="flex items-center space-x-2">
+								<Checkbox
+									id="branches"
+									checked={includeBranches}
+									onCheckedChange={(checked) => setIncludeBranches(checked === true)}
+								/>
+								<Label
+									htmlFor="branches"
+									className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+								>
+									Ingresos por Sede
+								</Label>
+							</div>
+
+							<div className="flex items-center space-x-2">
+								<Checkbox
+									id="paymentStatus"
+									checked={includePaymentStatus}
+									onCheckedChange={(checked) => setIncludePaymentStatus(checked === true)}
+								/>
+								<Label
+									htmlFor="paymentStatus"
+									className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+								>
+									Estado de Pagos
+								</Label>
+							</div>
+						</div>
+					</div>
+
+					<div className="flex flex-col justify-between">
+						<div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg border border-blue-200 dark:border-blue-800 mb-4">
+							<h4 className="font-semibold text-blue-800 dark:text-blue-300 mb-2">Información del Reporte</h4>
+							<ul className="text-sm text-blue-700 dark:text-blue-400 space-y-1">
+								<li>• Incluye resumen general de ingresos</li>
+								<li>• Formato PDF optimizado para impresión</li>
+								<li>• Datos actualizados al {format(new Date(), 'PPP', { locale: es })}</li>
+								<li>• Selecciona las secciones que deseas incluir</li>
+							</ul>
+						</div>
+
+						<Button
+							onClick={handleExportPDF}
+							disabled={
+								isExporting ||
+								isLoading ||
+								(!includeDoctors && !includeOrigins && !includeExamTypes && !includeBranches && !includePaymentStatus)
+							}
+							className="w-full bg-primary hover:bg-primary/80 text-white"
+						>
+							{isExporting ? (
+								<>
+									<Loader2 className="mr-2 h-4 w-4 animate-spin" />
+									Generando PDF...
+								</>
+							) : (
+								<>
+									<Download className="mr-2 h-4 w-4" />
+									Exportar PDF
+								</>
+							)}
+						</Button>
+					</div>
+				</div>
+
+				<div className="text-xs text-gray-500 dark:text-gray-400 border-t border-gray-200 dark:border-gray-700 pt-4">
+					<p>El reporte se generará en formato PDF y se descargará automáticamente.</p>
+					<p>Para mejores resultados, selecciona al menos una sección para incluir en el reporte.</p>
+				</div>
+			</div>
+		</Card>
+	)
 }
 
 export default ExportSection

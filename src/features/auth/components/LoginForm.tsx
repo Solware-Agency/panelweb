@@ -102,7 +102,7 @@ function LoginForm() {
 					delay={200}
 					className="w-full h-full flex items-center justify-center"
 				>
-					<div className="flex flex-col items-center justify-center dark:bg-background bg-slate-950 p-8 rounded-none md:rounded-xl w-screen h-screen md:h-auto md:w-full md:max-w-md shadow-2xl border border-slate-700/50 transition-all duration-300">
+					<div className="flex flex-col items-center justify-center dark:bg-background bg-slate-950 p-8 rounded-none md:rounded-xl w-screen h-screen md:h-auto md:w-full md:max-w-md shadow-2xl border border-slate-700/50">
 						<div className="text-center mb-4 flex flex-col items-center justify-center">
 							<div className="p-4 bg-[#9e1157] rounded-full mb-4 shadow-lg">
 								<FavIcon fill="#fff" className="size-16" />

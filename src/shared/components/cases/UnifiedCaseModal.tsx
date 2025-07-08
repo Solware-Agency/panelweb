@@ -376,7 +376,7 @@ const UnifiedCaseModal: React.FC<UnifiedCaseModalProps> = ({ case_, isOpen, onCl
 							{/* Content */}
 							<div className="p-4 sm:p-6 space-y-4 sm:space-y-6">
 								{/* Patient Information */}
-								<div className="bg-white dark:bg-background rounded-lg p-3 sm:p-4 border border-input transition-all duration-300">
+								<div className="bg-white dark:bg-background rounded-lg p-3 sm:p-4 border border-input">
 									<div className="flex items-center gap-1.5 sm:gap-2 mb-3 sm:mb-4">
 										<User className="text-blue-500 size-6" />
 										<h3 className="text-lg sm:text-xl font-semibold">Información del Paciente</h3>
@@ -505,7 +505,7 @@ const UnifiedCaseModal: React.FC<UnifiedCaseModalProps> = ({ case_, isOpen, onCl
 								</div>
 
 								{/* Medical Information */}
-								<div className="bg-white dark:bg-background rounded-lg p-3 sm:p-4 border border-input transition-all duration-300">
+								<div className="bg-white dark:bg-background rounded-lg p-3 sm:p-4 border border-input">
 									<div className="flex items-center justify-between gap-1.5 sm:gap-2 mb-3 sm:mb-4">
 										<div className="flex items-center gap-2">
 											<Microscope className="text-primary size-6" />
@@ -632,7 +632,7 @@ const UnifiedCaseModal: React.FC<UnifiedCaseModalProps> = ({ case_, isOpen, onCl
 
 								{/* Biopsy Information (only for biopsy cases) */}
 								{case_.exam_type?.toLowerCase() === 'biopsia' && (
-									<div className="bg-white dark:bg-background rounded-lg p-3 sm:p-4 border border-input transition-all duration-300">
+									<div className="bg-white dark:bg-background rounded-lg p-3 sm:p-4 border border-input">
 										<div className="flex items-center gap-1.5 sm:gap-2 mb-3 sm:mb-4">
 											<FileText className="text-green-500 size-6" />
 											<h3 className="text-lg sm:text-xl font-semibold">Información de Biopsia</h3>
@@ -672,7 +672,7 @@ const UnifiedCaseModal: React.FC<UnifiedCaseModalProps> = ({ case_, isOpen, onCl
 								)}
 
 								{/* Payment Information */}
-								<div className="bg-white dark:bg-background rounded-lg p-3 sm:p-4 border border-input transition-all duration-300">
+								<div className="bg-white dark:bg-background rounded-lg p-3 sm:p-4 border border-input">
 									<div className="flex items-center gap-1.5 sm:gap-2 mb-3 sm:mb-4">
 										<div className="flex items-center gap-2">
 											<DollarSign className="text-purple-500 size-6" />
@@ -1000,7 +1000,7 @@ const UnifiedCaseModal: React.FC<UnifiedCaseModalProps> = ({ case_, isOpen, onCl
 								</div>
 
 								{/* Additional Information */}
-								<div className="bg-white dark:bg-background rounded-lg p-3 sm:p-4 border border-input transition-all duration-300">
+								<div className="bg-white dark:bg-background rounded-lg p-3 sm:p-4 border border-input">
 									<div className="flex items-center gap-1.5 sm:gap-2 mb-3 sm:mb-4">
 										<FileText className="text-blue-500 size-6" />
 										<h3 className="text-lg sm:text-xl font-semibold">Información Adicional</h3>

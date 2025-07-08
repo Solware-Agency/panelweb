@@ -32,7 +32,7 @@ function FormContent() {
 	const [isFullscreen, setIsFullscreen] = useState(false)
 	const [searchTerm, setSearchTerm] = useState('')
 	const { profile } = useUserProfile()
-	const { isDark, setIsDark } = useDarkMode()
+	const { isDark, toggleDarkMode: handleToggleDarkMode } = useDarkMode()
 	const [currentDate, setCurrentDate] = useState('')
 	const [sidebarOpen, setSidebarOpen] = useState(false)
 	const [sidebarExpanded, setSidebarExpanded] = useState(false) // New state for hover expansion
@@ -87,10 +87,6 @@ function FormContent() {
 
 		return () => clearTimeout(timer)
 	}, [])
-
-	const toggleDarkMode = () => {
-		setIsDark(!isDark)
-	}
 
 	const handleSidebarMouseEnter = () => {
 		setSidebarExpanded(true)
@@ -160,7 +156,7 @@ function FormContent() {
 						<button
 							onClick={handleRefreshCases}
 							disabled={casesLoading}
-							className="flex items-center gap-2 px-3 py-2 border border-input rounded-lg focus:ring-2 focus:ring-primary dark:bg-background dark:text-white text-sm hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors disabled:opacity-50 shadow-xl dark:shadow-black shadow-black/40"
+							className="flex items-center gap-2 px-3 py-2 border border-input rounded-lg focus:ring-2 focus:ring-primary dark:bg-background dark:text-white text-sm hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 shadow-xl dark:shadow-black shadow-black/40"
 						>
 							<RefreshCw className={`w-4 h-4 ${casesLoading ? 'animate-spin' : ''}`} />
 						</button>
@@ -195,7 +191,7 @@ function FormContent() {
 					isExpanded={sidebarExpanded}
 					isMobile={sidebarOpen}
 					isDark={isDark}
-					toggleDarkMode={toggleDarkMode}
+					toggleDarkMode={handleToggleDarkMode}
 					currentDate={currentDate}
 				/>
 			</div>
