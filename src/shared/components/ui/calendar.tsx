@@ -5,6 +5,9 @@ import { DayPicker } from 'react-day-picker'
 import { cn } from '@shared/lib/cn'
 import { buttonVariants } from '@shared/components/ui/button'
 
+// Ensure the calendar is properly contained and doesn't overflow
+import './calendar-styles.css'
+
 export type CalendarProps = React.ComponentProps<typeof DayPicker>
 
 function Calendar({ className, classNames, showOutsideDays = true, ...props }: CalendarProps) {
@@ -126,11 +129,11 @@ function Calendar({ className, classNames, showOutsideDays = true, ...props }: C
 	}
 
 	return (
-		<div className="relative">
+		<div className="relative calendar-container">
 			{showYearPicker && renderYearPicker()}
 			<DayPicker 
 				showOutsideDays={showOutsideDays}
-				className={cn('p-2 sm:p-3', className)}
+				className={cn('p-2 sm:p-3 bg-popover', className)}
 				month={currentMonth}
 				onMonthChange={setCurrentMonth}
 				classNames={{

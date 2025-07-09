@@ -174,7 +174,7 @@ export const PatientDataSection = memo(({ control, inputStyles }: PatientDataSec
 								<Cake className="w-4 h-4 text-pink-500" />
 								Fecha de Nacimiento *
 							</FormLabel>
-							<Popover 
+							<Popover
 								open={isDateOfBirthCalendarOpen} 
 								onOpenChange={setIsDateOfBirthCalendarOpen}
 							>
@@ -204,7 +204,7 @@ export const PatientDataSection = memo(({ control, inputStyles }: PatientDataSec
 										</Button>
 									</FormControl>
 								</PopoverTrigger>
-								<PopoverContent className="w-auto p-0 z-[9999]">
+								<PopoverContent className="w-auto p-0 z-[9999]" align="start">
 									<Calendar
 										mode="single"
 										selected={field.value instanceof Date ? field.value : undefined}
@@ -277,7 +277,7 @@ export const PatientDataSection = memo(({ control, inputStyles }: PatientDataSec
 										</Button>
 									</FormControl>
 								</PopoverTrigger>
-								<PopoverContent className="w-auto p-0">
+								<PopoverContent className="w-auto p-0" align="start">
 									<Calendar
 										mode="single"
 										selected={field.value instanceof Date ? field.value : undefined}
