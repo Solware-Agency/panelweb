@@ -321,7 +321,7 @@ const ExportSection: React.FC = () => {
 
   return (
 		<Card className="col-span-1 grid hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 transition-all duration-300 shadow-lg mb-6">
-			<div className="bg-white dark:bg-background rounded-xl p-4 sm:p-6">
+			<div className="bg-white dark:bg-background rounded-xl p-3 sm:p-5">
 				<div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 sm:mb-6">
 					<h3 className="text-lg sm:text-xl font-bold text-gray-700 dark:text-gray-300 mb-2 sm:mb-0 flex items-center gap-2">
 						<FileText className="w-5 h-5 text-blue-500" />
@@ -329,7 +329,7 @@ const ExportSection: React.FC = () => {
 					</h3>
 				</div>
 
-				<div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+				<div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 mb-4 sm:mb-6">
 					<div className="space-y-4">
 						<h4 className="font-semibold text-gray-700 dark:text-gray-300 flex items-center gap-2">
 							<CheckSquare className="w-4 h-4 text-primary" />
@@ -410,7 +410,7 @@ const ExportSection: React.FC = () => {
 					</div>
 
 					<div className="flex flex-col justify-between">
-						<div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg border border-blue-200 dark:border-blue-800 mb-4">
+						<div className="bg-blue-50 dark:bg-blue-900/20 p-3 sm:p-4 rounded-lg border border-blue-200 dark:border-blue-800 mb-3 sm:mb-4">
 							<h4 className="font-semibold text-blue-800 dark:text-blue-300 mb-2">Información del Reporte</h4>
 							<ul className="text-sm text-blue-700 dark:text-blue-400 space-y-1">
 								<li>• Incluye resumen general de ingresos</li>
@@ -444,7 +444,7 @@ const ExportSection: React.FC = () => {
 					</div>
 				</div>
 
-				<div className="text-xs text-gray-500 dark:text-gray-400 border-t border-gray-200 dark:border-gray-700 pt-4">
+				<div className="text-xs text-gray-500 dark:text-gray-400 border-t border-gray-200 dark:border-gray-700 pt-3 sm:pt-4">
 					<p>El reporte se generará en formato PDF y se descargará automáticamente.</p>
 					<p>Para mejores resultados, selecciona al menos una sección para incluir en el reporte.</p>
 				</div>

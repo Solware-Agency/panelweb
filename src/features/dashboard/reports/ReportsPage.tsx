@@ -38,11 +38,11 @@ const ReportsPage: React.FC = () => {
 		: 0
 
 	return (
-		<div className="p-3 sm:p-6" ref={reportRef}>
+		<div className="p-3 sm:p-6 overflow-x-hidden" ref={reportRef}>
 			{/* Export Section */}
 			<ExportSection />
 			{/* Main Reports */}
-			<div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-5 mb-4 sm:mb-6">
+			<div className="grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-4 mb-3 sm:mb-5">
 				{/* Doctor Revenue Report */}
 				<DoctorRevenueReport />
 
@@ -50,7 +50,7 @@ const ReportsPage: React.FC = () => {
 				<OriginRevenueReport />
 			</div>
 
-			<div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-5 mb-4 sm:mb-6">
+			<div className="grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-4 mb-3 sm:mb-5">
 				{/* Exam Type Report */}
 				<ExamTypeReport />
 
@@ -58,8 +58,8 @@ const ReportsPage: React.FC = () => {
 				<BranchRevenueReport />
 			</div>
 			{/* Pending Payments Section */}
-			<Card className="col-span-1 grid hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 transition-all duration-300 shadow-lg mb-5 sm:mb-6">
-				<div className="bg-white dark:bg-background rounded-xl p-4 sm:p-6">
+			<Card className="col-span-1 grid hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 transition-all duration-300 shadow-lg mb-3 sm:mb-5">
+				<div className="bg-white dark:bg-background rounded-xl p-3 sm:p-5">
 					<div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 sm:mb-6">
 						<h3 className="text-lg sm:text-xl font-bold text-gray-700 dark:text-gray-300 mb-2 sm:mb-0 flex items-center gap-2">
 							<AlertCircle className="w-5 h-5 text-red-500" />
@@ -72,8 +72,8 @@ const ReportsPage: React.FC = () => {
 					</div>
 
 					<div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-						{/* Amount Card */}
-						<div className="bg-gradient-to-br from-red-50 to-red-100 dark:from-red-900/20 dark:to-red-800/20 rounded-xl p-4 border border-red-200 dark:border-red-800/30">
+						{/* Amount Card - Responsive */}
+						<div className="bg-gradient-to-br from-red-50 to-red-100 dark:from-red-900/20 dark:to-red-800/20 rounded-xl p-3 sm:p-4 border border-red-200 dark:border-red-800/30">
 							<div className="flex items-center gap-3 mb-3">
 								<div className="p-3 bg-red-500 rounded-lg">
 									<DollarSign className="w-6 h-6 text-white" />
@@ -102,8 +102,8 @@ const ReportsPage: React.FC = () => {
 							)}
 						</div>
 
-						{/* Cases Card */}
-						<div className="bg-gradient-to-br from-orange-50 to-orange-100 dark:from-orange-900/20 dark:to-orange-800/20 rounded-xl p-4 border border-orange-200 dark:border-orange-800/30">
+						{/* Cases Card - Responsive */}
+						<div className="bg-gradient-to-br from-orange-50 to-orange-100 dark:from-orange-900/20 dark:to-orange-800/20 rounded-xl p-3 sm:p-4 border border-orange-200 dark:border-orange-800/30">
 							<div className="flex items-center gap-3 mb-3">
 								<div className="p-3 bg-orange-500 rounded-lg">
 									<Users className="w-6 h-6 text-white" />
@@ -138,7 +138,7 @@ const ReportsPage: React.FC = () => {
 					</div>
 
 					{/* Status Breakdown */}
-					<div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4">
+					<div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-3 sm:p-4">
 						<h4 className="text-base font-semibold text-gray-700 dark:text-gray-300 mb-4">Desglose de Estatus</h4>
 						<div className="space-y-4">
 							{/* Completed Cases */}
@@ -194,12 +194,12 @@ const ReportsPage: React.FC = () => {
 			</Card>
 
 			{/* Performance Summary */}
-			<Card className="col-span-1 grid hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 transition-all duration-300 shadow-lg mb-2">
-				<div className="bg-white dark:bg-background rounded-xl p-4 sm:p-6">
+			<Card className="col-span-1 grid hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 transition-all duration-300 shadow-lg mb-2 overflow-hidden">
+				<div className="bg-white dark:bg-background rounded-xl p-3 sm:p-5">
 					<h3 className="text-lg sm:text-xl font-bold text-gray-700 dark:text-gray-300 mb-4 sm:mb-6">
 						Resumen de Rendimiento
 					</h3>
-					<div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+					<div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
 						{[
 							{
 								title: 'Casos Completados',
@@ -235,8 +235,7 @@ const ReportsPage: React.FC = () => {
 							},
 						].map((metric, index) => (
 							<div key={index} className="text-center">
-								<div
-									className={`p-2 sm:p-3 rounded-lg mb-3 mx-auto w-fit ${
+								<div className={`p-1.5 sm:p-2 rounded-lg mb-2 mx-auto w-fit ${
 										metric.color === 'blue'
 											? 'bg-blue-100 dark:bg-blue-900/30'
 											: metric.color === 'green'
@@ -246,8 +245,7 @@ const ReportsPage: React.FC = () => {
 											: 'bg-orange-100 dark:bg-orange-900/30'
 									}`}
 								>
-									<metric.icon
-										className={`w-5 h-5 sm:w-6 sm:h-6 ${
+									<metric.icon className={`w-4 h-4 sm:w-5 sm:h-5 ${
 											metric.color === 'blue'
 												? 'text-blue-600 dark:text-blue-400'
 												: metric.color === 'green'
@@ -258,10 +256,9 @@ const ReportsPage: React.FC = () => {
 										}`}
 									/>
 								</div>
-								<p className="text-xl sm:text-2xl font-bold text-gray-700 dark:text-gray-300 mb-1">{metric.value}</p>
-								<p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mb-2">{metric.title}</p>
-								<div
-									className={`text-xs sm:text-sm font-medium ${
+								<p className="text-lg sm:text-xl font-bold text-gray-700 dark:text-gray-300 mb-1">{metric.value}</p>
+								<p className="text-xs text-gray-600 dark:text-gray-400 mb-1">{metric.title}</p>
+								<div className={`text-xs font-medium ${
 										metric.change.startsWith('+')
 											? 'text-green-600 dark:text-green-400'
 											: 'text-red-600 dark:text-red-400'
