@@ -2,9 +2,7 @@ import * as React from "react";
 import { Input } from "@shared/components/ui/input";
 import { cn } from "@shared/lib/cn";
 import { useAutocomplete } from "@shared/hooks/useAutocomplete";
-import { Loader2, Search, User, Shuffle, Mail, Phone, Calendar } from "lucide-react";
-import { InteractiveIcon, SuggestionMenu } from "@shared/components/ui/interactive-icon";
-import { motion, AnimatePresence } from "motion/react";
+import { Loader2, Search, User, Shuffle } from "lucide-react";
 
 interface AutocompleteInputProps extends React.ComponentProps<typeof Input> {
   fieldName: string;
@@ -12,13 +10,14 @@ interface AutocompleteInputProps extends React.ComponentProps<typeof Input> {
   onPatientSelect?: (idNumber: string) => void;
   minSearchLength?: number;
   iconRight?: React.ReactNode;
+  iconLeft?: React.ReactNode;
 }
 
 // Use React.memo to prevent unnecessary re-renders
 export const AutocompleteInput = React.memo(React.forwardRef<
   HTMLInputElement,
   AutocompleteInputProps
->(({ className, fieldName, onValueChange, onPatientSelect, minSearchLength = 0, iconRight, ...props }, ref) => {
+>(({ className, fieldName, onValueChange, onPatientSelect, minSearchLength = 0, iconRight, iconLeft, ...props }, ref) => {
   const [inputValue, setInputValue] = React.useState(String(props.value || ""));
   const [showSuggestions, setShowSuggestions] = React.useState(false);
   const [selectedIndex, setSelectedIndex] = React.useState(-1);
@@ -26,10 +25,8 @@ export const AutocompleteInput = React.memo(React.forwardRef<
   const [isAutofilled, setIsAutofilled] = React.useState(false);
   const [hasFocused, setHasFocused] = React.useState(false);
   const { suggestions, isLoading, getSuggestions, hasPreloadedData } = useAutocomplete(fieldName);
-  const [isIconMenuOpen, setIsIconMenuOpen] = React.useState(false);
   const inputRef = React.useRef<HTMLInputElement>(null);
   const suggestionsRef = React.useRef<HTMLDivElement>(null);
-  const containerRef = React.useRef<HTMLDivElement>(null);
   const debounceTimeoutRef = React.useRef<NodeJS.Timeout | null>(null);
   const lastSearchTermRef = React.useRef<string>('');
 
@@ -102,50 +99,6 @@ export const AutocompleteInput = React.memo(React.forwardRef<
       }
     };
   }, [inputValue, getSuggestions, searchTerminated, isAutofilled, hasFocused, hasPreloadedData]);
-
-  const handleBlur = React.useCallback((e: React.FocusEvent<HTMLInputElement>) => {
-    // Delay hiding suggestions to allow click events
-    setTimeout(() => {
-      setShowSuggestions(false);
-      setSelectedIndex(-1);
-    }, 150);
-    props.onBlur?.(e);
-  }, [props.onBlur]);
-
-  const handleFocus = React.useCallback((e: React.FocusEvent<HTMLInputElement>) => {
-    setHasFocused(true);
-    
-    // Show suggestions immediately on focus if not terminated and not autofilled
-    if (!searchTerminated && !isAutofilled && hasPreloadedData) {
-      // Reset last search term to force new search
-      lastSearchTermRef.current = '';
-      
-      // Trigger search for suggestions (random if input is empty)
-      setTimeout(() => {
-        getSuggestions(inputValue);
-        setShowSuggestions(true);
-      }, 0);
-    }
-    props.onFocus?.(e);
-  }, [getSuggestions, hasPreloadedData, inputValue, isAutofilled, props.onFocus, searchTerminated]);
-
-  // Function to show suggestions when icon is clicked
-  const handleIconClick = React.useCallback((e: React.MouseEvent) => {
-    e.stopPropagation();
-    
-    // Focus the input
-    inputRef.current?.focus();
-    
-    // Only show suggestions if not terminated and not autofilled
-    if (!searchTerminated && !isAutofilled && hasPreloadedData) {
-      // Reset last search term to force new search
-      lastSearchTermRef.current = '';
-      
-      // Trigger search for suggestions
-      getSuggestions(inputValue);
-      setShowSuggestions(true);
-    }
-  }, [getSuggestions, hasPreloadedData, inputValue, isAutofilled, searchTerminated]);
 
   // Memoize handlers to prevent unnecessary re-renders
   const handleInputChange = React.useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
@@ -225,26 +178,31 @@ export const AutocompleteInput = React.memo(React.forwardRef<
     }
   }, [showSuggestions, suggestions, selectedIndex, searchTerminated, isAutofilled, props.onKeyDown, handleSuggestionClick]);
 
-  // Function to handle icon click
-  const handleIconClickOld = React.useCallback(() => {
-    // Show suggestions immediately on icon click
-    if (!isIconMenuOpen && hasPreloadedData) {
+  const handleBlur = React.useCallback((e: React.FocusEvent<HTMLInputElement>) => {
+    // Delay hiding suggestions to allow click events
+    setTimeout(() => {
+      setShowSuggestions(false);
+      setSelectedIndex(-1);
+    }, 150);
+    props.onBlur?.(e);
+  }, [props.onBlur]);
+
+  const handleFocus = React.useCallback((e: React.FocusEvent<HTMLInputElement>) => {
+    setHasFocused(true);
+    
+    // Show suggestions immediately on focus if not terminated and not autofilled
+    if (!searchTerminated && !isAutofilled && hasPreloadedData) {
       // Reset last search term to force new search
       lastSearchTermRef.current = '';
       
-      // Trigger search for suggestions
-      getSuggestions(inputValue);
-      setIsIconMenuOpen(true);
-    } else {
-      setIsIconMenuOpen(false);
+      // Trigger search for suggestions (random if input is empty)
+      setTimeout(() => {
+        getSuggestions(inputValue);
+        setShowSuggestions(true);
+      }, 0);
     }
-  }, [getSuggestions, hasPreloadedData, inputValue, isIconMenuOpen]);
-
-  // Handle suggestion selection from icon menu
-  const handleSuggestionSelect = React.useCallback((suggestion: string) => {
-    handleSuggestionClick(suggestion);
-    setIsIconMenuOpen(false);
-  }, [handleSuggestionClick]);
+    props.onFocus?.(e);
+  }, [getSuggestions, hasPreloadedData, inputValue, isAutofilled, props.onFocus, searchTerminated]);
 
   // Determine the icon based on field and state - memoized to prevent unnecessary recalculations
   const getIcon = React.useMemo(() => {
@@ -254,8 +212,6 @@ export const AutocompleteInput = React.memo(React.forwardRef<
     
     if (fieldName === 'idNumber') {
       return <User className="h-4 w-4 text-muted-foreground" />;
-    } else if (iconRight) {
-      return iconRight;
     }
     
     if (showSuggestions && inputValue.length === 0 && !searchTerminated && !isAutofilled) {
@@ -267,7 +223,7 @@ export const AutocompleteInput = React.memo(React.forwardRef<
     }
     
     return null;
-  }, [isLoading, searchTerminated, isAutofilled, fieldName, showSuggestions, inputValue, hasFocused, iconRight]);
+  }, [isLoading, searchTerminated, isAutofilled, fieldName, showSuggestions, inputValue, hasFocused]);
 
   // Determine suggestion header text - memoized to prevent unnecessary recalculations
   const getSuggestionHeaderText = React.useMemo(() => {
@@ -278,7 +234,7 @@ export const AutocompleteInput = React.memo(React.forwardRef<
   }, [inputValue.length, suggestions.length]);
 
   return (
-    <div className="relative" ref={containerRef}>
+    <div className="relative">
       <div className="relative">
         <Input
           {...props}
@@ -290,37 +246,15 @@ export const AutocompleteInput = React.memo(React.forwardRef<
           onFocus={handleFocus}
           className={cn(className)}
           autoComplete="off"
+          iconLeft={iconLeft}
+          iconRight={iconRight || getIcon}
         />
-        {(getIcon || iconRight) && (
-          <div 
-            className="absolute right-3 top-1/2 transform -translate-y-1/2 cursor-pointer hover:text-primary transition-colors"
-            onClick={handleIconClick}
-            role="button"
-            tabIndex={0}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter' || e.key === ' ') {
-                handleIconClick(e as unknown as React.MouseEvent);
-              }
-            }}
-          >
-            {getIcon}
-            {isIconMenuOpen && (
-              <SuggestionMenu
-                isOpen={isIconMenuOpen}
-                suggestions={suggestions}
-                onSelect={handleSuggestionSelect}
-                onClose={() => setIsIconMenuOpen(false)}
-                fieldName={fieldName}
-              />
-            )}
-          </div>
-        )}
       </div>
       
       {showSuggestions && suggestions.length > 0 && !searchTerminated && !isAutofilled && (
         <div
           ref={suggestionsRef}
-          className="absolute z-[9999] w-full mt-1 bg-white dark:bg-background border border-gray-200 dark:border-gray-700 rounded-md shadow-xl max-h-60 overflow-auto animate-in fade-in-0 zoom-in-95 slide-in-from-top-2"
+          className="absolute z-[9999] w-full mt-1 bg-white dark:bg-background border border-gray-200 dark:border-gray-700 rounded-md shadow-xl max-h-60 overflow-auto"
         >
           <div className="px-3 py-2 text-xs text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 flex items-center gap-2">
             {fieldName === 'idNumber' && <User className="h-3 w-3" />}
@@ -331,23 +265,15 @@ export const AutocompleteInput = React.memo(React.forwardRef<
             <div
               key={`${suggestion.value}-${index}`}
               className={cn(
-                "px-3 py-2 cursor-pointer hover:bg-blue-50 dark:hover:bg-blue-900/20 flex justify-between items-center transition-colors",
+                "px-3 py-2 cursor-pointer hover:bg-blue-50 dark:hover:bg-blue-900/20 flex items-center transition-colors",
                 selectedIndex === index && "bg-blue-100 dark:bg-blue-900/30",
                 fieldName === 'idNumber' && "hover:bg-green-50 dark:hover:bg-green-900/20"
               )}
               onClick={() => handleSuggestionClick(suggestion.value)}
             >
-              <span className="text-sm text-gray-900 dark:text-gray-100 flex-1 truncate flex items-center gap-2">
+              <span className="text-sm text-gray-900 dark:text-gray-100 truncate flex items-center gap-2">
                 {fieldName === 'idNumber' && <User className="h-3 w-3 text-green-600 dark:text-green-400" />}
                 {suggestion.value}
-              </span>
-              <span className={cn(
-                "text-xs px-2 py-1 rounded-full ml-2 flex-shrink-0",
-                fieldName === 'idNumber' 
-                  ? "text-green-700 dark:text-green-300 bg-green-200 dark:bg-green-900/30" 
-                  : "text-gray-500 dark:text-gray-400 bg-gray-200 dark:bg-gray-700"
-              )}>
-                {suggestion.count}
               </span>
             </div>
           ))}
