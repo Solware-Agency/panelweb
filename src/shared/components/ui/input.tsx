@@ -1,8 +1,6 @@
 import * as React from "react"
 
 import { cn } from "@shared/lib/cn"
-
-interface InputProps extends React.ComponentProps<"input"> {
   iconLeft?: React.ReactNode;
   iconRight?: React.ReactNode;
 }
