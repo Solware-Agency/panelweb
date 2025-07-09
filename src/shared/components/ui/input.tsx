@@ -7,21 +7,8 @@ interface InputProps extends React.ComponentProps<"input"> {
   iconRight?: React.ReactNode;
 }
 
-interface InputProps extends React.ComponentProps<"input"> {
-  iconLeft?: React.ReactNode;
-  iconRight?: React.ReactNode;
-}
-
 const Input = React.forwardRef<HTMLInputElement, InputProps>(
   ({ className, type, iconLeft, iconRight, ...props }, ref) => {
-    const restProps = { ...props };
-    
-    // Remove our custom props before passing to the input element
-    if ('iconLeft' in restProps) delete restProps.iconLeft;
-    if ('iconRight' in restProps) delete restProps.iconRight;
-    
-    const { iconLeft, iconRight, ...restProps } = props;
-
     return (
       <div className="relative">
         {iconLeft && (
@@ -38,7 +25,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
             className
           )}
           ref={ref}
-          {...restProps}
+          {...props}
         />
         {iconRight && (
           <div className="absolute right-3 top-1/2 transform -translate-y-1/2">

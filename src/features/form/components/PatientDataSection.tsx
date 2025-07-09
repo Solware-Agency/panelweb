@@ -13,7 +13,7 @@ import { Calendar } from '@shared/components/ui/calendar'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { usePatientAutofill } from '@shared/hooks/usePatientAutofill'
 import { useState, memo, useCallback, useMemo } from 'react'
-import { User, Mail, Phone, CreditCard, Calendar } from 'lucide-react'
+import { User, Mail, Phone, CreditCard } from 'lucide-react'
 
 interface PatientDataSectionProps {
 	control: Control<FormValues>

@@ -249,6 +249,21 @@ export const AutocompleteInput = React.memo(React.forwardRef<
           className={cn(className)}
           autoComplete="off"
         />
+        {iconRight && (
+          <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+            {iconRight}
+          </div>
+        )}
+        {iconLeft && (
+          <div className="absolute left-3 top-1/2 transform -translate-y-1/2">
+            {iconLeft}
+          </div>
+        )}
+        {getIcon && (
+          <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+            {getIcon}
+          </div>
+        )}
       </div>
       
       {showSuggestions && suggestions.length > 0 && !searchTerminated && !isAutofilled && (
@@ -268,6 +283,10 @@ export const AutocompleteInput = React.memo(React.forwardRef<
                 "px-3 py-2 cursor-pointer hover:bg-blue-50 dark:hover:bg-blue-900/20 flex items-center transition-colors",
                 selectedIndex === index && "bg-blue-100 dark:bg-blue-900/30"
               )}
+              onClick={() => handleSuggestionClick(suggestion.value)}
+            >
+              {suggestion.value}
+            </div>
             />
           ))}
           <div className="px-3 py-2 text-xs text-gray-400 dark:text-gray-500 bg-gray-50 dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700">
