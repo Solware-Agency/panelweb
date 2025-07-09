@@ -18,7 +18,7 @@ const getInitialFormValues = (): FormValues => ({
 	fullName: '',
 	idNumber: '',
 	phone: '',
-	dateOfBirth: new Date(2000, 0, 1), // Default to Jan 1, 2000
+	dateOfBirth: null,
 	email: '',
 	examType: '',
 	origin: '',

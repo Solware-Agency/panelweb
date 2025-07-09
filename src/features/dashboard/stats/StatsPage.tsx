@@ -67,9 +67,11 @@ const StatsPage: React.FC = () => {
 				<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-3 sm:mb-5 md:mb-6">
 					{/* Total Revenue Card */}
 					<StatCard
-						title="Ingresos Totales"
-						value={isLoading ? '...' : formatCurrency(stats?.totalRevenue || 0)}
-						description={`Este mes: ${isLoading ? '...' : formatCurrency(stats?.monthlyRevenue || 0)}`}
+						title="Ingresos Este Mes"
+						// value={isLoading ? '...' : formatCurrency(stats?.totalRevenue || 0)}
+						// description={`Este mes: ${isLoading ? '...' : formatCurrency(stats?.monthlyRevenue || 0)}`}
+						value={`${isLoading ? '...' : formatCurrency(stats?.monthlyRevenue || 0)}`}
+						description={`Total: ${isLoading ? '...' : formatCurrency(stats?.totalRevenue || 0)}`}
 						icon={<DollarSign className="w-5 h-5 sm:w-6 sm:h-6 text-green-600 dark:text-green-400" />}
 						trend={{
 							value: isLoading ? '...' : '+12.5%',
@@ -83,9 +85,11 @@ const StatsPage: React.FC = () => {
 
 					{/* Active Users Card */}
 					<StatCard
-						title="Pacientes Activos"
-						value={isLoading ? '...' : stats?.uniquePatients || 0}
-						description={`Nuevos este mes: ${isLoading ? '...' : stats?.newPatientsThisMonth || 0}`}
+						title="Pacientes Nuevos Este Mes"
+						// value={isLoading ? '...' : stats?.uniquePatients || 0}
+						// description={`Nuevos este mes: ${isLoading ? '...' : stats?.newPatientsThisMonth || 0}`}
+						value={`${isLoading ? '...' : stats?.newPatientsThisMonth || 0}`}
+						description={`Total: ${isLoading ? '...' : stats?.uniquePatients || 0}`}
 						icon={<Users className="w-5 h-5 sm:w-6 sm:h-6 text-blue-600 dark:text-blue-400" />}
 						trend={{
 							value: isLoading ? '...' : `+${stats?.newPatientsThisMonth || 0}`,

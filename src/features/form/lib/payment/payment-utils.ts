@@ -1,4 +1,5 @@
 import { type FormValues } from '../form-schema'
+import { parseDecimalNumber } from '@shared/utils/number-utils'
 
 type Payment = FormValues['payments'][0]
 
@@ -25,19 +26,19 @@ export const calculatePaymentDetails = (
 	totalAmount: number | string | undefined,
 	exchangeRate: number | undefined,
 ) => {
-	const totalAmountValue = parseFloat(String(totalAmount)) || 0
+	const totalAmountValue = parseDecimalNumber(totalAmount) || 0
 
 	// If total amount is 0, consider payment complete
 	if (totalAmountValue === 0) {
 		return {
 			paymentStatus: 'Completado',
 			isPaymentComplete: true,
-			missingAmount: 0
+			missingAmount: 0,
 		}
 	}
 
 	const currentTotalPaid = payments.reduce((acc, payment) => {
-		const amount = parseFloat(String(payment.amount)) || 0
+		const amount = parseDecimalNumber(payment.amount) || 0
 		if (!payment.method || !amount) return acc
 
 		// Check if payment is in bolívares and convert to USD if needed
@@ -61,7 +62,7 @@ export const calculatePaymentDetails = (
 		// Round total paid to 2 decimals to avoid floating point issues
 		const finalTotalPaid = parseFloat(currentTotalPaid.toFixed(2))
 		missingAmount = parseFloat((totalAmountValue - finalTotalPaid).toFixed(2))
-		
+
 		// Consider payment complete if difference is less than 1 cent
 		isPaymentComplete = Math.abs(finalTotalPaid - totalAmountValue) < 0.01
 
@@ -78,20 +79,18 @@ export const calculatePaymentDetails = (
 }
 
 // Function to calculate payment details from medical record payment fields
-export const calculatePaymentDetailsFromRecord = (
-	record: {
-		total_amount: number
-		payment_method_1?: string | null
-		payment_amount_1?: number | null
-		payment_method_2?: string | null
-		payment_amount_2?: number | null
-		payment_method_3?: string | null
-		payment_amount_3?: number | null
-		payment_method_4?: string | null
-		payment_amount_4?: number | null
-		exchange_rate?: number | null
-	}
-) => {
+export const calculatePaymentDetailsFromRecord = (record: {
+	total_amount: number
+	payment_method_1?: string | null
+	payment_amount_1?: number | null
+	payment_method_2?: string | null
+	payment_amount_2?: number | null
+	payment_method_3?: string | null
+	payment_amount_3?: number | null
+	payment_method_4?: string | null
+	payment_amount_4?: number | null
+	exchange_rate?: number | null
+}) => {
 	const totalAmount = record.total_amount || 0
 	const exchangeRate = record.exchange_rate || undefined
 
@@ -100,22 +99,22 @@ export const calculatePaymentDetailsFromRecord = (
 		return {
 			paymentStatus: 'Completado',
 			isPaymentComplete: true,
-			missingAmount: 0
+			missingAmount: 0,
 		}
 	}
 
 	// Convert medical record payment fields to payments array format
 	const payments = []
-	
+
 	for (let i = 1; i <= 4; i++) {
 		const method = record[`payment_method_${i}` as keyof typeof record] as string | null
 		const amount = record[`payment_amount_${i}` as keyof typeof record] as number | null
-		
+
 		if (method && amount && amount > 0) {
 			payments.push({
 				method,
 				amount,
-				reference: '' // Reference not needed for calculation
+				reference: '', // Reference not needed for calculation
 			})
 		}
 	}
@@ -133,10 +132,10 @@ export const calculatePaymentDetailsFromRecord = (
 export const validatePaymentTotal = (
 	payments: Payment[],
 	totalAmount: number,
-	exchangeRate: number | undefined
+	exchangeRate: number | undefined,
 ): boolean => {
 	if (totalAmount <= 0) return true
-	
+
 	const { isPaymentComplete } = calculatePaymentDetails(payments, totalAmount, exchangeRate)
 	return isPaymentComplete
 }
@@ -147,12 +146,9 @@ export const validatePaymentTotal = (
  * @param exchangeRate Current exchange rate (VES/USD)
  * @returns Total amount paid in USD
  */
-export const calculateTotalPaidUSD = (
-	payments: Payment[],
-	exchangeRate: number | undefined
-): number => {
+export const calculateTotalPaidUSD = (payments: Payment[], exchangeRate: number | undefined): number => {
 	return payments.reduce((acc, payment) => {
-		const amount = parseFloat(String(payment.amount)) || 0
+		const amount = parseDecimalNumber(payment.amount) || 0
 		if (!payment.method || !amount) return acc
 
 		if (isBolivaresMethod(payment.method)) {

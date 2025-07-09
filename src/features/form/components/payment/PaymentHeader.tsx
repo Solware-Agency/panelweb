@@ -6,6 +6,7 @@ import { Input } from '@shared/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@shared/components/ui/select'
 import { useUserProfile } from '@shared/hooks/useUserProfile'
 import { useEffect } from 'react'
+import { createCalculatorInputHandler } from '@shared/utils/number-utils'
 
 interface PaymentHeaderProps {
 	control: Control<FormValues>
@@ -51,44 +52,44 @@ export const PaymentHeader = memo(({ control, inputStyles, exchangeRate, isLoadi
 	return (
 		<React.Fragment>
 			<FormField
-        control={control}
-        name="branch"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel className="text-sm sm:text-base">Sede *</FormLabel>
-            <Select 
-              onValueChange={field.onChange} 
-              value={field.value}
-              disabled={!!profile?.assigned_branch} // Disable if user has assigned branch
-            >
-              <FormControl>
-                <SelectTrigger className={inputStyles}>
-                  <SelectValue placeholder="Seleccione una sede" />
-                </SelectTrigger>
-              </FormControl>
-              <SelectContent>
-                {!profile?.assigned_branch ? (
-                  <>
-                    <SelectItem value="PMG">PMG</SelectItem>
-                    <SelectItem value="CPC">CPC</SelectItem>
-                    <SelectItem value="CNX">CNX</SelectItem>
-                    <SelectItem value="STX">STX</SelectItem>
-                    <SelectItem value="MCY">MCY</SelectItem>
-                  </>
-                ) : (
-                  <SelectItem value={profile.assigned_branch}>{profile.assigned_branch}</SelectItem>
-                )}
-              </SelectContent>
-            </Select>
-            {profile?.assigned_branch && (
-              <p className="text-[10px] sm:text-xs text-muted-foreground mt-1">
-                Tu cuenta está limitada a la sede {profile.assigned_branch}
-              </p>
-            )}
-            <FormMessage />
-          </FormItem>
-        )}
-      />
+				control={control}
+				name="branch"
+				render={({ field }) => (
+					<FormItem>
+						<FormLabel className="text-sm sm:text-base">Sede *</FormLabel>
+						<Select
+							onValueChange={field.onChange}
+							value={field.value}
+							disabled={!!profile?.assigned_branch} // Disable if user has assigned branch
+						>
+							<FormControl>
+								<SelectTrigger className={inputStyles}>
+									<SelectValue placeholder="Seleccione una sede" />
+								</SelectTrigger>
+							</FormControl>
+							<SelectContent>
+								{!profile?.assigned_branch ? (
+									<>
+										<SelectItem value="PMG">PMG</SelectItem>
+										<SelectItem value="CPC">CPC</SelectItem>
+										<SelectItem value="CNX">CNX</SelectItem>
+										<SelectItem value="STX">STX</SelectItem>
+										<SelectItem value="MCY">MCY</SelectItem>
+									</>
+								) : (
+									<SelectItem value={profile.assigned_branch}>{profile.assigned_branch}</SelectItem>
+								)}
+							</SelectContent>
+						</Select>
+						{profile?.assigned_branch && (
+							<p className="text-[10px] sm:text-xs text-muted-foreground mt-1">
+								Tu cuenta está limitada a la sede {profile.assigned_branch}
+							</p>
+						)}
+						<FormMessage />
+					</FormItem>
+				)}
+			/>
 			<FormField
 				control={control}
 				name="totalAmount"
@@ -96,20 +97,24 @@ export const PaymentHeader = memo(({ control, inputStyles, exchangeRate, isLoadi
 					<FormItem>
 						<FormLabel className="text-sm sm:text-base">Monto Total ($)</FormLabel>
 						<FormControl>
-							<Input 
-								type="text" 
-								inputMode="decimal"
-								placeholder="0" 
-								value={field.value === 0 ? '' : field.value}
-								onChange={(e) => {
-									const value = e.target.value;
-									// Only allow numbers and a single decimal point
-									if (value === '' || /^[0-9]*\.?[0-9]*$/.test(value)) {
-										field.onChange(value === '' ? 0 : parseFloat(value));
-									}
-								}}
-								className={inputStyles} 
-							/>
+							{(() => {
+								const calculatorHandler = createCalculatorInputHandler(field.value || 0, field.onChange)
+
+								return (
+									<Input
+										type="text"
+										inputMode="decimal"
+										placeholder="0,00"
+										value={calculatorHandler.displayValue}
+										onKeyDown={calculatorHandler.handleKeyDown}
+										onPaste={calculatorHandler.handlePaste}
+										onFocus={calculatorHandler.handleFocus}
+										onChange={calculatorHandler.handleChange}
+										className={`${inputStyles} text-right font-mono`}
+										autoComplete="off"
+									/>
+								)
+							})()}
 						</FormControl>
 						{totalInVes && <p className="text-xs sm:text-sm font-bold text-green-600">{totalInVes} VES</p>}
 						<p className="text-[10px] sm:text-xs text-muted-foreground">

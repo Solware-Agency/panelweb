@@ -24,14 +24,18 @@ export const formSchema = z.object({
 		.min(1, 'El número de teléfono es requerido')
 		.max(15, 'El número de teléfono no puede tener más de 15 caracteres')
 		.regex(/^[0-9-+\s()]+$/, 'El teléfono solo puede contener números, guiones, espacios, paréntesis y el símbolo +'),
-	dateOfBirth: z.date({ 
-		required_error: 'La fecha de nacimiento es requerida.',
-		invalid_type_error: 'Fecha de nacimiento inválida.'
-	}).refine((date) => {
-		const today = new Date()
-		const maxAge = new Date(today.getFullYear() - 150, today.getMonth(), today.getDate())
-		return date <= today && date >= maxAge
-	}, 'La fecha de nacimiento debe ser válida (no futura y no mayor a 150 años)'),
+	dateOfBirth: z
+		.date({
+			required_error: 'La fecha de nacimiento es requerida.',
+			invalid_type_error: 'Fecha de nacimiento inválida.',
+		})
+		.nullable()
+		.refine((date) => {
+			if (!date) return false // fuerza que el usuario seleccione una fecha
+			const today = new Date()
+			const maxAge = new Date(today.getFullYear() - 150, today.getMonth(), today.getDate())
+			return date <= today && date >= maxAge
+		}, 'La fecha de nacimiento debe ser válida (no futura y no mayor a 150 años)'),
 	email: z.string().email('Correo electrónico inválido').optional().or(z.literal('')),
 	registrationDate: z.date({ required_error: 'La fecha de registro es requerida.' }),
 	examType: z.string().min(1, 'El tipo de exámen es requerido'),
@@ -57,10 +61,7 @@ export const formSchema = z.object({
 	totalAmount: z.coerce
 		.number({ invalid_type_error: 'El monto total es requerido' })
 		.min(0.01, 'El monto total debe ser mayor a cero'),
-	payments: z
-		.array(paymentSchema)
-		.optional()
-		.default([]),
+	payments: z.array(paymentSchema).optional().default([]),
 	comments: z.string().optional(),
 })
 

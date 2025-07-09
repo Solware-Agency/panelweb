@@ -28,6 +28,14 @@ import { es } from 'date-fns/locale'
 import { Popover, PopoverContent, PopoverTrigger } from '@shared/components/ui/popover'
 import { Calendar as CalendarComponent } from '@shared/components/ui/calendar'
 import { cn } from '@shared/lib/cn'
+import {
+	parseDecimalNumber,
+	formatNumberForInput,
+	isVESPaymentMethod,
+	convertVEStoUSD,
+	autoCorrectDecimalAmount,
+	createCalculatorInputHandlerWithCurrency,
+} from '@shared/utils/number-utils'
 
 interface UnifiedCaseModalProps {
 	case_: MedicalRecord | null
@@ -150,6 +158,8 @@ const UnifiedCaseModal: React.FC<UnifiedCaseModalProps> = ({ case_, isOpen, onCl
 			[field]: value,
 		}))
 	}
+
+	// Helper function to create calculator input for payment amounts
 
 	const handleSave = async () => {
 		if (!case_ || !user) return
@@ -525,7 +535,7 @@ const UnifiedCaseModal: React.FC<UnifiedCaseModalProps> = ({ case_, isOpen, onCl
 														<SelectTrigger className="mt-1">
 															<SelectValue placeholder="Seleccione tipo de examen" />
 														</SelectTrigger>
-														<SelectContent>
+														<SelectContent className="z-[100000000]">
 															<SelectItem value="inmunohistoquimica">Inmunohistoquímica</SelectItem>
 															<SelectItem value="biopsia">Biopsia</SelectItem>
 															<SelectItem value="citologia">Citología</SelectItem>
@@ -577,7 +587,7 @@ const UnifiedCaseModal: React.FC<UnifiedCaseModalProps> = ({ case_, isOpen, onCl
 														<SelectTrigger className="mt-1">
 															<SelectValue placeholder="Seleccione sede" />
 														</SelectTrigger>
-														<SelectContent>
+														<SelectContent className="z-[100000000]">
 															<SelectItem value="PMG">PMG</SelectItem>
 															<SelectItem value="CPC">CPC</SelectItem>
 															<SelectItem value="CNX">CNX</SelectItem>
@@ -714,6 +724,104 @@ const UnifiedCaseModal: React.FC<UnifiedCaseModalProps> = ({ case_, isOpen, onCl
 											</div>
 										)}
 
+										{/* Payment Summary when editing */}
+										{isEditing && case_?.exchange_rate && (
+											<div className="bg-blue-50 dark:bg-blue-900/20 p-2 sm:p-3 rounded-lg border border-blue-200 dark:border-blue-800">
+												<h4 className="text-sm font-medium text-blue-800 dark:text-blue-300 mb-2">Resumen de Pagos</h4>
+												<div className="space-y-1 text-xs">
+													<div className="flex justify-between">
+														<span className="text-blue-700 dark:text-blue-400">Tasa de cambio:</span>
+														<span className="font-medium">{case_.exchange_rate.toFixed(2)} Bs/USD</span>
+													</div>
+													{(() => {
+														let totalUSD = 0
+														const paymentDetails = []
+
+														for (let i = 1; i <= 4; i++) {
+															const method = formData[`payment_method_${i}` as keyof typeof formData] as string | null
+															let amount = formData[`payment_amount_${i}` as keyof typeof formData] as number | null
+
+															if (method && amount && amount > 0) {
+																// Auto-correct suspicious amounts from database
+																const { correctedAmount, wasCorreted, reason } = autoCorrectDecimalAmount(
+																	amount,
+																	method,
+																	case_.exchange_rate,
+																)
+
+																if (wasCorreted) {
+																	console.warn(`Auto-corrección aplicada en pago ${i}:`, reason)
+																	amount = correctedAmount
+																}
+
+																if (isVESPaymentMethod(method)) {
+																	const usdAmount = convertVEStoUSD(amount, case_.exchange_rate!)
+																	totalUSD += usdAmount
+																	paymentDetails.push(
+																		<div key={i} className="space-y-1">
+																			<div className="flex justify-between text-gray-600 dark:text-gray-400">
+																				<span>
+																					{method}:{' '}
+																					{amount.toLocaleString('es-VE', {
+																						minimumFractionDigits: 2,
+																						maximumFractionDigits: 2,
+																					})}{' '}
+																					Bs
+																				</span>
+																				<span>≈ ${usdAmount.toFixed(2)} USD</span>
+																			</div>
+																			{wasCorreted && (
+																				<div className="text-xs text-orange-600 dark:text-orange-400 italic">
+																					⚠️ Auto-corregido desde BD
+																				</div>
+																			)}
+																		</div>,
+																	)
+																} else {
+																	totalUSD += amount
+																	paymentDetails.push(
+																		<div key={i} className="flex justify-between text-gray-600 dark:text-gray-400">
+																			<span>
+																				{method}: ${amount.toFixed(2)} USD
+																			</span>
+																			<span>${amount.toFixed(2)} USD</span>
+																		</div>,
+																	)
+																}
+															}
+														}
+
+														const remaining = case_.total_amount - totalUSD
+														const isComplete = Math.abs(remaining) < 0.01
+
+														return (
+															<>
+																{paymentDetails}
+																<div className="border-t border-blue-200 dark:border-blue-700 pt-1 mt-2">
+																	<div className="flex justify-between font-medium">
+																		<span>Total pagado (USD):</span>
+																		<span>${totalUSD.toFixed(2)}</span>
+																	</div>
+																	<div className="flex justify-between">
+																		<span>Monto total:</span>
+																		<span>${case_.total_amount.toFixed(2)}</span>
+																	</div>
+																	<div
+																		className={`flex justify-between font-bold ${
+																			isComplete ? 'text-green-600' : remaining > 0 ? 'text-red-600' : 'text-orange-600'
+																		}`}
+																	>
+																		<span>{isComplete ? 'Estado:' : remaining > 0 ? 'Pendiente:' : 'Exceso:'}</span>
+																		<span>{isComplete ? 'Completado' : `$${Math.abs(remaining).toFixed(2)}`}</span>
+																	</div>
+																</div>
+															</>
+														)
+													})()}
+												</div>
+											</div>
+										)}
+
 										{/* Payment Methods */}
 										<div className="space-y-2 sm:space-y-3">
 											<p className="text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300">
@@ -734,7 +842,7 @@ const UnifiedCaseModal: React.FC<UnifiedCaseModalProps> = ({ case_, isOpen, onCl
 																	<SelectTrigger>
 																		<SelectValue placeholder="Seleccionar método" />
 																	</SelectTrigger>
-																	<SelectContent>
+																	<SelectContent className="z-[100000000]">
 																		<SelectItem value="Punto de venta">Punto de venta</SelectItem>
 																		<SelectItem value="Dólares en efectivo">Dólares en efectivo</SelectItem>
 																		<SelectItem value="Zelle">Zelle</SelectItem>
@@ -744,13 +852,40 @@ const UnifiedCaseModal: React.FC<UnifiedCaseModalProps> = ({ case_, isOpen, onCl
 																</Select>
 															</div>
 															<div>
-																<p className="text-xs text-gray-500 dark:text-gray-400 mb-1">Monto:</p>
-																<Input
-																	type="number"
-																	value={formData.payment_amount_1 || ''}
-																	onChange={(e) => handleInputChange('payment_amount_1', parseFloat(e.target.value))}
-																	placeholder="0.00"
-																/>
+																{(() => {
+																	const calculatorHandler = createCalculatorInputHandlerWithCurrency(
+																		formData.payment_amount_1 || 0,
+																		(newValue) => handleInputChange('payment_amount_1', newValue),
+																		formData.payment_method_1,
+																		case_?.exchange_rate ?? undefined,
+																	)
+
+																	return (
+																		<>
+																			<p className="text-xs text-gray-500 dark:text-gray-400 mb-1">
+																				Monto
+																				{isVESPaymentMethod(formData.payment_method_1 || undefined) ? ' (Bs)' : ' ($)'}:
+																			</p>
+																			<Input
+																				type="text"
+																				inputMode="decimal"
+																				placeholder={calculatorHandler.placeholder}
+																				value={calculatorHandler.displayValue}
+																				onKeyDown={calculatorHandler.handleKeyDown}
+																				onPaste={calculatorHandler.handlePaste}
+																				onFocus={calculatorHandler.handleFocus}
+																				onChange={calculatorHandler.handleChange}
+																				className="text-right font-mono"
+																				autoComplete="off"
+																			/>
+																			{calculatorHandler.conversionText && (
+																				<p className="text-xs text-green-600 dark:text-green-400 mt-1">
+																					{calculatorHandler.conversionText}
+																				</p>
+																			)}
+																		</>
+																	)
+																})()}
 															</div>
 															<div className="flex items-end gap-2">
 																<div className="flex-1">
@@ -803,7 +938,7 @@ const UnifiedCaseModal: React.FC<UnifiedCaseModalProps> = ({ case_, isOpen, onCl
 																	<SelectTrigger>
 																		<SelectValue placeholder="Seleccionar método" />
 																	</SelectTrigger>
-																	<SelectContent>
+																	<SelectContent className="z-[100000000]">
 																		<SelectItem value="Punto de venta">Punto de venta</SelectItem>
 																		<SelectItem value="Dólares en efectivo">Dólares en efectivo</SelectItem>
 																		<SelectItem value="Zelle">Zelle</SelectItem>
@@ -813,13 +948,28 @@ const UnifiedCaseModal: React.FC<UnifiedCaseModalProps> = ({ case_, isOpen, onCl
 																</Select>
 															</div>
 															<div>
-																<p className="text-xs text-gray-500 dark:text-gray-400 mb-1">Monto:</p>
+																<p className="text-xs text-gray-500 dark:text-gray-400 mb-1">
+																	Monto{isVESPaymentMethod(formData.payment_method_2 || undefined) ? ' (Bs)' : ' ($)'}:
+																</p>
 																<Input
-																	type="number"
-																	value={formData.payment_amount_2 || ''}
-																	onChange={(e) => handleInputChange('payment_amount_2', parseFloat(e.target.value))}
-																	placeholder="0.00"
+																	type="text"
+																	inputMode="decimal"
+																	value={formatNumberForInput(formData.payment_amount_2 || 0)}
+																	onChange={(e) => {
+																		const parsedValue = parseDecimalNumber(e.target.value)
+																		handleInputChange('payment_amount_2', parsedValue)
+																	}}
+																	placeholder="0,00"
+																	className="text-right"
 																/>
+																{isVESPaymentMethod(formData.payment_method_2 || undefined) &&
+																	case_?.exchange_rate &&
+																	formData.payment_amount_2 && (
+																		<p className="text-xs text-green-600 mt-1">
+																			≈ ${convertVEStoUSD(formData.payment_amount_2, case_.exchange_rate).toFixed(2)}{' '}
+																			USD
+																		</p>
+																	)}
 															</div>
 															<div className="flex items-end gap-2">
 																<div className="flex-1">
@@ -872,7 +1022,7 @@ const UnifiedCaseModal: React.FC<UnifiedCaseModalProps> = ({ case_, isOpen, onCl
 																	<SelectTrigger>
 																		<SelectValue placeholder="Seleccionar método" />
 																	</SelectTrigger>
-																	<SelectContent>
+																	<SelectContent className="z-[100000000]">
 																		<SelectItem value="Punto de venta">Punto de venta</SelectItem>
 																		<SelectItem value="Dólares en efectivo">Dólares en efectivo</SelectItem>
 																		<SelectItem value="Zelle">Zelle</SelectItem>
@@ -882,13 +1032,28 @@ const UnifiedCaseModal: React.FC<UnifiedCaseModalProps> = ({ case_, isOpen, onCl
 																</Select>
 															</div>
 															<div>
-																<p className="text-xs text-gray-500 dark:text-gray-400 mb-1">Monto:</p>
+																<p className="text-xs text-gray-500 dark:text-gray-400 mb-1">
+																	Monto{isVESPaymentMethod(formData.payment_method_3 || undefined) ? ' (Bs)' : ' ($)'}:
+																</p>
 																<Input
-																	type="number"
-																	value={formData.payment_amount_3 || ''}
-																	onChange={(e) => handleInputChange('payment_amount_3', parseFloat(e.target.value))}
-																	placeholder="0.00"
+																	type="text"
+																	inputMode="decimal"
+																	value={formatNumberForInput(formData.payment_amount_3 || 0)}
+																	onChange={(e) => {
+																		const parsedValue = parseDecimalNumber(e.target.value)
+																		handleInputChange('payment_amount_3', parsedValue)
+																	}}
+																	placeholder="0,00"
+																	className="text-right"
 																/>
+																{isVESPaymentMethod(formData.payment_method_3 || undefined) &&
+																	case_?.exchange_rate &&
+																	formData.payment_amount_3 && (
+																		<p className="text-xs text-green-600 mt-1">
+																			≈ ${convertVEStoUSD(formData.payment_amount_3, case_.exchange_rate).toFixed(2)}{' '}
+																			USD
+																		</p>
+																	)}
 															</div>
 															<div className="flex items-end gap-2">
 																<div className="flex-1">
@@ -941,7 +1106,7 @@ const UnifiedCaseModal: React.FC<UnifiedCaseModalProps> = ({ case_, isOpen, onCl
 																	<SelectTrigger>
 																		<SelectValue placeholder="Seleccionar método" />
 																	</SelectTrigger>
-																	<SelectContent>
+																	<SelectContent className="z-[100000000]">
 																		<SelectItem value="Punto de venta">Punto de venta</SelectItem>
 																		<SelectItem value="Dólares en efectivo">Dólares en efectivo</SelectItem>
 																		<SelectItem value="Zelle">Zelle</SelectItem>
@@ -951,13 +1116,28 @@ const UnifiedCaseModal: React.FC<UnifiedCaseModalProps> = ({ case_, isOpen, onCl
 																</Select>
 															</div>
 															<div>
-																<p className="text-xs text-gray-500 dark:text-gray-400 mb-1">Monto:</p>
+																<p className="text-xs text-gray-500 dark:text-gray-400 mb-1">
+																	Monto{isVESPaymentMethod(formData.payment_method_4 || undefined) ? ' (Bs)' : ' ($)'}:
+																</p>
 																<Input
-																	type="number"
-																	value={formData.payment_amount_4 || ''}
-																	onChange={(e) => handleInputChange('payment_amount_4', parseFloat(e.target.value))}
-																	placeholder="0.00"
+																	type="text"
+																	inputMode="decimal"
+																	value={formatNumberForInput(formData.payment_amount_4 || 0)}
+																	onChange={(e) => {
+																		const parsedValue = parseDecimalNumber(e.target.value)
+																		handleInputChange('payment_amount_4', parsedValue)
+																	}}
+																	placeholder="0,00"
+																	className="text-right"
 																/>
+																{isVESPaymentMethod(formData.payment_method_4 || undefined) &&
+																	case_?.exchange_rate &&
+																	formData.payment_amount_4 && (
+																		<p className="text-xs text-green-600 mt-1">
+																			≈ ${convertVEStoUSD(formData.payment_amount_4, case_.exchange_rate).toFixed(2)}{' '}
+																			USD
+																		</p>
+																	)}
 															</div>
 															<div className="flex items-end gap-2">
 																<div className="flex-1">

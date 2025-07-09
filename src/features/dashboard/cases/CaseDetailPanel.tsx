@@ -41,6 +41,13 @@ import { useAuth } from '@app/providers/AuthContext'
 import { Popover, PopoverContent, PopoverTrigger } from '@shared/components/ui/popover'
 import { Calendar } from '@shared/components/ui/calendar'
 import { cn } from '@shared/lib/cn'
+import {
+	parseDecimalNumber,
+	formatNumberForInput,
+	createNumberInputHandler,
+	isVESPaymentMethod,
+	convertVEStoUSD,
+} from '@shared/utils/number-utils'
 
 interface ChangeLogEntry {
 	id: string
@@ -460,8 +467,29 @@ const CaseDetailPanel: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClos
 	// Función auxiliar para mostrar el símbolo correcto según el método
 	const getPaymentSymbol = (method?: string | null) => {
 		if (!method) return ''
-		const bolivares = ['Punto de venta', 'Pago móvil', 'Bs en efectivo']
-		return bolivares.includes(method) ? 'Bs' : '$'
+		return isVESPaymentMethod(method) ? 'Bs' : '$'
+	}
+
+	// Helper para crear inputs de pago con parsing correcto
+	const createPaymentAmountInput = (field: string, value: number | null | undefined, paymentMethod?: string | null) => {
+		return (
+			<>
+				<label className="text-xs text-gray-500 dark:text-gray-400 mb-1 block">
+					Monto{isVESPaymentMethod(paymentMethod) ? ' (Bs)' : ' ($)'}
+				</label>
+				<Input
+					type="text"
+					inputMode="decimal"
+					placeholder="0,00"
+					value={formatNumberForInput(value || 0)}
+					onChange={createNumberInputHandler((parsedValue) => handleInputChange(field, parsedValue))}
+					className="text-sm border-dashed focus:border-primary focus:ring-primary bg-gray-50 dark:bg-gray-800/50 text-right"
+				/>
+				{isVESPaymentMethod(paymentMethod) && case_?.exchange_rate && value && value > 0 && (
+					<p className="text-xs text-green-600 mt-1">≈ ${convertVEStoUSD(value, case_.exchange_rate).toFixed(2)} USD</p>
+				)}
+			</>
+		)
 	}
 
 	// Get action type display text and icon for changelog
@@ -873,13 +901,11 @@ const CaseDetailPanel: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClos
 																	</Select>
 																</div>
 																<div>
-																	<label className="text-xs text-gray-500 dark:text-gray-400 mb-1 block">Monto</label>
-																	<Input
-																		type="number"
-																		value={editedCase.payment_amount_1 || ''}
-																		onChange={(e) => handleInputChange('payment_amount_1', parseFloat(e.target.value))}
-																		className="text-sm border-dashed focus:border-primary focus:ring-primary bg-gray-50 dark:bg-gray-800/50"
-																	/>
+																	{createPaymentAmountInput(
+																		'payment_amount_1',
+																		editedCase.payment_amount_1,
+																		editedCase.payment_method_1,
+																	)}
 																</div>
 																<div>
 																	<label className="text-xs text-gray-500 dark:text-gray-400 mb-1 block">
@@ -941,13 +967,11 @@ const CaseDetailPanel: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClos
 																	</Select>
 																</div>
 																<div>
-																	<label className="text-xs text-gray-500 dark:text-gray-400 mb-1 block">Monto</label>
-																	<Input
-																		type="number"
-																		value={editedCase.payment_amount_2 || ''}
-																		onChange={(e) => handleInputChange('payment_amount_2', parseFloat(e.target.value))}
-																		className="text-sm border-dashed focus:border-primary focus:ring-primary bg-gray-50 dark:bg-gray-800/50"
-																	/>
+																	{createPaymentAmountInput(
+																		'payment_amount_2',
+																		editedCase.payment_amount_2,
+																		editedCase.payment_method_2,
+																	)}
 																</div>
 																<div>
 																	<label className="text-xs text-gray-500 dark:text-gray-400 mb-1 block">
@@ -1009,13 +1033,11 @@ const CaseDetailPanel: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClos
 																	</Select>
 																</div>
 																<div>
-																	<label className="text-xs text-gray-500 dark:text-gray-400 mb-1 block">Monto</label>
-																	<Input
-																		type="number"
-																		value={editedCase.payment_amount_3 || ''}
-																		onChange={(e) => handleInputChange('payment_amount_3', parseFloat(e.target.value))}
-																		className="text-sm border-dashed focus:border-primary focus:ring-primary bg-gray-50 dark:bg-gray-800/50"
-																	/>
+																	{createPaymentAmountInput(
+																		'payment_amount_3',
+																		editedCase.payment_amount_3,
+																		editedCase.payment_method_3,
+																	)}
 																</div>
 																<div>
 																	<label className="text-xs text-gray-500 dark:text-gray-400 mb-1 block">
@@ -1077,13 +1099,11 @@ const CaseDetailPanel: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClos
 																	</Select>
 																</div>
 																<div>
-																	<label className="text-xs text-gray-500 dark:text-gray-400 mb-1 block">Monto</label>
-																	<Input
-																		type="number"
-																		value={editedCase.payment_amount_4 || ''}
-																		onChange={(e) => handleInputChange('payment_amount_4', parseFloat(e.target.value))}
-																		className="text-sm border-dashed focus:border-primary focus:ring-primary bg-gray-50 dark:bg-gray-800/50"
-																	/>
+																	{createPaymentAmountInput(
+																		'payment_amount_4',
+																		editedCase.payment_amount_4,
+																		editedCase.payment_method_4,
+																	)}
 																</div>
 																<div>
 																	<label className="text-xs text-gray-500 dark:text-gray-400 mb-1 block">
@@ -1297,13 +1317,27 @@ const CaseDetailPanel: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClos
 							</div>
 
 							<div>
-								<label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Monto</label>
+								<label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+									Monto{isVESPaymentMethod(newPayment.method) ? ' (Bs)' : ' ($)'}
+								</label>
 								<Input
-									type="number"
-									value={newPayment.amount}
-									onChange={(e) => setNewPayment({ ...newPayment, amount: e.target.value })}
-									placeholder="0.00"
+									type="text"
+									inputMode="decimal"
+									value={formatNumberForInput(parseDecimalNumber(newPayment.amount) || 0)}
+									onChange={(e) => {
+										const parsedValue = parseDecimalNumber(e.target.value)
+										setNewPayment({ ...newPayment, amount: parsedValue.toString() })
+									}}
+									placeholder="0,00"
+									className="text-right"
 								/>
+								{isVESPaymentMethod(newPayment.method) &&
+									case_?.exchange_rate &&
+									parseDecimalNumber(newPayment.amount) > 0 && (
+										<p className="text-xs text-green-600 mt-1">
+											≈ ${convertVEStoUSD(parseDecimalNumber(newPayment.amount), case_.exchange_rate).toFixed(2)} USD
+										</p>
+									)}
 							</div>
 
 							<div>
