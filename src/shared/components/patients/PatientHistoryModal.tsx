@@ -6,6 +6,7 @@ import { es } from 'date-fns/locale'
 import { useQuery } from '@tanstack/react-query'
 import { supabase } from '@lib/supabase/config'
 import { getAgeDisplay } from '@lib/supabase-service'
+import { BranchBadge } from '@shared/components/ui/branch-badge'
 import type { MedicalRecord } from '@lib/supabase-service'
 import { Button } from '@shared/components/ui/button'
 import { Input } from '@shared/components/ui/input'
@@ -261,7 +262,9 @@ const PatientHistoryModal: React.FC<PatientHistoryModalProps> = ({ isOpen, onClo
                             
                             <div>
                               <p className="text-xs text-gray-500 dark:text-gray-400">Sede</p>
-                              <p className="text-sm font-medium">{caseItem.branch}</p>
+                              <div className="mt-1">
+                                <BranchBadge branch={caseItem.branch} />
+                              </div>
                             </div>
                             
                             <div>
