@@ -48,7 +48,7 @@ const ExamTypePieChart: React.FC = () => {
     return <Stethoscope className="w-4 h-4 text-white" />;
   };
 
-  // Get color for exam type
+  // Get color for exam type - using the same colors as other charts
   const getExamTypeColor = (index: number) => {
     const colors = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6'];
     return colors[index % colors.length];
@@ -90,7 +90,7 @@ const ExamTypePieChart: React.FC = () => {
       <div className="bg-white dark:bg-background rounded-xl p-3 sm:p-5 overflow-hidden">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 sm:mb-6">
           <h3 className="text-lg sm:text-xl font-bold text-gray-700 dark:text-gray-300 mb-2 sm:mb-0">
-            Distribución por Tipo de Examen
+            Tipos de Exámenes Más Solicitados
           </h3>
         </div>
 
@@ -128,6 +128,7 @@ const ExamTypePieChart: React.FC = () => {
                       />
                     );
                   })}
+                  
                   {/* Center circle for donut effect */}
                   <circle
                     cx={chartSize.width / 2}
@@ -136,26 +137,17 @@ const ExamTypePieChart: React.FC = () => {
                     fill="white"
                     className="dark:fill-background"
                   />
-                  {/* Total in center */}
-                  <text
-                    x={chartSize.width / 2}
-                    y={chartSize.height / 2 - 10}
-                    textAnchor="middle"
-                    className="text-gray-700 dark:text-gray-300 font-bold text-lg fill-current"
-                    transform={`rotate(90 ${chartSize.width / 2} ${chartSize.height / 2})`}
-                  >
-                    {formatCurrency(totalRevenue)}
-                  </text>
-                  <text
-                    x={chartSize.width / 2}
-                    y={chartSize.height / 2 + 10}
-                    textAnchor="middle"
-                    className="text-gray-500 dark:text-gray-400 text-xs fill-current"
-                    transform={`rotate(90 ${chartSize.width / 2} ${chartSize.height / 2})`}
-                  >
-                    Total
-                  </text>
                 </svg>
+                
+                {/* Total amount in center - positioned absolutely for better centering */}
+                <div className="absolute inset-0 flex flex-col items-center justify-center">
+                  <p className="text-lg sm:text-xl font-bold text-gray-700 dark:text-gray-300">
+                    {formatCurrency(totalRevenue)}
+                  </p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">
+                    Total
+                  </p>
+                </div>
 
                 {/* Tooltip for hovered segment */}
                 {hoveredSegmentIndex !== null && (
