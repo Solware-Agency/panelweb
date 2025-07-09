@@ -2,7 +2,7 @@ import * as React from "react"
 
 import { cn } from "@shared/lib/cn"
 
-interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
+export interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   iconLeft?: React.ReactNode;
   iconRight?: React.ReactNode;
 }
