@@ -166,18 +166,14 @@ export const PatientDataSection = memo(({ control, inputStyles }: PatientDataSec
 				{/* Fecha de Nacimiento - CON CALENDARIO */}
 				<FormField
 					control={control}
-					className="col-span-1"
 					name="dateOfBirth"
 					render={({ field }) => (
-						<FormItem className="flex flex-col">
+						<FormItem className="flex flex-col col-span-1">
 							<FormLabel className="flex items-center gap-2">
 								<Cake className="w-4 h-4 text-pink-500" />
 								Fecha de Nacimiento *
 							</FormLabel>
-							<Popover
-								open={isDateOfBirthCalendarOpen} 
-								onOpenChange={setIsDateOfBirthCalendarOpen}
-							>
+							<Popover open={isDateOfBirthCalendarOpen} onOpenChange={setIsDateOfBirthCalendarOpen}>
 								<PopoverTrigger asChild>
 									<FormControl>
 										<Button
@@ -231,10 +227,9 @@ export const PatientDataSection = memo(({ control, inputStyles }: PatientDataSec
 				{/* Email - CON AUTOCOMPLETADO */}
 				<FormField
 					control={control}
-					className="col-span-1 sm:col-span-2 lg:col-span-1"
 					name="email"
 					render={({ field }) => (
-						<FormItem>
+						<FormItem className="col-span-1 sm:col-span-2 lg:col-span-1">
 							<FormLabel>Correo electrónico</FormLabel>
 							<FormControl>
 								<AutocompleteInput
@@ -254,10 +249,9 @@ export const PatientDataSection = memo(({ control, inputStyles }: PatientDataSec
 				{/* Fecha de Registro - CON CALENDARIO */}
 				<FormField
 					control={control}
-					className="col-span-1"
 					name="registrationDate"
 					render={({ field }) => (
-						<FormItem className="flex flex-col">
+						<FormItem className="flex flex-col col-span-1">
 							<FormLabel>Fecha de Registro *</FormLabel>
 							<Popover open={isRegistrationDateCalendarOpen} onOpenChange={setIsRegistrationDateCalendarOpen}>
 								<PopoverTrigger asChild>

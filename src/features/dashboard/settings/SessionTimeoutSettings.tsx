@@ -1,4 +1,3 @@
-import React from 'react';
 import { Card } from '@shared/components/ui/card';
 import { Clock, Shield, CheckCircle } from 'lucide-react';
 import { useSessionTimeout, SESSION_TIMEOUT_OPTIONS } from '@shared/hooks/useSessionTimeout';

@@ -14,9 +14,6 @@ import { CurrencyConverter } from './CurrencyConverter'
 import { PaymentMethodsList } from './PaymentMethodsList'
 import { PaymentSectionSkeleton } from './PaymentSectionSkeleton'
 import { calculatePaymentDetails } from '@features/form/lib/payment/payment-utils'
-import { Input } from '@shared/components/ui/input'
-import { FormLabel } from '@shared/components/ui/form'
-import { DollarSign } from 'lucide-react'
 
 interface PaymentSectionProps {
 	control: Control<FormValues>

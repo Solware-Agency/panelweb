@@ -26,7 +26,7 @@ export const calculatePaymentDetails = (
 	totalAmount: number | string | undefined,
 	exchangeRate: number | undefined,
 ) => {
-	const totalAmountValue = parseDecimalNumber(totalAmount) || 0
+	const totalAmountValue = totalAmount ? parseDecimalNumber(totalAmount) : 0
 
 	// If total amount is 0, consider payment complete
 	if (totalAmountValue === 0) {
@@ -38,7 +38,7 @@ export const calculatePaymentDetails = (
 	}
 
 	const currentTotalPaid = payments.reduce((acc, payment) => {
-		const amount = parseDecimalNumber(payment.amount) || 0
+		const amount = payment.amount ? parseDecimalNumber(payment.amount) : 0
 		if (!payment.method || !amount) return acc
 
 		// Check if payment is in bolívares and convert to USD if needed
@@ -148,7 +148,7 @@ export const validatePaymentTotal = (
  */
 export const calculateTotalPaidUSD = (payments: Payment[], exchangeRate: number | undefined): number => {
 	return payments.reduce((acc, payment) => {
-		const amount = parseDecimalNumber(payment.amount) || 0
+		const amount = payment.amount ? parseDecimalNumber(payment.amount) : 0
 		if (!payment.method || !amount) return acc
 
 		if (isBolivaresMethod(payment.method)) {

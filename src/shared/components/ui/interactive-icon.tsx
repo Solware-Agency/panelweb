@@ -13,9 +13,7 @@ export const InteractiveIcon: React.FC<InteractiveIconProps> = ({
   icon,
   onClick,
   className,
-  fieldName,
-  onSuggestionSelect
-}) => {
+  fieldName}) => {
   const [isHovered, setIsHovered] = useState(false);
   
   const handleClick = (e: React.MouseEvent) => {

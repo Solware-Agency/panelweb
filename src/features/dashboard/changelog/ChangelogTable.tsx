@@ -23,7 +23,6 @@ import { es } from 'date-fns/locale'
 import { useToast } from '@shared/hooks/use-toast'
 import { useUserProfile } from '@shared/hooks/useUserProfile'
 import { supabase } from '@lib/supabase/config'
-import { useBreakpoint } from '@shared/components/ui/media-query'
 import { Popover, PopoverContent, PopoverTrigger } from '@shared/components/ui/popover'
 import { Calendar as CalendarComponent } from '@shared/components/ui/calendar'
 
@@ -57,7 +56,6 @@ const ChangelogTable: React.FC = () => {
 	const [isDeleting, setIsDeleting] = useState<string | null>(null)
 	const [isConfirmDeleteOpen, setIsConfirmDeleteOpen] = useState(false)
 	const [logToDelete, setLogToDelete] = useState<string | null>(null)
-	const isDesktop = useBreakpoint('lg')
 
 	// Check if user is owner (only owners can delete logs)
 

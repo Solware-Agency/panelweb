@@ -4,8 +4,7 @@ import { FormField, FormItem, FormLabel, FormControl, FormMessage } from '@share
 import { Input } from '@shared/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@shared/components/ui/select'
 import { Button } from '@shared/components/ui/button'
-import { Trash2, DollarSign, CreditCard, FileText } from 'lucide-react'
-import { useBreakpoint } from '@shared/components/ui/media-query'
+import { Trash2, DollarSign, FileText } from 'lucide-react'
 import { isBolivaresMethod } from '@features/form/lib/payment/payment-utils'
 import { createCalculatorInputHandlerWithCurrency } from '@shared/utils/number-utils'
 import { memo, useMemo, useCallback } from 'react'
@@ -22,7 +21,6 @@ interface PaymentMethodItemProps {
 
 export const PaymentMethodItem = memo(
 	({ control, index, remove, inputStyles, fieldsLength, className }: PaymentMethodItemProps) => {
-		const isDesktop = useBreakpoint('lg')
 		const paymentMethod = useWatch({ control, name: `payments.${index}.method` })
 		const exchangeRate = undefined // TODO: Obtener tasa de cambio de configuración global
 
@@ -94,7 +92,6 @@ export const PaymentMethodItem = memo(
 												placeholder={calculatorHandler.placeholder}
 												value={calculatorHandler.displayValue}
 												onKeyDown={calculatorHandler.handleKeyDown}
-												iconLeft={<DollarSign className="h-4 w-4 text-muted-foreground" />}
 												onPaste={calculatorHandler.handlePaste}
 												onFocus={calculatorHandler.handleFocus}
 												onChange={calculatorHandler.handleChange}

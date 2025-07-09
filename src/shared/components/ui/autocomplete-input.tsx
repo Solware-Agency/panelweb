@@ -11,8 +11,6 @@ interface AutocompleteInputProps extends React.ComponentProps<typeof Input> {
   minSearchLength?: number;
   iconRight?: React.ReactNode;
   iconLeft?: React.ReactNode;
-  iconRight?: React.ReactNode;
-  iconLeft?: React.ReactNode;
 }
 
 // Use React.memo to prevent unnecessary re-renders
