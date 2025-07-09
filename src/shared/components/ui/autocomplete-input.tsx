@@ -248,6 +248,7 @@ export const AutocompleteInput = React.memo(React.forwardRef<
           onFocus={handleFocus}
           className={cn(className)}
           autoComplete="off"
+        />
       </div>
       
       {showSuggestions && suggestions.length > 0 && !searchTerminated && !isAutofilled && (
@@ -265,8 +266,9 @@ export const AutocompleteInput = React.memo(React.forwardRef<
               key={`${suggestion.value}-${index}`}
               className={cn(
                 "px-3 py-2 cursor-pointer hover:bg-blue-50 dark:hover:bg-blue-900/20 flex items-center transition-colors",
-                selectedIndex === index && "bg-blue-100 dark:bg-blue-900/30",
-            </div>
+                selectedIndex === index && "bg-blue-100 dark:bg-blue-900/30"
+              )}
+            />
           ))}
           <div className="px-3 py-2 text-xs text-gray-400 dark:text-gray-500 bg-gray-50 dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700">
             {inputValue.length === 0 
