@@ -8,6 +8,7 @@ import { useUserProfile } from '@shared/hooks/useUserProfile'
 import { updatePassword, updateUserProfile, updateUserMetadata } from '@lib/supabase/auth'
 import { useToast } from '@shared/hooks/use-toast'
 import { Eye, EyeOff, User, Mail, Key, Save, Loader2, CheckCircle, AlertCircle } from 'lucide-react'
+import { SessionTimeoutSettings } from './SessionTimeoutSettings'
 
 const UserSettingsPanel: React.FC = () => {
   const { user, refreshUser } = useAuth()
@@ -365,9 +366,15 @@ const UserSettingsPanel: React.FC = () => {
             </div>
           </div>
         </div>
-      </Card>
+        </Card>
+      </div>
     </div>
   )
-}
+      <div className="mt-6 space-y-6">
+        {/* Session Timeout Settings */}
+        <SessionTimeoutSettings />
+        
+        {/* Security Information */}
+        <Card className="hover:border-primary hover:shadow-lg hover:shadow-primary/20">
 
 export default UserSettingsPanel

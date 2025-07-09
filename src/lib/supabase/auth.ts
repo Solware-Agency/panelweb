@@ -1,5 +1,6 @@
 import { supabase, REDIRECT_URL } from './config'
 import type { User, AuthError } from '@supabase/supabase-js'
+import { SESSION_TIMEOUT_OPTIONS } from '@shared/hooks/useSessionTimeout'
 
 export interface AuthResponse {
 	user: User | null
@@ -106,6 +107,11 @@ export const signIn = async (email: string, password: string): Promise<AuthRespo
 // Sign out
 export const signOut = async (): Promise<{ error: AuthError | null }> => {
 	try {
+		// Clear session storage
+		localStorage.removeItem('last_activity_time')
+		localStorage.removeItem('session_expiry_time')
+		localStorage.removeItem('session_timeout_minutes')
+		
 		const { error } = await supabase.auth.signOut()
 		
 		// If the session doesn't exist, the user is effectively logged out
@@ -124,6 +130,67 @@ export const signOut = async (): Promise<{ error: AuthError | null }> => {
 				name: 'UnexpectedError',
 			} as AuthError,
 		}
+	}
+}
+
+// Get user session timeout setting
+export const getUserSessionTimeout = async (userId: string): Promise<number> => {
+	try {
+		const { data, error } = await supabase
+			.from('user_settings')
+			.select('session_timeout')
+			.eq('id', userId)
+			.single()
+
+		if (error) {
+			// If no settings found, create with default timeout
+			if (error.code === 'PGRST116') {
+				const defaultTimeout = 15 // 15 minutes default
+				const { error: insertError } = await supabase
+					.from('user_settings')
+					.insert({ id: userId, session_timeout: defaultTimeout })
+
+				if (insertError) {
+					console.error('Error creating user settings:', insertError)
+				}
+				return defaultTimeout
+			}
+			console.error('Error fetching user session timeout:', error)
+			return 15 // Default to 15 minutes
+		}
+
+		// Validate the timeout value
+		if (data && SESSION_TIMEOUT_OPTIONS.includes(data.session_timeout)) {
+			return data.session_timeout
+		}
+
+		return 15 // Default to 15 minutes
+	} catch (err) {
+		console.error('Error getting user session timeout:', err)
+		return 15 // Default to 15 minutes
+	}
+}
+
+// Update user session timeout setting
+export const updateUserSessionTimeout = async (userId: string, minutes: number): Promise<{ error: any | null }> => {
+	try {
+		// Validate the timeout value
+		if (!SESSION_TIMEOUT_OPTIONS.includes(minutes)) {
+			return { error: new Error('Invalid session timeout value') }
+		}
+
+		const { error } = await supabase
+			.from('user_settings')
+			.upsert({ 
+				id: userId, 
+				session_timeout: minutes,
+				updated_at: new Date().toISOString()
+			})
+
+		return { error }
+	} catch (err) {
+		console.error('Error updating user session timeout:', err)
+		return { error: err }
 	}
 }
 

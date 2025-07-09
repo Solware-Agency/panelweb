@@ -19,7 +19,7 @@ import {
 	Folder,
 } from 'lucide-react'
 import { NavLink, useNavigate, useLocation } from 'react-router-dom'
-import { signOut } from '@lib/supabase/auth'
+import { useAuth } from '@app/providers/AuthContext'
 import FavIcon from '@shared/components/icons/FavIcon'
 import { useUserProfile } from '@shared/hooks/useUserProfile'
 import { cn } from '@shared/lib/cn'
@@ -142,6 +142,7 @@ const Sidebar: React.FC<SidebarProps> = ({
 	const showFullContent = isMobile || isExpanded
 	const navigate = useNavigate()
 	const location = useLocation()
+	const { signOut } = useAuth()
 	const { profile } = useUserProfile()
 
 	// Definir las rutas de cada grupo
@@ -196,6 +197,10 @@ const Sidebar: React.FC<SidebarProps> = ({
 
 	const handleLogout = async () => {
 		await signOut()
+		// Clear session storage
+		localStorage.removeItem('last_activity_time')
+		localStorage.removeItem('session_expiry_time')
+		localStorage.removeItem('session_timeout_minutes')
 		navigate('/')
 	}
 
