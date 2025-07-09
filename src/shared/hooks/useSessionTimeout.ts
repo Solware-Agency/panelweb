@@ -147,6 +147,12 @@ export function useSessionTimeout(options: UseSessionTimeoutOptions = {}) {
   // Record user activity
   const recordActivity = useCallback(() => {
     const now = Date.now();
+    // Solo registrar actividad si ha pasado al menos 1 segundo desde la última actividad
+    const lastActivity = parseInt(localStorage.getItem(LAST_ACTIVITY_KEY) || '0', 10);
+    if (now - lastActivity < 1000) {
+      return; // Evitar registros de actividad demasiado frecuentes
+    }
+    
     console.log('🔄 Actividad registrada:', new Date(now).toLocaleTimeString());
     localStorage.setItem(LAST_ACTIVITY_KEY, now.toString());
     
@@ -265,9 +271,20 @@ export function useSessionTimeout(options: UseSessionTimeoutOptions = {}) {
   // Set up event listeners for user activity
   useEffect(() => {
     if (!user) return;
+
+    // Usar un debounce para evitar múltiples registros de actividad
+    let activityTimeout: NodeJS.Timeout | null = null;
     
     const handleActivity = () => {
-      recordActivity();
+      // Cancelar el timeout anterior si existe
+      if (activityTimeout) {
+        clearTimeout(activityTimeout);
+      }
+      
+      // Establecer un nuevo timeout para registrar la actividad
+      activityTimeout = setTimeout(() => {
+        recordActivity();
+      }, 1000); // Debounce de 1 segundo
     };
     
     // Add event listeners for user activity
@@ -277,6 +294,9 @@ export function useSessionTimeout(options: UseSessionTimeoutOptions = {}) {
     window.addEventListener('touchstart', handleActivity);
     window.addEventListener('scroll', handleActivity);
     
+    // Registrar actividad inicial
+    recordActivity();
+    
     return () => {
       // Remove event listeners
       window.removeEventListener('mousemove', handleActivity);
@@ -284,8 +304,13 @@ export function useSessionTimeout(options: UseSessionTimeoutOptions = {}) {
       window.removeEventListener('click', handleActivity);
       window.removeEventListener('touchstart', handleActivity);
       window.removeEventListener('scroll', handleActivity);
+      
+      // Limpiar timeout si existe
+      if (activityTimeout) {
+        clearTimeout(activityTimeout);
+      }
     };
-  }, [user, recordActivity]);
+  }, [user, recordActivity, session]);
   
   // Check for existing session on page load
   useEffect(() => {
@@ -302,8 +327,11 @@ export function useSessionTimeout(options: UseSessionTimeoutOptions = {}) {
     
     // If there's a stored session that hasn't expired yet
     if (lastActivity > 0 && expiryTime > now) {
-      // Session is still valid, continue with it
-      console.log('Existing session found, continuing with it');
+      const remainingMs = expiryTime - now;
+      const remainingMinutes = Math.floor(remainingMs / (60 * 1000));
+      const remainingSeconds = Math.floor((remainingMs % (60 * 1000)) / 1000);
+      
+      console.log(`Existing session found, continuing with it. Remaining time: ${remainingMinutes}m:${remainingSeconds}s`);
     } else if (lastActivity > 0) {
       // Session has expired, clear it
       console.log('🔒 Sesión expirada encontrada, limpiando...');
