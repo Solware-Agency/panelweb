@@ -16,10 +16,11 @@ interface PaymentMethodItemProps {
 	remove: UseFieldArrayRemove
 	inputStyles: string
 	fieldsLength: number
+	className?: string
 }
 
 export const PaymentMethodItem = memo(
-	({ control, index, remove, inputStyles, fieldsLength }: PaymentMethodItemProps) => {
+	({ control, index, remove, inputStyles, fieldsLength, className }: PaymentMethodItemProps) => {
 		const paymentMethod = useWatch({ control, name: `payments.${index}.method` })
 		const exchangeRate = undefined // TODO: Obtener tasa de cambio de configuración global
 
@@ -37,7 +38,7 @@ export const PaymentMethodItem = memo(
 		const handleRemove = useCallback(() => remove(index), [remove, index])
 
 		return (
-			<div className="grid grid-cols-1 md:grid-cols-4 gap-3 sm:gap-4 items-start bg-secondary p-3 sm:p-4 rounded-lg">
+			<div className={className || "grid grid-cols-1 md:grid-cols-4 gap-3 sm:gap-4 items-start bg-secondary p-3 sm:p-4 rounded-lg"}>
 				<FormField
 					control={control}
 					name={`payments.${index}.method`}

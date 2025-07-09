@@ -53,6 +53,7 @@ export const PaymentHeader = memo(({ control, inputStyles, exchangeRate, isLoadi
 		<React.Fragment>
 			<FormField
 				control={control}
+				className="lg:col-span-1"
 				name="branch"
 				render={({ field }) => (
 					<FormItem>
@@ -92,6 +93,7 @@ export const PaymentHeader = memo(({ control, inputStyles, exchangeRate, isLoadi
 			/>
 			<FormField
 				control={control}
+				className="lg:col-span-2"
 				name="totalAmount"
 				render={({ field }) => (
 					<FormItem>
