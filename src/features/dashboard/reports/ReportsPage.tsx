@@ -16,6 +16,7 @@ import { useDashboardStats } from '@shared/hooks/useDashboardStats'
 import DoctorRevenueReport from './DoctorRevenueReport'
 import OriginRevenueReport from './OriginRevenueReport'
 import ExamTypeReport from './ExamTypeReport'
+import ExamTypePieChart from './ExamTypePieChart'
 import BranchRevenueReport from './BranchRevenueReport'
 import ExportSection from './ExportSection'
 
@@ -52,7 +53,7 @@ const ReportsPage: React.FC = () => {
 
 			<div className="grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-4 mb-3 sm:mb-5">
 				{/* Exam Type Report */}
-				<ExamTypeReport />
+				<ExamTypePieChart />
 
 				{/* Branch Report */}
 				<BranchRevenueReport />
