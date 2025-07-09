@@ -1142,7 +1142,21 @@ const CasesTable: React.FC<CasesTableProps> = ({
 												</div>
 											</td>
 										</tr>
-									)}
+												<div className={`text-white text-center border border-gray-500 dark:border-gray-700 rounded-lg px-1 py-1 ${
+													case_.branch === 'STX' ? 'bg-[#0066cc]' : 
+													case_.branch === 'PMG' ? 'bg-[#33cc33]' : 
+													case_.branch === 'MCY' ? 'bg-[#ff9933]' : 
+													case_.branch === 'CPC' ? 'bg-[#ff3333]' : 
+													case_.branch === 'CNX' ? 'bg-[#9933cc]' : 
+													'bg-gray-200 dark:bg-gray-900/60 hover:bg-gray-300 dark:hover:bg-gray-800/80 text-gray-900 dark:text-gray-100'
+												}`}>
+													case_.branch === 'STX' ? 'bg-[#0066cc]' : 
+													case_.branch === 'PMG' ? 'bg-[#33cc33]' : 
+													case_.branch === 'MCY' ? 'bg-[#ff9933]' : 
+													case_.branch === 'CPC' ? 'bg-[#ff3333]' : 
+													case_.branch === 'CNX' ? 'bg-[#9933cc]' : 
+													'bg-gray-200 dark:bg-gray-900/60 hover:bg-gray-300 dark:hover:bg-gray-800/80 text-gray-900 dark:text-gray-100'
+												}`}>
 								</tbody>
 							</table>
 
