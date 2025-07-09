@@ -67,6 +67,9 @@ export const PatientDataSection = memo(({ control, inputStyles }: PatientDataSec
 							<CheckCircle className="h-4 w-4" />
 							<span>Datos de {lastFilledPatient} cargados</span>
 						</div>
+					)}
+				</CardTitle>
+			</CardHeader>
 			<CardHeader className="p-3 sm:p-4 md:p-6">
 				<CardTitle className="text-base sm:text-lg md:text-xl">Datos del Paciente</CardTitle>
 				<div className="w-12 sm:w-16 md:w-20 h-1 bg-primary mt-1 rounded-full" />
