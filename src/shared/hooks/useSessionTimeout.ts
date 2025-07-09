@@ -4,7 +4,7 @@ import { supabase } from '@lib/supabase/config';
 import { useToast } from './use-toast';
 
 // Session timeout options in minutes
-export const SESSION_TIMEOUT_OPTIONS = [5, 10, 15, 20, 30, 60];
+export const SESSION_TIMEOUT_OPTIONS = [1, 5, 10, 15, 20, 30, 60];
 
 // Default timeout in minutes
 const DEFAULT_TIMEOUT = 15;
