@@ -1,6 +1,7 @@
 import { Input } from '@shared/components/ui/input'
 import { FormLabel } from '@shared/components/ui/form'
 import { memo} from 'react'
+import { DollarSign } from 'lucide-react'
 import { createCalculatorInputHandler } from '@shared/utils/number-utils'
 
 interface CurrencyConverterProps {

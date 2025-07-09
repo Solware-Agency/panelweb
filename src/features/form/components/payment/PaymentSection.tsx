@@ -72,28 +72,30 @@ export const PaymentSection = ({
 	return (
 		<Card className="transition-all duration-300 hover:border-primary hover:shadow-lg hover:shadow-primary/20">
 			<CardHeader>
-				<CardTitle>Pago</CardTitle>
+				<CardTitle className="text-lg sm:text-xl flex items-center">Pago</CardTitle>
 				<div className="w-20 h-1 bg-primary mt-1 rounded-full" />
 			</CardHeader>
 			<CardContent className="space-y-6">
-				<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+				<div className="grid grid-cols-1 lg:grid-cols-3 gap-3 sm:gap-6">
 					<PaymentHeader
 						control={control}
 						inputStyles={inputStyles}
 						exchangeRate={exchangeRate}
 						isLoadingRate={isLoadingRate}
 					/>
-					<CurrencyConverter
-						usdValue={usdValue}
-						setUsdValue={setUsdValue}
-						vesValue={vesValue}
-						vesInputValue={vesInputValue}
-						setVesInputValue={setVesInputValue}
-						usdFromVes={usdFromVes}
-						exchangeRate={exchangeRate}
-						isLoadingRate={isLoadingRate}
-						inputStyles={inputStyles}
-					/>
+					<div className="flex flex-col lg:flex-row gap-4 lg:col-span-2">
+						<CurrencyConverter
+							usdValue={usdValue}
+							setUsdValue={setUsdValue}
+							vesValue={vesValue}
+							vesInputValue={vesInputValue}
+							setVesInputValue={setVesInputValue}
+							usdFromVes={usdFromVes}
+							exchangeRate={exchangeRate}
+							isLoadingRate={isLoadingRate}
+							inputStyles={inputStyles}
+						/>
+					</div>
 					<div className="space-y-2">
 						<FormLabel>Convertidor VES a USD</FormLabel>
 						<Input
