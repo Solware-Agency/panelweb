@@ -3,11 +3,11 @@ import * as React from "react"
 import { cn } from "@shared/lib/cn"
 
 interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
-interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   iconLeft?: React.ReactNode;
   iconRight?: React.ReactNode;
 }
-}
+
+const Input = React.forwardRef<HTMLInputElement, InputProps>(
   ({ className, type, iconLeft, iconRight, ...props }, ref) => {
     return (
       <div className="relative">
@@ -36,6 +36,7 @@ interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
     )
   }
 )
+
 Input.displayName = "Input"
 
 export { Input }
