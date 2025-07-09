@@ -73,7 +73,7 @@ const Layout: React.FC = () => {
 
 			{/* Sidebar - Updated with collapsible behavior */}
 			<div
-				className={`fixed top-0 left-0 h-screen z-[9999999] lg:z-10 transform transition-all duration-300 ease-in-out lg:translate-x-0 ${
+				className={`fixed top-0 left-0 h-screen z-[9999999] lg:z-10 transform transition-all duration-300 ease-in-out lg:translate-x-0 overflow-hidden ${
 					sidebarOpen ? 'translate-x-0' : '-translate-x-full'
 				} ${
 					// On desktop: collapsed by default (w-16), expanded on hover (w-56)
@@ -93,9 +93,9 @@ const Layout: React.FC = () => {
 			</div>
 
 			{/* Main content - Updated margin to accommodate collapsible sidebar */}
-			<main className={`min-h-screen flex flex-col z-50 ${sidebarExpanded ? 'lg:ml-56' : 'lg:ml-16'}`}>
+			<main className={`min-h-screen flex flex-col z-50 transition-all duration-300 ${sidebarExpanded ? 'lg:ml-56' : 'lg:ml-16'}`}>
 				<Header isDark={isDark} toggleDarkMode={toggleDarkMode} currentDate={currentDate} onMenuClick={toggleSidebar} />
-				<div className="flex-1 overflow-x-hidden">
+				<div className="flex-1 overflow-x-hidden overflow-y-auto">
 					<Outlet />
 				</div>
 			</main>

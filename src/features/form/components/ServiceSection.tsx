@@ -31,11 +31,11 @@ export const ServiceSection = memo(({ control, inputStyles }: ServiceSectionProp
 
 	return (
 		<Card className="transition-all duration-300 hover:border-primary hover:shadow-lg hover:shadow-primary/20">
-			<CardHeader className="p-4 sm:p-6">
-				<CardTitle className="text-lg sm:text-xl">Servicio</CardTitle>
-				<div className="w-16 sm:w-20 h-1 bg-primary mt-1 rounded-full" />
+			<CardHeader className="p-3 sm:p-4 md:p-6">
+				<CardTitle className="text-base sm:text-lg md:text-xl">Servicio</CardTitle>
+				<div className="w-12 sm:w-16 md:w-20 h-1 bg-primary mt-1 rounded-full" />
 			</CardHeader>
-			<CardContent className="p-4 sm:p-6 pt-0 sm:pt-0 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6">
+			<CardContent className="p-3 sm:p-4 md:p-6 pt-0 sm:pt-0 md:pt-0 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-3 md:gap-4">
 				{/* Tipo de Examen - SIN AUTOCOMPLETADO (es un select) */}
 				<FormField
 					control={control}

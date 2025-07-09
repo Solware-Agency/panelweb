@@ -71,19 +71,19 @@ export const PaymentSection = ({
 
 	return (
 		<Card className="transition-all duration-300 hover:border-primary hover:shadow-lg hover:shadow-primary/20">
-			<CardHeader>
-				<CardTitle className="text-lg sm:text-xl flex items-center">Pago</CardTitle>
-				<div className="w-20 h-1 bg-primary mt-1 rounded-full" />
+			<CardHeader className="p-3 sm:p-4 md:p-6">
+				<CardTitle className="text-base sm:text-lg md:text-xl flex items-center">Pago</CardTitle>
+				<div className="w-12 sm:w-16 md:w-20 h-1 bg-primary mt-1 rounded-full" />
 			</CardHeader>
-			<CardContent className="space-y-6">
-				<div className="grid grid-cols-1 lg:grid-cols-3 gap-3 sm:gap-6">
+			<CardContent className="p-3 sm:p-4 md:p-6 pt-0 sm:pt-0 md:pt-0 space-y-4 sm:space-y-6">
+				<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-3 md:gap-4">
 					<PaymentHeader
 						control={control}
 						inputStyles={inputStyles}
 						exchangeRate={exchangeRate}
 						isLoadingRate={isLoadingRate}
 					/>
-					<div className="flex flex-col lg:flex-row gap-4 lg:col-span-2">
+					<div className="flex flex-col md:flex-row gap-3 md:col-span-1 lg:col-span-2">
 						<CurrencyConverter
 							usdValue={usdValue}
 							setUsdValue={setUsdValue}
@@ -95,26 +95,6 @@ export const PaymentSection = ({
 							isLoadingRate={isLoadingRate}
 							inputStyles={inputStyles}
 						/>
-					</div>
-					<div className="space-y-2">
-						<FormLabel>Convertidor VES a USD</FormLabel>
-						<Input
-							type="text"
-							inputMode="decimal"
-							placeholder="Ingrese monto en Bolívares"
-							value={vesInputValue}
-							onChange={(e) => {
-								const val = e.target.value
-								if (val === '' || /^[0-9]*\.?[0-9]*$/.test(val)) {
-									setVesInputValue(val)
-								}
-							}}
-							className={inputStyles}
-						/>
-						{usdFromVes && <p className="text-sm font-bold text-green-600">{usdFromVes} USD</p>}
-						<p className="text-xs text-muted-foreground">
-							{isLoadingRate ? 'Cargando tasa...' : `Tasa BCV: ${exchangeRate?.toFixed(2) || 'N/A'} VES/USD`}
-						</p>
 					</div>
 				</div>
 

@@ -17,6 +17,9 @@ import { useDarkMode } from '@shared/hooks/useDarkMode'
 import { AnimatePresence, motion } from 'framer-motion'
 import { useLocation, useNavigate } from 'react-router-dom'
 
+// Import Menu icon for mobile sidebar toggle
+import { Menu } from 'lucide-react'
+
 // Loading fallback component
 const LoadingFallback = () => (
 	<div className="flex items-center justify-center h-64">
@@ -32,7 +35,7 @@ function FormContent() {
 	const [isFullscreen, setIsFullscreen] = useState(false)
 	const [searchTerm, setSearchTerm] = useState('')
 	const { profile } = useUserProfile()
-	const { isDark, toggleDarkMode: handleToggleDarkMode } = useDarkMode()
+	const { isDark, toggleDarkMode } = useDarkMode()
 	const [currentDate, setCurrentDate] = useState('')
 	const [sidebarOpen, setSidebarOpen] = useState(false)
 	const [sidebarExpanded, setSidebarExpanded] = useState(false) // New state for hover expansion
@@ -151,6 +154,14 @@ function FormContent() {
 			<Toaster />
 			<Sonner />
 			<div className="fixed top-4 right-4 z-50 flex items-center gap-2">
+				{/* Mobile sidebar toggle button */}
+				<button
+					onClick={() => setSidebarOpen(!sidebarOpen)}
+					className="lg:hidden flex items-center justify-center p-2 bg-white dark:bg-background border border-input rounded-lg shadow-lg"
+				>
+					<Menu className="h-5 w-5 text-gray-600 dark:text-gray-400" />
+				</button>
+				
 				{activeTab === 'records' && (
 					<>
 						<button
@@ -187,25 +198,38 @@ function FormContent() {
 				onMouseLeave={handleSidebarMouseLeave}
 			>
 				<Sidebar
-					onClose={() => setSidebarOpen(false)}
+					onClose={() => {
+						setSidebarOpen(false);
+						setSidebarExpanded(false);
+					}}
 					isExpanded={sidebarExpanded}
 					isMobile={sidebarOpen}
 					isDark={isDark}
-					toggleDarkMode={handleToggleDarkMode}
+					toggleDarkMode={toggleDarkMode}
 					currentDate={currentDate}
 				/>
 			</div>
-			<div className="container mx-auto py-10 px-4">
-				<main
-					className={`min-h-screen flex flex-col transition-all duration-300 ease-in-out z-50 ${
-						sidebarExpanded ? 'lg:ml-56' : 'lg:ml-16'
-					}`}
-				>
-					<div className="mb-6">
+			<div className="container mx-auto py-4 sm:py-6 md:py-10 px-2 sm:px-4">
+				<main className={`min-h-screen flex flex-col transition-all duration-300 ease-in-out z-50 ${
+					sidebarExpanded ? 'lg:ml-56' : 'lg:ml-16'
+				}`}>
+					<div className="mb-4 sm:mb-6">
 						{/* Logo */}
-						<h2 className="text-2xl font-semibold text-foreground mb-2">Sistema de Registros Médicos</h2>
-						<div className="w-24 h-1 bg-primary mt-3 rounded-full" />
-						<h3 className="text-sm sm:text-md text-primary font-semibold mt-3 sm:mt-4">
+						<div className="flex items-center justify-between">
+							<div>
+								<h2 className="text-xl sm:text-2xl font-semibold text-foreground mb-1 sm:mb-2">Sistema de Registros Médicos</h2>
+								<div className="w-16 sm:w-24 h-1 bg-primary mt-2 rounded-full" />
+							</div>
+							
+							{/* Mobile sidebar toggle button - alternative position */}
+							<button
+								onClick={() => setSidebarOpen(!sidebarOpen)}
+								className="lg:hidden flex items-center justify-center p-2 bg-white dark:bg-background border border-input rounded-lg"
+							>
+								<Menu className="h-5 w-5 text-gray-600 dark:text-gray-400" />
+							</button>
+						</div>
+						<h3 className="text-sm text-primary font-semibold mt-2 sm:mt-3">
 							Bienvenido, {profile?.display_name}
 						</h3>
 					</div>

@@ -37,17 +37,17 @@ export const PaymentMethodsList = memo(({
 	// Memoize the append handler to prevent unnecessary re-renders
 	const handleAppend = useCallback(() => {
 		if (append) {
-			append({ method: '', amount: 0, reference: '' })
+			append({ method: '', amount: 0, reference: '' });
 		}
 	}, [append])
 
 	return (
-		<div className="space-y-4">
-			<div className="flex justify-between items-center mb-2">
-				<FormLabel className="font-semibold text-sm sm:text-base">Métodos de Pago</FormLabel>
+		<div className="space-y-3 sm:space-y-4">
+			<div className="flex justify-between items-center mb-1 sm:mb-2">
+				<FormLabel className="font-semibold text-xs sm:text-sm md:text-base">Métodos de Pago</FormLabel>
 				{paymentStatus && (
 					<div
-						className={`text-xs sm:text-sm font-bold px-2 sm:px-3 py-0.5 sm:py-1 rounded-full transition-all ${
+						className={`text-xs font-bold px-2 py-0.5 sm:py-1 rounded-full transition-all ${
 							isPaymentComplete ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
 						}`}
 					>
@@ -73,13 +73,13 @@ export const PaymentMethodsList = memo(({
 				variant="outline"
 				size="sm" 
 				onClick={handleAppend}
-				disabled={!append || fields.length >= 4}
-				className="disabled:opacity-40 text-xs sm:text-sm py-1 sm:py-2 px-2 sm:px-3"
+				disabled={!append || fields.length >= 4} 
+				className="disabled:opacity-40 text-xs py-1 px-2 sm:py-1.5 sm:px-2.5"
 			>
 				<PlusCircle className="mr-2 h-4 w-4" />
 				Añadir método de pago
 			</Button>
-			{fields.length >= 4 && <div className="text-[10px] sm:text-xs text-red-500">No puedes agregar más de 4 métodos de pago.</div>}
+			{fields.length >= 4 && <div className="text-[10px] text-red-500">No puedes agregar más de 4 métodos de pago.</div>}
 		</div>
 	)
 })

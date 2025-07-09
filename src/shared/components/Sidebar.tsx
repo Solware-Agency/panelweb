@@ -205,9 +205,9 @@ const Sidebar: React.FC<SidebarProps> = ({
 	const isEmployee = profile?.role === 'employee'
 
 	return (
-		<aside className="bg-white/80 dark:bg-background/50 shadow-lg hover:shadow-primary/50 backdrop-blur-[10px] flex flex-col justify-between h-screen py-4 sm:py-8 px-3 sm:px-5 gap-4 border-gray-600 text-gray-700 dark:text-white ease-in-out overflow-hidden border-r border-input">
+		<aside className="bg-white/80 dark:bg-background/50 shadow-lg hover:shadow-primary/50 backdrop-blur-[10px] flex flex-col justify-between h-screen py-4 sm:py-6 px-2 sm:px-4 gap-4 border-gray-600 text-gray-700 dark:text-white ease-in-out overflow-hidden border-r border-input">
 			<div className="flex flex-col items-start gap-4">
-				<div className="flex justify-between items-center w-full mb-3 sm:mb-5">
+				<div className="flex justify-between items-center w-full mb-2 sm:mb-4">
 					<div className="flex items-center gap-3">
 						<FavIcon fill="#e82084" className="size-8 shrink-0 -ml-1" />
 						<p
@@ -222,7 +222,7 @@ const Sidebar: React.FC<SidebarProps> = ({
 					{onClose && isMobile && (
 						<button
 							onClick={onClose}
-							className="lg:hidden ml-2 p-1.5 sm:p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors shrink-0"
+							className="lg:hidden ml-2 p-1.5 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors shrink-0"
 						>
 							<X className="w-5 h-5" />
 						</button>
@@ -232,13 +232,15 @@ const Sidebar: React.FC<SidebarProps> = ({
 				<div className="flex flex-col justify-center gap-4">
 					{/* Common menu items for all roles */}
 					{!isEmployee && !isAdmin && (
-						<NavItem
-							to="/dashboard/home"
-							icon={<Home className="stroke-2 size-5 shrink-0" />}
-							label="Inicio"
-							showFullContent={showFullContent}
-							onClick={onClose}
-						/>
+						<div className="py-1">
+							<NavItem
+								to="/dashboard/home"
+								icon={<Home className="stroke-2 size-5 shrink-0" />}
+								label="Inicio"
+								showFullContent={showFullContent}
+								onClick={onClose}
+							/>
+						</div>
 					)}
 
 					{/* Employee specific routes */}
@@ -278,7 +280,7 @@ const Sidebar: React.FC<SidebarProps> = ({
 					{/* Clinical Group - Cases, Patients, My Cases */}
 					{(isAdmin || isOwner) && (
 						<NavGroup
-							icon={<Folder className="stroke-2 size-5 shrink-0" />}
+							icon={<Folder className="stroke-2 size-4 sm:size-5 shrink-0" />}
 							label="Clínico"
 							showFullContent={showFullContent}
 							isExpanded={expandedGroups.clinical}
@@ -321,7 +323,7 @@ const Sidebar: React.FC<SidebarProps> = ({
 					{/* Reports Group - Stats, Reports, Changelog */}
 					{isOwner && (
 						<NavGroup
-							icon={<FileText className="stroke-2 size-5 shrink-0" />}
+							icon={<FileText className="stroke-2 size-4 sm:size-5 shrink-0" />}
 							label="Reportes"
 							showFullContent={showFullContent}
 							isExpanded={expandedGroups.reports}
@@ -358,7 +360,7 @@ const Sidebar: React.FC<SidebarProps> = ({
 					{(isOwner || isAdmin) && (
 						<NavItem
 							to="/dashboard/users"
-							icon={<Users className="stroke-2 size-5 shrink-0" />}
+							icon={<Users className="stroke-2 size-4 sm:size-5 shrink-0" />}
 							label="Usuarios"
 							showFullContent={showFullContent}
 							onClick={onClose}
@@ -371,7 +373,7 @@ const Sidebar: React.FC<SidebarProps> = ({
 				{isEmployee && (
 					<NavItem
 						to="/form/settings"
-						icon={<Settings className="stroke-2 size-5 shrink-0" />}
+						icon={<Settings className="stroke-2 size-4 sm:size-5 shrink-0" />}
 						label="Ajustes"
 						showFullContent={showFullContent}
 						onClick={onClose}
@@ -381,7 +383,7 @@ const Sidebar: React.FC<SidebarProps> = ({
 				{!isEmployee && (
 					<NavItem
 						to="/dashboard/settings"
-						icon={<Settings className="stroke-2 size-5 shrink-0" />}
+						icon={<Settings className="stroke-2 size-4 sm:size-5 shrink-0" />}
 						label="Ajustes"
 						showFullContent={showFullContent}
 						onClick={onClose}
@@ -389,9 +391,9 @@ const Sidebar: React.FC<SidebarProps> = ({
 				)}
 				<div
 					title={!showFullContent ? 'Fecha' : undefined}
-					className="flex items-center gap-2 sm:gap-3 cursor-pointer hover:text-primary py-2 px-1 rounded-md"
+					className="flex items-center gap-2 cursor-pointer hover:text-primary py-2 px-1 rounded-md"
 				>
-					<Clock className="stroke-2 size-5 shrink-0" />
+					<Clock className="stroke-2 size-4 sm:size-5 shrink-0" />
 					<p
 						className={`text-md whitespace-nowrap ${
 							showFullContent ? 'opacity-100 w-auto' : 'opacity-0 w-0 overflow-hidden'
@@ -403,10 +405,10 @@ const Sidebar: React.FC<SidebarProps> = ({
 				<div
 					onClick={toggleDarkMode}
 					title={!showFullContent ? 'Cambiar color' : undefined}
-					className="flex items-center gap-2 sm:gap-3 cursor-pointer hover:text-primary py-2 px-1 rounded-md"
+					className="flex items-center gap-2 cursor-pointer hover:text-primary py-2 px-1 rounded-md"
 					aria-label={isDark ? 'Activar modo claro' : 'Activar modo oscuro'}
 				>
-					{isDark ? <Sun className="stroke-2 size-5 shrink-0" /> : <Moon className="stroke-2 size-5 shrink-0" />}
+					{isDark ? <Sun className="stroke-2 size-4 sm:size-5 shrink-0" /> : <Moon className="stroke-2 size-4 sm:size-5 shrink-0" />}
 					<p
 						className={`text-md whitespace-nowrap ${
 							showFullContent ? 'opacity-100 w-auto' : 'opacity-0 w-0 overflow-hidden'
@@ -418,9 +420,9 @@ const Sidebar: React.FC<SidebarProps> = ({
 				<div
 					onClick={handleLogout}
 					title={!showFullContent ? 'Salir' : undefined}
-					className="flex items-center gap-2 sm:gap-3 cursor-pointer hover:text-red-500 py-2 px-1 rounded-md"
+					className="flex items-center gap-2 cursor-pointer hover:text-red-500 py-2 px-1 rounded-md"
 				>
-					<LogOut className="stroke-2 size-5 shrink-0 text-red-500" />
+					<LogOut className="stroke-2 size-4 sm:size-5 shrink-0 text-red-500" />
 					<p
 						className={`text-md whitespace-nowrap ${
 							showFullContent ? 'opacity-100 w-auto' : 'opacity-0 w-0 overflow-hidden'

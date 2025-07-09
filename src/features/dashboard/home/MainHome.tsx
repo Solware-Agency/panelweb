@@ -62,15 +62,15 @@ function MainHome() {
 				{/* Welcome Banner - Full width on mobile */}
 
 				{/* Mobile-first responsive grid */}
-				<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-3 sm:gap-4">
+				<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-2 sm:gap-3 md:gap-4">
 					<Card
-						className="col-span-1 sm:col-span-2 lg:col-span-6 row-span-1 lg:row-span-1 dark:bg-background bg-white rounded-xl py-3 sm:py-6 px-3 sm:px-8 flex flex-col sm:flex-row items-center justify-between shadow-lg cursor-pointer hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20"
+						className="col-span-1 sm:col-span-2 lg:col-span-6 row-span-1 lg:row-span-1 dark:bg-background bg-white rounded-xl py-2 sm:py-4 md:py-6 px-2 sm:px-4 md:px-8 flex flex-col sm:flex-row items-center justify-between shadow-lg cursor-pointer hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20"
 						onClick={() => handleStatCardClick('totalRevenue')}
 					>
-						<div className="flex-1 text-center sm:text-left mb-3 sm:mb-0">
-							<div className="flex flex-col sm:flex-row items-center sm:items-start gap-2 sm:gap-3 mb-2">
+						<div className="flex-1 text-center sm:text-left mb-2 sm:mb-0">
+							<div className="flex flex-col sm:flex-row items-center sm:items-start gap-1 sm:gap-2 mb-1 sm:mb-2">
 								<div>
-									<h1 className="text-xl sm:text-2xl md:text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 bg-clip-text text-transparent">
+									<h1 className="text-lg sm:text-xl md:text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 bg-clip-text text-transparent">
 										¡Bienvenido a Conspat!
 									</h1>
 									<div className="flex items-center justify-center sm:justify-start gap-2 mt-1 font-semibold">
@@ -80,7 +80,7 @@ function MainHome() {
 									</div>
 								</div>
 							</div>
-							<p className="text-gray-600 dark:text-gray-300 mb-2 sm:mb-4 text-sm sm:text-base md:text-lg">
+							<p className="text-gray-600 dark:text-gray-300 mb-1 sm:mb-2 md:mb-4 text-xs sm:text-sm md:text-base">
 								Gestiona tus ingresos y estadisticas de empresa.
 							</p>
 						</div>
@@ -96,15 +96,15 @@ function MainHome() {
 
 					{/* Grid 2 - Revenue by Branch Chart - Simplified */}
 					<Card
-						className="col-span-1 sm:col-span-2 lg:col-span-6 row-span-1 lg:row-span-2 dark:bg-background bg-white rounded-xl py-3 sm:py-6 px-3 sm:px-6 md:px-8 cursor-pointer group shadow-lg h-full hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20"
+						className="col-span-1 sm:col-span-2 lg:col-span-6 row-span-1 lg:row-span-2 dark:bg-background bg-white rounded-xl py-2 sm:py-4 md:py-6 px-2 sm:px-4 md:px-6 cursor-pointer group shadow-lg h-full hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20"
 						onClick={() => handleStatCardClick('branchRevenue')}
 					>
 						<div className="h-full flex flex-col">
-							<h3 className="text-lg sm:text-xl md:text-2xl font-bold text-gray-700 dark:text-gray-300 mb-3 sm:mb-4 md:mb-6">
+							<h3 className="text-base sm:text-lg md:text-xl font-bold text-gray-700 dark:text-gray-300 mb-2 sm:mb-3 md:mb-4">
 								Distribución por Sede
 							</h3>
-							<div className="flex items-center justify-center mb-3 sm:mb-4 md:mb-6">
-								<div className="relative size-28 sm:size-36 md:size-48">
+							<div className="flex items-center justify-center mb-2 sm:mb-3 md:mb-4">
+								<div className="relative size-24 sm:size-28 md:size-36">
 									<svg className="size-full -rotate-90" viewBox="0 0 36 36">
 										<circle
 											cx="18"
@@ -154,11 +154,11 @@ function MainHome() {
 									</div>
 								</div>
 							</div>
-							<div className="space-y-2 sm:space-y-3">
+							<div className="space-y-1 sm:space-y-2">
 								{isLoading ? (
-									<div className="space-y-1 sm:space-y-2">
+									<div className="space-y-1">
 										{[1, 2, 3, 4].map((i) => (
-											<div key={i} className="animate-pulse bg-gray-200 dark:bg-gray-700 h-5 sm:h-6 rounded"></div>
+											<div key={i} className="animate-pulse bg-gray-200 dark:bg-gray-700 h-4 sm:h-5 rounded"></div>
 										))}
 									</div>
 								) : (
@@ -196,7 +196,7 @@ function MainHome() {
 
 					{/* Grid 3 - KPI Card: Monthly Revenue */}
 					<StatCard
-						title="Ingresos Mensuales"
+						title="Ingresos"
 						value={isLoading ? '...' : formatCurrency(stats?.monthlyRevenue || 0)}
 						description={format(selectedMonth, 'MMMM yyyy', { locale: es })}
 						icon={
@@ -215,7 +215,7 @@ function MainHome() {
 
 					{/* Grid 4 - KPI Card: Total de Casos */}
 					<StatCard
-						title="Total de Casos"
+						title="Casos"
 						value={isLoading ? '...' : stats?.totalCases || 0}
 						description="casos registrados"
 						icon={
@@ -235,12 +235,12 @@ function MainHome() {
 					{/* Grid 5 - Médicos Tratantes */}
 					<Card className="col-span-1 sm:col-span-2 lg:col-span-3 row-span-1 lg:row-span-3 dark:bg-background bg-white rounded-xl p-3 sm:p-4 flex flex-col cursor-pointer shadow-lg hover:bg-white/90 group h-full hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20">
 						<div className="h-full flex flex-col" onClick={() => navigate('/dashboard/reports')}>
-							<div className="flex items-center justify-between mb-3 sm:mb-4">
-								<div className="flex items-center gap-1.5 sm:gap-3">
-									<div className="p-1.5 sm:p-2 bg-purple-100 dark:bg-purple-900/30 rounded-lg">
-										<Stethoscope className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 text-purple-600 dark:text-purple-400" />
+							<div className="flex items-center justify-between mb-2 sm:mb-3">
+								<div className="flex items-center gap-1 sm:gap-2">
+									<div className="p-1 sm:p-1.5 bg-purple-100 dark:bg-purple-900/30 rounded-lg">
+										<Stethoscope className="w-3 h-3 sm:w-4 sm:h-4 md:w-5 md:h-5 text-purple-600 dark:text-purple-400" />
 									</div>
-									<h3 className="text-sm sm:text-base md:text-lg font-bold text-gray-700 dark:text-gray-300">
+									<h3 className="text-xs sm:text-sm md:text-base font-bold text-gray-700 dark:text-gray-300">
 										Médicos Tratantes
 									</h3>
 								</div>
@@ -290,16 +290,16 @@ function MainHome() {
 
 					{/* Grid 6 - 12-Month Sales Trend Chart with Year Selector */}
 					<Card
-						className="col-span-1 sm:col-span-2 lg:col-span-9 row-span-1 lg:row-span-2 dark:bg-background bg-white rounded-xl py-3 sm:py-5 px-3 sm:px-6 cursor-pointer shadow-lg hover:bg-white/90 group h-full hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20"
+						className="col-span-1 sm:col-span-2 lg:col-span-9 row-span-1 lg:row-span-2 dark:bg-background bg-white rounded-xl py-2 sm:py-3 md:py-5 px-2 sm:px-4 md:px-6 cursor-pointer shadow-lg hover:bg-white/90 group h-full hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20"
 						onClick={() => handleStatCardClick('totalRevenue')}
 					>
 						<div className="h-full flex flex-col">
-							<div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-3 sm:mb-4">
-								<h3 className="text-sm sm:text-base md:text-lg font-bold text-gray-700 dark:text-gray-300 mb-2 sm:mb-0">
+							<div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-2 sm:mb-3">
+								<h3 className="text-xs sm:text-sm md:text-base font-bold text-gray-700 dark:text-gray-300 mb-1 sm:mb-0">
 									Tendencia de Ventas
 								</h3>
 								{/* Year Selector with Arrows */}
-								<div className="flex items-center gap-2 sm:gap-4">
+								<div className="flex items-center gap-1 sm:gap-2">
 									<YearSelector
 										selectedYear={selectedYear}
 										onYearChange={handleYearChange}
@@ -350,12 +350,12 @@ function MainHome() {
 
 					{/* Grid 7 - Top Exam Types (Normalized) */}
 					<Card
-						className="col-span-1 sm:col-span-2 lg:col-span-6 row-span-1 lg:row-span-1 dark:bg-background bg-white rounded-xl py-3 sm:py-5 px-3 sm:px-6 cursor-pointer shadow-lg hover:bg-white/90 group h-full hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20"
+						className="col-span-1 sm:col-span-2 lg:col-span-6 row-span-1 lg:row-span-1 dark:bg-background bg-white rounded-xl py-2 sm:py-3 md:py-5 px-2 sm:px-4 md:px-6 cursor-pointer shadow-lg hover:bg-white/90 group h-full hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20"
 						onClick={() => handleStatCardClick('examTypes')}
 					>
 						<div className="h-full flex flex-col">
-							<div className="flex items-center justify-between mb-3 sm:mb-4">
-								<h3 className="text-sm sm:text-base md:text-lg font-bold text-gray-700 dark:text-gray-300">
+							<div className="flex items-center justify-between mb-2 sm:mb-3">
+								<h3 className="text-xs sm:text-sm md:text-base font-bold text-gray-700 dark:text-gray-300">
 									Estudios Más Frecuentes
 								</h3>
 								<ArrowRight className="w-3 h-3 sm:w-4 sm:h-4 text-gray-400 group-hover:text-blue-500 transition-colors" />
@@ -420,12 +420,12 @@ function MainHome() {
 
 					{/* Grid 8 - Quick Actions & Status Indicators */}
 					<Card
-						className="col-span-1 sm:col-span-2 lg:col-span-3 row-span-1 lg:row-span-1 dark:bg-background bg-white rounded-xl py-3 sm:py-5 px-3 sm:px-6 h-full hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 shadow-lg"
+						className="col-span-1 sm:col-span-2 lg:col-span-3 row-span-1 lg:row-span-1 dark:bg-background bg-white rounded-xl py-2 sm:py-3 md:py-5 px-2 sm:px-4 md:px-6 h-full hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 shadow-lg"
 						onClick={() => handleStatCardClick('incompleteCases')}
 					>
 						<div className="h-full flex flex-col">
-							<div className="flex items-center justify-between mb-3 sm:mb-4">
-								<h3 className="text-sm sm:text-base md:text-lg font-bold text-gray-700 dark:text-gray-300">
+							<div className="flex items-center justify-between mb-2 sm:mb-3">
+								<h3 className="text-xs sm:text-sm md:text-base font-bold text-gray-700 dark:text-gray-300">
 									Estado del Sistema
 								</h3>
 								<div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>

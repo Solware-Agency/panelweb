@@ -182,19 +182,19 @@ export function MedicalFormContainer() {
 
 	return (
 		<div className="animate-fade-in">
-			<div className="flex justify-end mb-3 sm:mb-4">
+			<div className="flex justify-end mb-2 sm:mb-3">
 				<Button 
 					type="button" 
 					onClick={handleClearForm}
 					variant="outline"
-					className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm py-1.5 px-2 sm:py-2 sm:px-3"
+					className="flex items-center gap-1 text-xs py-1 px-2 sm:py-1.5 sm:px-2.5"
 				>
 					<Trash2 className="h-4 w-4" />
 					Limpiar
 				</Button>
 			</div>
 			<Form {...form}>
-				<form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 sm:space-y-8">
+				<form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 sm:space-y-6">
 					<PatientDataSection control={formControl} inputStyles={inputStyles} />
 					<ServiceSection control={formControl} inputStyles={inputStyles} />
 					<PaymentSection
@@ -218,7 +218,7 @@ export function MedicalFormContainer() {
 						<Button
 							type="button"
 							onClick={handleNewRecord}
-							className="w-full font-bold text-base sm:text-lg py-2 sm:py-3 bg-gradient-to-r from-teal-500 to-cyan-600 hover:from-teal-600 hover:to-cyan-700 text-white transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98]"
+							className="w-full font-bold text-sm sm:text-base py-1.5 sm:py-2 bg-gradient-to-r from-teal-500 to-cyan-600 hover:from-teal-600 hover:to-cyan-700 text-white transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98]"
 						>
 							<FilePlus2 />
 							Nuevo Registro
@@ -226,7 +226,7 @@ export function MedicalFormContainer() {
 					) : (
 						<Button
 							type="submit"
-							className="w-full font-bold text-base sm:text-lg py-2 sm:py-3 bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98]"
+							className="w-full font-bold text-sm sm:text-base py-1.5 sm:py-2 bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98]"
 							disabled={isSubmitting}
 						>
 							{isSubmitting ? (

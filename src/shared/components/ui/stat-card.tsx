@@ -35,14 +35,15 @@ const StatCard: React.FC<StatCardProps> = ({
       className={cn(
         "col-span-1 grid hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 shadow-lg cursor-pointer",
         isSelected && "border-primary shadow-lg shadow-primary/20",
-        className
+        className,
+        "transition-all duration-300"
       )}
       onClick={onClick}
       data-stat-type={statType}
     >
-      <div className="bg-white dark:bg-background rounded-xl p-4 sm:p-6">
-        <div className="flex items-center justify-between mb-3 sm:mb-4">
-          <div className="p-1.5 sm:p-3 bg-gray-100 dark:bg-gray-800 rounded-lg">
+      <div className="bg-white dark:bg-background rounded-xl p-3 sm:p-4 md:p-6">
+        <div className="flex items-center justify-between mb-2 sm:mb-3">
+          <div className="p-1 sm:p-1.5 md:p-2 bg-gray-100 dark:bg-gray-800 rounded-lg">
             {icon}
           </div>
           {trend && (
@@ -55,10 +56,10 @@ const StatCard: React.FC<StatCardProps> = ({
           )}
         </div>
         <div>
-          <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">{title}</h3>
-          <p className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-700 dark:text-gray-300">{value}</p>
+          <h3 className="text-xs sm:text-sm font-medium text-gray-500 dark:text-gray-400">{title}</h3>
+          <p className="text-lg sm:text-xl md:text-2xl font-bold text-gray-700 dark:text-gray-300">{value}</p>
           {description && (
-            <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-1">{description}</p>
+            <p className="text-[10px] sm:text-xs text-gray-500 dark:text-gray-400 mt-1">{description}</p>
           )}
         </div>
       </div>
