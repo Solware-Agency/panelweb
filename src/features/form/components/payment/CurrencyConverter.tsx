@@ -37,7 +37,7 @@ export const CurrencyConverter = memo(
 		)
 
 		return (
-			<div className="flex space-y-3 sm:space-y-4">
+			<div className="space-y-3 sm:space-y-4 ">
 				<div className="space-y-1.5 sm:space-y-2">
 					<FormLabel className="text-sm sm:text-base">Convertidor USD a VES</FormLabel>
 					<Input
