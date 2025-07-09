@@ -7,6 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Card, CardContent, CardHeader, CardTitle } from '@shared/components/ui/card'
 import { useUserProfile } from '@shared/hooks/useUserProfile'
 import { useEffect, memo } from 'react'
+import { Stethoscope, MapPin, Microscope, Hash } from 'lucide-react'
 
 interface ServiceSectionProps {
 	control: Control<FormValues>
@@ -70,6 +71,7 @@ export const ServiceSection = memo(({ control, inputStyles }: ServiceSectionProp
 								<AutocompleteInput
 									fieldName="origin"
 									placeholder="Hospital o Clínica"
+									iconRight={<MapPin className="h-4 w-4 text-muted-foreground" />}
 									{...field}
 									onChange={(e: any) => {
 										const { value } = e.target
@@ -96,6 +98,7 @@ export const ServiceSection = memo(({ control, inputStyles }: ServiceSectionProp
 								<AutocompleteInput
 									fieldName="treatingDoctor"
 									placeholder="Nombre del Médico"
+									iconRight={<Stethoscope className="h-4 w-4 text-muted-foreground" />}
 									{...field}
 									onChange={(e) => {
 										const { value } = e.target
@@ -122,6 +125,7 @@ export const ServiceSection = memo(({ control, inputStyles }: ServiceSectionProp
 								<AutocompleteInput
 									fieldName="sampleType"
 									placeholder="Ej: Biopsia de Piel"
+									iconRight={<Microscope className="h-4 w-4 text-muted-foreground" />}
 									{...field}
 									onChange={(e) => {
 										const { value } = e.target
@@ -149,6 +153,7 @@ export const ServiceSection = memo(({ control, inputStyles }: ServiceSectionProp
 									type="number" 
 									placeholder="0" 
 									{...field}
+									iconRight={<Hash className="h-4 w-4 text-muted-foreground" />}
 									value={field.value === 0 ? '' : field.value}
 									onChange={(e) => {
 										const value = e.target.value

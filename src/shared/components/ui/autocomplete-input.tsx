@@ -2,7 +2,8 @@ import * as React from "react";
 import { Input } from "@shared/components/ui/input";
 import { cn } from "@shared/lib/cn";
 import { useAutocomplete } from "@shared/hooks/useAutocomplete";
-import { Loader2, Search, User, Shuffle } from "lucide-react";
+import { Loader2, Search, User, Shuffle, Mail, Phone, Calendar } from "lucide-react";
+import { InteractiveIcon, SuggestionMenu } from "@shared/components/ui/interactive-icon";
 
 interface AutocompleteInputProps extends React.ComponentProps<typeof Input> {
   fieldName: string;
@@ -23,6 +24,7 @@ export const AutocompleteInput = React.memo(React.forwardRef<
   const [isAutofilled, setIsAutofilled] = React.useState(false);
   const [hasFocused, setHasFocused] = React.useState(false);
   const { suggestions, isLoading, getSuggestions, hasPreloadedData } = useAutocomplete(fieldName);
+  const [isIconMenuOpen, setIsIconMenuOpen] = React.useState(false);
   const inputRef = React.useRef<HTMLInputElement>(null);
   const suggestionsRef = React.useRef<HTMLDivElement>(null);
   const debounceTimeoutRef = React.useRef<NodeJS.Timeout | null>(null);
@@ -202,6 +204,27 @@ export const AutocompleteInput = React.memo(React.forwardRef<
     props.onFocus?.(e);
   }, [getSuggestions, hasPreloadedData, inputValue, isAutofilled, props.onFocus, searchTerminated]);
 
+  // Function to handle icon click
+  const handleIconClick = React.useCallback(() => {
+    // Show suggestions immediately on icon click
+    if (!isIconMenuOpen && hasPreloadedData) {
+      // Reset last search term to force new search
+      lastSearchTermRef.current = '';
+      
+      // Trigger search for suggestions
+      getSuggestions(inputValue);
+      setIsIconMenuOpen(true);
+    } else {
+      setIsIconMenuOpen(false);
+    }
+  }, [getSuggestions, hasPreloadedData, inputValue, isIconMenuOpen]);
+
+  // Handle suggestion selection from icon menu
+  const handleSuggestionSelect = React.useCallback((suggestion: string) => {
+    handleSuggestionClick(suggestion);
+    setIsIconMenuOpen(false);
+  }, [handleSuggestionClick]);
+
   // Determine the icon based on field and state - memoized to prevent unnecessary recalculations
   const getIcon = React.useMemo(() => {
     if (isLoading && !searchTerminated && !isAutofilled) {
@@ -209,19 +232,57 @@ export const AutocompleteInput = React.memo(React.forwardRef<
     }
     
     if (fieldName === 'idNumber') {
-      return <User className="h-4 w-4 text-muted-foreground" />;
+      return (
+        <InteractiveIcon 
+          icon={<User className="h-4 w-4 text-muted-foreground" />}
+          onClick={handleIconClick}
+          fieldName="Cédula"
+        />
+      );
+    }
+
+    if (fieldName === 'phone') {
+      return (
+        <InteractiveIcon 
+          icon={<Phone className="h-4 w-4 text-muted-foreground" />}
+          onClick={handleIconClick}
+          fieldName="Teléfono"
+        />
+      );
+    }
+
+    if (fieldName === 'email') {
+      return (
+        <InteractiveIcon 
+          icon={<Mail className="h-4 w-4 text-muted-foreground" />}
+          onClick={handleIconClick}
+          fieldName="Email"
+        />
+      );
     }
     
     if (showSuggestions && inputValue.length === 0 && !searchTerminated && !isAutofilled) {
-      return <Shuffle className="h-4 w-4 text-muted-foreground" />;
+      return (
+        <InteractiveIcon 
+          icon={<Shuffle className="h-4 w-4 text-muted-foreground" />}
+          onClick={handleIconClick}
+          fieldName={fieldName}
+        />
+      );
     }
     
     if (hasFocused && !searchTerminated && !isAutofilled) {
-      return <Search className="h-4 w-4 text-muted-foreground" />;
+      return (
+        <InteractiveIcon 
+          icon={<Search className="h-4 w-4 text-muted-foreground" />}
+          onClick={handleIconClick}
+          fieldName={fieldName}
+        />
+      );
     }
     
     return null;
-  }, [isLoading, searchTerminated, isAutofilled, fieldName, showSuggestions, inputValue, hasFocused]);
+  }, [isLoading, searchTerminated, isAutofilled, fieldName, showSuggestions, inputValue, hasFocused, handleIconClick]);
 
   // Determine suggestion header text - memoized to prevent unnecessary recalculations
   const getSuggestionHeaderText = React.useMemo(() => {
@@ -248,6 +309,15 @@ export const AutocompleteInput = React.memo(React.forwardRef<
         {getIcon && (
           <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
             {getIcon}
+            {isIconMenuOpen && (
+              <SuggestionMenu
+                isOpen={isIconMenuOpen}
+                suggestions={suggestions}
+                onSelect={handleSuggestionSelect}
+                onClose={() => setIsIconMenuOpen(false)}
+                fieldName={fieldName}
+              />
+            )}
           </div>
         )}
       </div>

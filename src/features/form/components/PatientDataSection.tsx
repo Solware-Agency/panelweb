@@ -13,6 +13,7 @@ import { Calendar } from '@shared/components/ui/calendar'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { usePatientAutofill } from '@shared/hooks/usePatientAutofill'
 import { useState, memo, useCallback, useMemo } from 'react'
+import { User, Mail, Phone, Calendar } from 'lucide-react'
 
 interface PatientDataSectionProps {
 	control: Control<FormValues>
@@ -179,12 +180,12 @@ export const PatientDataSection = memo(({ control, inputStyles }: PatientDataSec
 										<Button
 											variant={'outline'}
 											className={cn(
-												'w-full justify-start text-left font-normal',
+												'w-full justify-start text-left font-normal relative',
 												!field.value && 'text-muted-foreground',
 												inputStyles,
 											)}
 										>
-											<CalendarIcon className="mr-2 h-4 w-4" />
+											<Calendar className="mr-2 h-4 w-4" />
 											{field.value ? (
 												<div className="flex items-center gap-2">
 													<span>{format(field.value, 'PPP', { locale: es })}</span>
