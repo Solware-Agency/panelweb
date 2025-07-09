@@ -31,7 +31,7 @@ const BranchRevenueReport: React.FC = () => {
 
   return (
 		<Card className="col-span-1 grid hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 transition-all duration-300 shadow-lg mb-6">
-			<div className="bg-white dark:bg-background rounded-xl p-4 sm:p-6">
+			<div className="bg-white dark:bg-background rounded-xl p-3 sm:p-5 overflow-hidden">
 				<div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 sm:mb-6">
 					<h3 className="text-lg sm:text-xl font-bold text-gray-700 dark:text-gray-300 mb-2 sm:mb-0 flex items-center gap-2">
 						<Building className="w-5 h-5 text-blue-500" />
@@ -114,7 +114,7 @@ const BranchRevenueReport: React.FC = () => {
 					</div>
 				</div>
 
-				<div className="overflow-x-auto">
+				<div className="overflow-x-auto w-full">
 					{isDesktop ? (
 						<table className="w-full min-w-full">
 							<thead>
@@ -192,7 +192,7 @@ const BranchRevenueReport: React.FC = () => {
 						</table>
 					) : (
 						// Mobile card view
-						<div className="space-y-3">
+						<div className="space-y-3 w-full">
 							{isLoading ? (
 								<div className="animate-pulse space-y-3">
 									{[1, 2, 3].map((i) => (
@@ -203,7 +203,7 @@ const BranchRevenueReport: React.FC = () => {
 								stats.revenueByBranch.map((branch, index) => (
 									<div
 										key={index}
-										className="bg-white dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-lg p-3"
+										className="bg-white dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-lg p-3 w-full"
 										onMouseEnter={() => setHoveredBranchIndex(index)}
 										onMouseLeave={() => setHoveredBranchIndex(null)}
 									>

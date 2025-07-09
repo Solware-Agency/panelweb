@@ -32,7 +32,7 @@ const ExamTypeReport: React.FC = () => {
 
   return (
 		<Card className="col-span-1 grid hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 transition-all duration-300 shadow-lg mb-6">
-			<div className="bg-white dark:bg-background rounded-xl p-4 sm:p-6">
+			<div className="bg-white dark:bg-background rounded-xl p-3 sm:p-5 overflow-hidden">
 				<div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 sm:mb-6">
 					<h3 className="text-lg sm:text-xl font-bold text-gray-700 dark:text-gray-300 mb-2 sm:mb-0">
 						Tipos de Exámenes Más Solicitados
@@ -46,7 +46,7 @@ const ExamTypeReport: React.FC = () => {
 							))}
 						</div>
 					) : stats?.revenueByExamType && stats.revenueByExamType.length > 0 ? (
-						<div className="overflow-x-auto">
+						<div className="overflow-x-auto w-full">
 							{isDesktop ? (
 								<table className="w-full min-w-full">
 									<thead>
@@ -119,7 +119,7 @@ const ExamTypeReport: React.FC = () => {
 								</table>
 							) : (
 								// Mobile card view
-								<div className="space-y-4">
+								<div className="space-y-3 w-full">
 									{stats.revenueByExamType.map((exam, index) => {
 										const colors = ['bg-blue-500', 'bg-green-500', 'bg-orange-500', 'bg-red-500']
 										const percentage = stats.totalRevenue > 0 ? (exam.revenue / stats.totalRevenue) * 100 : 0
@@ -127,14 +127,14 @@ const ExamTypeReport: React.FC = () => {
 										return (
 											<div 
 												key={index}
-												className="bg-white dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-lg p-3"
+												className="bg-white dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-lg p-3 w-full"
 											>
-												<div className="flex items-center gap-2 mb-2">
+												<div className="flex items-center gap-2 mb-2 flex-wrap">
 													<div className={`w-8 h-8 ${colors[index % colors.length]} rounded-lg flex items-center justify-center`}>
 														{getExamTypeIcon(exam.examType)}
 													</div>
-													<div>
-														<p className="font-medium text-gray-700 dark:text-gray-300 text-sm">{exam.examType}</p>
+													<div className="flex-1 min-w-0 max-w-full">
+														<p className="font-medium text-gray-700 dark:text-gray-300 text-sm truncate">{exam.examType}</p>
 														<div className="flex items-center gap-2">
 															<span className="inline-flex items-center justify-center px-2 py-0.5 text-xs font-medium rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300">
 																{exam.count} caso{exam.count !== 1 ? 's' : ''}
@@ -144,7 +144,7 @@ const ExamTypeReport: React.FC = () => {
 															</span>
 														</div>
 													</div>
-													<p className="text-base font-bold text-gray-700 dark:text-gray-300 ml-auto">
+													<p className="text-base font-bold text-gray-700 dark:text-gray-300 ml-auto whitespace-nowrap">
 														{formatCurrency(exam.revenue)}
 													</p>
 												</div>

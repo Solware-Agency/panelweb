@@ -38,7 +38,7 @@ const ReportsPage: React.FC = () => {
 		: 0
 
 	return (
-		<div className="p-3 sm:p-6 overflow-x-hidden" ref={reportRef}>
+		<div className="p-3 sm:p-6 overflow-x-hidden max-w-full" ref={reportRef}>
 			{/* Export Section */}
 			<ExportSection />
 			{/* Main Reports */}
@@ -58,7 +58,7 @@ const ReportsPage: React.FC = () => {
 				<BranchRevenueReport />
 			</div>
 			{/* Pending Payments Section */}
-			<Card className="col-span-1 grid hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 transition-all duration-300 shadow-lg mb-3 sm:mb-5">
+			<Card className="col-span-1 grid hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 transition-all duration-300 shadow-lg mb-3 sm:mb-5 overflow-hidden">
 				<div className="bg-white dark:bg-background rounded-xl p-3 sm:p-5">
 					<div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 sm:mb-6">
 						<h3 className="text-lg sm:text-xl font-bold text-gray-700 dark:text-gray-300 mb-2 sm:mb-0 flex items-center gap-2">
@@ -71,7 +71,7 @@ const ReportsPage: React.FC = () => {
 						</div>
 					</div>
 
-					<div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+					<div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 mb-4 sm:mb-6">
 						{/* Amount Card - Responsive */}
 						<div className="bg-gradient-to-br from-red-50 to-red-100 dark:from-red-900/20 dark:to-red-800/20 rounded-xl p-3 sm:p-4 border border-red-200 dark:border-red-800/30">
 							<div className="flex items-center gap-3 mb-3">
@@ -138,9 +138,9 @@ const ReportsPage: React.FC = () => {
 					</div>
 
 					{/* Status Breakdown */}
-					<div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-3 sm:p-4">
-						<h4 className="text-base font-semibold text-gray-700 dark:text-gray-300 mb-4">Desglose de Estatus</h4>
-						<div className="space-y-4">
+					<div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-3 sm:p-4 overflow-hidden">
+						<h4 className="text-base font-semibold text-gray-700 dark:text-gray-300 mb-3 sm:mb-4">Desglose de Estatus</h4>
+						<div className="space-y-3 sm:space-y-4">
 							{/* Completed Cases */}
 							<div>
 								<div className="flex items-center justify-between mb-2">
@@ -195,8 +195,8 @@ const ReportsPage: React.FC = () => {
 
 			{/* Performance Summary */}
 			<Card className="col-span-1 grid hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 transition-all duration-300 shadow-lg mb-2 overflow-hidden">
-				<div className="bg-white dark:bg-background rounded-xl p-3 sm:p-5">
-					<h3 className="text-lg sm:text-xl font-bold text-gray-700 dark:text-gray-300 mb-4 sm:mb-6">
+				<div className="bg-white dark:bg-background rounded-xl p-3 sm:p-5 overflow-hidden">
+					<h3 className="text-lg sm:text-xl font-bold text-gray-700 dark:text-gray-300 mb-3 sm:mb-5">
 						Resumen de Rendimiento
 					</h3>
 					<div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">

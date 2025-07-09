@@ -19,7 +19,7 @@ const DoctorRevenueReport: React.FC = () => {
 
   return (
     <Card className="col-span-1 grid hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 transition-all duration-300 shadow-lg mb-6">
-      			<div className="bg-white dark:bg-background rounded-xl p-4 sm:p-6">
+      <div className="bg-white dark:bg-background rounded-xl p-3 sm:p-5 overflow-hidden">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 sm:mb-6">
           <h3 className="text-lg sm:text-xl font-bold text-gray-700 dark:text-gray-300 mb-2 sm:mb-0 flex items-center gap-2">
             <User className="w-5 h-5 text-blue-500" />
@@ -27,7 +27,7 @@ const DoctorRevenueReport: React.FC = () => {
           </h3>
         </div>
 
-        <div className="overflow-x-auto">
+        <div className="overflow-x-auto w-full">
           {isLoading ? (
             <div className="py-8 text-center">
               <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-500 mx-auto"></div>
@@ -88,16 +88,16 @@ const DoctorRevenueReport: React.FC = () => {
                 {stats.topTreatingDoctors.map((doctor, index) => (
                   <div 
                     key={index} 
-                    className="bg-white dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-lg p-3"
+                    className="bg-white dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-lg p-3 w-full"
                   >
-                    <div className="flex items-center gap-2 mb-2">
+                    <div className="flex items-center gap-2 mb-2 flex-wrap">
                       <div className="w-8 h-8 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center">
                         <User className="w-4 h-4 text-blue-600 dark:text-blue-400" />
                       </div>
-                      <div className="flex-1 min-w-0">
+                      <div className="flex-1 min-w-0 max-w-full">
                         <p className="font-medium text-gray-700 dark:text-gray-300 text-sm truncate">{doctor.doctor}</p>
                       </div>
-                      <p className="text-base font-bold text-gray-700 dark:text-gray-300">{formatCurrency(doctor.revenue)}</p>
+                      <p className="text-base font-bold text-gray-700 dark:text-gray-300 ml-auto">{formatCurrency(doctor.revenue)}</p>
                     </div>
                     
                     <div className="flex items-center justify-between mb-1">
