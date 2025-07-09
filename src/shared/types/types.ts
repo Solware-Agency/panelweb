@@ -409,6 +409,27 @@ export type Database = {
 				}
 				Relationships: []
 			}
+			user_settings: {
+				Row: {
+					id: string
+					session_timeout: number
+					created_at: string | null
+					updated_at: string | null
+				}
+				Insert: {
+					id?: string
+					session_timeout?: number
+					created_at?: string | null
+					updated_at?: string | null
+				}
+				Update: {
+					id?: string
+					session_timeout?: number
+					created_at?: string | null
+					updated_at?: string | null
+				}
+				Relationships: []
+			}
 		}
 		Views: {
 			[_ in never]: never
