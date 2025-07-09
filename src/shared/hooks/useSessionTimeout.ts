@@ -27,7 +27,7 @@ export function useSessionTimeout(options: UseSessionTimeoutOptions = {}) {
 		warningThreshold = 30, // Default warning 30 seconds before timeout
 	} = options
 
-	const { user, session, loading: authLoading } = useAuth()
+	const { user, loading: authLoading } = useAuth()
 	const [sessionTimeout, setSessionTimeout] = useState<number>(DEFAULT_TIMEOUT)
 	const [isLoading, setIsLoading] = useState(true)
 	const [timeRemaining, setTimeRemaining] = useState<number | null>(null)
