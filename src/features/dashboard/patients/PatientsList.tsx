@@ -8,7 +8,6 @@ import { Input } from '@shared/components/ui/input'
 import { Button } from '@shared/components/ui/button'
 import { getAgeDisplay } from '@lib/supabase-service'
 import { format, parseISO } from 'date-fns'
-import { useBreakpoint } from '@shared/components/ui/media-query'
 import { es } from 'date-fns/locale'
 import PatientHistoryModal from '@shared/components/patients/PatientHistoryModal'
 
@@ -34,7 +33,6 @@ const PatientsList: React.FC = React.memo(() => {
 	const [isSearching, setIsSearching] = useState(false)
 	const [selectedPatient, setSelectedPatient] = useState<PatientData | null>(null)
 	const [isModalOpen, setIsModalOpen] = useState(false)
-	const isDesktop = useBreakpoint('lg')
 
 	// Fetch all medical records - add refetchOnWindowFocus: false to prevent unnecessary refetches
 	const {

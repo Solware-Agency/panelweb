@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect, useState } from 'react'
 import { supabase } from '@lib/supabase/config'
+import { signOut as authSignOut } from '@lib/supabase/auth' // Rename to avoid conflicts
 import { useSessionTimeout } from '@shared/hooks/useSessionTimeout'
 import { SessionTimeoutWarning } from '@shared/components/ui/session-timeout-warning'
 import type { ReactNode } from 'react'
@@ -33,43 +34,44 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 	const [user, setUser] = useState<User | null>(null)
 	const [session, setSession] = useState<Session | null>(null)
 	const [loading, setLoading] = useState(true)
-	const [showTimeoutWarning, setShowTimeoutWarning] = useState(false)
-	
+
+
 	// Handle session timeout
 	const handleSessionTimeout = async () => {
-		console.log('Session timed out, signing out...')
-		await handleSignOut()
-		window.location.href = '/' // Redirect to login page
-	}
-	
-	const handleSessionWarning = (remainingTime: number) => {
-		console.log(`Session will expire in ${remainingTime} seconds`)
-		setShowTimeoutWarning(true)
-	}
-	
-	const { 
-		timeRemaining, 
-		formatTimeRemaining, 
-		resetSessionTimer 
-	} = useSessionTimeout({
-		onTimeout: handleSessionTimeout,
-		onWarning: handleSessionWarning,
-	})
-	
-	// Handle manual sign out
-	const handleSignOut = async () => {
+		console.log('🔒 CALLBACK: handleSessionTimeout EJECUTADO!')
+		console.log('🔒 CALLBACK: Session timed out, signing out...')
 		try {
-			await supabase.auth.signOut()
-			setUser(null)
-			setSession(null)
-			
-			// Clear session storage
-			localStorage.removeItem('last_activity_time')
-			localStorage.removeItem('session_expiry_time')
+			console.log('🔒 CALLBACK: Usando función signOut de auth.ts...')
+			const { error } = await authSignOut() // Use the same signOut function as Header
+
+			if (error) {
+				console.error('❌ CALLBACK: Error during signOut:', error)
+			} else {
+				console.log('✅ CALLBACK: signOut successful')
+			}
+
+			// Force redirect like Header does
+			console.log('🔒 CALLBACK: Forcing redirect to login...')
+			window.location.replace('/') // Use replace for stronger redirect
 		} catch (error) {
-			console.error('Error signing out:', error)
+			console.error('❌ CALLBACK: Error during timeout sign out:', error)
+			// Force redirect even if there's an error
+			window.location.replace('/')
 		}
 	}
+
+	const handleSessionWarning = (remainingTime: number) => {
+		console.log(`🚨 CALLBACK: Session will expire in ${remainingTime} seconds`)
+		console.log('🚨 CALLBACK: Warning triggered - showWarning will be managed by hook')
+	}
+
+	const { formatTimeRemaining, resetSessionTimer, showWarning, dismissWarning } = useSessionTimeout({
+		onTimeout: handleSessionTimeout,
+		onWarning: handleSessionWarning,
+		warningThreshold: 30, // Mostrar advertencia 30 segundos antes
+	})
+
+	// Handle manual sign out
 
 	const refreshUser = async () => {
 		try {
@@ -128,19 +130,30 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 				user,
 				session,
 				loading,
-				signOut: handleSignOut,
+				signOut: async () => {
+					console.log('🔒 MANUAL SIGNOUT: Using signOut from auth.ts...')
+					const { error } = await authSignOut()
+					if (error) {
+						console.error('❌ MANUAL SIGNOUT: Error:', error)
+					} else {
+						console.log('✅ MANUAL SIGNOUT: Success')
+					}
+				},
 				refreshUser,
 			}}
 		>
 			{children}
-			
+
 			{/* Session timeout warning */}
 			<SessionTimeoutWarning
-				isOpen={showTimeoutWarning}
-				onClose={() => setShowTimeoutWarning(false)}
+				isOpen={showWarning}
+				onClose={() => {
+					console.log('🚨 AUTH: Closing timeout warning manually')
+					dismissWarning()
+				}}
 				onContinue={() => {
+					console.log('🚨 AUTH: User clicked continue session')
 					resetSessionTimer()
-					setShowTimeoutWarning(false)
 				}}
 				timeRemaining={formatTimeRemaining()}
 			/>

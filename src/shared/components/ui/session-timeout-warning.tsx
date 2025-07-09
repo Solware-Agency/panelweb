@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Clock, RefreshCw } from 'lucide-react';
 import { Button } from './button';
@@ -18,16 +18,26 @@ export function SessionTimeoutWarning({
 }: SessionTimeoutWarningProps) {
   const [progress, setProgress] = useState(100);
   
+  // Debug logging
+  useEffect(() => {
+    console.log('🚨 SessionTimeoutWarning - isOpen changed:', isOpen);
+    console.log('🚨 SessionTimeoutWarning - timeRemaining:', timeRemaining);
+  }, [isOpen, timeRemaining]);
+  
   // Update progress bar based on time remaining
   useEffect(() => {
     if (!isOpen) return;
     
+    console.log('🚨 SessionTimeoutWarning - Updating progress bar, timeRemaining:', timeRemaining);
+    
     const [minutes, seconds] = timeRemaining.split(':').map(Number);
     const totalSeconds = minutes * 60 + seconds;
     
-    // Assuming warning shows 60 seconds before timeout
-    const percentage = Math.min(100, Math.max(0, (totalSeconds / 60) * 100));
+    // Assuming warning shows 30 seconds before timeout (updated from 60)
+    const percentage = Math.min(100, Math.max(0, (totalSeconds / 30) * 100));
     setProgress(percentage);
+    
+    console.log('🚨 SessionTimeoutWarning - Progress set to:', percentage);
   }, [isOpen, timeRemaining]);
 
   return (

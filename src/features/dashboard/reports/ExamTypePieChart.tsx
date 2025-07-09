@@ -2,14 +2,12 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Card } from '@shared/components/ui/card';
 import { Stethoscope, Activity, Heart, Eye } from 'lucide-react';
 import { useDashboardStats } from '@shared/hooks/useDashboardStats';
-import { useBreakpoint } from '@shared/components/ui/media-query';
 
 const ExamTypePieChart: React.FC = () => {
   const { data: stats, isLoading } = useDashboardStats();
   const [hoveredSegmentIndex, setHoveredSegmentIndex] = useState<number | null>(null);
   const [chartSize, setChartSize] = useState({ width: 0, height: 0 });
   const containerRef = useRef<HTMLDivElement>(null);
-  const isDesktop = useBreakpoint('lg');
 
   // Update chart size based on container size
   useEffect(() => {

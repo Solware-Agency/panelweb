@@ -19,7 +19,7 @@ export function prepareSubmissionData(data: FormValues, exchangeRate: number | u
 		full_name: data.fullName,
 		id_number: data.idNumber,
 		phone: data.phone,
-		date_of_birth: format(data.dateOfBirth, 'yyyy-MM-dd'), // Format date for database
+		date_of_birth: data.dateOfBirth ? format(data.dateOfBirth as Date, 'yyyy-MM-dd') : '', // Format date for database
 		email: data.email,
 		exam_type: data.examType,
 		origin: data.origin,

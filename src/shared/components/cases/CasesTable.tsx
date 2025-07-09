@@ -8,7 +8,6 @@ import {
 	CalendarIcon,
 	User,
 	Stethoscope,
-	CreditCard,
 	FileText,
 	Download,
 	Maximize2,
@@ -20,7 +19,6 @@ import { es } from 'date-fns/locale'
 import { useToast } from '@shared/hooks/use-toast'
 import { Button } from '@shared/components/ui/button'
 import { useAuth } from '@app/providers/AuthContext'
-import { useBreakpoint } from '@shared/components/ui/media-query'
 import { useUserProfile } from '@shared/hooks/useUserProfile'
 import GenerateBiopsyModal from './GenerateBiopsyModal'
 import DoctorFilterPanel from './DoctorFilterPanel'
@@ -77,7 +75,6 @@ const CasesTable: React.FC<CasesTableProps> = ({
 	const [selectedDoctors, setSelectedDoctors] = useState<string[]>([])
 	const [showDoctorFilter, setShowDoctorFilter] = useState(false)
 	const [isSearching, setIsSearching] = useState(false)
-	const isDesktop = useBreakpoint('lg')
 
 	// Case actions popover component
 	const CaseActionsPopover = ({ case_ }: { case_: MedicalRecord }) => {
