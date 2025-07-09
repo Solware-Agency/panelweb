@@ -1,6 +1,3 @@
-Here's the fixed version with the missing closing brackets and corrected syntax:
-
-```javascript
 {filteredAndSortedCases.length > 0 ? (
   filteredAndSortedCases.slice(0, 100).map((case_) => {
     const ageDisplay = case_.date_of_birth ? getAgeDisplay(case_.date_of_birth) : ''
@@ -91,4 +88,3 @@ Here's the fixed version with the missing closing brackets and corrected syntax:
     </td>
   </tr>
 )}
-```
