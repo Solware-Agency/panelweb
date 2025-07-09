@@ -5,6 +5,7 @@ import type { MedicalRecord } from '@lib/supabase-service'
 import { getAgeDisplay } from '@lib/supabase-service'
 import { format, parseISO } from 'date-fns'
 import { es } from 'date-fns/locale'
+import { BranchBadge } from '@shared/components/ui/branch-badge'
 
 interface CaseDetailPanelProps {
 	case_: MedicalRecord | null
@@ -163,9 +164,11 @@ const CaseDetailPanel: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClos
 										</div>
 
 										{/* Branch */}
-										<div>
+										<div className="flex flex-col">
 											<p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">Sede:</p>
-											<p className="text-sm sm:text-base font-medium">{case_.branch}</p>
+											<div className="mt-1">
+												<BranchBadge branch={case_.branch} />
+											</div>
 										</div>
 									</div>
 
