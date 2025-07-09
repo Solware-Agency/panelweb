@@ -25,6 +25,13 @@ import GenerateBiopsyModal from './GenerateBiopsyModal'
 import DoctorFilterPanel from './DoctorFilterPanel'
 import { generatePDF } from '@shared/utils/pdf-generator'
 import UnifiedCaseModal from './UnifiedCaseModal'
+import {
+	PopoverBody,
+	PopoverButton,
+	PopoverContent,
+	PopoverRoot,
+	PopoverTrigger,
+} from '@shared/components/ui/PopoverInput'
 
 interface CasesTableProps {
 	cases: MedicalRecord[]
@@ -69,8 +76,53 @@ const CasesTable: React.FC<CasesTableProps> = ({
 	const [showDoctorFilter, setShowDoctorFilter] = useState(false)
 	const [isSearching, setIsSearching] = useState(false)
 
+	// Case actions popover component
+	const CaseActionsPopover = ({ case_ }: { case_: MedicalRecord }) => {
+		const isBiopsyCase = case_.exam_type?.toLowerCase() === 'biopsia'
+		const hasDownloadableContent = isBiopsyCase && !!case_.diagnostico
+
+		return (
+			<PopoverRoot>
+				<PopoverTrigger className="px-3 py-1 text-xs">Acciones</PopoverTrigger>
+				<PopoverContent className="w-30 h-auto">
+					<PopoverBody className="p-1">
+						<PopoverButton onClick={() => handleCaseSelect(case_)}>
+							<Eye className="w-4 h-4" />
+							<span>Ver</span>
+						</PopoverButton>
+
+						{isBiopsyCase && canGenerate && (
+							<PopoverButton onClick={() => handleGenerateCase(case_)}>
+								<FileText className="w-4 h-4" />
+								<span>Generar</span>
+							</PopoverButton>
+						)}
+
+						{hasDownloadableContent && (
+							<PopoverButton
+								onClick={() => handleDownloadCase(case_)}
+								className={isDownloading === case_.id ? 'opacity-50 cursor-not-allowed' : ''}
+							>
+								{isDownloading === case_.id ? (
+									<div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current"></div>
+								) : (
+									<Download className="w-4 h-4" />
+								)}
+								<span>PDF</span>
+							</PopoverButton>
+						)}
+					</PopoverBody>
+				</PopoverContent>
+			</PopoverRoot>
+		)
+	}
+
 	// Determine if user can edit, delete, or generate cases based on role
 	const canGenerate = profile?.role === 'owner' || profile?.role === 'admin'
+
+	// const isAdmin = profile?.role === 'admin'
+	// const isOwner = profile?.role === 'owner'
+	const isEmployee = profile?.role === 'employee'
 
 	// Use a ref to track if we're in the dashboard or form view
 
@@ -330,8 +382,6 @@ const CasesTable: React.FC<CasesTableProps> = ({
 	const CaseCard = useCallback(
 		({ case_ }: { case_: MedicalRecord }) => {
 			const ageDisplay = case_.date_of_birth ? getAgeDisplay(case_.date_of_birth) : ''
-			const isBiopsyCase = case_.exam_type?.toLowerCase() === 'biopsia'
-			const hasDownloadableContent = isBiopsyCase && !!case_.diagnostico
 
 			return (
 				<div className="bg-white dark:bg-background rounded-lg p-4 border border-gray-200 dark:border-gray-700 hover:shadow-md">
@@ -402,38 +452,8 @@ const CasesTable: React.FC<CasesTableProps> = ({
 					)}
 
 					{/* Action buttons */}
-					<div className="flex gap-1 mt-3 pt-2 border-t border-gray-200 dark:border-gray-700">
-						<button
-							onClick={() => handleCaseSelect(case_)}
-							className="flex-1 inline-flex items-center justify-center gap-1 px-3 py-2 text-xs font-medium text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 bg-blue-50 dark:bg-blue-900/20 hover:bg-blue-100 dark:hover:bg-blue-900/30 rounded-lg"
-						>
-							<Eye className="w-3 h-3" />
-							Ver
-						</button>
-						{isBiopsyCase && (
-							<button
-								onClick={() => handleGenerateCase(case_)}
-								className="flex-1 inline-flex items-center justify-center gap-1 px-3 py-2 text-xs font-medium text-green-600 dark:text-green-400 hover:text-green-800 dark:hover:text-green-300 bg-green-50 dark:bg-green-900/20 hover:bg-green-100 dark:hover:bg-green-900/30 rounded-lg"
-								disabled={!canGenerate}
-							>
-								<FileText className="w-3 h-3" />
-								Generar
-							</button>
-						)}
-						{hasDownloadableContent && (
-							<button
-								onClick={() => handleDownloadCase(case_)}
-								className="flex-1 inline-flex items-center justify-center gap-1 px-3 py-2 text-xs font-medium text-orange-600 dark:text-orange-400 hover:text-orange-800 dark:hover:text-orange-300 bg-orange-50 dark:bg-orange-900/20 hover:bg-orange-100 dark:hover:bg-orange-900/30 rounded-lg"
-								disabled={isDownloading === case_.id}
-							>
-								{isDownloading === case_.id ? (
-									<div className="animate-spin rounded-full h-3 w-3 border-b-2 border-current"></div>
-								) : (
-									<Download className="w-3 h-3" />
-								)}
-								PDF
-							</button>
-						)}
+					<div className="flex justify-center mt-3 pt-2 border-t border-gray-200 dark:border-gray-700">
+						<CaseActionsPopover case_={case_} />
 					</div>
 				</div>
 			)
@@ -587,7 +607,7 @@ const CasesTable: React.FC<CasesTableProps> = ({
 										onChange={handlePdfFilterToggle}
 										className="rounded border-gray-300 text-primary focus:ring-primary"
 									/>
-									<span className="text-sm">Solo PDF disponibles</span>
+									<span className="text-sm">PDF disponibles</span>
 								</label>
 							</div>
 						</div>
@@ -708,9 +728,6 @@ const CasesTable: React.FC<CasesTableProps> = ({
 											<SortIcon field="total_amount" />
 										</button>
 									</th>
-									<th className="px-4 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-										Acciones
-									</th>
 								</tr>
 							</thead>
 							<tbody className="divide-y divide-gray-200 dark:divide-gray-700">
@@ -718,8 +735,6 @@ const CasesTable: React.FC<CasesTableProps> = ({
 									// Only render the first 100 rows for better performance
 									filteredAndSortedCases.slice(0, 100).map((case_) => {
 										const ageDisplay = case_.date_of_birth ? getAgeDisplay(case_.date_of_birth) : ''
-										const isBiopsyCase = case_.exam_type?.toLowerCase() === 'biopsia'
-										const hasDownloadableContent = isBiopsyCase && !!case_.diagnostico
 
 										return (
 											<tr key={case_.id} className="hover:bg-gray-50 dark:hover:bg-gray-800/50">
@@ -778,47 +793,8 @@ const CasesTable: React.FC<CasesTableProps> = ({
 													)}
 												</td>
 												<td className="px-4 py-4">
-													<div className="flex gap-2">
-														<button
-															onClick={(e) => {
-																e.stopPropagation()
-																handleCaseSelect(case_)
-															}}
-															className="inline-flex items-center gap-1 px-3 py-1 text-xs font-medium text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300"
-														>
-															<Eye className="w-3 h-3" />
-															Ver
-														</button>
-														{isBiopsyCase && (
-															<button
-																onClick={(e) => {
-																	e.stopPropagation()
-																	handleGenerateCase(case_)
-																}}
-																disabled={!canGenerate}
-																className="inline-flex items-center gap-1 px-3 py-1 text-xs font-medium text-green-600 dark:text-green-400 hover:text-green-800 dark:hover:text-green-300"
-															>
-																<FileText className="w-3 h-3" />
-																Generar
-															</button>
-														)}
-														{hasDownloadableContent && (
-															<button
-																onClick={(e) => {
-																	e.stopPropagation()
-																	handleDownloadCase(case_)
-																}}
-																className="inline-flex items-center gap-1 px-3 py-1 text-xs font-medium text-orange-600 dark:text-orange-400 hover:text-orange-800 dark:hover:text-orange-300"
-																disabled={isDownloading === case_.id}
-															>
-																{isDownloading === case_.id ? (
-																	<div className="animate-spin rounded-full h-3 w-3 border-b-2 border-current"></div>
-																) : (
-																	<Download className="w-3 h-3" />
-																)}
-																PDF
-															</button>
-														)}
+													<div className="flex justify-center mx-5">
+														<CaseActionsPopover case_={case_} />
 													</div>
 												</td>
 											</tr>
@@ -966,17 +942,19 @@ const CasesTable: React.FC<CasesTableProps> = ({
 							</button>
 
 							{/* PDF Ready Filter */}
-							<div className="flex items-center gap-2 flex-shrink-0">
-								<label className="flex items-center gap-2 cursor-pointer">
-									<input
-										type="checkbox"
-										checked={showPdfReadyOnly}
-										onChange={handlePdfFilterToggle}
-										className="rounded border-gray-300 text-primary focus:ring-primary"
-									/>
-									<span className="text-sm">PDF disponibles</span>
-								</label>
-							</div>
+							{!isEmployee && (
+								<div className="flex items-center gap-2 flex-shrink-0">
+									<label className="flex items-center gap-2 cursor-pointer">
+										<input
+											type="checkbox"
+											checked={showPdfReadyOnly}
+											onChange={handlePdfFilterToggle}
+											className="rounded border-gray-300 text-primary focus:ring-primary"
+										/>
+										<span className="text-sm">PDF disponibles</span>
+									</label>
+								</div>
+							)}
 
 							{/* Results count */}
 							<div className="text-sm text-gray-600 dark:text-gray-400 hidden sm:flex">
@@ -1078,9 +1056,6 @@ const CasesTable: React.FC<CasesTableProps> = ({
 												<SortIcon field="total_amount" />
 											</button>
 										</th>
-										<th className="px-4 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-											Acciones
-										</th>
 									</tr>
 								</thead>
 								<tbody className="divide-y divide-gray-200 dark:divide-gray-700">
@@ -1088,8 +1063,6 @@ const CasesTable: React.FC<CasesTableProps> = ({
 										// Only render the first 100 rows for better performance
 										filteredAndSortedCases.slice(0, 100).map((case_) => {
 											const ageDisplay = case_.date_of_birth ? getAgeDisplay(case_.date_of_birth) : ''
-											const isBiopsyCase = case_.exam_type?.toLowerCase() === 'biopsia'
-											const hasDownloadableContent = isBiopsyCase && !!case_.diagnostico
 
 											return (
 												<tr key={case_.id} className="hover:bg-gray-50 dark:hover:bg-gray-800/50">
@@ -1150,47 +1123,8 @@ const CasesTable: React.FC<CasesTableProps> = ({
 														)}
 													</td>
 													<td className="px-4 py-4">
-														<div className="flex gap-2">
-															<button
-																onClick={(e) => {
-																	e.stopPropagation()
-																	handleCaseSelect(case_)
-																}}
-																className="inline-flex items-center gap-1 px-3 py-1 text-xs font-medium text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300"
-															>
-																<Eye className="w-3 h-3" />
-																Ver
-															</button>
-															{isBiopsyCase && (
-																<button
-																	onClick={(e) => {
-																		e.stopPropagation()
-																		handleGenerateCase(case_)
-																	}}
-																	disabled={!canGenerate}
-																	className="inline-flex items-center gap-1 px-3 py-1 text-xs font-medium text-green-600 dark:text-green-400 hover:text-green-800 dark:hover:text-green-300"
-																>
-																	<FileText className="w-3 h-3" />
-																	Generar
-																</button>
-															)}
-															{hasDownloadableContent && (
-																<button
-																	onClick={(e) => {
-																		e.stopPropagation()
-																		handleDownloadCase(case_)
-																	}}
-																	className="inline-flex items-center gap-1 px-3 py-1 text-xs font-medium text-orange-600 dark:text-orange-400 hover:text-orange-800 dark:hover:text-orange-300"
-																	disabled={isDownloading === case_.id}
-																>
-																	{isDownloading === case_.id ? (
-																		<div className="animate-spin rounded-full h-3 w-3 border-b-2 border-current"></div>
-																	) : (
-																		<Download className="w-3 h-3" />
-																	)}
-																	PDF
-																</button>
-															)}
+														<div className="flex justify-center mx-5">
+															<CaseActionsPopover case_={case_} />
 														</div>
 													</td>
 												</tr>
