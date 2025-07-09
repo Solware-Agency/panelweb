@@ -366,15 +366,18 @@ const UserSettingsPanel: React.FC = () => {
             </div>
           </div>
         </div>
-        </Card>
-      </div>
-    </div>
-  )
+      </Card>
+      
       <div className="mt-6 space-y-6">
         {/* Session Timeout Settings */}
         <SessionTimeoutSettings />
         
         {/* Security Information */}
         <Card className="hover:border-primary hover:shadow-lg hover:shadow-primary/20">
+        </Card>
+      </div>
+    </div>
+  )
+}
 
 export default UserSettingsPanel
