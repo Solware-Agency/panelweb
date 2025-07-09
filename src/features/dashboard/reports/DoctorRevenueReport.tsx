@@ -2,9 +2,11 @@ import React from 'react'
 import { Card } from '@shared/components/ui/card'
 import { User } from 'lucide-react'
 import { useDashboardStats } from '@shared/hooks/useDashboardStats'
+import { useBreakpoint } from '@shared/components/ui/media-query'
 
 const DoctorRevenueReport: React.FC = () => {
   const { data: stats, isLoading } = useDashboardStats()
+  const isDesktop = useBreakpoint('lg')
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('es-VE', {
@@ -26,71 +28,108 @@ const DoctorRevenueReport: React.FC = () => {
         </div>
 
         <div className="overflow-x-auto">
-          <table className="w-full min-w-full">
-            <thead>
-              <tr className="border-b border-gray-200 dark:border-gray-700">
-                <th className="text-left py-3 text-gray-600 dark:text-gray-400 font-medium text-sm">Médico Tratante</th>
-                <th className="text-center py-3 text-gray-600 dark:text-gray-400 font-medium text-sm">Casos</th>
-                <th className="text-right py-3 text-gray-600 dark:text-gray-400 font-medium text-sm">Monto Total</th>
-                <th className="text-right py-3 text-gray-600 dark:text-gray-400 font-medium text-sm">% del Total</th>
-              </tr>
-            </thead>
-            <tbody>
-              {isLoading ? (
-                <tr>
-                  <td colSpan={4} className="py-8 text-center">
-                    <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-500 mx-auto"></div>
-                  </td>
-                </tr>
-              ) : stats?.topTreatingDoctors && stats.topTreatingDoctors.length > 0 ? (
-                stats.topTreatingDoctors.map((doctor, index) => (
-                  <tr key={index} className="border-b border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800/50">
-                    <td className="py-4">
-                      <div className="flex items-center gap-2">
-                        <div className="w-8 h-8 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center">
-                          <User className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+          {isLoading ? (
+            <div className="py-8 text-center">
+              <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-500 mx-auto"></div>
+            </div>
+          ) : stats?.topTreatingDoctors && stats.topTreatingDoctors.length > 0 ? (
+            isDesktop ? (
+              <table className="w-full min-w-full">
+                <thead>
+                  <tr className="border-b border-gray-200 dark:border-gray-700">
+                    <th className="text-left py-3 text-gray-600 dark:text-gray-400 font-medium text-sm">Médico Tratante</th>
+                    <th className="text-center py-3 text-gray-600 dark:text-gray-400 font-medium text-sm">Casos</th>
+                    <th className="text-right py-3 text-gray-600 dark:text-gray-400 font-medium text-sm">Monto Total</th>
+                    <th className="text-right py-3 text-gray-600 dark:text-gray-400 font-medium text-sm">% del Total</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {stats.topTreatingDoctors.map((doctor, index) => (
+                    <tr key={index} className="border-b border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800/50">
+                      <td className="py-4">
+                        <div className="flex items-center gap-2">
+                          <div className="w-8 h-8 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center">
+                            <User className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+                          </div>
+                          <div>
+                            <p className="font-medium text-gray-700 dark:text-gray-300 text-sm">{doctor.doctor}</p>
+                          </div>
                         </div>
-                        <div>
-                          <p className="font-medium text-gray-700 dark:text-gray-300 text-sm">{doctor.doctor}</p>
+                      </td>
+                      <td className="py-4 text-center">
+                        <span className="inline-flex items-center justify-center px-2 py-1 text-xs font-medium rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300">
+                          {doctor.cases} caso{doctor.cases !== 1 ? 's' : ''}
+                        </span>
+                      </td>
+                      <td className="py-4 text-right">
+                        <p className="text-base font-bold text-gray-700 dark:text-gray-300">{formatCurrency(doctor.revenue)}</p>
+                      </td>
+                      <td className="py-4 text-right">
+                        <p className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                          {((doctor.revenue / stats.totalRevenue) * 100).toFixed(1)}%
+                        </p>
+                        <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-1.5 mt-1">
+                          <div 
+                            className="bg-blue-500 h-1.5 rounded-full" 
+                            style={{ 
+                              width: `${stats.topTreatingDoctors.length > 0 ? 
+                                (doctor.revenue / Math.max(...stats.topTreatingDoctors.map(d => d.revenue))) * 100 : 0}%` 
+                            }}
+                          ></div>
                         </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            ) : (
+              // Mobile card view
+              <div className="space-y-4 px-2">
+                {stats.topTreatingDoctors.map((doctor, index) => (
+                  <div 
+                    key={index} 
+                    className="bg-white dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-lg p-3"
+                  >
+                    <div className="flex items-center gap-2 mb-2">
+                      <div className="w-8 h-8 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center">
+                        <User className="w-4 h-4 text-blue-600 dark:text-blue-400" />
                       </div>
-                    </td>
-                    <td className="py-4 text-center">
+                      <div className="flex-1 min-w-0">
+                        <p className="font-medium text-gray-700 dark:text-gray-300 text-sm truncate">{doctor.doctor}</p>
+                      </div>
+                      <p className="text-base font-bold text-gray-700 dark:text-gray-300">{formatCurrency(doctor.revenue)}</p>
+                    </div>
+                    
+                    <div className="flex items-center justify-between mb-1">
                       <span className="inline-flex items-center justify-center px-2 py-1 text-xs font-medium rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300">
                         {doctor.cases} caso{doctor.cases !== 1 ? 's' : ''}
                       </span>
-                    </td>
-                    <td className="py-4 text-right">
-                      <p className="text-base font-bold text-gray-700 dark:text-gray-300">{formatCurrency(doctor.revenue)}</p>
-                    </td>
-                    <td className="py-4 text-right">
-                      <p className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                      <span className="text-xs font-medium text-gray-700 dark:text-gray-300">
                         {((doctor.revenue / stats.totalRevenue) * 100).toFixed(1)}%
-                      </p>
-                      <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-1.5 mt-1">
-                        <div 
-                          className="bg-blue-500 h-1.5 rounded-full" 
-                          style={{ 
-                            width: `${stats.topTreatingDoctors.length > 0 ? 
-                              (doctor.revenue / Math.max(...stats.topTreatingDoctors.map(d => d.revenue))) * 100 : 0}%` 
-                          }}
-                        ></div>
-                      </div>
-                    </td>
-                  </tr>
-                ))
-              ) : (
-                <tr>
-                  <td colSpan={4} className="py-8 text-center">
-                    <div className="text-gray-500 dark:text-gray-400">
-                      <User className="w-12 h-12 mx-auto mb-4 opacity-50" />
-                      <p className="text-lg font-medium">No hay datos de médicos</p>
+                      </span>
                     </div>
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
+                    
+                    <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-1.5">
+                      <div 
+                        className="bg-blue-500 h-1.5 rounded-full" 
+                        style={{ 
+                          width: `${stats.topTreatingDoctors.length > 0 ? 
+                            (doctor.revenue / Math.max(...stats.topTreatingDoctors.map(d => d.revenue))) * 100 : 0}%` 
+                        }}
+                      ></div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )
+          ) : (
+            <div className="py-8 text-center">
+              <div className="text-gray-500 dark:text-gray-400">
+                <User className="w-12 h-12 mx-auto mb-4 opacity-50" />
+                <p className="text-lg font-medium">No hay datos de médicos</p>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </Card>

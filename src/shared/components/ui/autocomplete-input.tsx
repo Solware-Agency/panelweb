@@ -11,6 +11,8 @@ interface AutocompleteInputProps extends React.ComponentProps<typeof Input> {
   minSearchLength?: number;
   iconRight?: React.ReactNode;
   iconLeft?: React.ReactNode;
+  iconRight?: React.ReactNode;
+  iconLeft?: React.ReactNode;
 }
 
 // Use React.memo to prevent unnecessary re-renders
@@ -207,19 +209,19 @@ export const AutocompleteInput = React.memo(React.forwardRef<
   // Determine the icon based on field and state - memoized to prevent unnecessary recalculations
   const getIcon = React.useMemo(() => {
     if (isLoading && !searchTerminated && !isAutofilled) {
-      return <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />;
+      return <Loader2 className="h-4 w-4 animate-spin" />;
     }
     
     if (fieldName === 'idNumber') {
-      return <User className="h-4 w-4 text-muted-foreground" />;
+      return <User className="h-4 w-4" />;
     }
     
     if (showSuggestions && inputValue.length === 0 && !searchTerminated && !isAutofilled) {
-      return <Shuffle className="h-4 w-4 text-muted-foreground" />;
+      return <Shuffle className="h-4 w-4" />;
     }
     
     if (hasFocused && !searchTerminated && !isAutofilled) {
-      return <Search className="h-4 w-4 text-muted-foreground" />;
+      return <Search className="h-4 w-4" />;
     }
     
     return null;
@@ -246,9 +248,6 @@ export const AutocompleteInput = React.memo(React.forwardRef<
           onFocus={handleFocus}
           className={cn(className)}
           autoComplete="off"
-          iconLeft={iconLeft}
-          iconRight={iconRight || getIcon}
-        />
       </div>
       
       {showSuggestions && suggestions.length > 0 && !searchTerminated && !isAutofilled && (
@@ -267,14 +266,6 @@ export const AutocompleteInput = React.memo(React.forwardRef<
               className={cn(
                 "px-3 py-2 cursor-pointer hover:bg-blue-50 dark:hover:bg-blue-900/20 flex items-center transition-colors",
                 selectedIndex === index && "bg-blue-100 dark:bg-blue-900/30",
-                fieldName === 'idNumber' && "hover:bg-green-50 dark:hover:bg-green-900/20"
-              )}
-              onClick={() => handleSuggestionClick(suggestion.value)}
-            >
-              <span className="text-sm text-gray-900 dark:text-gray-100 truncate flex items-center gap-2">
-                {fieldName === 'idNumber' && <User className="h-3 w-3 text-green-600 dark:text-green-400" />}
-                {suggestion.value}
-              </span>
             </div>
           ))}
           <div className="px-3 py-2 text-xs text-gray-400 dark:text-gray-500 bg-gray-50 dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700">

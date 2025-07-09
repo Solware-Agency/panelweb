@@ -20,6 +20,7 @@ import { es } from 'date-fns/locale'
 import { useToast } from '@shared/hooks/use-toast'
 import { Button } from '@shared/components/ui/button'
 import { useAuth } from '@app/providers/AuthContext'
+import { useBreakpoint } from '@shared/components/ui/media-query'
 import { useUserProfile } from '@shared/hooks/useUserProfile'
 import GenerateBiopsyModal from './GenerateBiopsyModal'
 import DoctorFilterPanel from './DoctorFilterPanel'
@@ -76,6 +77,7 @@ const CasesTable: React.FC<CasesTableProps> = ({
 	const [selectedDoctors, setSelectedDoctors] = useState<string[]>([])
 	const [showDoctorFilter, setShowDoctorFilter] = useState(false)
 	const [isSearching, setIsSearching] = useState(false)
+	const isDesktop = useBreakpoint('lg')
 
 	// Case actions popover component
 	const CaseActionsPopover = ({ case_ }: { case_: MedicalRecord }) => {
@@ -382,78 +384,88 @@ const CasesTable: React.FC<CasesTableProps> = ({
 	// Mobile Card Component - Memoized to prevent unnecessary re-renders
 	const CaseCard = useCallback(
 		({ case_ }: { case_: MedicalRecord }) => {
-			const ageDisplay = case_.date_of_birth ? getAgeDisplay(case_.date_of_birth) : ''
+			const ageDisplay = case_.date_of_birth ? getAgeDisplay(case_.date_of_birth) : '';
+			const formattedDate = case_.created_at ? format(new Date(case_.created_at), 'dd/MM/yyyy', { locale: es }) : 'N/A';
 
 			return (
-				<div className="bg-white dark:bg-background rounded-lg p-4 border border-gray-200 dark:border-gray-700 hover:shadow-md">
+				<div className="bg-white dark:bg-background rounded-lg p-3 border border-gray-200 dark:border-gray-700 hover:shadow-md">
 					{/* Header with status and code */}
-					<div className="flex items-center justify-between mb-3">
-						<span
-							className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(
-								case_.payment_status,
-							)}`}
-						>
-							{case_.payment_status}
-						</span>
-						<div className="flex items-center gap-2">
-							{case_.code && (
-								<span className="inline-flex items-center gap-1 px-2 py-1 text-xs font-semibold rounded-full bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300">
-									{case_.code}
-								</span>
-							)}
+					<div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-2">
+						<div className="flex flex-wrap gap-1.5">
+							<span
+								className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(
+									case_.payment_status,
+								)}`}
+							>
+								{case_.payment_status}
+							</span>
+							<div className="flex items-center">
+								{case_.code && (
+									<span className="inline-flex items-center gap-1 px-2 py-1 text-xs font-semibold rounded-full bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300">
+										{case_.code}
+									</span>
+								)}
+							</div>
 						</div>
+						<span className="text-xs text-gray-500 dark:text-gray-400 flex items-center gap-1">
+							<CalendarIcon className="w-3 h-3" />
+							{formattedDate}
+						</span>
 					</div>
 
 					{/* Patient info */}
-					<div className="flex items-center gap-2 mb-2">
-						<User className="w-4 h-4 text-blue-600 dark:text-blue-400" />
-						<div>
-							<p className="font-medium text-gray-900 dark:text-gray-100 text-sm">{case_.full_name}</p>
-							<div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
-								<span>{case_.id_number}</span>
-								{ageDisplay && (
-									<>
-										<span>•</span>
-										<span>{ageDisplay}</span>
-									</>
-								)}
+					<div className="grid grid-cols-2 gap-2 mb-2">
+						<div className="col-span-2">
+							<div className="flex items-center gap-2">
+								<User className="w-4 h-4 text-blue-600 dark:text-blue-400 flex-shrink-0" />
+								<div className="min-w-0">
+									<p className="font-medium text-gray-900 dark:text-gray-100 text-sm truncate">{case_.full_name}</p>
+									<div className="flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400 flex-wrap">
+										<span className="truncate">{case_.id_number}</span>
+										{ageDisplay && (
+											<>
+												<span>•</span>
+												<span>{ageDisplay}</span>
+											</>
+										)}
+									</div>
+								</div>
 							</div>
+						</div>
+						
+						<div>
+							<p className="text-xs text-gray-500 dark:text-gray-400">Tipo</p>
+							<p className="text-sm text-gray-900 dark:text-gray-100 truncate">{case_.exam_type}</p>
+						</div>
+						
+						<div>
+							<p className="text-xs text-gray-500 dark:text-gray-400">Sede</p>
+							<BranchBadge branch={case_.branch} className="text-xs" />
 						</div>
 					</div>
 
 					{/* Medical info */}
-					<div className="flex items-center gap-2 mb-2">
-						<Stethoscope className="w-4 h-4 text-green-600 dark:text-green-400" />
+					<div className="grid grid-cols-2 gap-2 mb-2">
 						<div>
-							<p className="text-sm text-gray-900 dark:text-gray-100">{case_.exam_type}</p>
-							<p className="text-xs text-gray-500 dark:text-gray-400">{case_.treating_doctor}</p>
+							<p className="text-xs text-gray-500 dark:text-gray-400">Médico</p>
+							<p className="text-sm text-gray-900 dark:text-gray-100 truncate">{case_.treating_doctor}</p>
 						</div>
-					</div>
-
-					{/* Date and amount */}
-					<div className="flex items-center justify-between pt-2 border-t border-gray-200 dark:border-gray-700">
-						<div className="flex items-center gap-1">
-							<CalendarIcon className="w-3 h-3 text-gray-400" />
-							<span className="text-xs text-gray-500 dark:text-gray-400">
-								{case_.created_at ? format(new Date(case_.created_at), 'dd/MM/yyyy', { locale: es }) : 'N/A'}
-							</span>
-						</div>
-						<div className="flex items-center gap-1">
-							<CreditCard className="w-3 h-3 text-gray-400" />
-							<span className="text-sm font-medium text-gray-900 dark:text-gray-100">
+						
+						<div>
+							<p className="text-xs text-gray-500 dark:text-gray-400">Monto</p>
+							<p className="text-sm font-medium text-gray-900 dark:text-gray-100">
 								${case_.total_amount.toLocaleString()}
-							</span>
+							</p>
+							{case_.remaining > 0 && (
+								<p className="text-xs text-red-600 dark:text-red-400">
+									Faltante: ${case_.remaining.toLocaleString()}
+								</p>
+							)}
 						</div>
 					</div>
-
-					{case_.remaining > 0 && (
-						<div className="mt-2 text-xs text-red-600 dark:text-red-400">
-							Faltante: ${case_.remaining.toLocaleString()}
-						</div>
-					)}
 
 					{/* Action buttons */}
-					<div className="flex justify-center mt-3 pt-2 border-t border-gray-200 dark:border-gray-700">
+					<div className="flex justify-center mt-2 pt-2 border-t border-gray-200 dark:border-gray-700">
 						<CaseActionsPopover case_={case_} />
 					</div>
 				</div>
@@ -662,7 +674,7 @@ const CasesTable: React.FC<CasesTableProps> = ({
 				<div className="flex-1 overflow-hidden mobile-scroll-container">
 					{/* Mobile View - Cards */}
 					<div className="block lg:hidden h-full overflow-y-auto px-3 py-4">
-						<div className="space-y-3">
+						<div className="p-2 sm:p-4 space-y-3 max-h-[60vh] overflow-y-auto">
 							{filteredAndSortedCases.length > 0 ? (
 								filteredAndSortedCases.map((case_) => <CaseCard key={case_.id} case_={case_} />)
 							) : (

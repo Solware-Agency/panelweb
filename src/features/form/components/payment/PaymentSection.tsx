@@ -16,6 +16,7 @@ import { PaymentSectionSkeleton } from './PaymentSectionSkeleton'
 import { calculatePaymentDetails } from '@features/form/lib/payment/payment-utils'
 import { Input } from '@shared/components/ui/input'
 import { FormLabel } from '@shared/components/ui/form'
+import { DollarSign } from 'lucide-react'
 
 interface PaymentSectionProps {
 	control: Control<FormValues>
@@ -71,19 +72,19 @@ export const PaymentSection = ({
 
 	return (
 		<Card className="transition-all duration-300 hover:border-primary hover:shadow-lg hover:shadow-primary/20">
-			<CardHeader className="p-3 sm:p-4 md:p-6">
-				<CardTitle className="text-base sm:text-lg md:text-xl flex items-center">Pago</CardTitle>
+			<CardHeader className="p-3 sm:p-4">
+				<CardTitle className="text-base sm:text-lg flex items-center">Pago</CardTitle>
 				<div className="w-12 sm:w-16 md:w-20 h-1 bg-primary mt-1 rounded-full" />
 			</CardHeader>
-			<CardContent className="p-3 sm:p-4 md:p-6 pt-0 sm:pt-0 md:pt-0 space-y-4 sm:space-y-6">
-				<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-3 md:gap-4">
+			<CardContent className="p-3 sm:p-4 pt-0 sm:pt-0 space-y-4">
+				<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-3">
 					<PaymentHeader
 						control={control}
 						inputStyles={inputStyles}
 						exchangeRate={exchangeRate}
 						isLoadingRate={isLoadingRate}
 					/>
-					<div className="flex flex-col md:flex-row gap-3 md:col-span-1 lg:col-span-2">
+					<div className="flex flex-col sm:flex-row gap-2 sm:col-span-1 lg:col-span-2">
 						<CurrencyConverter
 							usdValue={usdValue}
 							setUsdValue={setUsdValue}

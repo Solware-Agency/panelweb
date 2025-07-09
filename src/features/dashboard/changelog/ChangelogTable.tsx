@@ -23,6 +23,7 @@ import { es } from 'date-fns/locale'
 import { useToast } from '@shared/hooks/use-toast'
 import { useUserProfile } from '@shared/hooks/useUserProfile'
 import { supabase } from '@lib/supabase/config'
+import { useBreakpoint } from '@shared/components/ui/media-query'
 import { Popover, PopoverContent, PopoverTrigger } from '@shared/components/ui/popover'
 import { Calendar as CalendarComponent } from '@shared/components/ui/calendar'
 
@@ -56,6 +57,7 @@ const ChangelogTable: React.FC = () => {
 	const [isDeleting, setIsDeleting] = useState<string | null>(null)
 	const [isConfirmDeleteOpen, setIsConfirmDeleteOpen] = useState(false)
 	const [logToDelete, setLogToDelete] = useState<string | null>(null)
+	const isDesktop = useBreakpoint('lg')
 
 	// Check if user is owner (only owners can delete logs)
 
@@ -281,7 +283,7 @@ const ChangelogTable: React.FC = () => {
 			</Card>
 
 			{/* Changelog Table */}
-			<Card>
+			<Card className="overflow-hidden">
 				<div className="overflow-x-auto">
 					{isLoading ? (
 						<div className="flex items-center justify-center p-8">
@@ -301,115 +303,195 @@ const ChangelogTable: React.FC = () => {
 							</p>
 						</div>
 					) : (
-						<table className="w-full">
-							<thead className="bg-gray-50/50 dark:bg-background/50 backdrop-blur-[10px] sticky top-0 z-10">
-								<tr>
-									<th className="px-4 py-3 text-left">
-										<div className="flex items-center gap-2 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-											Fecha
-											<ArrowUpDown className="w-3 h-3" />
-										</div>
-									</th>
-									<th className="px-4 py-3 text-left">
-										<div className="flex items-center gap-2 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-											Usuario
-										</div>
-									</th>
-									<th className="px-4 py-3 text-left">
-										<div className="flex items-center gap-2 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-											Caso
-										</div>
-									</th>
-									<th className="px-4 py-3 text-left">
-										<div className="flex items-center gap-2 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-											Acción
-										</div>
-									</th>
-									<th className="px-4 py-3 text-left">
-										<div className="flex items-center gap-2 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-											Detalles
-										</div>
-									</th>
-								</tr>
-							</thead>
-							<tbody className="divide-y divide-gray-200 dark:divide-gray-700">
-								{filteredLogs.map((log: any) => {
-									const actionInfo = getActionTypeInfo(log)
-
-									return (
-										<tr key={log.id} className="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
-											{/* Date */}
-											<td className="px-4 py-4 text-sm text-gray-900 dark:text-gray-100">
-												<div className="flex flex-col">
-													<span>{format(new Date(log.changed_at), 'dd/MM/yyyy', { locale: es })}</span>
-													<span className="text-xs text-gray-500 dark:text-gray-400">
-														{format(new Date(log.changed_at), 'HH:mm:ss', { locale: es })}
-													</span>
+						<>
+							{/* Desktop view */}
+							<div className="hidden lg:block">
+								<table className="w-full">
+									<thead className="bg-gray-50/50 dark:bg-background/50 backdrop-blur-[10px] sticky top-0 z-10">
+										<tr>
+											<th className="px-4 py-3 text-left">
+												<div className="flex items-center gap-2 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+													Fecha
+													<ArrowUpDown className="w-3 h-3" />
 												</div>
-											</td>
-
-											{/* User */}
-											<td className="px-4 py-4">
-												<div className="flex items-center gap-2">
-													<User className="w-4 h-4 text-gray-500 dark:text-gray-400" />
-													<span className="text-sm text-gray-900 dark:text-gray-100">{log.user_email}</span>
+											</th>
+											<th className="px-4 py-3 text-left">
+												<div className="flex items-center gap-2 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+													Usuario
 												</div>
-											</td>
-
-											{/* Case */}
-											<td className="px-4 py-4">
-												<div className="flex flex-col">
-													<span className="text-sm font-medium text-gray-900 dark:text-gray-100">
-														{log.medical_records_clean?.full_name || 'Caso eliminado'}
-													</span>
-													{log.medical_records_clean?.code && (
-														<span className="text-xs text-gray-500 dark:text-gray-400">
-															{log.medical_records_clean.code}
-														</span>
-													)}
+											</th>
+											<th className="px-4 py-3 text-left">
+												<div className="flex items-center gap-2 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+													Caso
 												</div>
-											</td>
-
-											{/* Action Type */}
-											<td className="px-4 py-4">
-												<div
-													className={`inline-flex items-center gap-1 px-2 py-1 text-xs font-medium rounded-full ${actionInfo.bgColor} ${actionInfo.textColor}`}
-												>
-													{actionInfo.icon}
-													<span>{actionInfo.text}</span>
+											</th>
+											<th className="px-4 py-3 text-left">
+												<div className="flex items-center gap-2 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+													Acción
 												</div>
-											</td>
-
-											{/* Details */}
-											<td className="px-4 py-4">
-												<div className="max-w-xs">
-													{log.field_name === 'created_record' ? (
-														<span className="text-sm text-gray-900 dark:text-gray-100">
-															Creación de nuevo registro médico
-														</span>
-													) : log.field_name === 'deleted_record' ? (
-														<span className="text-sm text-gray-900 dark:text-gray-100">
-															Eliminación del registro: {log.old_value}
-														</span>
-													) : (
-														<div className="text-sm">
-															<p className="font-medium text-gray-900 dark:text-gray-100">{log.field_label}</p>
-															<div className="flex items-center gap-2 mt-1">
-																<span className="line-through text-gray-500 dark:text-gray-400">
-																	{log.old_value || '(vacío)'}
-																</span>
-																<span className="text-xs">→</span>
-																<span className="text-green-600 dark:text-green-400">{log.new_value || '(vacío)'}</span>
-															</div>
-														</div>
-													)}
+											</th>
+											<th className="px-4 py-3 text-left">
+												<div className="flex items-center gap-2 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+													Detalles
 												</div>
-											</td>
+											</th>
 										</tr>
-									)
-								})}
-							</tbody>
-						</table>
+									</thead>
+									<tbody className="divide-y divide-gray-200 dark:divide-gray-700">
+										{filteredLogs.map((log: any) => {
+											const actionInfo = getActionTypeInfo(log)
+
+											return (
+												<tr key={log.id} className="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
+													{/* Date */}
+													<td className="px-4 py-4 text-sm text-gray-900 dark:text-gray-100">
+														<div className="flex flex-col">
+															<span>{format(new Date(log.changed_at), 'dd/MM/yyyy', { locale: es })}</span>
+															<span className="text-xs text-gray-500 dark:text-gray-400">
+																{format(new Date(log.changed_at), 'HH:mm:ss', { locale: es })}
+															</span>
+														</div>
+													</td>
+
+													{/* User */}
+													<td className="px-4 py-4">
+														<div className="flex items-center gap-2">
+															<User className="w-4 h-4 text-gray-500 dark:text-gray-400" />
+															<span className="text-sm text-gray-900 dark:text-gray-100">{log.user_email}</span>
+														</div>
+													</td>
+
+													{/* Case */}
+													<td className="px-4 py-4">
+														<div className="flex flex-col">
+															<span className="text-sm font-medium text-gray-900 dark:text-gray-100">
+																{log.medical_records_clean?.full_name || 'Caso eliminado'}
+															</span>
+															{log.medical_records_clean?.code && (
+																<span className="text-xs text-gray-500 dark:text-gray-400">
+																	{log.medical_records_clean.code}
+																</span>
+															)}
+														</div>
+													</td>
+
+													{/* Action Type */}
+													<td className="px-4 py-4">
+														<div
+															className={`inline-flex items-center gap-1 px-2 py-1 text-xs font-medium rounded-full ${actionInfo.bgColor} ${actionInfo.textColor}`}
+														>
+															{actionInfo.icon}
+															<span>{actionInfo.text}</span>
+														</div>
+													</td>
+
+													{/* Details */}
+													<td className="px-4 py-4">
+														<div className="max-w-xs">
+															{log.field_name === 'created_record' ? (
+																<span className="text-sm text-gray-900 dark:text-gray-100">
+																	Creación de nuevo registro médico
+																</span>
+															) : log.field_name === 'deleted_record' ? (
+																<span className="text-sm text-gray-900 dark:text-gray-100">
+																	Eliminación del registro: {log.old_value}
+																</span>
+															) : (
+																<div className="text-sm">
+																	<p className="font-medium text-gray-900 dark:text-gray-100">{log.field_label}</p>
+																	<div className="flex items-center gap-2 mt-1">
+																		<span className="line-through text-gray-500 dark:text-gray-400">
+																			{log.old_value || '(vacío)'}
+																		</span>
+																		<span className="text-xs">→</span>
+																		<span className="text-green-600 dark:text-green-400">{log.new_value || '(vacío)'}</span>
+																	</div>
+																</div>
+															)}
+														</div>
+													</td>
+												</tr>
+											)
+										})}
+									</tbody>
+								</table>
+							</div>
+							
+							{/* Mobile view - Card layout */}
+							<div className="lg:hidden">
+								<div className="space-y-4 p-3">
+									{filteredLogs.map((log: any) => {
+										const actionInfo = getActionTypeInfo(log);
+										const logDate = format(new Date(log.changed_at), 'dd/MM/yyyy', { locale: es });
+										const logTime = format(new Date(log.changed_at), 'HH:mm:ss', { locale: es });
+										
+										return (
+											<div key={log.id} className="bg-white dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-lg p-3 shadow-sm">
+												{/* Header with date and action type */}
+												<div className="flex items-center justify-between mb-2">
+													<div className="flex flex-col">
+														<span className="text-xs font-medium">{logDate}</span>
+														<span className="text-xs text-gray-500">{logTime}</span>
+													</div>
+													<div className={`inline-flex items-center gap-1 px-2 py-1 text-xs font-medium rounded-full ${actionInfo.bgColor} ${actionInfo.textColor}`}>
+														{actionInfo.icon}
+														<span>{actionInfo.text}</span>
+													</div>
+												</div>
+												
+												{/* User */}
+												<div className="flex items-center gap-2 mb-2 border-t border-gray-100 dark:border-gray-700 pt-2">
+													<User className="w-4 h-4 text-gray-500 dark:text-gray-400" />
+													<span className="text-xs text-gray-900 dark:text-gray-100 truncate">{log.user_email}</span>
+												</div>
+												
+												{/* Case */}
+												<div className="mb-2">
+													<span className="text-xs text-gray-500 dark:text-gray-400">Caso:</span>
+													<div className="flex flex-col">
+														<span className="text-sm font-medium text-gray-900 dark:text-gray-100">
+															{log.medical_records_clean?.full_name || 'Caso eliminado'}
+														</span>
+														{log.medical_records_clean?.code && (
+															<span className="text-xs text-gray-500 dark:text-gray-400">
+																{log.medical_records_clean.code}
+															</span>
+														)}
+													</div>
+												</div>
+												
+												{/* Details */}
+												<div className="border-t border-gray-100 dark:border-gray-700 pt-2">
+													<span className="text-xs text-gray-500 dark:text-gray-400">Detalles:</span>
+													<div className="mt-1">
+														{log.field_name === 'created_record' ? (
+															<span className="text-sm text-gray-900 dark:text-gray-100">
+																Creación de nuevo registro médico
+															</span>
+														) : log.field_name === 'deleted_record' ? (
+															<span className="text-sm text-gray-900 dark:text-gray-100">
+																Eliminación del registro: {log.old_value}
+															</span>
+														) : (
+															<div className="text-sm">
+																<p className="font-medium text-gray-900 dark:text-gray-100">{log.field_label}</p>
+																<div className="flex flex-wrap items-center gap-1 mt-1">
+																	<span className="line-through text-gray-500 dark:text-gray-400 text-xs">
+																		{log.old_value || '(vacío)'}
+																	</span>
+																	<span className="text-xs">→</span>
+																	<span className="text-green-600 dark:text-green-400 text-xs">{log.new_value || '(vacío)'}</span>
+																</div>
+															</div>
+														)}
+													</div>
+												</div>
+											</div>
+										);
+									})}
+								</div>
+							</div>
+						</>
 					)}
 				</div>
 

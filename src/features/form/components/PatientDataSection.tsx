@@ -13,7 +13,7 @@ import { Calendar } from '@shared/components/ui/calendar'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { usePatientAutofill } from '@shared/hooks/usePatientAutofill'
 import { useState, memo, useCallback, useMemo } from 'react'
-import { User, Mail, Phone, CreditCard } from 'lucide-react'
+import { User, Mail, Phone, CreditCard, Calendar } from 'lucide-react'
 
 interface PatientDataSectionProps {
 	control: Control<FormValues>
@@ -59,7 +59,7 @@ export const PatientDataSection = memo(({ control, inputStyles }: PatientDataSec
 	return (
 		<Card className="transition-all duration-300 hover:border-primary hover:shadow-lg hover:shadow-primary/20">
 			<CardHeader className="p-4 sm:p-6">
-				<CardTitle className="flex items-center gap-1.5 sm:gap-2 text-lg sm:text-xl">
+				<CardTitle className="text-base sm:text-lg">
 					Datos del Paciente
 					{isLoadingPatient && <Loader2 className="h-4 w-4 animate-spin text-primary" />}
 					{lastFilledPatient && !isLoadingPatient && (
@@ -70,7 +70,7 @@ export const PatientDataSection = memo(({ control, inputStyles }: PatientDataSec
 					)}
 				</CardTitle>
 			</CardHeader>
-			<CardContent className="p-3 sm:p-4 md:p-6 pt-0 sm:pt-0 md:pt-0 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-3 md:gap-4">
+			<CardContent className="p-3 sm:p-4 pt-0 sm:pt-0 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-3">
 				{/* Nombre Completo - CON AUTOCOMPLETADO */}
 				<FormField
 					control={control}

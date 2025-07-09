@@ -24,3 +24,20 @@
 [data-radix-popper-content-wrapper] {
   z-index: 9999 !important;
 }
+
+/* Make calendar more compact on mobile */
+@media (max-width: 640px) {
+  .rdp-caption {
+    padding: 0 0.5rem;
+  }
+  
+  .rdp-cell {
+    padding: 0;
+  }
+  
+  .rdp-button {
+    width: 2rem !important;
+    height: 2rem !important;
+    font-size: 0.75rem !important;
+  }
+}

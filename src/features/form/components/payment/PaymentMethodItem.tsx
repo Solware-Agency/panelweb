@@ -5,6 +5,7 @@ import { Input } from '@shared/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@shared/components/ui/select'
 import { Button } from '@shared/components/ui/button'
 import { Trash2, DollarSign, CreditCard, FileText } from 'lucide-react'
+import { useBreakpoint } from '@shared/components/ui/media-query'
 import { isBolivaresMethod } from '@features/form/lib/payment/payment-utils'
 import { createCalculatorInputHandlerWithCurrency } from '@shared/utils/number-utils'
 import { memo, useMemo, useCallback } from 'react'
@@ -21,6 +22,7 @@ interface PaymentMethodItemProps {
 
 export const PaymentMethodItem = memo(
 	({ control, index, remove, inputStyles, fieldsLength, className }: PaymentMethodItemProps) => {
+		const isDesktop = useBreakpoint('lg')
 		const paymentMethod = useWatch({ control, name: `payments.${index}.method` })
 		const exchangeRate = undefined // TODO: Obtener tasa de cambio de configuración global
 
@@ -38,7 +40,7 @@ export const PaymentMethodItem = memo(
 		const handleRemove = useCallback(() => remove(index), [remove, index])
 
 		return (
-			<div className={className || "grid grid-cols-1 md:grid-cols-4 gap-3 sm:gap-4 items-start bg-secondary p-3 sm:p-4 rounded-lg"}>
+			<div className={className || "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 items-start bg-secondary p-3 sm:p-4 rounded-lg"}>
 				<FormField
 					control={control}
 					name={`payments.${index}.method`}
@@ -92,10 +94,11 @@ export const PaymentMethodItem = memo(
 												placeholder={calculatorHandler.placeholder}
 												value={calculatorHandler.displayValue}
 												onKeyDown={calculatorHandler.handleKeyDown}
+												iconLeft={<DollarSign className="h-4 w-4 text-muted-foreground" />}
 												onPaste={calculatorHandler.handlePaste}
 												onFocus={calculatorHandler.handleFocus}
 												onChange={calculatorHandler.handleChange}
-												className={`${inputStyles} pl-9 text-right font-mono`}
+												className={`${inputStyles} text-right font-mono`}
 												autoComplete="off"
 											/>
 										</div>

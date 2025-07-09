@@ -2,9 +2,11 @@ import React from 'react'
 import { Card } from '@shared/components/ui/card'
 import { Stethoscope, Activity, Heart, Eye } from 'lucide-react'
 import { useDashboardStats } from '@shared/hooks/useDashboardStats'
+import { useBreakpoint } from '@shared/components/ui/media-query'
 
 const ExamTypeReport: React.FC = () => {
   const { data: stats, isLoading } = useDashboardStats()
+  const isDesktop = useBreakpoint('lg')
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('es-VE', {
@@ -45,75 +47,124 @@ const ExamTypeReport: React.FC = () => {
 						</div>
 					) : stats?.revenueByExamType && stats.revenueByExamType.length > 0 ? (
 						<div className="overflow-x-auto">
-							<table className="w-full min-w-full">
-								<thead>
-									<tr className="border-b border-gray-200 dark:border-gray-700">
-										<th className="text-left py-3 text-gray-600 dark:text-gray-400 font-medium text-sm">
-											Tipo de Examen
-										</th>
-										<th className="text-center py-3 text-gray-600 dark:text-gray-400 font-medium text-sm">Casos</th>
-										<th className="text-center py-3 text-gray-600 dark:text-gray-400 font-medium text-sm">
-											% del Total
-										</th>
-										<th className="text-right py-3 text-gray-600 dark:text-gray-400 font-medium text-sm">
-											Monto Total
-										</th>
-									</tr>
-								</thead>
-								<tbody>
+							{isDesktop ? (
+								<table className="w-full min-w-full">
+									<thead>
+										<tr className="border-b border-gray-200 dark:border-gray-700">
+											<th className="text-left py-3 text-gray-600 dark:text-gray-400 font-medium text-sm">
+												Tipo de Examen
+											</th>
+											<th className="text-center py-3 text-gray-600 dark:text-gray-400 font-medium text-sm">Casos</th>
+											<th className="text-center py-3 text-gray-600 dark:text-gray-400 font-medium text-sm">
+												% del Total
+											</th>
+											<th className="text-right py-3 text-gray-600 dark:text-gray-400 font-medium text-sm">
+												Monto Total
+											</th>
+										</tr>
+									</thead>
+									<tbody>
+										{stats.revenueByExamType.map((exam, index) => {
+											const colors = ['bg-blue-500', 'bg-green-500', 'bg-orange-500', 'bg-red-500']
+											const percentage = stats.totalRevenue > 0 ? (exam.revenue / stats.totalRevenue) * 100 : 0
+
+											return (
+												<tr
+													key={index}
+													className="border-b border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800/50"
+												>
+													<td className="py-4">
+														<div className="flex items-center gap-2">
+															<div
+																className={`w-8 h-8 ${
+																	colors[index % colors.length]
+																} rounded-lg flex items-center justify-center`}
+															>
+																{getExamTypeIcon(exam.examType)}
+															</div>
+															<p className="font-medium text-gray-700 dark:text-gray-300 text-sm">{exam.examType}</p>
+														</div>
+													</td>
+													<td className="py-4 text-center">
+														<span className="inline-flex items-center justify-center px-2 py-1 text-xs font-medium rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300">
+															{exam.count} caso{exam.count !== 1 ? 's' : ''}
+														</span>
+													</td>
+													<td className="py-4 text-center">
+														<span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+															{percentage.toFixed(1)}%
+														</span>
+													</td>
+													<td className="py-4 text-right">
+														<p className="text-base font-bold text-gray-700 dark:text-gray-300">
+															{formatCurrency(exam.revenue)}
+														</p>
+														<div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-1.5 mt-1">
+															<div
+																className={`h-1.5 rounded-full ${colors[index % colors.length]}`}
+																style={{
+																	width: `${
+																		stats.revenueByExamType.length > 0
+																			? (exam.revenue / Math.max(...stats.revenueByExamType.map((e) => e.revenue))) * 100
+																			: 0
+																	}%`,
+																}}
+															></div>
+														</div>
+													</td>
+												</tr>
+											)
+										})}
+									</tbody>
+								</table>
+							) : (
+								// Mobile card view
+								<div className="space-y-4">
 									{stats.revenueByExamType.map((exam, index) => {
 										const colors = ['bg-blue-500', 'bg-green-500', 'bg-orange-500', 'bg-red-500']
 										const percentage = stats.totalRevenue > 0 ? (exam.revenue / stats.totalRevenue) * 100 : 0
-
+										
 										return (
-											<tr
+											<div 
 												key={index}
-												className="border-b border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800/50"
+												className="bg-white dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-lg p-3"
 											>
-												<td className="py-4">
-													<div className="flex items-center gap-2">
-														<div
-															className={`w-8 h-8 ${
-																colors[index % colors.length]
-															} rounded-lg flex items-center justify-center`}
-														>
-															{getExamTypeIcon(exam.examType)}
-														</div>
-														<p className="font-medium text-gray-700 dark:text-gray-300 text-sm">{exam.examType}</p>
+												<div className="flex items-center gap-2 mb-2">
+													<div className={`w-8 h-8 ${colors[index % colors.length]} rounded-lg flex items-center justify-center`}>
+														{getExamTypeIcon(exam.examType)}
 													</div>
-												</td>
-												<td className="py-4 text-center">
-													<span className="inline-flex items-center justify-center px-2 py-1 text-xs font-medium rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300">
-														{exam.count} caso{exam.count !== 1 ? 's' : ''}
-													</span>
-												</td>
-												<td className="py-4 text-center">
-													<span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-														{percentage.toFixed(1)}%
-													</span>
-												</td>
-												<td className="py-4 text-right">
-													<p className="text-base font-bold text-gray-700 dark:text-gray-300">
+													<div>
+														<p className="font-medium text-gray-700 dark:text-gray-300 text-sm">{exam.examType}</p>
+														<div className="flex items-center gap-2">
+															<span className="inline-flex items-center justify-center px-2 py-0.5 text-xs font-medium rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300">
+																{exam.count} caso{exam.count !== 1 ? 's' : ''}
+															</span>
+															<span className="text-xs font-medium text-gray-500 dark:text-gray-400">
+																{percentage.toFixed(1)}%
+															</span>
+														</div>
+													</div>
+													<p className="text-base font-bold text-gray-700 dark:text-gray-300 ml-auto">
 														{formatCurrency(exam.revenue)}
 													</p>
-													<div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-1.5 mt-1">
-														<div
-															className={`h-1.5 rounded-full ${colors[index % colors.length]}`}
-															style={{
-																width: `${
-																	stats.revenueByExamType.length > 0
-																		? (exam.revenue / Math.max(...stats.revenueByExamType.map((e) => e.revenue))) * 100
-																		: 0
-																}%`,
-															}}
-														></div>
-													</div>
-												</td>
-											</tr>
+												</div>
+												<div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-1.5">
+													<div
+														className={`h-1.5 rounded-full ${colors[index % colors.length]}`}
+														style={{
+															width: `${
+																stats.revenueByExamType.length > 0
+																	? (exam.revenue / Math.max(...stats.revenueByExamType.map((e) => e.revenue))) * 100
+																	: 0
+															}%`,
+														}}
+													></div>
+												</div>
+											</div>
 										)
 									})}
-								</tbody>
-							</table>
+								</div>
+							)}
 						</div>
 					) : (
 						<div className="text-center py-8">
