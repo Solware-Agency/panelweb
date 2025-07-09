@@ -13,7 +13,7 @@ import { Calendar } from '@shared/components/ui/calendar'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { usePatientAutofill } from '@shared/hooks/usePatientAutofill'
 import { useState, memo, useCallback, useMemo } from 'react'
-import { User, Mail, Phone } from 'lucide-react'
+import { User, Mail, Phone, CreditCard } from 'lucide-react'
 
 interface PatientDataSectionProps {
 	control: Control<FormValues>
@@ -83,6 +83,7 @@ export const PatientDataSection = memo(({ control, inputStyles }: PatientDataSec
 								<AutocompleteInput
 									fieldName="fullName"
 									placeholder="Nombre y Apellido"
+									iconRight={<User className="h-4 w-4 text-muted-foreground" />}
 									{...field}
 									onChange={(e) => {
 										const { value } = e.target
@@ -114,6 +115,7 @@ export const PatientDataSection = memo(({ control, inputStyles }: PatientDataSec
 								<AutocompleteInput
 									fieldName="idNumber"
 									placeholder="12345678"
+									iconRight={<CreditCard className="h-4 w-4 text-muted-foreground" />}
 									{...field}
 									onPatientSelect={handlePatientSelect}
 									onChange={(e) => {
@@ -144,6 +146,7 @@ export const PatientDataSection = memo(({ control, inputStyles }: PatientDataSec
 								<AutocompleteInput
 									fieldName="phone"
 									placeholder="0412-1234567"
+									iconRight={<Phone className="h-4 w-4 text-muted-foreground" />}
 									{...field}
 									maxLength={15}
 									onChange={(e) => {
@@ -236,6 +239,7 @@ export const PatientDataSection = memo(({ control, inputStyles }: PatientDataSec
 								<AutocompleteInput
 									fieldName="email"
 									type="email"
+									iconRight={<Mail className="h-4 w-4 text-muted-foreground" />}
 									placeholder="email@ejemplo.com"
 									{...field}
 									className={inputStyles}

@@ -4,7 +4,7 @@ import { FormField, FormItem, FormLabel, FormControl, FormMessage } from '@share
 import { Input } from '@shared/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@shared/components/ui/select'
 import { Button } from '@shared/components/ui/button'
-import { Trash2 } from 'lucide-react'
+import { Trash2, DollarSign, CreditCard, FileText } from 'lucide-react'
 import { isBolivaresMethod } from '@features/form/lib/payment/payment-utils'
 import { createCalculatorInputHandlerWithCurrency } from '@shared/utils/number-utils'
 import { memo, useMemo, useCallback } from 'react'
@@ -87,6 +87,7 @@ export const PaymentMethodItem = memo(
 											<Input
 												type="text"
 												inputMode="decimal"
+												iconLeft={<DollarSign className="h-4 w-4 text-muted-foreground" />}
 												placeholder={calculatorHandler.placeholder}
 												value={calculatorHandler.displayValue}
 												onKeyDown={calculatorHandler.handleKeyDown}
@@ -116,7 +117,12 @@ export const PaymentMethodItem = memo(
 						<FormItem>
 							<FormLabel>Referencia {index + 1}</FormLabel>
 							<FormControl>
-								<Input placeholder="Referencia de pago" {...field} className={inputStyles} />
+								<Input 
+									placeholder="Referencia de pago" 
+									{...field} 
+									className={inputStyles} 
+									iconRight={<FileText className="h-4 w-4 text-muted-foreground" />}
+								/>
 							</FormControl>
 							<FormMessage />
 						</FormItem>
