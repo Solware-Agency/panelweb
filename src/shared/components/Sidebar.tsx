@@ -159,10 +159,24 @@ const Sidebar: React.FC<SidebarProps> = ({
 	})
 
 	const toggleGroup = (groupName: string) => {
-		setExpandedGroups((prev) => ({
-			...prev,
-			[groupName]: !prev[groupName],
-		}))
+		setExpandedGroups((prev) => {
+			const isCurrentlyExpanded = prev[groupName]
+			// Si el grupo actual está expandido, lo cerramos
+			if (isCurrentlyExpanded) {
+				return {
+					...prev,
+					[groupName]: false,
+				}
+			}
+			// Si el grupo actual está cerrado, lo abrimos y cerramos todos los demás
+			else {
+				const newState: Record<string, boolean> = {}
+				Object.keys(prev).forEach((key) => {
+					newState[key] = key === groupName
+				})
+				return newState
+			}
+		})
 	}
 
 	// Auto-expandir grupos cuando un item hijo está activo
@@ -170,10 +184,22 @@ const Sidebar: React.FC<SidebarProps> = ({
 		// Solo auto-expandir si el sidebar está expandido (showFullContent es true)
 		if (showFullContent) {
 			if (isClinicalActive && !expandedGroups.clinical) {
-				setExpandedGroups((prev) => ({ ...prev, clinical: true }))
+				setExpandedGroups((prev) => {
+					const newState: Record<string, boolean> = {}
+					Object.keys(prev).forEach((key) => {
+						newState[key] = key === 'clinical'
+					})
+					return newState
+				})
 			}
 			if (isReportsActive && !expandedGroups.reports) {
-				setExpandedGroups((prev) => ({ ...prev, reports: true }))
+				setExpandedGroups((prev) => {
+					const newState: Record<string, boolean> = {}
+					Object.keys(prev).forEach((key) => {
+						newState[key] = key === 'reports'
+					})
+					return newState
+				})
 			}
 		}
 	}, [
@@ -329,7 +355,7 @@ const Sidebar: React.FC<SidebarProps> = ({
 					{isOwner && (
 						<NavGroup
 							icon={<FileText className="stroke-2 size-4 sm:size-5 shrink-0" />}
-							label="Reportes"
+							label="Análisis"
 							showFullContent={showFullContent}
 							isExpanded={expandedGroups.reports}
 							onToggle={() => toggleGroup('reports')}
@@ -413,7 +439,11 @@ const Sidebar: React.FC<SidebarProps> = ({
 					className="flex items-center gap-2 cursor-pointer hover:text-primary py-2 px-1 rounded-md"
 					aria-label={isDark ? 'Activar modo claro' : 'Activar modo oscuro'}
 				>
-					{isDark ? <Sun className="stroke-2 size-4 sm:size-5 shrink-0" /> : <Moon className="stroke-2 size-4 sm:size-5 shrink-0" />}
+					{isDark ? (
+						<Sun className="stroke-2 size-4 sm:size-5 shrink-0" />
+					) : (
+						<Moon className="stroke-2 size-4 sm:size-5 shrink-0" />
+					)}
 					<p
 						className={`text-md whitespace-nowrap ${
 							showFullContent ? 'opacity-100 w-auto' : 'opacity-0 w-0 overflow-hidden'

@@ -5,31 +5,25 @@ import { useDashboardStats } from '@shared/hooks/useDashboardStats'
 import { useBreakpoint } from '@shared/components/ui/media-query'
 
 const BranchRevenueReport: React.FC = () => {
-  const { data: stats, isLoading } = useDashboardStats()
-  const [hoveredBranchIndex, setHoveredBranchIndex] = useState<number | null>(null)
-  const isDesktop = useBreakpoint('lg')
+	const { data: stats, isLoading } = useDashboardStats()
+	const [hoveredBranchIndex, setHoveredBranchIndex] = useState<number | null>(null)
+	const isDesktop = useBreakpoint('lg')
 
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('es-VE', {
-      style: 'currency',
-      currency: 'USD',
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    }).format(amount)
-  }
+	const formatCurrency = (amount: number) => {
+		return new Intl.NumberFormat('es-VE', {
+			style: 'currency',
+			currency: 'USD',
+			minimumFractionDigits: 0,
+			maximumFractionDigits: 0,
+		}).format(amount)
+	}
 
-  const getBranchColor = (index: number) => {
-    const colors = [
-      'bg-blue-500',
-      'bg-green-500',
-      'bg-orange-500',
-      'bg-red-500',
-      'bg-purple-500',
-    ]
-    return colors[index % colors.length]
-  }
+	const getBranchColor = (index: number) => {
+		const colors = ['bg-blue-500', 'bg-green-500', 'bg-orange-500', 'bg-red-500', 'bg-purple-500']
+		return colors[index % colors.length]
+	}
 
-  return (
+	return (
 		<Card className="col-span-1 grid hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 transition-all duration-300 shadow-lg mb-6">
 			<div className="bg-white dark:bg-background rounded-xl p-3 sm:p-5 overflow-hidden">
 				<div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 sm:mb-6">
@@ -84,33 +78,6 @@ const BranchRevenueReport: React.FC = () => {
 								<p className="text-sm text-gray-500 dark:text-gray-400">Total</p>
 							</div>
 						</div>
-
-						{/* Tooltip for pie chart */}
-						{hoveredBranchIndex !== null && stats?.revenueByBranch[hoveredBranchIndex] && (
-							<div className="absolute -top-28 left-1/2 transform -translate-x-1/2 z-10 bg-white dark:bg-gray-800 rounded-lg p-3 shadow-lg min-w-[180px] border border-gray-200 dark:border-gray-700 animate-fade-in">
-								<div className="text-center mb-2">
-									<h3 className="font-bold text-gray-900 dark:text-gray-100">
-										{stats.revenueByBranch[hoveredBranchIndex].branch}
-									</h3>
-									<div className="w-full h-0.5 bg-gray-200 dark:bg-gray-700 my-1"></div>
-								</div>
-								<div className="grid grid-cols-2 gap-2 text-sm">
-									<div>
-										<p className="text-gray-500 dark:text-gray-400">Ingresos:</p>
-										<p className="font-bold text-gray-900 dark:text-gray-100">
-											{formatCurrency(stats.revenueByBranch[hoveredBranchIndex].revenue)}
-										</p>
-									</div>
-									<div>
-										<p className="text-gray-500 dark:text-gray-400">Porcentaje:</p>
-										<p className="font-bold text-gray-900 dark:text-gray-100">
-											{stats.revenueByBranch[hoveredBranchIndex].percentage.toFixed(1)}%
-										</p>
-									</div>
-								</div>
-								<div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 w-4 h-4 rotate-45 bg-white dark:bg-gray-800 border-r border-b border-gray-200 dark:border-gray-700"></div>
-							</div>
-						)}
 					</div>
 				</div>
 
@@ -139,11 +106,10 @@ const BranchRevenueReport: React.FC = () => {
 											onMouseEnter={() => setHoveredBranchIndex(index)}
 											onMouseLeave={() => setHoveredBranchIndex(null)}
 											style={{
-												transform: hoveredBranchIndex === index ? 'scale(1.02)' : 'scale(1)',
 												cursor: 'pointer',
 											}}
 										>
-											<td className="py-4">
+											<td className="py-4 px-8">
 												<div className="flex items-center gap-2">
 													<div
 														className={`w-3 h-3 ${getBranchColor(index)} rounded-full ${
@@ -158,7 +124,7 @@ const BranchRevenueReport: React.FC = () => {
 													{branch.percentage.toFixed(1)}%
 												</span>
 											</td>
-											<td className="py-4 text-right">
+											<td className="py-4 text-right pr-8">
 												<p className="text-base font-bold text-gray-700 dark:text-gray-300">
 													{formatCurrency(branch.revenue)}
 												</p>
@@ -220,9 +186,7 @@ const BranchRevenueReport: React.FC = () => {
 												<p className="text-base font-bold text-gray-700 dark:text-gray-300">
 													{formatCurrency(branch.revenue)}
 												</p>
-												<p className="text-xs text-gray-500 dark:text-gray-400">
-													{branch.percentage.toFixed(1)}%
-												</p>
+												<p className="text-xs text-gray-500 dark:text-gray-400">{branch.percentage.toFixed(1)}%</p>
 											</div>
 										</div>
 										<div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-1.5">

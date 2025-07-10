@@ -25,7 +25,7 @@ export const PaymentMethodItem = memo(
 		const exchangeRate = undefined // TODO: Obtener tasa de cambio de configuración global
 
 		// Use useMemo to prevent unnecessary recalculations
-		const { currencyLabel, currencySymbol } = useMemo(() => {
+		const { currencyLabel } = useMemo(() => {
 			const isBolivares = isBolivaresMethod(paymentMethod)
 			return {
 				isBolivares,
@@ -80,11 +80,8 @@ export const PaymentMethodItem = memo(
 									Monto {index + 1} {currencyLabel}
 								</FormLabel>
 								<FormControl>
-									<div className="relative flex flex-col gap-1">
-										<div className="relative flex items-center">
-											<span className="absolute left-0 flex items-center pl-3 text-muted-foreground pointer-events-none">
-												{currencySymbol}
-											</span>
+									<div className="flex flex-col gap-1 w-full">
+										<div className="w-full">
 											<Input
 												type="text"
 												inputMode="decimal"

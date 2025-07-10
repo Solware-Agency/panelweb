@@ -29,7 +29,7 @@ const getInitialFormValues = (): FormValues => ({
 	branch: '',
 	registrationDate: new Date(),
 	totalAmount: 0.01, // Changed from 0 to 0.01 to comply with database constraint
-	payments: [],
+	payments: [{ method: '', amount: 0, reference: '' }],
 	comments: '',
 })
 
