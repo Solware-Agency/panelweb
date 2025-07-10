@@ -9,15 +9,15 @@ export function BranchBadge({ branch, className }: BranchBadgeProps) {
   const getBranchColor = (branchCode: string) => {
     switch (branchCode) {
       case 'STX':
-        return 'bg-[#0066cc] text-white' // Blue
+        return 'bg-blue-700/45 text-white' // Blue
       case 'PMG':
-        return 'bg-[#33cc33] text-white' // Green
+        return 'bg-green-700/45 text-white' // Green
       case 'MCY':
-        return 'bg-[#ff9933] text-white' // Orange
+        return 'bg-orange-700/45 text-white' // Orange
       case 'CPC':
-        return 'bg-[#ff3333] text-white' // Red
+        return 'bg-red-700/45 text-white' // Red
       case 'CNX':
-        return 'bg-[#9933cc] text-white' // Purple
+        return 'bg-purple-700/45 text-white' // Purple
       default:
         return 'bg-gray-200 dark:bg-gray-900/60 text-gray-900 dark:text-gray-100'
     }

@@ -13,7 +13,7 @@ import { Calendar } from '@shared/components/ui/calendar'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { usePatientAutofill } from '@shared/hooks/usePatientAutofill'
 import { useState, memo, useCallback, useMemo } from 'react'
-import { User, Phone, CreditCard } from 'lucide-react'
+import { User, Phone, CreditCard, Mail } from 'lucide-react'
 
 interface PatientDataSectionProps {
 	control: Control<FormValues>
@@ -235,6 +235,7 @@ export const PatientDataSection = memo(({ control, inputStyles }: PatientDataSec
 								<AutocompleteInput
 									fieldName="email"
 									type="email"
+									iconRight={<Mail className="h-4 w-4 text-muted-foreground" />}
 									placeholder="email@ejemplo.com"
 									{...field}
 									className={inputStyles}

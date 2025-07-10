@@ -8,7 +8,7 @@ import { SettingsSection } from '@features/form/components/SettingsSection'
 import { useState, useCallback, Suspense, useEffect } from 'react'
 import { Tabs, TabsContent } from '@shared/components/ui/tabs'
 import { getMedicalRecords, searchMedicalRecords } from '@lib/supabase-service'
-import { RefreshCw, Loader2 } from 'lucide-react'
+import { RefreshCw, Loader2, Trash2 } from 'lucide-react'
 import { useUserProfile } from '@shared/hooks/useUserProfile'
 import { DoctorsSection } from '@features/form/components/DoctorsSection'
 import PatientsPage from '@features/dashboard/patients/PatientsPage'
@@ -16,9 +16,33 @@ import Sidebar from '@shared/components/Sidebar'
 import { useDarkMode } from '@shared/hooks/useDarkMode'
 import { AnimatePresence, motion } from 'framer-motion'
 import { useLocation, useNavigate } from 'react-router-dom'
+import { useForm } from 'react-hook-form'
+import { Button } from '@shared/components/ui/button'
+import { useResetForm } from '@shared/hooks/useResetForm'
+import { type FormValues } from '@features/form/lib/form-schema'
+import { useToast } from '@shared/hooks/use-toast'
 
 // Import Menu icon for mobile sidebar toggle
 import { Menu } from 'lucide-react'
+
+const getInitialFormValues = (): FormValues => ({
+	fullName: '',
+	idNumber: '',
+	phone: '',
+	dateOfBirth: null,
+	email: '',
+	examType: '',
+	origin: '',
+	treatingDoctor: '',
+	sampleType: '',
+	numberOfSamples: 1,
+	relationship: '',
+	branch: '',
+	registrationDate: new Date(),
+	totalAmount: 0.01, // Changed from 0 to 0.01 to comply with database constraint
+	payments: [{ method: '', amount: 0, reference: '' }],
+	comments: '',
+})
 
 // Loading fallback component
 const LoadingFallback = () => (
@@ -41,6 +65,11 @@ function FormContent() {
 	const [sidebarExpanded, setSidebarExpanded] = useState(false) // New state for hover expansion
 	const location = useLocation()
 	const navigate = useNavigate()
+	const [, setUsdValue] = useState('')
+	const [, setVesInputValue] = useState('')
+	const [, setIsSubmitted] = useState(false)
+	const form = useForm<FormValues>({ defaultValues: getInitialFormValues() })
+	const { toast } = useToast()
 
 	// Determine active tab based on current route
 	useEffect(() => {
@@ -149,19 +178,41 @@ function FormContent() {
 		[refetchCases, profile?.role, navigate],
 	)
 
+	useResetForm(form, getInitialFormValues, setUsdValue, setIsSubmitted, toast)
+
+	const handleClearForm = useCallback(() => {
+		form.reset(getInitialFormValues())
+		setUsdValue('')
+		setVesInputValue('')
+		setIsSubmitted(false)
+		toast({
+			title: '🧹 Formulario Limpio',
+			description: 'Todos los campos han sido reiniciados.',
+		})
+	}, [form, toast])
+
 	return (
 		<>
 			<Toaster />
 			<Sonner />
 			<div className="fixed top-4 right-4 z-50 flex items-center gap-2">
 				{/* Mobile sidebar toggle button */}
+				<Button
+					type="button"
+					onClick={handleClearForm}
+					variant="outline"
+					className="flex lg:hidden items-center gap-1 text-xs py-1 px-2 sm:py-1.5 sm:px-2.5"
+				>
+					<Trash2 className="h-4 w-4" />
+					Limpiar
+				</Button>
 				<button
 					onClick={() => setSidebarOpen(!sidebarOpen)}
 					className="lg:hidden flex items-center justify-center p-2 bg-white dark:bg-background border border-input rounded-lg shadow-lg"
 				>
 					<Menu className="h-5 w-5 text-gray-600 dark:text-gray-400" />
 				</button>
-				
+
 				{activeTab === 'records' && (
 					<>
 						<button
@@ -199,8 +250,8 @@ function FormContent() {
 			>
 				<Sidebar
 					onClose={() => {
-						setSidebarOpen(false);
-						setSidebarExpanded(false);
+						setSidebarOpen(false)
+						setSidebarExpanded(false)
 					}}
 					isExpanded={sidebarExpanded}
 					isMobile={sidebarOpen}
@@ -210,20 +261,22 @@ function FormContent() {
 				/>
 			</div>
 			<div className="container mx-auto py-4 sm:py-6 md:py-10 px-2 sm:px-4">
-				<main className={`min-h-screen flex flex-col transition-all duration-300 ease-in-out z-50 ${
-					sidebarExpanded ? 'lg:ml-56' : 'lg:ml-16'
-				}`}>
+				<main
+					className={`min-h-screen flex flex-col transition-all duration-300 ease-in-out z-50 ${
+						sidebarExpanded ? 'lg:ml-56' : 'lg:ml-16'
+					}`}
+				>
 					<div className="mb-4 sm:mb-6">
 						{/* Logo */}
 						<div className="flex items-center justify-between">
 							<div>
-								<h2 className="text-xl sm:text-2xl font-semibold text-foreground mb-1 sm:mb-2">Sistema de Registros Médicos</h2>
+								<h2 className="text-xl sm:text-2xl font-semibold text-foreground mb-1 sm:mb-2">
+									Sistema de Registros Médicos
+								</h2>
 								<div className="w-16 sm:w-24 h-1 bg-primary mt-2 rounded-full" />
 							</div>
 						</div>
-						<h3 className="text-sm text-primary font-semibold mt-2 sm:mt-3">
-							Bienvenido, {profile?.display_name}
-						</h3>
+						<h3 className="text-sm text-primary font-semibold mt-2 sm:mt-3">Bienvenido, {profile?.display_name}</h3>
 					</div>
 
 					<Tabs defaultValue="form" value={activeTab} onValueChange={handleTabChange}>

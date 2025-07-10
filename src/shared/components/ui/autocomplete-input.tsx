@@ -2,7 +2,7 @@ import * as React from "react";
 import { Input } from "@shared/components/ui/input";
 import { cn } from "@shared/lib/cn";
 import { useAutocomplete } from "@shared/hooks/useAutocomplete";
-import { Loader2, Search, User, Shuffle } from "lucide-react";
+import { Loader2,  User, Shuffle } from "lucide-react";
 
 interface AutocompleteInputProps extends React.ComponentProps<typeof Input> {
   fieldName: string;
@@ -208,18 +208,6 @@ export const AutocompleteInput = React.memo(React.forwardRef<
   const getIcon = React.useMemo(() => {
     if (isLoading && !searchTerminated && !isAutofilled) {
       return <Loader2 className="h-4 w-4 animate-spin" />;
-    }
-    
-    if (fieldName === 'idNumber') {
-      return <User className="h-4 w-4" />;
-    }
-    
-    if (showSuggestions && inputValue.length === 0 && !searchTerminated && !isAutofilled) {
-      return <Shuffle className="h-4 w-4" />;
-    }
-    
-    if (hasFocused && !searchTerminated && !isAutofilled) {
-      return <Search className="h-4 w-4" />;
     }
     
     return null;

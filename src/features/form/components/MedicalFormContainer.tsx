@@ -182,7 +182,7 @@ export function MedicalFormContainer() {
 
 	return (
 		<div className="animate-fade-in">
-			<div className="flex justify-end mb-2 sm:mb-3">
+			<div className="fixed hidden lg:flex justify-end mb-2 sm:mb-3 lg:right-11 lg:top-9 z-[9999999999]">
 				<Button 
 					type="button" 
 					onClick={handleClearForm}
