@@ -307,14 +307,9 @@ const PatientsList: React.FC = React.memo(() => {
 											<SortIcon field="email" />
 										</button>
 									</th>
-									<th className="w-[10%] px-4 py-3 text-left">
+									<th className="w-[10%] px-4 py-3 text-center">
 										<span className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
 											Última Visita
-										</span>
-									</th>
-									<th className="w-[5%] px-4 py-3 text-center">
-										<span className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-											Total Visitas
 										</span>
 									</th>
 								</tr>
@@ -376,13 +371,6 @@ const PatientsList: React.FC = React.memo(() => {
 												{/* Last Visit Cell - 10% width */}
 												<div className="w-[10%] text-sm text-gray-900 dark:text-gray-100 px-4">
 													{format(new Date(patient.lastVisit), 'dd/MM/yyyy', { locale: es })}
-												</div>
-
-												{/* Total Visits Cell - 5% width */}
-												<div className="w-[5%] flex justify-center px-2">
-													<span className="px-2 py-1 text-xs font-medium rounded-full bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300">
-														{patient.totalVisits}
-													</span>
 												</div>
 											</div>
 										)

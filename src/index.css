@@ -13,8 +13,7 @@
   }
 
   .mobile-table-card {
-    @apply bg-white dark: bg-background rounded-lg p-4 border border-gray-200 dark:border-gray-700 hover:shadow-md;
-    transition: transform 200ms ease-in-out, box-shadow 200ms ease-in-out;
+    @apply bg-white dark: bg-background rounded-lg p-4 border border-gray-200 dark:border-gray-700 hover:shadow-md transition-transform duration-300;
   }
 }
 
@@ -88,9 +87,8 @@
 @layer base {
 
   * {
-    @apply border-border;
+    @apply border-border transition-transform duration-300;
     /* Solo mantener transiciones para efectos hover/focus, no para cambios de tema */
-    transition: transform 200ms ease-in-out, opacity 200ms ease-in-out;
   }
 
   body {
