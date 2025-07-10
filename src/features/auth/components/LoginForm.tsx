@@ -104,7 +104,9 @@ function LoginForm() {
 				>
 					<div className="flex flex-col items-center justify-center dark:bg-background bg-slate-950 p-8 rounded-none md:rounded-xl w-screen h-screen md:h-auto md:w-full md:max-w-md shadow-2xl border border-slate-700/50">
 						<div className="text-center mb-4 flex flex-col items-center justify-center">
-							<div className="p-4 bg-[#9e1157] rounded-full mb-4 shadow-lg">
+							<div className="p-4 bg-[#9e1157] rounded-full mb-4 shadow-lg shadow-[0_0_15px_rgba(158,17,87,0.4)] hover:shadow-[0_0_25px_rgba(158,17,87,0.7)] transition-all duration-1000" style={{
+								animation: 'slowPulse 3s ease-in-out infinite'
+							}}>
 								<FavIcon fill="#fff" className="size-16" />
 							</div>
 							<h1 className="text-2xl font-bold text-white mb-2">Bienvenido, inicia sesión</h1>
