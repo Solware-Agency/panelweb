@@ -238,17 +238,22 @@ const Sidebar: React.FC<SidebarProps> = ({
 	return (
 		<aside className="bg-white/80 dark:bg-background/50 shadow-lg hover:shadow-primary/50 backdrop-blur-[10px] flex flex-col justify-between h-screen py-4 sm:py-6 px-2 sm:px-4 gap-4 border-gray-600 text-gray-700 dark:text-white ease-in-out overflow-hidden border-r border-input">
 			<div className="flex flex-col items-start gap-4">
-				<div className="flex justify-between items-center w-full mb-2 sm:mb-4">
-					<div className="flex items-center gap-3">
-						<FavIcon fill="#e82084" className="size-8 shrink-0 -ml-1" />
-						<p
-							className={`text-2xl font-bold whitespace-nowrap ${
-								showFullContent ? 'opacity-100 w-auto' : 'opacity-0 w-0 overflow-hidden'
-							}`}
-						>
-							Conspat
-						</p>
-					</div>
+							<div className="flex justify-between items-center w-full mb-2 sm:mb-4">
+				<a 
+					href="https://conspat.solware.agency/" 
+					target="_blank" 
+					rel="noopener noreferrer"
+					className="flex items-center gap-3 hover:opacity-80 transition-opacity"
+				>
+					<FavIcon fill="#e82084" className="size-8 shrink-0 -ml-1" />
+					<p
+						className={`text-2xl font-bold whitespace-nowrap ${
+							showFullContent ? 'opacity-100 w-auto' : 'opacity-0 w-0 overflow-hidden'
+						}`}
+					>
+						Conspat
+					</p>
+				</a>
 					{/* Close button for mobile */}
 					{onClose && isMobile && (
 						<button
