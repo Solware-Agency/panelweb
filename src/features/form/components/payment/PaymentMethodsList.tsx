@@ -24,64 +24,81 @@ interface PaymentMethodsListProps {
 	missingAmount?: number
 }
 
-export const PaymentMethodsList = memo(({
-	control,
-	errors,
-	fields,
-	append,
-	remove,
-	inputStyles,
-	paymentStatus,
-	isPaymentComplete,
-}: PaymentMethodsListProps) => {
-	// Memoize the append handler to prevent unnecessary re-renders
-	const handleAppend = useCallback(() => {
-		if (append) {
-			append({ method: '', amount: 0, reference: '' });
-		}
-	}, [append])
+export const PaymentMethodsList = memo(
+	({
+		control,
+		errors,
+		fields,
+		append,
+		remove,
+		inputStyles,
+		paymentStatus,
+		isPaymentComplete,
+		missingAmount,
+	}: PaymentMethodsListProps) => {
+		// Memoize the append handler to prevent unnecessary re-renders
+		const handleAppend = useCallback(() => {
+			if (append) {
+				append({ method: '', amount: 0, reference: '' })
+			}
+		}, [append])
 
-	return (
-		<div className="space-y-3 sm:space-y-4">
-			<div className="flex justify-between items-center mb-1 sm:mb-2">
-				<FormLabel className="font-semibold text-xs sm:text-sm md:text-base">Métodos de Pago</FormLabel>
-				{paymentStatus && (
-					<div
-						className={`text-xs font-bold px-2 py-0.5 sm:py-1 rounded-full transition-all ${
-							isPaymentComplete ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-						}`}
-					>
-						Pago: {paymentStatus}
-					</div>
+		// Format the status message with missing amount
+		const getStatusMessage = () => {
+			if (!paymentStatus) return ''
+
+			if (isPaymentComplete) {
+				return `Pago: ${paymentStatus}`
+			} else {
+				const formattedMissing = missingAmount ? `$${missingAmount.toFixed(2)}` : '$0.00'
+				return `Pago: ${paymentStatus} - Faltan ${formattedMissing}`
+			}
+		}
+
+		return (
+			<div className="space-y-3 sm:space-y-4">
+				<div className="flex justify-between items-center mb-1 sm:mb-2">
+					<FormLabel className="font-semibold text-xs sm:text-sm md:text-base">Métodos de Pago</FormLabel>
+					{paymentStatus && (
+						<div
+							className={`text-xs font-bold px-2 py-0.5 sm:py-1 rounded-full transition-all ${
+								isPaymentComplete ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+							}`}
+						>
+							{getStatusMessage()}
+						</div>
+					)}
+				</div>
+				{fields.map((item, index) => (
+					<PaymentMethodItem
+						key={item.id}
+						className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 items-start bg-secondary p-3 sm:p-4 rounded-lg  max-w-[80%] w-full"
+						control={control}
+						index={index}
+						item={item}
+						remove={remove}
+						inputStyles={inputStyles}
+						fieldsLength={fields.length}
+					/>
+				))}
+				<FormMessage>{errors.payments?.message}</FormMessage>
+				<Button
+					type="button"
+					variant="outline"
+					size="sm"
+					onClick={handleAppend}
+					disabled={!append || fields.length >= 4}
+					className="disabled:opacity-40 text-xs py-1 px-2 sm:py-1.5 sm:px-2.5"
+				>
+					<PlusCircle className="mr-2 h-4 w-4" />
+					Añadir método de pago
+				</Button>
+				{fields.length >= 4 && (
+					<div className="text-[10px] text-red-500">No puedes agregar más de 4 métodos de pago.</div>
 				)}
 			</div>
-			{fields.map((item, index) => (
-				<PaymentMethodItem
-					key={item.id}
-					className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 items-start bg-secondary p-3 sm:p-4 rounded-lg"
-					control={control}
-					index={index}
-					item={item}
-					remove={remove}
-					inputStyles={inputStyles}
-					fieldsLength={fields.length}
-				/>
-			))}
-			<FormMessage>{errors.payments?.message}</FormMessage>
-			<Button
-				type="button"
-				variant="outline"
-				size="sm" 
-				onClick={handleAppend}
-				disabled={!append || fields.length >= 4} 
-				className="disabled:opacity-40 text-xs py-1 px-2 sm:py-1.5 sm:px-2.5"
-			>
-				<PlusCircle className="mr-2 h-4 w-4" />
-				Añadir método de pago
-			</Button>
-			{fields.length >= 4 && <div className="text-[10px] text-red-500">No puedes agregar más de 4 métodos de pago.</div>}
-		</div>
-	)
-})
+		)
+	},
+)
 
 PaymentMethodsList.displayName = 'PaymentMethodsList'

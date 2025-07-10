@@ -220,14 +220,6 @@ function FormContent() {
 								<h2 className="text-xl sm:text-2xl font-semibold text-foreground mb-1 sm:mb-2">Sistema de Registros Médicos</h2>
 								<div className="w-16 sm:w-24 h-1 bg-primary mt-2 rounded-full" />
 							</div>
-							
-							{/* Mobile sidebar toggle button - alternative position */}
-							<button
-								onClick={() => setSidebarOpen(!sidebarOpen)}
-								className="lg:hidden flex items-center justify-center p-2 bg-white dark:bg-background border border-input rounded-lg"
-							>
-								<Menu className="h-5 w-5 text-gray-600 dark:text-gray-400" />
-							</button>
 						</div>
 						<h3 className="text-sm text-primary font-semibold mt-2 sm:mt-3">
 							Bienvenido, {profile?.display_name}

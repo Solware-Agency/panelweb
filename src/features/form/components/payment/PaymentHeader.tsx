@@ -55,7 +55,7 @@ export const PaymentHeader = memo(({ control, inputStyles, exchangeRate, isLoadi
 				control={control}
 				name="branch"
 				render={({ field }) => (
-					<FormItem className="lg:col-span-1">
+					<FormItem className="w-full">
 						<FormLabel className="text-sm sm:text-base">Sede *</FormLabel>
 						<Select
 							onValueChange={field.onChange}
@@ -94,7 +94,7 @@ export const PaymentHeader = memo(({ control, inputStyles, exchangeRate, isLoadi
 				control={control}
 				name="totalAmount"
 				render={({ field }) => (
-					<FormItem className="lg:col-span-2">
+					<FormItem className="w-full">
 						<FormLabel className="text-sm sm:text-base">Monto Total ($)</FormLabel>
 						<FormControl>
 							{(() => {
@@ -116,10 +116,12 @@ export const PaymentHeader = memo(({ control, inputStyles, exchangeRate, isLoadi
 								)
 							})()}
 						</FormControl>
-						{totalInVes && <p className="text-xs sm:text-sm font-bold text-green-600">{totalInVes} VES</p>}
-						<p className="text-[10px] sm:text-xs text-muted-foreground">
-							{isLoadingRate ? 'Cargando tasa...' : `Tasa BCV: ${exchangeRate?.toFixed(2) || 'N/A'} VES/USD`}
-						</p>
+						<div className="flex gap-2 items-center">
+							{totalInVes && <p className="text-xs sm:text-sm font-bold text-green-600">{totalInVes} VES</p>}
+							<p className="text-[10px] sm:text-xs text-muted-foreground">
+								{isLoadingRate ? 'Cargando tasa...' : `Tasa BCV: ${exchangeRate?.toFixed(2) || 'N/A'} VES/USD`}
+							</p>
+						</div>
 						<FormMessage />
 					</FormItem>
 				)}
