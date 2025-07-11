@@ -3,7 +3,7 @@ import { type Control, useWatch } from 'react-hook-form'
 import { type FormValues } from '@features/form/lib/form-schema'
 import { FormField, FormItem, FormLabel, FormControl, FormMessage } from '@shared/components/ui/form'
 import { Input } from '@shared/components/ui/input'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@shared/components/ui/select'
+import { FormDropdown, createDropdownOptions } from '@shared/components/ui/form-dropdown'
 import { useUserProfile } from '@shared/hooks/useUserProfile'
 import { useEffect } from 'react'
 import { createCalculatorInputHandler } from '@shared/utils/number-utils'
@@ -57,30 +57,18 @@ export const PaymentHeader = memo(({ control, inputStyles, exchangeRate, isLoadi
 				render={({ field }) => (
 					<FormItem className="w-full">
 						<FormLabel className="text-sm sm:text-base">Sede *</FormLabel>
-						<Select
-							onValueChange={field.onChange}
-							value={field.value}
-							disabled={!!profile?.assigned_branch} // Disable if user has assigned branch
-						>
-							<FormControl>
-								<SelectTrigger className={inputStyles}>
-									<SelectValue placeholder="Seleccione una sede" />
-								</SelectTrigger>
-							</FormControl>
-							<SelectContent>
-								{!profile?.assigned_branch ? (
-									<>
-										<SelectItem value="PMG">PMG</SelectItem>
-										<SelectItem value="CPC">CPC</SelectItem>
-										<SelectItem value="CNX">CNX</SelectItem>
-										<SelectItem value="STX">STX</SelectItem>
-										<SelectItem value="MCY">MCY</SelectItem>
-									</>
-								) : (
-									<SelectItem value={profile.assigned_branch}>{profile.assigned_branch}</SelectItem>
+						<FormControl>
+							<FormDropdown
+								options={createDropdownOptions(
+									!profile?.assigned_branch ? ['PMG', 'CPC', 'CNX', 'STX', 'MCY'] : [profile.assigned_branch],
 								)}
-							</SelectContent>
-						</Select>
+								value={field.value}
+								onChange={field.onChange}
+								placeholder="Seleccione una sede"
+								className={inputStyles}
+								disabled={!!profile?.assigned_branch}
+							/>
+						</FormControl>
 						{profile?.assigned_branch && (
 							<p className="text-[10px] sm:text-xs text-muted-foreground mt-1">
 								Tu cuenta está limitada a la sede {profile.assigned_branch}
