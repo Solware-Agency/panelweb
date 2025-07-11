@@ -290,21 +290,21 @@ const Sidebar: React.FC<SidebarProps> = ({
 								onClick={onClose}
 							/>
 							<NavItem
-								to="/form/records"
+								to="/records"
 								icon={<FolderInput className="stroke-2 size-5 shrink-0" />}
 								label="Registros"
 								showFullContent={showFullContent}
 								onClick={onClose}
 							/>
 							<NavItem
-								to="/form/doctors"
+								to="/doctors"
 								icon={<User className="stroke-2 size-5 shrink-0" />}
 								label="Médicos"
 								showFullContent={showFullContent}
 								onClick={onClose}
 							/>
 							<NavItem
-								to="/form/patients"
+								to="/patients"
 								icon={<Users className="stroke-2 size-5 shrink-0" />}
 								label="Pacientes"
 								showFullContent={showFullContent}

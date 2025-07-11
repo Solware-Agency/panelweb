@@ -231,6 +231,65 @@ function MainHome() {
 						statType="totalCases"
 						isSelected={selectedStat === 'totalCases' && isDetailPanelOpen}
 					/>
+					{/* Grid 6 - 12-Month Sales Trend Chart with Year Selector */}
+					<Card
+						className="col-span-1 sm:col-span-2 lg:col-span-12 row-span-1 lg:row-span-2 dark:bg-background bg-white rounded-xl py-2 sm:py-3 md:py-5 px-2 sm:px-4 md:px-6 cursor-pointer shadow-lg hover:bg-white/90 group h-full hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20"
+						onClick={() => handleStatCardClick('totalRevenue')}
+					>
+						<div className="h-full flex flex-col">
+							<div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-2 sm:mb-3">
+								<h3 className="text-xs sm:text-sm md:text-base font-bold text-gray-700 dark:text-gray-300 mb-1 sm:mb-0">
+									Tendencia de Ventas
+								</h3>
+								{/* Year Selector with Arrows */}
+								<div className="flex items-center gap-1 sm:gap-2">
+									<YearSelector
+										selectedYear={selectedYear}
+										onYearChange={handleYearChange}
+										minYear={2020}
+										maxYear={new Date().getFullYear() + 2}
+									/>
+									<span className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">
+										12 meses de {selectedYear}
+									</span>
+								</div>
+							</div>
+							<div className="relative h-14 sm:h-18 md:h-20 lg:h-24 flex items-end justify-between gap-0.5 sm:gap-1 md:gap-2">
+								{isLoading ? (
+									<div className="flex items-center justify-center w-full h-full">
+										<div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-500"></div>
+									</div>
+								) : (
+									stats?.salesTrendByMonth.map((month, _index) => {
+										const maxRevenue = Math.max(...(stats?.salesTrendByMonth.map((m) => m.revenue) || [1]))
+										const height = maxRevenue > 0 ? (month.revenue / maxRevenue) * 100 : 0
+										const isSelected = month.isSelected
+										return (
+											<div
+												key={month.month}
+												className={`flex-1 rounded-t-sm hover:translate-y-[-4px] transition-all duration-200 cursor-pointer ${
+													isSelected
+														? 'bg-gradient-to-t from-purple-600 to-purple-400 shadow-lg'
+														: 'bg-gradient-to-t from-blue-500 to-blue-300 hover:from-blue-600 hover:to-blue-400'
+												}`}
+												style={{ height: `${Math.max(height, 20)}%` }} // FIXED: Increased minimum height for better UX
+												title={`${format(new Date(month.month), 'MMM yyyy', { locale: es })}: ${formatCurrency(
+													month.revenue,
+												)}`}
+												onClick={() => handleMonthBarClick(month)}
+											></div>
+										)
+									})
+								)}
+							</div>
+							<div className="flex justify-between text-[10px] sm:text-xs text-gray-500 dark:text-gray-400 mt-1 sm:mt-2 overflow-x-auto scrollbar-hide">
+								{/* FIXED: Force Spanish month labels regardless of system language */}
+								{['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'].map((m) => (
+									<span key={m}>{m}</span>
+								))}
+							</div>
+						</div>
+					</Card>
 
 					{/* Grid 5 - Médicos Tratantes */}
 					<Card className="col-span-1 sm:col-span-2 lg:col-span-3 row-span-1 lg:row-span-3 dark:bg-background bg-white rounded-xl p-3 sm:p-4 flex flex-col cursor-pointer shadow-lg hover:bg-white/90 group h-full hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20">
@@ -288,65 +347,6 @@ function MainHome() {
 						</div>
 					</Card>
 
-					{/* Grid 6 - 12-Month Sales Trend Chart with Year Selector */}
-					<Card
-						className="col-span-1 sm:col-span-2 lg:col-span-9 row-span-1 lg:row-span-2 dark:bg-background bg-white rounded-xl py-2 sm:py-3 md:py-5 px-2 sm:px-4 md:px-6 cursor-pointer shadow-lg hover:bg-white/90 group h-full hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20"
-						onClick={() => handleStatCardClick('totalRevenue')}
-					>
-						<div className="h-full flex flex-col">
-							<div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-2 sm:mb-3">
-								<h3 className="text-xs sm:text-sm md:text-base font-bold text-gray-700 dark:text-gray-300 mb-1 sm:mb-0">
-									Tendencia de Ventas
-								</h3>
-								{/* Year Selector with Arrows */}
-								<div className="flex items-center gap-1 sm:gap-2">
-									<YearSelector
-										selectedYear={selectedYear}
-										onYearChange={handleYearChange}
-										minYear={2020}
-										maxYear={new Date().getFullYear() + 2}
-									/>
-									<span className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">
-										12 meses de {selectedYear}
-									</span>
-								</div>
-							</div>
-							<div className="relative h-14 sm:h-18 md:h-20 lg:h-24 flex items-end justify-between gap-0.5 sm:gap-1 md:gap-2">
-								{isLoading ? (
-									<div className="flex items-center justify-center w-full h-full">
-										<div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-500"></div>
-									</div>
-								) : (
-									stats?.salesTrendByMonth.map((month, _index) => {
-										const maxRevenue = Math.max(...(stats?.salesTrendByMonth.map((m) => m.revenue) || [1]))
-										const height = maxRevenue > 0 ? (month.revenue / maxRevenue) * 100 : 0
-										const isSelected = month.isSelected
-										return (
-											<div
-												key={month.month}
-												className={`flex-1 rounded-t-sm hover:translate-y-[-4px] transition-all duration-200 cursor-pointer ${
-													isSelected
-														? 'bg-gradient-to-t from-purple-600 to-purple-400 shadow-lg'
-														: 'bg-gradient-to-t from-blue-500 to-blue-300 hover:from-blue-600 hover:to-blue-400'
-												}`}
-												style={{ height: `${Math.max(height, 20)}%` }} // FIXED: Increased minimum height for better UX
-												title={`${format(new Date(month.month), 'MMM yyyy', { locale: es })}: ${formatCurrency(
-													month.revenue,
-												)}`}
-												onClick={() => handleMonthBarClick(month)}
-											></div>
-										)
-									})
-								)}
-							</div>
-							<div className="flex justify-between text-[10px] sm:text-xs text-gray-500 dark:text-gray-400 mt-1 sm:mt-2 overflow-x-auto scrollbar-hide">
-								{/* FIXED: Force Spanish month labels regardless of system language */}
-								{['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'].map((m) => (
-									<span key={m}>{m}</span>
-								))}
-							</div>
-						</div>
-					</Card>
 
 					{/* Grid 7 - Top Exam Types (Normalized) */}
 					<Card

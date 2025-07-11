@@ -6,6 +6,97 @@ interface AutocompleteOption {
 	count: number
 }
 
+// Función para normalizar nombres y eliminar duplicados
+const normalizeAndDeduplicateNames = (valueCounts: Record<string, number>, fieldName: string): Record<string, number> => {
+	// Campos que requieren normalización de nombres
+	const nameFields = ['treatingDoctor', 'fullName', 'origin', 'sampleType']
+	
+	if (!nameFields.includes(fieldName)) {
+		return valueCounts // No normalizar otros campos
+	}
+
+	const normalizedGroups: Record<string, { values: string[], totalCount: number }> = {}
+
+	// Agrupar valores similares basándose en la versión normalizada
+	Object.entries(valueCounts).forEach(([value, count]) => {
+		// Normalizar: convertir a mayúsculas, eliminar espacios extra, y caracteres especiales
+		const normalized = value
+			.toUpperCase()
+			.replace(/\s+/g, ' ') // Reemplazar múltiples espacios con uno solo
+			.trim()
+			.replace(/[^\w\sÑÁÉÍÓÚÜ]/g, '') // Eliminar caracteres especiales excepto letras, espacios y acentos
+
+		if (!normalizedGroups[normalized]) {
+			normalizedGroups[normalized] = { values: [], totalCount: 0 }
+		}
+
+		normalizedGroups[normalized].values.push(value)
+		normalizedGroups[normalized].totalCount += count
+	})
+
+	// Seleccionar la mejor versión de cada grupo
+	const deduplicatedCounts: Record<string, number> = {}
+
+	Object.entries(normalizedGroups).forEach(([normalized, group]) => {
+		if (group.values.length === 1) {
+			// Solo una versión, usar tal como está
+			deduplicatedCounts[group.values[0]] = group.totalCount
+		} else {
+			// Múltiples versiones, seleccionar la mejor
+			const bestVersion = group.values.reduce((best, current) => {
+				// Criterios de selección (en orden de prioridad):
+				// 1. Más frecuente
+				// 2. Más palabras con primera letra mayúscula
+				// 3. Menos caracteres especiales
+				// 4. Más corto (sin espacios extra)
+				
+				const bestCount = valueCounts[best]
+				const currentCount = valueCounts[current]
+				
+				// 1. Prioridad por frecuencia
+				if (currentCount > bestCount) return current
+				if (bestCount > currentCount) return best
+				
+				// 2. Prioridad por formato (palabras con primera letra mayúscula)
+				const bestCapitalized = countCapitalizedWords(best)
+				const currentCapitalized = countCapitalizedWords(current)
+				
+				if (currentCapitalized > bestCapitalized) return current
+				if (bestCapitalized > currentCapitalized) return best
+				
+				// 3. Prioridad por menos caracteres especiales
+				const bestSpecialChars = countSpecialChars(best)
+				const currentSpecialChars = countSpecialChars(current)
+				
+				if (currentSpecialChars < bestSpecialChars) return current
+				if (bestSpecialChars < currentSpecialChars) return best
+				
+				// 4. Prioridad por longitud (sin espacios extra)
+				const bestLength = best.replace(/\s+/g, ' ').trim().length
+				const currentLength = current.replace(/\s+/g, ' ').trim().length
+				
+				return currentLength < bestLength ? current : best
+			})
+
+			deduplicatedCounts[bestVersion] = group.totalCount
+		}
+	})
+
+	return deduplicatedCounts
+}
+
+// Función auxiliar para contar palabras con primera letra mayúscula
+const countCapitalizedWords = (text: string): number => {
+	return text.split(/\s+/).filter(word => 
+		word.length > 0 && word[0] === word[0].toUpperCase()
+	).length
+}
+
+// Función auxiliar para contar caracteres especiales
+const countSpecialChars = (text: string): number => {
+	return (text.match(/[^\w\sÑÁÉÍÓÚÜñáéíóúü]/g) || []).length
+}
+
 export const useAutocomplete = (fieldName: string) => {
 	const [suggestions, setSuggestions] = useState<AutocompleteOption[]>([])
 	const [isLoading, setIsLoading] = useState(false)
@@ -93,8 +184,11 @@ export const useAutocomplete = (fieldName: string) => {
 					}
 				})
 
+				// Aplicar normalización y deduplicación
+				const normalizedCounts = normalizeAndDeduplicateNames(valueCounts, fieldName)
+
 				// Convert to array and sort by frequency
-				const allValues = Object.entries(valueCounts)
+				const allValues = Object.entries(normalizedCounts)
 					.map(([value, count]) => ({ value, count }))
 					.sort((a, b) => b.count - a.count)
 

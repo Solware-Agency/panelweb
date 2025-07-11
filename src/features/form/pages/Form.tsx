@@ -76,13 +76,13 @@ function FormContent() {
 		const pathname = location.pathname
 		if (pathname === '/form') {
 			setActiveTab('form')
-		} else if (pathname === '/form/records') {
+		} else if (pathname === '/records') {
 			setActiveTab('records')
-		} else if (pathname === '/form/doctors') {
+		} else if (pathname === '/doctors') {
 			setActiveTab('doctors')
-		} else if (pathname === '/form/patients') {
+		} else if (pathname === '/patients') {
 			setActiveTab('patients')
-		} else if (pathname === '/form/settings') {
+		} else if (pathname === '/settings') {
 			setActiveTab('settings')
 		}
 	}, [location.pathname])
@@ -162,10 +162,10 @@ function FormContent() {
 			if (profile?.role === 'employee') {
 				const routeMap = {
 					form: '/form',
-					records: '/form/records',
-					doctors: '/form/doctors',
-					patients: '/form/patients',
-					settings: '/form/settings',
+					records: '/records',
+					doctors: '/doctors',
+					patients: '/patients',
+					settings: '/settings',
 				}
 				navigate(routeMap[value as keyof typeof routeMap])
 			}
