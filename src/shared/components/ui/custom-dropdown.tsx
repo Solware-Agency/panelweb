@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect, forwardRef } from 'react'
+import { useState, useRef, useEffect, forwardRef } from 'react'
 import { ChevronDown, Check } from 'lucide-react'
 import { cn } from '@shared/lib/cn'
 
