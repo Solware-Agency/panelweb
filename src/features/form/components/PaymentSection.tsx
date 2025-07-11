@@ -117,6 +117,7 @@ export const PaymentSection = memo(({
 					paymentStatus={paymentStatus}
 					isPaymentComplete={isPaymentComplete}
 					missingAmount={missingAmount}
+					exchangeRate={exchangeRate}
 				/>
 			</CardContent>
 		</Card>

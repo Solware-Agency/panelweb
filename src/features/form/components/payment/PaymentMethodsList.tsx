@@ -22,6 +22,7 @@ interface PaymentMethodsListProps {
 	paymentStatus: string | null
 	isPaymentComplete: boolean
 	missingAmount?: number
+	exchangeRate?: number
 }
 
 export const PaymentMethodsList = memo(
@@ -35,6 +36,7 @@ export const PaymentMethodsList = memo(
 		paymentStatus,
 		isPaymentComplete,
 		missingAmount,
+		exchangeRate,
 	}: PaymentMethodsListProps) => {
 		// Memoize the append handler to prevent unnecessary re-renders
 		const handleAppend = useCallback(() => {
@@ -79,6 +81,7 @@ export const PaymentMethodsList = memo(
 						remove={remove}
 						inputStyles={inputStyles}
 						fieldsLength={fields.length}
+						exchangeRate={exchangeRate}
 					/>
 				))}
 				<FormMessage>{errors.payments?.message}</FormMessage>

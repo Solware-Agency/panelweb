@@ -17,12 +17,12 @@ interface PaymentMethodItemProps {
 	inputStyles: string
 	fieldsLength: number
 	className?: string
+	exchangeRate?: number
 }
 
 export const PaymentMethodItem = memo(
-	({ control, index, remove, inputStyles, fieldsLength, className }: PaymentMethodItemProps) => {
+	({ control, index, remove, inputStyles, fieldsLength, className, exchangeRate }: PaymentMethodItemProps) => {
 		const paymentMethod = useWatch({ control, name: `payments.${index}.method` })
-		const exchangeRate = undefined // TODO: Obtener tasa de cambio de configuración global
 
 		// Use useMemo to prevent unnecessary recalculations
 		const { currencyLabel } = useMemo(() => {
@@ -38,7 +38,12 @@ export const PaymentMethodItem = memo(
 		const handleRemove = useCallback(() => remove(index), [remove, index])
 
 		return (
-			<div className={className || "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 items-start bg-secondary p-3 sm:p-4 rounded-lg"}>
+			<div
+				className={
+					className ||
+					'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 items-start bg-secondary p-3 sm:p-4 rounded-lg'
+				}
+			>
 				<FormField
 					control={control}
 					name={`payments.${index}.method`}
@@ -115,10 +120,10 @@ export const PaymentMethodItem = memo(
 						<FormItem>
 							<FormLabel>Referencia {index + 1}</FormLabel>
 							<FormControl>
-								<Input 
-									placeholder="Referencia de pago" 
-									{...field} 
-									className={inputStyles} 
+								<Input
+									placeholder="Referencia de pago"
+									{...field}
+									className={inputStyles}
 									iconRight={<FileText className="h-4 w-4 text-muted-foreground" />}
 								/>
 							</FormControl>

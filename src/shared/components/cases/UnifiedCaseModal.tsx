@@ -36,6 +36,7 @@ import {
 	autoCorrectDecimalAmount,
 	createCalculatorInputHandlerWithCurrency,
 } from '@shared/utils/number-utils'
+import { calculatePaymentDetails } from '@features/form/lib/payment/payment-utils'
 
 interface UnifiedCaseModalProps {
 	case_: MedicalRecord | null
@@ -734,8 +735,34 @@ const UnifiedCaseModal: React.FC<UnifiedCaseModalProps> = ({ case_, isOpen, onCl
 														<span className="font-medium">{case_.exchange_rate.toFixed(2)} Bs/USD</span>
 													</div>
 													{(() => {
-														let totalUSD = 0
+														// Convert formData to payments array format
+														const payments = []
+														for (let i = 1; i <= 4; i++) {
+															const method = formData[`payment_method_${i}` as keyof typeof formData] as string | null
+															const amount = formData[`payment_amount_${i}` as keyof typeof formData] as number | null
+															const reference = formData[`payment_reference_${i}` as keyof typeof formData] as
+																| string
+																| null
+
+															if (method && amount && amount > 0) {
+																payments.push({
+																	method,
+																	amount,
+																	reference: reference || '',
+																})
+															}
+														}
+
+														// Use the same function that calculates payment status in the form
+														const { paymentStatus, isPaymentComplete, missingAmount } = calculatePaymentDetails(
+															payments,
+															case_.total_amount,
+															case_.exchange_rate,
+														)
+
+														// Generate payment details with auto-correction info
 														const paymentDetails = []
+														let totalUSD = 0
 
 														for (let i = 1; i <= 4; i++) {
 															const method = formData[`payment_method_${i}` as keyof typeof formData] as string | null
@@ -791,9 +818,6 @@ const UnifiedCaseModal: React.FC<UnifiedCaseModalProps> = ({ case_, isOpen, onCl
 															}
 														}
 
-														const remaining = case_.total_amount - totalUSD
-														const isComplete = Math.abs(remaining) < 0.01
-
 														return (
 															<>
 																{paymentDetails}
@@ -808,11 +832,19 @@ const UnifiedCaseModal: React.FC<UnifiedCaseModalProps> = ({ case_, isOpen, onCl
 																	</div>
 																	<div
 																		className={`flex justify-between font-bold ${
-																			isComplete ? 'text-green-600' : remaining > 0 ? 'text-red-600' : 'text-orange-600'
+																			isPaymentComplete
+																				? 'text-green-600'
+																				: missingAmount > 0
+																				? 'text-red-600'
+																				: 'text-orange-600'
 																		}`}
 																	>
-																		<span>{isComplete ? 'Estado:' : remaining > 0 ? 'Pendiente:' : 'Exceso:'}</span>
-																		<span>{isComplete ? 'Completado' : `$${Math.abs(remaining).toFixed(2)}`}</span>
+																		<span>
+																			{isPaymentComplete ? 'Estado:' : missingAmount > 0 ? 'Pendiente:' : 'Exceso:'}
+																		</span>
+																		<span>
+																			{isPaymentComplete ? 'Completado' : `$${Math.abs(missingAmount).toFixed(2)}`}
+																		</span>
 																	</div>
 																</div>
 															</>

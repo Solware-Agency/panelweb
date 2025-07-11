@@ -60,7 +60,7 @@ function App() {
 
 						{/* Form sub-routes for Employee users */}
 						<Route
-							path="/form/records"
+							path="/records"
 							element={
 								<FormRoute>
 									<Form />
@@ -68,7 +68,7 @@ function App() {
 							}
 						/>
 						<Route
-							path="/form/doctors"
+							path="/doctors"
 							element={
 								<FormRoute>
 									<Form />
@@ -76,7 +76,7 @@ function App() {
 							}
 						/>
 						<Route
-							path="/form/patients"
+							path="/patients"
 							element={
 								<FormRoute>
 									<Form />
@@ -84,7 +84,7 @@ function App() {
 							}
 						/>
 						<Route
-							path="/form/settings"
+							path="/settings"
 							element={
 								<FormRoute>
 									<Form />
