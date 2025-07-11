@@ -754,7 +754,7 @@ const UnifiedCaseModal: React.FC<UnifiedCaseModalProps> = ({ case_, isOpen, onCl
 														}
 
 														// Use the same function that calculates payment status in the form
-														const { paymentStatus, isPaymentComplete, missingAmount } = calculatePaymentDetails(
+														const { isPaymentComplete, missingAmount } = calculatePaymentDetails(
 															payments,
 															case_.total_amount,
 															case_.exchange_rate,
