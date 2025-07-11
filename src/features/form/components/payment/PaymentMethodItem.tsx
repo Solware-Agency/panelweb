@@ -2,7 +2,7 @@ import { type Control, type FieldArrayWithId, type UseFieldArrayRemove, useWatch
 import { type FormValues } from '@features/form/lib/form-schema'
 import { FormField, FormItem, FormLabel, FormControl, FormMessage } from '@shared/components/ui/form'
 import { Input } from '@shared/components/ui/input'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@shared/components/ui/select'
+import { FormDropdown, createDropdownOptions } from '@shared/components/ui/form-dropdown'
 import { Button } from '@shared/components/ui/button'
 import { Trash2, DollarSign, FileText } from 'lucide-react'
 import { isBolivaresMethod } from '@features/form/lib/payment/payment-utils'
@@ -50,20 +50,21 @@ export const PaymentMethodItem = memo(
 					render={({ field }) => (
 						<FormItem>
 							<FormLabel>Forma de Pago {index + 1}</FormLabel>
-							<Select onValueChange={field.onChange} defaultValue={field.value}>
-								<FormControl>
-									<SelectTrigger className={inputStyles}>
-										<SelectValue placeholder="Seleccione una opción" />
-									</SelectTrigger>
-								</FormControl>
-								<SelectContent>
-									<SelectItem value="Punto de venta">Punto de venta</SelectItem>
-									<SelectItem value="Dólares en efectivo">Dólares en efectivo</SelectItem>
-									<SelectItem value="Zelle">Zelle</SelectItem>
-									<SelectItem value="Pago móvil">Pago móvil</SelectItem>
-									<SelectItem value="Bs en efectivo">Bs en efectivo</SelectItem>
-								</SelectContent>
-							</Select>
+							<FormControl>
+								<FormDropdown
+									options={createDropdownOptions([
+										'Punto de venta',
+										'Dólares en efectivo',
+										'Zelle',
+										'Pago móvil',
+										'Bs en efectivo',
+									])}
+									value={field.value}
+									onChange={field.onChange}
+									placeholder="Seleccione una opción"
+									className={inputStyles}
+								/>
+							</FormControl>
 							<FormMessage />
 						</FormItem>
 					)}

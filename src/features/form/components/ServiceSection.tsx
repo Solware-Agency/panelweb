@@ -3,7 +3,7 @@ import { type FormValues } from '@features/form/lib/form-schema'
 import { FormField, FormItem, FormLabel, FormControl, FormMessage } from '@shared/components/ui/form'
 import { Input } from '@shared/components/ui/input'
 import { AutocompleteInput } from '@shared/components/ui/autocomplete-input'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@shared/components/ui/select'
+import { FormDropdown, createDropdownOptions } from '@shared/components/ui/form-dropdown'
 import { Card, CardContent, CardHeader, CardTitle } from '@shared/components/ui/card'
 import { useUserProfile } from '@shared/hooks/useUserProfile'
 import { useEffect, memo } from 'react'
@@ -43,18 +43,19 @@ export const ServiceSection = memo(({ control, inputStyles }: ServiceSectionProp
 					render={({ field }) => (
 						<FormItem>
 							<FormLabel>Tipo de Examen *</FormLabel>
-							<Select onValueChange={field.onChange} defaultValue={field.value}>
-								<FormControl>
-									<SelectTrigger className={inputStyles}>
-										<SelectValue placeholder="Seleccione una opción" />
-									</SelectTrigger>
-								</FormControl>
-								<SelectContent>
-									<SelectItem value="inmunohistoquimica">Inmunohistoquímica</SelectItem>
-									<SelectItem value="biopsia">Biopsia</SelectItem>
-									<SelectItem value="citologia">Citología</SelectItem>
-								</SelectContent>
-							</Select>
+							<FormControl>
+								<FormDropdown
+									options={createDropdownOptions([
+										{ value: 'inmunohistoquimica', label: 'Inmunohistoquímica' },
+										{ value: 'biopsia', label: 'Biopsia' },
+										{ value: 'citologia', label: 'Citología' },
+									])}
+									value={field.value}
+									onChange={field.onChange}
+									placeholder="Seleccione una opción"
+									className={inputStyles}
+								/>
+							</FormControl>
 							<FormMessage />
 						</FormItem>
 					)}
@@ -149,9 +150,9 @@ export const ServiceSection = memo(({ control, inputStyles }: ServiceSectionProp
 						<FormItem>
 							<FormLabel>Cantidad de Muestras *</FormLabel>
 							<FormControl>
-								<Input 
-									type="number" 
-									placeholder="0" 
+								<Input
+									type="number"
+									placeholder="0"
 									{...field}
 									iconRight={<Hash className="h-4 w-4 text-muted-foreground" />}
 									value={field.value === 0 ? '' : field.value}
@@ -159,7 +160,7 @@ export const ServiceSection = memo(({ control, inputStyles }: ServiceSectionProp
 										const value = e.target.value
 										field.onChange(value === '' ? 0 : Number(value))
 									}}
-									className={inputStyles} 
+									className={inputStyles}
 								/>
 							</FormControl>
 							<FormMessage />

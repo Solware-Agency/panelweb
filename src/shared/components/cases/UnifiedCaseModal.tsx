@@ -22,7 +22,7 @@ import { useAuth } from '@app/providers/AuthContext'
 import { useUserProfile } from '@shared/hooks/useUserProfile'
 import { Input } from '@shared/components/ui/input'
 import { Textarea } from '@shared/components/ui/textarea'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@shared/components/ui/select'
+import { FormDropdown, createDropdownOptions } from '@shared/components/ui/form-dropdown'
 import { format, parseISO } from 'date-fns'
 import { es } from 'date-fns/locale'
 import { Popover, PopoverContent, PopoverTrigger } from '@shared/components/ui/popover'
@@ -529,19 +529,17 @@ const UnifiedCaseModal: React.FC<UnifiedCaseModalProps> = ({ case_, isOpen, onCl
 											<div>
 												<p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">Estudio:</p>
 												{isEditing ? (
-													<Select
+													<FormDropdown
+														options={createDropdownOptions([
+															{ value: 'inmunohistoquimica', label: 'Inmunohistoquímica' },
+															{ value: 'biopsia', label: 'Biopsia' },
+															{ value: 'citologia', label: 'Citología' },
+														])}
 														value={formData.exam_type || ''}
-														onValueChange={(value) => handleInputChange('exam_type', value)}
-													>
-														<SelectTrigger className="mt-1">
-															<SelectValue placeholder="Seleccione tipo de examen" />
-														</SelectTrigger>
-														<SelectContent className="z-[100000000]">
-															<SelectItem value="inmunohistoquimica">Inmunohistoquímica</SelectItem>
-															<SelectItem value="biopsia">Biopsia</SelectItem>
-															<SelectItem value="citologia">Citología</SelectItem>
-														</SelectContent>
-													</Select>
+														onChange={(value) => handleInputChange('exam_type', value)}
+														placeholder="Seleccione tipo de examen"
+														className="mt-1"
+													/>
 												) : (
 													<p className="text-sm sm:text-base font-medium">{case_.exam_type}</p>
 												)}
@@ -581,21 +579,13 @@ const UnifiedCaseModal: React.FC<UnifiedCaseModalProps> = ({ case_, isOpen, onCl
 											<div>
 												<p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">Sede:</p>
 												{isEditing ? (
-													<Select
+													<FormDropdown
+														options={createDropdownOptions(['PMG', 'CPC', 'CNX', 'STX', 'MCY'])}
 														value={formData.branch || ''}
-														onValueChange={(value) => handleInputChange('branch', value)}
-													>
-														<SelectTrigger className="mt-1">
-															<SelectValue placeholder="Seleccione sede" />
-														</SelectTrigger>
-														<SelectContent className="z-[100000000]">
-															<SelectItem value="PMG">PMG</SelectItem>
-															<SelectItem value="CPC">CPC</SelectItem>
-															<SelectItem value="CNX">CNX</SelectItem>
-															<SelectItem value="STX">STX</SelectItem>
-															<SelectItem value="MCY">MCY</SelectItem>
-														</SelectContent>
-													</Select>
+														onChange={(value) => handleInputChange('branch', value)}
+														placeholder="Seleccione sede"
+														className="mt-1"
+													/>
 												) : (
 													<p className="text-sm sm:text-base font-medium">{case_.branch}</p>
 												)}
@@ -867,21 +857,18 @@ const UnifiedCaseModal: React.FC<UnifiedCaseModalProps> = ({ case_, isOpen, onCl
 														<div className="grid grid-cols-1 md:grid-cols-3 gap-2">
 															<div>
 																<p className="text-xs text-gray-500 dark:text-gray-400 mb-1">Método:</p>
-																<Select
+																<FormDropdown
+																	options={createDropdownOptions([
+																		'Punto de venta',
+																		'Dólares en efectivo',
+																		'Zelle',
+																		'Pago móvil',
+																		'Bs en efectivo',
+																	])}
 																	value={formData.payment_method_1 || ''}
-																	onValueChange={(value) => handleInputChange('payment_method_1', value)}
-																>
-																	<SelectTrigger>
-																		<SelectValue placeholder="Seleccionar método" />
-																	</SelectTrigger>
-																	<SelectContent className="z-[100000000]">
-																		<SelectItem value="Punto de venta">Punto de venta</SelectItem>
-																		<SelectItem value="Dólares en efectivo">Dólares en efectivo</SelectItem>
-																		<SelectItem value="Zelle">Zelle</SelectItem>
-																		<SelectItem value="Pago móvil">Pago móvil</SelectItem>
-																		<SelectItem value="Bs en efectivo">Bs en efectivo</SelectItem>
-																	</SelectContent>
-																</Select>
+																	onChange={(value) => handleInputChange('payment_method_1', value)}
+																	placeholder="Seleccionar método"
+																/>
 															</div>
 															<div>
 																{(() => {
@@ -963,21 +950,18 @@ const UnifiedCaseModal: React.FC<UnifiedCaseModalProps> = ({ case_, isOpen, onCl
 														<div className="grid grid-cols-1 md:grid-cols-3 gap-2">
 															<div>
 																<p className="text-xs text-gray-500 dark:text-gray-400 mb-1">Método:</p>
-																<Select
+																<FormDropdown
+																	options={createDropdownOptions([
+																		'Punto de venta',
+																		'Dólares en efectivo',
+																		'Zelle',
+																		'Pago móvil',
+																		'Bs en efectivo',
+																	])}
 																	value={formData.payment_method_2 || ''}
-																	onValueChange={(value) => handleInputChange('payment_method_2', value)}
-																>
-																	<SelectTrigger>
-																		<SelectValue placeholder="Seleccionar método" />
-																	</SelectTrigger>
-																	<SelectContent className="z-[100000000]">
-																		<SelectItem value="Punto de venta">Punto de venta</SelectItem>
-																		<SelectItem value="Dólares en efectivo">Dólares en efectivo</SelectItem>
-																		<SelectItem value="Zelle">Zelle</SelectItem>
-																		<SelectItem value="Pago móvil">Pago móvil</SelectItem>
-																		<SelectItem value="Bs en efectivo">Bs en efectivo</SelectItem>
-																	</SelectContent>
-																</Select>
+																	onChange={(value) => handleInputChange('payment_method_2', value)}
+																	placeholder="Seleccionar método"
+																/>
 															</div>
 															<div>
 																<p className="text-xs text-gray-500 dark:text-gray-400 mb-1">
@@ -1047,21 +1031,18 @@ const UnifiedCaseModal: React.FC<UnifiedCaseModalProps> = ({ case_, isOpen, onCl
 														<div className="grid grid-cols-1 md:grid-cols-3 gap-2">
 															<div>
 																<p className="text-xs text-gray-500 dark:text-gray-400 mb-1">Método:</p>
-																<Select
+																<FormDropdown
+																	options={createDropdownOptions([
+																		'Punto de venta',
+																		'Dólares en efectivo',
+																		'Zelle',
+																		'Pago móvil',
+																		'Bs en efectivo',
+																	])}
 																	value={formData.payment_method_3 || ''}
-																	onValueChange={(value) => handleInputChange('payment_method_3', value)}
-																>
-																	<SelectTrigger>
-																		<SelectValue placeholder="Seleccionar método" />
-																	</SelectTrigger>
-																	<SelectContent className="z-[100000000]">
-																		<SelectItem value="Punto de venta">Punto de venta</SelectItem>
-																		<SelectItem value="Dólares en efectivo">Dólares en efectivo</SelectItem>
-																		<SelectItem value="Zelle">Zelle</SelectItem>
-																		<SelectItem value="Pago móvil">Pago móvil</SelectItem>
-																		<SelectItem value="Bs en efectivo">Bs en efectivo</SelectItem>
-																	</SelectContent>
-																</Select>
+																	onChange={(value) => handleInputChange('payment_method_3', value)}
+																	placeholder="Seleccionar método"
+																/>
 															</div>
 															<div>
 																<p className="text-xs text-gray-500 dark:text-gray-400 mb-1">
@@ -1131,21 +1112,18 @@ const UnifiedCaseModal: React.FC<UnifiedCaseModalProps> = ({ case_, isOpen, onCl
 														<div className="grid grid-cols-1 md:grid-cols-3 gap-2">
 															<div>
 																<p className="text-xs text-gray-500 dark:text-gray-400 mb-1">Método:</p>
-																<Select
+																<FormDropdown
+																	options={createDropdownOptions([
+																		'Punto de venta',
+																		'Dólares en efectivo',
+																		'Zelle',
+																		'Pago móvil',
+																		'Bs en efectivo',
+																	])}
 																	value={formData.payment_method_4 || ''}
-																	onValueChange={(value) => handleInputChange('payment_method_4', value)}
-																>
-																	<SelectTrigger>
-																		<SelectValue placeholder="Seleccionar método" />
-																	</SelectTrigger>
-																	<SelectContent className="z-[100000000]">
-																		<SelectItem value="Punto de venta">Punto de venta</SelectItem>
-																		<SelectItem value="Dólares en efectivo">Dólares en efectivo</SelectItem>
-																		<SelectItem value="Zelle">Zelle</SelectItem>
-																		<SelectItem value="Pago móvil">Pago móvil</SelectItem>
-																		<SelectItem value="Bs en efectivo">Bs en efectivo</SelectItem>
-																	</SelectContent>
-																</Select>
+																	onChange={(value) => handleInputChange('payment_method_4', value)}
+																	placeholder="Seleccionar método"
+																/>
 															</div>
 															<div>
 																<p className="text-xs text-gray-500 dark:text-gray-400 mb-1">

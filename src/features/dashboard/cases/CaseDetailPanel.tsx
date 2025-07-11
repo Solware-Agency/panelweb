@@ -36,7 +36,7 @@ import { useToast } from '@shared/hooks/use-toast'
 import { Button } from '@shared/components/ui/button'
 import { Input } from '@shared/components/ui/input'
 import { Textarea } from '@shared/components/ui/textarea'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@shared/components/ui/select'
+import { FormDropdown, createDropdownOptions } from '@shared/components/ui/form-dropdown'
 import { useAuth } from '@app/providers/AuthContext'
 import { Popover, PopoverContent, PopoverTrigger } from '@shared/components/ui/popover'
 import { Calendar } from '@shared/components/ui/calendar'
@@ -884,21 +884,19 @@ const CaseDetailPanel: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClos
 															<div className="grid grid-cols-1 md:grid-cols-3 gap-2">
 																<div>
 																	<label className="text-xs text-gray-500 dark:text-gray-400 mb-1 block">Método</label>
-																	<Select
+																	<FormDropdown
+																		options={createDropdownOptions([
+																			'Punto de venta',
+																			'Dólares en efectivo',
+																			'Zelle',
+																			'Pago móvil',
+																			'Bs en efectivo',
+																		])}
 																		value={editedCase.payment_method_1 || ''}
-																		onValueChange={(value) => handleInputChange('payment_method_1', value)}
-																	>
-																		<SelectTrigger className="text-sm border-dashed focus:border-primary focus:ring-primary bg-gray-50 dark:bg-gray-800/50">
-																			<SelectValue placeholder="Seleccionar método" />
-																		</SelectTrigger>
-																		<SelectContent className="z-[999999999]">
-																			<SelectItem value="Punto de venta">Punto de venta</SelectItem>
-																			<SelectItem value="Dólares en efectivo">Dólares en efectivo</SelectItem>
-																			<SelectItem value="Zelle">Zelle</SelectItem>
-																			<SelectItem value="Pago móvil">Pago móvil</SelectItem>
-																			<SelectItem value="Bs en efectivo">Bs en efectivo</SelectItem>
-																		</SelectContent>
-																	</Select>
+																		onChange={(value) => handleInputChange('payment_method_1', value)}
+																		placeholder="Seleccionar método"
+																		className="text-sm border-dashed focus:border-primary focus:ring-primary bg-gray-50 dark:bg-gray-800/50"
+																	/>
 																</div>
 																<div>
 																	{createPaymentAmountInput(
@@ -950,21 +948,19 @@ const CaseDetailPanel: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClos
 															<div className="grid grid-cols-1 md:grid-cols-3 gap-2">
 																<div>
 																	<label className="text-xs text-gray-500 dark:text-gray-400 mb-1 block">Método</label>
-																	<Select
+																	<FormDropdown
+																		options={createDropdownOptions([
+																			'Punto de venta',
+																			'Dólares en efectivo',
+																			'Zelle',
+																			'Pago móvil',
+																			'Bs en efectivo',
+																		])}
 																		value={editedCase.payment_method_2 || ''}
-																		onValueChange={(value) => handleInputChange('payment_method_2', value)}
-																	>
-																		<SelectTrigger className="text-sm border-dashed focus:border-primary focus:ring-primary bg-gray-50 dark:bg-gray-800/50">
-																			<SelectValue placeholder="Seleccionar método" />
-																		</SelectTrigger>
-																		<SelectContent className="z-[999999999]">
-																			<SelectItem value="Punto de venta">Punto de venta</SelectItem>
-																			<SelectItem value="Dólares en efectivo">Dólares en efectivo</SelectItem>
-																			<SelectItem value="Zelle">Zelle</SelectItem>
-																			<SelectItem value="Pago móvil">Pago móvil</SelectItem>
-																			<SelectItem value="Bs en efectivo">Bs en efectivo</SelectItem>
-																		</SelectContent>
-																	</Select>
+																		onChange={(value) => handleInputChange('payment_method_2', value)}
+																		placeholder="Seleccionar método"
+																		className="text-sm border-dashed focus:border-primary focus:ring-primary bg-gray-50 dark:bg-gray-800/50"
+																	/>
 																</div>
 																<div>
 																	{createPaymentAmountInput(
@@ -1016,21 +1012,19 @@ const CaseDetailPanel: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClos
 															<div className="grid grid-cols-1 md:grid-cols-3 gap-2">
 																<div>
 																	<label className="text-xs text-gray-500 dark:text-gray-400 mb-1 block">Método</label>
-																	<Select
+																	<FormDropdown
+																		options={createDropdownOptions([
+																			'Punto de venta',
+																			'Dólares en efectivo',
+																			'Zelle',
+																			'Pago móvil',
+																			'Bs en efectivo',
+																		])}
 																		value={editedCase.payment_method_3 || ''}
-																		onValueChange={(value) => handleInputChange('payment_method_3', value)}
-																	>
-																		<SelectTrigger className="text-sm border-dashed focus:border-primary focus:ring-primary bg-gray-50 dark:bg-gray-800/50">
-																			<SelectValue placeholder="Seleccionar método" />
-																		</SelectTrigger>
-																		<SelectContent className="z-[999999999]">
-																			<SelectItem value="Punto de venta">Punto de venta</SelectItem>
-																			<SelectItem value="Dólares en efectivo">Dólares en efectivo</SelectItem>
-																			<SelectItem value="Zelle">Zelle</SelectItem>
-																			<SelectItem value="Pago móvil">Pago móvil</SelectItem>
-																			<SelectItem value="Bs en efectivo">Bs en efectivo</SelectItem>
-																		</SelectContent>
-																	</Select>
+																		onChange={(value) => handleInputChange('payment_method_3', value)}
+																		placeholder="Seleccionar método"
+																		className="text-sm border-dashed focus:border-primary focus:ring-primary bg-gray-50 dark:bg-gray-800/50"
+																	/>
 																</div>
 																<div>
 																	{createPaymentAmountInput(
@@ -1082,21 +1076,19 @@ const CaseDetailPanel: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClos
 															<div className="grid grid-cols-1 md:grid-cols-3 gap-2">
 																<div>
 																	<label className="text-xs text-gray-500 dark:text-gray-400 mb-1 block">Método</label>
-																	<Select
+																	<FormDropdown
+																		options={createDropdownOptions([
+																			'Punto de venta',
+																			'Dólares en efectivo',
+																			'Zelle',
+																			'Pago móvil',
+																			'Bs en efectivo',
+																		])}
 																		value={editedCase.payment_method_4 || ''}
-																		onValueChange={(value) => handleInputChange('payment_method_4', value)}
-																	>
-																		<SelectTrigger className="text-sm border-dashed focus:border-primary focus:ring-primary bg-gray-50 dark:bg-gray-800/50">
-																			<SelectValue placeholder="Seleccionar método" />
-																		</SelectTrigger>
-																		<SelectContent className="z-[999999999]">
-																			<SelectItem value="Punto de venta">Punto de venta</SelectItem>
-																			<SelectItem value="Dólares en efectivo">Dólares en efectivo</SelectItem>
-																			<SelectItem value="Zelle">Zelle</SelectItem>
-																			<SelectItem value="Pago móvil">Pago móvil</SelectItem>
-																			<SelectItem value="Bs en efectivo">Bs en efectivo</SelectItem>
-																		</SelectContent>
-																	</Select>
+																		onChange={(value) => handleInputChange('payment_method_4', value)}
+																		placeholder="Seleccionar método"
+																		className="text-sm border-dashed focus:border-primary focus:ring-primary bg-gray-50 dark:bg-gray-800/50"
+																	/>
 																</div>
 																<div>
 																	{createPaymentAmountInput(
@@ -1299,21 +1291,19 @@ const CaseDetailPanel: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClos
 								<label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
 									Método de Pago
 								</label>
-								<Select
+								<FormDropdown
+									options={createDropdownOptions([
+										'Punto de venta',
+										'Dólares en efectivo',
+										'Zelle',
+										'Pago móvil',
+										'Bs en efectivo',
+									])}
 									value={newPayment.method}
-									onValueChange={(value) => setNewPayment({ ...newPayment, method: value })}
-								>
-									<SelectTrigger className="w-full">
-										<SelectValue placeholder="Seleccionar método" />
-									</SelectTrigger>
-									<SelectContent className="z-[999999999]">
-										<SelectItem value="Punto de venta">Punto de venta</SelectItem>
-										<SelectItem value="Dólares en efectivo">Dólares en efectivo</SelectItem>
-										<SelectItem value="Zelle">Zelle</SelectItem>
-										<SelectItem value="Pago móvil">Pago móvil</SelectItem>
-										<SelectItem value="Bs en efectivo">Bs en efectivo</SelectItem>
-									</SelectContent>
-								</Select>
+									onChange={(value) => setNewPayment({ ...newPayment, method: value })}
+									placeholder="Seleccionar método"
+									className="w-full"
+								/>
 							</div>
 
 							<div>
