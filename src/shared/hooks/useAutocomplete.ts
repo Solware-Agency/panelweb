@@ -37,7 +37,7 @@ const normalizeAndDeduplicateNames = (valueCounts: Record<string, number>, field
 	// Seleccionar la mejor versión de cada grupo
 	const deduplicatedCounts: Record<string, number> = {}
 
-	Object.entries(normalizedGroups).forEach(([normalized, group]) => {
+	Object.entries(normalizedGroups).forEach(([, group]) => {
 		if (group.values.length === 1) {
 			// Solo una versión, usar tal como está
 			deduplicatedCounts[group.values[0]] = group.totalCount
