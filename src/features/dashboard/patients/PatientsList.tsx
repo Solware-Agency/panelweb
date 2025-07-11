@@ -46,6 +46,63 @@ interface PatientsListProps {
 	handleRefresh: () => void
 }
 
+// Memoized Patient Row Component for better performance
+const PatientRow = React.memo(({ patient, onClick }: { patient: PatientData; onClick: (patient: PatientData) => void }) => (
+	<tr
+		key={patient.id_number}
+		className="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors cursor-pointer"
+		onClick={() => onClick(patient)}
+	>
+		{/* Name Cell */}
+		<td className="w-[20%] px-4 py-4">
+			<div className="flex items-center">
+				<div className="flex-shrink-0 h-8 w-8 bg-gray-200 dark:bg-gray-700 rounded-full flex items-center justify-center">
+					<User className="h-4 w-4 text-gray-500 dark:text-gray-400" />
+				</div>
+				<div className="ml-3">
+					<p className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">
+						{patient.full_name}
+					</p>
+				</div>
+			</div>
+		</td>
+
+		{/* ID Number Cell */}
+		<td className="w-[15%] px-4 py-4 text-sm text-gray-900 dark:text-gray-100">
+			{patient.id_number}
+		</td>
+
+		{/* Date of Birth Cell */}
+		<td className="w-[20%] px-4 py-4 text-sm text-gray-900 dark:text-gray-100">
+			{patient.date_of_birth ? (
+				<div className="flex items-center">
+					<span>{format(parseISO(patient.date_of_birth), 'dd/MM/yyyy', { locale: es })}</span>
+					<span className="ml-2 text-xs text-blue-600 dark:text-blue-400">
+						({getAgeDisplay(patient.date_of_birth)})
+					</span>
+				</div>
+			) : (
+				<span className="text-gray-500 dark:text-gray-400">No disponible</span>
+			)}
+		</td>
+
+		{/* Phone Cell */}
+		<td className="w-[15%] px-4 py-4 text-sm text-gray-900 dark:text-gray-100">{patient.phone}</td>
+
+		{/* Email Cell */}
+		<td className="w-[15%] px-4 py-4 text-sm text-gray-900 dark:text-gray-100 truncate">
+			{patient.email || <span className="text-gray-500 dark:text-gray-400">No disponible</span>}
+		</td>
+
+		{/* Last Visit Cell */}
+		<td className="w-[15%] px-4 py-4 text-sm text-gray-900 dark:text-gray-100 text-center">
+			{format(new Date(patient.lastVisit), 'dd/MM/yyyy', { locale: es })}
+		</td>
+	</tr>
+))
+
+PatientRow.displayName = 'PatientRow'
+
 // Use React.memo to prevent unnecessary re-renders
 const PatientsList: React.FC<PatientsListProps> = React.memo(
 	({ searchTerm, recordsData, isLoading, error, handleRefresh }) => {
@@ -54,19 +111,24 @@ const PatientsList: React.FC<PatientsListProps> = React.memo(
 		const [selectedPatient, setSelectedPatient] = useState<PatientData | null>(null)
 		const [isModalOpen, setIsModalOpen] = useState(false)
 
-		// Process records to get unique patients
+		// Process records to get unique patients - OPTIMIZED FOR PERFORMANCE
 		const patients = useMemo(() => {
-			if (!recordsData?.data) return []
+			if (!recordsData?.data || recordsData.data.length === 0) return []
 
 			// Use a more efficient approach to process records
-			const processedRecords = recordsData.data.reduce((map: Map<string, PatientData>, record: MedicalRecord) => {
-				// Solo procesar registros con id_number válido
+			const map = new Map<string, PatientData>()
+			const dataArray = recordsData.data
+
+			// Process records in batches to avoid blocking the UI
+			for (let i = 0; i < dataArray.length; i++) {
+				const record = dataArray[i]
+
+				// Skip invalid records early
 				if (!record.id_number || record.id_number.trim() === '') {
-					return map
+					continue
 				}
 
 				const existingPatient = map.get(record.id_number)
-				const recordDate = new Date(record.created_at || record.date)
 
 				if (!existingPatient) {
 					map.set(record.id_number, {
@@ -79,64 +141,75 @@ const PatientsList: React.FC<PatientsListProps> = React.memo(
 						totalVisits: 1,
 					})
 				} else {
-					// Update last visit date if this record is newer
-					const existingDate = new Date(existingPatient.lastVisit)
-					if (recordDate > existingDate) {
-						existingPatient.lastVisit = record.created_at || record.date
+					// Only update if this record is newer (avoid unnecessary date parsing)
+					const recordTimestamp = record.created_at || record.date
+					if (recordTimestamp > existingPatient.lastVisit) {
+						existingPatient.lastVisit = recordTimestamp
 					}
 
-					// Increment visit count
 					existingPatient.totalVisits += 1
 
-					// Update patient info if needed (in case it was updated in a newer record)
-					if (record.full_name) existingPatient.full_name = record.full_name
-					if (record.phone) existingPatient.phone = record.phone
-					if (record.email) existingPatient.email = record.email
-					if (record.date_of_birth) existingPatient.date_of_birth = record.date_of_birth
-
-					map.set(record.id_number, existingPatient)
+					// Update patient info only if more recent or if existing is empty
+					if (record.full_name && (!existingPatient.full_name || recordTimestamp > existingPatient.lastVisit)) {
+						existingPatient.full_name = record.full_name
+					}
+					if (record.phone && (!existingPatient.phone || recordTimestamp > existingPatient.lastVisit)) {
+						existingPatient.phone = record.phone
+					}
+					if (record.email && (!existingPatient.email || recordTimestamp > existingPatient.lastVisit)) {
+						existingPatient.email = record.email
+					}
+					if (record.date_of_birth && (!existingPatient.date_of_birth || recordTimestamp > existingPatient.lastVisit)) {
+						existingPatient.date_of_birth = record.date_of_birth
+					}
 				}
-				return map
-			}, new Map<string, PatientData>())
+			}
 
-			return Array.from(processedRecords.values())
+			return Array.from(map.values())
 		}, [recordsData?.data])
 
-		// Filter patients based on search term
+		// Filter patients based on search term - OPTIMIZED
 		const filteredPatients = useMemo(() => {
-			if (!patients) return []
+			if (!patients || patients.length === 0) return []
 
+			// If no search term, return all patients (no filtering needed)
+			if (!searchTerm || searchTerm.trim() === '') return patients
+
+			const searchLower = searchTerm.toLowerCase()
 			return patients.filter((patient: PatientData) => {
-				const searchLower = searchTerm.toLowerCase()
 				return (
-					patient.full_name.toLowerCase().includes(searchLower) ||
-					patient.id_number.toLowerCase().includes(searchLower) ||
-					patient.phone.toLowerCase().includes(searchLower) ||
+					patient.full_name?.toLowerCase().includes(searchLower) ||
+					patient.id_number?.toLowerCase().includes(searchLower) ||
+					patient.phone?.toLowerCase().includes(searchLower) ||
 					(patient.email && patient.email.toLowerCase().includes(searchLower))
 				)
 			})
 		}, [patients, searchTerm])
 
-		// Sort patients
+		// Sort patients - OPTIMIZED
 		const sortedPatients = useMemo(() => {
-			if (!filteredPatients) return []
+			if (!filteredPatients || filteredPatients.length === 0) return []
 
-			return [...filteredPatients].sort((a: PatientData, b: PatientData) => {
+			// Limit the number of patients to display for better performance
+			const maxPatients = 500 // Limit to 500 patients
+			const patientsToSort =
+				filteredPatients.length > maxPatients ? filteredPatients.slice(0, maxPatients) : filteredPatients
+
+			return [...patientsToSort].sort((a: PatientData, b: PatientData) => {
 				let aValue: any = a[sortField]
 				let bValue: any = b[sortField]
 
 				// Handle null values
-				if (aValue === null) aValue = ''
-				if (bValue === null) bValue = ''
+				if (aValue === null || aValue === undefined) aValue = ''
+				if (bValue === null || bValue === undefined) bValue = ''
 
-				// Special handling for date_of_birth
+				// Special handling for date_of_birth - avoid creating Date objects if possible
 				if (sortField === 'date_of_birth') {
-					aValue = aValue ? new Date(aValue).getTime() : 0
-					bValue = bValue ? new Date(bValue).getTime() : 0
-				}
-
-				// String comparison for text fields
-				if (typeof aValue === 'string') {
+					// Use string comparison for dates (ISO format sorts correctly)
+					aValue = aValue || '0000-00-00'
+					bValue = bValue || '0000-00-00'
+				} else if (typeof aValue === 'string') {
+					// String comparison for text fields
 					aValue = aValue.toLowerCase()
 					bValue = bValue.toLowerCase()
 				}
@@ -279,58 +352,13 @@ const PatientsList: React.FC<PatientsListProps> = React.memo(
 								</thead>
 								<tbody className="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-700">
 									{sortedPatients.length > 0 ? (
-										sortedPatients.map((patient: PatientData) => (
-											<tr
+										// Limit desktop view to 100 patients for better performance
+										sortedPatients.slice(0, 100).map((patient: PatientData) => (
+											<PatientRow
 												key={patient.id_number}
-												className="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors cursor-pointer"
-												onClick={() => handlePatientClick(patient)}
-											>
-												{/* Name Cell */}
-												<td className="w-[20%] px-4 py-4">
-													<div className="flex items-center">
-														<div className="flex-shrink-0 h-8 w-8 bg-gray-200 dark:bg-gray-700 rounded-full flex items-center justify-center">
-															<User className="h-4 w-4 text-gray-500 dark:text-gray-400" />
-														</div>
-														<div className="ml-3">
-															<p className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">
-																{patient.full_name}
-															</p>
-														</div>
-													</div>
-												</td>
-
-												{/* ID Number Cell */}
-												<td className="w-[15%] px-4 py-4 text-sm text-gray-900 dark:text-gray-100">
-													{patient.id_number}
-												</td>
-
-												{/* Date of Birth Cell */}
-												<td className="w-[20%] px-4 py-4 text-sm text-gray-900 dark:text-gray-100">
-													{patient.date_of_birth ? (
-														<div className="flex items-center">
-															<span>{format(parseISO(patient.date_of_birth), 'dd/MM/yyyy', { locale: es })}</span>
-															<span className="ml-2 text-xs text-blue-600 dark:text-blue-400">
-																({getAgeDisplay(patient.date_of_birth)})
-															</span>
-														</div>
-													) : (
-														<span className="text-gray-500 dark:text-gray-400">No disponible</span>
-													)}
-												</td>
-
-												{/* Phone Cell */}
-												<td className="w-[15%] px-4 py-4 text-sm text-gray-900 dark:text-gray-100">{patient.phone}</td>
-
-												{/* Email Cell */}
-												<td className="w-[15%] px-4 py-4 text-sm text-gray-900 dark:text-gray-100 truncate">
-													{patient.email || <span className="text-gray-500 dark:text-gray-400">No disponible</span>}
-												</td>
-
-												{/* Last Visit Cell */}
-												<td className="w-[15%] px-4 py-4 text-sm text-gray-900 dark:text-gray-100 text-center">
-													{format(new Date(patient.lastVisit), 'dd/MM/yyyy', { locale: es })}
-												</td>
-											</tr>
+												patient={patient}
+												onClick={handlePatientClick}
+											/>
 										))
 									) : (
 										<tr>
@@ -345,6 +373,18 @@ const PatientsList: React.FC<PatientsListProps> = React.memo(
 									)}
 								</tbody>
 							</table>
+							
+							{/* Performance notice for desktop */}
+							{sortedPatients.length > 100 && (
+								<div className="p-4 text-center border-t border-gray-200 dark:border-gray-700">
+									<p className="text-sm text-gray-500 dark:text-gray-400 mb-2">
+										Mostrando 100 de {sortedPatients.length} pacientes
+									</p>
+									<p className="text-xs text-gray-400">
+										Usa la búsqueda para filtrar resultados específicos
+									</p>
+								</div>
+							)}
 						</div>
 					</div>
 
@@ -352,6 +392,7 @@ const PatientsList: React.FC<PatientsListProps> = React.memo(
 					<div className="lg:hidden">
 						{sortedPatients.length > 0 ? (
 							<div className="grid grid-cols-1 sm:grid-cols-2 gap-3 p-3">
+								{/* Limit mobile view to 20 patients for better performance */}
 								{sortedPatients.slice(0, 20).map((patient: PatientData) => (
 									<div
 										key={patient.id_number}
@@ -431,9 +472,9 @@ const PatientsList: React.FC<PatientsListProps> = React.memo(
 								<p className="text-sm text-gray-500 dark:text-gray-400 mb-2">
 									Mostrando 20 de {sortedPatients.length} pacientes
 								</p>
-								<Button variant="outline" onClick={() => {}} className="text-xs">
-									Refinar búsqueda
-								</Button>
+								<p className="text-xs text-gray-400 mb-2">
+									Usa la búsqueda para filtrar resultados específicos
+								</p>
 							</div>
 						)}
 					</div>

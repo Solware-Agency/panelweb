@@ -408,7 +408,7 @@ const Sidebar: React.FC<SidebarProps> = ({
 			<div className="flex flex-col justify-center gap-1">
 				{isEmployee && (
 					<NavItem
-						to="/form/settings"
+						to="/settings"
 						icon={<Settings className="stroke-2 size-4 sm:size-5 shrink-0" />}
 						label="Ajustes"
 						showFullContent={showFullContent}

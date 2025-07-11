@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useCallback, useMemo } from 'react'
 import { Download, RefreshCw } from 'lucide-react'
 import CasesTable from '@shared/components/cases/CasesTable'
 import CaseDetailPanel from '@shared/components/cases/CaseDetailPanel'
@@ -7,36 +7,38 @@ import { useQuery } from '@tanstack/react-query'
 import { getMedicalRecords } from '@lib/supabase-service'
 import { Card } from '@shared/components/ui/card'
 
-const MainCases: React.FC = () => {
+const MainCases: React.FC = React.memo(() => {
 	const [selectedCase, setSelectedCase] = useState<MedicalRecord | null>(null)
 	const [isPanelOpen, setIsPanelOpen] = useState(false)
 	const [isFullscreen, setIsFullscreen] = useState(false)
 
-	// Query for refreshing data
+	// Query for refreshing data - optimized to prevent unnecessary refetches
 	const casesQueryResult = useQuery({
 		queryKey: ['medical-cases'],
 		queryFn: () => getMedicalRecords(),
 		staleTime: 1000 * 60 * 5, // 5 minutes
+		refetchOnWindowFocus: false, // Prevent refetching on window focus
+		refetchOnReconnect: false, // Prevent refetching on reconnect
 	})
 
 	const { refetch, isLoading } = casesQueryResult
-	const cases: MedicalRecord[] = casesQueryResult.data?.data || []
+	const cases: MedicalRecord[] = useMemo(() => casesQueryResult.data?.data || [], [casesQueryResult.data])
 	const error = casesQueryResult.error
 
-	const handleCaseSelect = (case_: MedicalRecord) => {
+	const handleCaseSelect = useCallback((case_: MedicalRecord) => {
 		setSelectedCase(case_)
 		setIsPanelOpen(true)
-	}
+	}, [])
 
-	const handlePanelClose = () => {
+	const handlePanelClose = useCallback(() => {
 		setIsPanelOpen(false)
 		// Delay clearing selected case to allow animation to complete
 		setTimeout(() => setSelectedCase(null), 300)
-	}
+	}, [])
 
-	const handleRefresh = () => {
+	const handleRefresh = useCallback(() => {
 		refetch()
-	}
+	}, [refetch])
 
 	return (
 		<div className="p-3 sm:p-6">
@@ -107,6 +109,8 @@ const MainCases: React.FC = () => {
 			/>
 		</div>
 	)
-}
+})
+
+MainCases.displayName = 'MainCases'
 
 export default MainCases

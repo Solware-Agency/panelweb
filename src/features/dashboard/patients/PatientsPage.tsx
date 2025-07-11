@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react'
+import React, { useState, useCallback, useMemo } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { getMedicalRecords } from '@lib/supabase-service'
 import { Search, RefreshCw } from 'lucide-react'
@@ -7,11 +7,11 @@ import { Input } from '@shared/components/ui/input'
 import { Button } from '@shared/components/ui/button'
 import PatientsList from './PatientsList'
 
-const PatientsPage: React.FC = () => {
+const PatientsPage: React.FC = React.memo(() => {
 	const [searchTerm, setSearchTerm] = useState('')
 	const [isSearching, setIsSearching] = useState(false)
 
-	// Fetch all medical records - add refetchOnWindowFocus: false to prevent unnecessary refetches
+	// Fetch all medical records - optimized to prevent unnecessary refetches
 	const {
 		data: recordsData,
 		isLoading,
@@ -22,6 +22,7 @@ const PatientsPage: React.FC = () => {
 		queryFn: () => getMedicalRecords(),
 		staleTime: 1000 * 60 * 5, // 5 minutes
 		refetchOnWindowFocus: false, // Prevent refetching on window focus
+		refetchOnReconnect: false, // Prevent refetching on reconnect
 	})
 
 	// Handle search
@@ -34,6 +35,9 @@ const PatientsPage: React.FC = () => {
 		setIsSearching(true)
 		refetch().finally(() => setIsSearching(false))
 	}, [refetch])
+
+	// Memoize the memoized recordsData to prevent unnecessary re-renders
+	const memoizedRecordsData = useMemo(() => recordsData, [recordsData])
 
 	return (
 		<div className="p-3 sm:p-4">
@@ -80,13 +84,15 @@ const PatientsPage: React.FC = () => {
 
 			<PatientsList
 				searchTerm={searchTerm}
-				recordsData={recordsData || null}
+				recordsData={memoizedRecordsData || null}
 				isLoading={isLoading}
 				error={error}
 				handleRefresh={handleRefresh}
 			/>
 		</div>
 	)
-}
+})
+
+PatientsPage.displayName = 'PatientsPage'
 
 export default PatientsPage
