@@ -1,6 +1,6 @@
 import { type Control } from 'react-hook-form'
 import { type FormValues } from '@features/form/lib/form-schema'
-import { FormField, FormItem, FormLabel, FormControl, FormMessage } from '@shared/components/ui/form'
+import { FormField, FormItem, FormLabel, FormControl } from '@shared/components/ui/form'
 import { AutocompleteInput } from '@shared/components/ui/autocomplete-input'
 import { Card, CardContent, CardHeader, CardTitle } from '@shared/components/ui/card'
 import { Popover, PopoverContent, PopoverTrigger } from '@shared/components/ui/popover'
@@ -93,7 +93,6 @@ export const PatientDataSection = memo(({ control, inputStyles }: PatientDataSec
 									className={inputStyles}
 								/>
 							</FormControl>
-							<FormMessage />
 						</FormItem>
 					)}
 				/>
@@ -126,7 +125,6 @@ export const PatientDataSection = memo(({ control, inputStyles }: PatientDataSec
 									className={cn(inputStyles, isLoadingPatient && 'border-blue-300')}
 								/>
 							</FormControl>
-							<FormMessage />
 							<p className="text-[10px] sm:text-xs text-gray-500 mt-1">
 								💡 Haz clic en una cédula para llenar automáticamente los datos del paciente
 							</p>
@@ -158,7 +156,6 @@ export const PatientDataSection = memo(({ control, inputStyles }: PatientDataSec
 									className={inputStyles}
 								/>
 							</FormControl>
-							<FormMessage />
 						</FormItem>
 					)}
 				/>
@@ -184,7 +181,7 @@ export const PatientDataSection = memo(({ control, inputStyles }: PatientDataSec
 												inputStyles,
 											)}
 										>
-											<Calendar className="mr-2 h-4 w-4" />
+											<CalendarIcon className="mr-2 h-4 w-4" />
 											{field.value ? (
 												<div className="flex items-center gap-2">
 													<span>{format(field.value, 'PPP', { locale: es })}</span>
@@ -219,7 +216,6 @@ export const PatientDataSection = memo(({ control, inputStyles }: PatientDataSec
 									/>
 								</PopoverContent>
 							</Popover>
-							<FormMessage />
 						</FormItem>
 					)}
 				/>
@@ -241,7 +237,6 @@ export const PatientDataSection = memo(({ control, inputStyles }: PatientDataSec
 									className={inputStyles}
 								/>
 							</FormControl>
-							<FormMessage />
 						</FormItem>
 					)}
 				/>
@@ -265,15 +260,11 @@ export const PatientDataSection = memo(({ control, inputStyles }: PatientDataSec
 											)}
 										>
 											<CalendarIcon className="mr-2 h-4 w-4" />
-											{field.value ? (
-												format(field.value, 'PPP', { locale: es })
-											) : (
-												<span>Selecciona fecha de registro</span>
-											)}
+											{field.value ? format(field.value, 'PPP', { locale: es }) : <span>Selecciona fecha</span>}
 										</Button>
 									</FormControl>
 								</PopoverTrigger>
-								<PopoverContent className="w-auto p-0" align="start">
+								<PopoverContent className="w-auto p-0 z-[9999]" align="start">
 									<Calendar
 										mode="single"
 										selected={field.value instanceof Date ? field.value : undefined}
@@ -281,14 +272,17 @@ export const PatientDataSection = memo(({ control, inputStyles }: PatientDataSec
 											field.onChange(date instanceof Date ? date : null)
 											setIsRegistrationDateCalendarOpen(false)
 										}}
-										disabled={(date) => date > new Date()}
+										disabled={(date) => {
+											const today = new Date()
+											const maxPastDate = new Date(today.getFullYear() - 1, today.getMonth(), today.getDate())
+											return date < maxPastDate || date > today
+										}}
 										initialFocus
 										locale={es}
-										defaultMonth={field.value instanceof Date ? field.value : new Date(2000, 0, 1)}
+										defaultMonth={field.value instanceof Date ? field.value : new Date()}
 									/>
 								</PopoverContent>
 							</Popover>
-							<FormMessage />
 						</FormItem>
 					)}
 				/>

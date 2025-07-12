@@ -95,8 +95,12 @@ const PatientHistoryModal: React.FC<PatientHistoryModalProps> = ({ isOpen, onClo
 						exit={{ opacity: 0, scale: 0.95 }}
 						transition={{ type: 'spring', damping: 25, stiffness: 200 }}
 						className="fixed inset-0 z-[99999999] flex items-center justify-center p-4"
+						onClick={onClose}
 					>
-						<div className="bg-white dark:bg-background rounded-lg shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col">
+						<div 
+							className="bg-white dark:bg-background rounded-lg shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col"
+							onClick={(e) => e.stopPropagation()}
+						>
 							{/* Header */}
 							<div className="sticky top-0 bg-white dark:bg-background border-b border-gray-200 dark:border-gray-700 p-4 sm:p-6 z-10">
 								<div className="flex items-center justify-between">

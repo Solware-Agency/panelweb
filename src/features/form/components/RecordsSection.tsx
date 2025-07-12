@@ -179,7 +179,6 @@ export const RecordsSection: React.FC<RecordsSectionProps> = ({
 			<div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-4 mb-4 sm:mb-6">
 				<div>
 					<div className="flex items-center gap-2 sm:gap-3">
-						<h2 className="text-xl sm:text-2xl font-bold text-foreground">Registros de Clientes</h2>
 						{profile?.assigned_branch && (
 							<div className="flex items-center gap-1.5 sm:gap-2 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg px-2 sm:px-3 py-0.5 sm:py-1">
 								<MapPin className="w-4 h-4 text-blue-600 dark:text-blue-400" />

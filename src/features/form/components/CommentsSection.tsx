@@ -1,6 +1,6 @@
 import { type Control } from 'react-hook-form'
 import { type FormValues } from '@features/form/lib/form-schema'
-import { FormField, FormItem, FormControl, FormMessage } from '@shared/components/ui/form'
+import { FormField, FormItem, FormControl } from '@shared/components/ui/form'
 import { Textarea } from '@shared/components/ui/textarea'
 import { Card, CardContent, CardHeader, CardTitle } from '@shared/components/ui/card'
 import { memo } from 'react'
@@ -29,7 +29,6 @@ export const CommentsSection = memo(({ control, inputStyles }: CommentsSectionPr
 								{...field}
 							/>
 						</FormControl>
-						<FormMessage />
 					</FormItem>
 				)}
 			/>

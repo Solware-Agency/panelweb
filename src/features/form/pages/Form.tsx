@@ -271,7 +271,7 @@ function FormContent() {
 						<div className="flex items-center justify-between">
 							<div>
 								<h2 className="text-xl sm:text-2xl font-semibold text-foreground mb-1 sm:mb-2">
-									Sistema de Registros Médicos
+									{activeTab === 'doctors' ? 'Médicos Tratantes' : activeTab === 'patients' ? 'Pacientes' : 'Registros de Clientes'}
 								</h2>
 								<div className="w-16 sm:w-24 h-1 bg-primary mt-2 rounded-full" />
 							</div>

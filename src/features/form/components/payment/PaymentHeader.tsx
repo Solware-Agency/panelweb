@@ -1,7 +1,7 @@
 import React, { memo } from 'react'
 import { type Control, useWatch } from 'react-hook-form'
 import { type FormValues } from '@features/form/lib/form-schema'
-import { FormField, FormItem, FormLabel, FormControl, FormMessage } from '@shared/components/ui/form'
+import { FormField, FormItem, FormLabel, FormControl } from '@shared/components/ui/form'
 import { Input } from '@shared/components/ui/input'
 import { FormDropdown, createDropdownOptions } from '@shared/components/ui/form-dropdown'
 import { useUserProfile } from '@shared/hooks/useUserProfile'
@@ -74,7 +74,6 @@ export const PaymentHeader = memo(({ control, inputStyles, exchangeRate, isLoadi
 								Tu cuenta está limitada a la sede {profile.assigned_branch}
 							</p>
 						)}
-						<FormMessage />
 					</FormItem>
 				)}
 			/>
@@ -110,7 +109,6 @@ export const PaymentHeader = memo(({ control, inputStyles, exchangeRate, isLoadi
 								{isLoadingRate ? 'Cargando tasa...' : `Tasa BCV: ${exchangeRate?.toFixed(2) || 'N/A'} VES/USD`}
 							</p>
 						</div>
-						<FormMessage />
 					</FormItem>
 				)}
 			/>

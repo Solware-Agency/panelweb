@@ -1,6 +1,6 @@
 import { type Control, type FieldArrayWithId, type UseFieldArrayRemove, useWatch } from 'react-hook-form'
 import { type FormValues } from '@features/form/lib/form-schema'
-import { FormField, FormItem, FormLabel, FormControl, FormMessage } from '@shared/components/ui/form'
+import { FormField, FormItem, FormLabel, FormControl } from '@shared/components/ui/form'
 import { Input } from '@shared/components/ui/input'
 import { FormDropdown, createDropdownOptions } from '@shared/components/ui/form-dropdown'
 import { Button } from '@shared/components/ui/button'
@@ -65,7 +65,6 @@ export const PaymentMethodItem = memo(
 									className={inputStyles}
 								/>
 							</FormControl>
-							<FormMessage />
 						</FormItem>
 					)}
 				/>
@@ -109,7 +108,6 @@ export const PaymentMethodItem = memo(
 										)}
 									</div>
 								</FormControl>
-								<FormMessage />
 							</FormItem>
 						)
 					}}
@@ -128,7 +126,6 @@ export const PaymentMethodItem = memo(
 									iconRight={<FileText className="h-4 w-4 text-muted-foreground" />}
 								/>
 							</FormControl>
-							<FormMessage />
 						</FormItem>
 					)}
 				/>

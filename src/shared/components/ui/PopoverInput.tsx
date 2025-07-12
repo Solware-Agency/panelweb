@@ -71,7 +71,7 @@ export function PopoverRoot({ children, className }: PopoverRootProps) {
 	return (
 		<PopoverContext.Provider value={popoverLogic}>
 			<MotionConfig transition={TRANSITION}>
-				<div className={cn('relative flex items-center justify-center isolate z-[99999999]', className)}>{children}</div>
+				<div className={cn('relative flex items-center justify-center isolate z-[40]', className)}>{children}</div>
 			</MotionConfig>
 		</PopoverContext.Provider>
 	)
@@ -137,7 +137,7 @@ export function PopoverContent({ children, className }: PopoverContentProps) {
 					ref={formContainerRef}
 					layoutId={`popover-${uniqueId}`}
 					className={cn(
-						'absolute h-[200px] w-[364px] overflow-hidden border border-zinc-950/10 dark:border-gray-500 bg-white outline-none dark:bg-background z-50', // Changed z-90 to z-50
+						'absolute h-[200px] w-[364px] overflow-hidden border border-zinc-950/10 dark:border-gray-500 bg-white outline-none dark:bg-background z-[40]', // Lowered z-index to stay below sticky header
 						className,
 					)}
 					style={{

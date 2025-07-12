@@ -319,7 +319,7 @@ function MainHome() {
 										return (
 											<div
 												key={doctor.doctor}
-												className="flex items-center gap-1.5 sm:gap-3 p-1.5 sm:p-3 hover:bg-gray-50 dark:hover:bg-gray-800/50 rounded-lg"
+												className="flex items-center gap-1.5 sm:gap-3 p-1.5 sm:p-3 hover:bg-gray-50 dark:hover:bg-gray-800/50 rounded-lg cursor-pointer hover:scale-105 hover:shadow-lg hover:shadow-primary/20 transition-all duration-300"
 											>
 												<div className={`w-2 h-2 sm:w-3 sm:h-3 rounded-full ${colors[index % colors.length]}`}></div>
 												<div className="flex-1 min-w-0">
@@ -390,7 +390,7 @@ function MainHome() {
 										return (
 											<div
 												key={exam.examType}
-												className={`flex items-center justify-between p-1.5 sm:p-2 md:p-3 bg-gradient-to-r ${color.bg} rounded-lg`}
+												className={`flex items-center justify-between p-1.5 sm:p-2 md:p-3 bg-gradient-to-r ${color.bg} rounded-lg cursor-pointer hover:scale-105 hover:shadow-lg hover:shadow-primary/20 transition-all duration-300`}
 											>
 												<div className="flex items-center gap-1.5 sm:gap-2 md:gap-3">
 													<div
@@ -432,7 +432,7 @@ function MainHome() {
 							</div>
 							<div className="space-y-1.5 sm:space-y-2 md:space-y-3 flex-1">
 								{/* Incomplete Cases Alert */}
-								<div className="p-1.5 sm:p-2 md:p-3 bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-800 rounded-lg">
+								<div className="p-1.5 sm:p-2 md:p-3 bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-800 rounded-lg cursor-pointer hover:scale-105 hover:shadow-lg hover:shadow-primary/20 transition-all duration-300">
 									<div className="flex items-center gap-1.5 sm:gap-2 mb-0.5 sm:mb-1">
 										<AlertTriangle className="w-4 h-4 text-orange-500 dark:text-orange-400" />
 										<span className="text-xs sm:text-sm font-medium text-orange-800 dark:text-orange-400">
@@ -445,7 +445,7 @@ function MainHome() {
 								</div>
 
 								{/* Pending Payments Alert */}
-								<div className="p-1.5 sm:p-2 md:p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
+								<div className="p-1.5 sm:p-2 md:p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg cursor-pointer hover:scale-105 hover:shadow-lg hover:shadow-primary/20 transition-all duration-300">
 									<div className="flex items-center gap-1.5 sm:gap-2 mb-0.5 sm:mb-1">
 										<Clock className="w-4 h-4 text-red-500 dark:text-red-400" />
 										<span className="text-xs sm:text-sm font-medium text-red-800 dark:text-red-400">
@@ -459,7 +459,7 @@ function MainHome() {
 
 								{/* Quick Actions */}
 								<button
-									className="w-full p-1.5 sm:p-2 md:p-3 bg-primary hover:bg-primary/80 text-white rounded-lg transition flex items-center justify-center gap-1.5 sm:gap-2 text-xs sm:text-sm md:text-base"
+									className="w-full p-1.5 sm:p-2 md:p-3 bg-primary hover:bg-primary/80 text-white rounded-lg transition-all duration-300 flex items-center justify-center gap-1.5 sm:gap-2 text-xs sm:text-sm md:text-base hover:scale-105 hover:shadow-lg hover:shadow-primary/20"
 									onClick={(e) => {
 										e.stopPropagation()
 										navigate('/dashboard/stats')
