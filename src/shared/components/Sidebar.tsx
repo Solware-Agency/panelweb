@@ -18,7 +18,7 @@ import {
 	ChevronRight,
 	Folder,
 } from 'lucide-react'
-import { NavLink, useNavigate, useLocation } from 'react-router-dom'
+import { NavLink, useNavigate } from 'react-router-dom'
 import { useAuth } from '@app/providers/AuthContext'
 import FavIcon from '@shared/components/icons/FavIcon'
 import { useUserProfile } from '@shared/hooks/useUserProfile'
@@ -41,6 +41,7 @@ interface NavGroupProps {
 	onToggle: () => void
 	children: React.ReactNode
 	childPaths: string[] // Array de rutas de los items hijos
+	isMobile?: boolean // Para manejar comportamiento diferente en mobile
 }
 
 const NavItem: React.FC<NavItemProps> = ({ to, icon, label, showFullContent, onClick, title }) => {
@@ -77,14 +78,17 @@ const NavGroup: React.FC<NavGroupProps> = ({
 	onToggle,
 	children,
 	childPaths,
+	isMobile = false,
 }) => {
-	const location = useLocation()
 	const [hoverTimeout, setHoverTimeout] = React.useState<NodeJS.Timeout | null>(null)
 
 	// Verificar si algún item hijo está activo
-	const isChildActive = childPaths.some((path) => location.pathname === path)
+	const isChildActive = childPaths.some((path) => window.location.pathname === path)
 
+	// Funciones para hover (solo desktop)
 	const handleMouseEnter = () => {
+		if (isMobile) return // No hacer nada en mobile
+		
 		if (hoverTimeout) {
 			clearTimeout(hoverTimeout)
 			setHoverTimeout(null)
@@ -95,6 +99,8 @@ const NavGroup: React.FC<NavGroupProps> = ({
 	}
 
 	const handleMouseLeave = () => {
+		if (isMobile) return // No hacer nada en mobile
+		
 		if (hoverTimeout) {
 			clearTimeout(hoverTimeout)
 		}
@@ -104,6 +110,21 @@ const NavGroup: React.FC<NavGroupProps> = ({
 			}
 		}, 200) // Delay de 200ms antes de cerrar
 		setHoverTimeout(timeout)
+	}
+
+	// Función para click (mobile y desktop)
+	const handleClick = () => {
+		if (isMobile) {
+			// En mobile, solo funciona con clicks
+			onToggle()
+		} else {
+			// En desktop, también permitir clicks para mayor flexibilidad
+			if (hoverTimeout) {
+				clearTimeout(hoverTimeout)
+				setHoverTimeout(null)
+			}
+			onToggle()
+		}
 	}
 
 	// Limpiar timeout al desmontar
@@ -126,6 +147,7 @@ const NavGroup: React.FC<NavGroupProps> = ({
 					isExpanded || isChildActive ? 'text-primary' : 'hover:text-primary'
 				}`}
 				title={!showFullContent ? label : undefined}
+				onClick={handleClick}
 			>
 				<div className="flex gap-3 items-center min-w-0">
 					{icon}
@@ -176,17 +198,12 @@ const Sidebar: React.FC<SidebarProps> = ({
 	// For mobile, always show full sidebar. For desktop, use isExpanded state
 	const showFullContent = isMobile || isExpanded
 	const navigate = useNavigate()
-	const location = useLocation()
 	const { signOut } = useAuth()
 	const { profile } = useUserProfile()
 
 	// Definir las rutas de cada grupo
 	const clinicalPaths = ['/dashboard/cases', '/dashboard/my-cases', '/dashboard/patients', '/patients']
 	const reportsPaths = ['/dashboard/stats', '/dashboard/reports', '/dashboard/changelog']
-
-	// Verificar si algún item de cada grupo está activo
-	const isClinicalActive = clinicalPaths.some((path) => location.pathname === path)
-	const isReportsActive = reportsPaths.some((path) => location.pathname === path)
 
 	const [expandedGroups, setExpandedGroups] = React.useState<Record<string, boolean>>({
 		clinical: false,
@@ -313,6 +330,7 @@ const Sidebar: React.FC<SidebarProps> = ({
 							isExpanded={expandedGroups.clinical}
 							onToggle={() => toggleGroup('clinical')}
 							childPaths={clinicalPaths}
+							isMobile={isMobile}
 						>
 							{/* Cases - For all roles */}
 							<NavItem
@@ -356,6 +374,7 @@ const Sidebar: React.FC<SidebarProps> = ({
 							isExpanded={expandedGroups.reports}
 							onToggle={() => toggleGroup('reports')}
 							childPaths={reportsPaths}
+							isMobile={isMobile}
 						>
 							<NavItem
 								to="/dashboard/stats"
