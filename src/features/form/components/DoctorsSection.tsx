@@ -5,8 +5,6 @@ import { Stethoscope, Info } from 'lucide-react'
 export const DoctorsSection: React.FC = () => {
   return (
     <div className="animate-fade-in">
-      <h1 className="text-2xl font-bold mb-6">Médicos Tratantes</h1>
-      
       <div className="grid grid-cols-1 gap-6">
         <Card className="hover:border-primary hover:shadow-lg hover:shadow-primary/20">
           <div className="p-6">

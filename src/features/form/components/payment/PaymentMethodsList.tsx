@@ -6,7 +6,7 @@ import {
 	type UseFieldArrayRemove,
 } from 'react-hook-form'
 import { type FormValues } from '@features/form/lib/form-schema'
-import { FormLabel, FormMessage } from '@shared/components/ui/form'
+import { FormLabel } from '@shared/components/ui/form'
 import { Button } from '@shared/components/ui/button'
 import { PlusCircle } from 'lucide-react'
 import { PaymentMethodItem } from './PaymentMethodItem'
@@ -84,7 +84,6 @@ export const PaymentMethodsList = memo(
 						exchangeRate={exchangeRate}
 					/>
 				))}
-				<FormMessage>{errors.payments?.message}</FormMessage>
 				<Button
 					type="button"
 					variant="outline"

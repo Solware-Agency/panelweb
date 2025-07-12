@@ -79,14 +79,49 @@ const NavGroup: React.FC<NavGroupProps> = ({
 	childPaths,
 }) => {
 	const location = useLocation()
+	const [hoverTimeout, setHoverTimeout] = React.useState<NodeJS.Timeout | null>(null)
 
 	// Verificar si algún item hijo está activo
 	const isChildActive = childPaths.some((path) => location.pathname === path)
 
+	const handleMouseEnter = () => {
+		if (hoverTimeout) {
+			clearTimeout(hoverTimeout)
+			setHoverTimeout(null)
+		}
+		if (!isExpanded) {
+			onToggle()
+		}
+	}
+
+	const handleMouseLeave = () => {
+		if (hoverTimeout) {
+			clearTimeout(hoverTimeout)
+		}
+		const timeout = setTimeout(() => {
+			if (isExpanded) {
+				onToggle()
+			}
+		}, 200) // Delay de 200ms antes de cerrar
+		setHoverTimeout(timeout)
+	}
+
+	// Limpiar timeout al desmontar
+	React.useEffect(() => {
+		return () => {
+			if (hoverTimeout) {
+				clearTimeout(hoverTimeout)
+			}
+		}
+	}, [hoverTimeout])
+
 	return (
-		<div className="space-y-1">
-			<button
-				onClick={onToggle}
+		<div 
+			className="space-y-1"
+			onMouseEnter={handleMouseEnter}
+			onMouseLeave={handleMouseLeave}
+		>
+			<div
 				className={`flex justify-between items-center gap-2 sm:gap-3 cursor-pointer w-full py-2 px-1 rounded-md ${
 					isExpanded || isChildActive ? 'text-primary' : 'hover:text-primary'
 				}`}
@@ -103,15 +138,15 @@ const NavGroup: React.FC<NavGroupProps> = ({
 					</p>
 				</div>
 				{showFullContent && (
-					<div className="transition-transform duration-200">
+					<div className="transition-transform duration-500">
 						{isExpanded ? <ChevronDown className="size-4" /> : <ChevronRight className="size-4" />}
 					</div>
 				)}
-			</button>
+			</div>
 
 			<div
 				className={cn(
-					'pl-2 space-y-1 overflow-hidden transition-all duration-200',
+					'pl-2 space-y-1 overflow-hidden transition-all duration-500',
 					isExpanded ? 'max-h-96' : 'max-h-0',
 				)}
 			>
@@ -154,62 +189,18 @@ const Sidebar: React.FC<SidebarProps> = ({
 	const isReportsActive = reportsPaths.some((path) => location.pathname === path)
 
 	const [expandedGroups, setExpandedGroups] = React.useState<Record<string, boolean>>({
-		clinical: true,
+		clinical: false,
 		reports: false,
 	})
 
 	const toggleGroup = (groupName: string) => {
-		setExpandedGroups((prev) => {
-			const isCurrentlyExpanded = prev[groupName]
-			// Si el grupo actual está expandido, lo cerramos
-			if (isCurrentlyExpanded) {
-				return {
-					...prev,
-					[groupName]: false,
-				}
-			}
-			// Si el grupo actual está cerrado, lo abrimos y cerramos todos los demás
-			else {
-				const newState: Record<string, boolean> = {}
-				Object.keys(prev).forEach((key) => {
-					newState[key] = key === groupName
-				})
-				return newState
-			}
-		})
+		setExpandedGroups((prev) => ({
+			...prev,
+			[groupName]: !prev[groupName],
+		}))
 	}
 
-	// Auto-expandir grupos cuando un item hijo está activo
-	React.useEffect(() => {
-		// Solo auto-expandir si el sidebar está expandido (showFullContent es true)
-		if (showFullContent) {
-			if (isClinicalActive && !expandedGroups.clinical) {
-				setExpandedGroups((prev) => {
-					const newState: Record<string, boolean> = {}
-					Object.keys(prev).forEach((key) => {
-						newState[key] = key === 'clinical'
-					})
-					return newState
-				})
-			}
-			if (isReportsActive && !expandedGroups.reports) {
-				setExpandedGroups((prev) => {
-					const newState: Record<string, boolean> = {}
-					Object.keys(prev).forEach((key) => {
-						newState[key] = key === 'reports'
-					})
-					return newState
-				})
-			}
-		}
-	}, [
-		location.pathname,
-		isClinicalActive,
-		isReportsActive,
-		expandedGroups.clinical,
-		expandedGroups.reports,
-		showFullContent,
-	])
+
 
 	// Collapse all groups when sidebar is collapsed
 	React.useEffect(() => {

@@ -1,6 +1,6 @@
 import { type Control, useWatch } from 'react-hook-form'
 import { type FormValues } from '@features/form/lib/form-schema'
-import { FormField, FormItem, FormLabel, FormControl, FormMessage } from '@shared/components/ui/form'
+import { FormField, FormItem, FormLabel, FormControl } from '@shared/components/ui/form'
 import { Input } from '@shared/components/ui/input'
 import { AutocompleteInput } from '@shared/components/ui/autocomplete-input'
 import { FormDropdown, createDropdownOptions } from '@shared/components/ui/form-dropdown'
@@ -56,7 +56,6 @@ export const ServiceSection = memo(({ control, inputStyles }: ServiceSectionProp
 									className={inputStyles}
 								/>
 							</FormControl>
-							<FormMessage />
 						</FormItem>
 					)}
 				/>
@@ -83,7 +82,6 @@ export const ServiceSection = memo(({ control, inputStyles }: ServiceSectionProp
 									className={inputStyles}
 								/>
 							</FormControl>
-							<FormMessage />
 						</FormItem>
 					)}
 				/>
@@ -110,7 +108,6 @@ export const ServiceSection = memo(({ control, inputStyles }: ServiceSectionProp
 									className={inputStyles}
 								/>
 							</FormControl>
-							<FormMessage />
 						</FormItem>
 					)}
 				/>
@@ -137,7 +134,6 @@ export const ServiceSection = memo(({ control, inputStyles }: ServiceSectionProp
 									className={inputStyles}
 								/>
 							</FormControl>
-							<FormMessage />
 						</FormItem>
 					)}
 				/>
@@ -163,7 +159,6 @@ export const ServiceSection = memo(({ control, inputStyles }: ServiceSectionProp
 									className={inputStyles}
 								/>
 							</FormControl>
-							<FormMessage />
 						</FormItem>
 					)}
 				/>
@@ -183,7 +178,6 @@ export const ServiceSection = memo(({ control, inputStyles }: ServiceSectionProp
 									className={inputStyles}
 								/>
 							</FormControl>
-							<FormMessage />
 						</FormItem>
 					)}
 				/>
