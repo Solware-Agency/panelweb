@@ -1,6 +1,5 @@
 import {
 	type Control,
-	type FieldErrors,
 	type FieldArrayWithId,
 	type UseFieldArrayAppend,
 	type UseFieldArrayRemove,
@@ -14,7 +13,6 @@ import { memo, useCallback } from 'react'
 
 interface PaymentMethodsListProps {
 	control: Control<FormValues>
-	errors: FieldErrors<FormValues>
 	fields: FieldArrayWithId<FormValues, 'payments', 'id'>[]
 	append?: UseFieldArrayAppend<FormValues, 'payments'>
 	remove: UseFieldArrayRemove
@@ -28,7 +26,6 @@ interface PaymentMethodsListProps {
 export const PaymentMethodsList = memo(
 	({
 		control,
-		errors,
 		fields,
 		append,
 		remove,

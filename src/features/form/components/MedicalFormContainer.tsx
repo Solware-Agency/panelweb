@@ -56,7 +56,6 @@ export function MedicalFormContainer() {
 
 	// Memoize the form control to prevent unnecessary re-renders
 	const formControl = useMemo(() => form.control, [form.control]);
-	const formErrors = useMemo(() => form.formState.errors, [form.formState.errors]);
 
 	// Sync VES with USD input - memoized to prevent unnecessary re-renders
 	useEffect(() => {
@@ -199,7 +198,6 @@ export function MedicalFormContainer() {
 					<ServiceSection control={formControl} inputStyles={inputStyles} />
 					<PaymentSection
 						control={formControl}
-						errors={formErrors}
 						fields={fields}
 						append={fields.length < 4 ? handleAppend : undefined}
 						remove={remove}

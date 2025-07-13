@@ -1,6 +1,5 @@
 import {
 	type Control,
-	type FieldErrors,
 	type FieldArrayWithId,
 	type UseFieldArrayAppend,
 	type UseFieldArrayRemove,
@@ -18,7 +17,6 @@ import { calculatePaymentDetails } from '@features/form/lib/payment/payment-util
 
 interface PaymentSectionProps {
 	control: Control<FormValues>
-	errors: FieldErrors<FormValues>
 	fields: FieldArrayWithId<FormValues, 'payments', 'id'>[]
 	append?: UseFieldArrayAppend<FormValues, 'payments'> | (() => void)
 	remove: UseFieldArrayRemove
@@ -35,7 +33,6 @@ interface PaymentSectionProps {
 
 export const PaymentSection = memo(({
 	control,
-	errors,
 	fields,
 	append,
 	remove,
@@ -109,7 +106,6 @@ export const PaymentSection = memo(({
 
 				<PaymentMethodsList
 					control={control}
-					errors={errors}
 					fields={fields}
 					append={append}
 					remove={remove}
