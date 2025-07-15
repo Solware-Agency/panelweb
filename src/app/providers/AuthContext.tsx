@@ -1,8 +1,7 @@
 import { createContext, useContext, useEffect, useState } from 'react'
 import { supabase } from '@lib/supabase/config'
 import { signOut as authSignOut } from '@lib/supabase/auth' // Rename to avoid conflicts
-import { useSessionTimeout } from '@shared/hooks/useSessionTimeout'
-import { SessionTimeoutWarning } from '@shared/components/ui/session-timeout-warning'
+import { useSessionTimeoutSettings } from '@shared/hooks/useSessionTimeoutSettings'
 import type { ReactNode } from 'react'
 import type { User, Session } from '@supabase/supabase-js'
 
@@ -12,6 +11,9 @@ interface AuthContextType {
 	loading: boolean
 	signOut: () => Promise<void>
 	refreshUser: () => Promise<void>
+	sessionTimeout: number
+	updateUserTimeout: (minutes: number) => Promise<boolean | undefined>
+	isLoadingTimeout: boolean
 }
 
 const AuthContext = createContext<AuthContextType>({
@@ -20,6 +22,9 @@ const AuthContext = createContext<AuthContextType>({
 	loading: true,
 	signOut: async () => {},
 	refreshUser: async () => {},
+	sessionTimeout: 30,
+	updateUserTimeout: async () => undefined,
+	isLoadingTimeout: false,
 })
 
 export const useAuth = () => {
@@ -35,43 +40,38 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 	const [session, setSession] = useState<Session | null>(null)
 	const [loading, setLoading] = useState(true)
 
-
 	// Handle session timeout
 	const handleSessionTimeout = async () => {
-		console.log('🔒 CALLBACK: handleSessionTimeout EJECUTADO!')
-		console.log('🔒 CALLBACK: Session timed out, signing out...')
 		try {
-			console.log('🔒 CALLBACK: Usando función signOut de auth.ts...')
-			const { error } = await authSignOut() // Use the same signOut function as Header
-
+			const { error } = await authSignOut()
 			if (error) {
-				console.error('❌ CALLBACK: Error during signOut:', error)
-			} else {
-				console.log('✅ CALLBACK: signOut successful')
+				console.error('Error during timeout sign out:', error)
 			}
-
-			// Force redirect like Header does
-			console.log('🔒 CALLBACK: Forcing redirect to login...')
-			window.location.replace('/') // Use replace for stronger redirect
+			window.location.replace('/')
 		} catch (error) {
-			console.error('❌ CALLBACK: Error during timeout sign out:', error)
-			// Force redirect even if there's an error
+			console.error('Error during timeout sign out:', error)
 			window.location.replace('/')
 		}
 	}
 
-	const handleSessionWarning = (remainingTime: number) => {
-		console.log(`🚨 CALLBACK: Session will expire in ${remainingTime} seconds`)
-		console.log('🚨 CALLBACK: Warning triggered - showWarning will be managed by hook')
-	}
-
-	const { formatTimeRemaining, resetSessionTimer, showWarning, dismissWarning } = useSessionTimeout({
-		onTimeout: handleSessionTimeout,
-		onWarning: handleSessionWarning,
-		warningThreshold: 30, // Mostrar advertencia 30 segundos antes
+	// Use the simplified hook that only manages settings
+	const {
+		sessionTimeout,
+		updateUserTimeout,
+		isLoading: isLoadingTimeout,
+	} = useSessionTimeoutSettings({
+		user,
 	})
 
-	// Handle manual sign out
+	// Listen for session timeout events from the SessionTimeoutProvider
+	useEffect(() => {
+		const handleTimeout = () => {
+			handleSessionTimeout()
+		}
+
+		window.addEventListener('sessionTimeout', handleTimeout)
+		return () => window.removeEventListener('sessionTimeout', handleTimeout)
+	}, [])
 
 	const refreshUser = async () => {
 		try {
@@ -92,12 +92,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 				const {
 					data: { session: initialSession },
 				} = await supabase.auth.getSession()
-				console.log('Initial session:', initialSession?.user?.email)
 				setSession(initialSession)
 				setUser(initialSession?.user ?? null)
 			} catch (error) {
 				console.error('Error getting initial session:', error)
-				// Clear invalid session data
 				await supabase.auth.signOut()
 				setSession(null)
 				setUser(null)
@@ -111,9 +109,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 		// Listen for auth changes
 		const {
 			data: { subscription },
-		} = supabase.auth.onAuthStateChange(async (event, currentSession) => {
-			console.log('Auth state changed:', event, currentSession?.user?.email)
-
+		} = supabase.auth.onAuthStateChange(async (_event, currentSession) => {
 			setSession(currentSession)
 			setUser(currentSession?.user ?? null)
 			setLoading(false)
@@ -131,32 +127,22 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 				session,
 				loading,
 				signOut: async () => {
-					console.log('🔒 MANUAL SIGNOUT: Using signOut from auth.ts...')
 					const { error } = await authSignOut()
 					if (error) {
-						console.error('❌ MANUAL SIGNOUT: Error:', error)
+						console.error('Error during manual sign out:', error)
 					} else {
-						console.log('✅ MANUAL SIGNOUT: Success')
+						setUser(null)
+						setSession(null)
+						window.location.replace('/')
 					}
 				},
 				refreshUser,
+				sessionTimeout,
+				updateUserTimeout,
+				isLoadingTimeout,
 			}}
 		>
 			{children}
-
-			{/* Session timeout warning */}
-			<SessionTimeoutWarning
-				isOpen={showWarning}
-				onClose={() => {
-					console.log('🚨 AUTH: Closing timeout warning manually')
-					dismissWarning()
-				}}
-				onContinue={() => {
-					console.log('🚨 AUTH: User clicked continue session')
-					resetSessionTimer()
-				}}
-				timeRemaining={formatTimeRemaining()}
-			/>
 		</AuthContext.Provider>
 	)
 }

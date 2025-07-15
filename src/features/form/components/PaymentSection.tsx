@@ -10,7 +10,6 @@ import { Card, CardContent, CardHeader, CardTitle } from '@shared/components/ui/
 import { useMemo, memo } from 'react'
 import { PaymentHeader } from './payment/PaymentHeader'
 import { ConverterUSDtoVES } from './payment/ConverterUSDtoVES'
-import { ConverterVEStoUSD } from './payment/ConverterVEStoUSD'
 import { PaymentMethodsList } from './payment/PaymentMethodsList'
 import { PaymentSectionSkeleton } from './payment/PaymentSectionSkeleton'
 import { calculatePaymentDetails } from '@features/form/lib/payment/payment-utils'
@@ -73,7 +72,7 @@ export const PaymentSection = memo(({
 				<div className="w-16 sm:w-20 h-1 bg-primary mt-1 rounded-full" />
 			</CardHeader>
 			<CardContent className="p-4 sm:p-6 pt-0 sm:pt-0 space-y-4 sm:space-y-6">
-				<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
+				<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6">
 					<PaymentHeader
 						control={control}
 						inputStyles={inputStyles}
@@ -81,17 +80,6 @@ export const PaymentSection = memo(({
 						isLoadingRate={isLoadingRate}
 					/>
 					<ConverterUSDtoVES
-						usdValue={usdValue}
-						setUsdValue={setUsdValue}
-						vesValue={vesValue}
-						vesInputValue={vesInputValue}
-						setVesInputValue={setVesInputValue}
-						usdFromVes={usdFromVes}
-						exchangeRate={exchangeRate}
-						isLoadingRate={isLoadingRate}
-						inputStyles={inputStyles}
-					/>
-					<ConverterVEStoUSD
 						usdValue={usdValue}
 						setUsdValue={setUsdValue}
 						vesValue={vesValue}

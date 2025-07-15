@@ -96,7 +96,7 @@
 @layer base {
 
   * {
-    @apply border-border transition-transform duration-300;
+    @apply border-border;
     /* Solo mantener transiciones para efectos hover/focus, no para cambios de tema */
   }
 

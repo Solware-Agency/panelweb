@@ -50,7 +50,9 @@ export const PaymentMethodsList = memo(
 				return `Pago: ${paymentStatus}`
 			} else {
 				const formattedMissing = missingAmount ? `$${missingAmount.toFixed(2)}` : '$0.00'
-				return `Pago: ${paymentStatus} - Faltan ${formattedMissing}`
+				const formattedMissingBs =
+					missingAmount && exchangeRate ? `Bs ${(missingAmount * exchangeRate).toFixed(2)}` : 'Bs 0.00'
+				return `Pago: ${paymentStatus} - Faltan ${formattedMissing} o ${formattedMissingBs}`
 			}
 		}
 
