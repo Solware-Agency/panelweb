@@ -88,7 +88,7 @@ const NavGroup: React.FC<NavGroupProps> = ({
 	// Funciones para hover (solo desktop)
 	const handleMouseEnter = () => {
 		if (isMobile) return // No hacer nada en mobile
-		
+
 		if (hoverTimeout) {
 			clearTimeout(hoverTimeout)
 			setHoverTimeout(null)
@@ -100,7 +100,7 @@ const NavGroup: React.FC<NavGroupProps> = ({
 
 	const handleMouseLeave = () => {
 		if (isMobile) return // No hacer nada en mobile
-		
+
 		if (hoverTimeout) {
 			clearTimeout(hoverTimeout)
 		}
@@ -137,11 +137,7 @@ const NavGroup: React.FC<NavGroupProps> = ({
 	}, [hoverTimeout])
 
 	return (
-		<div 
-			className="space-y-1"
-			onMouseEnter={handleMouseEnter}
-			onMouseLeave={handleMouseLeave}
-		>
+		<div className="space-y-1" onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
 			<div
 				className={`flex justify-between items-center gap-2 sm:gap-3 cursor-pointer w-full py-2 px-1 rounded-md ${
 					isExpanded || isChildActive ? 'text-primary' : 'hover:text-primary'
@@ -217,8 +213,6 @@ const Sidebar: React.FC<SidebarProps> = ({
 		}))
 	}
 
-
-
 	// Collapse all groups when sidebar is collapsed
 	React.useEffect(() => {
 		if (!showFullContent) {
@@ -246,22 +240,22 @@ const Sidebar: React.FC<SidebarProps> = ({
 	return (
 		<aside className="bg-white/80 dark:bg-background/50 shadow-lg hover:shadow-primary/50 backdrop-blur-[10px] flex flex-col justify-between h-screen py-4 sm:py-6 px-2 sm:px-4 gap-4 border-gray-600 text-gray-700 dark:text-white ease-in-out overflow-hidden border-r border-input">
 			<div className="flex flex-col items-start gap-4">
-							<div className="flex justify-between items-center w-full mb-2 sm:mb-4">
-				<a 
-					href="https://conspat.solware.agency/" 
-					target="_blank" 
-					rel="noopener noreferrer"
-					className="flex items-center gap-3 hover:opacity-80 transition-opacity"
-				>
-					<FavIcon fill="#e82084" className="size-8 shrink-0 -ml-1" />
-					<p
-						className={`text-2xl font-bold whitespace-nowrap ${
-							showFullContent ? 'opacity-100 w-auto' : 'opacity-0 w-0 overflow-hidden'
-						}`}
+				<div className="flex justify-between items-center w-full mb-2 sm:mb-4">
+					<a
+						href="https://conspat.solware.agency/"
+						target="_blank"
+						rel="noopener noreferrer"
+						className="flex items-center gap-3 hover:opacity-80 transition-opacity"
 					>
-						Conspat
-					</p>
-				</a>
+						<FavIcon fill="#e82084" className="size-8 shrink-0 -ml-1" />
+						<p
+							className={`text-2xl font-bold whitespace-nowrap ${
+								showFullContent ? 'opacity-100 w-auto' : 'opacity-0 w-0 overflow-hidden'
+							}`}
+						>
+							Conspat
+						</p>
+					</a>
 					{/* Close button for mobile */}
 					{onClose && isMobile && (
 						<button
@@ -400,6 +394,16 @@ const Sidebar: React.FC<SidebarProps> = ({
 								onClick={onClose}
 							/>
 						</NavGroup>
+					)}
+
+					{isOwner && (
+						<NavItem
+							to="/dashboard/doctors"
+							icon={<User className="stroke-2 size-5 shrink-0" />}
+							label="Médicos"
+							showFullContent={showFullContent}
+							onClick={onClose}
+						/>
 					)}
 
 					{/* Users - For owner and admin */}

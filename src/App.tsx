@@ -21,6 +21,7 @@ import ChangelogPage from '@features/dashboard/changelog/ChangelogPage'
 import Form from '@features/form/pages/Form'
 import PatientsPage from '@features/dashboard/patients/PatientsPage'
 import FormRoute from '@app/routes/FormRoute'
+import { DoctorsSection } from '@features/form/components/DoctorsSection'
 
 // Create a client instance
 const queryClient = new QueryClient()
@@ -115,6 +116,7 @@ function App() {
 							<Route path="settings" element={<SettingsPage />} />
 							<Route path="patients" element={<PatientsPage />} />
 							<Route path="changelog" element={<ChangelogPage />} />
+							<Route path="doctors" element={<DoctorsSection />} />
 						</Route>
 					</Routes>
 				</div>

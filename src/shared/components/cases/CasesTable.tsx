@@ -986,11 +986,6 @@ const CasesTable: React.FC<CasesTableProps> = React.memo(
 								{/* Results count */}
 								<div className="text-sm text-gray-600 dark:text-gray-400 hidden sm:flex">
 									Mostrando {filteredAndSortedCases.filtered.length} de {filteredAndSortedCases.totalCases} casos
-									{!filteredAndSortedCases.hasActiveFilters && filteredAndSortedCases.totalCases > 100 && (
-										<span className="ml-2 text-xs text-orange-600 dark:text-orange-400">
-											(Limitado a 100 - usa filtros para buscar más)
-										</span>
-									)}
 								</div>
 							</div>
 						</div>

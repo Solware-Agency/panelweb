@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, forwardRef } from 'react'
-import { ChevronDown, Check } from 'lucide-react'
+import { ChevronDown } from 'lucide-react'
 import { cn } from '@shared/lib/cn'
 
 interface DropdownOption {
@@ -147,10 +147,7 @@ const CustomDropdown = forwardRef<HTMLDivElement, CustomDropdownProps>(
 									role="option"
 									aria-selected={selectedValue === option.value}
 								>
-									{selectedValue === option.value && (
-										<Check className="h-4 w-4 mr-2 text-primary" />
-									)}
-									<span className={cn(selectedValue === option.value && 'ml-6')}>
+									<span className={cn(selectedValue === option.value && '')}>
 										{option.label}
 									</span>
 								</div>
