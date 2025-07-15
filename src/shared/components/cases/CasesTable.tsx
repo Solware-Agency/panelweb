@@ -36,7 +36,7 @@ import { BranchBadge } from '@shared/components/ui/branch-badge'
 interface CasesTableProps {
 	cases: MedicalRecord[]
 	isLoading: boolean
-	error: any
+	error: unknown
 	refetch: () => void
 	isFullscreen: boolean
 	setIsFullscreen: (value: boolean) => void
@@ -276,7 +276,7 @@ const CasesTable: React.FC<CasesTableProps> = React.memo(
 
 			// Apply client-side filtering only for local filters
 			// (searchTerm is handled by the parent component via onSearch)
-			let filtered = casesToProcess.filter((case_) => {
+			const filtered = casesToProcess.filter((case_) => {
 				// Skip if case_ is null or undefined
 				if (!case_) return false
 
@@ -326,8 +326,8 @@ const CasesTable: React.FC<CasesTableProps> = React.memo(
 
 			// Apply sorting - optimized to avoid expensive Date operations when possible
 			filtered.sort((a, b) => {
-				let aValue: any = a[sortField]
-				let bValue: any = b[sortField]
+				let aValue: unknown = a[sortField]
+				let bValue: unknown = b[sortField]
 
 				// Handle null/undefined values
 				if (aValue === null || aValue === undefined) aValue = ''
@@ -338,15 +338,15 @@ const CasesTable: React.FC<CasesTableProps> = React.memo(
 					// Use string comparison for ISO dates (they sort correctly)
 					aValue = aValue || '0000-00-00'
 					bValue = bValue || '0000-00-00'
-				} else if (typeof aValue === 'string') {
+				} else if (typeof aValue === 'string' && typeof bValue === 'string') {
 					aValue = aValue.toLowerCase()
 					bValue = bValue.toLowerCase()
 				}
 
 				if (sortDirection === 'asc') {
-					return aValue > bValue ? 1 : -1
+					return (aValue as string | number) > (bValue as string | number) ? 1 : -1
 				} else {
-					return aValue < bValue ? 1 : -1
+					return (aValue as string | number) < (bValue as string | number) ? 1 : -1
 				}
 			})
 

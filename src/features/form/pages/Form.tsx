@@ -261,35 +261,18 @@ function FormContent() {
 					currentDate={currentDate}
 				/>
 			</div>
-			<div className="container mx-auto py-4 sm:py-6 md:py-10 px-2 sm:px-4">
+			<div className="container mx-auto py-4 md:py-6 px-2 sm:px-4">
 				<main
 					className={`min-h-screen flex flex-col transition-all duration-300 ease-in-out z-50 ${
 						sidebarExpanded ? 'lg:ml-56' : 'lg:ml-16'
 					}`}
 				>
-					<div className="mb-4 sm:mb-6">
-						{/* Logo */}
-						<div className="flex items-center justify-between">
-							<div>
-								<h2 className="text-xl sm:text-2xl font-semibold text-foreground mb-1 sm:mb-2">
-									{activeTab === 'doctors'
-										? 'Médicos Tratantes'
-										: activeTab === 'patients'
-										? 'Pacientes'
-										: 'Registros de Clientes'}
-								</h2>
-								<div className="w-16 sm:w-24 h-1 bg-primary mt-2 rounded-full" />
-							</div>
-						</div>
-						<h3 className="text-sm text-primary font-semibold mt-2 sm:mt-3">Bienvenido, {profile?.display_name}</h3>
-					</div>
-
 					<Tabs defaultValue="form" value={activeTab} onValueChange={handleTabChange}>
-						<TabsContent value="form" className="mt-4 sm:mt-6">
+						<TabsContent value="form" className="mt-4">
 							<MedicalForm />
 						</TabsContent>
 
-						<TabsContent value="records" className="mt-4 sm:mt-6">
+						<TabsContent value="records" className="mt-4">
 							<Suspense fallback={<LoadingFallback />}>
 								<RecordsSection
 									cases={casesData?.data || []}
@@ -303,15 +286,15 @@ function FormContent() {
 							</Suspense>
 						</TabsContent>
 
-						<TabsContent value="settings" className="mt-4 sm:mt-6">
+						<TabsContent value="settings" className="mt-4">
 							<SettingsSection />
 						</TabsContent>
 
-						<TabsContent value="doctors" className="mt-4 sm:mt-6">
+						<TabsContent value="doctors" className="mt-4">
 							<DoctorsSection />
 						</TabsContent>
 
-						<TabsContent value="patients" className="mt-4 sm:mt-6">
+						<TabsContent value="patients" className="mt-4">
 							<PatientsPage />
 						</TabsContent>
 					</Tabs>
