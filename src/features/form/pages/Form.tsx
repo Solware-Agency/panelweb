@@ -197,33 +197,34 @@ function FormContent() {
 			<Sonner />
 			<div className="fixed top-4 right-4 z-50 flex items-center gap-2">
 				{/* Mobile sidebar toggle button */}
-				<Button
-					type="button"
-					onClick={handleClearForm}
-					variant="outline"
-					className="flex lg:hidden items-center gap-1 text-xs py-1 px-2 sm:py-1.5 sm:px-2.5"
-				>
-					<Trash2 className="h-4 w-4" />
-					Limpiar
-				</Button>
+				{activeTab === 'form' && (
+					<Button
+						type="button"
+						onClick={handleClearForm}
+						variant="outline"
+						className="flex lg:hidden items-center gap-1 text-xs py-1 px-2 sm:py-1.5 sm:px-2.5"
+					>
+						<Trash2 className="h-4 w-4" />
+						Limpiar
+					</Button>
+				)}
+				{activeTab === 'records' && (
+					<>
+						<button
+							onClick={handleRefreshCases}
+							disabled={casesLoading}
+							className="flex items-center bg-white gap-2 px-3 py-2 border border-input rounded-lg focus:ring-2 focus:ring-primary dark:bg-background dark:text-white text-sm hover:bg-gray-50 dark:hover:bg-gray-700 shadow-xl dark:shadow-black shadow-black/40"
+						>
+							<RefreshCw className={`w-4 h-4 ${casesLoading ? 'animate-spin' : ''}`} />
+						</button>
+					</>
+				)}
 				<button
 					onClick={() => setSidebarOpen(!sidebarOpen)}
 					className="lg:hidden flex items-center justify-center p-2 bg-white dark:bg-background border border-input rounded-lg shadow-lg"
 				>
 					<Menu className="h-5 w-5 text-gray-600 dark:text-gray-400" />
 				</button>
-
-				{activeTab === 'records' && (
-					<>
-						<button
-							onClick={handleRefreshCases}
-							disabled={casesLoading}
-							className="flex items-center gap-2 px-3 py-2 border border-input rounded-lg focus:ring-2 focus:ring-primary dark:bg-background dark:text-white text-sm hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 shadow-xl dark:shadow-black shadow-black/40"
-						>
-							<RefreshCw className={`w-4 h-4 ${casesLoading ? 'animate-spin' : ''}`} />
-						</button>
-					</>
-				)}
 			</div>
 
 			<AnimatePresence>
@@ -271,7 +272,11 @@ function FormContent() {
 						<div className="flex items-center justify-between">
 							<div>
 								<h2 className="text-xl sm:text-2xl font-semibold text-foreground mb-1 sm:mb-2">
-									{activeTab === 'doctors' ? 'Médicos Tratantes' : activeTab === 'patients' ? 'Pacientes' : 'Registros de Clientes'}
+									{activeTab === 'doctors'
+										? 'Médicos Tratantes'
+										: activeTab === 'patients'
+										? 'Pacientes'
+										: 'Registros de Clientes'}
 								</h2>
 								<div className="w-16 sm:w-24 h-1 bg-primary mt-2 rounded-full" />
 							</div>
@@ -280,16 +285,6 @@ function FormContent() {
 					</div>
 
 					<Tabs defaultValue="form" value={activeTab} onValueChange={handleTabChange}>
-						{/* Only show tabs for non-Employee users */}
-
-						{/* <TabsList className="sm:mb-6 overflow-x-auto flex-nowrap gap-2">
-							<TabsTrigger value="form">Formulario</TabsTrigger>
-							<TabsTrigger value="records">Registros</TabsTrigger>
-							<TabsTrigger value="doctors">Médicos</TabsTrigger>
-							<TabsTrigger value="patients">Pacientes</TabsTrigger>
-							<TabsTrigger value="settings">Ajustes</TabsTrigger>
-						</TabsList> */}
-
 						<TabsContent value="form" className="mt-4 sm:mt-6">
 							<MedicalForm />
 						</TabsContent>

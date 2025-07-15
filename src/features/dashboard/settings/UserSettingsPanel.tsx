@@ -7,7 +7,7 @@ import { useAuth } from '@app/providers/AuthContext'
 import { useUserProfile } from '@shared/hooks/useUserProfile'
 import { updatePassword, updateUserProfile, updateUserMetadata } from '@lib/supabase/auth'
 import { useToast } from '@shared/hooks/use-toast'
-import { Eye, EyeOff, User, Mail, Key, Save, Loader2, CheckCircle, AlertCircle } from 'lucide-react'
+import { Eye, EyeOff, User, Key, Save, Loader2, CheckCircle, AlertCircle } from 'lucide-react'
 import { SessionTimeoutSettings } from './SessionTimeoutSettings'
 
 const UserSettingsPanel: React.FC = () => {
@@ -175,13 +175,11 @@ const UserSettingsPanel: React.FC = () => {
 							<div>
 								<Label htmlFor="email">Correo Electrónico</Label>
 								<div className="relative">
-									<Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 dark:text-gray-400" />
 									<Input
 										id="email"
 										type="email"
 										value={email}
 										onChange={(e) => setEmail(e.target.value)}
-										className="pl-10"
 										disabled
 									/>
 								</div>
@@ -197,7 +195,6 @@ const UserSettingsPanel: React.FC = () => {
 										type="text"
 										value={displayName}
 										onChange={(e) => setDisplayName(e.target.value)}
-										className="pl-10"
 										placeholder="Tu nombre para mostrar"
 									/>
 								</div>
@@ -263,7 +260,6 @@ const UserSettingsPanel: React.FC = () => {
 										type={showNewPassword ? 'text' : 'password'}
 										value={newPassword}
 										onChange={(e) => setNewPassword(e.target.value)}
-										className="pl-10 pr-10"
 										placeholder="Nueva contraseña"
 										autoComplete="new-password"
 									/>
@@ -286,7 +282,6 @@ const UserSettingsPanel: React.FC = () => {
 										type={showConfirmPassword ? 'text' : 'password'}
 										value={confirmPassword}
 										onChange={(e) => setConfirmPassword(e.target.value)}
-										className="pl-10 pr-10"
 										placeholder="Confirmar nueva contraseña"
 										autoComplete="new-password"
 									/>

@@ -10,6 +10,7 @@ import { BranchBadge } from '@shared/components/ui/branch-badge'
 import type { MedicalRecord } from '@lib/supabase-service'
 import { Button } from '@shared/components/ui/button'
 import { Input } from '@shared/components/ui/input'
+import { useBodyScrollLock } from '@shared/hooks/useBodyScrollLock'
 
 interface PatientHistoryModalProps {
   isOpen: boolean
@@ -25,6 +26,7 @@ interface PatientHistoryModalProps {
 
 const PatientHistoryModal: React.FC<PatientHistoryModalProps> = ({ isOpen, onClose, patient }) => {
   const [searchTerm, setSearchTerm] = useState('')
+	useBodyScrollLock(isOpen)
   
   // Fetch patient's medical records
   const { data, isLoading, error, refetch } = useQuery({
