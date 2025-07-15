@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Clock, RefreshCw } from 'lucide-react';
+import { Clock, MonitorCheck } from 'lucide-react';
 import { Button } from './button';
 import { useSessionTimeout } from '@app/providers/SessionTimeoutProvider'
 
@@ -61,7 +61,7 @@ export function SessionTimeoutWarning() {
 										onClick={resetSessionTimer}
 										className="bg-orange-500 hover:bg-orange-600 text-white flex items-center gap-1 text-xs"
 									>
-										<RefreshCw className="h-3 w-3" />
+										<MonitorCheck className="h-3 w-3" />
 										Continuar sesión
 									</Button>
 								</div>

@@ -674,7 +674,6 @@ const CaseDetailPanel: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClos
 																</div>
 															</div>
 															<div className="flex items-center gap-2 mb-2">
-																<User className="w-4 h-4 text-gray-500 dark:text-gray-400" />
 																<span className="text-sm">{log.user_email}</span>
 															</div>
 															{log.field_name === 'created_record' ? (

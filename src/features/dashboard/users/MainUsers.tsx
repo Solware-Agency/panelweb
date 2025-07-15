@@ -483,7 +483,6 @@ const MainUsers: React.FC = () => {
 					<div className="bg-white dark:bg-background rounded-xl p-3 sm:p-4 md:p-6">
 						<div className="flex items-center justify-between mb-2 sm:mb-4">
 							<div className="p-1.5 sm:p-2 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
-								<Users className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600 dark:text-blue-400" />
 							</div>
 						</div>
 						<div>
@@ -845,9 +844,6 @@ const MainUsers: React.FC = () => {
 									<tr key={user.id} className="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
 										<td className="px-6 py-4">
 											<div className="flex items-center gap-3">
-												<div className="p-2 bg-gray-100 dark:bg-gray-800 rounded-full">
-													<Users className="w-4 h-4 text-gray-600 dark:text-gray-400" />
-												</div>
 												<div>
 													<p className="text-sm font-medium text-gray-900 dark:text-gray-100">{user.email}</p>
 													{user.display_name && (
@@ -980,7 +976,6 @@ const MainUsers: React.FC = () => {
 					{filteredUsers.length === 0 && (
 						<div className="text-center py-12">
 							<div className="text-gray-500 dark:text-gray-400">
-								<Users className="w-12 h-12 mx-auto mb-4 opacity-50" />
 								<p className="text-lg font-medium">
 									{profile?.role === 'admin' ? 'No se encontraron médicos' : 'No se encontraron usuarios'}
 								</p>

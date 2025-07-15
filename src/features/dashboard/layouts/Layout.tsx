@@ -73,7 +73,7 @@ const Layout: React.FC = () => {
 
 			{/* Sidebar - Updated with collapsible behavior */}
 			<div
-				className={`fixed top-0 left-0 h-screen z-[9999999] lg:z-10 transform transition-all duration-300 ease-in-out lg:translate-x-0 overflow-hidden ${
+				className={`fixed top-0 left-0 h-screen z-[9999999] lg:z-10 transform transition-all duration-300 ease-in-out lg:translate-x-0 ${
 					sidebarOpen ? 'translate-x-0' : '-translate-x-full'
 				} ${
 					// On desktop: collapsed by default (w-16), expanded on hover (w-56)

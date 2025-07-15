@@ -37,6 +37,7 @@ import {
 	createCalculatorInputHandlerWithCurrency,
 } from '@shared/utils/number-utils'
 import { calculatePaymentDetails } from '@features/form/lib/payment/payment-utils'
+import { useBodyScrollLock } from '@shared/hooks/useBodyScrollLock'
 
 interface UnifiedCaseModalProps {
 	case_: MedicalRecord | null
@@ -56,6 +57,7 @@ const UnifiedCaseModal: React.FC<UnifiedCaseModalProps> = ({ case_, isOpen, onCl
 	const { toast } = useToast()
 	const { user } = useAuth()
 	const { profile } = useUserProfile()
+	useBodyScrollLock(isOpen)
 
 	// Determine if user can edit/delete records (only owners and employees)
 	const canEdit = profile?.role === 'owner' || profile?.role === 'employee'

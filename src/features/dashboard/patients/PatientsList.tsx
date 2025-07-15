@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useMemo } from 'react'
-import { User, Phone, Mail, Calendar, ChevronUp, ChevronDown } from 'lucide-react'
+import { Phone, Mail, Calendar, ChevronUp, ChevronDown } from 'lucide-react'
 import { Card } from '@shared/components/ui/card'
 import { Button } from '@shared/components/ui/button'
 import { getAgeDisplay } from '@lib/supabase-service'
@@ -56,9 +56,6 @@ const PatientRow = React.memo(({ patient, onClick }: { patient: PatientData; onC
 		{/* Name Cell */}
 		<td className="w-[20%] px-4 py-4">
 			<div className="flex items-center">
-				<div className="flex-shrink-0 h-8 w-8 bg-gray-200 dark:bg-gray-700 rounded-full flex items-center justify-center">
-					<User className="h-4 w-4 text-gray-500 dark:text-gray-400" />
-				</div>
 				<div className="ml-3">
 					<p className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">
 						{patient.full_name}
@@ -363,7 +360,6 @@ const PatientsList: React.FC<PatientsListProps> = React.memo(
 									) : (
 										<tr>
 											<td colSpan={6} className="px-4 py-8 text-center text-gray-500 dark:text-gray-400">
-												<User className="mx-auto h-12 w-12 text-gray-400 dark:text-gray-600 mb-4" />
 												<p className="text-lg font-medium">No se encontraron pacientes</p>
 												<p className="text-sm">
 													{searchTerm ? 'Intenta con otra búsqueda' : 'Aún no hay pacientes registrados'}
@@ -400,9 +396,6 @@ const PatientsList: React.FC<PatientsListProps> = React.memo(
 										onClick={() => handlePatientClick(patient)}
 									>
 										<div className="flex items-center mb-2">
-											<div className="flex-shrink-0 h-8 w-8 bg-gray-200 dark:bg-gray-700 rounded-full flex items-center justify-center">
-												<User className="h-4 w-4 text-gray-500 dark:text-gray-400" />
-											</div>
 											<div className="ml-2 min-w-0">
 												<p className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">
 													{patient.full_name}
@@ -459,7 +452,6 @@ const PatientsList: React.FC<PatientsListProps> = React.memo(
 							</div>
 						) : (
 							<div className="p-8 text-center text-gray-500 dark:text-gray-400">
-								<User className="mx-auto h-12 w-12 text-gray-400 dark:text-gray-600 mb-4" />
 								<p className="text-lg font-medium">No se encontraron pacientes</p>
 								<p className="text-sm">
 									{searchTerm ? 'Intenta con otra búsqueda' : 'Aún no hay pacientes registrados'}

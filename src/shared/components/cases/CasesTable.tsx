@@ -225,16 +225,6 @@ const CasesTable: React.FC<CasesTableProps> = React.memo(
 			},
 			[onSearch, searchTerm],
 		)
-
-		// Handle search button click
-		const handleSearchClick = useCallback(() => {
-			if (onSearch) {
-				setIsSearching(true)
-				onSearch(searchTerm)
-				setTimeout(() => setIsSearching(false), 500)
-			}
-		}, [onSearch, searchTerm])
-
 		// Handle doctor filter change
 		const handleDoctorFilterChange = useCallback((doctors: string[]) => {
 			setSelectedDoctors(doctors)
@@ -547,15 +537,6 @@ const CasesTable: React.FC<CasesTableProps> = React.memo(
 										</div>
 									)}
 								</div>
-
-								{/* Search Button */}
-								<Button
-									onClick={handleSearchClick}
-									disabled={isSearching || !searchTerm.trim()}
-									className="whitespace-nowrap sm:flex-none"
-								>
-									Buscar
-								</Button>
 
 								{/* Status Filter - Updated with only Completado and Incompleto */}
 								<div className="flex items-center gap-2">
@@ -887,15 +868,6 @@ const CasesTable: React.FC<CasesTableProps> = React.memo(
 										</div>
 									)}
 								</div>
-
-								{/* Search Button */}
-								<Button
-									onClick={handleSearchClick}
-									disabled={isSearching || !searchTerm.trim()}
-									className="whitespace-nowrap flex-shrink-0"
-								>
-									Buscar
-								</Button>
 
 								{/* Status Filter - Updated with only Completado and Incompleto */}
 								<div className="flex items-center gap-2 flex-shrink-0">
