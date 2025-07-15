@@ -21,7 +21,7 @@ export function SessionTimeoutSettings() {
 	}
 
 	return (
-		<Card className="max-w-xl mx-auto mt-6">
+		<Card className="w-full mx-auto mt-6">
 			<div className="p-6">
 				<div className="flex items-center space-x-3 mb-4">
 					<Clock className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
