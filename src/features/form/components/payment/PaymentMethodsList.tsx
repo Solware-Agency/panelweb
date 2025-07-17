@@ -47,12 +47,12 @@ export const PaymentMethodsList = memo(
 			if (!paymentStatus) return ''
 
 			if (isPaymentComplete) {
-				return `Pago: ${paymentStatus}`
+				return `Estatus: ${paymentStatus}`
 			} else {
 				const formattedMissing = missingAmount ? `$${missingAmount.toFixed(2)}` : '$0.00'
 				const formattedMissingBs =
 					missingAmount && exchangeRate ? `Bs ${(missingAmount * exchangeRate).toFixed(2)}` : 'Bs 0.00'
-				return `Pago: ${paymentStatus} - Faltan ${formattedMissing} o ${formattedMissingBs}`
+				return `Estatus: ${paymentStatus} - Faltan ${formattedMissing} o ${formattedMissingBs}`
 			}
 		}
 

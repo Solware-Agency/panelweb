@@ -695,7 +695,7 @@ const UnifiedCaseModal: React.FC<UnifiedCaseModalProps> = ({ case_, isOpen, onCl
 												<p className="text-sm sm:text-base font-medium">${case_.total_amount.toLocaleString()}</p>
 											</div>
 											<div>
-												<p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">Estado de pago:</p>
+												<p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">Estatus:</p>
 												<div
 													className={`inline-flex px-1.5 sm:px-2 py-0.5 sm:py-1 text-xs sm:text-sm font-semibold rounded-full ${getStatusColor(
 														case_.payment_status,
