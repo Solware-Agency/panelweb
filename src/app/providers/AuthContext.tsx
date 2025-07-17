@@ -43,13 +43,26 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 	// Handle session timeout
 	const handleSessionTimeout = async () => {
 		try {
-			const { error } = await authSignOut()
-			if (error) {
-				console.error('Error during timeout sign out:', error)
+			const {
+				data: { session: currentSession },
+				error,
+			} = await supabase.auth.getSession()
+
+			if (!currentSession || error) {
+				console.warn('No active session found or error fetching session during timeout.', error)
+				window.location.replace('/')
+				return
 			}
-			window.location.replace('/')
-		} catch (error) {
-			console.error('Error during timeout sign out:', error)
+
+			const { error: signOutError } = await authSignOut()
+			if (signOutError) {
+				console.error('Error during timeout sign out:', signOutError)
+			}
+		} catch (err) {
+			console.error('Unexpected error during session timeout:', err)
+		} finally {
+			setUser(null)
+			setSession(null)
 			window.location.replace('/')
 		}
 	}
@@ -127,13 +140,23 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 				session,
 				loading,
 				signOut: async () => {
-					const { error } = await authSignOut()
-					if (error) {
-						console.error('Error during manual sign out:', error)
-					} else {
+					try {
+						const { error } = await authSignOut()
+						if (error) {
+							console.error('Error during manual sign out:', error)
+							return
+						}
+
+						// Solo actualizamos el estado y redirigimos después de un cierre de sesión exitoso
 						setUser(null)
 						setSession(null)
+
+						// Pequeña pausa para asegurar que los estados se actualicen
+						await new Promise((resolve) => setTimeout(resolve, 100))
+
 						window.location.replace('/')
+					} catch (err) {
+						console.error('Unexpected error during sign out:', err)
 					}
 				},
 				refreshUser,

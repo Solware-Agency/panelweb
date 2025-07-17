@@ -50,7 +50,7 @@ export const signUp = async (email: string, password: string, displayName?: stri
 		// No need to manually create profile here
 
 		return { user: data.user, error: null }
-	} catch (err: any) {
+	} catch (err: unknown) {
 		console.error('Unexpected signup error:', err)
 		return {
 			user: null,
@@ -107,20 +107,22 @@ export const signIn = async (email: string, password: string): Promise<AuthRespo
 // Sign out
 export const signOut = async (): Promise<{ error: AuthError | null }> => {
 	try {
-		// Clear session storage
-		localStorage.removeItem('last_activity_time')
-		localStorage.removeItem('session_expiry_time')
-		localStorage.removeItem('session_timeout_minutes')
-		
+		// First attempt to sign out with Supabase
 		const { error } = await supabase.auth.signOut()
-		
-		// If the session doesn't exist, the user is effectively logged out
-		// This is not an error condition we need to report
-		if (error && error.message?.includes('Session from session_id claim in JWT does not exist')) {
-			console.log('Session already expired or invalid - user effectively logged out')
-			return { error: null }
+
+		// If successful or if session already doesn't exist, clear local storage
+		if (!error || error.message?.includes('Session from session_id claim in JWT does not exist')) {
+			// Clear session storage after successful signout
+			localStorage.removeItem('last_activity_time')
+			localStorage.removeItem('session_expiry_time')
+			localStorage.removeItem('session_timeout_minutes')
+
+			if (error?.message?.includes('Session from session_id claim in JWT does not exist')) {
+				console.log('Session already expired or invalid - user effectively logged out')
+				return { error: null }
+			}
 		}
-		
+
 		return { error }
 	} catch (err) {
 		console.error('Unexpected signout error:', err)
@@ -136,11 +138,7 @@ export const signOut = async (): Promise<{ error: AuthError | null }> => {
 // Get user session timeout setting
 export const getUserSessionTimeout = async (userId: string): Promise<number> => {
 	try {
-		const { data, error } = await supabase
-			.from('user_settings')
-			.select('session_timeout')
-			.eq('id', userId)
-			.single()
+		const { data, error } = await supabase.from('user_settings').select('session_timeout').eq('id', userId).single()
 
 		if (error) {
 			// If no settings found, create with default timeout
@@ -172,20 +170,18 @@ export const getUserSessionTimeout = async (userId: string): Promise<number> => 
 }
 
 // Update user session timeout setting
-export const updateUserSessionTimeout = async (userId: string, minutes: number): Promise<{ error: any | null }> => {
+export const updateUserSessionTimeout = async (userId: string, minutes: number): Promise<{ error: unknown | null }> => {
 	try {
 		// Validate the timeout value
 		if (!SESSION_TIMEOUT_OPTIONS.includes(minutes)) {
 			return { error: new Error('Invalid session timeout value') }
 		}
 
-		const { error } = await supabase
-			.from('user_settings')
-			.upsert({ 
-				id: userId, 
-				session_timeout: minutes,
-				updated_at: new Date().toISOString()
-			})
+		const { error } = await supabase.from('user_settings').upsert({
+			id: userId,
+			session_timeout: minutes,
+			updated_at: new Date().toISOString(),
+		})
 
 		return { error }
 	} catch (err) {
@@ -282,7 +278,9 @@ export const updatePassword = async (newPassword: string): Promise<{ error: Auth
 }
 
 // Update user metadata including display name
-export const updateUserMetadata = async (metadata: { [key: string]: any }): Promise<{ error: AuthError | null }> => {
+export const updateUserMetadata = async (metadata: {
+	[key: string]: unknown
+}): Promise<{ error: AuthError | null }> => {
 	try {
 		console.log('Attempting to update user metadata:', metadata)
 
