@@ -540,7 +540,6 @@ const CasesTable: React.FC<CasesTableProps> = React.memo(
 
 								{/* Status Filter - Updated with only Completado and Incompleto */}
 								<div className="flex items-center gap-2">
-									<Filter className="size-4 text-gray-400 mr-2" />
 									<select
 										title="Filtrar por estado"
 										value={statusFilter}
