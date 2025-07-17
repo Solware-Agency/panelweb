@@ -396,12 +396,12 @@ function MainHome() {
 															{exam.examType}
 														</p>
 														<p className="text-[10px] sm:text-xs text-gray-500 dark:text-gray-400">
-															{exam.count} casos
+															{formatCurrency(exam.revenue)}
 														</p>
 													</div>
 												</div>
 												<span className={`text-sm sm:text-base md:text-lg font-bold ${color.text}`}>
-													{formatCurrency(exam.revenue)}
+													{exam.count} casos
 												</span>
 											</div>
 										)
