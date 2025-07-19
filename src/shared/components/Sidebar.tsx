@@ -3,7 +3,6 @@ import {
 	Home,
 	PieChart,
 	FileText,
-	X,
 	FolderInput,
 	LogOut,
 	Microscope,

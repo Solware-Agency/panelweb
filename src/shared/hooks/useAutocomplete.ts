@@ -210,31 +210,6 @@ export const useAutocomplete = (fieldName: string) => {
 		}
 	}, [fieldName]) // Only depend on fieldName, not hasPreloadedData
 
-	// Function to get random suggestions from all values - memoized with useCallback
-	const getRandomSuggestions = useCallback((count: number = 8): AutocompleteOption[] => {
-		if (allFieldValues.length === 0) return []
-		
-		// Create a weighted random selection based on frequency
-		const weightedValues = allFieldValues.flatMap(item => 
-			Array(Math.min(item.count, 10)).fill(item) // Limit weight to prevent dominance
-		)
-		
-		const randomSuggestions: AutocompleteOption[] = []
-		const usedValues = new Set<string>()
-		
-		while (randomSuggestions.length < count && randomSuggestions.length < allFieldValues.length) {
-			const randomIndex = Math.floor(Math.random() * weightedValues.length)
-			const randomItem = weightedValues[randomIndex]
-			
-			if (!usedValues.has(randomItem.value)) {
-				randomSuggestions.push(randomItem)
-				usedValues.add(randomItem.value)
-			}
-		}
-		
-		return randomSuggestions
-	}, [allFieldValues])
-
 	// Function to get filtered suggestions based on search term - memoized with useCallback
 	const getFilteredSuggestions = useCallback((searchTerm: string): AutocompleteOption[] => {
 		if (!searchTerm || searchTerm.length === 0) {
