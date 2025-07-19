@@ -300,18 +300,18 @@ const StatsPage: React.FC = () => {
 				{/* Detailed Tables */}
 				<div className="grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-4 md:gap-5">
 					{/* Performance Metrics by Exam Type (Normalized) */}
-					<Card className="col-span-1 grid hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 transition-all duration-300 shadow-lg">
+					<Card className="col-span-1 grid hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 transition-all duration-300 shadow-lg group cursor-pointer">
 						<div className="bg-white dark:bg-background rounded-xl p-3 sm:p-4 md:p-6">
-							<h3 className="text-base sm:text-lg md:text-xl font-bold text-gray-700 dark:text-gray-300 mb-3 sm:mb-4 md:mb-6">
+							<h3 className="text-base sm:text-lg md:text-xl font-bold text-gray-700 dark:text-gray-300 mb-3 sm:mb-4 md:mb-6 group-hover:text-primary transition-colors duration-300">
 								Métricas por Tipo de Estudio
 							</h3>
 							<div className="overflow-x-auto responsive-table">
 								<table className="w-full min-w-[400px]">
 									<thead>
 										<tr className="border-b border-gray-200 dark:border-gray-700">
-											<th className="text-left py-3 text-gray-600 dark:text-gray-400 font-medium text-sm">Estudio</th>
-											<th className="text-left py-3 text-gray-600 dark:text-gray-400 font-medium text-sm">Casos</th>
-											<th className="text-left py-3 text-gray-600 dark:text-gray-400 font-medium text-sm">Ingresos</th>
+											<th className="text-left py-3 text-gray-600 dark:text-gray-400 font-medium text-sm group-hover:text-primary transition-colors duration-300">Estudio</th>
+											<th className="text-left py-3 text-gray-600 dark:text-gray-400 font-medium text-sm group-hover:text-primary transition-colors duration-300">Casos</th>
+											<th className="text-left py-3 text-gray-600 dark:text-gray-400 font-medium text-sm group-hover:text-primary transition-colors duration-300">Ingresos</th>
 										</tr>
 									</thead>
 									<tbody>
@@ -323,14 +323,14 @@ const StatsPage: React.FC = () => {
 											</tr>
 										) : (
 											stats?.revenueByExamType.slice(0, 5).map((exam, _index) => (
-												<tr key={exam.examType} className="border-b border-gray-100 dark:border-gray-800">
+												<tr key={exam.examType} className="border-b border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors duration-200">
 													<td className="py-3">
 														<div>
-															<p className="font-medium text-gray-700 dark:text-gray-300 text-sm">{exam.examType}</p>
+															<p className="font-medium text-gray-700 dark:text-gray-300 text-sm group-hover:text-primary transition-colors duration-300">{exam.examType}</p>
 														</div>
 													</td>
-													<td className="py-3 text-gray-700 dark:text-gray-300 text-sm">{exam.count}</td>
-													<td className="py-3 text-gray-700 dark:text-gray-300 font-medium text-sm">
+													<td className="py-3 text-gray-700 dark:text-gray-300 text-sm group-hover:text-primary transition-colors duration-300">{exam.count}</td>
+													<td className="py-3 text-gray-700 dark:text-gray-300 font-medium text-sm group-hover:text-primary transition-colors duration-300">
 														{formatCurrency(exam.revenue)}
 													</td>
 												</tr>
@@ -343,20 +343,20 @@ const StatsPage: React.FC = () => {
 					</Card>
 
 					{/* Status Metrics - UPDATED SECTION */}
-					<Card className="col-span-1 grid hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 transition-all duration-300 shadow-lg">
+					<Card className="col-span-1 grid hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 transition-all duration-300 shadow-lg group cursor-pointer">
 						<div className="bg-white dark:bg-background rounded-xl p-3 sm:p-4 md:p-6">
-							<h3 className="text-base sm:text-lg md:text-xl font-bold text-gray-700 dark:text-gray-300 mb-3 sm:mb-4 md:mb-6">
+							<h3 className="text-base sm:text-lg md:text-xl font-bold text-gray-700 dark:text-gray-300 mb-3 sm:mb-4 md:mb-6 group-hover:text-primary transition-colors duration-300">
 								Estatus
 							</h3>
 							<div className="space-y-3 sm:space-y-4 md:space-y-6">
 								{/* Completed Cases */}
-								<div>
+								<div className="group-hover:bg-gray-50 dark:group-hover:bg-gray-800/30 p-3 rounded-lg transition-all duration-300 hover:scale-[1.02]">
 									<div className="flex items-center justify-between mb-2">
 										<div className="flex items-center gap-2">
-											<CheckCircle className="w-4 h-4 text-green-600 dark:text-green-400" />
-											<span className="text-sm font-medium text-gray-600 dark:text-gray-400">Casos Completados</span>
+											<CheckCircle className="w-4 h-4 text-green-600 dark:text-green-400 group-hover:scale-110 transition-transform duration-300" />
+											<span className="text-sm font-medium text-gray-600 dark:text-gray-400 group-hover:text-primary transition-colors duration-300">Casos Completados</span>
 										</div>
-										<span className="text-sm font-bold text-green-700 dark:text-green-300">
+										<span className="text-sm font-bold text-green-700 dark:text-green-300 group-hover:text-green-600 dark:group-hover:text-green-400 transition-colors duration-300">
 											{isLoading ? '...' : `${completionRate.toFixed(1)}%`}
 										</span>
 									</div>
@@ -378,13 +378,13 @@ const StatsPage: React.FC = () => {
 								</div>
 
 								{/* Incomplete Cases */}
-								<div>
+								<div className="group-hover:bg-gray-50 dark:group-hover:bg-gray-800/30 p-3 rounded-lg transition-all duration-300 hover:scale-[1.02]">
 									<div className="flex items-center justify-between mb-2">
 										<div className="flex items-center gap-2">
-											<XCircle className="w-4 h-4 text-red-600 dark:text-red-400" />
-											<span className="text-sm font-medium text-gray-600 dark:text-gray-400">Casos Incompletos</span>
+											<XCircle className="w-4 h-4 text-red-600 dark:text-red-400 group-hover:scale-110 transition-transform duration-300" />
+											<span className="text-sm font-medium text-gray-600 dark:text-gray-400 group-hover:text-primary transition-colors duration-300">Casos Incompletos</span>
 										</div>
-										<span className="text-sm font-bold text-red-700 dark:text-red-300">
+										<span className="text-sm font-bold text-red-700 dark:text-red-300 group-hover:text-red-600 dark:group-hover:text-red-400 transition-colors duration-300">
 											{isLoading ? '...' : `${incompleteRate.toFixed(1)}%`}
 										</span>
 									</div>
@@ -406,12 +406,12 @@ const StatsPage: React.FC = () => {
 								</div>
 
 								{/* Revenue per Case */}
-								<div>
+								<div className="group-hover:bg-gray-50 dark:group-hover:bg-gray-800/30 p-3 rounded-lg transition-all duration-300 hover:scale-[1.02]">
 									<div className="flex items-center justify-between mb-2">
-										<span className="text-sm font-medium text-gray-600 dark:text-gray-400">
+										<span className="text-sm font-medium text-gray-600 dark:text-gray-400 group-hover:text-primary transition-colors duration-300">
 											Ingreso Promedio por Caso
 										</span>
-										<span className="text-sm font-bold text-gray-700 dark:text-gray-300">
+										<span className="text-sm font-bold text-gray-700 dark:text-gray-300 group-hover:text-primary transition-colors duration-300">
 											{isLoading ? '...' : formatCurrency(averageRevenuePerCase)}
 										</span>
 									</div>
@@ -421,12 +421,12 @@ const StatsPage: React.FC = () => {
 								</div>
 
 								{/* Patient Growth */}
-								<div>
+								<div className="group-hover:bg-gray-50 dark:group-hover:bg-gray-800/30 p-3 rounded-lg transition-all duration-300 hover:scale-[1.02]">
 									<div className="flex items-center justify-between mb-2">
-										<span className="text-sm font-medium text-gray-600 dark:text-gray-400">
+										<span className="text-sm font-medium text-gray-600 dark:text-gray-400 group-hover:text-primary transition-colors duration-300">
 											Crecimiento de Pacientes
 										</span>
-										<span className="text-sm font-bold text-gray-700 dark:text-gray-300">
+										<span className="text-sm font-bold text-gray-700 dark:text-gray-300 group-hover:text-primary transition-colors duration-300">
 											{isLoading ? '...' : `+${stats?.newPatientsThisMonth || 0} este mes`}
 										</span>
 									</div>
@@ -436,10 +436,10 @@ const StatsPage: React.FC = () => {
 								</div>
 
 								{/* Pending Payments Indicator */}
-								<div>
+								<div className="group-hover:bg-gray-50 dark:group-hover:bg-gray-800/30 p-3 rounded-lg transition-all duration-300 hover:scale-[1.02]">
 									<div className="flex items-center justify-between mb-2">
-										<span className="text-sm font-medium text-gray-600 dark:text-gray-400">Pagos Pendientes</span>
-										<span className="text-sm font-bold text-red-700 dark:text-red-300">
+										<span className="text-sm font-medium text-gray-600 dark:text-gray-400 group-hover:text-primary transition-colors duration-300">Pagos Pendientes</span>
+										<span className="text-sm font-bold text-red-700 dark:text-red-300 group-hover:text-red-600 dark:group-hover:text-red-400 transition-colors duration-300">
 											{isLoading ? '...' : formatCurrency(stats?.pendingPayments || 0)}
 										</span>
 									</div>

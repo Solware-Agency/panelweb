@@ -9,7 +9,6 @@ import {
 	Microscope,
 	Moon,
 	Sun,
-	Clock,
 	Users,
 	Settings,
 	History,
@@ -17,6 +16,8 @@ import {
 	ChevronDown,
 	ChevronRight,
 	Folder,
+	Stethoscope,
+	Clipboard,
 } from 'lucide-react'
 import { NavLink, useNavigate } from 'react-router-dom'
 import { useAuth } from '@app/providers/AuthContext'
@@ -180,7 +181,6 @@ interface SidebarProps {
 	isExpanded?: boolean
 	isMobile?: boolean
 	isDark: boolean
-	currentDate: string
 	toggleDarkMode: () => void
 }
 
@@ -190,7 +190,6 @@ const Sidebar: React.FC<SidebarProps> = ({
 	isMobile = false,
 	isDark,
 	toggleDarkMode,
-	currentDate,
 }) => {
 	// For mobile, always show full sidebar. For desktop, use isExpanded state
 	const showFullContent = isMobile || isExpanded
@@ -259,15 +258,7 @@ const Sidebar: React.FC<SidebarProps> = ({
 							Conspat
 						</p>
 					</a>
-					{/* Close button for mobile */}
-					{onClose && isMobile && (
-						<button
-							onClick={onClose}
-							className="lg:hidden ml-2 p-1.5 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors shrink-0"
-						>
-							<X className="w-5 h-5" />
-						</button>
-					)}
+
 				</div>
 
 				<div className="flex flex-col justify-center gap-4">
@@ -303,7 +294,7 @@ const Sidebar: React.FC<SidebarProps> = ({
 							/>
 							<NavItem
 								to="/doctors"
-								icon={<User className="stroke-2 size-5 shrink-0" />}
+								icon={<Stethoscope className="stroke-2 size-5 shrink-0" />}
 								label="Médicos"
 								showFullContent={showFullContent}
 								onClick={onClose}
@@ -383,7 +374,7 @@ const Sidebar: React.FC<SidebarProps> = ({
 
 							<NavItem
 								to="/dashboard/reports"
-								icon={<FileText className="stroke-2 size-5 shrink-0" />}
+								icon={<Clipboard className="stroke-2 size-5 shrink-0" />}
 								label="Reportes"
 								showFullContent={showFullContent}
 								onClick={onClose}
@@ -402,7 +393,7 @@ const Sidebar: React.FC<SidebarProps> = ({
 					{isOwner && (
 						<NavItem
 							to="/dashboard/doctors"
-							icon={<User className="stroke-2 size-5 shrink-0" />}
+							icon={<Stethoscope className="stroke-2 size-5 shrink-0" />}
 							label="Médicos"
 							showFullContent={showFullContent}
 							onClick={onClose}
@@ -442,19 +433,7 @@ const Sidebar: React.FC<SidebarProps> = ({
 						onClick={onClose}
 					/>
 				)}
-				<div
-					title={!showFullContent ? 'Fecha' : undefined}
-					className="flex items-center gap-2 cursor-pointer hover:text-primary py-2 px-1 rounded-md"
-				>
-					<Clock className="stroke-2 size-4 sm:size-5 shrink-0" />
-					<p
-						className={`text-md whitespace-nowrap ${
-							showFullContent ? 'opacity-100 w-auto' : 'opacity-0 w-0 overflow-hidden'
-						}`}
-					>
-						{currentDate}
-					</p>
-				</div>
+
 				<div
 					onClick={toggleDarkMode}
 					title={!showFullContent ? 'Cambiar color' : undefined}

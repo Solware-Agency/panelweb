@@ -4,7 +4,6 @@ import { Menu } from 'lucide-react'
 interface HeaderProps {
 	isDark: boolean
 	toggleDarkMode: () => void
-	currentDate: string
 	onMenuClick: () => void
 }
 

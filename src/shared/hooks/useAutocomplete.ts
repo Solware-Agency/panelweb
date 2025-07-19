@@ -238,7 +238,7 @@ export const useAutocomplete = (fieldName: string) => {
 	// Function to get filtered suggestions based on search term - memoized with useCallback
 	const getFilteredSuggestions = useCallback((searchTerm: string): AutocompleteOption[] => {
 		if (!searchTerm || searchTerm.length === 0) {
-			return getRandomSuggestions()
+			return [] // No mostrar sugerencias aleatorias cuando el campo está vacío
 		}
 
 		const filtered = allFieldValues.filter(item =>
@@ -257,7 +257,7 @@ export const useAutocomplete = (fieldName: string) => {
 			// Then by frequency
 			return b.count - a.count
 		}).slice(0, 8)
-	}, [allFieldValues, getRandomSuggestions])
+	}, [allFieldValues])
 
 	// getSuggestions now only processes preloaded data, no async calls - memoized with useCallback
 	const getSuggestions = useCallback((searchTerm: string = '') => {

@@ -2,7 +2,7 @@ import * as React from "react";
 import { Input } from "@shared/components/ui/input";
 import { cn } from "@shared/lib/cn";
 import { useAutocomplete } from "@shared/hooks/useAutocomplete";
-import { Loader2,  User, Shuffle } from "lucide-react";
+import { Loader2,  User } from "lucide-react";
 
 interface AutocompleteInputProps extends React.ComponentProps<typeof Input> {
   fieldName: string;
@@ -74,8 +74,9 @@ export const AutocompleteInput = React.memo(React.forwardRef<
       clearTimeout(debounceTimeoutRef.current);
     }
 
-    // Don't search if terminated, autofilled, haven't focused, or no preloaded data
-    if (searchTerminated || isAutofilled || !hasFocused || !hasPreloadedData) {
+    // Don't search if terminated, autofilled, haven't focused, no preloaded data, or empty input
+    if (searchTerminated || isAutofilled || !hasFocused || !hasPreloadedData || inputValue.length === 0) {
+      setShowSuggestions(false);
       return;
     }
 
@@ -87,11 +88,11 @@ export const AutocompleteInput = React.memo(React.forwardRef<
     // Update last search term
     lastSearchTermRef.current = inputValue;
 
-    // Search with debounce for typing, immediate for empty input
+    // Search with debounce for typing
     debounceTimeoutRef.current = setTimeout(() => {
       getSuggestions(inputValue);
       setShowSuggestions(true);
-    }, inputValue.length === 0 ? 0 : 300);
+    }, 300);
 
     return () => {
       if (debounceTimeoutRef.current) {
@@ -190,12 +191,12 @@ export const AutocompleteInput = React.memo(React.forwardRef<
   const handleFocus = React.useCallback((e: React.FocusEvent<HTMLInputElement>) => {
     setHasFocused(true);
     
-    // Show suggestions immediately on focus if not terminated and not autofilled
-    if (!searchTerminated && !isAutofilled && hasPreloadedData) {
+    // Only show suggestions on focus if there's input value and not terminated/autofilled
+    if (!searchTerminated && !isAutofilled && hasPreloadedData && inputValue.length > 0) {
       // Reset last search term to force new search
       lastSearchTermRef.current = '';
       
-      // Trigger search for suggestions (random if input is empty)
+      // Trigger search for suggestions only if there's input
       setTimeout(() => {
         getSuggestions(inputValue);
         setShowSuggestions(true);
@@ -215,11 +216,8 @@ export const AutocompleteInput = React.memo(React.forwardRef<
 
   // Determine suggestion header text - memoized to prevent unnecessary recalculations
   const getSuggestionHeaderText = React.useMemo(() => {
-    if (inputValue.length === 0) {
-      return `${suggestions.length} sugerencia${suggestions.length !== 1 ? 's' : ''} aleatoria${suggestions.length !== 1 ? 's' : ''}`;
-    }
     return `${suggestions.length} sugerencia${suggestions.length !== 1 ? 's' : ''} encontrada${suggestions.length !== 1 ? 's' : ''}`;
-  }, [inputValue.length, suggestions.length]);
+  }, [suggestions.length]);
 
   return (
     <div className="relative">
@@ -259,7 +257,6 @@ export const AutocompleteInput = React.memo(React.forwardRef<
         >
           <div className="px-3 py-2 text-xs text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 flex items-center gap-2">
             {fieldName === 'idNumber' && <User className="h-3 w-3" />}
-            {inputValue.length === 0 && <Shuffle className="h-3 w-3" />}
             {getSuggestionHeaderText}
           </div>
           {suggestions.map((suggestion, index) => (
@@ -275,10 +272,7 @@ export const AutocompleteInput = React.memo(React.forwardRef<
             </div>
           ))}
           <div className="px-3 py-2 text-xs text-gray-400 dark:text-gray-500 bg-gray-50 dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700">
-            {inputValue.length === 0 
-              ? "Sugerencias aleatorias - Escribe para filtrar" 
-              : "Usa ↑↓ para navegar, Enter para seleccionar"
-            }
+            Usa ↑↓ para navegar, Enter para seleccionar
           </div>
         </div>
       )}
