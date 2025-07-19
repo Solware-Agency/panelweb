@@ -7,42 +7,11 @@ import Sidebar from '../../../shared/components/Sidebar'
 
 const Layout: React.FC = () => {
 	const { isDark, toggleDarkMode } = useDarkMode()
-	const [currentDate, setCurrentDate] = useState('')
+
 	const [sidebarOpen, setSidebarOpen] = useState(false)
 	const [sidebarExpanded, setSidebarExpanded] = useState(false) // New state for hover expansion
 
-	useEffect(() => {
-		const getCurrentDate = () => {
-			const now = new Date()
-			const months = [
-				'Enero',
-				'Febrero',
-				'Marzo',
-				'Abril',
-				'Mayo',
-				'Junio',
-				'Julio',
-				'Agosto',
-				'Septiembre',
-				'Octubre',
-				'Noviembre',
-				'Diciembre',
-			]
-			return `${months[now.getMonth()]} ${now.getDate()}`
-		}
 
-		setCurrentDate(getCurrentDate())
-
-		const now = new Date()
-		const tomorrow = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1)
-		const timeUntilMidnight = tomorrow.getTime() - now.getTime()
-
-		const timer = setTimeout(() => {
-			setCurrentDate(getCurrentDate())
-		}, timeUntilMidnight)
-
-		return () => clearTimeout(timer)
-	}, [])
 
 	const toggleSidebar = () => {
 		setSidebarOpen(!sidebarOpen)
@@ -88,13 +57,12 @@ const Layout: React.FC = () => {
 					isMobile={sidebarOpen}
 					isDark={isDark}
 					toggleDarkMode={toggleDarkMode}
-					currentDate={currentDate}
 				/>
 			</div>
 
 			{/* Main content - Updated margin to accommodate collapsible sidebar */}
 			<main className={`min-h-screen flex flex-col z-50 transition-all duration-300 ${sidebarExpanded ? 'lg:ml-56' : 'lg:ml-16'}`}>
-				<Header isDark={isDark} toggleDarkMode={toggleDarkMode} currentDate={currentDate} onMenuClick={toggleSidebar} />
+				<Header isDark={isDark} toggleDarkMode={toggleDarkMode} onMenuClick={toggleSidebar} />
 				<div className="flex-1 overflow-x-hidden overflow-y-auto">
 					<Outlet />
 				</div>
