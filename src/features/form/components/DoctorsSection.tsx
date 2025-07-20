@@ -4,7 +4,7 @@ import { Stethoscope, Info } from 'lucide-react'
 
 export const DoctorsSection: React.FC = () => {
   return (
-    <div className="animate-fade-in">
+    <div className="animate-fade-in p-3 sm:p-6">
       <div className="mb-4 sm:mb-6">
 				<div className="flex items-center justify-between">
 					<div>
