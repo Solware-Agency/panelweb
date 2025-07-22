@@ -11,6 +11,7 @@ import { usePatientAutofill } from '@shared/hooks/usePatientAutofill'
 import { memo, useCallback } from 'react'
 import { useState } from 'react'
 import { User, Phone, CreditCard, Mail } from 'lucide-react'
+import { cn } from '@shared/lib/cn'
 
 interface PatientDataSectionProps {
 	control: Control<FormValues>
