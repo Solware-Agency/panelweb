@@ -9,6 +9,7 @@ import { Loader2, CheckCircle } from 'lucide-react'
 import { useFormContext } from 'react-hook-form'
 import { usePatientAutofill } from '@shared/hooks/usePatientAutofill'
 import { memo, useCallback } from 'react'
+import { useState } from 'react'
 import { User, Phone, CreditCard, Mail } from 'lucide-react'
 
 interface PatientDataSectionProps {
