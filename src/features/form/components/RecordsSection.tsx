@@ -192,17 +192,14 @@ export const RecordsSection: React.FC<RecordsSectionProps> = ({
 			cases?.filter((c) => {
 				// Normalizar el tipo de examen usando la misma lógica
 				const type = c.exam_type?.toLowerCase().trim()
-				let normalizedType = type
-				if (type?.includes('biops')) {
-					normalizedType = 'biopsia'
-				}
-
-				const isBiopsyCase = normalizedType === 'biopsia'
+				const isGeneratableCase = type?.includes('biops') || type?.includes('inmuno') || type?.includes('citolog')
 				const isPending = c.payment_status?.toLowerCase().trim() !== 'completado'
-				const noDiagnostico = !c.diagnostico || c.diagnostico.trim() === ''
+				const hasContent = c.diagnostico || c.conclusion_diagnostica || 
+					(type?.includes('citolog') && c.descripcion_macroscopica)
+				const noContent = !hasContent
 
-				// Solo contar biopsias pendientes sin diagnóstico
-				return isBiopsyCase && isPending && noDiagnostico
+				// Solo contar casos generables pendientes sin contenido
+				return isGeneratableCase && isPending && noContent
 			}).length || 0
 		)
 	}, [cases])

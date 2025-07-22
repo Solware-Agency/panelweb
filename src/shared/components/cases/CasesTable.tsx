@@ -20,7 +20,7 @@ import { useToast } from '@shared/hooks/use-toast'
 import { Button } from '@shared/components/ui/button'
 import { useAuth } from '@app/providers/AuthContext'
 import { useUserProfile } from '@shared/hooks/useUserProfile'
-import GenerateBiopsyModal from './GenerateBiopsyModal'
+import GenerateCaseModal from './GenerateCaseModal'
 import DoctorFilterPanel from './DoctorFilterPanel'
 import { generatePDF } from '@shared/utils/pdf-generator'
 import UnifiedCaseModal from './UnifiedCaseModal'
@@ -70,8 +70,13 @@ const CasesTable: React.FC<CasesTableProps> = React.memo(
 
 		// Case actions popover component
 		const CaseActionsPopover = ({ case_ }: { case_: MedicalRecord }) => {
-			const isBiopsyCase = case_.exam_type?.toLowerCase() === 'biopsia'
-			const hasDownloadableContent = isBiopsyCase && !!case_.diagnostico
+			const examType = case_.exam_type?.toLowerCase().trim() || ''
+			const isGeneratableCase = examType.includes('biops') || examType.includes('inmuno') || examType.includes('citolog')
+			const hasDownloadableContent = isGeneratableCase && (
+				!!case_.diagnostico || 
+				!!case_.conclusion_diagnostica || 
+				(examType.includes('citolog') && !!case_.descripcion_macroscopica)
+			)
 
 			return (
 				<PopoverRoot>
@@ -83,7 +88,7 @@ const CasesTable: React.FC<CasesTableProps> = React.memo(
 								<span>Ver</span>
 							</PopoverButton>
 
-							{isBiopsyCase && canGenerate && (
+							{isGeneratableCase && canGenerate && (
 								<PopoverButton onClick={() => handleGenerateCase(case_)}>
 									<FileText className="w-4 h-4" />
 									<span>Generar</span>
@@ -157,11 +162,14 @@ const CasesTable: React.FC<CasesTableProps> = React.memo(
 					return
 				}
 
-				// Check if this is a biopsy case
-				if (case_.exam_type?.toLowerCase() !== 'biopsia') {
+				// Check if this is a generatable case type
+				const examType = case_.exam_type?.toLowerCase().trim() || ''
+				const isGeneratableCase = examType.includes('biops') || examType.includes('inmuno') || examType.includes('citolog')
+				
+				if (!isGeneratableCase) {
 					toast({
 						title: '❌ Tipo de examen incorrecto',
-						description: 'La generación de casos solo está disponible para biopsias.',
+						description: 'La generación de casos solo está disponible para biopsias, inmunohistoquímica y citología.',
 						variant: 'destructive',
 					})
 					return
@@ -175,8 +183,12 @@ const CasesTable: React.FC<CasesTableProps> = React.memo(
 
 		const handleDownloadCase = useCallback(
 			async (case_: MedicalRecord) => {
-				// Check if this case has a diagnosis
-				if (!case_.diagnostico) {
+				// Check if this case has the required content for PDF generation
+				const examType = case_.exam_type?.toLowerCase().trim() || ''
+				const hasContent = case_.diagnostico || case_.conclusion_diagnostica || 
+					(examType.includes('citolog') && case_.descripcion_macroscopica)
+				
+				if (!hasContent) {
 					toast({
 						title: '❌ Sin diagnóstico',
 						description: 'Este caso no tiene un diagnóstico. Primero debe generar el caso.',
@@ -305,8 +317,11 @@ const CasesTable: React.FC<CasesTableProps> = React.memo(
 				// PDF ready filter
 				let matchesPdfReady = true
 				if (showPdfReadyOnly) {
-					const isBiopsyCase = case_.exam_type?.toLowerCase() === 'biopsia'
-					matchesPdfReady = isBiopsyCase && !!case_.diagnostico
+					const examType = case_.exam_type?.toLowerCase().trim() || ''
+					const isGeneratableCase = examType.includes('biops') || examType.includes('inmuno') || examType.includes('citolog')
+					const hasContent = case_.diagnostico || case_.conclusion_diagnostica || 
+						(examType.includes('citolog') && case_.descripcion_macroscopica)
+					matchesPdfReady = isGeneratableCase && !!hasContent
 				}
 
 				// Local search filter (only if onSearch is not provided)
@@ -1193,8 +1208,8 @@ const CasesTable: React.FC<CasesTableProps> = React.memo(
 					}}
 				/>
 
-				{/* Generate Biopsy Modal */}
-				<GenerateBiopsyModal
+				{/* Generate Case Modal */}
+				<GenerateCaseModal
 					case_={selectedCaseForGenerate}
 					isOpen={isGenerateModalOpen}
 					onClose={() => {

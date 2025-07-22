@@ -13,6 +13,26 @@ import firmasImg from '/src/assets/img/firmas.png'
 // Type definition for PDF page to avoid TypeScript errors
 type PDFPage = ReturnType<PDFDocument['addPage']>
 
+// Helper function to determine case type from exam_type
+const getCaseType = (examType: string): 'biopsia' | 'inmunohistoquimica' | 'citologia' => {
+	const type = examType.toLowerCase().trim()
+	if (type.includes('inmuno')) return 'inmunohistoquimica'
+	if (type.includes('citolog')) return 'citologia'
+	return 'biopsia'
+}
+
+// Helper function to get case type title
+const getCaseTypeTitle = (caseType: string): string => {
+	switch (caseType) {
+		case 'inmunohistoquimica':
+			return 'INFORME DE INMUNOHISTOQUÍMICA'
+		case 'citologia':
+			return 'INFORME DE CITOLOGÍA'
+		default:
+			return 'INFORME DE BIOPSIA'
+	}
+}
+
 /**
  * Generates a PDF document for a medical case using pdf-lib
  * @param caseData The case data to include in the PDF
@@ -20,6 +40,9 @@ type PDFPage = ReturnType<PDFDocument['addPage']>
  */
 export async function generatePDF(caseData: MedicalRecord): Promise<void> {
 	try {
+		// Determine case type
+		const caseType = getCaseType(caseData.exam_type)
+		
 		// Create a new PDF document
 		const pdfDoc = await PDFDocument.create()
 
@@ -77,9 +100,10 @@ export async function generatePDF(caseData: MedicalRecord): Promise<void> {
 			yPos -= 20
 		}
 
-		// Add title
-		page.drawText('INFORME DE BIOPSIA', {
-			x: (width - helveticaBold.widthOfTextAtSize('INFORME DE BIOPSIA', titleSize)) / 2,
+		// Add title based on case type
+		const title = getCaseTypeTitle(caseType)
+		page.drawText(title, {
+			x: (width - helveticaBold.widthOfTextAtSize(title, titleSize)) / 2,
 			y: yPos,
 			size: titleSize,
 			font: helveticaBold,
@@ -176,8 +200,11 @@ export async function generatePDF(caseData: MedicalRecord): Promise<void> {
 			yPos = height - margin
 		}
 
-		// Add biopsy information section
-		page.drawText('Informe de Biopsia', {
+		// Add case-specific information section
+		const sectionTitle = caseType === 'inmunohistoquimica' ? 'Informe de Inmunohistoquímica' : 
+							caseType === 'citologia' ? 'Informe de Citología' : 'Informe de Biopsia'
+		
+		page.drawText(sectionTitle, {
 			x: margin,
 			y: yPos,
 			size: headingSize,
@@ -273,26 +300,70 @@ export async function generatePDF(caseData: MedicalRecord): Promise<void> {
 			return { page: workingPage, yPos: workingYPos }
 		}
 
-		// Add biopsy information fields
-		let result = addMultilineField('Material Remitido', caseData.material_remitido, page, yPos, pdfDoc)
-		page = result.page
-		yPos = result.yPos
+		// Add case-specific information fields
+		let result: { page: PDFPage; yPos: number }
+		
+		if (caseType === 'biopsia') {
+			result = addMultilineField('Material Remitido', caseData.material_remitido, page, yPos, pdfDoc)
+			page = result.page
+			yPos = result.yPos
 
-		result = addMultilineField('Información Clínica', caseData.informacion_clinica, page, yPos, pdfDoc)
-		page = result.page
-		yPos = result.yPos
+			result = addMultilineField('Información Clínica', caseData.informacion_clinica, page, yPos, pdfDoc)
+			page = result.page
+			yPos = result.yPos
 
-		result = addMultilineField('Descripción Macroscópica', caseData.descripcion_macroscopica, page, yPos, pdfDoc)
-		page = result.page
-		yPos = result.yPos
+			result = addMultilineField('Descripción Macroscópica', caseData.descripcion_macroscopica, page, yPos, pdfDoc)
+			page = result.page
+			yPos = result.yPos
 
-		result = addMultilineField('Diagnóstico', caseData.diagnostico, page, yPos, pdfDoc)
-		page = result.page
-		yPos = result.yPos
+			result = addMultilineField('Diagnóstico', caseData.diagnostico, page, yPos, pdfDoc)
+			page = result.page
+			yPos = result.yPos
 
-		// Add comentario if it exists
-		if (caseData.comentario) {
-			result = addMultilineField('Comentario', caseData.comentario, page, yPos, pdfDoc)
+			// Add comentario if it exists
+			if (caseData.comentario) {
+				result = addMultilineField('Comentario', caseData.comentario, page, yPos, pdfDoc)
+				page = result.page
+				yPos = result.yPos
+			}
+		} else if (caseType === 'inmunohistoquimica') {
+			result = addMultilineField('Información Clínica', caseData.informacion_clinica, page, yPos, pdfDoc)
+			page = result.page
+			yPos = result.yPos
+
+			result = addMultilineField('Descripción Macroscópica', caseData.descripcion_macroscopica, page, yPos, pdfDoc)
+			page = result.page
+			yPos = result.yPos
+
+			result = addMultilineField('Inmunohistoquímica', caseData.inmunohistoquimica, page, yPos, pdfDoc)
+			page = result.page
+			yPos = result.yPos
+
+			// Add immunohistochemistry results
+			result = addMultilineField('Positivo', caseData.positivo, page, yPos, pdfDoc)
+			page = result.page
+			yPos = result.yPos
+
+			result = addMultilineField('Negativo', caseData.negativo, page, yPos, pdfDoc)
+			page = result.page
+			yPos = result.yPos
+
+			result = addMultilineField('Ki67', caseData.ki67, page, yPos, pdfDoc)
+			page = result.page
+			yPos = result.yPos
+
+			result = addMultilineField('Conclusión Diagnóstica', caseData.conclusion_diagnostica, page, yPos, pdfDoc)
+			page = result.page
+			yPos = result.yPos
+
+			// Add comentario if it exists
+			if (caseData.comentario) {
+				result = addMultilineField('Comentario', caseData.comentario, page, yPos, pdfDoc)
+				page = result.page
+				yPos = result.yPos
+			}
+		} else if (caseType === 'citologia') {
+			result = addMultilineField('Descripción', caseData.descripcion_macroscopica, page, yPos, pdfDoc)
 			page = result.page
 			yPos = result.yPos
 		}
@@ -396,7 +467,7 @@ export async function generatePDF(caseData: MedicalRecord): Promise<void> {
 		// Create a link element
 		const link = document.createElement('a')
 		link.href = url
-		link.download = `biopsia_${caseData.code || caseData.id}_${caseData.full_name.replace(/\s+/g, '_')}.pdf`
+		link.download = `${caseType}_${caseData.code || caseData.id}_${caseData.full_name.replace(/\s+/g, '_')}.pdf`
 
 		// Append the link to the body
 		document.body.appendChild(link)
