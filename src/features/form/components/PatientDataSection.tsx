@@ -12,6 +12,7 @@ import { memo, useCallback } from 'react'
 import { useState } from 'react'
 import { User, Phone, CreditCard, Mail } from 'lucide-react'
 import { cn } from '@shared/lib/cn'
+import { Popover, PopoverContent, PopoverTrigger } from '@shared/components/ui/popover'
 
 interface PatientDataSectionProps {
 	control: Control<FormValues>
