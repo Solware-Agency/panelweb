@@ -338,8 +338,7 @@ const PatientsList: React.FC<PatientsListProps> = React.memo(
 											>
 												Email
 												<SortIcon field="email" />
-												{patient.edad || 'N/A'}
-											</span>
+											</button>
 										</th>
 									</tr>
 								</thead>
