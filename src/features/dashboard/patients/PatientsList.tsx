@@ -28,7 +28,7 @@ interface MedicalRecord {
 	id_number: string
 	phone: string
 	email: string | null
-	edad: string | null
+	date_of_birth: string | null
 	created_at: string
 	date: string
 	[key: string]: any
@@ -133,7 +133,7 @@ const PatientsList: React.FC<PatientsListProps> = React.memo(
 						full_name: record.full_name,
 						phone: record.phone,
 						email: record.email,
-						date_of_birth: record.date_of_birth,
+						edad: record.edad,
 						lastVisit: record.created_at || record.date,
 						totalVisits: 1,
 					})
@@ -200,7 +200,12 @@ const PatientsList: React.FC<PatientsListProps> = React.memo(
 				if (aValue === null || aValue === undefined) aValue = ''
 				if (bValue === null || bValue === undefined) bValue = ''
 
-				if (typeof aValue === 'string') {
+				// Special handling for date_of_birth - avoid creating Date objects if possible
+				if (sortField === 'date_of_birth') {
+					// Use string comparison for dates (ISO format sorts correctly)
+					aValue = aValue || '0000-00-00'
+					bValue = bValue || '0000-00-00'
+				} else if (typeof aValue === 'string') {
 					// String comparison for text fields
 					aValue = aValue.toLowerCase()
 					bValue = bValue.toLowerCase()
@@ -333,11 +338,7 @@ const PatientsList: React.FC<PatientsListProps> = React.memo(
 											>
 												Email
 												<SortIcon field="email" />
-											</button>
-										</th>
-										<th className="w-[15%] px-4 py-3 text-center">
-											<span className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-												Última Visita
+												{patient.edad || 'N/A'}
 											</span>
 										</th>
 									</tr>
