@@ -396,7 +396,7 @@ const CasesTable: React.FC<CasesTableProps> = React.memo(
 		// Mobile Card Component - Memoized to prevent unnecessary re-renders
 		const CaseCard = useCallback(
 			({ case_ }: { case_: MedicalRecord }) => {
-				const ageDisplay = case_.date_of_birth ? getAgeDisplay(case_.date_of_birth) : ''
+				const ageDisplay = case_.edad || ''
 				const formattedDate = case_.created_at
 					? format(new Date(case_.created_at), 'dd/MM/yyyy', { locale: es })
 					: 'N/A'
