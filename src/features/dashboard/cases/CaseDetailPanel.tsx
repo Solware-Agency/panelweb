@@ -7,7 +7,6 @@ import {
 	FileText,
 	CheckCircle,
 	Hash,
-	Cake,
 	UserCheck,
 	Edit,
 	Trash2,
@@ -37,7 +36,6 @@ import { Input } from '@shared/components/ui/input'
 import { Textarea } from '@shared/components/ui/textarea'
 import { FormDropdown, createDropdownOptions } from '@shared/components/ui/form-dropdown'
 import { useAuth } from '@app/providers/AuthContext'
-import { cn } from '@shared/lib/cn'
 import {
 	parseDecimalNumber,
 	formatNumberForInput,
@@ -452,13 +450,6 @@ const CaseDetailPanel: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClos
 			</div>
 		)
 	}
-
-	// Format date of birth and get age display
-	const formattedDateOfBirth = case_.date_of_birth
-		? format(parseISO(case_.date_of_birth), 'dd/MM/yyyy', { locale: es })
-		: 'N/A'
-
-	const ageDisplay = case_.date_of_birth ? getAgeDisplay(case_.date_of_birth) : ''
 
 	// Función auxiliar para mostrar el símbolo correcto según el método
 	const getPaymentSymbol = (method?: string | null) => {

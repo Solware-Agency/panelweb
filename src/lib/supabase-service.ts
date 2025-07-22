@@ -6,59 +6,7 @@ import type { MedicalRecordInsert } from '@shared/types/types'
 import { generateMedicalRecordCode } from '@lib/code-generator'
 import { differenceInYears, differenceInMonths, parseISO } from 'date-fns'
 
-export interface MedicalRecord {
-	id?: string
-	full_name: string
-	id_number: string
-	phone: string
-	edad: string | null // Age with unit (e.g., "10 MESES", "12 AÑOS")
-	email?: string | null
-	date: string
-	exam_type: string
-	origin: string
-	treating_doctor: string
-	sample_type: string
-	number_of_samples: number
-	relationship?: string | null
-	branch: string
-	total_amount: number
-	exchange_rate?: number | null
-	payment_status: string
-	remaining: number
-	payment_method_1?: string | null
-	payment_amount_1?: number | null
-	payment_reference_1?: string | null
-	payment_method_2?: string | null
-	payment_amount_2?: number | null
-	payment_reference_2?: string | null
-	payment_method_3?: string | null
-	payment_amount_3?: number | null
-	payment_reference_3?: string | null
-	payment_method_4?: string | null
-	payment_amount_4?: number | null
-	payment_reference_4?: string | null
-	comments?: string | null
-	code?: string | null
-	created_at?: string
-	updated_at?: string
-	created_by?: string | null
-	created_by_display_name?: string | null
-	material_remitido?: string | null
-	informacion_clinica?: string | null
-	descripcion_macroscopica?: string | null
-	diagnostico?: string | null
-	comentario?: string | null
-	pdf_en_ready?: boolean | null
-	generated_by?: string | null
-	generated_by_display_name?: string | null
-	generated_at?: string | null
-	attachment_url?: string | null
-	inmunohistoquimica?: string | null
-	positivo?: string | null
-	negativo?: string | null
-	ki67?: string | null
-	conclusion_diagnostica?: string | null
-}
+export type MedicalRecord = Tables<'medical_records_clean'>
 
 export interface ChangeLog {
 	id?: string
