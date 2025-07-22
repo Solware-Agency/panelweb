@@ -20,7 +20,7 @@ interface PatientHistoryModalProps {
     full_name: string
     phone: string
     email: string | null
-    edad: string | null
+    date_of_birth: string | null
   } | null
 }
 
@@ -214,10 +214,22 @@ const PatientHistoryModal: React.FC<PatientHistoryModalProps> = ({ isOpen, onClo
 											<div className="text-red-500 dark:text-red-400">
 												<p className="text-lg font-medium">Error al cargar los casos</p>
 												<p className="text-sm mt-2">Verifica tu conexión a internet o contacta al administrador</p>
-											<p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">Edad:</p>
-											<p className="text-sm sm:text-base font-medium">
-												{patient.edad || <span className="text-gray-500 dark:text-gray-400">No disponible</span>}
-											</p>
+											</div>
+											{searchTerm && (
+												<Button onClick={() => setSearchTerm('')} variant="outline" className="mt-4">
+													Limpiar búsqueda
+												</Button>
+											)}
+										</div>
+									) : filteredCases.length === 0 ? (
+										<div className="text-center py-12">
+											<div className="text-gray-500 dark:text-gray-400">
+												<FileText className="h-12 w-12 mx-auto mb-4 opacity-50" />
+												<p className="text-lg font-medium">No se encontraron casos</p>
+												<p className="text-sm mt-2">
+													{searchTerm ? 'No hay casos que coincidan con tu búsqueda' : 'Este paciente no tiene casos registrados'}
+												</p>
+											</div>
 											{searchTerm && (
 												<Button onClick={() => setSearchTerm('')} variant="outline" className="mt-4">
 													Limpiar búsqueda
