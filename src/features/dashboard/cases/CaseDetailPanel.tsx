@@ -23,12 +23,11 @@ import {
 import { motion, AnimatePresence } from 'motion/react'
 import type { MedicalRecord } from '@lib/supabase-service'
 import {
-	getAgeDisplay,
 	deleteMedicalRecord,
 	updateMedicalRecordWithLog,
 	getChangeLogsForRecord,
 } from '@lib/supabase-service'
-import { format, parseISO } from 'date-fns'
+import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
 import { useQuery } from '@tanstack/react-query'
 import { supabase } from '@lib/supabase/config'
@@ -38,8 +37,6 @@ import { Input } from '@shared/components/ui/input'
 import { Textarea } from '@shared/components/ui/textarea'
 import { FormDropdown, createDropdownOptions } from '@shared/components/ui/form-dropdown'
 import { useAuth } from '@app/providers/AuthContext'
-import { Popover, PopoverContent, PopoverTrigger } from '@shared/components/ui/popover'
-import { Calendar } from '@shared/components/ui/calendar'
 import { cn } from '@shared/lib/cn'
 import {
 	parseDecimalNumber,
@@ -76,7 +73,6 @@ const CaseDetailPanel: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClos
 	const [isEditing, setIsEditing] = useState(false)
 	const [isSaving, setIsSaving] = useState(false)
 	const [editedCase, setEditedCase] = useState<Partial<MedicalRecord>>({})
-	const [isDateOfBirthOpen, setIsDateOfBirthOpen] = useState(false)
 	const [isAddPaymentModalOpen, setIsAddPaymentModalOpen] = useState(false)
 	const [newPayment, setNewPayment] = useState({
 		method: '',
@@ -157,7 +153,7 @@ const CaseDetailPanel: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClos
 				id_number: case_.id_number,
 				phone: case_.phone,
 				email: case_.email,
-				date_of_birth: case_.date_of_birth,
+				edad: case_.edad,
 				comments: case_.comments,
 				payment_method_1: case_.payment_method_1,
 				payment_amount_1: case_.payment_amount_1,
@@ -386,7 +382,7 @@ const CaseDetailPanel: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClos
 			id_number: 'Cédula',
 			phone: 'Teléfono',
 			email: 'Correo Electrónico',
-			date_of_birth: 'Fecha de Nacimiento',
+			edad: 'Edad',
 			comments: 'Comentarios',
 			payment_method_1: 'Método de Pago 1',
 			payment_amount_1: 'Monto de Pago 1',

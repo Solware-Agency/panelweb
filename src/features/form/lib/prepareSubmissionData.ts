@@ -15,11 +15,13 @@ export function prepareSubmissionData(data: FormValues, exchangeRate: number | u
 		
 	const paymentsColumns = mapPaymentsToColumns(payments)
 
+	// Format age as "value UNIT" (e.g., "10 MESES", "12 AÑOS")
+	const edad = data.ageValue && data.ageUnit ? `${data.ageValue} ${data.ageUnit}` : null
 	return {
 		full_name: data.fullName,
 		id_number: data.idNumber,
 		phone: data.phone,
-		date_of_birth: data.dateOfBirth ? format(data.dateOfBirth as Date, 'yyyy-MM-dd') : '', // Format date for database
+		edad: edad,
 		email: data.email,
 		exam_type: data.examType,
 		origin: data.origin,

@@ -2,8 +2,7 @@ import React from 'react'
 import { motion, AnimatePresence } from 'motion/react'
 import { X, User, FileText, DollarSign, AlertTriangle, Microscope } from 'lucide-react'
 import type { MedicalRecord } from '@lib/supabase-service'
-import { getAgeDisplay } from '@lib/supabase-service'
-import { format, parseISO } from 'date-fns'
+import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
 import { BranchBadge } from '@shared/components/ui/branch-badge'
 
@@ -20,13 +19,8 @@ const CaseDetailPanel: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClos
 	// Format date for display
 	const formattedDate = case_.date ? format(new Date(case_.date), 'dd/MM/yyyy', { locale: es }) : 'N/A'
 
-	// Get age display from date of birth
-	const ageDisplay = case_.date_of_birth ? getAgeDisplay(case_.date_of_birth) : ''
-
-	// Format date of birth for display
-	const formattedDateOfBirth = case_.date_of_birth
-		? format(parseISO(case_.date_of_birth), 'dd/MM/yyyy', { locale: es })
-		: 'N/A'
+	// Get age display
+	const ageDisplay = case_.edad || 'Sin edad'
 
 	// Get payment status color
 	const getStatusColor = (status: string) => {
@@ -113,10 +107,9 @@ const CaseDetailPanel: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClos
 									</div>
 									<div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
 										<div>
-											<p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">Fecha de nacimiento:</p>
+											<p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">Edad:</p>
 											<p className="text-sm sm:text-base font-medium">
-												{formattedDateOfBirth}
-												{ageDisplay && <span className="ml-2 text-xs sm:text-sm text-blue-600">({ageDisplay})</span>}
+												{ageDisplay}
 											</p>
 										</div>
 										<div>

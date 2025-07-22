@@ -2,7 +2,6 @@ import { useState } from 'react'
 import { supabase } from '@lib/supabase/config'
 import { type UseFormSetValue } from 'react-hook-form'
 import type { FormValues } from '@features/form/lib/form-schema'
-import { parseISO } from 'date-fns'
 
 export const usePatientAutofill = (setValue: UseFormSetValue<FormValues>) => {
 	const [isLoading, setIsLoading] = useState(false)
@@ -17,7 +16,7 @@ export const usePatientAutofill = (setValue: UseFormSetValue<FormValues>) => {
 			// Buscar el registro más reciente con esta cédula
 			const { data, error } = await supabase
 				.from('medical_records_clean')
-				.select('full_name, phone, date_of_birth, email')
+				.select('full_name, phone, edad, email')
 				.eq('id_number', idNumber)
 				.order('created_at', { ascending: false })
 				.limit(1)
@@ -42,13 +41,22 @@ export const usePatientAutofill = (setValue: UseFormSetValue<FormValues>) => {
 					setValue('phone', data.phone)
 					setValue('email', data.email || '')
 					
-					// Convert date_of_birth string to Date object
-					if (data.date_of_birth) {
+					// Parse edad string to ageValue and ageUnit
+					if (data.edad) {
 						try {
-							const birthDate = parseISO(data.date_of_birth)
-							setValue('dateOfBirth', birthDate)
+							// Parse "10 MESES" or "12 AÑOS" format
+							const parts = data.edad.split(' ')
+							if (parts.length === 2) {
+								const ageValue = parseInt(parts[0], 10)
+								const ageUnit = parts[1] as 'MESES' | 'AÑOS'
+								
+								if (!isNaN(ageValue) && (ageUnit === 'MESES' || ageUnit === 'AÑOS')) {
+									setValue('ageValue', ageValue)
+									setValue('ageUnit', ageUnit)
+								}
+							}
 						} catch (error) {
-							console.error('Error parsing date of birth:', error)
+							console.error('Error parsing edad:', error)
 						}
 					}
 

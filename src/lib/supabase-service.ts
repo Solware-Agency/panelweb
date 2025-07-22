@@ -11,7 +11,7 @@ export interface MedicalRecord {
 	full_name: string
 	id_number: string
 	phone: string
-	date_of_birth: string // Changed from age: number to date_of_birth: string
+	edad: string | null // Age with unit (e.g., "10 MESES", "12 AÑOS")
 	email?: string | null
 	date: string
 	exam_type: string
@@ -73,38 +73,10 @@ export interface ChangeLog {
 	created_at?: string
 }
 
-// Helper function to calculate age from date of birth
-export const calculateAge = (dateOfBirth: string): number => {
-	if (!dateOfBirth) return 0
-	try {
-		const birthDate = parseISO(dateOfBirth)
-		return differenceInYears(new Date(), birthDate)
-	} catch (error) {
-		console.error('Error calculating age:', error)
-		return 0
-	}
-}
-
-// Helper function to get age display text (years or months)
-export const getAgeDisplay = (dateOfBirth: string): string => {
-	if (!dateOfBirth) return '0 años'
-	try {
-		const birthDate = parseISO(dateOfBirth)
-		const now = new Date()
-		const years = differenceInYears(now, birthDate)
-
-		if (years === 0) {
-			// For babies, show months
-			const months = differenceInMonths(now, birthDate)
-			return `${months} ${months === 1 ? 'mes' : 'meses'}`
-		} else {
-			// For older patients, show years
-			return `${years} ${years === 1 ? 'año' : 'años'}`
-		}
-	} catch (error) {
-		console.error('Error calculating age display:', error)
-		return '0 años'
-	}
+// Helper function to format age display
+export const getAgeDisplay = (edad: string | null): string => {
+	if (!edad) return 'Sin edad'
+	return edad
 }
 
 // Nombre de la tabla nueva y limpia
@@ -183,7 +155,7 @@ export const insertMedicalRecord = async (
 			full_name: submissionData.full_name,
 			id_number: submissionData.id_number,
 			phone: submissionData.phone,
-			date_of_birth: submissionData.date_of_birth,
+			edad: submissionData.edad,
 			email: submissionData.email || undefined,
 			date: submissionData.date,
 			exam_type: submissionData.exam_type,
