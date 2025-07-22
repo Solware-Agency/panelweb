@@ -13,6 +13,11 @@ import { useState } from 'react'
 import { User, Phone, CreditCard, Mail } from 'lucide-react'
 import { cn } from '@shared/lib/cn'
 import { Popover, PopoverContent, PopoverTrigger } from '@shared/components/ui/popover'
+import { Button } from '@shared/components/ui/button'
+import { Calendar } from '@shared/components/ui/calendar'
+import { CalendarIcon } from 'lucide-react'
+import { format } from 'date-fns'
+import { es } from 'date-fns/locale'
 
 interface PatientDataSectionProps {
 	control: Control<FormValues>
