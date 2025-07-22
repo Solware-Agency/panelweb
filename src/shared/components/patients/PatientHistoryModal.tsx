@@ -214,18 +214,9 @@ const PatientHistoryModal: React.FC<PatientHistoryModalProps> = ({ isOpen, onClo
 											<div className="text-red-500 dark:text-red-400">
 												<p className="text-lg font-medium">Error al cargar los casos</p>
 												<p className="text-sm mt-2">Verifica tu conexión a internet o contacta al administrador</p>
-												<Button onClick={() => refetch()} className="mt-4 bg-red-500 hover:bg-red-600 text-white">
-													Reintentar
-												</Button>
-											</div>
-										</div>
-									) : filteredCases.length === 0 ? (
-										<div className="text-center py-12">
-											<FileText className="mx-auto h-12 w-12 text-gray-400 dark:text-gray-600 mb-4" />
-											<p className="text-lg font-medium text-gray-700 dark:text-gray-300">
-												{searchTerm
-													? 'No se encontraron casos que coincidan con la búsqueda'
-													: 'No hay casos registrados para este paciente'}
+											<p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">Edad:</p>
+											<p className="text-sm sm:text-base font-medium">
+												{patient.edad || <span className="text-gray-500 dark:text-gray-400">No disponible</span>}
 											</p>
 											{searchTerm && (
 												<Button onClick={() => setSearchTerm('')} variant="outline" className="mt-4">

@@ -16,7 +16,7 @@ interface PatientData {
 	full_name: string
 	phone: string
 	email: string | null
-	date_of_birth: string | null
+	edad: string | null
 	lastVisit: string
 	totalVisits: number
 }
@@ -28,7 +28,7 @@ interface MedicalRecord {
 	id_number: string
 	phone: string
 	email: string | null
-	date_of_birth: string | null
+	edad: string | null
 	created_at: string
 	date: string
 	[key: string]: any
@@ -200,12 +200,7 @@ const PatientsList: React.FC<PatientsListProps> = React.memo(
 				if (aValue === null || aValue === undefined) aValue = ''
 				if (bValue === null || bValue === undefined) bValue = ''
 
-				// Special handling for date_of_birth - avoid creating Date objects if possible
-				if (sortField === 'date_of_birth') {
-					// Use string comparison for dates (ISO format sorts correctly)
-					aValue = aValue || '0000-00-00'
-					bValue = bValue || '0000-00-00'
-				} else if (typeof aValue === 'string') {
+				if (typeof aValue === 'string') {
 					// String comparison for text fields
 					aValue = aValue.toLowerCase()
 					bValue = bValue.toLowerCase()
