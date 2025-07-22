@@ -20,7 +20,7 @@ interface PatientHistoryModalProps {
     full_name: string
     phone: string
     email: string | null
-    date_of_birth: string | null
+    edad: string | null
   } | null
 }
 
