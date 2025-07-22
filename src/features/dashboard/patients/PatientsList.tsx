@@ -409,13 +409,8 @@ const PatientsList: React.FC<PatientsListProps> = React.memo(
 												<div className="flex items-center">
 													<Calendar className="h-3 w-3 text-gray-400 mr-1 flex-shrink-0" />
 													<span className="text-gray-600 dark:text-gray-300 text-xs">
-														{patient.date_of_birth ? (
-															<>
-																{format(parseISO(patient.date_of_birth), 'dd/MM/yyyy', { locale: es })}
-																<span className="ml-1 text-blue-600 dark:text-blue-400">
-																	({getAgeDisplay(patient.date_of_birth)})
-																</span>
-															</>
+														{patient.edad ? (
+															patient.edad
 														) : (
 															'N/A'
 														)}

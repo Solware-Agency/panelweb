@@ -156,14 +156,8 @@ export async function generatePDF(caseData: MedicalRecord): Promise<void> {
 		addField('Nombre', caseData.full_name)
 		addField('Cédula', caseData.id_number)
 
-		// Format date of birth and calculate age
-		const formattedDateOfBirth = caseData.date_of_birth
-			? format(parseISO(caseData.date_of_birth), 'dd/MM/yyyy', { locale: es })
-			: 'N/A'
-
-		const ageDisplay = caseData.date_of_birth ? getAgeDisplay(caseData.date_of_birth) : ''
-
-		addField('Fecha de Nacimiento', formattedDateOfBirth + (ageDisplay ? ` (${ageDisplay})` : ''))
+		// Add age field
+		addField('Edad', caseData.edad || 'Sin edad')
 		addField('Teléfono', caseData.phone)
 		addField('Email', caseData.email)
 

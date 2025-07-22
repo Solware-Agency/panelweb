@@ -396,7 +396,7 @@ const CasesTable: React.FC<CasesTableProps> = React.memo(
 		// Mobile Card Component - Memoized to prevent unnecessary re-renders
 		const CaseCard = useCallback(
 			({ case_ }: { case_: MedicalRecord }) => {
-				const ageDisplay = case_.edad || ''
+				const ageDisplay = case_.date_of_birth ? getAgeDisplay(case_.date_of_birth) : ''
 				const formattedDate = case_.created_at
 					? format(new Date(case_.created_at), 'dd/MM/yyyy', { locale: es })
 					: 'N/A'
@@ -1085,7 +1085,7 @@ const CasesTable: React.FC<CasesTableProps> = React.memo(
 										{filteredAndSortedCases.filtered.length > 0 ? (
 											// Only render the first 100 rows for better performance
 											filteredAndSortedCases.filtered.slice(0, 100).map((case_) => {
-												const ageDisplay = case_.date_of_birth ? getAgeDisplay(case_.date_of_birth) : ''
+												const ageDisplay = case_.edad || ''
 
 												return (
 													<tr key={case_.id} className="hover:bg-gray-50 dark:hover:bg-gray-800/50">

@@ -164,15 +164,10 @@ const PatientHistoryModal: React.FC<PatientHistoryModalProps> = ({ isOpen, onClo
 												</div>
 											)}
 
-											{patient.date_of_birth && (
+											{patient.edad && (
 												<div className="flex items-center gap-1 text-sm">
 													<Cake className="h-4 w-4 text-gray-500" />
-													<span>
-														{format(parseISO(patient.date_of_birth), 'dd/MM/yyyy', { locale: es })}
-														<span className="ml-1 text-blue-600 dark:text-blue-400">
-															({getAgeDisplay(patient.date_of_birth)})
-														</span>
-													</span>
+													<span>{patient.edad}</span>
 												</div>
 											)}
 										</div>
