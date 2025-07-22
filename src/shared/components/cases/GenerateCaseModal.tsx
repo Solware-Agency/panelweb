@@ -23,7 +23,6 @@ const biopsyCaseSchema = z.object({
 	descripcion_macroscopica: z.string().min(1, 'Este campo es requerido'),
 	diagnostico: z.string().min(1, 'Este campo es requerido'),
 	comentario: z.string().optional(),
-	attachment: z.any().optional(),
 })
 
 const immunohistochemistryCaseSchema = z.object({
@@ -36,13 +35,11 @@ const immunohistochemistryCaseSchema = z.object({
 	ki67: z.string().min(1, 'Este campo es requerido'),
 	conclusion_diagnostica: z.string().min(1, 'Este campo es requerido'),
 	comentario: z.string().optional(),
-	attachment: z.any().optional(),
 })
 
 const cytologyCaseSchema = z.object({
 	case_type: z.literal('citologia'),
 	descripcion_macroscopica: z.string().default('Se recibe una (01) lámina con material celular, previamente fijado. Teñido con Papanicolaou para estudio citológico.'),
-	attachment: z.any().optional(),
 })
 
 // Union type for all case schemas
@@ -191,9 +188,17 @@ const GenerateCaseModal: React.FC<GenerateCaseModalProps> = ({ case_, isOpen, on
 			// Handle file upload if present
 			let attachmentUrl = null
 			if (selectedFile) {
-				// In a real implementation, you would upload the file to Supabase Storage
-				// For now, we'll just store the filename
-				attachmentUrl = selectedFile.name
+				// Store the filename for now - in production you would upload to Supabase Storage
+				// and get the actual URL back
+				attachmentUrl = `attachments/${case_.id}/${selectedFile.name}`
+				
+				// TODO: Implement actual file upload to Supabase Storage
+				// const { data: uploadData, error: uploadError } = await supabase.storage
+				//   .from('case-attachments')
+				//   .upload(`${case_.id}/${selectedFile.name}`, selectedFile)
+				// if (!uploadError) {
+				//   attachmentUrl = uploadData.path
+				// }
 			}
 
 			// Prepare updates based on case type
@@ -248,6 +253,17 @@ const GenerateCaseModal: React.FC<GenerateCaseModalProps> = ({ case_, isOpen, on
 						field: 'diagnostico',
 						fieldLabel: 'Diagnóstico',
 						oldValue: case_.diagnostico || null,
+			material_remitido: 'Material Remitido',
+			informacion_clinica: 'Información Clínica',
+			descripcion_macroscopica: 'Descripción Macroscópica',
+			diagnostico: 'Diagnóstico',
+			comentario: 'Comentario',
+			inmunohistoquimica: 'Inmunohistoquímica',
+			positivo: 'Positivo',
+			negativo: 'Negativo',
+			ki67: 'Ki67',
+			conclusion_diagnostica: 'Conclusión Diagnóstica',
+			attachment_url: 'Archivo Adjunto',
 						newValue: data.diagnostico,
 					})
 				}

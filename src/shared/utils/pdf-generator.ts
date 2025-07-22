@@ -368,6 +368,13 @@ export async function generatePDF(caseData: MedicalRecord): Promise<void> {
 			yPos = result.yPos
 		}
 
+		// Add attachment information if present
+		if (caseData.attachment_url) {
+			result = addMultilineField('Archivo Adjunto', `Archivo: ${caseData.attachment_url.split('/').pop() || caseData.attachment_url}`, page, yPos, pdfDoc)
+			page = result.page
+			yPos = result.yPos
+		}
+
 		// Fetch and embed the signature image
 		let signatureImage: PDFImage | undefined
 		try {

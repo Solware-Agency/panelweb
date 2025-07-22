@@ -52,14 +52,12 @@ export interface MedicalRecord {
 	generated_by?: string | null
 	generated_by_display_name?: string | null
 	generated_at?: string | null
-	// New fields for immunohistochemistry
+	attachment_url?: string | null
 	inmunohistoquimica?: string | null
 	positivo?: string | null
 	negativo?: string | null
 	ki67?: string | null
 	conclusion_diagnostica?: string | null
-	// New field for file attachments
-	attachment_url?: string | null
 }
 
 export interface ChangeLog {

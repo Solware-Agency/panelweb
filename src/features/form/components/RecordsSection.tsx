@@ -75,8 +75,13 @@ export const RecordsSection: React.FC<RecordsSectionProps> = ({
 		// If showPdfReadyOnly is true, filter to show only cases with PDF ready
 		if (showPdfReadyOnly) {
 			filtered = filtered.filter((c) => {
-				const isBiopsyCase = c.exam_type?.toLowerCase() === 'biopsia'
-				const hasDownloadableContent = isBiopsyCase && !!c.diagnostico
+				const examType = c.exam_type?.toLowerCase().trim() || ''
+				const isGeneratableCase = examType.includes('biops') || examType.includes('inmuno') || examType.includes('citolog')
+				const hasDownloadableContent = isGeneratableCase && (
+					!!c.diagnostico || 
+					!!c.conclusion_diagnostica || 
+					(examType.includes('citolog') && !!c.descripcion_macroscopica)
+				)
 				return hasDownloadableContent
 			})
 		}
@@ -190,16 +195,13 @@ export const RecordsSection: React.FC<RecordsSectionProps> = ({
 	const pdfReadyCases = useMemo(() => {
 		return (
 			cases?.filter((c) => {
-				// Normalizar el tipo de examen usando la misma lógica
 				const type = c.exam_type?.toLowerCase().trim()
 				const isGeneratableCase = type?.includes('biops') || type?.includes('inmuno') || type?.includes('citolog')
-				const isPending = c.payment_status?.toLowerCase().trim() !== 'completado'
 				const hasContent = c.diagnostico || c.conclusion_diagnostica || 
 					(type?.includes('citolog') && c.descripcion_macroscopica)
-				const noContent = !hasContent
 
-				// Solo contar casos generables pendientes sin contenido
-				return isGeneratableCase && isPending && noContent
+				// Contar casos generables con contenido (PDF disponibles)
+				return isGeneratableCase && hasContent
 			}).length || 0
 		)
 	}, [cases])
