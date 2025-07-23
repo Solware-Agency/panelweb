@@ -38,7 +38,7 @@ export const PatientDataSection = memo(({ control, inputStyles }: PatientDataSec
 	)
 
 	return (
-		<Card className="transition-all duration-300 hover:border-primary hover:shadow-lg hover:shadow-primary/20">
+		<Card className="hover:border-primary hover:shadow-lg hover:shadow-primary/20">
 			<CardHeader className="p-4 sm:p-6">
 				<CardTitle className="text-base sm:text-lg">
 					Datos del Paciente
@@ -144,13 +144,13 @@ export const PatientDataSection = memo(({ control, inputStyles }: PatientDataSec
 				{/* Fecha de Nacimiento - CON CALENDARIO */}
 				{/* Edad - CON VALOR Y UNIDAD */}
 				<div className="col-span-1 sm:col-span-2 lg:col-span-1">
-					<FormLabel className="text-sm sm:text-base mb-2 block">Edad *</FormLabel>
 					<div className="grid grid-cols-2 gap-2">
 						<FormField
 							control={control}
 							name="ageValue"
 							render={({ field }) => (
-								<FormItem>
+								<FormItem className="space-y-2 flex flex-col col-span-1">
+									<FormLabel>Edad</FormLabel>
 									<FormControl>
 										<Input
 											type="number"
@@ -173,7 +173,8 @@ export const PatientDataSection = memo(({ control, inputStyles }: PatientDataSec
 							control={control}
 							name="ageUnit"
 							render={({ field }) => (
-								<FormItem>
+								<FormItem className="space-y-2 flex flex-col col-span-1">
+									<FormLabel className="text-transparent">Unidad</FormLabel>
 									<FormControl>
 										<FormDropdown
 											options={createDropdownOptions(['MESES', 'AÑOS'])}
