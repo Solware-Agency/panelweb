@@ -107,28 +107,28 @@ const UnifiedCaseModal: React.FC<UnifiedCaseModalProps> = ({ case_, isOpen, onCl
 	const addPaymentMethod = () => {
 		// Find the first empty payment method slot
 		if (!formData.payment_method_1) {
-			setFormData((prev) => ({
+			setFormData((prev: Partial<MedicalRecord>) => ({
 				...prev,
 				payment_method_1: '',
 				payment_amount_1: 0,
 				payment_reference_1: '',
 			}))
 		} else if (!formData.payment_method_2) {
-			setFormData((prev) => ({
+			setFormData((prev: Partial<MedicalRecord>) => ({
 				...prev,
 				payment_method_2: '',
 				payment_amount_2: 0,
 				payment_reference_2: '',
 			}))
 		} else if (!formData.payment_method_3) {
-			setFormData((prev) => ({
+			setFormData((prev: Partial<MedicalRecord>) => ({
 				...prev,
 				payment_method_3: '',
 				payment_amount_3: 0,
 				payment_reference_3: '',
 			}))
 		} else if (!formData.payment_method_4) {
-			setFormData((prev) => ({
+			setFormData((prev: Partial<MedicalRecord>) => ({
 				...prev,
 				payment_method_4: '',
 				payment_amount_4: 0,
@@ -145,7 +145,7 @@ const UnifiedCaseModal: React.FC<UnifiedCaseModalProps> = ({ case_, isOpen, onCl
 
 	// Function to remove a payment method
 	const removePaymentMethod = (index: number) => {
-		setFormData((prev) => {
+		setFormData((prev: Partial<MedicalRecord>) => {
 			const updated = { ...prev }
 			// Clear the specified payment method
 			updated[`payment_method_${index}` as keyof typeof updated] = undefined
@@ -155,8 +155,8 @@ const UnifiedCaseModal: React.FC<UnifiedCaseModalProps> = ({ case_, isOpen, onCl
 		})
 	}
 
-	const handleInputChange = (field: keyof MedicalRecord, value: any) => {
-		setFormData((prev) => ({
+	const handleInputChange = (field: keyof MedicalRecord, value: string | number | undefined) => {
+		setFormData((prev: Partial<MedicalRecord>) => ({
 			...prev,
 			[field]: value,
 		}))
