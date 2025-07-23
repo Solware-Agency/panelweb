@@ -2,7 +2,6 @@ import { mapPaymentsToColumns } from '@features/form/lib/payment/payment-mapper'
 import { calculatePaymentDetails } from '@features/form/lib/payment/payment-utils'
 import { type FormValues } from '@features/form/lib/form-schema'
 import type { MedicalRecordInsert } from '@shared/types/types'
-import { format } from 'date-fns'
 
 export function prepareSubmissionData(data: FormValues, exchangeRate: number | undefined): MedicalRecordInsert {
 	// If total amount is 0, payment is automatically complete

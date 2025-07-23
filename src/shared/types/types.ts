@@ -4,21 +4,21 @@ export type Database = {
 			a_usuarios: {
 				Row: {
 					automatizaciones_sugeridas: string[] | null
-					historial: any | null
+					historial: unknown | null
 					nombre_cliente: string | null
 					tipo_negocio: string | null
 					user_id: string
 				}
 				Insert: {
 					automatizaciones_sugeridas?: string[] | null
-					historial?: any | null
+					historial: unknown | null
 					nombre_cliente?: string | null
 					tipo_negocio?: string | null
 					user_id: string
 				}
 				Update: {
 					automatizaciones_sugeridas?: string[] | null
-					historial?: any | null
+					historial: unknown | null
 					nombre_cliente?: string | null
 					tipo_negocio?: string | null
 					user_id?: string
