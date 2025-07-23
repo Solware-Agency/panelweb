@@ -8,7 +8,6 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Button } from '@shared/components/ui/button'
 import { Textarea } from '@shared/components/ui/textarea'
 import { Input } from '@shared/components/ui/input'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@shared/components/ui/select'
 import { useToast } from '@shared/hooks/use-toast'
 import { useAuth } from '@app/providers/AuthContext'
 import { useUserProfile } from '@shared/hooks/useUserProfile'
@@ -28,8 +27,16 @@ const biopsyCaseSchema = z.object({
 const immunohistochemistryCaseSchema = z.object({
 	case_type: z.literal('inmunohistoquimica'),
 	informacion_clinica: z.string().min(1, 'Este campo es requerido'),
-	descripcion_macroscopica: z.string().default('Se recibe bloque de parafina y lámina, identificados con el número... procesados para estudio de inmunohistoquímica'),
-	inmunohistoquimica: z.string().default('Utilizando la técnica de avidina-estreptavidina, el método de recuperación antigénica y controles positivos, se probaron los siguientes anticuerpos'),
+	descripcion_macroscopica: z
+		.string()
+		.default(
+			'Se recibe bloque de parafina y lámina, identificados con el número... procesados para estudio de inmunohistoquímica',
+		),
+	inmunohistoquimica: z
+		.string()
+		.default(
+			'Utilizando la técnica de avidina-estreptavidina, el método de recuperación antigénica y controles positivos, se probaron los siguientes anticuerpos',
+		),
 	positivo: z.string().min(1, 'Este campo es requerido'),
 	negativo: z.string().min(1, 'Este campo es requerido'),
 	ki67: z.string().min(1, 'Este campo es requerido'),
@@ -39,17 +46,17 @@ const immunohistochemistryCaseSchema = z.object({
 
 const cytologyCaseSchema = z.object({
 	case_type: z.literal('citologia'),
-	descripcion_macroscopica: z.string().default('Se recibe una (01) lámina con material celular, previamente fijado. Teñido con Papanicolaou para estudio citológico.'),
+	descripcion_macroscopica: z
+		.string()
+		.default(
+			'Se recibe una (01) lámina con material celular, previamente fijado. Teñido con Papanicolaou para estudio citológico.',
+		),
 })
 
-// Union type for all case schemas
-const caseSchema = z.discriminatedUnion('case_type', [
-	biopsyCaseSchema,
-	immunohistochemistryCaseSchema,
-	cytologyCaseSchema,
-])
-
-type CaseFormData = z.infer<typeof caseSchema>
+type CaseFormData =
+	| z.infer<typeof biopsyCaseSchema>
+	| z.infer<typeof immunohistochemistryCaseSchema>
+	| z.infer<typeof cytologyCaseSchema>
 
 interface GenerateCaseModalProps {
 	case_: MedicalRecord | null
@@ -100,8 +107,10 @@ const GenerateCaseModal: React.FC<GenerateCaseModalProps> = ({ case_, isOpen, on
 			}),
 			...(caseType === 'inmunohistoquimica' && {
 				informacion_clinica: case_?.informacion_clinica || '',
-				descripcion_macroscopica: 'Se recibe bloque de parafina y lámina, identificados con el número... procesados para estudio de inmunohistoquímica',
-				inmunohistoquimica: 'Utilizando la técnica de avidina-estreptavidina, el método de recuperación antigénica y controles positivos, se probaron los siguientes anticuerpos',
+				descripcion_macroscopica:
+					'Se recibe bloque de parafina y lámina, identificados con el número... procesados para estudio de inmunohistoquímica',
+				inmunohistoquimica:
+					'Utilizando la técnica de avidina-estreptavidina, el método de recuperación antigénica y controles positivos, se probaron los siguientes anticuerpos',
 				positivo: '',
 				negativo: '',
 				ki67: '',
@@ -109,7 +118,8 @@ const GenerateCaseModal: React.FC<GenerateCaseModalProps> = ({ case_, isOpen, on
 				comentario: '',
 			}),
 			...(caseType === 'citologia' && {
-				descripcion_macroscopica: 'Se recibe una (01) lámina con material celular, previamente fijado. Teñido con Papanicolaou para estudio citológico.',
+				descripcion_macroscopica:
+					'Se recibe una (01) lámina con material celular, previamente fijado. Teñido con Papanicolaou para estudio citológico.',
 			}),
 		} as CaseFormData,
 	})
@@ -129,8 +139,10 @@ const GenerateCaseModal: React.FC<GenerateCaseModalProps> = ({ case_, isOpen, on
 				}),
 				...(newCaseType === 'inmunohistoquimica' && {
 					informacion_clinica: case_.informacion_clinica || '',
-					descripcion_macroscopica: 'Se recibe bloque de parafina y lámina, identificados con el número... procesados para estudio de inmunohistoquímica',
-					inmunohistoquimica: 'Utilizando la técnica de avidina-estreptavidina, el método de recuperación antigénica y controles positivos, se probaron los siguientes anticuerpos',
+					descripcion_macroscopica:
+						'Se recibe bloque de parafina y lámina, identificados con el número... procesados para estudio de inmunohistoquímica',
+					inmunohistoquimica:
+						'Utilizando la técnica de avidina-estreptavidina, el método de recuperación antigénica y controles positivos, se probaron los siguientes anticuerpos',
 					positivo: '',
 					negativo: '',
 					ki67: '',
@@ -138,7 +150,8 @@ const GenerateCaseModal: React.FC<GenerateCaseModalProps> = ({ case_, isOpen, on
 					comentario: '',
 				}),
 				...(newCaseType === 'citologia' && {
-					descripcion_macroscopica: 'Se recibe una (01) lámina con material celular, previamente fijado. Teñido con Papanicolaou para estudio citológico.',
+					descripcion_macroscopica:
+						'Se recibe una (01) lámina con material celular, previamente fijado. Teñido con Papanicolaou para estudio citológico.',
 				}),
 			} as CaseFormData)
 		}
@@ -148,7 +161,14 @@ const GenerateCaseModal: React.FC<GenerateCaseModalProps> = ({ case_, isOpen, on
 		const file = event.target.files?.[0]
 		if (file) {
 			// Validate file type and size
-			const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document']
+			const allowedTypes = [
+				'image/jpeg',
+				'image/png',
+				'image/gif',
+				'application/pdf',
+				'application/msword',
+				'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+			]
 			const maxSize = 10 * 1024 * 1024 // 10MB
 
 			if (!allowedTypes.includes(file.type)) {
@@ -177,10 +197,10 @@ const GenerateCaseModal: React.FC<GenerateCaseModalProps> = ({ case_, isOpen, on
 		if (!case_ || !user) return
 
 		setIsSaving(true)
-		
+
 		// Get current timestamp for generated_at
 		const now = new Date().toISOString()
-		
+
 		try {
 			// Prepare changes for logging
 			const changes = []
@@ -191,7 +211,7 @@ const GenerateCaseModal: React.FC<GenerateCaseModalProps> = ({ case_, isOpen, on
 				// Store the filename for now - in production you would upload to Supabase Storage
 				// and get the actual URL back
 				attachmentUrl = `attachments/${case_.id}/${selectedFile.name}`
-				
+
 				// TODO: Implement actual file upload to Supabase Storage
 				// const { data: uploadData, error: uploadError } = await supabase.storage
 				//   .from('case-attachments')
@@ -202,7 +222,7 @@ const GenerateCaseModal: React.FC<GenerateCaseModalProps> = ({ case_, isOpen, on
 			}
 
 			// Prepare updates based on case type
-			let updatesWithGeneratedBy: any = {
+			let updatesWithGeneratedBy: Partial<MedicalRecord> = {
 				generated_by: user.id,
 				generated_by_display_name: profile?.display_name || user.email,
 				generated_at: now,
@@ -253,17 +273,17 @@ const GenerateCaseModal: React.FC<GenerateCaseModalProps> = ({ case_, isOpen, on
 						field: 'diagnostico',
 						fieldLabel: 'Diagnóstico',
 						oldValue: case_.diagnostico || null,
-			material_remitido: 'Material Remitido',
-			informacion_clinica: 'Información Clínica',
-			descripcion_macroscopica: 'Descripción Macroscópica',
-			diagnostico: 'Diagnóstico',
-			comentario: 'Comentario',
-			inmunohistoquimica: 'Inmunohistoquímica',
-			positivo: 'Positivo',
-			negativo: 'Negativo',
-			ki67: 'Ki67',
-			conclusion_diagnostica: 'Conclusión Diagnóstica',
-			attachment_url: 'Archivo Adjunto',
+						material_remitido: 'Material Remitido',
+						informacion_clinica: 'Información Clínica',
+						descripcion_macroscopica: 'Descripción Macroscópica',
+						diagnostico: 'Diagnóstico',
+						comentario: 'Comentario',
+						inmunohistoquimica: 'Inmunohistoquímica',
+						positivo: 'Positivo',
+						negativo: 'Negativo',
+						ki67: 'Ki67',
+						conclusion_diagnostica: 'Conclusión Diagnóstica',
+						attachment_url: 'Archivo Adjunto',
 						newValue: data.diagnostico,
 					})
 				}
@@ -273,7 +293,7 @@ const GenerateCaseModal: React.FC<GenerateCaseModalProps> = ({ case_, isOpen, on
 						field: 'comentario',
 						fieldLabel: 'Comentario',
 						oldValue: case_.comentario || null,
-						newValue: data.comentario,
+						newValue: data.comentario || null,
 					})
 				}
 			} else if (data.case_type === 'inmunohistoquimica') {
@@ -321,20 +341,20 @@ const GenerateCaseModal: React.FC<GenerateCaseModalProps> = ({ case_, isOpen, on
 					newValue: attachmentUrl,
 				})
 			}
-			
+
 			// Add generated_by to changes log
 			changes.push({
 				field: 'generated_by',
 				fieldLabel: 'Generado Por',
 				oldValue: case_.generated_by || null,
-				newValue: user.id
+				newValue: user.id,
 			})
-			
+
 			changes.push({
 				field: 'pdf_en_ready',
 				fieldLabel: 'PDF Listo',
 				oldValue: case_.pdf_en_ready || false,
-				newValue: true
+				newValue: true,
 			})
 
 			// Update record with changes
@@ -411,7 +431,7 @@ const GenerateCaseModal: React.FC<GenerateCaseModalProps> = ({ case_, isOpen, on
 					<motion.div
 						initial={{ x: '100%' }}
 						animate={{ x: 0 }}
-						exit={{ x: '100%' }} 
+						exit={{ x: '100%' }}
 						transition={{ type: 'spring', damping: 25, stiffness: 200 }}
 						className="fixed right-0 top-0 h-full w-full sm:w-2/3 lg:w-1/2 xl:w-2/5 bg-white dark:bg-background shadow-2xl z-[999999999] overflow-y-auto border-l border-input flex flex-col"
 					>
@@ -612,11 +632,7 @@ const GenerateCaseModal: React.FC<GenerateCaseModalProps> = ({ case_, isOpen, on
 														<FormItem>
 															<FormLabel>Positivo *</FormLabel>
 															<FormControl>
-																<Input
-																	placeholder="Anticuerpos positivos"
-																	className="text-sm"
-																	{...field}
-																/>
+																<Input placeholder="Anticuerpos positivos" className="text-sm" {...field} />
 															</FormControl>
 															<FormMessage />
 														</FormItem>
@@ -630,11 +646,7 @@ const GenerateCaseModal: React.FC<GenerateCaseModalProps> = ({ case_, isOpen, on
 														<FormItem>
 															<FormLabel>Negativo *</FormLabel>
 															<FormControl>
-																<Input
-																	placeholder="Anticuerpos negativos"
-																	className="text-sm"
-																	{...field}
-																/>
+																<Input placeholder="Anticuerpos negativos" className="text-sm" {...field} />
 															</FormControl>
 															<FormMessage />
 														</FormItem>
@@ -648,11 +660,7 @@ const GenerateCaseModal: React.FC<GenerateCaseModalProps> = ({ case_, isOpen, on
 														<FormItem>
 															<FormLabel>Ki67 *</FormLabel>
 															<FormControl>
-																<Input
-																	placeholder="Valor Ki67"
-																	className="text-sm"
-																	{...field}
-																/>
+																<Input placeholder="Valor Ki67" className="text-sm" {...field} />
 															</FormControl>
 															<FormMessage />
 														</FormItem>
@@ -726,8 +734,8 @@ const GenerateCaseModal: React.FC<GenerateCaseModalProps> = ({ case_, isOpen, on
 													</span>
 												</div>
 												<p className="text-sm text-blue-700 dark:text-blue-400">
-													Para casos de citología, solo se requiere subir el archivo correspondiente. 
-													El PDF se generará automáticamente con el texto estándar y la información del paciente.
+													Para casos de citología, solo se requiere subir el archivo correspondiente. El PDF se generará
+													automáticamente con el texto estándar y la información del paciente.
 												</p>
 											</div>
 										</div>
@@ -737,9 +745,7 @@ const GenerateCaseModal: React.FC<GenerateCaseModalProps> = ({ case_, isOpen, on
 									<div className="space-y-4 pt-4 border-t border-gray-200 dark:border-gray-700">
 										<div className="flex items-center gap-2">
 											<Upload className="w-5 h-5 text-gray-600 dark:text-gray-400" />
-											<h3 className="text-base font-semibold text-gray-900 dark:text-gray-100">
-												Archivo Adjunto
-											</h3>
+											<h3 className="text-base font-semibold text-gray-900 dark:text-gray-100">Archivo Adjunto</h3>
 										</div>
 
 										<div className="space-y-2">

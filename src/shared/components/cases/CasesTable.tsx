@@ -44,7 +44,7 @@ interface CasesTableProps {
 	onCaseSelect?: (case_: MedicalRecord) => void
 }
 
-type SortField = 'id' | 'created_at' | 'full_name' | 'date_of_birth' | 'total_amount' | 'code'
+type SortField = 'id' | 'created_at' | 'full_name' | 'total_amount' | 'code'
 type SortDirection = 'asc' | 'desc'
 
 const CasesTable: React.FC<CasesTableProps> = React.memo(
@@ -71,12 +71,13 @@ const CasesTable: React.FC<CasesTableProps> = React.memo(
 		// Case actions popover component
 		const CaseActionsPopover = ({ case_ }: { case_: MedicalRecord }) => {
 			const examType = case_.exam_type?.toLowerCase().trim() || ''
-			const isGeneratableCase = examType.includes('biops') || examType.includes('inmuno') || examType.includes('citolog')
-			const hasDownloadableContent = isGeneratableCase && (
-				!!case_.diagnostico || 
-				!!case_.conclusion_diagnostica || 
-				(examType.includes('citolog') && !!case_.descripcion_macroscopica)
-			)
+			const isGeneratableCase =
+				examType.includes('biops') || examType.includes('inmuno') || examType.includes('citolog')
+			const hasDownloadableContent =
+				isGeneratableCase &&
+				(!!case_.diagnostico ||
+					!!case_.conclusion_diagnostica ||
+					(examType.includes('citolog') && !!case_.descripcion_macroscopica))
 
 			return (
 				<PopoverRoot>
@@ -164,8 +165,9 @@ const CasesTable: React.FC<CasesTableProps> = React.memo(
 
 				// Check if this is a generatable case type
 				const examType = case_.exam_type?.toLowerCase().trim() || ''
-				const isGeneratableCase = examType.includes('biops') || examType.includes('inmuno') || examType.includes('citolog')
-				
+				const isGeneratableCase =
+					examType.includes('biops') || examType.includes('inmuno') || examType.includes('citolog')
+
 				if (!isGeneratableCase) {
 					toast({
 						title: '❌ Tipo de examen incorrecto',
@@ -185,9 +187,11 @@ const CasesTable: React.FC<CasesTableProps> = React.memo(
 			async (case_: MedicalRecord) => {
 				// Check if this case has the required content for PDF generation
 				const examType = case_.exam_type?.toLowerCase().trim() || ''
-				const hasContent = case_.diagnostico || case_.conclusion_diagnostica || 
+				const hasContent =
+					case_.diagnostico ||
+					case_.conclusion_diagnostica ||
 					(examType.includes('citolog') && case_.descripcion_macroscopica)
-				
+
 				if (!hasContent) {
 					toast({
 						title: '❌ Sin diagnóstico',
@@ -318,8 +322,11 @@ const CasesTable: React.FC<CasesTableProps> = React.memo(
 				let matchesPdfReady = true
 				if (showPdfReadyOnly) {
 					const examType = case_.exam_type?.toLowerCase().trim() || ''
-					const isGeneratableCase = examType.includes('biops') || examType.includes('inmuno') || examType.includes('citolog')
-					const hasContent = case_.diagnostico || case_.conclusion_diagnostica || 
+					const isGeneratableCase =
+						examType.includes('biops') || examType.includes('inmuno') || examType.includes('citolog')
+					const hasContent =
+						case_.diagnostico ||
+						case_.conclusion_diagnostica ||
 						(examType.includes('citolog') && case_.descripcion_macroscopica)
 					matchesPdfReady = isGeneratableCase && !!hasContent
 				}
@@ -349,7 +356,7 @@ const CasesTable: React.FC<CasesTableProps> = React.memo(
 				if (bValue === null || bValue === undefined) bValue = ''
 
 				// Optimize date sorting by using string comparison when possible
-				if (sortField === 'created_at' || sortField === 'date_of_birth') {
+				if (sortField === 'created_at') {
 					// Use string comparison for ISO dates (they sort correctly)
 					aValue = aValue || '0000-00-00'
 					bValue = bValue || '0000-00-00'
@@ -396,7 +403,7 @@ const CasesTable: React.FC<CasesTableProps> = React.memo(
 		// Mobile Card Component - Memoized to prevent unnecessary re-renders
 		const CaseCard = useCallback(
 			({ case_ }: { case_: MedicalRecord }) => {
-				const ageDisplay = case_.date_of_birth ? getAgeDisplay(case_.date_of_birth) : ''
+				const ageDisplay = case_.edad ? getAgeDisplay(case_.edad) : ''
 				const formattedDate = case_.created_at
 					? format(new Date(case_.created_at), 'dd/MM/yyyy', { locale: es })
 					: 'N/A'
@@ -756,7 +763,7 @@ const CasesTable: React.FC<CasesTableProps> = React.memo(
 									{filteredAndSortedCases.filtered.length > 0 ? (
 										// Only render the first 100 rows for better performance
 										filteredAndSortedCases.filtered.slice(0, 100).map((case_) => {
-											const ageDisplay = case_.date_of_birth ? getAgeDisplay(case_.date_of_birth) : ''
+											const ageDisplay = case_.edad ? getAgeDisplay(case_.edad) : ''
 
 											return (
 												<tr key={case_.id} className="hover:bg-gray-50 dark:hover:bg-gray-800/50">
