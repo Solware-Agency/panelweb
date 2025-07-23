@@ -71,7 +71,7 @@ const UnifiedCaseModal: React.FC<UnifiedCaseModalProps> = ({ case_, isOpen, onCl
 				id_number: case_.id_number,
 				phone: case_.phone,
 				email: case_.email,
-				date_of_birth: case_.date_of_birth,
+				edad: case_.edad,
 				exam_type: case_.exam_type,
 				origin: case_.origin,
 				treating_doctor: case_.treating_doctor,
@@ -311,11 +311,11 @@ const UnifiedCaseModal: React.FC<UnifiedCaseModalProps> = ({ case_, isOpen, onCl
 	const formattedDate = case_.date ? format(new Date(case_.date), 'dd/MM/yyyy', { locale: es }) : 'N/A'
 
 	// Get age display from date of birth
-	const ageDisplay = case_.date_of_birth ? getAgeDisplay(case_.date_of_birth) : ''
+	const ageDisplay = case_.edad ? getAgeDisplay(case_.edad) : ''
 
 	// Format date of birth for display
-	const formattedDateOfBirth = case_.date_of_birth
-		? format(parseISO(case_.date_of_birth), 'dd/MM/yyyy', { locale: es })
+	const formattedDateOfBirth = case_.edad
+		? format(parseISO(case_.edad), 'dd/MM/yyyy', { locale: es })
 		: 'N/A'
 
 	return (
@@ -432,18 +432,18 @@ const UnifiedCaseModal: React.FC<UnifiedCaseModalProps> = ({ case_, isOpen, onCl
 																	variant="outline"
 																	className={cn(
 																		'w-full justify-start text-left font-normal',
-																		!formData.date_of_birth && 'text-muted-foreground',
+																		!formData.edad && 'text-muted-foreground',
 																	)}
 																>
 																	<Cake className="mr-2 h-4 w-4 text-pink-500" />
-																	{formData.date_of_birth ? (
+																	{formData.edad ? (
 																		<div className="flex items-center gap-2">
 																			<span>
-																				{format(parseISO(formData.date_of_birth as string), 'PPP', { locale: es })}
+																				{format(parseISO(formData.edad as string), 'PPP', { locale: es })}
 																			</span>
-																			{formData.date_of_birth && (
+																			{formData.edad && (
 																				<span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">
-																					{getAgeDisplay(formData.date_of_birth as string)}
+																					{getAgeDisplay(formData.edad as string)}
 																				</span>
 																			)}
 																		</div>
@@ -456,11 +456,11 @@ const UnifiedCaseModal: React.FC<UnifiedCaseModalProps> = ({ case_, isOpen, onCl
 																<CalendarComponent
 																	mode="single"
 																	selected={
-																		formData.date_of_birth ? parseISO(formData.date_of_birth as string) : undefined
+																		formData.edad ? parseISO(formData.edad as string) : undefined
 																	}
 																	onSelect={(date) => {
 																		if (date) {
-																			handleInputChange('date_of_birth', format(date, 'yyyy-MM-dd'))
+																			handleInputChange('edad', format(date, 'yyyy-MM-dd'))
 																			setIsDateOfBirthOpen(false)
 																		}
 																	}}
@@ -1248,7 +1248,7 @@ const UnifiedCaseModal: React.FC<UnifiedCaseModalProps> = ({ case_, isOpen, onCl
 														full_name: case_.full_name,
 														id_number: case_.id_number,
 														phone: case_.phone,
-														date_of_birth: case_.date_of_birth,
+														edad: case_.edad,
 														email: case_.email,
 														exam_type: case_.exam_type,
 														origin: case_.origin,
