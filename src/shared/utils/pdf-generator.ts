@@ -1,9 +1,9 @@
 import { PDFDocument, rgb, StandardFonts, PageSizes, PDFImage } from 'pdf-lib'
 import fontkit from '@pdf-lib/fontkit'
-import { format, parseISO } from 'date-fns'
+import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
 import type { MedicalRecord } from '@lib/supabase-service'
-import { getAgeDisplay, updatePdfReadyStatus } from '@lib/supabase-service'
+import { updatePdfReadyStatus } from '@lib/supabase-service'
 
 // Import logo as a module
 import logoPath from '/src/assets/img/logo_conspat.png'

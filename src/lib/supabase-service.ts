@@ -4,9 +4,14 @@ import { prepareSubmissionData } from '@features/form/lib/prepareSubmissionData'
 import { calculatePaymentDetailsFromRecord } from '@features/form/lib/payment/payment-utils'
 import type { MedicalRecordInsert } from '@shared/types/types'
 import { generateMedicalRecordCode } from '@lib/code-generator'
-import { differenceInYears, differenceInMonths, parseISO } from 'date-fns'
+import type { Database } from '@shared/types/types'
 
-export type MedicalRecord = Tables<'medical_records_clean'>
+export type MedicalRecord = Database['public']['Tables']['medical_records_clean']['Row']
+
+export interface CustomError extends Error {
+	code?: string
+	details?: unknown
+}
 
 export interface ChangeLog {
 	id?: string
@@ -53,7 +58,7 @@ export const testConnection = async () => {
 export const insertMedicalRecord = async (
 	formData: FormValues,
 	exchangeRate?: number,
-): Promise<{ data: MedicalRecord | null; error: any }> => {
+): Promise<{ data: MedicalRecord | null; error: CustomError | null }> => {
 	try {
 		console.log(`🚀 Iniciando inserción en tabla ${TABLE_NAME}...`)
 
@@ -64,6 +69,7 @@ export const insertMedicalRecord = async (
 			return {
 				data: null,
 				error: {
+					name: 'CustomError',
 					message: 'No se pudo conectar con la base de datos. Verifica tu conexión a internet.',
 					code: 'CONNECTION_FAILED',
 					details: connectionTest.error,
@@ -153,6 +159,7 @@ export const insertMedicalRecord = async (
 				return {
 					data: null,
 					error: {
+						name: 'CustomError',
 						message: `La tabla ${TABLE_NAME} no existe. Ejecuta la migración create_medical_records_clean.sql`,
 						code: 'TABLE_NOT_EXISTS',
 						details: error,
@@ -164,6 +171,7 @@ export const insertMedicalRecord = async (
 				return {
 					data: null,
 					error: {
+						name: 'CustomError',
 						message: `Error de base de datos: tabla ${TABLE_NAME} no encontrada.`,
 						code: 'TABLE_NOT_FOUND',
 						details: error,
@@ -177,6 +185,7 @@ export const insertMedicalRecord = async (
 					return {
 						data: null,
 						error: {
+							name: 'CustomError',
 							message: 'Error: El monto total debe ser mayor a cero. Por favor ingresa un valor válido.',
 							code: 'TOTAL_AMOUNT_CONSTRAINT',
 							details: error,
@@ -187,6 +196,7 @@ export const insertMedicalRecord = async (
 				return {
 					data: null,
 					error: {
+						name: 'CustomError',
 						message: 'Error de validación: verifica que todos los campos cumplan las restricciones.',
 						code: 'VALIDATION_ERROR',
 						details: error,
@@ -199,6 +209,7 @@ export const insertMedicalRecord = async (
 				return {
 					data: null,
 					error: {
+						name: 'CustomError',
 						message: 'Error: Se generó un código duplicado. Inténtalo de nuevo.',
 						code: 'DUPLICATE_CODE',
 						details: error,
@@ -206,7 +217,8 @@ export const insertMedicalRecord = async (
 				}
 			}
 
-			return { data: null, error }
+			const customError = error as CustomError
+			return { data: null, error: customError }
 		}
 		console.log(`✅ Registro médico insertado exitosamente en ${TABLE_NAME}:`, data)
 		console.log(`🎯 Código asignado: ${data.code}`)
@@ -237,6 +249,7 @@ export const insertMedicalRecord = async (
 			return {
 				data: null,
 				error: {
+					name: 'CustomError',
 					message: 'Error de conexión de red. Verifica tu conexión a internet.',
 					code: 'NETWORK_ERROR',
 					details: error,
@@ -244,7 +257,7 @@ export const insertMedicalRecord = async (
 			}
 		}
 
-		return { data: null, error }
+		return { data: null, error: error as CustomError }
 	}
 }
 
@@ -344,7 +357,7 @@ export const deleteMedicalRecord = async (id: string) => {
 		const { data: recordToDelete, error: fetchError } = await getMedicalRecordById(id)
 
 		// If record doesn't exist, treat as successful deletion
-		if (fetchError && (fetchError as any).code === 'PGRST116') {
+		if (fetchError && typeof fetchError === 'object' && 'code' in fetchError && fetchError.code === 'PGRST116') {
 			console.log(`⚠️ Record ${id} not found, treating as already deleted`)
 			return { data: null, error: null }
 		}
@@ -407,14 +420,14 @@ export const saveChangeLog = async (
 	changes: Array<{
 		field: string
 		fieldLabel: string
-		oldValue: any
-		newValue: any
-	}>
+		oldValue: string | number | boolean | null
+		newValue: string | number | boolean | null
+	}>,
 ) => {
 	try {
 		console.log('💾 Saving change logs for record:', medicalRecordId)
 
-		const changeLogEntries = changes.map(change => ({
+		const changeLogEntries = changes.map((change) => ({
 			medical_record_id: medicalRecordId,
 			user_id: userId,
 			user_email: userEmail,
@@ -422,13 +435,10 @@ export const saveChangeLog = async (
 			field_label: change.fieldLabel,
 			old_value: change.oldValue === null || change.oldValue === undefined ? null : String(change.oldValue),
 			new_value: change.newValue === null || change.newValue === undefined ? null : String(change.newValue),
-			changed_at: new Date().toISOString()
+			changed_at: new Date().toISOString(),
 		}))
 
-		const { data, error } = await supabase
-			.from(CHANGE_LOG_TABLE)
-			.insert(changeLogEntries)
-			.select()
+		const { data, error } = await supabase.from(CHANGE_LOG_TABLE).insert(changeLogEntries).select()
 
 		if (error) {
 			console.error('❌ Error saving change logs:', error)
@@ -482,11 +492,11 @@ export const updateMedicalRecordWithLog = async (
 	changes: Array<{
 		field: string
 		fieldLabel: string
-		oldValue: any
-		newValue: any
+		oldValue: string | number | boolean | null
+		newValue: string | number | boolean | null
 	}>,
 	userId: string,
-	userEmail: string
+	userEmail: string,
 ) => {
 	try {
 		console.log('🔄 Starting medical record update with change log...')

@@ -1,11 +1,10 @@
 import React, { useState } from 'react'
 import { motion, AnimatePresence } from 'motion/react'
 import { X, User, FileText, Calendar, Phone, Mail, Cake, Search, RefreshCw } from 'lucide-react'
-import { format, parseISO } from 'date-fns'
+import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
 import { useQuery } from '@tanstack/react-query'
 import { supabase } from '@lib/supabase/config'
-import { getAgeDisplay } from '@lib/supabase-service'
 import { BranchBadge } from '@shared/components/ui/branch-badge'
 import type { MedicalRecord } from '@lib/supabase-service'
 import { Button } from '@shared/components/ui/button'
@@ -18,9 +17,10 @@ interface PatientHistoryModalProps {
   patient: {
     id_number: string
     full_name: string
-    phone: string
-    email: string | null
-    date_of_birth: string | null
+	phone: string
+	email: string | null
+	date_of_birth: string | null
+		edad?: string | null
   } | null
 }
 
