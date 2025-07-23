@@ -314,9 +314,6 @@ const UnifiedCaseModal: React.FC<UnifiedCaseModalProps> = ({ case_, isOpen, onCl
 	const ageDisplay = case_.edad ? getAgeDisplay(case_.edad) : ''
 
 	// Format date of birth for display
-	const formattedDateOfBirth = case_.edad
-		? format(parseISO(case_.edad), 'dd/MM/yyyy', { locale: es })
-		: 'N/A'
 
 	return (
 		<AnimatePresence>
@@ -423,7 +420,7 @@ const UnifiedCaseModal: React.FC<UnifiedCaseModalProps> = ({ case_, isOpen, onCl
 										</div>
 										<div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
 											<div>
-												<p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">Fecha de nacimiento:</p>
+												<p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">Edad:</p>
 												{isEditing ? (
 													<div className="mt-1">
 														<Popover open={isDateOfBirthOpen} onOpenChange={setIsDateOfBirthOpen}>
@@ -481,10 +478,7 @@ const UnifiedCaseModal: React.FC<UnifiedCaseModalProps> = ({ case_, isOpen, onCl
 													</div>
 												) : (
 													<p className="text-sm sm:text-base font-medium">
-														{formattedDateOfBirth}
-														{ageDisplay && (
-															<span className="ml-2 text-xs sm:text-sm text-blue-600">({ageDisplay})</span>
-														)}
+														{ageDisplay}
 													</p>
 												)}
 											</div>
