@@ -223,8 +223,8 @@ const CaseDetailPanel: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClos
 		}
 	}
 
-	const handleInputChange = (field: string, value: any) => {
-		setEditedCase((prev) => ({
+	const handleInputChange = (field: string, value: unknown) => {
+		setEditedCase((prev: Partial<MedicalRecord>) => ({
 			...prev,
 			[field]: value,
 		}))
@@ -322,7 +322,7 @@ const CaseDetailPanel: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClos
 		}
 
 		// Add the new payment
-		setEditedCase((prev) => ({
+		setEditedCase((prev: Partial<MedicalRecord>) => ({
 			...prev,
 			[`payment_method_${paymentSlot}`]: newPayment.method,
 			[`payment_amount_${paymentSlot}`]: parseFloat(newPayment.amount),
@@ -342,7 +342,7 @@ const CaseDetailPanel: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClos
 		if (!case_ || !editedCase) return
 
 		// Remove the payment
-		setEditedCase((prev) => ({
+		setEditedCase((prev: Partial<MedicalRecord>) => ({
 			...prev,
 			[`payment_method_${index}`]: null,
 			[`payment_amount_${index}`]: null,

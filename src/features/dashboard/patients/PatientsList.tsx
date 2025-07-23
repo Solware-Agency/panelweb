@@ -17,6 +17,7 @@ interface PatientData {
 	phone: string
 	email: string | null
 	edad: string | null
+	date_of_birth: string | null
 	lastVisit: string
 	totalVisits: number
 }
@@ -31,72 +32,67 @@ interface MedicalRecord {
 	date_of_birth: string | null
 	created_at: string
 	date: string
-	[key: string]: any
+	[key: string]: unknown
 }
 
 // Props interface for PatientsList
 interface PatientsListProps {
 	searchTerm: string
-	recordsData: {
-		data: MedicalRecord[] | null
-		error: any
-	} | null
+	recordsData: MedicalRecord[] // ✅ solo array limpio
 	isLoading: boolean
-	error: any
+	error: Error | null
 	handleRefresh: () => void
 }
 
 // Memoized Patient Row Component for better performance
-const PatientRow = React.memo(({ patient, onClick }: { patient: PatientData; onClick: (patient: PatientData) => void }) => (
-	<tr
-		key={patient.id_number}
-		className="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors cursor-pointer"
-		onClick={() => onClick(patient)}
-	>
-		{/* Name Cell */}
-		<td className="w-[20%] px-4 py-4">
-			<div className="flex items-center">
-				<div className="ml-3">
-					<p className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">
-						{patient.full_name}
-					</p>
-				</div>
-			</div>
-		</td>
-
-		{/* ID Number Cell */}
-		<td className="w-[15%] px-4 py-4 text-sm text-gray-900 dark:text-gray-100">
-			{patient.id_number}
-		</td>
-
-		{/* Date of Birth Cell */}
-		<td className="w-[20%] px-4 py-4 text-sm text-gray-900 dark:text-gray-100">
-			{patient.date_of_birth ? (
+const PatientRow = React.memo(
+	({ patient, onClick }: { patient: PatientData; onClick: (patient: PatientData) => void }) => (
+		<tr
+			key={patient.id_number}
+			className="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors cursor-pointer"
+			onClick={() => onClick(patient)}
+		>
+			{/* Name Cell */}
+			<td className="w-[20%] px-4 py-4">
 				<div className="flex items-center">
-					<span>{format(parseISO(patient.date_of_birth), 'dd/MM/yyyy', { locale: es })}</span>
-					<span className="ml-2 text-xs text-blue-600 dark:text-blue-400">
-						({getAgeDisplay(patient.date_of_birth)})
-					</span>
+					<div className="ml-3">
+						<p className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">{patient.full_name}</p>
+					</div>
 				</div>
-			) : (
-				<span className="text-gray-500 dark:text-gray-400">No disponible</span>
-			)}
-		</td>
+			</td>
 
-		{/* Phone Cell */}
-		<td className="w-[15%] px-4 py-4 text-sm text-gray-900 dark:text-gray-100">{patient.phone}</td>
+			{/* ID Number Cell */}
+			<td className="w-[15%] px-4 py-4 text-sm text-gray-900 dark:text-gray-100">{patient.id_number}</td>
 
-		{/* Email Cell */}
-		<td className="w-[15%] px-4 py-4 text-sm text-gray-900 dark:text-gray-100 truncate">
-			{patient.email || <span className="text-gray-500 dark:text-gray-400">No disponible</span>}
-		</td>
+			{/* Date of Birth Cell */}
+			<td className="w-[20%] px-4 py-4 text-sm text-gray-900 dark:text-gray-100">
+				{patient.date_of_birth ? (
+					<div className="flex items-center">
+						<span>{format(parseISO(patient.date_of_birth), 'dd/MM/yyyy', { locale: es })}</span>
+						<span className="ml-2 text-xs text-blue-600 dark:text-blue-400">
+							({getAgeDisplay(patient.date_of_birth)})
+						</span>
+					</div>
+				) : (
+					<span className="text-gray-500 dark:text-gray-400">No disponible</span>
+				)}
+			</td>
 
-		{/* Last Visit Cell */}
-		<td className="w-[15%] px-4 py-4 text-sm text-gray-900 dark:text-gray-100 text-center">
-			{format(new Date(patient.lastVisit), 'dd/MM/yyyy', { locale: es })}
-		</td>
-	</tr>
-))
+			{/* Phone Cell */}
+			<td className="w-[15%] px-4 py-4 text-sm text-gray-900 dark:text-gray-100">{patient.phone}</td>
+
+			{/* Email Cell */}
+			<td className="w-[15%] px-4 py-4 text-sm text-gray-900 dark:text-gray-100 truncate">
+				{patient.email || <span className="text-gray-500 dark:text-gray-400">No disponible</span>}
+			</td>
+
+			{/* Last Visit Cell */}
+			<td className="w-[15%] px-4 py-4 text-sm text-gray-900 dark:text-gray-100 text-center">
+				{format(new Date(patient.lastVisit), 'dd/MM/yyyy', { locale: es })}
+			</td>
+		</tr>
+	),
+)
 
 PatientRow.displayName = 'PatientRow'
 
@@ -110,13 +106,12 @@ const PatientsList: React.FC<PatientsListProps> = React.memo(
 
 		// Process records to get unique patients - OPTIMIZED FOR PERFORMANCE
 		const patients = useMemo(() => {
-			if (!recordsData?.data || recordsData.data.length === 0) return []
+			if (!recordsData || recordsData.length === 0) return []
 
 			// Use a more efficient approach to process records
 			const map = new Map<string, PatientData>()
-			const dataArray = recordsData.data
+			const dataArray = recordsData
 
-			// Process records in batches to avoid blocking the UI
 			for (let i = 0; i < dataArray.length; i++) {
 				const record = dataArray[i]
 
@@ -126,6 +121,7 @@ const PatientsList: React.FC<PatientsListProps> = React.memo(
 				}
 
 				const existingPatient = map.get(record.id_number)
+				const recordTimestamp = record.created_at || record.date
 
 				if (!existingPatient) {
 					map.set(record.id_number, {
@@ -133,37 +129,27 @@ const PatientsList: React.FC<PatientsListProps> = React.memo(
 						full_name: record.full_name,
 						phone: record.phone,
 						email: record.email,
-						edad: record.edad,
-						lastVisit: record.created_at || record.date,
+						edad: record.edad !== undefined && record.edad !== null ? String(record.edad) : null,
+						date_of_birth: record.date_of_birth ?? null,
+						lastVisit: recordTimestamp,
 						totalVisits: 1,
 					})
 				} else {
-					// Only update if this record is newer (avoid unnecessary date parsing)
-					const recordTimestamp = record.created_at || record.date
+					// Solo actualizar si este registro es más reciente
 					if (recordTimestamp > existingPatient.lastVisit) {
 						existingPatient.lastVisit = recordTimestamp
+						if (record.full_name) existingPatient.full_name = record.full_name
+						if (record.phone) existingPatient.phone = record.phone
+						if (record.email) existingPatient.email = record.email
+						if (record.date_of_birth) existingPatient.date_of_birth = record.date_of_birth
+						if (record.edad !== undefined && record.edad !== null) existingPatient.edad = String(record.edad)
 					}
-
 					existingPatient.totalVisits += 1
-
-					// Update patient info only if more recent or if existing is empty
-					if (record.full_name && (!existingPatient.full_name || recordTimestamp > existingPatient.lastVisit)) {
-						existingPatient.full_name = record.full_name
-					}
-					if (record.phone && (!existingPatient.phone || recordTimestamp > existingPatient.lastVisit)) {
-						existingPatient.phone = record.phone
-					}
-					if (record.email && (!existingPatient.email || recordTimestamp > existingPatient.lastVisit)) {
-						existingPatient.email = record.email
-					}
-					if (record.date_of_birth && (!existingPatient.date_of_birth || recordTimestamp > existingPatient.lastVisit)) {
-						existingPatient.date_of_birth = record.date_of_birth
-					}
 				}
 			}
 
 			return Array.from(map.values())
-		}, [recordsData?.data])
+		}, [recordsData])
 
 		// Filter patients based on search term - OPTIMIZED
 		const filteredPatients = useMemo(() => {
@@ -193,8 +179,8 @@ const PatientsList: React.FC<PatientsListProps> = React.memo(
 				filteredPatients.length > maxPatients ? filteredPatients.slice(0, maxPatients) : filteredPatients
 
 			return [...patientsToSort].sort((a: PatientData, b: PatientData) => {
-				let aValue: any = a[sortField]
-				let bValue: any = b[sortField]
+				let aValue: string = String(a[sortField] ?? '')
+				let bValue: string = String(b[sortField] ?? '')
 
 				// Handle null values
 				if (aValue === null || aValue === undefined) aValue = ''
@@ -345,13 +331,11 @@ const PatientsList: React.FC<PatientsListProps> = React.memo(
 								<tbody className="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-700">
 									{sortedPatients.length > 0 ? (
 										// Limit desktop view to 100 patients for better performance
-										sortedPatients.slice(0, 100).map((patient: PatientData) => (
-											<PatientRow
-												key={patient.id_number}
-												patient={patient}
-												onClick={handlePatientClick}
-											/>
-										))
+										sortedPatients
+											.slice(0, 100)
+											.map((patient: PatientData) => (
+												<PatientRow key={patient.id_number} patient={patient} onClick={handlePatientClick} />
+											))
 									) : (
 										<tr>
 											<td colSpan={6} className="px-4 py-8 text-center text-gray-500 dark:text-gray-400">
@@ -364,16 +348,14 @@ const PatientsList: React.FC<PatientsListProps> = React.memo(
 									)}
 								</tbody>
 							</table>
-							
+
 							{/* Performance notice for desktop */}
 							{sortedPatients.length > 100 && (
 								<div className="p-4 text-center border-t border-gray-200 dark:border-gray-700">
 									<p className="text-sm text-gray-500 dark:text-gray-400 mb-2">
 										Mostrando 100 de {sortedPatients.length} pacientes
 									</p>
-									<p className="text-xs text-gray-400">
-										Usa la búsqueda para filtrar resultados específicos
-									</p>
+									<p className="text-xs text-gray-400">Usa la búsqueda para filtrar resultados específicos</p>
 								</div>
 							)}
 						</div>
@@ -404,11 +386,7 @@ const PatientsList: React.FC<PatientsListProps> = React.memo(
 												<div className="flex items-center">
 													<Calendar className="h-3 w-3 text-gray-400 mr-1 flex-shrink-0" />
 													<span className="text-gray-600 dark:text-gray-300 text-xs">
-														{patient.edad ? (
-															patient.edad
-														) : (
-															'N/A'
-														)}
+														{patient.edad ? patient.edad : 'N/A'}
 													</span>
 												</div>
 											</div>
@@ -454,9 +432,7 @@ const PatientsList: React.FC<PatientsListProps> = React.memo(
 								<p className="text-sm text-gray-500 dark:text-gray-400 mb-2">
 									Mostrando 20 de {sortedPatients.length} pacientes
 								</p>
-								<p className="text-xs text-gray-400 mb-2">
-									Usa la búsqueda para filtrar resultados específicos
-								</p>
+								<p className="text-xs text-gray-400 mb-2">Usa la búsqueda para filtrar resultados específicos</p>
 							</div>
 						)}
 					</div>

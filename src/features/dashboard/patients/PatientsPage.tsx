@@ -7,6 +7,40 @@ import { Input } from '@shared/components/ui/input'
 import { Button } from '@shared/components/ui/button'
 import PatientsList from './PatientsList'
 
+// Tipo base para los datos que vienen de la API
+type RawMedicalRecord = {
+	id: string
+	name: string
+	cedula?: string | null
+	telefono?: string | null
+	email: string | null
+	date_of_birth?: string | null
+	fecha_nacimiento?: string | null
+	full_name?: string | null
+	id_number?: string
+	phone?: string
+	created_at?: string
+	date?: string
+}
+
+// Tipo normalizado que coincide con el esperado por PatientsList
+type NormalizedMedicalRecord = {
+	id: string
+	full_name: string
+	id_number: string
+	phone: string
+	email: string | null
+	date_of_birth: string | null
+	created_at: string
+	date: string
+	[key: string]: unknown
+}
+
+type MedicalRecordsQueryResult = {
+	data: NormalizedMedicalRecord[]
+	error: Error | null
+}
+
 const PatientsPage: React.FC = React.memo(() => {
 	const [searchTerm, setSearchTerm] = useState('')
 	const [isSearching, setIsSearching] = useState(false)
@@ -36,8 +70,41 @@ const PatientsPage: React.FC = React.memo(() => {
 		refetch().finally(() => setIsSearching(false))
 	}, [refetch])
 
-	// Memoize the memoized recordsData to prevent unnecessary re-renders
-	const memoizedRecordsData = useMemo(() => recordsData, [recordsData])
+	// Memoize and normalize the records data
+	const memoizedRecordsData = useMemo<MedicalRecordsQueryResult | null>(() => {
+		if (!recordsData) return null
+
+		const { data, error } = recordsData as unknown as {
+			data: RawMedicalRecord[] | null
+			error: unknown
+		}
+
+		const mappedData: NormalizedMedicalRecord[] = Array.isArray(data)
+			? data.map(
+					(item: RawMedicalRecord): NormalizedMedicalRecord => {
+						// Primero creamos un objeto base con los campos requeridos
+						const normalizedRecord: NormalizedMedicalRecord = {
+							id: item.id,
+							date_of_birth: item.date_of_birth ?? item.fecha_nacimiento ?? null,
+							full_name: item.full_name ?? item.name ?? 'Sin nombre',
+							id_number: item.id_number ?? 'Sin ID',
+							phone: item.phone ?? 'Sin teléfono',
+							email: item.email ?? null,
+							created_at: item.created_at ?? item.date ?? new Date().toISOString(),
+							date: item.date ?? item.created_at ?? new Date().toISOString()
+						}
+
+						// Devolvemos el registro normalizado
+						return normalizedRecord
+					}
+			  )
+			: []
+
+		return {
+			data: mappedData,
+			error: error as Error | null,
+		}
+	}, [recordsData])
 
 	return (
 		<div className="p-3 sm:p-4">
@@ -67,12 +134,7 @@ const PatientsPage: React.FC = React.memo(() => {
 							)}
 						</div>
 
-						<Button
-							onClick={handleRefresh}
-							variant="outline"
-							className="flex items-center gap-2 whitespace-nowrap"
-							disabled={isLoading}
-						>
+						<Button onClick={handleRefresh} variant="outline" className="flex items-center gap-2 whitespace-nowrap">
 							<RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
 							Actualizar
 						</Button>
@@ -80,13 +142,11 @@ const PatientsPage: React.FC = React.memo(() => {
 				</Card>
 			</div>
 
-			{/* Search and filters */}
-
 			<PatientsList
 				searchTerm={searchTerm}
-				recordsData={memoizedRecordsData || null}
+				recordsData={memoizedRecordsData?.data ?? []}
 				isLoading={isLoading}
-				error={error}
+				error={error || memoizedRecordsData?.error || null}
 				handleRefresh={handleRefresh}
 			/>
 		</div>
