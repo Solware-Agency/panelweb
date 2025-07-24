@@ -745,9 +745,16 @@ const UnifiedCaseModal: React.FC<UnifiedCaseModalProps> = ({
 											<div className="bg-red-50 dark:bg-red-900/20 p-2 sm:p-3 rounded-lg border border-red-200 dark:border-red-800">
 												<div className="flex items-center gap-1.5 sm:gap-2">
 													<AlertTriangle className="w-5 h-5 text-red-600 dark:text-red-400" />
-													<p className="text-xs sm:text-sm font-medium text-red-800 dark:text-red-300">
-														Monto pendiente: ${case_.remaining.toLocaleString()}
-													</p>
+													<div>
+														<p className="text-xs sm:text-sm font-medium text-red-800 dark:text-red-300">
+															Monto pendiente: ${case_.remaining.toLocaleString()}
+														</p>
+														{case_.exchange_rate && (
+															<p className="text-xs text-red-700 dark:text-red-400 mt-1">
+																Equivalente: Bs {(case_.remaining * case_.exchange_rate).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+															</p>
+														)}
+													</div>
 												</div>
 											</div>
 										)}
