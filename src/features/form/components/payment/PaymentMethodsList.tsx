@@ -30,9 +30,6 @@ export const PaymentMethodsList = memo(
 		append,
 		remove,
 		inputStyles,
-		paymentStatus,
-		isPaymentComplete,
-		missingAmount,
 		exchangeRate,
 	}: PaymentMethodsListProps) => {
 		// Memoize the append handler to prevent unnecessary re-renders
@@ -42,33 +39,10 @@ export const PaymentMethodsList = memo(
 			}
 		}, [append])
 
-		// Format the status message with missing amount
-		const getStatusMessage = () => {
-			if (!paymentStatus) return ''
-
-			if (isPaymentComplete) {
-				return `Estatus: ${paymentStatus}`
-			} else {
-				const formattedMissing = missingAmount ? `$${missingAmount.toFixed(2)}` : '$0.00'
-				const formattedMissingBs =
-					missingAmount && exchangeRate ? `Bs ${(missingAmount * exchangeRate).toFixed(2)}` : 'Bs 0.00'
-				return `Estatus: ${paymentStatus} - Faltan ${formattedMissing} o ${formattedMissingBs}`
-			}
-		}
-
 		return (
 			<div className="space-y-3 sm:space-y-4">
 				<div className="flex justify-between items-center mb-1 sm:mb-2">
 					<FormLabel className="font-semibold text-xs sm:text-sm md:text-base">Métodos de Pago</FormLabel>
-					{paymentStatus && (
-						<div
-							className={`text-xs font-bold px-2 py-0.5 sm:py-1 rounded-full transition-all ${
-								isPaymentComplete ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-							}`}
-						>
-							{getStatusMessage()}
-						</div>
-					)}
 				</div>
 				{fields.map((item, index) => (
 					<PaymentMethodItem
