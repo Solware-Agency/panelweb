@@ -109,7 +109,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 				setUser(initialSession?.user ?? null)
 			} catch (error) {
 				console.error('Error getting initial session:', error)
-				await supabase.auth.signOut()
+				await supabase.auth.signOut({ scope: 'global' }).catch((error) => {
+					console.error("Error en signOut:", error);
+				});
 				setSession(null)
 				setUser(null)
 			} finally {

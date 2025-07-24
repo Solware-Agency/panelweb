@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Users, DollarSign, ShoppingCart, ArrowUpRight, AlertTriangle, Clock, CheckCircle, XCircle } from 'lucide-react'
+import { Users, DollarSign, ShoppingCart, ArrowUpRight, AlertTriangle, Clock } from 'lucide-react'
 import { useDashboardStats } from '@shared/hooks/useDashboardStats'
 import { YearSelector } from '@shared/components/ui/year-selector'
 import StatCard from '@shared/components/ui/stat-card'
@@ -8,6 +8,11 @@ import type { StatType } from '@shared/components/ui/stat-detail-panel'
 import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
 import { Card } from '@shared/components/ui/card'
+import ExamTypePieChart from '@features/dashboard/components/ExamTypePieChart'
+import BranchRevenueReport from '@features/dashboard/components/BranchRevenueReport'
+import DoctorRevenueReport from '@features/dashboard/components/DoctorRevenueReport'
+import OriginRevenueReport from '@features/dashboard/components/OriginRevenueReport'
+import RemainingAmount from '@features/dashboard/components/RemainingAmount'
 
 const StatsPage: React.FC = () => {
 	const [selectedMonth, setSelectedMonth] = useState<Date>(new Date())
@@ -30,7 +35,7 @@ const StatsPage: React.FC = () => {
 		}).format(amount)
 	}
 
-	const handleMonthBarClick = (monthData: any) => {
+	const handleMonthBarClick = (monthData: { monthIndex: number }) => {
 		// FIXED: Use the monthIndex to create the correct date
 		const clickedDate = new Date(selectedYear, monthData.monthIndex, 1)
 		setSelectedMonth(clickedDate)
@@ -46,15 +51,13 @@ const StatsPage: React.FC = () => {
 		setSelectedStat(statType)
 		setIsDetailPanelOpen(true)
 	}
-	
+
 	const handleDetailPanelClose = () => {
 		setIsDetailPanelOpen(false)
 	}
 
 	// Calculate some additional metrics
-	const averageRevenuePerCase = stats?.totalCases ? stats.totalRevenue / stats.totalCases : 0
 	const completionRate = stats?.totalCases ? (stats.completedCases / stats.totalCases) * 100 : 0
-	const incompleteRate = stats?.totalCases ? (stats.incompleteCases / stats.totalCases) * 100 : 0
 
 	return (
 		<>
@@ -161,7 +164,7 @@ const StatsPage: React.FC = () => {
 										<div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
 									</div>
 								) : (
-									stats?.salesTrendByMonth.map((month, _index) => {
+									stats?.salesTrendByMonth.map((month) => {
 										const maxRevenue = Math.max(...(stats?.salesTrendByMonth.map((m) => m.revenue) || [1]))
 										const height = maxRevenue > 0 ? (month.revenue / maxRevenue) * 100 : 0
 										const isSelected = month.isSelected
@@ -298,165 +301,18 @@ const StatsPage: React.FC = () => {
 				</div>
 
 				{/* Detailed Tables */}
-				<div className="grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-4 md:gap-5">
+				<div className="grid grid-cols-1 gap-3 sm:gap-4 md:gap-5">
 					{/* Performance Metrics by Exam Type (Normalized) */}
-					<Card className="col-span-1 grid hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 transition-all duration-300 shadow-lg group cursor-pointer">
-						<div className="bg-white dark:bg-background rounded-xl p-3 sm:p-4 md:p-6">
-							<h3 className="text-base sm:text-lg md:text-xl font-bold text-gray-700 dark:text-gray-300 mb-3 sm:mb-4 md:mb-6">
-								Métricas por Tipo de Estudio
-							</h3>
-							<div className="overflow-x-auto responsive-table">
-								<table className="w-full min-w-[400px]">
-									<thead>
-										<tr className="border-b border-gray-200 dark:border-gray-700">
-											<th className="text-left py-3 text-gray-600 dark:text-gray-400 font-medium text-sm">Estudio</th>
-											<th className="text-left py-3 text-gray-600 dark:text-gray-400 font-medium text-sm">Casos</th>
-											<th className="text-left py-3 text-gray-600 dark:text-gray-400 font-medium text-sm">Ingresos</th>
-										</tr>
-									</thead>
-									<tbody>
-										{isLoading ? (
-											<tr>
-												<td colSpan={3} className="py-8 text-center">
-													<div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-500 mx-auto"></div>
-												</td>
-											</tr>
-										) : (
-											stats?.revenueByExamType.slice(0, 5).map((exam, _index) => (
-												<tr key={exam.examType} className="border-b border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors duration-200">
-													<td className="py-3">
-														<div>
-															<p className="font-medium text-gray-700 dark:text-gray-300 text-sm">{exam.examType}</p>
-														</div>
-													</td>
-													<td className="py-3 text-gray-700 dark:text-gray-300 text-sm">{exam.count}</td>
-													<td className="py-3 text-gray-700 dark:text-gray-300 font-medium text-sm">
-														{formatCurrency(exam.revenue)}
-													</td>
-												</tr>
-											))
-										)}
-									</tbody>
-								</table>
-							</div>
-						</div>
-					</Card>
+					<ExamTypePieChart />
+					<BranchRevenueReport />
+					<RemainingAmount />
+					<div className="grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-4 mb-3 sm:mb-5">
+						{/* Doctor Revenue Report */}
+						<DoctorRevenueReport />
 
-					{/* Status Metrics - UPDATED SECTION */}
-					<Card className="col-span-1 grid hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 transition-all duration-300 shadow-lg group cursor-pointer">
-						<div className="bg-white dark:bg-background rounded-xl p-3 sm:p-4 md:p-6">
-							<h3 className="text-base sm:text-lg md:text-xl font-bold text-gray-700 dark:text-gray-300 mb-3 sm:mb-4 md:mb-6">
-								Estatus
-							</h3>
-							<div className="space-y-3 sm:space-y-4 md:space-y-6">
-								{/* Completed Cases */}
-								<div className="group-hover:bg-gray-50 dark:group-hover:bg-gray-800/30 p-3 rounded-lg transition-all duration-300 hover:scale-[1.02]">
-									<div className="flex items-center justify-between mb-2">
-										<div className="flex items-center gap-2">
-											<CheckCircle className="w-4 h-4 text-green-600 dark:text-green-400 group-hover:scale-110 transition-transform duration-300" />
-											<span className="text-sm font-medium text-gray-600 dark:text-gray-400">Casos Completados</span>
-										</div>
-										<span className="text-sm font-bold text-green-700 dark:text-green-300">
-											{isLoading ? '...' : `${completionRate.toFixed(1)}%`}
-										</span>
-									</div>
-									<div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-3">
-										<div
-											className="bg-green-500 h-3 rounded-full transition-all duration-500 flex items-center justify-end pr-2"
-											style={{ width: `${completionRate}%` }}
-										>
-											{completionRate > 15 && (
-												<span className="text-xs text-white font-medium">{stats?.completedCases || 0}</span>
-											)}
-										</div>
-									</div>
-									{completionRate <= 15 && (
-										<div className="text-xs text-gray-600 dark:text-gray-400 mt-1">
-											{stats?.completedCases || 0} casos completados
-										</div>
-									)}
-								</div>
-
-								{/* Incomplete Cases */}
-								<div className="group-hover:bg-gray-50 dark:group-hover:bg-gray-800/30 p-3 rounded-lg transition-all duration-300 hover:scale-[1.02]">
-									<div className="flex items-center justify-between mb-2">
-										<div className="flex items-center gap-2">
-											<XCircle className="w-4 h-4 text-red-600 dark:text-red-400 group-hover:scale-110 transition-transform duration-300" />
-											<span className="text-sm font-medium text-gray-600 dark:text-gray-400">Casos Incompletos</span>
-										</div>
-										<span className="text-sm font-bold text-red-700 dark:text-red-300">
-											{isLoading ? '...' : `${incompleteRate.toFixed(1)}%`}
-										</span>
-									</div>
-									<div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-3">
-										<div
-											className="bg-red-500 h-3 rounded-full transition-all duration-500 flex items-center justify-end pr-2"
-											style={{ width: `${incompleteRate}%` }}
-										>
-											{incompleteRate > 15 && (
-												<span className="text-xs text-white font-medium">{stats?.incompleteCases || 0}</span>
-											)}
-										</div>
-									</div>
-									{incompleteRate <= 15 && (
-										<div className="text-xs text-gray-600 dark:text-gray-400 mt-1">
-											{stats?.incompleteCases || 0} casos incompletos
-										</div>
-									)}
-								</div>
-
-								{/* Revenue per Case */}
-								<div className="group-hover:bg-gray-50 dark:group-hover:bg-gray-800/30 p-3 rounded-lg transition-all duration-300 hover:scale-[1.02]">
-									<div className="flex items-center justify-between mb-2">
-										<span className="text-sm font-medium text-gray-600 dark:text-gray-400">
-											Ingreso Promedio por Caso
-										</span>
-										<span className="text-sm font-bold text-gray-700 dark:text-gray-300">
-											{isLoading ? '...' : formatCurrency(averageRevenuePerCase)}
-										</span>
-									</div>
-									<div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-										<div className="bg-blue-500 h-2 rounded-full" style={{ width: '85%' }}></div>
-									</div>
-								</div>
-
-								{/* Patient Growth */}
-								<div className="group-hover:bg-gray-50 dark:group-hover:bg-gray-800/30 p-3 rounded-lg transition-all duration-300 hover:scale-[1.02]">
-									<div className="flex items-center justify-between mb-2">
-										<span className="text-sm font-medium text-gray-600 dark:text-gray-400">
-											Crecimiento de Pacientes
-										</span>
-										<span className="text-sm font-bold text-gray-700 dark:text-gray-300">
-											{isLoading ? '...' : `+${stats?.newPatientsThisMonth || 0} este mes`}
-										</span>
-									</div>
-									<div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-										<div className="bg-orange-500 h-2 rounded-full" style={{ width: '72%' }}></div>
-									</div>
-								</div>
-
-								{/* Pending Payments Indicator */}
-								<div className="group-hover:bg-gray-50 dark:group-hover:bg-gray-800/30 p-3 rounded-lg transition-all duration-300 hover:scale-[1.02]">
-									<div className="flex items-center justify-between mb-2">
-										<span className="text-sm font-medium text-gray-600 dark:text-gray-400">Pagos Pendientes</span>
-										<span className="text-sm font-bold text-red-700 dark:text-red-300">
-											{isLoading ? '...' : formatCurrency(stats?.pendingPayments || 0)}
-										</span>
-									</div>
-									<div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-										<div
-											className="bg-red-500 h-2 rounded-full"
-											style={{
-												width: `${
-													stats?.pendingPayments ? Math.min((stats.pendingPayments / stats.totalRevenue) * 100, 100) : 0
-												}%`,
-											}}
-										></div>
-									</div>
-								</div>
-							</div>
-						</div>
-					</Card>
+						{/* Origin Revenue Report */}
+						<OriginRevenueReport />
+					</div>
 				</div>
 			</div>
 

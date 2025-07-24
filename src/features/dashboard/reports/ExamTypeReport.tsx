@@ -5,32 +5,32 @@ import { useDashboardStats } from '@shared/hooks/useDashboardStats'
 import { useBreakpoint } from '@shared/components/ui/media-query'
 
 const ExamTypeReport: React.FC = () => {
-  const { data: stats, isLoading } = useDashboardStats()
-  const isDesktop = useBreakpoint('lg')
+	const { data: stats, isLoading } = useDashboardStats()
+	const isDesktop = useBreakpoint('lg')
 
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('es-VE', {
-      style: 'currency',
-      currency: 'USD',
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    }).format(amount)
-  }
+	const formatCurrency = (amount: number) => {
+		return new Intl.NumberFormat('es-VE', {
+			style: 'currency',
+			currency: 'USD',
+			minimumFractionDigits: 0,
+			maximumFractionDigits: 0,
+		}).format(amount)
+	}
 
-  // Get exam type icon based on type
-  const getExamTypeIcon = (examType: string) => {
-    const type = examType.toLowerCase()
-    if (type.includes('citologia')) {
-      return <Eye className="w-4 h-4 text-white" />
-    } else if (type.includes('biopsia')) {
-      return <Activity className="w-4 h-4 text-white" />
-    } else if (type.includes('inmunohistoquimica')) {
-      return <Heart className="w-4 h-4 text-white" />
-    }
-    return <Stethoscope className="w-4 h-4 text-white" />
-  }
+	// Get exam type icon based on type
+	const getExamTypeIcon = (examType: string) => {
+		const type = examType.toLowerCase()
+		if (type.includes('citologia')) {
+			return <Eye className="w-4 h-4 text-white" />
+		} else if (type.includes('biopsia')) {
+			return <Activity className="w-4 h-4 text-white" />
+		} else if (type.includes('inmunohistoquimica')) {
+			return <Heart className="w-4 h-4 text-white" />
+		}
+		return <Stethoscope className="w-4 h-4 text-white" />
+	}
 
-  return (
+	return (
 		<Card className="col-span-1 grid hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 transition-all duration-300 shadow-lg mb-6">
 			<div className="bg-white dark:bg-background rounded-xl p-3 sm:p-5 overflow-hidden">
 				<div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 sm:mb-6">
@@ -105,7 +105,8 @@ const ExamTypeReport: React.FC = () => {
 																style={{
 																	width: `${
 																		stats.revenueByExamType.length > 0
-																			? (exam.revenue / Math.max(...stats.revenueByExamType.map((e) => e.revenue))) * 100
+																			? (exam.revenue / Math.max(...stats.revenueByExamType.map((e) => e.revenue))) *
+																			  100
 																			: 0
 																	}%`,
 																}}
@@ -123,18 +124,24 @@ const ExamTypeReport: React.FC = () => {
 									{stats.revenueByExamType.map((exam, index) => {
 										const colors = ['bg-blue-500', 'bg-green-500', 'bg-orange-500', 'bg-red-500']
 										const percentage = stats.totalRevenue > 0 ? (exam.revenue / stats.totalRevenue) * 100 : 0
-										
+
 										return (
-											<div 
+											<div
 												key={index}
 												className="bg-white dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-lg p-3 w-full"
 											>
 												<div className="flex items-center gap-2 mb-2 flex-wrap">
-													<div className={`w-8 h-8 ${colors[index % colors.length]} rounded-lg flex items-center justify-center`}>
+													<div
+														className={`w-8 h-8 ${
+															colors[index % colors.length]
+														} rounded-lg flex items-center justify-center`}
+													>
 														{getExamTypeIcon(exam.examType)}
 													</div>
 													<div className="flex-1 min-w-0 max-w-full">
-														<p className="font-medium text-gray-700 dark:text-gray-300 text-sm truncate">{exam.examType}</p>
+														<p className="font-medium text-gray-700 dark:text-gray-300 text-sm truncate">
+															{exam.examType}
+														</p>
 														<div className="flex items-center gap-2">
 															<span className="inline-flex items-center justify-center px-2 py-0.5 text-xs font-medium rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300">
 																{exam.count} caso{exam.count !== 1 ? 's' : ''}
