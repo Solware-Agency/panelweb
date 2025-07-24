@@ -90,7 +90,7 @@ export const PaymentMethodItem = memo(
 											<Input
 												type="text"
 												inputMode="decimal"
-												iconLeft={<DollarSign className="h-4 w-4 text-muted-foreground" />}
+												
 												placeholder={calculatorHandler.placeholder}
 												value={calculatorHandler.displayValue}
 												onKeyDown={calculatorHandler.handleKeyDown}

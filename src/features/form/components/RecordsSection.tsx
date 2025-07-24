@@ -207,7 +207,9 @@ export const RecordsSection: React.FC<RecordsSectionProps> = ({
 	}, [cases])
 
 	// Get exam type icon
-	const getExamTypeIcon = useCallback((examType: string) => {
+	const getExamTypeIcon = useCallback((examType: string | null) => {
+		if (!examType) return <FileText className="h-4 w-4" />
+		
 		switch (examType.toLowerCase()) {
 			case 'biopsia':
 				return <Activity className="h-4 w-4" />
@@ -222,138 +224,171 @@ export const RecordsSection: React.FC<RecordsSectionProps> = ({
 
 	return (
 		<div>
-			<div className="grid grid-cols-1 md:grid-cols-3 gap-5 w-full">
-				{/* Logo */}
-					<div className="col-span-1">
-						<h2 className="text-xl sm:text-2xl font-semibold text-foreground mb-1 sm:mb-2">Casos de Laboratorio</h2>
-						<div className="w-16 sm:w-24 h-1 bg-primary mt-2 rounded-full" />
-					</div>
-				{/* Statistics cards */}
-				<div className="grid grid-cols-1 sm:grid-cols-3 gap-4 w-full col-span-2">
-					{/* Pending Cases Card - Rediseñada más compacta */}
-					<Card
-						className={`hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 group cursor-pointer transition-all duration-300 ${
-							showPendingOnly ? 'border-primary shadow-lg shadow-primary/20' : ''
-						}`}
-						onClick={handleTogglePendingFilter}
-					>
-						<CardContent className="p-4">
-							<div className="flex items-center justify-between">
-								<div className="flex items-center gap-3">
-									<div className="p-2 rounded-lg bg-orange-100 dark:bg-orange-900/30">
-										<Users
-											className={`h-5 w-5 ${showPendingOnly ? 'text-primary' : 'text-orange-600 dark:text-orange-400'}`}
-										/>
-									</div>
-									<div>
-										<p className="text-xs font-medium text-muted-foreground">Casos Pendientes</p>
-										<p className="text-xl font-bold">
-											{stats.total > 0 ? Math.round(((stats.total - stats.completed) / stats.total) * 100) : 0}%
-										</p>
-									</div>
+			{/* Title Section */}
+			<div className="mb-4 sm:mb-6">
+				<h2 className="text-xl sm:text-2xl font-semibold text-foreground mb-1 sm:mb-2">Casos de Laboratorio</h2>
+				<div className="w-16 sm:w-24 h-1 bg-primary mt-2 rounded-full" />
+			</div>
+
+			{/* Statistics cards */}
+			<div className="grid grid-cols-1 md:grid-cols-3 gap-5 w-full mb-4 sm:mb-6">
+				{/* Combined Pending Cases and PDF Card */}
+				<Card className="hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 group transition-all duration-300">
+					<CardContent className="p-4">
+						{/* Pending Cases Button */}
+						<button
+							className={`w-full flex items-center justify-between p-3 rounded-lg border transition-all duration-200 cursor-pointer hover:scale-[1.02] hover:shadow-md ${
+								showPendingOnly
+									? 'border-primary bg-primary/10 shadow-md shadow-primary/20'
+									: 'border-border hover:border-orange-300 hover:bg-orange-50 dark:hover:bg-orange-900/20'
+							}`}
+							onClick={handleTogglePendingFilter}
+						>
+							<div className="flex items-center gap-3">
+								<div className={`p-2 rounded-lg transition-colors duration-200 ${
+									showPendingOnly 
+										? 'bg-primary/20' 
+										: 'bg-orange-100 dark:bg-orange-900/30 hover:bg-orange-200 dark:hover:bg-orange-800/40'
+								}`}>
+									<Users
+										className={`h-5 w-5 transition-colors duration-200 ${
+											showPendingOnly 
+												? 'text-primary' 
+												: 'text-orange-600 dark:text-orange-400'
+										}`}
+									/>
+								</div>
+								<div>
+									<p className="text-xs font-medium text-muted-foreground">Casos Pendientes</p>
+									<p className="text-xl font-bold">
+										{stats.total > 0 ? Math.round(((stats.total - stats.completed) / stats.total) * 100) : 0}%
+									</p>
 								</div>
 							</div>
-							<div className="mt-3 pt-3 border-t border-border">
+							<div className="text-right">
 								<p className="text-xs text-muted-foreground">
 									{stats.total - stats.completed} de {stats.total} casos
 								</p>
 							</div>
-						</CardContent>
-					</Card>
+						</button>
 
-					{/* PDF Ready Cases Card - Rediseñada más compacta */}
-					<Card
-						className={`hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 group cursor-pointer transition-all duration-300 ${
-							showPdfReadyOnly ? 'border-primary shadow-lg shadow-primary/20' : ''
-						}`}
-						onClick={handleTogglePdfFilter}
-					>
-						<CardContent className="p-4">
-							<div className="flex items-center justify-between">
-								<div className="flex items-center gap-3">
-									<div className="p-2 rounded-lg bg-green-100 dark:bg-green-900/30">
-										<Download
-											className={`h-5 w-5 ${showPdfReadyOnly ? 'text-primary' : 'text-green-600 dark:text-green-400'}`}
-										/>
-									</div>
-									<div>
-										<p className="text-xs font-medium text-muted-foreground">PDF Pendientes</p>
-										<p className="text-xl font-bold">{pdfReadyCases}</p>
-									</div>
-								</div>
-							</div>
-							<div className="mt-3 pt-3 border-t border-border">
-								<p className="text-xs text-muted-foreground">pendientes por generar</p>
-							</div>
-						</CardContent>
-					</Card>
-
-					{/* Exam Types Card - Rediseñada más compacta */}
-					<Card className="hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 group transition-all duration-300">
-						<CardContent className="p-4">
-							<div className="flex items-center gap-3 mb-3">
-								<div className="p-2 rounded-lg bg-blue-100 dark:bg-blue-900/30">
-									<Activity className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+						{/* PDF Ready Button */}
+						<button
+							className={`w-full flex items-center justify-between p-3 rounded-lg border transition-all duration-200 cursor-pointer hover:scale-[1.02] hover:shadow-md mt-3 ${
+								showPdfReadyOnly
+									? 'border-primary bg-primary/10 shadow-md shadow-primary/20'
+									: 'border-border hover:border-green-300 hover:bg-green-50 dark:hover:bg-green-900/20'
+							}`}
+							onClick={handleTogglePdfFilter}
+						>
+							<div className="flex items-center gap-3">
+								<div className={`p-2 rounded-lg transition-colors duration-200 ${
+									showPdfReadyOnly 
+										? 'bg-primary/20' 
+										: 'bg-green-100 dark:bg-green-900/30 hover:bg-green-200 dark:hover:bg-green-800/40'
+								}`}>
+									<Download
+										className={`h-5 w-5 transition-colors duration-200 ${
+											showPdfReadyOnly 
+												? 'text-primary' 
+												: 'text-green-600 dark:text-green-400'
+										}`}
+									/>
 								</div>
 								<div>
-									<p className="text-xs font-medium text-muted-foreground">Tipos de Examen</p>
-									<p className="text-xs text-muted-foreground">Pendientes por tipo</p>
+									<p className="text-xs font-medium text-muted-foreground">PDF Pendientes</p>
+									<p className="text-xl font-bold">{pdfReadyCases}</p>
 								</div>
 							</div>
-
-							<div className="space-y-2">
-								{/* Biopsia */}
-								<div
-									className={`flex items-center justify-between p-2 rounded-lg border transition-all duration-200 cursor-pointer hover:bg-accent ${
-										selectedExamType === 'biopsia'
-											? 'border-primary bg-primary/10'
-											: 'border-border hover:border-primary/50'
-									}`}
-									onClick={() => handleExamTypeFilter('biopsia')}
-								>
-									<div className="flex items-center gap-2">
-										<Activity className="h-3 w-3 text-red-500" />
-										<span className="text-xs font-medium">Biopsia</span>
-									</div>
-									<span className="text-sm font-bold">{examTypeCounts['biopsia'] || 0}</span>
-								</div>
-
-								{/* Citología */}
-								<div
-									className={`flex items-center justify-between p-2 rounded-lg border transition-all duration-200 cursor-pointer hover:bg-accent ${
-										selectedExamType === 'citologia'
-											? 'border-primary bg-primary/10'
-											: 'border-border hover:border-primary/50'
-									}`}
-									onClick={() => handleExamTypeFilter('citologia')}
-								>
-									<div className="flex items-center gap-2">
-										<FileText className="h-3 w-3 text-blue-500" />
-										<span className="text-xs font-medium">Citología</span>
-									</div>
-									<span className="text-sm font-bold">{examTypeCounts['citologia'] || 0}</span>
-								</div>
-
-								{/* Inmunohistoquímica */}
-								<div
-									className={`flex items-center justify-between p-2 rounded-lg border transition-all duration-200 cursor-pointer hover:bg-accent ${
-										selectedExamType === 'inmunohistoquimica'
-											? 'border-primary bg-primary/10'
-											: 'border-border hover:border-primary/50'
-									}`}
-									onClick={() => handleExamTypeFilter('inmunohistoquimica')}
-								>
-									<div className="flex items-center gap-2">
-										<Microscope className="h-3 w-3 text-purple-500" />
-										<span className="text-xs font-medium">Inmuno</span>
-									</div>
-									<span className="text-sm font-bold">{examTypeCounts['inmunohistoquimica'] || 0}</span>
-								</div>
+							<div className="text-right">
+								<p className="text-xs text-muted-foreground">
+									pendientes por generar
+								</p>
 							</div>
-						</CardContent>
-					</Card>
-				</div>
+						</button>
+
+						{/* Status indicators */}
+						<div className="mt-3 pt-3 border-t border-border">
+							{showPendingOnly && (
+								<p className="text-xs text-primary font-medium">Mostrando casos pendientes</p>
+							)}
+							{showPdfReadyOnly && (
+								<p className="text-xs text-primary font-medium">Mostrando PDF disponibles</p>
+							)}
+							{!showPendingOnly && !showPdfReadyOnly && (
+								<p className="text-xs text-muted-foreground">Haz clic en un botón para filtrar</p>
+							)}
+						</div>
+					</CardContent>
+				</Card>
+
+				{/* Exam Types Card - Rediseñada más compacta */}
+				<Card className="hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 group transition-all duration-300">
+					<CardContent className="p-4">
+						<div className="flex items-center gap-3 mb-3">
+							<div className="p-2 rounded-lg bg-blue-100 dark:bg-blue-900/30">
+								<Activity className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+							</div>
+							<div>
+								<p className="text-xs font-medium text-muted-foreground">Tipos de Examen</p>
+								<p className="text-xs text-muted-foreground">Pendientes por tipo</p>
+							</div>
+						</div>
+
+						<div className="space-y-2">
+							{/* Biopsia */}
+							<div
+								className={`flex items-center justify-between p-2 rounded-lg border transition-all duration-200 cursor-pointer hover:bg-accent ${
+									selectedExamType === 'biopsia'
+										? 'border-primary bg-primary/10'
+										: 'border-border hover:border-primary/50'
+								}`}
+								onClick={() => handleExamTypeFilter('biopsia')}
+							>
+								<div className="flex items-center gap-2">
+									<Activity className="h-3 w-3 text-red-500" />
+									<span className="text-xs font-medium">Biopsia</span>
+								</div>
+								<span className="text-sm font-bold">{examTypeCounts['biopsia'] || 0}</span>
+							</div>
+
+							{/* Citología */}
+							<div
+								className={`flex items-center justify-between p-2 rounded-lg border transition-all duration-200 cursor-pointer hover:bg-accent ${
+									selectedExamType === 'citologia'
+										? 'border-primary bg-primary/10'
+										: 'border-border hover:border-primary/50'
+								}`}
+								onClick={() => handleExamTypeFilter('citologia')}
+							>
+								<div className="flex items-center gap-2">
+									<FileText className="h-3 w-3 text-blue-500" />
+									<span className="text-xs font-medium">Citología</span>
+								</div>
+								<span className="text-sm font-bold">{examTypeCounts['citologia'] || 0}</span>
+							</div>
+
+							{/* Inmunohistoquímica */}
+							<div
+								className={`flex items-center justify-between p-2 rounded-lg border transition-all duration-200 cursor-pointer hover:bg-accent ${
+									selectedExamType === 'inmunohistoquimica'
+										? 'border-primary bg-primary/10'
+										: 'border-border hover:border-primary/50'
+								}`}
+								onClick={() => handleExamTypeFilter('inmunohistoquimica')}
+							>
+								<div className="flex items-center gap-2">
+									<Microscope className="h-3 w-3 text-purple-500" />
+									<span className="text-xs font-medium">Inmuno</span>
+								</div>
+								<span className="text-sm font-bold">{examTypeCounts['inmunohistoquimica'] || 0}</span>
+							</div>
+						</div>
+					</CardContent>
+				</Card>
 			</div>
+
+			{/* Branch Info */}
 			<div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-4 mb-4">
 				<div>
 					<div className="flex items-center gap-2 sm:gap-3">
