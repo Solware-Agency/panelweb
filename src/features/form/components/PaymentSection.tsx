@@ -92,6 +92,21 @@ export const PaymentSection = memo(({
 					/>
 				</div>
 
+				{/* Alerta de monto pendiente */}
+				{!isPaymentComplete && missingAmount > 0 && (
+					<div className="bg-red-900/70 text-red-200 border border-red-700 rounded-lg px-4 py-3 mb-2 text-sm font-semibold">
+						<div>
+							<span className="mr-2">⚠️</span>
+							Monto pendiente: ${missingAmount.toFixed(2)}
+						</div>
+						{exchangeRate && (
+							<div className="mt-1 text-xs text-red-300 font-normal">
+								Equivalente: Bs {(missingAmount * exchangeRate).toFixed(2)}
+							</div>
+						)}
+					</div>
+				)}
+
 				<PaymentMethodsList
 					control={control}
 					fields={fields}
