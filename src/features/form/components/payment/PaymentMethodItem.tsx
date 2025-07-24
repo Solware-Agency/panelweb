@@ -4,7 +4,7 @@ import { FormField, FormItem, FormLabel, FormControl } from '@shared/components/
 import { Input } from '@shared/components/ui/input'
 import { FormDropdown, createDropdownOptions } from '@shared/components/ui/form-dropdown'
 import { Button } from '@shared/components/ui/button'
-import { Trash2, DollarSign, FileText } from 'lucide-react'
+import { Trash2, FileText } from 'lucide-react'
 import { isBolivaresMethod } from '@features/form/lib/payment/payment-utils'
 import { createCalculatorInputHandlerWithCurrency } from '@shared/utils/number-utils'
 import { memo, useMemo, useCallback } from 'react'

@@ -11,7 +11,6 @@ import {
 	FileText,
 	DollarSign,
 	Microscope,
-	Cake,
 	PlusCircle,
 } from 'lucide-react'
 import type { MedicalRecord } from '@lib/supabase-service'
@@ -23,11 +22,8 @@ import { useUserProfile } from '@shared/hooks/useUserProfile'
 import { Input } from '@shared/components/ui/input'
 import { Textarea } from '@shared/components/ui/textarea'
 import { FormDropdown, createDropdownOptions } from '@shared/components/ui/form-dropdown'
-import { format, parseISO } from 'date-fns'
+import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
-import { Popover, PopoverContent, PopoverTrigger } from '@shared/components/ui/popover'
-import { Calendar as CalendarComponent } from '@shared/components/ui/calendar'
-import { cn } from '@shared/lib/cn'
 import {
 	parseDecimalNumber,
 	formatNumberForInput,
@@ -38,6 +34,9 @@ import {
 } from '@shared/utils/number-utils'
 import { calculatePaymentDetails } from '@features/form/lib/payment/payment-utils'
 import { useBodyScrollLock } from '@shared/hooks/useBodyScrollLock'
+import { FormField, FormItem, FormLabel, FormControl } from '@shared/components/ui/form'
+import { type FormValues } from '@features/form/lib/form-schema'
+import { type Control } from 'react-hook-form'
 
 interface UnifiedCaseModalProps {
 	case_: MedicalRecord | null
@@ -45,19 +44,32 @@ interface UnifiedCaseModalProps {
 	onClose: () => void
 	onSave?: () => void
 	onDelete?: () => void
+	control?: Control<FormValues>
+	inputStyles?: string
 }
 
-const UnifiedCaseModal: React.FC<UnifiedCaseModalProps> = ({ case_, isOpen, onClose, onSave, onDelete }) => {
+const UnifiedCaseModal: React.FC<UnifiedCaseModalProps> = ({
+	control,
+	inputStyles,
+	case_,
+	isOpen,
+	onClose,
+	onSave,
+	onDelete,
+}) => {
 	const [isDeleting, setIsDeleting] = useState(false)
 	const [isConfirmDeleteOpen, setIsConfirmDeleteOpen] = useState(false)
 	const [isEditing, setIsEditing] = useState(false)
 	const [isSaving, setIsSaving] = useState(false)
 	const [formData, setFormData] = useState<Partial<MedicalRecord>>({})
-	const [isDateOfBirthOpen, setIsDateOfBirthOpen] = useState(false)
 	const { toast } = useToast()
 	const { user } = useAuth()
 	const { profile } = useUserProfile()
 	useBodyScrollLock(isOpen)
+
+	// Estado para los campos de edad cuando no hay control externo
+	const [ageValue, setAgeValue] = useState(0)
+	const [ageUnit, setAgeUnit] = useState<'MESES' | 'AÑOS'>('AÑOS')
 
 	// Determine if user can edit/delete records (only owners and employees)
 	const canEdit = profile?.role === 'owner' || profile?.role === 'employee'
@@ -93,6 +105,10 @@ const UnifiedCaseModal: React.FC<UnifiedCaseModalProps> = ({ case_, isOpen, onCl
 				payment_amount_4: case_.payment_amount_4,
 				payment_reference_4: case_.payment_reference_4,
 			})
+
+			// Initialize age values
+			setAgeValue(typeof case_.edad === 'number' ? case_.edad : 0)
+			setAgeUnit('AÑOS') // Default value, you might want to extract this from case_.edad if available
 		}
 	}, [case_])
 
@@ -423,63 +439,88 @@ const UnifiedCaseModal: React.FC<UnifiedCaseModalProps> = ({ case_, isOpen, onCl
 												<p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">Edad:</p>
 												{isEditing ? (
 													<div className="mt-1">
-														<Popover open={isDateOfBirthOpen} onOpenChange={setIsDateOfBirthOpen}>
-															<PopoverTrigger asChild>
-																<Button
-																	variant="outline"
-																	className={cn(
-																		'w-full justify-start text-left font-normal',
-																		!formData.edad && 'text-muted-foreground',
+														{control ? (
+															<>
+																<FormField
+																	control={control}
+																	name="ageValue"
+																	render={({ field }) => (
+																		<FormItem className="space-y-2 flex flex-col col-span-1">
+																			<FormLabel>Edad</FormLabel>
+																			<FormControl>
+																				<Input
+																					type="number"
+																					placeholder="0"
+																					min="0"
+																					max="150"
+																					{...field}
+																					value={field.value === 0 ? '' : field.value}
+																					onChange={(e) => {
+																						const value = e.target.value
+																						field.onChange(value === '' ? 0 : Number(value))
+																					}}
+																					className={inputStyles || ''}
+																				/>
+																			</FormControl>
+																		</FormItem>
 																	)}
-																>
-																	<Cake className="mr-2 h-4 w-4 text-pink-500" />
-																	{formData.edad ? (
-																		<div className="flex items-center gap-2">
-																			<span>
-																				{format(parseISO(formData.edad as string), 'PPP', { locale: es })}
-																			</span>
-																			{formData.edad && (
-																				<span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">
-																					{getAgeDisplay(formData.edad as string)}
-																				</span>
-																			)}
-																		</div>
-																	) : (
-																		<span>Selecciona fecha de nacimiento</span>
-																	)}
-																</Button>
-															</PopoverTrigger>
-															<PopoverContent className="w-auto p-0 z-[9999999]">
-																<CalendarComponent
-																	mode="single"
-																	selected={
-																		formData.edad ? parseISO(formData.edad as string) : undefined
-																	}
-																	onSelect={(date) => {
-																		if (date) {
-																			handleInputChange('edad', format(date, 'yyyy-MM-dd'))
-																			setIsDateOfBirthOpen(false)
-																		}
-																	}}
-																	disabled={(date) => {
-																		const today = new Date()
-																		const maxAge = new Date(
-																			today.getFullYear() - 150,
-																			today.getMonth(),
-																			today.getDate(),
-																		)
-																		return date > today || date < maxAge
-																	}}
-																	initialFocus
-																	locale={es}
 																/>
-															</PopoverContent>
-														</Popover>
+																<FormField
+																	control={control}
+																	name="ageUnit"
+																	render={({ field }) => (
+																		<FormItem className="space-y-2 flex flex-col col-span-1">
+																			<FormLabel className="text-transparent">Unidad</FormLabel>
+																			<FormControl>
+																				<FormDropdown
+																					options={createDropdownOptions(['MESES', 'AÑOS'])}
+																					value={field.value}
+																					onChange={field.onChange}
+																					placeholder="Unidad"
+																					className={inputStyles || ''}
+																				/>
+																			</FormControl>
+																		</FormItem>
+																	)}
+																/>
+															</>
+														) : (
+															<>
+																<div className="space-y-2 flex flex-col col-span-1">
+																	<label className="text-sm font-medium">Edad</label>
+																	<Input
+																		type="number"
+																		placeholder="0"
+																		min="0"
+																		max="150"
+																		value={ageValue === 0 ? '' : ageValue}
+																		onChange={(e) => {
+																			const value = e.target.value
+																			const numValue = value === '' ? 0 : Number(value)
+																			setAgeValue(numValue)
+																			handleInputChange('edad', numValue)
+																		}}
+																		className="mt-1"
+																	/>
+																</div>
+																<div className="space-y-2 flex flex-col col-span-1">
+																	<label className="text-sm font-medium text-transparent">Unidad</label>
+																	<FormDropdown
+																		options={createDropdownOptions(['MESES', 'AÑOS'])}
+																		value={ageUnit}
+																		onChange={(value) => {
+																			setAgeUnit(value as 'MESES' | 'AÑOS')
+																			// Aquí podrías actualizar el formData si es necesario
+																		}}
+																		placeholder="Unidad"
+																		className="mt-1"
+																	/>
+																</div>
+															</>
+														)}
 													</div>
 												) : (
-													<p className="text-sm sm:text-base font-medium">
-														{ageDisplay}
-													</p>
+													<p className="text-sm sm:text-base font-medium">{ageDisplay}</p>
 												)}
 											</div>
 											<div>

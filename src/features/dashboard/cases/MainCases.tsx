@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useMemo } from 'react'
-import { Download, RefreshCw, Users, Activity, FileText, Microscope } from 'lucide-react'
+import { Download, Users, Activity, FileText, Microscope } from 'lucide-react'
 import CasesTable from '@shared/components/cases/CasesTable'
 import CaseDetailPanel from '@shared/components/cases/CaseDetailPanel'
 import type { MedicalRecord } from '@lib/supabase-service'
@@ -35,10 +35,6 @@ const MainCases: React.FC = React.memo(() => {
 		// Delay clearing selected case to allow animation to complete
 		setTimeout(() => setSelectedCase(null), 300)
 	}, [])
-
-	const handleRefresh = useCallback(() => {
-		refetch()
-	}, [refetch])
 
 	// Calculate statistics
 	const stats = useMemo(() => {
