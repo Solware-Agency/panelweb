@@ -498,22 +498,19 @@ const GenerateCaseModal: React.FC<GenerateCaseModalProps> = ({ case_, isOpen, on
 			})
 			return
 		}
-	
+
 		try {
 			setIsSaving(true)
-			
+
 			// Add more detailed logging
 			console.log('Sending request to n8n webhook with case ID:', case_.id)
-			
+
 			const requestBody = {
 				caseId: case_.id,
-				caseType: caseType,
-				patientName: case_.full_name,
-				examType: case_.exam_type
 			}
-	
+
 			console.log('Request body:', requestBody)
-	
+
 			const response = await fetch(
 				'https://solwareagencia.app.n8n.cloud/webhook-test/7c840100-fd50-4598-9c48-c7ce60f82506',
 				{
@@ -521,67 +518,67 @@ const GenerateCaseModal: React.FC<GenerateCaseModalProps> = ({ case_, isOpen, on
 					headers: {
 						'Content-Type': 'application/json',
 						// Add these headers to help with CORS if needed
-						'Accept': 'application/json',
+						Accept: 'application/json',
 					},
 					body: JSON.stringify(requestBody),
 				},
 			)
-	
+
 			console.log('Response status:', response.status)
 			console.log('Response headers:', response.headers)
-	
+
 			if (!response.ok) {
 				// Get more detailed error information
 				let errorMessage = `HTTP ${response.status}: ${response.statusText}`
-				
+
 				try {
 					const errorData = await response.text()
 					console.log('Error response body:', errorData)
 					errorMessage += ` - ${errorData}`
-				// eslint-disable-next-line @typescript-eslint/no-unused-vars
+					// eslint-disable-next-line @typescript-eslint/no-unused-vars
 				} catch (e) {
 					console.log('Could not read error response body')
 				}
-				
+
 				throw new Error(errorMessage)
 			}
-	
+
 			// Try to parse the response
 			let responseData
 			try {
 				responseData = await response.json()
 				console.log('Success response:', responseData)
-			// eslint-disable-next-line @typescript-eslint/no-unused-vars
+				// eslint-disable-next-line @typescript-eslint/no-unused-vars
 			} catch (e) {
 				// If it's not JSON, get as text
 				responseData = await response.text()
 				console.log('Success response (text):', responseData)
 			}
-	
+
 			toast({
 				title: '✅ Flujo activado',
 				description: 'El flujo de n8n ha sido activado exitosamente.',
 				className: 'bg-green-100 border-green-400 text-green-800',
 			})
-	
+
 			// You might want to refresh the case data or close the modal
 			// onSuccess()
 			// onClose()
-	
 		} catch (error) {
 			console.error('Error in handleGenerateCase:', error)
-			
+
 			// Provide more specific error messages based on the error type
 			let errorMessage = 'Hubo un problema al activar el flujo.'
-			
+
 			if (error instanceof TypeError && error.message === 'Failed to fetch') {
-				errorMessage = 'No se pudo conectar con el servidor. Verifica tu conexión a internet o contacta al administrador.'
+				errorMessage =
+					'No se pudo conectar con el servidor. Verifica tu conexión a internet o contacta al administrador.'
 			} else if (error instanceof Error && error.message.includes('CORS')) {
 				errorMessage = 'Error de configuración del servidor (CORS). Contacta al administrador.'
 			} else if (error instanceof Error && error.message.includes('HTTP')) {
 				errorMessage = `Error del servidor: ${error.message}`
 			}
-	
+
 			toast({
 				title: '❌ Error al activar flujo',
 				description: errorMessage,
@@ -764,7 +761,7 @@ const GenerateCaseModal: React.FC<GenerateCaseModalProps> = ({ case_, isOpen, on
 																Agregar Inmunorreacciones
 															</label>
 															<TagInput
-																value={inmunorreacciones}
+																value={inmunorreacciones ?? []}
 																onChange={setInmunorreacciones}
 																placeholder="Escribir inmunorreacción y presionar Enter..."
 																maxTags={20}
