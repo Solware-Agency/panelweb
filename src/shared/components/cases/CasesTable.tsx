@@ -10,6 +10,7 @@ import {
 	Stethoscope,
 	FileText,
 	Maximize2,
+	FlaskConical,
 } from 'lucide-react'
 import type { MedicalRecord } from '@lib/supabase-service'
 import { getAgeDisplay } from '@lib/supabase-service'
@@ -98,7 +99,7 @@ const CasesTable: React.FC<CasesTableProps> = React.memo(
 							{/* Botón Solicitar - Solo visible para admin y solo para inmunohistoquímica */}
 							{(profile?.role === 'admin' || profile?.role === 'owner') && isRequestableCase && (
 								<PopoverButton onClick={() => handleGenerateCase(case_)}>
-									<FileText className="w-4 h-4" />
+									<FlaskConical className="w-4 h-4" />
 									<span>Reacciones</span>
 								</PopoverButton>
 							)}

@@ -8,7 +8,7 @@ import { es } from 'date-fns/locale'
 import PatientHistoryModal from '@shared/components/patients/PatientHistoryModal'
 
 // Define interface for patient data
-type SortField = 'full_name' | 'id_number' | 'date_of_birth' | 'phone' | 'email'
+type SortField = 'full_name' | 'id_number' | 'date_of_birth' | 'phone' | 'email' | 'lastVisit'
 type SortDirection = 'asc' | 'desc'
 
 interface PatientData {
@@ -326,6 +326,15 @@ const PatientsList: React.FC<PatientsListProps> = React.memo(
 												<SortIcon field="email" />
 											</button>
 										</th>
+										<th className="w-[15%] px-4 py-3 text-left">
+											<button
+												onClick={() => handleSort('lastVisit')}
+												className="flex items-center gap-2 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider hover:text-gray-700 dark:hover:text-gray-200"
+											>
+												Última Visita
+												<SortIcon field="lastVisit" />
+											</button>
+										</th>
 									</tr>
 								</thead>
 								<tbody className="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-700">
@@ -338,7 +347,7 @@ const PatientsList: React.FC<PatientsListProps> = React.memo(
 											))
 									) : (
 										<tr>
-											<td colSpan={6} className="px-4 py-8 text-center text-gray-500 dark:text-gray-400">
+											<td colSpan={7} className="px-4 py-8 text-center text-gray-500 dark:text-gray-400">
 												<p className="text-lg font-medium">No se encontraron pacientes</p>
 												<p className="text-sm">
 													{searchTerm ? 'Intenta con otra búsqueda' : 'Aún no hay pacientes registrados'}
