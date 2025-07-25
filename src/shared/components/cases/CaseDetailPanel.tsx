@@ -1,6 +1,6 @@
 import React from 'react'
 import { motion, AnimatePresence } from 'motion/react'
-import { X, User, FileText, DollarSign, AlertTriangle, Microscope } from 'lucide-react'
+import { X, User, FileText, DollarSign, AlertTriangle, Microscope, Download } from 'lucide-react'
 import type { MedicalRecord } from '@lib/supabase-service'
 import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
@@ -73,6 +73,10 @@ const CaseDetailPanel: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClos
 										>
 											{case_.payment_status}
 										</span>
+										<button className="inline-flex items-center gap-1 px-1.5 sm:px-2 py-0.5 sm:py-1 text-xs font-semibold rounded-full bg-teal-100 text-teal-800 dark:bg-teal-900/30 dark:text-teal-300">
+											<Download className="w-4 h-4" />
+											Descargar PDF
+										</button>
 									</div>
 								</div>
 								<div className="flex items-center gap-2">
@@ -87,7 +91,7 @@ const CaseDetailPanel: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClos
 						</div>
 
 						{/* Content */}
-						<div className="p-3 sm:p-6 space-y-4 sm:space-y-6 overflow-y-auto flex-1">
+						<div className="p-3 space-y-4 sm:space-y-6 overflow-y-auto flex-1">
 							{/* Patient Information */}
 							<div className="bg-white dark:bg-background rounded-lg p-3 sm:p-4 border border-input">
 								<div className="flex items-center gap-1.5 sm:gap-2 mb-3 sm:mb-4">
@@ -108,9 +112,7 @@ const CaseDetailPanel: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClos
 									<div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
 										<div>
 											<p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">Edad:</p>
-											<p className="text-sm sm:text-base font-medium">
-												{ageDisplay}
-											</p>
+											<p className="text-sm sm:text-base font-medium">{ageDisplay}</p>
 										</div>
 										<div>
 											<p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">Teléfono:</p>

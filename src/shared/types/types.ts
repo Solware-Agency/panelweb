@@ -172,6 +172,7 @@ export type Database = {
 					generated_by_display_name: string | null
 					generated_at: string | null
 					ims: string | null
+					googledocs_url: string | null
 				}
 				Insert: {
 					id?: string
@@ -226,6 +227,7 @@ export type Database = {
 					generated_by_display_name?: string | null
 					generated_at?: string | null
 					ims?: string | null
+					googledocs_url?: string | null
 				}
 				Update: {
 					id?: string
@@ -280,6 +282,7 @@ export type Database = {
 					generated_by_display_name?: string | null
 					generated_at?: string | null
 					ims?: string | null
+					googledocs_url?: string | null
 				}
 				Relationships: []
 			}
