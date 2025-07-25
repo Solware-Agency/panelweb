@@ -23,7 +23,6 @@ import { useAuth } from '@app/providers/AuthContext'
 import FavIcon from '@shared/components/icons/FavIcon'
 import { useUserProfile } from '@shared/hooks/useUserProfile'
 import { cn } from '@shared/lib/cn'
-import {useBodyScrollLock} from '@shared/hooks/useBodyScrollLock'
 
 interface NavItemProps {
 	to: string
@@ -236,7 +235,6 @@ const Sidebar: React.FC<SidebarProps> = ({
 	const isOwner = profile?.role === 'owner'
 	const isEmployee = profile?.role === 'employee'
 
-	useBodyScrollLock(showFullContent)
 
 	return (
 		<aside className="bg-white/80 dark:bg-background/50 shadow-lg shadow-primary/50 backdrop-blur-[10px] flex flex-col justify-between h-screen py-4 sm:py-6 px-2 sm:px-4 gap-4 border-gray-600 text-gray-700 dark:text-white ease-in-out overflow-hidden border-r border-input">

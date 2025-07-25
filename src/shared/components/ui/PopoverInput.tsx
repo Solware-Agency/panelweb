@@ -71,7 +71,7 @@ export function PopoverRoot({ children, className }: PopoverRootProps) {
 	return (
 		<PopoverContext.Provider value={popoverLogic}>
 			<MotionConfig transition={TRANSITION}>
-				<div className={cn('relative flex items-center justify-center isolate z-[40]', className)}>{children}</div>
+				<div className={cn('relative flex items-center justify-center isolate z-[50]', className)}>{children}</div>
 			</MotionConfig>
 		</PopoverContext.Provider>
 	)

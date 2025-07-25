@@ -9,7 +9,6 @@ import {
 	User,
 	Stethoscope,
 	FileText,
-	Download,
 	Maximize2,
 } from 'lucide-react'
 import type { MedicalRecord } from '@lib/supabase-service'
@@ -20,10 +19,11 @@ import { useToast } from '@shared/hooks/use-toast'
 import { Button } from '@shared/components/ui/button'
 import { useAuth } from '@app/providers/AuthContext'
 import { useUserProfile } from '@shared/hooks/useUserProfile'
-import GenerateCaseModal from './GenerateCaseModal'
+import RequestCaseModal from './RequestCaseModal'
 import DoctorFilterPanel from './DoctorFilterPanel'
 import { generatePDF } from '@shared/utils/pdf-generator'
 import UnifiedCaseModal from './UnifiedCaseModal'
+import HorizontalLinearStepper from './StepsCaseModal'
 import {
 	PopoverBody,
 	PopoverButton,
@@ -67,17 +67,17 @@ const CasesTable: React.FC<CasesTableProps> = React.memo(
 		const [selectedDoctors, setSelectedDoctors] = useState<string[]>([])
 		const [showDoctorFilter, setShowDoctorFilter] = useState(false)
 		const [isSearching, setIsSearching] = useState(false)
+		const [isStepsModalOpen, setIsStepsModalOpen] = useState(false)
+		const handleGenerateEmployeeCase = useCallback((case_: MedicalRecord) => {
+			setSelectedCaseForGenerate(case_)
+			setIsStepsModalOpen(true)
+		}, [])
 
 		// Case actions popover component
+		// Modifica el CaseActionsPopover para cambiar las restricciones de roles
 		const CaseActionsPopover = ({ case_ }: { case_: MedicalRecord }) => {
 			const examType = case_.exam_type?.toLowerCase().trim() || ''
-			const isGeneratableCase =
-				examType.includes('biops') || examType.includes('inmuno') || examType.includes('citolog')
-			const hasDownloadableContent =
-				isGeneratableCase &&
-				(!!case_.diagnostico ||
-					!!case_.conclusion_diagnostica ||
-					(examType.includes('citolog') && !!case_.descripcion_macroscopica))
+			const isRequestableCase = examType.includes('inmuno')
 
 			return (
 				<PopoverRoot>
@@ -89,24 +89,17 @@ const CasesTable: React.FC<CasesTableProps> = React.memo(
 								<span>Ver</span>
 							</PopoverButton>
 
-							{isGeneratableCase && canGenerate && (
+							{/* Botón Generar - Visible para todos los roles */}
+							<PopoverButton onClick={() => handleGenerateEmployeeCase(case_)}>
+								<FileText className="w-4 h-4" />
+								<span>Generar</span>
+							</PopoverButton>
+
+							{/* Botón Solicitar - Solo visible para admin y solo para inmunohistoquímica */}
+							{(profile?.role === 'admin' || profile?.role === 'owner') && isRequestableCase && (
 								<PopoverButton onClick={() => handleGenerateCase(case_)}>
 									<FileText className="w-4 h-4" />
-									<span>Generar</span>
-								</PopoverButton>
-							)}
-
-							{hasDownloadableContent && (
-								<PopoverButton
-									onClick={() => handleDownloadCase(case_)}
-									className={isDownloading === case_.id ? 'opacity-50 cursor-not-allowed' : ''}
-								>
-									{isDownloading === case_.id ? (
-										<div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current"></div>
-									) : (
-										<Download className="w-4 h-4" />
-									)}
-									<span>PDF</span>
+									<span>Reacciones</span>
 								</PopoverButton>
 							)}
 						</PopoverBody>
@@ -116,7 +109,8 @@ const CasesTable: React.FC<CasesTableProps> = React.memo(
 		}
 
 		// Determine if user can edit, delete, or generate cases based on role
-		const canGenerate = profile?.role === 'owner' || profile?.role === 'admin'
+		// const canGenerate = profile?.role === 'owner' || profile?.role === 'admin'
+		const canRequest = profile?.role === 'owner' || profile?.role === 'admin'
 
 		// const isAdmin = profile?.role === 'admin'
 		// const isOwner = profile?.role === 'owner'
@@ -154,7 +148,7 @@ const CasesTable: React.FC<CasesTableProps> = React.memo(
 		const handleGenerateCase = useCallback(
 			(case_: MedicalRecord) => {
 				// Check if user has permission to generate cases
-				if (!canGenerate) {
+				if (!canRequest) {
 					toast({
 						title: '❌ Permiso denegado',
 						description: 'No tienes permisos para generar casos.',
@@ -165,10 +159,9 @@ const CasesTable: React.FC<CasesTableProps> = React.memo(
 
 				// Check if this is a generatable case type
 				const examType = case_.exam_type?.toLowerCase().trim() || ''
-				const isGeneratableCase =
-					examType.includes('biops') || examType.includes('inmuno') || examType.includes('citolog')
+				const isRequestableCase = examType.includes('inmuno')
 
-				if (!isGeneratableCase) {
+				if (!isRequestableCase) {
 					toast({
 						title: '❌ Tipo de examen incorrecto',
 						description: 'La generación de casos solo está disponible para biopsias, inmunohistoquímica y citología.',
@@ -180,7 +173,7 @@ const CasesTable: React.FC<CasesTableProps> = React.memo(
 				setSelectedCaseForGenerate(case_)
 				setIsGenerateModalOpen(true)
 			},
-			[toast, canGenerate],
+			[toast, canRequest],
 		)
 
 		const handleDownloadCase = useCallback(
@@ -703,7 +696,7 @@ const CasesTable: React.FC<CasesTableProps> = React.memo(
 						{/* Desktop View - Table with virtualization */}
 						<div className="hidden lg:block h-full overflow-y-auto">
 							<table className="w-full responsive-table">
-								<thead className="bg-gray-50/50 dark:bg-background/50 backdrop-blur-[10px] sticky top-0 z-50">
+								<thead className="bg-gray-50/50 dark:bg-background/50 backdrop-blur-[10px] sticky top-0 z-[60]">
 									<tr>
 										<th className="px-4 py-3 text-left">
 											<button
@@ -1032,7 +1025,7 @@ const CasesTable: React.FC<CasesTableProps> = React.memo(
 						<div className="overflow-x-auto responsive-table">
 							<div className="max-h-[60vh] overflow-y-auto">
 								<table className="w-full min-w-[800px]">
-									<thead className="bg-gray-50/50 dark:bg-background/50 backdrop-blur-[10px] sticky top-0 z-50">
+									<thead className="bg-gray-50/50 dark:bg-background/50 backdrop-blur-[10px] sticky top-0 z-[50]">
 										<tr>
 											<th className="px-4 py-3 text-left">
 												<button
@@ -1215,12 +1208,28 @@ const CasesTable: React.FC<CasesTableProps> = React.memo(
 					}}
 				/>
 
-				{/* Generate Case Modal */}
-				<GenerateCaseModal
-					case_={selectedCaseForGenerate}
-					isOpen={isGenerateModalOpen}
+				{/* Generate Case Modal - Solo para admin y solo para inmunohistoquímica */}
+				{(profile?.role === 'admin' || profile?.role === 'owner') &&
+					selectedCaseForGenerate?.exam_type?.toLowerCase().includes('inmuno') && (
+						<RequestCaseModal
+							case_={selectedCaseForGenerate}
+							isOpen={isGenerateModalOpen}
+							onClose={() => {
+								setIsGenerateModalOpen(false)
+								setSelectedCaseForGenerate(null)
+							}}
+							onSuccess={() => {
+								refetch()
+							}}
+						/>
+					)}
+
+				{/* Steps Case Modal - Para todos los roles */}
+				<HorizontalLinearStepper
+					case_={selectedCaseForGenerate as MedicalRecord}
+					isOpen={isStepsModalOpen}
 					onClose={() => {
-						setIsGenerateModalOpen(false)
+						setIsStepsModalOpen(false)
 						setSelectedCaseForGenerate(null)
 					}}
 					onSuccess={() => {
