@@ -16,6 +16,8 @@ import {
 	Microscope,
 } from 'lucide-react'
 import { useToast } from '@shared/hooks/use-toast'
+import { useBodyScrollLock } from '@shared/hooks/useBodyScrollLock'
+
 interface MedicalRecord {
 	id?: string
 	full_name?: string
@@ -63,7 +65,7 @@ const StepsCaseModal: React.FC<StepsCaseModalProps> = ({ case_, isOpen, onClose,
 	const [isCompleting, setIsCompleting] = useState(false)
 	const [, setIsSaving] = useState(false)
 	const { toast } = useToast()
-
+	useBodyScrollLock(isOpen)
 	const handleNext = () => {
 		if (activeStep < steps.length - 1) {
 			setActiveStep((prev) => prev + 1)
@@ -256,14 +258,14 @@ const StepsCaseModal: React.FC<StepsCaseModalProps> = ({ case_, isOpen, onClose,
 				attempts++
 			}
 	
-			if (foundURL) {
-				window.open(foundURL, '_blank')
-			} else {
-				console.warn('[3] Documento no disponible después del polling.')
+			try {
+				window.open(foundURL as string, '_blank')
+			} catch (err) {
+				console.error('Error al abrir el Documento:', err)
 				toast({
-					title: '⚠️ Documento no disponible',
-					description: 'El documento aún no está listo. Intenta nuevamente en unos segundos.',
-					variant: 'default',
+					title: '❌ Error',
+					description: 'No se pudo acceder al Documento. Intenta nuevamente.',
+					variant: 'destructive',
 				})
 			}
 		} catch (err) {
@@ -394,18 +396,9 @@ const StepsCaseModal: React.FC<StepsCaseModalProps> = ({ case_, isOpen, onClose,
 		}
 	
 		try {
-			// 🛡️ Aquí generamos la URL firmada por 2 minutos (120 segundos)
-			const { data: signed, error: signedError } = await supabase.storage
-				.from('assets') // 👈 cambia esto por el nombre real del bucket (sin / ni comillas extras)
-				.createSignedUrl(data.informepdf_url, 120)
-	
-			if (signedError || !signed?.signedUrl) {
-				throw new Error('No se pudo generar el enlace firmado.')
-			}
-	
-			window.open(signed.signedUrl, '_blank')
+			window.open(data.informepdf_url, '_blank')
 		} catch (err) {
-			console.error('Error al generar signed URL:', err)
+			console.error('Error al abrir el PDF:', err)
 			toast({
 				title: '❌ Error',
 				description: 'No se pudo acceder al PDF. Intenta nuevamente.',
