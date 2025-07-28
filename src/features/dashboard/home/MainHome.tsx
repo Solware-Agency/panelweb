@@ -35,7 +35,7 @@ function MainHome() {
 		}).format(amount)
 	}
 
-	const handleMonthBarClick = (monthData: any) => {
+	const handleMonthBarClick = (monthData: { monthIndex: number }) => {
 		// FIXED: Use the monthIndex to create the correct date
 		const clickedDate = new Date(selectedYear, monthData.monthIndex, 1)
 		setSelectedMonth(clickedDate)
@@ -206,7 +206,7 @@ function MainHome() {
 							positive: true,
 						}}
 						onClick={() => handleStatCardClick('monthlyRevenue')}
-						className="col-span-1 sm:col-span-1 lg:col-span-3 row-span-1 lg:row-span-1"
+						className="col-span-1 sm:col-span-1 lg:col-span-3 row-span-1 lg:row-span-1 transition-none`"
 						statType="monthlyRevenue"
 						isSelected={selectedStat === 'monthlyRevenue' && isDetailPanelOpen}
 					/>
@@ -256,7 +256,7 @@ function MainHome() {
 										<div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-500"></div>
 									</div>
 								) : (
-									stats?.salesTrendByMonth.map((month, _index) => {
+									stats?.salesTrendByMonth.map((month) => {
 										const maxRevenue = Math.max(...(stats?.salesTrendByMonth.map((m) => m.revenue) || [1]))
 										const height = maxRevenue > 0 ? (month.revenue / maxRevenue) * 100 : 0
 										const isSelected = month.isSelected
@@ -425,7 +425,7 @@ function MainHome() {
 							</div>
 							<div className="space-y-1.5 sm:space-y-2 md:space-y-3 flex-1">
 								{/* Incomplete Cases Alert */}
-								<div className="p-1.5 sm:p-2 md:p-3 bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-800 rounded-lg cursor-pointer hover:scale-105 hover:shadow-lg hover:shadow-primary/20 transition-all duration-300">
+								<div className="p-1.5 sm:p-2 md:p-3 bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-800 rounded-lg cursor-pointer hover:scale-105 hover:shadow-lg hover:shadow-primary/20 transition-transform duration-300">
 									<div className="flex items-center gap-1.5 sm:gap-2 mb-0.5 sm:mb-1">
 										<AlertTriangle className="w-4 h-4 text-orange-500 dark:text-orange-400" />
 										<span className="text-xs sm:text-sm font-medium text-orange-800 dark:text-orange-400">
@@ -438,7 +438,7 @@ function MainHome() {
 								</div>
 
 								{/* Pending Payments Alert */}
-								<div className="p-1.5 sm:p-2 md:p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg cursor-pointer hover:scale-105 hover:shadow-lg hover:shadow-primary/20 transition-all duration-300">
+								<div className="p-1.5 sm:p-2 md:p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg cursor-pointer hover:scale-105 hover:shadow-lg hover:shadow-primary/20 transition-transform duration-300">
 									<div className="flex items-center gap-1.5 sm:gap-2 mb-0.5 sm:mb-1">
 										<Clock className="w-4 h-4 text-red-500 dark:text-red-400" />
 										<span className="text-xs sm:text-sm font-medium text-red-800 dark:text-red-400">

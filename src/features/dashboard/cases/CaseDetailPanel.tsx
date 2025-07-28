@@ -791,7 +791,7 @@ const CaseDetailPanel: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClos
 										<div className="space-y-2">
 											{/* Payment Method 1 */}
 											{(case_.payment_method_1 || (isEditing && editedCase.payment_method_1)) && (
-												<div className="bg-white dark:bg-background p-3 rounded border border-gray-200 dark:border-gray-700 relative transition-all hover:border-gray-300 dark:hover:border-gray-600">
+												<div className="bg-white dark:bg-background p-3 rounded border border-gray-200 dark:border-gray-700 relative transition-transform duration-300 hover:border-gray-300 dark:hover:border-gray-600">
 													{isEditing ? (
 														<>
 															<div className="grid grid-cols-1 md:grid-cols-3 gap-2">
@@ -855,7 +855,7 @@ const CaseDetailPanel: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClos
 
 											{/* Payment Method 2 */}
 											{(case_.payment_method_2 || (isEditing && editedCase.payment_method_2)) && (
-												<div className="bg-white dark:bg-background p-3 rounded border border-gray-200 dark:border-gray-700 relative transition-all hover:border-gray-300 dark:hover:border-gray-600">
+												<div className="bg-white dark:bg-background p-3 rounded border border-gray-200 dark:border-gray-700 relative transition-transform duration-300 hover:border-gray-300 dark:hover:border-gray-600">
 													{isEditing ? (
 														<>
 															<div className="grid grid-cols-1 md:grid-cols-3 gap-2">
@@ -919,7 +919,7 @@ const CaseDetailPanel: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClos
 
 											{/* Payment Method 3 */}
 											{(case_.payment_method_3 || (isEditing && editedCase.payment_method_3)) && (
-												<div className="bg-white dark:bg-background p-3 rounded border border-gray-200 dark:border-gray-700 relative transition-all hover:border-gray-300 dark:hover:border-gray-600">
+												<div className="bg-white dark:bg-background p-3 rounded border border-gray-200 dark:border-gray-700 relative transition-transform duration-300 hover:border-gray-300 dark:hover:border-gray-600">
 													{isEditing ? (
 														<>
 															<div className="grid grid-cols-1 md:grid-cols-3 gap-2">
@@ -983,7 +983,7 @@ const CaseDetailPanel: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClos
 
 											{/* Payment Method 4 */}
 											{(case_.payment_method_4 || (isEditing && editedCase.payment_method_4)) && (
-												<div className="bg-white dark:bg-background p-3 rounded border border-gray-200 dark:border-gray-700 relative transition-all hover:border-gray-300 dark:hover:border-gray-600">
+												<div className="bg-white dark:bg-background p-3 rounded border border-gray-200 dark:border-gray-700 relative transition-transform duration-300 hover:border-gray-300 dark:hover:border-gray-600">
 													{isEditing ? (
 														<>
 															<div className="grid grid-cols-1 md:grid-cols-3 gap-2">

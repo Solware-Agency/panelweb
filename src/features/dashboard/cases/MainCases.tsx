@@ -116,13 +116,13 @@ const MainCases: React.FC = React.memo(() => {
 			{/* Statistics cards */}
 			<div className="grid grid-cols-1 md:grid-cols-3 gap-5 w-full mb-4 sm:mb-6">
 				{/* Combined Pending Cases and PDF Card */}
-				<Card className="hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 group transition-all duration-300">
+				<Card className="hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 group transition-transform duration-300">
 					<CardContent className="p-4">
 						{/* Pending Cases Button */}
-						<button className="w-full flex items-center justify-between p-3 rounded-lg border transition-all duration-200 cursor-pointer hover:scale-[1.02] hover:shadow-md border-border hover:border-orange-300 hover:bg-orange-50 dark:hover:bg-orange-900/20">
+						<button className="w-full flex items-center justify-between p-3 rounded-lg border transition-transform duration-200 cursor-pointer hover:scale-[1.02] hover:shadow-md border-border hover:border-orange-300 hover:bg-orange-50 dark:hover:bg-orange-900/20">
 							<div className="flex items-center gap-3">
-								<div className="p-2 rounded-lg transition-colors duration-200 bg-orange-100 dark:bg-orange-900/30 hover:bg-orange-200 dark:hover:bg-orange-800/40">
-									<Users className="h-5 w-5 transition-colors duration-200 text-orange-600 dark:text-orange-400" />
+								<div className="p-2 rounded-lg transition-transform duration-200 bg-orange-100 dark:bg-orange-900/30 hover:bg-orange-200 dark:hover:bg-orange-800/40">
+									<Users className="h-5 w-5 transition-transform duration-200 text-orange-600 dark:text-orange-400" />
 								</div>
 								<div>
 									<p className="text-xs font-medium text-muted-foreground">Casos Pendientes</p>
@@ -139,10 +139,10 @@ const MainCases: React.FC = React.memo(() => {
 						</button>
 
 						{/* PDF Ready Button */}
-						<button className="w-full flex items-center justify-between p-3 rounded-lg border transition-all duration-200 cursor-pointer hover:scale-[1.02] hover:shadow-md mt-3 border-border hover:border-green-300 hover:bg-green-50 dark:hover:bg-green-900/20">
+						<button className="w-full flex items-center justify-between p-3 rounded-lg border transition-transform duration-200 cursor-pointer hover:scale-[1.02] hover:shadow-md mt-3 border-border hover:border-green-300 hover:bg-green-50 dark:hover:bg-green-900/20">
 							<div className="flex items-center gap-3">
-								<div className="p-2 rounded-lg transition-colors duration-200 bg-green-100 dark:bg-green-900/30 hover:bg-green-200 dark:hover:bg-green-800/40">
-									<Download className="h-5 w-5 transition-colors duration-200 text-green-600 dark:text-green-400" />
+								<div className="p-2 rounded-lg transition-transform duration-200 bg-green-100 dark:bg-green-900/30 hover:bg-green-200 dark:hover:bg-green-800/40">
+									<Download className="h-5 w-5 transition-transform duration-200 text-green-600 dark:text-green-400" />
 								</div>
 								<div>
 									<p className="text-xs font-medium text-muted-foreground">PDF Pendientes</p>
@@ -164,7 +164,7 @@ const MainCases: React.FC = React.memo(() => {
 				</Card>
 
 				{/* Exam Types Card */}
-				<Card className="hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 group transition-all duration-300">
+					<Card className="hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 group transition-transform duration-300">
 					<CardContent className="p-4">
 						<div className="flex items-center gap-3 mb-3">
 							<div className="p-2 rounded-lg bg-blue-100 dark:bg-blue-900/30">
@@ -178,7 +178,7 @@ const MainCases: React.FC = React.memo(() => {
 
 						<div className="space-y-2">
 							{/* Biopsia */}
-							<div className="flex items-center justify-between p-2 rounded-lg border transition-all duration-200 cursor-pointer hover:bg-accent border-border hover:border-primary/50">
+							<div className="flex items-center justify-between p-2 rounded-lg border transition-transform duration-300 cursor-pointer hover:bg-accent border-border hover:border-primary/50">
 								<div className="flex items-center gap-2">
 									<Activity className="h-3 w-3 text-red-500" />
 									<span className="text-xs font-medium">Biopsia</span>
@@ -187,7 +187,7 @@ const MainCases: React.FC = React.memo(() => {
 							</div>
 
 							{/* Citología */}
-							<div className="flex items-center justify-between p-2 rounded-lg border transition-all duration-200 cursor-pointer hover:bg-accent border-border hover:border-primary/50">
+							<div className="flex items-center justify-between p-2 rounded-lg border transition-transform duration-300 cursor-pointer hover:bg-accent border-border hover:border-primary/50">
 								<div className="flex items-center gap-2">
 									<FileText className="h-3 w-3 text-blue-500" />
 									<span className="text-xs font-medium">Citología</span>
@@ -196,7 +196,7 @@ const MainCases: React.FC = React.memo(() => {
 							</div>
 
 							{/* Inmunohistoquímica */}
-							<div className="flex items-center justify-between p-2 rounded-lg border transition-all duration-200 cursor-pointer hover:bg-accent border-border hover:border-primary/50">
+							<div className="flex items-center justify-between p-2 rounded-lg border transition-transform duration-300 cursor-pointer hover:bg-accent border-border hover:border-primary/50">
 								<div className="flex items-center gap-2">
 									<Microscope className="h-3 w-3 text-purple-500" />
 									<span className="text-xs font-medium">Inmuno</span>
