@@ -46,9 +46,9 @@ export const ServiceSection = memo(({ control, inputStyles }: ServiceSectionProp
 							<FormControl>
 								<FormDropdown
 									options={createDropdownOptions([
-										{ value: 'inmunohistoquimica', label: 'Inmunohistoquímica' },
-										{ value: 'biopsia', label: 'Biopsia' },
-										{ value: 'citologia', label: 'Citología' },
+										{ value: 'Inmunohistoquímica', label: 'Inmunohistoquímica' },
+										{ value: 'Biopsia', label: 'Biopsia' },
+										{ value: 'Citología', label: 'Citología' },
 									])}
 									value={field.value}
 									onChange={field.onChange}
@@ -73,7 +73,7 @@ export const ServiceSection = memo(({ control, inputStyles }: ServiceSectionProp
 									placeholder="Hospital o Clínica"
 									iconRight={<MapPin className="h-4 w-4 text-muted-foreground" />}
 									{...field}
-									onChange={(e: any) => {
+									onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
 										const { value } = e.target
 										if (/^[A-Za-zÑñÁáÉéÍíÓóÚúÜü\s]*$/.test(value)) {
 											field.onChange(e)

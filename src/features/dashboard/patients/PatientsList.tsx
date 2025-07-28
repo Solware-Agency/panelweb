@@ -49,7 +49,7 @@ const PatientRow = React.memo(
 	({ patient, onClick }: { patient: PatientData; onClick: (patient: PatientData) => void }) => (
 		<tr
 			key={patient.id_number}
-			className="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors cursor-pointer"
+			className="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-transform cursor-pointer"
 			onClick={() => onClick(patient)}
 		>
 			{/* Name Cell */}
@@ -378,7 +378,7 @@ const PatientsList: React.FC<PatientsListProps> = React.memo(
 								{sortedPatients.slice(0, 20).map((patient: PatientData) => (
 									<div
 										key={patient.id_number}
-										className="bg-white dark:bg-gray-800/50 p-3 rounded-lg border border-gray-200 dark:border-gray-700 hover:shadow-md transition-all duration-200 cursor-pointer"
+										className="bg-white dark:bg-gray-800/50 p-3 rounded-lg border border-gray-200 dark:border-gray-700 hover:shadow-md transition-transform duration-200 cursor-pointer"
 										onClick={() => handlePatientClick(patient)}
 									>
 										<div className="flex items-center mb-2">

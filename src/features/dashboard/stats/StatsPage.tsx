@@ -140,7 +140,7 @@ const StatsPage: React.FC = () => {
 				{/* Charts Section */}
 				<div className="grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-4 md:gap-5 mb-3 sm:mb-5 md:mb-6">
 					{/* 12-Month Revenue Trend Chart with Interactive Bars */}
-					<Card className="col-span-1 grid hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 transition-all duration-300 shadow-lg">
+					<Card className="col-span-1 grid hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 transition-transform duration-300 shadow-lg">
 						<div className="bg-white dark:bg-background rounded-xl p-3 sm:p-4 md:p-6">
 							<div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-3 sm:mb-4 md:mb-6">
 								<h3 className="text-base sm:text-lg md:text-xl font-bold text-gray-700 dark:text-gray-300 mb-2 sm:mb-0">
@@ -171,7 +171,7 @@ const StatsPage: React.FC = () => {
 										return (
 											<div
 												key={month.month}
-												className={`flex-1 rounded-t-sm transition-all duration-200 cursor-pointer hover:translate-y-[-4px] ${
+												className={`flex-1 rounded-t-sm transition-transform duration-200 cursor-pointer hover:translate-y-[-4px] ${
 													isSelected
 														? 'bg-gradient-to-t from-purple-600 to-purple-400 shadow-lg'
 														: 'bg-gradient-to-t from-blue-500 to-blue-300 hover:from-blue-600 hover:to-blue-400'
@@ -203,7 +203,7 @@ const StatsPage: React.FC = () => {
 					</Card>
 
 					{/* Service Distribution by Branch */}
-					<Card className="col-span-1 grid hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 transition-all duration-300 shadow-lg">
+					<Card className="col-span-1 grid hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 transition-transform duration-300 shadow-lg">
 						<div className="bg-white dark:bg-background rounded-xl p-3 sm:p-4 md:p-6">
 							<h3 className="text-base sm:text-lg md:text-xl font-bold text-gray-700 dark:text-gray-300 mb-3 sm:mb-4 md:mb-6">
 								Distribución por Sede
@@ -235,7 +235,7 @@ const StatsPage: React.FC = () => {
 													cy="18"
 													r="14"
 													fill="none"
-													className={`stroke-current ${colors[index % colors.length]} transition-all duration-200`}
+													className={`stroke-current ${colors[index % colors.length]} transition-transform duration-200`}
 													strokeWidth={hoveredSegmentIndex === index ? '5' : '4'}
 													strokeDasharray={`${branch.percentage} ${100 - branch.percentage}`}
 													strokeDashoffset={-offset}
@@ -272,7 +272,7 @@ const StatsPage: React.FC = () => {
 										return (
 											<div
 												key={branch.branch}
-												className="flex items-center justify-between transition-all duration-200"
+												className="flex items-center justify-between transition-transform duration-200"
 												onMouseEnter={() => setHoveredSegmentIndex(index)}
 												onMouseLeave={() => setHoveredSegmentIndex(null)}
 												style={{

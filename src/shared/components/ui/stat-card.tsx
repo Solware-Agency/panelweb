@@ -36,12 +36,12 @@ const StatCard: React.FC<StatCardProps> = ({
         "col-span-1 grid hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 shadow-lg cursor-pointer",
         isSelected && "border-primary shadow-lg shadow-primary/20",
         className,
-        "transition-all duration-300"
+        "transition-transform duration-300"
       )}
       onClick={onClick}
       data-stat-type={statType}
     >
-      <div className="bg-white dark:bg-background rounded-xl p-3 sm:p-4 md:p-6">
+      <div className="bg-white dark:bg-background rounded-lg p-3 sm:p-4 md:p-6">
         <div className="flex items-center justify-between mb-2 sm:mb-3">
           <div className="p-1 sm:p-1.5 md:p-2 bg-gray-100 dark:bg-gray-800 rounded-lg">
             {icon}

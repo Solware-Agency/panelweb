@@ -453,7 +453,7 @@ const MainUsers: React.FC = () => {
 						<p className="text-sm mt-2">Verifica tu conexión a internet o contacta al administrador</p>
 						<button
 							onClick={() => refetch()}
-							className="mt-4 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+							className="mt-4 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-none"
 						>
 							Reintentar
 						</button>
@@ -479,7 +479,7 @@ const MainUsers: React.FC = () => {
 
 			{/* Estadísticas - Responsive Grid */}
 			<div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3 mb-3 sm:mb-5">
-				<Card className="hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 transition-all duration-300 shadow-lg">
+				<Card className="hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 transition-transform duration-300 shadow-lg">
 					<div className="bg-white dark:bg-background rounded-xl p-3 sm:p-4 md:p-6">
 						<div className="flex items-center justify-between mb-2 sm:mb-4">
 							<div className="p-1.5 sm:p-2 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
@@ -494,7 +494,7 @@ const MainUsers: React.FC = () => {
 					</div>
 				</Card>
 
-				<Card className="hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 transition-all duration-300 shadow-lg">
+				<Card className="hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 transition-transform duration-300 shadow-lg">
 					<div className="bg-white dark:bg-background rounded-xl p-3 sm:p-4 md:p-6">
 						<div className="flex items-center justify-between mb-2 sm:mb-4">
 							<div className="p-1.5 sm:p-2 bg-yellow-100 dark:bg-yellow-900/30 rounded-lg">
@@ -510,7 +510,7 @@ const MainUsers: React.FC = () => {
 					</div>
 				</Card>
 
-				<Card className="hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 transition-all duration-300 shadow-lg">
+				<Card className="hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 transition-transform duration-300 shadow-lg">
 					<div className="bg-white dark:bg-background rounded-xl p-3 sm:p-4 md:p-6">
 						<div className="flex items-center justify-between mb-2 sm:mb-4">
 							<div className="p-1.5 sm:p-2 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
@@ -526,7 +526,7 @@ const MainUsers: React.FC = () => {
 					</div>
 				</Card>
 
-				<Card className="hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 transition-all duration-300 shadow-lg">
+				<Card className="hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 transition-transform duration-300 shadow-lg">
 					<div className="bg-white dark:bg-background rounded-xl p-3 sm:p-4 md:p-6">
 						<div className="flex items-center justify-between mb-2 sm:mb-4">
 							<div className="p-1.5 sm:p-2 bg-purple-100 dark:bg-purple-900/30 rounded-lg">
@@ -544,7 +544,7 @@ const MainUsers: React.FC = () => {
 			</div>
 
 			{/* Filtros y búsqueda */}
-			<Card className="hover:border-primary hover:shadow-lg hover:shadow-primary/20 transition-all duration-300 shadow-lg mb-3 sm:mb-5">
+			<Card className="hover:border-primary hover:shadow-lg hover:shadow-primary/20 transition-transform duration-300 shadow-lg mb-3 sm:mb-5">
 				<div className="bg-white dark:bg-background rounded-xl p-3 sm:p-6">
 					<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-6 gap-2 sm:gap-3">
 						{/* Búsqueda */}
@@ -638,7 +638,7 @@ const MainUsers: React.FC = () => {
 			</Card>
 
 			{/* Tabla de usuarios */}
-			<Card className="hover:border-primary hover:shadow-lg hover:shadow-primary/20 transition-all duration-300 shadow-lg overflow-hidden">
+			<Card className="hover:border-primary hover:shadow-lg hover:shadow-primary/20 transition-transform duration-300 shadow-lg overflow-hidden">
 				<div className="bg-white dark:bg-background rounded-xl">
 					{/* Vista móvil - Cards */}
 					<div className="block lg:hidden p-3 sm:p-4">
@@ -841,7 +841,7 @@ const MainUsers: React.FC = () => {
 							</thead>
 							<tbody className="divide-y divide-gray-200 dark:divide-gray-700">
 								{filteredUsers.map((user) => (
-									<tr key={user.id} className="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
+									<tr key={user.id} className="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-none">
 										<td className="px-6 py-4">
 											<div className="flex items-center gap-3">
 												<div>
