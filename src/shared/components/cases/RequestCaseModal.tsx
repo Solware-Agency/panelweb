@@ -17,7 +17,6 @@ interface GenerateCaseModalProps {
 }
 
 const RequestCaseModal: React.FC<GenerateCaseModalProps> = ({ case_, isOpen, onClose, onSuccess }) => {
-	const [isSaving, setIsSaving] = useState(false)
 	const [inmunorreacciones, setInmunorreacciones] = useState<string[]>([])
 	const [isRequestingImmuno, setIsRequestingImmuno] = useState(false)
 	const { toast } = useToast()
@@ -126,182 +125,6 @@ const RequestCaseModal: React.FC<GenerateCaseModalProps> = ({ case_, isOpen, onC
 
 	if (!case_) return null
 
-	const handleTransformToPDF = async () => {
-		if (!case_?.id) {
-			toast({
-				title: '❌ Error',
-				description: 'No se encontró el ID del caso.',
-				variant: 'destructive',
-			})
-			return
-		}
-
-		try {
-			setIsSaving(true)
-
-			console.log('Sending request to n8n webhook with case ID:', case_.id)
-
-			const requestBody = {
-				caseId: case_.id,
-			}
-
-			console.log('Request body:', requestBody)
-
-			const response = await fetch(
-				'https://solwareagencia.app.n8n.cloud/webhook-test/7c840100-fd50-4598-9c48-c7ce60f82506',
-				{
-					method: 'POST',
-					headers: {
-						'Content-Type': 'application/json',
-						Accept: 'application/json',
-					},
-					body: JSON.stringify(requestBody),
-				},
-			)
-
-			console.log('Response status:', response.status)
-
-			if (!response.ok) {
-				let errorMessage = `HTTP ${response.status}: ${response.statusText}`
-
-				try {
-					const errorData = await response.text()
-					console.log('Error response body:', errorData)
-					errorMessage += ` - ${errorData}`
-				} catch (e) {
-					console.log('Could not read error response body', e)
-				}
-
-				throw new Error(errorMessage)
-			}
-
-			// Try to parse the response
-			let responseData
-			try {
-				responseData = await response.json()
-				console.log('Success response:', responseData)
-			} catch (e) {
-				responseData = await response.text()
-				console.log('Success response (text):', responseData, e)
-			}
-
-			toast({
-				title: '✅ Flujo activado',
-				description: 'El flujo de n8n ha sido activado exitosamente.',
-				className: 'bg-green-100 border-green-400 text-green-800',
-			})
-		} catch (error) {
-			console.error('Error in handleGenerateCase:', error)
-
-			let errorMessage = 'Hubo un problema al activar el flujo.'
-
-			if (error instanceof TypeError && error.message === 'Failed to fetch') {
-				errorMessage =
-					'No se pudo conectar con el servidor. Verifica tu conexión a internet o contacta al administrador.'
-			} else if (error instanceof Error && error.message.includes('CORS')) {
-				errorMessage = 'Error de configuración del servidor (CORS). Contacta al administrador.'
-			} else if (error instanceof Error && error.message.includes('HTTP')) {
-				errorMessage = `Error del servidor: ${error.message}`
-			}
-
-			toast({
-				title: '❌ Error al activar flujo',
-				description: errorMessage,
-				variant: 'destructive',
-			})
-		} finally {
-			setIsSaving(false)
-		}
-	}
-
-	const handleGenerateCase = async () => {
-		if (!case_?.id) {
-			toast({
-				title: '❌ Error',
-				description: 'No se encontró el ID del caso.',
-				variant: 'destructive',
-			})
-			return
-		}
-
-		try {
-			setIsSaving(true)
-
-			console.log('Sending request to n8n webhook with case ID:', case_.id)
-
-			const requestBody = {
-				caseId: case_.id,
-			}
-
-			console.log('Request body:', requestBody)
-
-			const response = await fetch(
-				'https://solwareagencia.app.n8n.cloud/webhook-test/7c840100-fd50-4598-9c48-c7ce60f82506',
-				{
-					method: 'POST',
-					headers: {
-						'Content-Type': 'application/json',
-						Accept: 'application/json',
-					},
-					body: JSON.stringify(requestBody),
-				},
-			)
-
-			console.log('Response status:', response.status)
-
-			if (!response.ok) {
-				let errorMessage = `HTTP ${response.status}: ${response.statusText}`
-
-				try {
-					const errorData = await response.text()
-					console.log('Error response body:', errorData)
-					errorMessage += ` - ${errorData}`
-				} catch (e) {
-					console.log('Could not read error response body', e)
-				}
-
-				throw new Error(errorMessage)
-			}
-
-			// Try to parse the response
-			let responseData
-			try {
-				responseData = await response.json()
-				console.log('Success response:', responseData)
-			} catch (e) {
-				responseData = await response.text()
-				console.log('Success response (text):', responseData, e)
-			}
-
-			toast({
-				title: '✅ Flujo activado',
-				description: 'El flujo de n8n ha sido activado exitosamente.',
-				className: 'bg-green-100 border-green-400 text-green-800',
-			})
-		} catch (error) {
-			console.error('Error in handleGenerateCase:', error)
-
-			let errorMessage = 'Hubo un problema al activar el flujo.'
-
-			if (error instanceof TypeError && error.message === 'Failed to fetch') {
-				errorMessage =
-					'No se pudo conectar con el servidor. Verifica tu conexión a internet o contacta al administrador.'
-			} else if (error instanceof Error && error.message.includes('CORS')) {
-				errorMessage = 'Error de configuración del servidor (CORS). Contacta al administrador.'
-			} else if (error instanceof Error && error.message.includes('HTTP')) {
-				errorMessage = `Error del servidor: ${error.message}`
-			}
-
-			toast({
-				title: '❌ Error al activar flujo',
-				description: errorMessage,
-				variant: 'destructive',
-			})
-		} finally {
-			setIsSaving(false)
-		}
-	}
-
 	return (
 		<AnimatePresence>
 			{isOpen && (
@@ -403,7 +226,8 @@ const RequestCaseModal: React.FC<GenerateCaseModalProps> = ({ case_, isOpen, onC
 															<p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
 																Resumen de la solicitud:
 															</p>
-															<div className="grid grid-cols-3 gap-4 text-sm">Información Clínica *
+															<div className="grid grid-cols-3 gap-4 text-sm">
+																Información Clínica *
 																<div>
 																	<span className="text-gray-500 dark:text-gray-400">Cantidad:</span>
 																	<p className="font-medium">{inmunorreacciones.length} reacciones</p>
@@ -452,40 +276,6 @@ const RequestCaseModal: React.FC<GenerateCaseModalProps> = ({ case_, isOpen, onC
 										<p className="text-sm text-gray-600 dark:text-gray-400">Configuración para casos de citología.</p>
 									</div>
 								)}
-
-								{/* Action Buttons */}
-
-								{/* Activa el nodo de transformar a PDF */}
-								<div className="flex flex-col sm:flex-row gap-2 sm:gap-3 pt-4 sm:pt-6 border-t border-gray-200 dark:border-gray-700">
-									<Button type="button" variant="outline" onClick={handleTransformToPDF} className="flex-1">
-										Transformar a PDF
-									</Button>
-								</div>
-
-								{/* Activa el nodo principal de n8n */}
-								<div className="flex flex-col sm:flex-row gap-2 sm:gap-3 pt-4 sm:pt-6 border-t border-gray-200 dark:border-gray-700">
-									<Button type="button" variant="outline" onClick={onClose} className="flex-1">
-										Cancelar
-									</Button>
-									<Button
-										type="button"
-										className="flex-1 bg-primary hover:bg-primary/80"
-										disabled={isSaving}
-										onClick={handleGenerateCase}
-									>
-										{isSaving ? (
-											<>
-												<Loader2 className="w-4 h-4 mr-2 animate-spin" />
-												Generando...
-											</>
-										) : (
-											<>
-												<Microscope className="w-4 h-4 mr-2" />
-												Generar Caso
-											</>
-										)}
-									</Button>
-								</div>
 							</div>
 						</div>
 					</motion.div>

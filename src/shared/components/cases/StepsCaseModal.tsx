@@ -6,7 +6,7 @@ import {
 	X,
 	User,
 	// FileText,
-	CheckCircle,
+	ArrowLeft,
 	ArrowRight,
 	Sparkles,
 	Heart,
@@ -52,18 +52,12 @@ const steps = [
 		icon: Stethoscope,
 		description: 'Preparar el caso',
 	},
-	{
-		id: 'review',
-		title: 'Finalizar',
-		icon: CheckCircle,
-		description: 'Descargar el PDF',
-	},
 ]
 
 const StepsCaseModal: React.FC<StepsCaseModalProps> = ({ case_, isOpen, onClose, onSuccess }) => {
 	const [activeStep, setActiveStep] = useState(0)
 	const [isCompleting, setIsCompleting] = useState(false)
-	const [, setIsSaving] = useState(false)
+	const [isSaving, setIsSaving] = useState(false)
 	const { toast } = useToast()
 	useBodyScrollLock(isOpen)
 	const handleNext = () => {
@@ -74,11 +68,14 @@ const StepsCaseModal: React.FC<StepsCaseModalProps> = ({ case_, isOpen, onClose,
 		}
 	}
 
+	const handleBack = () => {
+		if (activeStep > 0) {
+			setActiveStep((prev) => prev - 1)
+		}
+	}
+
 	const handleFinish = async () => {
 		setIsCompleting(true)
-
-		// Simular proceso de completado
-		await new Promise((resolve) => setTimeout(resolve, 2000))
 
 		onSuccess()
 		setActiveStep(0)
@@ -86,7 +83,6 @@ const StepsCaseModal: React.FC<StepsCaseModalProps> = ({ case_, isOpen, onClose,
 		onClose()
 	}
 
-	
 	// const handleGenerateCase = async () => {
 	// 	if (!case_?.id) {
 	// 		toast({
@@ -119,11 +115,11 @@ const StepsCaseModal: React.FC<StepsCaseModalProps> = ({ case_, isOpen, onClose,
 	// 				body: JSON.stringify(requestBody),
 	// 			},
 	// 		)
-	
+
 	// 		console.log('Response status:', response.status)
-	
+
 	// 		if (!response.ok) {
-		// 			let errorMessage = `HTTP ${response.status}: ${response.statusText}`
+	// 			let errorMessage = `HTTP ${response.status}: ${response.statusText}`
 
 	// 			try {
 	// 				const errorData = await response.text()
@@ -184,17 +180,17 @@ const StepsCaseModal: React.FC<StepsCaseModalProps> = ({ case_, isOpen, onClose,
 			})
 			return
 		}
-	
+
 		try {
 			setIsSaving(true)
-	
+
 			console.log('[1] Verificando si ya existe googledocs_url para el caso', case_.id)
 			const { data: initialData, error: initialError } = await supabase
 				.from('medical_records_clean')
 				.select('googledocs_url')
 				.eq('id', case_.id)
 				.single<MedicalRecord>()
-	
+
 			if (initialError) {
 				console.error('[1] Error al obtener googledocs_url:', initialError)
 				toast({
@@ -204,62 +200,73 @@ const StepsCaseModal: React.FC<StepsCaseModalProps> = ({ case_, isOpen, onClose,
 				})
 				return
 			}
-	
+
 			if (initialData?.googledocs_url) {
 				console.log('[1] Documento ya existe, abriendo:', initialData.googledocs_url)
 				window.open(initialData.googledocs_url, '_blank')
+				// Ejecutar handleNext automáticamente después de abrir el documento
+				setTimeout(() => {
+					handleNext()
+				}, 1000) // Pequeño delay para asegurar que el documento se abra
 				return
 			}
-	
+
 			console.log('[2] No existe googledocs_url, enviando POST a n8n...')
-			const webhookRes = await fetch('https://solwareagencia.app.n8n.cloud/webhook/7c840100-fd50-4598-9c48-c7ce60f82506', {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json',
-					Accept: 'application/json',
+			const webhookRes = await fetch(
+				'https://solwareagencia.app.n8n.cloud/webhook/7c840100-fd50-4598-9c48-c7ce60f82506',
+				{
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json',
+						Accept: 'application/json',
+					},
+					body: JSON.stringify({ caseId: case_.id }),
 				},
-				body: JSON.stringify({ caseId: case_.id }),
-			})
-	
+			)
+
 			console.log('[2] Webhook enviado. Status:', webhookRes.status)
-	
+
 			if (!webhookRes.ok) {
 				const errorText = await webhookRes.text()
 				throw new Error(`Error en webhook: ${webhookRes.status} - ${errorText}`)
 			}
-	
+
 			// Polling para esperar el link de Google Docs
 			console.log('[3] Iniciando polling para esperar el enlace generado...')
-			const maxAttempts = 5
+			const maxAttempts = 10
 			const delay = 2000
 			let attempts = 0
 			let foundURL = null
-	
+
 			while (attempts < maxAttempts) {
 				console.log(`[3] Intento ${attempts + 1}/${maxAttempts}...`)
 				await new Promise((res) => setTimeout(res, delay))
-	
+
 				const { data: retryData, error: retryError } = await supabase
 					.from('medical_records_clean')
 					.select('googledocs_url')
 					.eq('id', case_.id)
 					.single<MedicalRecord>()
-	
+
 				if (retryError) {
 					console.warn(`[3] Error en intento ${attempts + 1}:`, retryError)
 				}
-	
+
 				if (retryData?.googledocs_url) {
 					console.log('[3] Documento listo, abriendo:', retryData.googledocs_url)
 					foundURL = retryData.googledocs_url
 					break
 				}
-	
+
 				attempts++
 			}
-	
+
 			try {
 				window.open(foundURL as string, '_blank')
+				// Ejecutar handleNext automáticamente después de abrir el documento
+				setTimeout(() => {
+					handleNext()
+				}, 1000) // Pequeño delay para asegurar que el documento se abra
 			} catch (err) {
 				console.error('Error al abrir el Documento:', err)
 				toast({
@@ -279,8 +286,7 @@ const StepsCaseModal: React.FC<StepsCaseModalProps> = ({ case_, isOpen, onClose,
 			setIsSaving(false)
 		}
 	}
-	
-  
+
 	const handleTransformToPDF = async () => {
 		if (!case_?.id) {
 			toast({
@@ -330,7 +336,6 @@ const StepsCaseModal: React.FC<StepsCaseModalProps> = ({ case_, isOpen, onClose,
 				throw new Error(errorMessage)
 			}
 
-			// Try to parse the response
 			let responseData
 			try {
 				responseData = await response.json()
@@ -345,8 +350,59 @@ const StepsCaseModal: React.FC<StepsCaseModalProps> = ({ case_, isOpen, onClose,
 				description: 'El flujo de n8n ha sido activado exitosamente.',
 				className: 'bg-green-100 border-green-400 text-green-800',
 			})
+
+			// ⏱️ Esperar 6 segundos antes de intentar descargar el PDF
+			let attempts = 0
+			const maxAttempts = 10
+			let pdfUrl: string | null = null
+
+			while (attempts < maxAttempts) {
+				const { data, error } = await supabase
+					.from('medical_records_clean')
+					.select('informepdf_url')
+					.eq('id', case_.id)
+					.single<MedicalRecord>()
+
+				if (error) {
+					console.error('Error obteniendo informepdf_url:', error)
+					break
+				}
+
+				if (data?.informepdf_url) {
+					pdfUrl = data.informepdf_url
+					break
+				}
+
+				// Esperar 2 segundos antes del próximo intento
+				await new Promise((resolve) => setTimeout(resolve, 2000))
+				attempts++
+			}
+
+			if (!pdfUrl) {
+				toast({
+					title: '⏳ Documento no disponible aún',
+					description: 'El PDF aún no está listo. Intenta nuevamente en unos segundos.',
+					variant: 'destructive',
+				})
+				return
+			}
+
+			try {
+				window.open(pdfUrl, '_blank')
+				// Ejecutar handleNext automáticamente después de abrir el PDF
+				setTimeout(() => {
+					handleNext()
+				}, 1000) // Pequeño delay para asegurar que el PDF se abra
+			} catch (err) {
+				console.error('Error al abrir el PDF:', err)
+				toast({
+					title: '❌ Error',
+					description: 'No se pudo acceder al PDF. Intenta nuevamente.',
+					variant: 'destructive',
+				})
+			}
 		} catch (error) {
-			console.error('Error in handleGenerateCase:', error)
+			console.error('Error en handleTransformToPDF:', error)
 
 			let errorMessage = 'Hubo un problema al activar el flujo.'
 
@@ -369,44 +425,44 @@ const StepsCaseModal: React.FC<StepsCaseModalProps> = ({ case_, isOpen, onClose,
 		}
 	}
 
-	const handleDownloadPDF = async () => {
-		if (!case_?.id) {
-			toast({
-				title: '❌ Error',
-				description: 'No se encontró el ID del caso.',
-				variant: 'destructive',
-			})
-			return
-		}
-	
-		const { data, error } = await supabase
-			.from('medical_records_clean')
-			.select('informepdf_url')
-			.eq('id', case_.id)
-			.single<MedicalRecord>()
-	
-		if (error || !data?.informepdf_url) {
-			toast({
-				title: '❌ Error',
-				description: 'No se pudo obtener el enlace del PDF.',
-				variant: 'destructive',
-			})
-			console.error('Error obteniendo informepdf_url:', error)
-			return
-		}
-	
-		try {
-			window.open(data.informepdf_url, '_blank')
-		} catch (err) {
-			console.error('Error al abrir el PDF:', err)
-			toast({
-				title: '❌ Error',
-				description: 'No se pudo acceder al PDF. Intenta nuevamente.',
-				variant: 'destructive',
-			})
-		}
-	}
-	
+	// const handleDownloadPDF = async () => {
+	// 	if (!case_?.id) {
+	// 		toast({
+	// 			title: '❌ Error',
+	// 			description: 'No se encontró el ID del caso.',
+	// 			variant: 'destructive',
+	// 		})
+	// 		return
+	// 	}
+
+	// 	const { data, error } = await supabase
+	// 		.from('medical_records_clean')
+	// 		.select('informepdf_url')
+	// 		.eq('id', case_.id)
+	// 		.single<MedicalRecord>()
+
+	// 	if (error || !data?.informepdf_url) {
+	// 		toast({
+	// 			title: '❌ Error',
+	// 			description: 'No se pudo obtener el enlace del PDF.',
+	// 			variant: 'destructive',
+	// 		})
+	// 		console.error('Error obteniendo informepdf_url:', error)
+	// 		return
+	// 	}
+
+	// 	try {
+	// 		window.open(data.informepdf_url, '_blank')
+	// 	} catch (err) {
+	// 		console.error('Error al abrir el PDF:', err)
+	// 		toast({
+	// 			title: '❌ Error',
+	// 			description: 'No se pudo acceder al PDF. Intenta nuevamente.',
+	// 			variant: 'destructive',
+	// 		})
+	// 	}
+	// }
+
 	const renderStepContent = () => {
 		switch (activeStep) {
 			case 0:
@@ -425,8 +481,13 @@ const StepsCaseModal: React.FC<StepsCaseModalProps> = ({ case_, isOpen, onClose,
 										type="button"
 										className="flex-1 bg-primary hover:bg-primary/80"
 										onClick={handleGenerateCaseAndOpenDoc}
+										disabled={isSaving}
 									>
-										<Microscope className="w-4 h-4 mr-2" />
+										{isSaving ? (
+											<div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+										) : (
+											<Microscope className="w-4 h-4 mr-2" />
+										)}
 										Rellenar los Datos
 									</Button>
 								</div>
@@ -450,10 +511,23 @@ const StepsCaseModal: React.FC<StepsCaseModalProps> = ({ case_, isOpen, onClose,
 						className="space-y-4"
 					>
 						<div className="bg-gradient-to-br from-teal-50 to-cyan-50 dark:from-teal-900/20 dark:to-cyan-900/20 p-4 rounded-lg border border-teal-200 dark:border-teal-800">
-							{/* Activa el nodo de transformar a PDF */}
+							{/* Activa el nodo de transformar a PDF y luego te redirecciona al PDF */}
 							<div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
-								<Button type="button" variant="outline" onClick={handleTransformToPDF} className="flex-1">
-									Transformar a PDF
+								<Button
+									type="button"
+									variant="outline"
+									onClick={handleTransformToPDF}
+									className="flex-1"
+									disabled={isSaving}
+								>
+									{isSaving ? (
+										<>
+											<div className="w-4 h-4 border-2 border-gray-600 border-t-transparent rounded-full animate-spin mr-2" />
+											Generando PDF...
+										</>
+									) : (
+										'Descargar PDF'
+									)}
 								</Button>
 							</div>
 						</div>
@@ -462,32 +536,6 @@ const StepsCaseModal: React.FC<StepsCaseModalProps> = ({ case_, isOpen, onClose,
 								Dale clic al botón que tienes arriba y espera unos segundos mientras preparamos tu documento. Ten
 								paciencia, este proceso puede tardar un poco dependiendo de la carga del sistema. No cierres esta
 								pestaña hasta que el documento esté listo.
-							</p>
-						</div>
-					</motion.div>
-				)
-
-			case 2:
-				return (
-					<motion.div
-						initial={{ opacity: 0, y: 20 }}
-						animate={{ opacity: 1, y: 0 }}
-						exit={{ opacity: 0, y: -20 }}
-						className="space-y-4"
-					>
-						<div className="bg-gradient-to-br from-teal-50 to-cyan-50 dark:from-teal-900/20 dark:to-cyan-900/20 p-4 rounded-lg border border-teal-200 dark:border-teal-800">
-							{/* Activa el nodo de transformar a PDF */}
-							<div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
-								<Button type="button" variant="outline" className="flex-1" onClick={handleDownloadPDF}>
-									Descargar PDF
-								</Button>
-							</div>
-						</div>
-						<div className="bg-gradient-to-br from-teal-50 to-cyan-50 dark:from-teal-900/20 dark:to-cyan-900/20 p-4 rounded-lg border border-teal-200 dark:border-teal-800">
-							<p className="text-teal-400 text-sm">
-								¡Listo! Ya completaste todos los pasos. Ten en cuenta que si necesitas hacer cambios en el documento,
-								deberás repetir este mismo proceso desde el inicio. Si no necesitas modificar nada, puedes descargar el
-								PDF directamente sin volver a entrar a esta pestaña.
 							</p>
 						</div>
 					</motion.div>
@@ -534,7 +582,10 @@ const StepsCaseModal: React.FC<StepsCaseModalProps> = ({ case_, isOpen, onClose,
 									<p className="text-sm text-indigo-100 truncate">{case_ ? `Para ${case_.full_name}` : 'Nuevo caso'}</p>
 								</div>
 							</div>
-							<button onClick={handleClose} className="p-1 hover:bg-white/20 rounded-lg transition-colors flex-shrink-0">
+							<button
+								onClick={handleClose}
+								className="p-1 hover:bg-white/20 rounded-lg transition-colors flex-shrink-0"
+							>
 								<X className="w-5 h-5 text-white" />
 							</button>
 						</div>
@@ -597,17 +648,23 @@ const StepsCaseModal: React.FC<StepsCaseModalProps> = ({ case_, isOpen, onClose,
 					{/* Footer */}
 					<div className="px-6 py-4 bg-gray-50 dark:bg-gray-800/50 border-t border-gray-200 dark:border-gray-700">
 						<div className="flex items-center justify-end gap-3">
-							<div className="flex items-center gap-2">
-								<button
-									onClick={handleClose}
-									className="px-4 py-2 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 transition-colors rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700"
+							<div className="flex items-center gap-5">
+								<motion.button
+									onClick={handleBack}
+									disabled={isSaving}
+									className={`flex items-center gap-2 px-6 py-2 bg-transparent border border-pink-500 text-white font-medium rounded-lg hover:from-indigo-600 hover:to-purple-600 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl ${
+										activeStep === 0 ? 'hidden' : ''
+									}`}
+									whileHover={{ scale: 1.02 }}
+									whileTap={{ scale: 0.98 }}
 								>
-									Cancelar
-								</button>
+									<ArrowLeft className="w-4 h-4" />
+									Anterior
+								</motion.button>
 
 								<motion.button
 									onClick={handleNext}
-									disabled={isCompleting}
+									disabled={isCompleting || isSaving}
 									className="flex items-center gap-2 px-6 py-2 bg-transparent border border-pink-500 text-white font-medium rounded-lg hover:from-indigo-600 hover:to-purple-600 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl"
 									whileHover={{ scale: 1.02 }}
 									whileTap={{ scale: 0.98 }}
@@ -616,6 +673,11 @@ const StepsCaseModal: React.FC<StepsCaseModalProps> = ({ case_, isOpen, onClose,
 										<>
 											<div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
 											<span className="hidden sm:inline">Saliendo...</span>
+										</>
+									) : isSaving ? (
+										<>
+											<div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+											<span className="hidden sm:inline">Cargando...</span>
 										</>
 									) : activeStep === steps.length - 1 ? (
 										<>
