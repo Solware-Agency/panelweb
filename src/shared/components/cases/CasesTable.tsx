@@ -55,7 +55,6 @@ const CasesTable: React.FC<CasesTableProps> = React.memo(
 		const [searchTerm, setSearchTerm] = useState('')
 		const [statusFilter, setStatusFilter] = useState<string>('all')
 		const [branchFilter, setBranchFilter] = useState<string>('all')
-		const [examTypeFilter, setExamTypeFilter] = useState<string>('all')
 		const [sortField, setSortField] = useState<SortField>('created_at')
 		const [sortDirection, setSortDirection] = useState<SortDirection>('desc')
 		const [selectedCaseForGenerate, setSelectedCaseForGenerate] = useState<MedicalRecord | null>(null)
@@ -274,7 +273,6 @@ const CasesTable: React.FC<CasesTableProps> = React.memo(
 			const hasActiveFilters =
 				statusFilter !== 'all' ||
 				branchFilter !== 'all' ||
-				examTypeFilter !== 'all' ||
 				showPdfReadyOnly ||
 				selectedDoctors.length > 0 ||
 				(searchTerm && searchTerm.trim() !== '') ||
@@ -309,7 +307,7 @@ const CasesTable: React.FC<CasesTableProps> = React.memo(
 				const matchesBranch = branchFilter === 'all' || normalize(case_.branch) === normalize(branchFilter)
 
 				// Exam type filter
-				const matchesExamType = examTypeFilter === 'all' || case_.exam_type === examTypeFilter
+				const matchesExamType = true // No exam type filter active
 
 				// PDF ready filter
 				let matchesPdfReady = true
@@ -370,7 +368,6 @@ const CasesTable: React.FC<CasesTableProps> = React.memo(
 			cases,
 			statusFilter,
 			branchFilter,
-			examTypeFilter,
 			sortField,
 			sortDirection,
 			showPdfReadyOnly,
