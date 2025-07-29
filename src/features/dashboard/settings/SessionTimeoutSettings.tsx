@@ -1,5 +1,5 @@
 import { Card } from '@shared/components/ui/card';
-import { Clock, Shield, CheckCircle } from 'lucide-react';
+import { Clock, Shield } from 'lucide-react';
 import { useAuth } from '@app/providers/AuthContext'
 import { SESSION_TIMEOUT_OPTIONS } from '@shared/hooks/useSessionTimeoutSettings'
 import { RadioGroup, RadioGroupItem } from '@shared/components/ui/radio-group'
