@@ -11,6 +11,11 @@ const MainCases: React.FC = React.memo(() => {
 	const [selectedCase, setSelectedCase] = useState<MedicalRecord | null>(null)
 	const [isPanelOpen, setIsPanelOpen] = useState(false)
 	const [isFullscreen, setIsFullscreen] = useState(false)
+	
+	// Estados para filtros
+	const [showPendingOnly, setShowPendingOnly] = useState(false)
+	const [showPdfReadyOnly, setShowPdfReadyOnly] = useState(false)
+	const [selectedExamType, setSelectedExamType] = useState<string | null>(null)
 
 	// Query for refreshing data - optimized to prevent unnecessary refetches
 	const casesQueryResult = useQuery({
@@ -35,6 +40,73 @@ const MainCases: React.FC = React.memo(() => {
 		// Delay clearing selected case to allow animation to complete
 		setTimeout(() => setSelectedCase(null), 300)
 	}, [])
+
+	// Handlers para filtros
+	const handleTogglePendingFilter = useCallback(() => {
+		setShowPendingOnly(!showPendingOnly)
+		setShowPdfReadyOnly(false)
+		setSelectedExamType(null)
+	}, [showPendingOnly])
+
+	const handleTogglePdfFilter = useCallback(() => {
+		setShowPdfReadyOnly(!showPdfReadyOnly)
+		setShowPendingOnly(false)
+		setSelectedExamType(null)
+	}, [showPdfReadyOnly])
+
+	const handleExamTypeFilter = useCallback((examType: string) => {
+		if (selectedExamType === examType) {
+			setSelectedExamType(null)
+		} else {
+			setSelectedExamType(examType)
+			setShowPendingOnly(false)
+			setShowPdfReadyOnly(false)
+		}
+	}, [selectedExamType])
+
+	// Filtrar casos basado en los filtros activos
+	const filteredCases = useMemo(() => {
+		if (!cases || cases.length === 0) return []
+
+		let filtered = [...cases]
+
+		// Filtro de casos pendientes
+		if (showPendingOnly) {
+			filtered = filtered.filter((c) => c.payment_status !== 'Completado')
+		}
+
+		// Filtro de PDF disponibles
+		if (showPdfReadyOnly) {
+			filtered = filtered.filter((c) => {
+				const type = c.exam_type?.toLowerCase().trim()
+				const isGeneratableCase = type?.includes('biops') || type?.includes('inmuno') || type?.includes('citolog')
+				const hasContent = c.diagnostico || c.conclusion_diagnostica || 
+					(type?.includes('citolog') && c.descripcion_macroscopica)
+				return isGeneratableCase && hasContent
+			})
+		}
+
+		// Filtro por tipo de examen
+		if (selectedExamType) {
+			filtered = filtered.filter((c) => {
+				if (!c.exam_type) return false
+				const type = c.exam_type.toLowerCase().trim()
+				
+				let normalizedType = type
+				if (type.includes('inmuno')) {
+					normalizedType = 'inmunohistoquimica'
+				} else if (type.includes('citolog')) {
+					normalizedType = 'citologia'
+				} else if (type.includes('biops')) {
+					normalizedType = 'biopsia'
+				}
+				
+				return normalizedType === selectedExamType
+			})
+		}
+
+		return filtered
+	}, [cases, showPendingOnly, showPdfReadyOnly, selectedExamType])
 
 	// Calculate statistics
 	const stats = useMemo(() => {
@@ -119,10 +191,25 @@ const MainCases: React.FC = React.memo(() => {
 				<Card className="hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 group transition-transform duration-300">
 					<CardContent className="p-4">
 						{/* Pending Cases Button */}
-						<button className="w-full flex items-center justify-between p-3 rounded-lg border transition-transform duration-200 cursor-pointer hover:scale-[1.02] hover:shadow-md border-border hover:border-orange-300 hover:bg-orange-50 dark:hover:bg-orange-900/20">
+						<button 
+							className={`w-full flex items-center justify-between p-3 rounded-lg border transition-transform duration-200 cursor-pointer hover:scale-[1.02] hover:shadow-md ${
+								showPendingOnly
+									? 'border-primary bg-primary/10 shadow-md shadow-primary/20'
+									: 'border-border hover:border-orange-300 hover:bg-orange-50 dark:hover:bg-orange-900/20'
+							}`}
+							onClick={handleTogglePendingFilter}
+						>
 							<div className="flex items-center gap-3">
-								<div className="p-2 rounded-lg transition-transform duration-200 bg-orange-100 dark:bg-orange-900/30 hover:bg-orange-200 dark:hover:bg-orange-800/40">
-									<Users className="h-5 w-5 transition-transform duration-200 text-orange-600 dark:text-orange-400" />
+								<div className={`p-2 rounded-lg transition-transform duration-200 ${
+									showPendingOnly 
+										? 'bg-primary/20' 
+										: 'bg-orange-100 dark:bg-orange-900/30 hover:bg-orange-200 dark:hover:bg-orange-800/40'
+								}`}>
+									<Users className={`h-5 w-5 transition-transform duration-200 ${
+										showPendingOnly 
+											? 'text-primary' 
+											: 'text-orange-600 dark:text-orange-400'
+									}`} />
 								</div>
 								<div>
 									<p className="text-xs font-medium text-muted-foreground">Casos Pendientes</p>
@@ -139,10 +226,25 @@ const MainCases: React.FC = React.memo(() => {
 						</button>
 
 						{/* PDF Ready Button */}
-						<button className="w-full flex items-center justify-between p-3 rounded-lg border transition-transform duration-200 cursor-pointer hover:scale-[1.02] hover:shadow-md mt-3 border-border hover:border-green-300 hover:bg-green-50 dark:hover:bg-green-900/20">
+						<button 
+							className={`w-full flex items-center justify-between p-3 rounded-lg border transition-transform duration-200 cursor-pointer hover:scale-[1.02] hover:shadow-md mt-3 ${
+								showPdfReadyOnly
+									? 'border-primary bg-primary/10 shadow-md shadow-primary/20'
+									: 'border-border hover:border-green-300 hover:bg-green-50 dark:hover:bg-green-900/20'
+							}`}
+							onClick={handleTogglePdfFilter}
+						>
 							<div className="flex items-center gap-3">
-								<div className="p-2 rounded-lg transition-transform duration-200 bg-green-100 dark:bg-green-900/30 hover:bg-green-200 dark:hover:bg-green-800/40">
-									<Download className="h-5 w-5 transition-transform duration-200 text-green-600 dark:text-green-400" />
+								<div className={`p-2 rounded-lg transition-transform duration-200 ${
+									showPdfReadyOnly 
+										? 'bg-primary/20' 
+										: 'bg-green-100 dark:bg-green-900/30 hover:bg-green-200 dark:hover:bg-green-800/40'
+								}`}>
+									<Download className={`h-5 w-5 transition-transform duration-200 ${
+										showPdfReadyOnly 
+											? 'text-primary' 
+											: 'text-green-600 dark:text-green-400'
+									}`} />
 								</div>
 								<div>
 									<p className="text-xs font-medium text-muted-foreground">PDF Pendientes</p>
@@ -158,13 +260,21 @@ const MainCases: React.FC = React.memo(() => {
 
 						{/* Status indicators */}
 						<div className="mt-3 pt-3 border-t border-border">
-							<p className="text-xs text-muted-foreground">Haz clic en un botón para filtrar</p>
+							{showPendingOnly && (
+								<p className="text-xs text-primary font-medium">Mostrando casos pendientes</p>
+							)}
+							{showPdfReadyOnly && (
+								<p className="text-xs text-primary font-medium">Mostrando PDF disponibles</p>
+							)}
+							{!showPendingOnly && !showPdfReadyOnly && (
+								<p className="text-xs text-muted-foreground">Haz clic en un botón para filtrar</p>
+							)}
 						</div>
 					</CardContent>
 				</Card>
 
 				{/* Exam Types Card */}
-					<Card className="hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 group transition-transform duration-300">
+				<Card className="hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 group transition-transform duration-300">
 					<CardContent className="p-4">
 						<div className="flex items-center gap-3 mb-3">
 							<div className="p-2 rounded-lg bg-blue-100 dark:bg-blue-900/30">
@@ -178,40 +288,93 @@ const MainCases: React.FC = React.memo(() => {
 
 						<div className="space-y-2">
 							{/* Biopsia */}
-							<div className="flex items-center justify-between p-2 rounded-lg border transition-transform duration-300 cursor-pointer hover:bg-accent border-border hover:border-primary/50">
+							<button
+								className={`w-full flex items-center justify-between p-2 rounded-lg border transition-transform duration-300 cursor-pointer hover:bg-accent ${
+									selectedExamType === 'biopsia'
+										? 'border-primary bg-primary/10'
+										: 'border-border hover:border-primary/50'
+								}`}
+								onClick={() => handleExamTypeFilter('biopsia')}
+							>
 								<div className="flex items-center gap-2">
 									<Activity className="h-3 w-3 text-red-500" />
 									<span className="text-xs font-medium">Biopsia</span>
 								</div>
 								<span className="text-sm font-bold">{examTypeCounts['biopsia'] || 0}</span>
-							</div>
+							</button>
 
 							{/* Citología */}
-							<div className="flex items-center justify-between p-2 rounded-lg border transition-transform duration-300 cursor-pointer hover:bg-accent border-border hover:border-primary/50">
+							<button
+								className={`w-full flex items-center justify-between p-2 rounded-lg border transition-transform duration-300 cursor-pointer hover:bg-accent ${
+									selectedExamType === 'citologia'
+										? 'border-primary bg-primary/10'
+										: 'border-border hover:border-primary/50'
+								}`}
+								onClick={() => handleExamTypeFilter('citologia')}
+							>
 								<div className="flex items-center gap-2">
 									<FileText className="h-3 w-3 text-blue-500" />
 									<span className="text-xs font-medium">Citología</span>
 								</div>
 								<span className="text-sm font-bold">{examTypeCounts['citologia'] || 0}</span>
-							</div>
+							</button>
 
 							{/* Inmunohistoquímica */}
-							<div className="flex items-center justify-between p-2 rounded-lg border transition-transform duration-300 cursor-pointer hover:bg-accent border-border hover:border-primary/50">
+							<button
+								className={`w-full flex items-center justify-between p-2 rounded-lg border transition-transform duration-300 cursor-pointer hover:bg-accent ${
+									selectedExamType === 'inmunohistoquimica'
+										? 'border-primary bg-primary/10'
+										: 'border-border hover:border-primary/50'
+								}`}
+								onClick={() => handleExamTypeFilter('inmunohistoquimica')}
+							>
 								<div className="flex items-center gap-2">
 									<Microscope className="h-3 w-3 text-purple-500" />
 									<span className="text-xs font-medium">Inmuno</span>
 								</div>
 								<span className="text-sm font-bold">{examTypeCounts['inmunohistoquimica'] || 0}</span>
-							</div>
+							</button>
 						</div>
 					</CardContent>
 				</Card>
 			</div>
 
+			{/* Active filters indicators */}
+			<div className="flex flex-wrap gap-1.5 sm:gap-2 mb-3 sm:mb-4">
+				{showPendingOnly && (
+					<div className="px-2 sm:px-4 py-1 sm:py-2 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg inline-block">
+						<span className="text-xs sm:text-sm font-medium text-blue-800 dark:text-blue-300 flex items-center gap-1.5 sm:gap-2">
+							<Users className="w-3 h-3 sm:w-4 sm:h-4" />
+							Mostrando solo casos pendientes
+						</span>
+					</div>
+				)}
+
+				{showPdfReadyOnly && (
+					<div className="px-2 sm:px-4 py-1 sm:py-2 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg inline-block">
+						<span className="text-xs sm:text-sm font-medium text-green-800 dark:text-green-300 flex items-center gap-1.5 sm:gap-2">
+							<Download className="w-3 h-3 sm:w-4 sm:h-4" />
+							Mostrando solo casos con PDF disponible
+						</span>
+					</div>
+				)}
+
+				{selectedExamType && (
+					<div className="px-2 sm:px-4 py-1 sm:py-2 bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800 rounded-lg inline-block">
+						<span className="text-xs sm:text-sm font-medium text-purple-800 dark:text-purple-300 flex items-center gap-1.5 sm:gap-2">
+							{selectedExamType === 'biopsia' && <Activity className="w-3 h-3 sm:w-4 sm:h-4" />}
+							{selectedExamType === 'citologia' && <FileText className="w-3 h-3 sm:w-4 sm:h-4" />}
+							{selectedExamType === 'inmunohistoquimica' && <Microscope className="w-3 h-3 sm:w-4 sm:h-4" />}
+							Filtrando por: {selectedExamType.charAt(0).toUpperCase() + selectedExamType.slice(1)}
+						</span>
+					</div>
+				)}
+			</div>
+
 			{/* Cases Table */}
 			<CasesTable
 				onCaseSelect={handleCaseSelect}
-				cases={cases}
+				cases={filteredCases}
 				isLoading={isLoading}
 				error={error}
 				refetch={refetch}
