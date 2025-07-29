@@ -133,7 +133,7 @@ export const useDashboardStats = (selectedMonth?: Date, selectedYear?: number) =
 				})
 
 				const revenueByExamType = Array.from(examTypeRevenue.entries())
-					.map(([_normalizedType, data]) => ({
+					.map(([, data]) => ({
 						examType: data.originalName, // Use original name for display
 						revenue: data.revenue,
 						count: data.count,
@@ -182,7 +182,7 @@ export const useDashboardStats = (selectedMonth?: Date, selectedYear?: number) =
 				})
 
 				const topExamTypes = Array.from(examTypeCounts.entries())
-					.map(([_normalizedType, data]) => ({
+					.map(([, data]) => ({
 						examType: data.originalName,
 						count: data.count,
 						revenue: data.revenue,
