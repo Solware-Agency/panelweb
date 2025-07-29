@@ -19,7 +19,7 @@ const BranchRevenueReport: React.FC = () => {
 	}
 
 	const getBranchColor = (index: number) => {
-		const colors = ['bg-blue-500', 'bg-green-500', 'bg-orange-500', 'bg-red-500', 'bg-purple-500']
+		const colors = ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6']
 		return colors[index % colors.length]
 	}
 
@@ -55,16 +55,16 @@ const BranchRevenueReport: React.FC = () => {
 												cy="18"
 												r="14"
 												fill="none"
-												className={`stroke-current ${getBranchColor(index)} transition-all duration-200`}
+												stroke={getBranchColor(index)}
 												strokeWidth={hoveredBranchIndex === index ? '5' : '4'}
 												strokeDasharray={`${branch.percentage} ${100 - branch.percentage}`}
 												strokeDashoffset={-offset}
-												strokeLinecap="round"
+												strokeLinecap="butt"
 												onMouseEnter={() => setHoveredBranchIndex(index)}
 												onMouseLeave={() => setHoveredBranchIndex(null)}
 												style={{
 													cursor: 'pointer',
-													filter: hoveredBranchIndex === index ? 'drop-shadow(0 0 3px currentColor)' : 'none',
+													filter: hoveredBranchIndex === index ? `drop-shadow(0 0 3px ${getBranchColor(index)})` : 'none',
 												}}
 											></circle>
 										)
@@ -112,9 +112,10 @@ const BranchRevenueReport: React.FC = () => {
 											<td className="py-4 px-8">
 												<div className="flex items-center gap-2">
 													<div
-														className={`w-3 h-3 ${getBranchColor(index)} rounded-full ${
+														className={`w-3 h-3 rounded-full ${
 															hoveredBranchIndex === index ? 'animate-pulse' : ''
 														}`}
+														style={{ backgroundColor: getBranchColor(index) }}
 													></div>
 													<p className="font-medium text-gray-700 dark:text-gray-300 text-sm">{branch.branch}</p>
 												</div>
@@ -130,8 +131,9 @@ const BranchRevenueReport: React.FC = () => {
 												</p>
 												<div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-1.5 mt-1">
 													<div
-														className={`h-1.5 rounded-full ${getBranchColor(index)} transition-transform duration-300`}
+														className="h-1.5 rounded-full transition-transform duration-300"
 														style={{
+															backgroundColor: getBranchColor(index),
 															width: `${
 																stats.revenueByBranch.length > 0
 																	? (branch.revenue / Math.max(...stats.revenueByBranch.map((b) => b.revenue))) * 100
@@ -176,9 +178,10 @@ const BranchRevenueReport: React.FC = () => {
 										<div className="flex items-center justify-between mb-2">
 											<div className="flex items-center gap-2">
 												<div
-													className={`w-3 h-3 ${getBranchColor(index)} rounded-full ${
+													className={`w-3 h-3 rounded-full ${
 														hoveredBranchIndex === index ? 'animate-pulse' : ''
 													}`}
+													style={{ backgroundColor: getBranchColor(index) }}
 												></div>
 												<p className="font-medium text-gray-700 dark:text-gray-300 text-sm">{branch.branch}</p>
 											</div>
@@ -191,8 +194,9 @@ const BranchRevenueReport: React.FC = () => {
 										</div>
 										<div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-1.5">
 											<div
-												className={`h-1.5 rounded-full ${getBranchColor(index)}`}
+												className="h-1.5 rounded-full"
 												style={{
+													backgroundColor: getBranchColor(index),
 													width: `${
 														stats.revenueByBranch.length > 0
 															? (branch.revenue / Math.max(...stats.revenueByBranch.map((b) => b.revenue))) * 100

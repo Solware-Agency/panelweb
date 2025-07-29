@@ -584,20 +584,7 @@ const CasesTable: React.FC<CasesTableProps> = React.memo(
 									</select>
 								</div>
 
-								{/* Exam Type Filter */}
-								<div className="flex items-center gap-2">
-									<select
-										title="Filtrar por tipo de examen"
-										value={examTypeFilter}
-										onChange={(e) => setExamTypeFilter(e.target.value)}
-										className="px-3 py-2 border border-input rounded-lg focus:ring-2 focus:ring-primary dark:bg-background dark:text-white text-sm"
-									>
-										<option value="all">Todos los estudios</option>
-										<option value="inmunohistoquimica">Inmunohistoquímica</option>
-										<option value="biopsia">Biopsia</option>
-										<option value="citologia">Citología</option>
-									</select>
-								</div>
+
 
 								{/* Doctor Filter Button */}
 								<Button
@@ -747,7 +734,7 @@ const CasesTable: React.FC<CasesTableProps> = React.memo(
 										</th>
 										<th className="px-4 py-3 text-center">
 											<span className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-												Acciones
+												Opciones
 											</span>
 										</th>
 									</tr>
@@ -914,20 +901,7 @@ const CasesTable: React.FC<CasesTableProps> = React.memo(
 									</select>
 								</div>
 
-								{/* Exam Type Filter */}
-								<div className="flex items-center gap-2 flex-shrink-0">
-									<select
-										title="Filtrar por tipo de examen"
-										value={examTypeFilter}
-										onChange={(e) => setExamTypeFilter(e.target.value)}
-										className="px-3 py-2 border border-input rounded-lg focus:ring-2 focus:ring-primary dark:bg-background dark:text-white text-sm"
-									>
-										<option value="all">Todos los estudios</option>
-										<option value="inmunohistoquimica">Inmunohistoquímica</option>
-										<option value="biopsia">Biopsia</option>
-										<option value="citologia">Citología</option>
-									</select>
-								</div>
+
 
 								{/* Doctor Filter Button */}
 								<Button
@@ -1076,7 +1050,7 @@ const CasesTable: React.FC<CasesTableProps> = React.memo(
 											</th>
 											<th className="px-4 py-3 text-center">
 												<span className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-													Acciones
+													Opciones
 												</span>
 											</th>
 										</tr>
