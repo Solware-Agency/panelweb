@@ -22,7 +22,6 @@ import { useAuth } from '@app/providers/AuthContext'
 import { useUserProfile } from '@shared/hooks/useUserProfile'
 import RequestCaseModal from './RequestCaseModal'
 import DoctorFilterPanel from './DoctorFilterPanel'
-import { generatePDF } from '@shared/utils/pdf-generator'
 import UnifiedCaseModal from './UnifiedCaseModal'
 import HorizontalLinearStepper from './StepsCaseModal'
 import {
@@ -198,7 +197,7 @@ const CasesTable: React.FC<CasesTableProps> = React.memo(
 				setIsDownloading(case_.id ?? null)
 				try {
 					// Use the new pdf-lib based generator
-					await generatePDF(case_)
+					// await generatePDF(case_)
 
 					toast({
 						title: '✅ PDF generado exitosamente',

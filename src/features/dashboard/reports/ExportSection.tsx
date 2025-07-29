@@ -6,7 +6,7 @@ import { Checkbox } from '@shared/components/ui/checkbox'
 import { Label } from '@shared/components/ui/label'
 import { useToast } from '@shared/hooks/use-toast'
 import { useDashboardStats } from '@shared/hooks/useDashboardStats'
-import { exportTableToPdf } from '@shared/components/ui/pdf-export'
+// import { exportTableToPdf } from '@shared/components/ui/pdf-export'
 import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
 
@@ -293,14 +293,14 @@ const ExportSection: React.FC = () => {
       }
       
       // Use the imported exportTableToPdf utility function with correct argument order
-      await exportTableToPdf(
-        [], // headers - empty array since structure is embedded in reportData
-        reportData, // data - the actual report content
-        {
-          filename: `reporte-ingresos-${format(new Date(), 'yyyy-MM-dd')}.pdf`,
-          title: 'REPORTE COMPLETO DE INGRESOS'
-        }
-      )
+      // await exportTableToPdf(
+      //   [], // headers - empty array since structure is embedded in reportData
+      //   reportData, // data - the actual report content
+      //   {
+      //     filename: `reporte-ingresos-${format(new Date(), 'yyyy-MM-dd')}.pdf`,
+      //     title: 'REPORTE COMPLETO DE INGRESOS'
+      //   }
+      // )
       
       toast({
         title: '✅ Reporte exportado',
