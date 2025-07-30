@@ -183,7 +183,7 @@ export function MedicalFormContainer() {
 		})
 	}, [form, toast])
 
-	const inputStyles = 'transition-all duration-300 focus:border-primary focus:ring-primary'
+	const inputStyles = 'transition-transform duration-300 focus:border-primary focus:ring-primary'
 	const { profile } = useUserProfile()
 
 	return (
@@ -232,7 +232,7 @@ export function MedicalFormContainer() {
 						<Button
 							type="button"
 							onClick={handleNewRecord}
-							className="w-full font-bold text-sm sm:text-base py-1.5 sm:py-2 bg-gradient-to-r from-teal-500 to-cyan-600 hover:from-teal-600 hover:to-cyan-700 text-white transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98]"
+							className="w-full font-bold text-sm sm:text-base py-1.5 sm:py-2 bg-gradient-to-r from-teal-500 to-cyan-600 hover:from-teal-600 hover:to-cyan-700 text-white transition-transform duration-300 transform hover:scale-[1.02] active:scale-[0.98]"
 						>
 							<FilePlus2 />
 							Nuevo Registro
@@ -240,7 +240,7 @@ export function MedicalFormContainer() {
 					) : (
 						<Button
 							type="submit"
-							className="w-full font-bold text-sm sm:text-base py-1.5 sm:py-2 bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98]"
+							className="w-full font-bold text-sm sm:text-base py-1.5 sm:py-2 bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white transition-transform duration-300 transform hover:scale-[1.02] active:scale-[0.98]"
 							disabled={isSubmitting}
 						>
 							{isSubmitting ? (

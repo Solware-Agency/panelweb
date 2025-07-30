@@ -61,7 +61,7 @@ const FormRoute = ({ children }: { children: JSX.Element }) => {
 					</p>
 					<button
 						onClick={() => window.location.reload()}
-						className="bg-primary text-white px-4 py-2 rounded hover:bg-primary/80 transition-colors"
+						className="bg-primary text-white px-4 py-2 rounded hover:bg-primary/80 transition-none"
 					>
 						Reintentar
 					</button>

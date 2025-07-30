@@ -584,7 +584,7 @@ const StepsCaseModal: React.FC<StepsCaseModalProps> = ({ case_, isOpen, onClose,
 							</div>
 							<button
 								onClick={handleClose}
-								className="p-1 hover:bg-white/20 rounded-lg transition-colors flex-shrink-0"
+								className="p-1 hover:bg-white/20 rounded-lg transition-none flex-shrink-0"
 							>
 								<X className="w-5 h-5 text-white" />
 							</button>
@@ -603,7 +603,7 @@ const StepsCaseModal: React.FC<StepsCaseModalProps> = ({ case_, isOpen, onClose,
 									<div key={step.id} className="flex items-center justify-center flex-1 last-of-type:flex-none">
 										<div className="flex flex-col items-center">
 											<motion.div
-												className={`w-8 h-8 rounded-full flex items-center justify-center border-2 transition-all duration-300 ${
+												className={`w-8 h-8 rounded-full flex items-center justify-center border-2 transition-transform duration-300 ${
 													isCompleted
 														? 'border-green-500 text-white'
 														: isActive
@@ -627,7 +627,7 @@ const StepsCaseModal: React.FC<StepsCaseModalProps> = ({ case_, isOpen, onClose,
 										</div>
 										{index < steps.length - 1 && (
 											<div
-												className={`flex-1 h-0.5 mx-2 transition-colors duration-300 ${
+												className={`flex-1 h-0.5 mx-2 transition-none duration-300 ${
 													index < activeStep ? 'bg-green-500' : 'bg-gray-300 dark:bg-gray-600'
 												}`}
 											/>
@@ -652,7 +652,7 @@ const StepsCaseModal: React.FC<StepsCaseModalProps> = ({ case_, isOpen, onClose,
 								<motion.button
 									onClick={handleBack}
 									disabled={isSaving}
-									className={`flex items-center gap-2 px-6 py-2 bg-transparent border border-pink-500 text-white font-medium rounded-lg hover:from-indigo-600 hover:to-purple-600 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl ${
+									className={`flex items-center gap-2 px-6 py-2 bg-transparent border border-pink-500 text-white font-medium rounded-lg hover:from-indigo-600 hover:to-purple-600 transition-transform duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl ${
 										activeStep === 0 ? 'hidden' : ''
 									}`}
 									whileHover={{ scale: 1.02 }}
@@ -665,7 +665,7 @@ const StepsCaseModal: React.FC<StepsCaseModalProps> = ({ case_, isOpen, onClose,
 								<motion.button
 									onClick={handleNext}
 									disabled={isCompleting || isSaving}
-									className="flex items-center gap-2 px-6 py-2 bg-transparent border border-pink-500 text-white font-medium rounded-lg hover:from-indigo-600 hover:to-purple-600 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl"
+									className="flex items-center gap-2 px-6 py-2 bg-transparent border border-pink-500 text-white font-medium rounded-lg hover:from-indigo-600 hover:to-purple-600 transition-transform duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl"
 									whileHover={{ scale: 1.02 }}
 									whileTap={{ scale: 0.98 }}
 								>

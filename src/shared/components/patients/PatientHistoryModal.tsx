@@ -116,7 +116,7 @@ const PatientHistoryModal: React.FC<PatientHistoryModalProps> = ({ isOpen, onClo
 									</div>
 									<button
 										onClick={onClose}
-										className="p-1.5 sm:p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
+										className="p-1.5 sm:p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-none"
 									>
 										<X className="w-5 h-5 text-gray-500 dark:text-gray-400" />
 									</button>
@@ -149,10 +149,10 @@ const PatientHistoryModal: React.FC<PatientHistoryModalProps> = ({ isOpen, onClo
 														const whatsappUrl = `https://api.whatsapp.com/send/?phone=${phoneNumber}&text=${message}&type=phone_number&app_absent=0`
 														window.open(whatsappUrl, '_blank')
 													}}
-													className="flex items-center gap-1 hover:text-green-600 transition-colors cursor-pointer"
+													className="flex items-center gap-1 hover:text-green-600 transition-none cursor-pointer"
 													title="Enviar mensaje por WhatsApp"
 												>
-													<Phone className="h-4 w-4 text-gray-500 hover:text-green-600 transition-colors" />
+													<Phone className="h-4 w-4 text-gray-500 hover:text-green-600 transition-none" />
 													<span>{patient.phone}</span>
 												</button>
 											</div>

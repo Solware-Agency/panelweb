@@ -47,7 +47,7 @@ export function SessionTimeoutWarning() {
 								{/* Progress bar */}
 								<div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-1.5 mb-4">
 									<div
-										className="bg-orange-500 h-1.5 rounded-full transition-all duration-1000 ease-linear"
+										className="bg-orange-500 h-1.5 rounded-full transition-transform duration-1000 ease-linear"
 										style={{ width: `${progress}%` }}
 									></div>
 								</div>

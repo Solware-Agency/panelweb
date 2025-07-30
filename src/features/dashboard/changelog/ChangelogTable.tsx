@@ -340,7 +340,7 @@ const ChangelogTable: React.FC = () => {
 											const actionInfo = getActionTypeInfo(log)
 
 											return (
-												<tr key={log.id} className="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
+												<tr key={log.id} className="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-none">
 													{/* Date */}
 													<td className="px-4 py-4 text-sm text-gray-900 dark:text-gray-100">
 														<div className="flex flex-col">

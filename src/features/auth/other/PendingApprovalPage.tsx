@@ -61,7 +61,7 @@ function PendingApprovalPage() {
             <div className="text-center space-y-3">
               <button
                 onClick={handleLogout}
-                className="flex items-center justify-center gap-2 text-sm text-purple-400 hover:text-purple-300 transition-colors mx-auto"
+                className="flex items-center justify-center gap-2 text-sm text-purple-400 hover:text-purple-300 transition-none mx-auto"
               >
                 <ArrowLeft size={16} />
                 Cerrar sesión e intentar más tarde

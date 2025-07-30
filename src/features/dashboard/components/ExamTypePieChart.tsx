@@ -172,7 +172,7 @@ const ExamTypePieChart: React.FC = () => {
 								{pieData.map((item, index) => (
 									<div
 										key={index}
-										className="flex items-center justify-between p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-all duration-200 cursor-pointer"
+										className="flex items-center justify-between p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-transform duration-200 cursor-pointer"
 										onMouseEnter={() => setHoveredSegmentIndex(index)}
 										onMouseLeave={() => setHoveredSegmentIndex(null)}
 									>

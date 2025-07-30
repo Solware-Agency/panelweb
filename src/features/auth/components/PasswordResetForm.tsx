@@ -86,7 +86,7 @@ function PasswordResetForm() {
 										onChange={(e) => setEmail(e.target.value)}
 										required
 										disabled={loading}
-										className="border-2 border-slate-600 rounded-md p-2 pl-10 w-full focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary disabled:opacity-50 disabled:cursor-not-allowed bg-slate-900 text-white placeholder-slate-400 transition-all duration-200"
+										className="border-2 border-slate-600 rounded-md p-2 pl-10 w-full focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary disabled:opacity-50 disabled:cursor-not-allowed bg-slate-900 text-white placeholder-slate-400 transition-transform duration-200"
 										autoComplete="email"
 									/>
 								</div>
@@ -109,7 +109,7 @@ function PasswordResetForm() {
 							<button
 								type="submit"
 								disabled={loading}
-								className="w-full bg-transparent border border-primary hover:shadow-sm hover:shadow-primary text-white rounded-md p-2 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-lg transform hover:scale-[1.02] active:scale-[0.98]"
+								className="w-full bg-transparent border border-primary hover:shadow-sm hover:shadow-primary text-white rounded-md p-2 transition-transform duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-lg transform hover:scale-[1.02] active:scale-[0.98]"
 							>
 								{loading ? (
 									<>
@@ -126,7 +126,7 @@ function PasswordResetForm() {
 						<div className="mt-6 text-center">
 							<button
 								onClick={() => navigate('/')}
-								className={`flex items-center justify-center gap-2 text-sm text-blue-500 hover:text-blue-400 transition-colors ${
+								className={`flex items-center justify-center gap-2 text-sm text-blue-500 hover:text-blue-400 transition-none ${
 									loading ? 'pointer-events-none opacity-50' : ''
 								}`}
 							>
