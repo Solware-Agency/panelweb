@@ -130,7 +130,7 @@ function MainHome() {
 													cy="18"
 													r="14"
 													fill="none"
-													className={`stroke-current ${colors[index % colors.length]} transition-all duration-200`}
+													className={`stroke-current ${colors[index % colors.length]} transition-transform duration-200`}
 													strokeWidth={hoveredBranchIndex === index ? '5' : '4'}
 													strokeDasharray={`${branch.percentage} ${100 - branch.percentage}`}
 													strokeDashoffset={-offset}
@@ -167,7 +167,7 @@ function MainHome() {
 										return (
 											<div
 												key={branch.branch}
-												className="flex items-center justify-between transition-all duration-200"
+												className="flex items-center justify-between transition-transform duration-200"
 												onMouseEnter={() => setHoveredBranchIndex(index)}
 												onMouseLeave={() => setHoveredBranchIndex(null)}
 												style={{
@@ -263,7 +263,7 @@ function MainHome() {
 										return (
 											<div
 												key={month.month}
-												className={`flex-1 rounded-t-sm hover:translate-y-[-4px] transition-all duration-200 cursor-pointer ${
+												className={`flex-1 rounded-t-sm hover:translate-y-[-4px] transition-transform duration-200 cursor-pointer ${
 													isSelected
 														? 'bg-gradient-to-t from-purple-600 to-purple-400 shadow-lg'
 														: 'bg-gradient-to-t from-blue-500 to-blue-300 hover:from-blue-600 hover:to-blue-400'
@@ -299,7 +299,7 @@ function MainHome() {
 										Médicos Tratantes
 									</h3>
 								</div>
-								<ArrowRight className="w-3 h-3 sm:w-4 sm:h-4 text-gray-400 group-hover:text-blue-500 transition-colors" />
+								<ArrowRight className="w-3 h-3 sm:w-4 sm:h-4 text-gray-400 group-hover:text-blue-500 transition-none" />
 							</div>
 
 							<div className="space-y-2 sm:space-y-3 flex-1">
@@ -315,7 +315,7 @@ function MainHome() {
 										return (
 											<div
 												key={doctor.doctor}
-												className="flex items-center gap-1.5 sm:gap-3 p-1.5 sm:p-3 hover:bg-gray-50 dark:hover:bg-gray-800/50 rounded-lg cursor-pointer hover:scale-105 hover:shadow-lg hover:shadow-primary/20 transition-all duration-300"
+												className="flex items-center gap-1.5 sm:gap-3 p-1.5 sm:p-3 hover:bg-gray-50 dark:hover:bg-gray-800/50 rounded-lg cursor-pointer hover:scale-105 hover:shadow-lg hover:shadow-primary/20 transition-transform duration-300"
 											>
 												<div className={`w-2 h-2 sm:w-3 sm:h-3 rounded-full ${colors[index % colors.length]}`}></div>
 												<div className="flex-1 min-w-0">
@@ -351,7 +351,7 @@ function MainHome() {
 								<h3 className="text-xs sm:text-sm md:text-base font-bold text-gray-700 dark:text-gray-300">
 									Estudios Más Frecuentes
 								</h3>
-								<ArrowRight className="w-3 h-3 sm:w-4 sm:h-4 text-gray-400 group-hover:text-blue-500 transition-colors" />
+								<ArrowRight className="w-3 h-3 sm:w-4 sm:h-4 text-gray-400 group-hover:text-blue-500 transition-none" />
 							</div>
 							<div className="space-y-1.5 sm:space-y-2 md:space-y-3 flex-1">
 								{isLoading ? (
@@ -383,7 +383,7 @@ function MainHome() {
 										return (
 											<div
 												key={exam.examType}
-												className={`flex items-center justify-between p-1.5 sm:p-2 md:p-3 bg-gradient-to-r ${color.bg} rounded-lg cursor-pointer hover:scale-105 hover:shadow-lg hover:shadow-primary/20 transition-all duration-300`}
+												className={`flex items-center justify-between p-1.5 sm:p-2 md:p-3 bg-gradient-to-r ${color.bg} rounded-lg cursor-pointer hover:scale-105 hover:shadow-lg hover:shadow-primary/20 transition-transform duration-300`}
 											>
 												<div className="flex items-center gap-1.5 sm:gap-2 md:gap-3">
 													<div
@@ -452,7 +452,7 @@ function MainHome() {
 
 								{/* Quick Actions */}
 								<button
-									className="w-full p-1.5 sm:p-2 md:p-3 bg-primary hover:bg-primary/80 text-white rounded-lg transition-all duration-300 flex items-center justify-center gap-1.5 sm:gap-2 text-xs sm:text-sm md:text-base hover:scale-105 hover:shadow-lg hover:shadow-primary/20"
+									className="w-full p-1.5 sm:p-2 md:p-3 bg-primary hover:bg-primary/80 text-white rounded-lg transition-transform duration-300 flex items-center justify-center gap-1.5 sm:gap-2 text-xs sm:text-sm md:text-base hover:scale-105 hover:shadow-lg hover:shadow-primary/20"
 									onClick={(e) => {
 										e.stopPropagation()
 										navigate('/dashboard/stats')

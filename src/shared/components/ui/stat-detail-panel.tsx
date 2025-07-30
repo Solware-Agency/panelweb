@@ -843,7 +843,7 @@ const StatDetailPanel: React.FC<StatDetailPanelProps> = ({
 								</div>
 								<button
 									onClick={onClose}
-									className="p-1.5 sm:p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
+									className="p-1.5 sm:p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-none"
 								>
 									<X className="w-5 h-5 text-gray-500 dark:text-gray-400" />
 								</button>

@@ -56,7 +56,7 @@ export function SessionTimeoutSettings() {
 										key={minutes}
 										className={`flex items-center space-x-2 p-2 rounded-md border cursor-pointer ${
 											sessionTimeout === minutes ? 'border-primary bg-primary/5' : 'border-gray-200 dark:border-gray-700'
-										} hover:border-primary hover:bg-primary/5 transition-colors`}
+										} hover:border-primary hover:bg-primary/5 transition-none`}
 										onClick={() => handleTimeoutChange(minutes.toString())}
 									>
 										<RadioGroupItem value={minutes.toString()} id={`timeout-${minutes}`} />

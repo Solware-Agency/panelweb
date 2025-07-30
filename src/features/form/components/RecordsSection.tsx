@@ -233,11 +233,11 @@ export const RecordsSection: React.FC<RecordsSectionProps> = ({
 			{/* Statistics cards */}
 			<div className="grid grid-cols-1 md:grid-cols-3 gap-5 w-full mb-4 sm:mb-6">
 				{/* Combined Pending Cases and PDF Card */}
-				<Card className="hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 group transition-all duration-300">
+				<Card className="hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 group transition-transform duration-300">
 					<CardContent className="p-4">
 						{/* Pending Cases Button */}
 						<button
-							className={`w-full flex items-center justify-between p-3 rounded-lg border transition-all duration-200 cursor-pointer hover:scale-[1.02] hover:shadow-md ${
+							className={`w-full flex items-center justify-between p-3 rounded-lg border transition-transform duration-200 cursor-pointer hover:scale-[1.02] hover:shadow-md ${
 								showPendingOnly
 									? 'border-primary bg-primary/10 shadow-md shadow-primary/20'
 									: 'border-border hover:border-orange-300 hover:bg-orange-50 dark:hover:bg-orange-900/20'
@@ -245,13 +245,13 @@ export const RecordsSection: React.FC<RecordsSectionProps> = ({
 							onClick={handleTogglePendingFilter}
 						>
 							<div className="flex items-center gap-3">
-								<div className={`p-2 rounded-lg transition-colors duration-200 ${
+								<div className={`p-2 rounded-lg transition-none duration-200 ${
 									showPendingOnly 
 										? 'bg-primary/20' 
 										: 'bg-orange-100 dark:bg-orange-900/30 hover:bg-orange-200 dark:hover:bg-orange-800/40'
 								}`}>
 									<Users
-										className={`h-5 w-5 transition-colors duration-200 ${
+										className={`h-5 w-5 transition-none duration-200 ${
 											showPendingOnly 
 												? 'text-primary' 
 												: 'text-orange-600 dark:text-orange-400'
@@ -274,7 +274,7 @@ export const RecordsSection: React.FC<RecordsSectionProps> = ({
 
 						{/* PDF Ready Button */}
 						<button
-							className={`w-full flex items-center justify-between p-3 rounded-lg border transition-all duration-200 cursor-pointer hover:scale-[1.02] hover:shadow-md mt-3 ${
+							className={`w-full flex items-center justify-between p-3 rounded-lg border transition-transform duration-200 cursor-pointer hover:scale-[1.02] hover:shadow-md mt-3 ${
 								showPdfReadyOnly
 									? 'border-primary bg-primary/10 shadow-md shadow-primary/20'
 									: 'border-border hover:border-green-300 hover:bg-green-50 dark:hover:bg-green-900/20'
@@ -282,13 +282,13 @@ export const RecordsSection: React.FC<RecordsSectionProps> = ({
 							onClick={handleTogglePdfFilter}
 						>
 							<div className="flex items-center gap-3">
-								<div className={`p-2 rounded-lg transition-colors duration-200 ${
+								<div className={`p-2 rounded-lg transition-none duration-200 ${
 									showPdfReadyOnly 
 										? 'bg-primary/20' 
 										: 'bg-green-100 dark:bg-green-900/30 hover:bg-green-200 dark:hover:bg-green-800/40'
 								}`}>
 									<Download
-										className={`h-5 w-5 transition-colors duration-200 ${
+										className={`h-5 w-5 transition-none duration-200 ${
 											showPdfReadyOnly 
 												? 'text-primary' 
 												: 'text-green-600 dark:text-green-400'
@@ -323,7 +323,7 @@ export const RecordsSection: React.FC<RecordsSectionProps> = ({
 				</Card>
 
 				{/* Exam Types Card - Rediseñada más compacta */}
-				<Card className="hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 group transition-all duration-300">
+				<Card className="hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 group transition-transform duration-300">
 					<CardContent className="p-4">
 						<div className="flex items-center gap-3 mb-3">
 							<div className="p-2 rounded-lg bg-blue-100 dark:bg-blue-900/30">
@@ -338,7 +338,7 @@ export const RecordsSection: React.FC<RecordsSectionProps> = ({
 						<div className="space-y-2">
 							{/* Biopsia */}
 							<div
-								className={`flex items-center justify-between p-2 rounded-lg border transition-all duration-200 cursor-pointer hover:bg-accent ${
+								className={`flex items-center justify-between p-2 rounded-lg border transition-transform duration-200 cursor-pointer hover:bg-accent ${
 									selectedExamType === 'biopsia'
 										? 'border-primary bg-primary/10'
 										: 'border-border hover:border-primary/50'
@@ -354,7 +354,7 @@ export const RecordsSection: React.FC<RecordsSectionProps> = ({
 
 							{/* Citología */}
 							<div
-								className={`flex items-center justify-between p-2 rounded-lg border transition-all duration-200 cursor-pointer hover:bg-accent ${
+								className={`flex items-center justify-between p-2 rounded-lg border transition-transform duration-200 cursor-pointer hover:bg-accent ${
 									selectedExamType === 'citologia'
 										? 'border-primary bg-primary/10'
 										: 'border-border hover:border-primary/50'
@@ -370,7 +370,7 @@ export const RecordsSection: React.FC<RecordsSectionProps> = ({
 
 							{/* Inmunohistoquímica */}
 							<div
-								className={`flex items-center justify-between p-2 rounded-lg border transition-all duration-200 cursor-pointer hover:bg-accent ${
+								className={`flex items-center justify-between p-2 rounded-lg border transition-transform duration-200 cursor-pointer hover:bg-accent ${
 									selectedExamType === 'inmunohistoquimica'
 										? 'border-primary bg-primary/10'
 										: 'border-border hover:border-primary/50'

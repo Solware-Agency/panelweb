@@ -296,7 +296,7 @@ function AuthCallback() {
 							<div className="w-full">
 								<button
 									onClick={() => navigate('/')}
-									className="w-full bg-transparent border border-primary hover:shadow-sm hover:shadow-primary text-white rounded-md p-2 transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98]"
+									className="w-full bg-transparent border border-primary hover:shadow-sm hover:shadow-primary text-white rounded-md p-2 transition-transform duration-200 transform hover:scale-[1.02] active:scale-[0.98]"
 								>
 									Ir al Login
 								</button>

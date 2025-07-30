@@ -698,7 +698,7 @@ const UnifiedCaseModal: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClo
 									</div>
 									<button
 										onClick={isEditing ? handleCancelEdit : onClose}
-										className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
+										className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-none"
 									>
 										<X className="w-5 h-5 text-gray-500 dark:text-gray-400" />
 									</button>
@@ -1037,7 +1037,7 @@ const UnifiedCaseModal: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClo
 										<div className="space-y-2">
 											{/* Payment Method 1 */}
 											{(case_.payment_method_1 || (isEditing && editedCase.payment_method_1)) && (
-												<div className="bg-white dark:bg-background p-3 rounded border border-gray-200 dark:border-gray-700 relative transition-all hover:border-gray-300 dark:hover:border-gray-600">
+												<div className="bg-white dark:bg-background p-3 rounded border border-gray-200 dark:border-gray-700 relative transition-transform hover:border-gray-300 dark:hover:border-gray-600">
 													{isEditing ? (
 														<>
 															<div className="grid grid-cols-1 md:grid-cols-3 gap-2">
@@ -1077,7 +1077,7 @@ const UnifiedCaseModal: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClo
 															</div>
 															<button
 																onClick={() => handleRemovePayment(1)}
-																className="absolute -top-2 -right-2 bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 p-1 rounded-full hover:bg-red-200 dark:hover:bg-red-900/50 transition-colors"
+																className="absolute -top-2 -right-2 bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 p-1 rounded-full hover:bg-red-200 dark:hover:bg-red-900/50 transition-none"
 															>
 																<XCircle className="w-4 h-4" />
 															</button>
@@ -1101,7 +1101,7 @@ const UnifiedCaseModal: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClo
 
 											{/* Payment Method 2 */}
 											{(case_.payment_method_2 || (isEditing && editedCase.payment_method_2)) && (
-												<div className="bg-white dark:bg-background p-3 rounded border border-gray-200 dark:border-gray-700 relative transition-all hover:border-gray-300 dark:hover:border-gray-600">
+												<div className="bg-white dark:bg-background p-3 rounded border border-gray-200 dark:border-gray-700 relative transition-transform hover:border-gray-300 dark:hover:border-gray-600">
 													{isEditing ? (
 														<>
 															<div className="grid grid-cols-1 md:grid-cols-3 gap-2">
@@ -1141,7 +1141,7 @@ const UnifiedCaseModal: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClo
 															</div>
 															<button
 																onClick={() => handleRemovePayment(2)}
-																className="absolute -top-2 -right-2 bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 p-1 rounded-full hover:bg-red-200 dark:hover:bg-red-900/50 transition-colors"
+																className="absolute -top-2 -right-2 bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 p-1 rounded-full hover:bg-red-200 dark:hover:bg-red-900/50 transition-none"
 															>
 																<XCircle className="w-4 h-4" />
 															</button>
@@ -1165,7 +1165,7 @@ const UnifiedCaseModal: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClo
 
 											{/* Payment Method 3 */}
 											{(case_.payment_method_3 || (isEditing && editedCase.payment_method_3)) && (
-												<div className="bg-white dark:bg-background p-3 rounded border border-gray-200 dark:border-gray-700 relative transition-all hover:border-gray-300 dark:hover:border-gray-600">
+												<div className="bg-white dark:bg-background p-3 rounded border border-gray-200 dark:border-gray-700 relative transition-transform hover:border-gray-300 dark:hover:border-gray-600">
 													{isEditing ? (
 														<>
 															<div className="grid grid-cols-1 md:grid-cols-3 gap-2">
@@ -1205,7 +1205,7 @@ const UnifiedCaseModal: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClo
 															</div>
 															<button
 																onClick={() => handleRemovePayment(3)}
-																className="absolute -top-2 -right-2 bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 p-1 rounded-full hover:bg-red-200 dark:hover:bg-red-900/50 transition-colors"
+																className="absolute -top-2 -right-2 bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 p-1 rounded-full hover:bg-red-200 dark:hover:bg-red-900/50 transition-none"
 															>
 																<XCircle className="w-4 h-4" />
 															</button>
@@ -1229,7 +1229,7 @@ const UnifiedCaseModal: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClo
 
 											{/* Payment Method 4 */}
 											{(case_.payment_method_4 || (isEditing && editedCase.payment_method_4)) && (
-												<div className="bg-white dark:bg-background p-3 rounded border border-gray-200 dark:border-gray-700 relative transition-all hover:border-gray-300 dark:hover:border-gray-600">
+												<div className="bg-white dark:bg-background p-3 rounded border border-gray-200 dark:border-gray-700 relative transition-transform hover:border-gray-300 dark:hover:border-gray-600">
 													{isEditing ? (
 														<>
 															<div className="grid grid-cols-1 md:grid-cols-3 gap-2">
@@ -1269,7 +1269,7 @@ const UnifiedCaseModal: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClo
 															</div>
 															<button
 																onClick={() => handleRemovePayment(4)}
-																className="absolute -top-2 -right-2 bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 p-1 rounded-full hover:bg-red-200 dark:hover:bg-red-900/50 transition-colors"
+																className="absolute -top-2 -right-2 bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 p-1 rounded-full hover:bg-red-200 dark:hover:bg-red-900/50 transition-none"
 															>
 																<XCircle className="w-4 h-4" />
 															</button>
@@ -1400,14 +1400,14 @@ const UnifiedCaseModal: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClo
 						<div className="flex flex-col sm:flex-row gap-3 sm:justify-end">
 							<button
 								onClick={() => setIsDeleteModalOpen(false)}
-								className="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-md hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
+								className="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-md hover:bg-gray-300 dark:hover:bg-gray-600 transition-none"
 							>
 								Cancelar
 							</button>
 							<button
 								onClick={handleConfirmDelete}
 								disabled={isDeleting}
-								className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors flex items-center justify-center gap-2"
+								className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-none flex items-center justify-center gap-2"
 							>
 								{isDeleting ? (
 									<>
@@ -1439,7 +1439,7 @@ const UnifiedCaseModal: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClo
 							</div>
 							<button
 								onClick={() => setIsAddPaymentModalOpen(false)}
-								className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
+								className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-none"
 							>
 								<X className="w-5 h-5 text-gray-500 dark:text-gray-400" />
 							</button>

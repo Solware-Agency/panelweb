@@ -58,7 +58,7 @@ function Calendar({ className, classNames, showOutsideDays = true, ...props }: C
 					<h3 className="text-base sm:text-lg font-semibold text-gray-700 dark:text-gray-300">Seleccionar Año</h3>
 					<button
 						onClick={() => setShowYearPicker(false)}
-						className="p-1.5 sm:p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
+						className="p-1.5 sm:p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-none"
 					>
 						<ChevronLeft className="w-4 h-4 text-gray-600 dark:text-gray-400" />
 					</button>
@@ -69,7 +69,7 @@ function Calendar({ className, classNames, showOutsideDays = true, ...props }: C
 						<button
 							key={year}
 							onClick={() => handleYearSelect(year)}
-							className={`p-1.5 sm:p-2 text-xs sm:text-sm font-medium rounded-md transition-all duration-200 hover:scale-105 ${
+							className={`p-1.5 sm:p-2 text-xs sm:text-sm font-medium rounded-md transition-transform duration-200 hover:scale-105 ${
 								year === selectedYear
 									? 'bg-primary text-primary-foreground shadow-md'
 									: year === currentYear
@@ -85,13 +85,13 @@ function Calendar({ className, classNames, showOutsideDays = true, ...props }: C
 				<div className="mt-3 sm:mt-4 flex justify-center gap-1.5 sm:gap-2">
 					<button
 						onClick={() => handleYearSelect(currentYear)}
-						className="px-2 sm:px-3 py-0.5 sm:py-1 text-xs sm:text-sm font-medium text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 bg-blue-50 dark:bg-blue-900/20 hover:bg-blue-100 dark:hover:bg-blue-900/30 rounded-md transition-colors"
+						className="px-2 sm:px-3 py-0.5 sm:py-1 text-xs sm:text-sm font-medium text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 bg-blue-50 dark:bg-blue-900/20 hover:bg-blue-100 dark:hover:bg-blue-900/30 rounded-md transition-none"
 					>
 						Ir a {currentYear}
 					</button>
 					<button
 						onClick={() => handleYearSelect(2000)}
-						className="px-2 sm:px-3 py-0.5 sm:py-1 text-xs sm:text-sm font-medium text-purple-600 dark:text-purple-400 hover:text-purple-800 dark:hover:text-purple-300 bg-purple-50 dark:bg-purple-900/20 hover:bg-purple-100 dark:hover:bg-purple-900/30 rounded-md transition-colors"
+						className="px-2 sm:px-3 py-0.5 sm:py-1 text-xs sm:text-sm font-medium text-purple-600 dark:text-purple-400 hover:text-purple-800 dark:hover:text-purple-300 bg-purple-50 dark:bg-purple-900/20 hover:bg-purple-100 dark:hover:bg-purple-900/30 rounded-md transition-none"
 					>
 						Ir a 2000
 					</button>
@@ -113,7 +113,7 @@ function Calendar({ className, classNames, showOutsideDays = true, ...props }: C
 				</button>
 				<button
 					onClick={() => setShowYearPicker(true)}
-					className="text-xs sm:text-sm font-medium hover:text-primary transition-colors cursor-pointer px-1.5 sm:px-2 py-0.5 sm:py-1 rounded hover:bg-gray-100 dark:hover:bg-gray-800"
+					className="text-xs sm:text-sm font-medium hover:text-primary transition-none cursor-pointer px-1.5 sm:px-2 py-0.5 sm:py-1 rounded hover:bg-gray-100 dark:hover:bg-gray-800"
 				>
 					{displayMonth.toLocaleDateString('es-ES', { month: 'long', year: 'numeric' })}
 				</button>

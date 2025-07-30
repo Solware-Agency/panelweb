@@ -71,7 +71,7 @@ export const PatientDataSection = memo(({ control, inputStyles }: PatientDataSec
 											field.onChange(e)
 										}
 									}}
-									className={inputStyles}
+									className={inputStyles + ' transition-none'}
 								/>
 							</FormControl>
 						</FormItem>
@@ -103,7 +103,7 @@ export const PatientDataSection = memo(({ control, inputStyles }: PatientDataSec
 											field.onChange(e)
 										}
 									}}
-									className={cn(inputStyles, isLoadingPatient && 'border-blue-300')}
+									className={cn(inputStyles, isLoadingPatient && 'border-blue-300 transition-none')}
 								/>
 							</FormControl>
 							<p className="text-[10px] sm:text-xs text-gray-500 mt-1">
@@ -134,7 +134,7 @@ export const PatientDataSection = memo(({ control, inputStyles }: PatientDataSec
 											field.onChange(e)
 										}
 									}}
-									className={inputStyles}
+									className={inputStyles + ' transition-none'}
 								/>
 							</FormControl>
 						</FormItem>
@@ -163,7 +163,7 @@ export const PatientDataSection = memo(({ control, inputStyles }: PatientDataSec
 												const value = e.target.value
 												field.onChange(value === '' ? 0 : Number(value))
 											}}
-											className={inputStyles}
+											className={inputStyles + ' transition-none'}
 										/>
 									</FormControl>
 								</FormItem>
@@ -181,7 +181,7 @@ export const PatientDataSection = memo(({ control, inputStyles }: PatientDataSec
 											value={field.value}
 											onChange={field.onChange}
 											placeholder="Unidad"
-											className={inputStyles}
+											className={inputStyles + ' transition-none'}
 										/>
 									</FormControl>
 								</FormItem>
@@ -204,7 +204,7 @@ export const PatientDataSection = memo(({ control, inputStyles }: PatientDataSec
 									iconRight={<Mail className="h-4 w-4 text-muted-foreground" />}
 									placeholder="email@ejemplo.com"
 									{...field}
-									className={inputStyles}
+									className={inputStyles + ' transition-none'}
 								/>
 							</FormControl>
 						</FormItem>
@@ -226,7 +226,7 @@ export const PatientDataSection = memo(({ control, inputStyles }: PatientDataSec
 											className={cn(
 												'w-full justify-start text-left font-normal',
 												!field.value && 'text-muted-foreground',
-												inputStyles,
+												inputStyles + ' transition-none',
 											)}
 										>
 											<CalendarIcon className="mr-2 h-4 w-4" />

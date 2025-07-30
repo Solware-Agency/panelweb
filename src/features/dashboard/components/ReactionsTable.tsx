@@ -185,7 +185,7 @@ const ReactionsTable: React.FC = () => {
 						<p className="text-sm mt-2">Verifica tu conexión a internet o contacta al administrador</p>
 						<button
 							onClick={() => refetch()}
-							className="mt-4 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+							className="mt-4 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-none"
 						>
 							Reintentar
 						</button>
@@ -240,7 +240,7 @@ const ReactionsTable: React.FC = () => {
 						return (
 							<tr
 								key={request.id}
-								className={`hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors ${
+								className={`hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-none ${
 									request.pagado ? 'bg-green-50/50 dark:bg-green-900/20' : ''
 								}`}
 							>

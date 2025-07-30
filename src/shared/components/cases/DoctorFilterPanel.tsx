@@ -110,7 +110,7 @@ const DoctorFilterPanel: React.FC<DoctorFilterPanelProps> = ({ cases, onFilterCh
 					filteredDoctors.map((doctor) => (
 						<div
 							key={doctor}
-							className="flex items-center space-x-2 py-1 hover:bg-gray-50 dark:hover:bg-gray-800/50 px-2 rounded-md transition-colors text-sm"
+							className="flex items-center space-x-2 py-1 hover:bg-gray-50 dark:hover:bg-gray-800/50 px-2 rounded-md transition-none text-sm"
 						>
 							<Checkbox
 								id={`doctor-${doctor}`}

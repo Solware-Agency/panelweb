@@ -165,7 +165,7 @@ const NavGroup: React.FC<NavGroupProps> = ({
 			<div
 				className={cn(
 					'pl-2 space-y-1 overflow-hidden transition-all duration-500',
-					isExpanded ? 'max-h-96' : 'max-h-0',
+					isExpanded ? 'max-h-96 transition-all duration-500' : 'max-h-0 transition-all duration-500',
 				)}
 			>
 				{children}

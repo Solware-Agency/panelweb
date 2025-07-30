@@ -167,7 +167,7 @@ function RegisterForm() {
 									onChange={(e) => setEmail(e.target.value)}
 									required
 									disabled={loading || rateLimitError}
-									className="border-2 border-slate-600 rounded-md p-2 w-full focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary disabled:opacity-50 disabled:cursor-not-allowed bg-slate-900 text-white placeholder-slate-400 transition-all duration-200"
+									className="border-2 border-slate-600 rounded-md p-2 w-full focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary disabled:opacity-50 disabled:cursor-not-allowed bg-slate-900 text-white placeholder-slate-400 transition-transform duration-200"
 									autoComplete="email"
 								/>
 
@@ -180,7 +180,7 @@ function RegisterForm() {
 									onChange={(e) => setDisplayName(e.target.value)}
 									required
 									disabled={loading || rateLimitError}
-									className="border-2 border-slate-600 rounded-md p-2 w-full focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary disabled:opacity-50 disabled:cursor-not-allowed bg-slate-900 text-white placeholder-slate-400 transition-all duration-200"
+									className="border-2 border-slate-600 rounded-md p-2 w-full focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary disabled:opacity-50 disabled:cursor-not-allowed bg-slate-900 text-white placeholder-slate-400 transition-transform duration-200"
 									autoComplete="name"
 								/>
 
@@ -194,7 +194,7 @@ function RegisterForm() {
 										onChange={(e) => setPassword(e.target.value)}
 										required
 										disabled={loading || rateLimitError}
-										className="border-2 border-slate-600 rounded-md p-2 w-full pr-10 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary disabled:opacity-50 disabled:cursor-not-allowed bg-slate-900 text-white placeholder-slate-400 transition-all duration-200"
+										className="border-2 border-slate-600 rounded-md p-2 w-full pr-10 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary disabled:opacity-50 disabled:cursor-not-allowed bg-slate-900 text-white placeholder-slate-400 transition-transform duration-200"
 										autoComplete="new-password"
 									/>
 									<button
@@ -217,7 +217,7 @@ function RegisterForm() {
 										onChange={(e) => setConfirmPassword(e.target.value)}
 										required
 										disabled={loading || rateLimitError}
-										className="border-2 border-slate-600 rounded-md p-2 w-full pr-10 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary disabled:opacity-50 disabled:cursor-not-allowed bg-slate-900 text-white placeholder-slate-400 transition-all duration-200"
+										className="border-2 border-slate-600 rounded-md p-2 w-full pr-10 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary disabled:opacity-50 disabled:cursor-not-allowed bg-slate-900 text-white placeholder-slate-400 transition-transform duration-200"
 										autoComplete="new-password"
 									/>
 									<button
@@ -276,7 +276,7 @@ function RegisterForm() {
 							<button
 								type="submit"
 								disabled={loading || rateLimitError}
-								className="w-full bg-transparent border border-primary hover:shadow-sm hover:shadow-primary text-white rounded-md p-2 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-lg transform hover:scale-[1.02] active:scale-[0.98]"
+								className="w-full bg-transparent border border-primary hover:shadow-sm hover:shadow-primary text-white rounded-md p-2 transition-transform duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-lg transform hover:scale-[1.02] active:scale-[0.98]"
 							>
 								{loading ? (
 									<>
@@ -300,7 +300,7 @@ function RegisterForm() {
 								¿Ya tienes una cuenta?{' '}
 								<Link
 									to="/"
-									className={`font-medium text-blue-500 hover:text-blue-400 transition-colors ${loading || rateLimitError ? 'pointer-events-none opacity-50' : ''}`}
+									className={`font-medium text-blue-500 hover:text-blue-400 transition-none ${loading || rateLimitError ? 'pointer-events-none opacity-50' : ''}`}
 								>
 									Inicia sesión aquí
 								</Link>

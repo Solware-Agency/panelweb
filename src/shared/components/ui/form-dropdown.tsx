@@ -25,7 +25,7 @@ const FormDropdown = forwardRef<HTMLDivElement, FormDropdownProps>(
 				options={options}
 				value={value}
 				onChange={onChange}
-				className={cn('transition-all duration-300 focus:border-primary focus:ring-primary', className)}
+				className={cn('transition-transform duration-300 focus:border-primary focus:ring-primary', className)}
 				{...props}
 			/>
 		)

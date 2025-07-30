@@ -107,7 +107,7 @@ function EmailVerificationNotice() {
 								<button
 									onClick={handleLogout}
 									disabled={checkingVerification || loading}
-									className="w-full bg-transparent border border-primary hover:shadow-sm hover:shadow-primary text-white rounded-md p-2 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-lg transform hover:scale-[1.02] active:scale-[0.98]"
+									className="w-full bg-transparent border border-primary hover:shadow-sm hover:shadow-primary text-white rounded-md p-2 transition-transform duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-lg transform hover:scale-[1.02] active:scale-[0.98]"
 								>
 									{checkingVerification ? (
 										<>
@@ -125,7 +125,7 @@ function EmailVerificationNotice() {
 								<button
 									onClick={handleResendVerification}
 									disabled={loading || checkingVerification}
-									className="w-full bg-transparent border border-orange-500 hover:shadow-sm hover:shadow-orange-500 text-white rounded-md p-2 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-lg transform hover:scale-[1.02] active:scale-[0.98]"
+									className="w-full bg-transparent border border-orange-500 hover:shadow-sm hover:shadow-orange-500 text-white rounded-md p-2 transition-transform duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-lg transform hover:scale-[1.02] active:scale-[0.98]"
 								>
 									{loading ? (
 										<>
@@ -147,7 +147,7 @@ function EmailVerificationNotice() {
 							<button
 								onClick={handleLogout}
 								disabled={loading || checkingVerification}
-								className={`flex items-center justify-center gap-2 text-sm text-purple-400 hover:text-purple-300 transition-colors mx-auto ${
+								className={`flex items-center justify-center gap-2 text-sm text-purple-400 hover:text-purple-300 transition-none mx-auto ${
 									loading || checkingVerification ? 'opacity-50 cursor-not-allowed' : ''
 								}`}
 							>
