@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useCallback } from 'react'
+import React, { useState, useMemo, useCallback, useEffect } from 'react'
 import {
 	ChevronUp,
 	ChevronDown,
@@ -67,10 +67,22 @@ const CasesTable: React.FC<CasesTableProps> = React.memo(
 		const [showDoctorFilter, setShowDoctorFilter] = useState(false)
 		const [isSearching, setIsSearching] = useState(false)
 		const [isStepsModalOpen, setIsStepsModalOpen] = useState(false)
+		const [shouldUpdateSelectedCase, setShouldUpdateSelectedCase] = useState(false)
 		const handleGenerateEmployeeCase = useCallback((case_: MedicalRecord) => {
 			setSelectedCaseForGenerate(case_)
 			setIsStepsModalOpen(true)
 		}, [])
+
+		// Effect to update selected case when cases data changes and we need to update
+		useEffect(() => {
+			if (shouldUpdateSelectedCase && selectedCaseForView && cases.length > 0) {
+				const updatedCase = cases.find((c) => c.id === selectedCaseForView.id)
+				if (updatedCase) {
+					setSelectedCaseForView(updatedCase)
+				}
+				setShouldUpdateSelectedCase(false)
+			}
+		}, [cases, selectedCaseForView, shouldUpdateSelectedCase])
 
 		// Case actions popover component
 		// Modifica el CaseActionsPopover para cambiar las restricciones de roles
@@ -581,8 +593,6 @@ const CasesTable: React.FC<CasesTableProps> = React.memo(
 									</select>
 								</div>
 
-
-
 								{/* Doctor Filter Button */}
 								<Button
 									onClick={toggleDoctorFilter}
@@ -898,8 +908,6 @@ const CasesTable: React.FC<CasesTableProps> = React.memo(
 									</select>
 								</div>
 
-
-
 								{/* Doctor Filter Button */}
 								<Button
 									onClick={toggleDoctorFilter}
@@ -1170,13 +1178,18 @@ const CasesTable: React.FC<CasesTableProps> = React.memo(
 						setSelectedCaseForView(null)
 					}}
 					onSave={() => {
+						// Refetch the data to update the cases list
 						refetch()
+
+						// Mark that we should update the selected case when data changes
+						setShouldUpdateSelectedCase(true)
 					}}
 					onDelete={() => {
 						setIsViewModalOpen(false)
 						setSelectedCaseForView(null)
 						refetch()
 					}}
+					onCaseSelect={handleCaseSelect}
 				/>
 
 				{/* Generate Case Modal - Solo para admin y solo para inmunohistoquímica */}

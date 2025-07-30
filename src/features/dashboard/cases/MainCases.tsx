@@ -1,7 +1,8 @@
 import React, { useState, useCallback, useMemo } from 'react'
 import { Download, Users, Activity, FileText, Microscope } from 'lucide-react'
 import CasesTable from '@shared/components/cases/CasesTable'
-import CaseDetailPanel from '@shared/components/cases/CaseDetailPanel'
+// import CaseDetailPanel from '@shared/components/cases/CaseDetailPanel'
+import UnifiedCaseModal from '@shared/components/cases/UnifiedCaseModal'
 import type { MedicalRecord } from '@lib/supabase-service'
 import { useQuery } from '@tanstack/react-query'
 import { getMedicalRecords } from '@lib/supabase-service'
@@ -11,7 +12,7 @@ const MainCases: React.FC = React.memo(() => {
 	const [selectedCase, setSelectedCase] = useState<MedicalRecord | null>(null)
 	const [isPanelOpen, setIsPanelOpen] = useState(false)
 	const [isFullscreen, setIsFullscreen] = useState(false)
-	
+
 	// Estados para filtros
 	const [showPendingOnly, setShowPendingOnly] = useState(false)
 	const [showPdfReadyOnly, setShowPdfReadyOnly] = useState(false)
@@ -54,15 +55,18 @@ const MainCases: React.FC = React.memo(() => {
 		setSelectedExamType(null)
 	}, [showPdfReadyOnly])
 
-	const handleExamTypeFilter = useCallback((examType: string) => {
-		if (selectedExamType === examType) {
-			setSelectedExamType(null)
-		} else {
-			setSelectedExamType(examType)
-			setShowPendingOnly(false)
-			setShowPdfReadyOnly(false)
-		}
-	}, [selectedExamType])
+	const handleExamTypeFilter = useCallback(
+		(examType: string) => {
+			if (selectedExamType === examType) {
+				setSelectedExamType(null)
+			} else {
+				setSelectedExamType(examType)
+				setShowPendingOnly(false)
+				setShowPdfReadyOnly(false)
+			}
+		},
+		[selectedExamType],
+	)
 
 	// Filtrar casos basado en los filtros activos
 	const filteredCases = useMemo(() => {
@@ -80,8 +84,8 @@ const MainCases: React.FC = React.memo(() => {
 			filtered = filtered.filter((c) => {
 				const type = c.exam_type?.toLowerCase().trim()
 				const isGeneratableCase = type?.includes('biops') || type?.includes('inmuno') || type?.includes('citolog')
-				const hasContent = c.diagnostico || c.conclusion_diagnostica || 
-					(type?.includes('citolog') && c.descripcion_macroscopica)
+				const hasContent =
+					c.diagnostico || c.conclusion_diagnostica || (type?.includes('citolog') && c.descripcion_macroscopica)
 				return isGeneratableCase && hasContent
 			})
 		}
@@ -91,7 +95,7 @@ const MainCases: React.FC = React.memo(() => {
 			filtered = filtered.filter((c) => {
 				if (!c.exam_type) return false
 				const type = c.exam_type.toLowerCase().trim()
-				
+
 				let normalizedType = type
 				if (type.includes('inmuno')) {
 					normalizedType = 'inmunohistoquimica'
@@ -100,7 +104,7 @@ const MainCases: React.FC = React.memo(() => {
 				} else if (type.includes('biops')) {
 					normalizedType = 'biopsia'
 				}
-				
+
 				return normalizedType === selectedExamType
 			})
 		}
@@ -115,10 +119,7 @@ const MainCases: React.FC = React.memo(() => {
 		}
 
 		const total = cases.length
-		const totalAmount = cases.reduce(
-			(sum: number, record: MedicalRecord) => sum + (record.total_amount || 0),
-			0,
-		)
+		const totalAmount = cases.reduce((sum: number, record: MedicalRecord) => sum + (record.total_amount || 0), 0)
 		const completed = cases.filter((record: MedicalRecord) => record.payment_status === 'Completado').length
 
 		return { total, totalAmount, completed }
@@ -130,8 +131,8 @@ const MainCases: React.FC = React.memo(() => {
 			cases?.filter((c) => {
 				const type = c.exam_type?.toLowerCase().trim()
 				const isGeneratableCase = type?.includes('biops') || type?.includes('inmuno') || type?.includes('citolog')
-				const hasContent = c.diagnostico || c.conclusion_diagnostica || 
-					(type?.includes('citolog') && c.descripcion_macroscopica)
+				const hasContent =
+					c.diagnostico || c.conclusion_diagnostica || (type?.includes('citolog') && c.descripcion_macroscopica)
 
 				return isGeneratableCase && hasContent
 			}).length || 0
@@ -191,7 +192,7 @@ const MainCases: React.FC = React.memo(() => {
 				<Card className="hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 group transition-transform duration-300">
 					<CardContent className="p-4">
 						{/* Pending Cases Button */}
-						<button 
+						<button
 							className={`w-full flex items-center justify-between p-3 rounded-lg border transition-transform duration-200 cursor-pointer hover:scale-[1.02] hover:shadow-md ${
 								showPendingOnly
 									? 'border-primary bg-primary/10 shadow-md shadow-primary/20'
@@ -200,16 +201,18 @@ const MainCases: React.FC = React.memo(() => {
 							onClick={handleTogglePendingFilter}
 						>
 							<div className="flex items-center gap-3">
-								<div className={`p-2 rounded-lg transition-transform duration-200 ${
-									showPendingOnly 
-										? 'bg-primary/20' 
-										: 'bg-orange-100 dark:bg-orange-900/30 hover:bg-orange-200 dark:hover:bg-orange-800/40'
-								}`}>
-									<Users className={`h-5 w-5 transition-transform duration-200 ${
-										showPendingOnly 
-											? 'text-primary' 
-											: 'text-orange-600 dark:text-orange-400'
-									}`} />
+								<div
+									className={`p-2 rounded-lg transition-transform duration-200 ${
+										showPendingOnly
+											? 'bg-primary/20'
+											: 'bg-orange-100 dark:bg-orange-900/30 hover:bg-orange-200 dark:hover:bg-orange-800/40'
+									}`}
+								>
+									<Users
+										className={`h-5 w-5 transition-transform duration-200 ${
+											showPendingOnly ? 'text-primary' : 'text-orange-600 dark:text-orange-400'
+										}`}
+									/>
 								</div>
 								<div>
 									<p className="text-xs font-medium text-muted-foreground">Casos Pendientes</p>
@@ -226,7 +229,7 @@ const MainCases: React.FC = React.memo(() => {
 						</button>
 
 						{/* PDF Ready Button */}
-						<button 
+						<button
 							className={`w-full flex items-center justify-between p-3 rounded-lg border transition-transform duration-200 cursor-pointer hover:scale-[1.02] hover:shadow-md mt-3 ${
 								showPdfReadyOnly
 									? 'border-primary bg-primary/10 shadow-md shadow-primary/20'
@@ -235,16 +238,18 @@ const MainCases: React.FC = React.memo(() => {
 							onClick={handleTogglePdfFilter}
 						>
 							<div className="flex items-center gap-3">
-								<div className={`p-2 rounded-lg transition-transform duration-200 ${
-									showPdfReadyOnly 
-										? 'bg-primary/20' 
-										: 'bg-green-100 dark:bg-green-900/30 hover:bg-green-200 dark:hover:bg-green-800/40'
-								}`}>
-									<Download className={`h-5 w-5 transition-transform duration-200 ${
-										showPdfReadyOnly 
-											? 'text-primary' 
-											: 'text-green-600 dark:text-green-400'
-									}`} />
+								<div
+									className={`p-2 rounded-lg transition-transform duration-200 ${
+										showPdfReadyOnly
+											? 'bg-primary/20'
+											: 'bg-green-100 dark:bg-green-900/30 hover:bg-green-200 dark:hover:bg-green-800/40'
+									}`}
+								>
+									<Download
+										className={`h-5 w-5 transition-transform duration-200 ${
+											showPdfReadyOnly ? 'text-primary' : 'text-green-600 dark:text-green-400'
+										}`}
+									/>
 								</div>
 								<div>
 									<p className="text-xs font-medium text-muted-foreground">PDF Pendientes</p>
@@ -252,20 +257,14 @@ const MainCases: React.FC = React.memo(() => {
 								</div>
 							</div>
 							<div className="text-right">
-								<p className="text-xs text-muted-foreground">
-									pendientes por generar
-								</p>
+								<p className="text-xs text-muted-foreground">pendientes por generar</p>
 							</div>
 						</button>
 
 						{/* Status indicators */}
 						<div className="mt-3 pt-3 border-t border-border">
-							{showPendingOnly && (
-								<p className="text-xs text-primary font-medium">Mostrando casos pendientes</p>
-							)}
-							{showPdfReadyOnly && (
-								<p className="text-xs text-primary font-medium">Mostrando PDF disponibles</p>
-							)}
+							{showPendingOnly && <p className="text-xs text-primary font-medium">Mostrando casos pendientes</p>}
+							{showPdfReadyOnly && <p className="text-xs text-primary font-medium">Mostrando PDF disponibles</p>}
 							{!showPendingOnly && !showPdfReadyOnly && (
 								<p className="text-xs text-muted-foreground">Haz clic en un botón para filtrar</p>
 							)}
@@ -383,7 +382,7 @@ const MainCases: React.FC = React.memo(() => {
 			/>
 
 			{/* Case Detail Panel */}
-			<CaseDetailPanel
+			<UnifiedCaseModal
 				case_={selectedCase}
 				isOpen={isPanelOpen}
 				onClose={handlePanelClose}
