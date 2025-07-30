@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
+import { AlertTriangle } from 'lucide-react'
 import { motion, AnimatePresence } from 'motion/react'
 import {
 	X,
@@ -6,9 +7,9 @@ import {
 	Stethoscope,
 	CreditCard,
 	FileText,
-	CheckCircle,
+	// CheckCircle,
 	Hash,
-	UserCheck,
+	Download,
 	Edit,
 	Trash2,
 	Loader2,
@@ -32,17 +33,18 @@ import { Button } from '@shared/components/ui/button'
 import { Input } from '@shared/components/ui/input'
 import { Textarea } from '@shared/components/ui/textarea'
 import { FormDropdown, createDropdownOptions } from '@shared/components/ui/form-dropdown'
+import { AutocompleteInput } from '@shared/components/ui/autocomplete-input'
 import { useAuth } from '@app/providers/AuthContext'
 import { useUserProfile } from '@shared/hooks/useUserProfile'
 import TagInput from '@shared/components/ui/tag-input'
 import {
 	parseDecimalNumber,
-	formatNumberForInput,
-	createNumberInputHandler,
+	createCalculatorInputHandler,
 	isVESPaymentMethod,
 	convertVEStoUSD,
 	autoCorrectDecimalAmount,
 } from '@shared/utils/number-utils'
+import { useBodyScrollLock } from '@shared/hooks/useBodyScrollLock'
 
 interface ChangeLogEntry {
 	id: string
@@ -62,6 +64,7 @@ interface CaseDetailPanelProps {
 	onClose: () => void
 	onSave?: () => void
 	onDelete?: () => void
+	onCaseSelect: (case_: MedicalRecord) => void
 }
 
 interface ImmunoRequest {
@@ -76,7 +79,8 @@ interface ImmunoRequest {
 	updated_at: string
 }
 
-const UnifiedCaseModal: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClose, onSave, onDelete }) => {
+const UnifiedCaseModal: React.FC<CaseDetailPanelProps> = React.memo(({ case_, isOpen, onClose, onSave, onDelete }) => {
+	useBodyScrollLock(isOpen)
 	const { toast } = useToast()
 	const { user } = useAuth()
 	const { profile } = useUserProfile()
@@ -165,6 +169,27 @@ const UnifiedCaseModal: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClo
 		enabled: !!case_?.id && isOpen,
 	})
 
+	// Query to get the updated case data after saving
+	const { data: updatedCaseData, refetch: refetchCaseData } = useQuery({
+		queryKey: ['case-data', case_?.id],
+		queryFn: async () => {
+			if (!case_?.id) return null
+
+			const { data, error } = await supabase.from('medical_records_clean').select('*').eq('id', case_.id).single()
+
+			if (error) {
+				console.error('Error fetching updated case data:', error)
+				return null
+			}
+
+			return data as MedicalRecord
+		},
+		enabled: !!case_?.id && isOpen,
+	})
+
+	// Use updated case data if available, otherwise fall back to original case
+	const currentCase = updatedCaseData || case_
+
 	// Query to get change logs for this record
 	const {
 		data: changelogsData,
@@ -179,11 +204,11 @@ const UnifiedCaseModal: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClo
 		enabled: !!case_?.id && isOpen && isChangelogOpen,
 	})
 
-	// Initialize edited case when case_ changes or when entering edit mode
+	// Initialize edited case when currentCase changes or when entering edit mode
 	useEffect(() => {
-		if (case_ && isEditing) {
+		if (currentCase && isEditing) {
 			// Auto-correct decimal amounts when loading for editing
-			const correctedCase: Partial<MedicalRecord> = { ...case_ }
+			const correctedCase: Partial<MedicalRecord> = { ...currentCase }
 
 			// Auto-correct payment amounts
 			for (let i = 1; i <= 4; i++) {
@@ -197,7 +222,7 @@ const UnifiedCaseModal: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClo
 					const { correctedAmount, wasCorreted, reason } = autoCorrectDecimalAmount(
 						amount,
 						method,
-						case_.exchange_rate || undefined,
+						currentCase.exchange_rate || undefined,
 					)
 
 					if (wasCorreted) {
@@ -235,7 +260,7 @@ const UnifiedCaseModal: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClo
 		} else {
 			setEditedCase({})
 		}
-	}, [case_, isEditing, toast])
+	}, [currentCase, isEditing, toast])
 
 	// Initialize immuno reactions from existing request
 	useEffect(() => {
@@ -251,7 +276,7 @@ const UnifiedCaseModal: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClo
 	}, [existingImmunoRequest])
 
 	const handleEditClick = () => {
-		if (!case_) return
+		if (!currentCase) return
 		setIsEditing(true)
 	}
 
@@ -269,16 +294,16 @@ const UnifiedCaseModal: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClo
 	}
 
 	const handleDeleteClick = () => {
-		if (!case_) return
+		if (!currentCase) return
 		setIsDeleteModalOpen(true)
 	}
 
 	const handleConfirmDelete = async () => {
-		if (!case_ || !user) return
+		if (!currentCase || !user) return
 
 		setIsDeleting(true)
 		try {
-			const { error } = await deleteMedicalRecord(case_.id!)
+			const { error } = await deleteMedicalRecord(currentCase.id!)
 
 			if (error) {
 				throw error
@@ -286,7 +311,7 @@ const UnifiedCaseModal: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClo
 
 			toast({
 				title: '✅ Caso eliminado exitosamente',
-				description: `El caso ${case_.code || case_.id} ha sido eliminado.`,
+				description: `El caso ${currentCase.code || currentCase.id} ha sido eliminado.`,
 				className: 'bg-green-100 border-green-400 text-green-800',
 			})
 
@@ -310,12 +335,12 @@ const UnifiedCaseModal: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClo
 		}
 	}
 
-	const handleInputChange = (field: string, value: unknown) => {
+	const handleInputChange = useCallback((field: string, value: unknown) => {
 		setEditedCase((prev: Partial<MedicalRecord>) => ({
 			...prev,
 			[field]: value,
 		}))
-	}
+	}, [])
 
 	const handleRequestImmunoReactions = async () => {
 		if (!case_ || !user || immunoReactions.length === 0) return
@@ -377,7 +402,7 @@ const UnifiedCaseModal: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClo
 	}
 
 	const handleSaveChanges = async () => {
-		if (!case_ || !user) return
+		if (!currentCase || !user) return
 
 		setIsSaving(true)
 		try {
@@ -385,13 +410,13 @@ const UnifiedCaseModal: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClo
 			const changes = []
 			for (const [key, value] of Object.entries(editedCase)) {
 				// Skip if value hasn't changed
-				if (value === case_[key as keyof MedicalRecord]) continue
+				if (value === currentCase[key as keyof MedicalRecord]) continue
 
 				// Add to changes array
 				changes.push({
 					field: key,
 					fieldLabel: getFieldLabel(key),
-					oldValue: case_[key as keyof MedicalRecord],
+					oldValue: currentCase[key as keyof MedicalRecord],
 					newValue: value,
 				})
 			}
@@ -409,7 +434,7 @@ const UnifiedCaseModal: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClo
 
 			// Update record with changes
 			const { error } = await updateMedicalRecordWithLog(
-				case_.id!,
+				currentCase.id!,
 				editedCase,
 				changes,
 				user.id,
@@ -422,12 +447,18 @@ const UnifiedCaseModal: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClo
 
 			toast({
 				title: '✅ Caso actualizado exitosamente',
-				description: `Se han guardado los cambios al caso ${case_.code || case_.id}.`,
+				description: `Se han guardado los cambios al caso ${currentCase.code || currentCase.id}.`,
 				className: 'bg-green-100 border-green-400 text-green-800',
 			})
 
+			// Refetch the case data to get the updated information
+			refetchCaseData()
+
 			// Exit edit mode
 			setIsEditing(false)
+
+			// Clear edited case state
+			setEditedCase({})
 
 			// Call onSave callback if provided
 			if (onSave) {
@@ -503,23 +534,6 @@ const UnifiedCaseModal: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClo
 		}
 	}
 
-	if (!case_) return null
-
-	const getStatusColor = (status: string) => {
-		switch (status) {
-			case 'Completado':
-				return 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300'
-			case 'En Proceso':
-				return 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300'
-			case 'Pendiente':
-				return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300'
-			case 'Cancelado':
-				return 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300'
-			default:
-				return 'bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-300'
-		}
-	}
-
 	const getFieldLabel = (field: string): string => {
 		const labels: Record<string, string> = {
 			full_name: 'Nombre Completo',
@@ -544,89 +558,52 @@ const UnifiedCaseModal: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClo
 		return labels[field] || field
 	}
 
-	const InfoSection = ({
-		title,
-		icon: Icon,
-		children,
-	}: {
-		title: string
-		icon: React.ComponentType<{ className?: string }>
-		children: React.ReactNode
-	}) => (
-		<div className="bg-white dark:bg-background rounded-lg p-4 border border-input">
-			<div className="flex items-center gap-2 mb-3">
-				<Icon className="w-5 h-5 text-blue-600 dark:text-blue-400" />
-				<h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">{title}</h3>
-			</div>
-			{children}
-		</div>
-	)
-
-	const InfoRow = ({
-		label,
-		value,
-		field,
-		editable = true,
-		type = 'text',
-	}: {
-		label: string
-		value: string | number | undefined
-		field?: string
-		editable?: boolean
-		type?: 'text' | 'number' | 'email'
-	}) => {
-		const isEditableField = isEditing && editable && field
-		const fieldValue = field ? editedCase[field as keyof MedicalRecord] ?? value : value
-
-		return (
-			<div className="flex flex-col sm:flex-row sm:justify-between py-2 border-b border-gray-200 dark:border-gray-700 last:border-b-0">
-				<span className="text-sm font-medium text-gray-600 dark:text-gray-400">{label}:</span>
-				{isEditableField ? (
-					<div className="sm:w-1/2">
-						<Input
-							type={type}
-							value={String(fieldValue || '')}
-							onChange={(e) => handleInputChange(field!, e.target.value)}
-							className="text-sm border-dashed focus:border-primary focus:ring-primary bg-gray-50 dark:bg-gray-800/50"
-						/>
-					</div>
-				) : (
-					<span className="text-sm text-gray-900 dark:text-gray-100 sm:text-right">{fieldValue || 'N/A'}</span>
-				)}
-			</div>
-		)
-	}
-
 	// Función auxiliar para mostrar el símbolo correcto según el método
-	const getPaymentSymbol = (method?: string | null) => {
+	const getPaymentSymbol = useCallback((method?: string | null) => {
 		if (!method) return ''
 		return isVESPaymentMethod(method) ? 'Bs' : '$'
-	}
+	}, [])
 
-	// Helper para crear inputs de pago con parsing correcto
-	const createPaymentAmountInput = (field: string, value: number | null | undefined, paymentMethod?: string | null) => {
-		return (
-			<>
-				<label className="text-xs text-gray-500 dark:text-gray-400 mb-1 block">
-					Monto{isVESPaymentMethod(paymentMethod) ? ' (Bs)' : ' ($)'}
-				</label>
-				<Input
-					type="text"
-					inputMode="decimal"
-					placeholder="0,00"
-					value={formatNumberForInput(value || 0)}
-					onChange={createNumberInputHandler((parsedValue) => handleInputChange(field, parsedValue))}
-					className="text-sm border-dashed focus:border-primary focus:ring-primary bg-gray-50 dark:bg-gray-800/50 text-right"
-				/>
-				{isVESPaymentMethod(paymentMethod) && case_?.exchange_rate && value && value > 0 && (
-					<p className="text-xs text-green-600 mt-1">≈ ${convertVEStoUSD(value, case_.exchange_rate).toFixed(2)} USD</p>
-				)}
-			</>
-		)
-	}
+	// Helper para crear inputs de pago con parsing correcto usando calculator handler
+	const createPaymentAmountInput = useCallback(
+		(field: string, value: number | null | undefined, paymentMethod?: string | null) => {
+			const calculatorHandler = createCalculatorInputHandler(value ?? 0, (newValue) =>
+				handleInputChange(field, newValue),
+			)
+
+			return (
+				<>
+					<label className="text-xs text-gray-500 dark:text-gray-400 mb-1 block">
+						Monto{isVESPaymentMethod(paymentMethod) ? ' (Bs)' : ' ($)'}
+					</label>
+					<Input
+						type="text"
+						inputMode="decimal"
+						placeholder="0,00"
+						value={calculatorHandler.displayValue}
+						onKeyDown={calculatorHandler.handleKeyDown}
+						onPaste={calculatorHandler.handlePaste}
+						onFocus={calculatorHandler.handleFocus}
+						onChange={calculatorHandler.handleChange}
+						className="text-sm border-dashed focus:border-primary focus:ring-primary bg-gray-50 dark:bg-gray-800/50 text-right font-mono"
+						autoComplete="off"
+					/>
+					{isVESPaymentMethod(paymentMethod) && case_?.exchange_rate && value && value > 0 && (
+						<p className="text-xs text-green-600 mt-1 font-medium">
+							≈ ${convertVEStoUSD(value, case_?.exchange_rate).toFixed(2)} USD
+						</p>
+					)}
+				</>
+			)
+		},
+		[case_?.exchange_rate, handleInputChange],
+	)
+
+	const remainingUSD = currentCase?.remaining || 0
+	const remainingVES = currentCase?.exchange_rate ? remainingUSD * currentCase.exchange_rate : 0
 
 	// Get action type display text and icon for changelog
-	const getActionTypeInfo = (log: ChangeLogEntry) => {
+	const getActionTypeInfo = useCallback((log: ChangeLogEntry) => {
 		if (log.field_name === 'created_record') {
 			return {
 				text: 'Creación',
@@ -649,12 +626,139 @@ const UnifiedCaseModal: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClo
 				textColor: 'text-blue-800 dark:text-blue-300',
 			}
 		}
-	}
+	}, [])
 
 	// Check if this is an immunohistochemistry case
 	const isImmunoCase = case_?.exam_type?.toLowerCase().includes('inmuno')
 	const isAdmin = profile?.role === 'admin'
 	const canEditImmuno = isAdmin && isImmunoCase
+
+	// Memoize the InfoRow component to prevent unnecessary re-renders
+	const InfoRow = useCallback(
+		({
+			label,
+			value,
+			field,
+			editable = true,
+			type = 'text',
+		}: {
+			label: string
+			value: string | number | undefined
+			field?: string
+			editable?: boolean
+			type?: 'text' | 'number' | 'email'
+		}) => {
+			const isEditableField = isEditing && editable && field
+			const fieldValue = field ? editedCase[field as keyof MedicalRecord] ?? value : value
+
+			return (
+				<div className="flex flex-col sm:flex-row sm:justify-between py-3 border-b border-gray-200 dark:border-gray-700 last:border-b-0 hover:bg-gray-50 dark:hover:bg-gray-800/30 transition-colors duration-150 rounded px-2 -mx-2">
+					<span className="text-sm font-medium text-gray-600 dark:text-gray-400">{label}:</span>
+					{isEditableField ? (
+						<div className="sm:w-1/2">
+							<Input
+								type={type}
+								value={String(fieldValue || '')}
+								onChange={(e) => handleInputChange(field!, e.target.value)}
+								className="text-sm border-dashed focus:border-primary focus:ring-primary bg-gray-50 dark:bg-gray-800/50"
+							/>
+						</div>
+					) : (
+						<span className="text-sm text-gray-900 dark:text-gray-100 sm:text-right font-medium">
+							{fieldValue || 'N/A'}
+						</span>
+					)}
+				</div>
+			)
+		},
+		[isEditing, editedCase, handleInputChange],
+	)
+
+	// Memoize the InfoSection component
+	const InfoSection = useCallback(
+		({
+			title,
+			icon: Icon,
+			children,
+		}: {
+			title: string
+			icon: React.ComponentType<{ className?: string }>
+			children: React.ReactNode
+		}) => (
+			<div className="bg-white dark:bg-background rounded-lg p-4 border border-input shadow-sm hover:shadow-md transition-shadow duration-200">
+				<div className="flex items-center gap-2 mb-3">
+					<Icon className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+					<h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">{title}</h3>
+				</div>
+				{children}
+			</div>
+		),
+		[],
+	)
+
+	const getStatusColor = (status: string) => {
+		switch (status) {
+			case 'Completado':
+				return 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300'
+			case 'En Proceso':
+				return 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300'
+			case 'Pendiente':
+				return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300'
+			case 'Cancelado':
+				return 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300'
+			default:
+				return 'bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-300'
+		}
+	}
+
+	if (!currentCase) return null
+
+	const handleRedirectToPDF = async (caseId: string) => {
+		if (!caseId) {
+			toast({
+				title: '❌ Error',
+				description: 'No se encontró el ID del caso.',
+				variant: 'destructive',
+			})
+			return
+		}
+
+		try {
+			const { data, error } = await supabase
+				.from('medical_records_clean')
+				.select('informepdf_url')
+				.eq('id', caseId)
+				.single<MedicalRecord>()
+
+			if (error) {
+				console.error('Error obteniendo informepdf_url:', error)
+				toast({
+					title: '❌ Error',
+					description: 'No se pudo obtener el PDF. Intenta nuevamente.',
+					variant: 'destructive',
+				})
+				return
+			}
+
+			if (!data?.informepdf_url) {
+				toast({
+					title: '📄 Sin PDF disponible',
+					description: 'Este caso aún no tiene un documento generado.',
+					variant: 'destructive',
+				})
+				return
+			}
+
+			window.open(data.informepdf_url, '_blank')
+		} catch (err) {
+			console.error('Error al intentar redirigir al PDF:', err)
+			toast({
+				title: '❌ Error inesperado',
+				description: 'Hubo un problema al abrir el documento.',
+				variant: 'destructive',
+			})
+		}
+	}
 
 	return (
 		<>
@@ -680,111 +784,107 @@ const UnifiedCaseModal: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClo
 							transition={{ type: 'spring', damping: 25, stiffness: 200 }}
 							className="fixed right-0 top-0 h-full w-full sm:w-2/3 lg:w-1/2 xl:w-2/5 bg-white dark:bg-background shadow-2xl z-[99999999] overflow-y-auto rounded-lg border-l border-input"
 						>
-							{/* Header */}
-							<div className="sticky top-0 bg-white dark:bg-background border-b border-gray-200 dark:border-gray-700 p-4 sm:p-6 z-10">
+							<div className="sticky top-0 bg-white dark:bg-background border-b border-gray-200 dark:border-gray-700 p-3 sm:p-6 z-10">
 								<div className="flex items-center justify-between">
 									<div>
-										{isEditing ? (
-											<Input
-												value={editedCase.full_name || case_.full_name}
-												onChange={(e) => handleInputChange('full_name', e.target.value)}
-												className="text-xl sm:text-2xl font-bold border-dashed focus:border-primary focus:ring-primary bg-gray-50 dark:bg-gray-800/50"
-											/>
-										) : (
-											<h2 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-gray-100">
-												{case_.full_name}
-											</h2>
-										)}
+										<h2 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-gray-100">
+											Detalles Del Caso
+										</h2>
+										<div className="flex items-center gap-1.5 sm:gap-2 mt-1 sm:mt-2">
+											{currentCase.code && (
+												<span className="inline-flex items-center gap-1 px-1.5 sm:px-2 py-0.5 sm:py-1 text-xs font-semibold rounded-full bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300">
+													{currentCase.code}
+												</span>
+											)}
+											<span
+												className={`inline-flex px-1.5 sm:px-2 py-0.5 sm:py-1 text-xs font-semibold rounded-full ${getStatusColor(
+													currentCase.payment_status,
+												)}`}
+											>
+												{currentCase.payment_status}
+											</span>
+											{currentCase.informepdf_url && (
+												<button
+													onClick={() => handleRedirectToPDF(currentCase.id)}
+													className="inline-flex items-center gap-1 px-1.5 sm:px-2 py-0.5 sm:py-1 text-xs font-semibold rounded-full bg-teal-100 text-teal-800 dark:bg-teal-900/30 dark:text-teal-300"
+												>
+													<Download className="w-4 h-4" />
+													Descargar PDF
+												</button>
+											)}
+										</div>
+										{/* Action Buttons */}
+										<div className="flex gap-2 mt-4">
+											{isEditing ? (
+												<>
+													<button
+														onClick={handleSaveChanges}
+														disabled={isSaving}
+														className="inline-flex items-center gap-1 px-3 py-2 text-xs font-semibold rounded-md bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300"
+													>
+														{isSaving ? (
+															<>
+																<Loader2 className="w-4 h-4 animate-spin" />
+																Guardando...
+															</>
+														) : (
+															<>
+																<Save className="w-4 h-4" />
+																Guardar Cambios
+															</>
+														)}
+													</button>
+													<button
+														onClick={handleCancelEdit}
+														className="inline-flex items-center gap-1 px-3 py-2 text-xs font-semibold rounded-md bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300"
+														disabled={isSaving}
+													>
+														<XCircle className="w-4 h-4" />
+														Cancelar
+													</button>
+												</>
+											) : (
+												<>
+													<button
+														onClick={handleEditClick}
+														className="inline-flex items-center gap-1 px-3 py-2 text-xs font-semibold rounded-md bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300"
+													>
+														<Edit className="w-4 h-4" />
+														Editar
+													</button>
+													<button
+														onClick={toggleChangelog}
+														className="inline-flex items-center gap-1 px-3 py-2 text-xs font-semibold rounded-md bg-violet-100 text-violet-800 dark:bg-violet-900/30 dark:text-violet-300"
+													>
+														<History className="w-4 h-4" />
+														{isChangelogOpen ? 'Ocultar Historial' : 'Ver Historial'}
+													</button>
+												</>
+											)}
+										</div>
 									</div>
-									<button
-										onClick={isEditing ? handleCancelEdit : onClose}
-										className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-none"
-									>
-										<X className="w-5 h-5 text-gray-500 dark:text-gray-400" />
-									</button>
-								</div>
-
-								{/* Status badges */}
-								<div className="flex flex-wrap gap-2 mt-4">
-									<span
-										className={`inline-flex px-3 py-1 text-sm font-semibold rounded-full ${getStatusColor(
-											case_.payment_status,
-										)}`}
-									>
-										{case_.payment_status}
-									</span>
-									<span className="inline-flex items-center gap-1 px-3 py-1 text-sm font-semibold rounded-full bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300">
-										<CheckCircle size={16} />
-										{case_.branch}
-									</span>
-									{case_.code && (
-										<span className="inline-flex items-center gap-1 px-3 py-1 text-sm font-semibold rounded-full bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300">
-											{case_.code}
-										</span>
-									)}
-									{isImmunoCase && (
-										<span className="inline-flex items-center gap-1 px-3 py-1 text-sm font-semibold rounded-full bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-300">
-											<Stethoscope size={16} />
-											Inmunohistoquímica
-										</span>
-									)}
-								</div>
-
-								{/* Action Buttons */}
-								<div className="flex gap-2 mt-4">
-									{isEditing ? (
-										<>
-											<Button
-												onClick={handleSaveChanges}
-												disabled={isSaving}
-												className="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white"
-											>
-												{isSaving ? (
-													<>
-														<Loader2 className="w-4 h-4 animate-spin" />
-														Guardando...
-													</>
-												) : (
-													<>
-														<Save className="w-4 h-4" />
-														Guardar Cambios
-													</>
-												)}
-											</Button>
-											<Button
-												onClick={handleCancelEdit}
-												variant="outline"
-												className="flex items-center gap-2"
-												disabled={isSaving}
-											>
-												<XCircle className="w-4 h-4" />
-												Cancelar
-											</Button>
-										</>
-									) : (
-										<>
-											<Button
-												onClick={handleEditClick}
-												className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white"
-											>
-												<Edit className="w-4 h-4" />
-												Editar Caso
-											</Button>
-											<Button onClick={handleDeleteClick} variant="destructive" className="flex items-center gap-2">
-												<Trash2 className="w-4 h-4" />
-												Eliminar Caso
-											</Button>
-											<Button onClick={toggleChangelog} variant="outline" className="flex items-center gap-2">
-												<History className="w-4 h-4" />
-												{isChangelogOpen ? 'Ocultar Historial' : 'Ver Historial'}
-											</Button>
-										</>
-									)}
+									<div className="flex items-center gap-2">
+										<button
+											onClick={onClose}
+											className="p-1.5 sm:p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-none"
+										>
+											<X className="w-5 h-5 text-gray-500 dark:text-gray-400" />
+										</button>
+									</div>
 								</div>
 							</div>
 
 							{/* Content */}
 							<div className="p-4 sm:p-6 space-y-6">
+								<div className="bg-gradient-to-br from-teal-50 to-cyan-50 dark:from-teal-900/20 dark:to-cyan-900/20 p-4 rounded-lg border border-teal-200 dark:border-teal-800">
+									<p className="text-teal-400 text-sm">
+										Este caso fue creado por{' '}
+										<span className="font-semibold">
+											{creatorData?.displayName || currentCase.created_by_display_name || 'Usuario del sistema'}
+										</span>
+										el {format(new Date(currentCase.created_at), 'dd/MM/yyyy', { locale: es })}
+									</p>
+								</div>
 								{/* Immunohistochemistry Section - Only for admin users and immuno cases */}
 								{canEditImmuno && (
 									<InfoSection title="Inmunorreacciones" icon={Stethoscope}>
@@ -935,70 +1035,173 @@ const UnifiedCaseModal: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClo
 									</InfoSection>
 								)}
 
-								{/* Registered By Section */}
-								{(creatorData || case_.created_by_display_name) && (
-									<InfoSection title="Registrado por" icon={UserCheck}>
-										<div className="space-y-1">
-											<InfoRow
-												label="Nombre"
-												value={creatorData?.displayName || case_.created_by_display_name || 'Usuario del sistema'}
-												editable={false}
-											/>
-											{creatorData?.email && <InfoRow label="Email" value={creatorData.email} editable={false} />}
-											<InfoRow
-												label="Fecha de registro"
-												value={
-													case_.created_at
-														? format(new Date(case_.created_at), 'dd/MM/yyyy HH:mm', { locale: es })
-														: 'N/A'
-												}
-												editable={false}
-											/>
-										</div>
-									</InfoSection>
-								)}
-
-								{/* Case Code Section */}
-								{case_.code && (
-									<InfoSection title="Código del Caso" icon={Hash}>
-										<div className="space-y-1">
-											<InfoRow label="Código" value={case_.code} editable={false} />
-											<div className="text-xs text-gray-500 dark:text-gray-400 mt-2 p-2 bg-gray-50 dark:bg-gray-800 rounded">
-												<p>
-													<strong>Formato:</strong> [Tipo][Año][Contador][Mes]
-												</p>
-												<p>
-													<strong>Ejemplo:</strong> 1 = Citología, 25 = 2025, 001 = Primer caso, A = Enero
-												</p>
-											</div>
-										</div>
-									</InfoSection>
-								)}
-
 								{/* Patient Information */}
 								<InfoSection title="Información del Paciente" icon={User}>
 									<div className="space-y-1">
-										<InfoRow label="Nombre completo" value={case_.full_name} field="full_name" />
-										<InfoRow label="Cédula" value={case_.id_number} field="id_number" />
-										<InfoRow label="Edad" value={case_.edad || 'Sin edad'} field="edad" />
-										<InfoRow label="Teléfono" value={case_.phone} field="phone" />
-										<InfoRow label="Email" value={case_.email || 'N/A'} field="email" type="email" />
-										<InfoRow label="Relación" value={case_.relationship || 'N/A'} editable={false} />
+										<InfoRow label="Nombre completo" value={currentCase.full_name} field="full_name" />
+										<InfoRow label="Cédula" value={currentCase.id_number} field="id_number" />
+										<InfoRow label="Edad" value={currentCase.edad || 'Sin edad'} field="edad" />
+										<InfoRow label="Teléfono" value={currentCase.phone} field="phone" />
+										<InfoRow label="Email" value={currentCase.email || 'N/A'} field="email" type="email" />
+										<InfoRow label="Relación" value={currentCase.relationship || 'N/A'} editable={false} />
 									</div>
 								</InfoSection>
 
 								{/* Medical Information */}
 								<InfoSection title="Información Médica" icon={Stethoscope}>
 									<div className="space-y-1">
-										<InfoRow label="Estudio" value={case_.exam_type} editable={false} />
-										<InfoRow label="Médico tratante" value={case_.treating_doctor} editable={false} />
-										<InfoRow label="Procedencia" value={case_.origin} editable={false} />
-										<InfoRow label="Sede" value={case_.branch} editable={false} />
-										<InfoRow label="Muestra" value={case_.sample_type} editable={false} />
-										<InfoRow label="Cantidad de muestras" value={case_.number_of_samples} editable={false} />
+										{/* Estudio - Dropdown */}
+										<div className="flex flex-col sm:flex-row sm:justify-between py-3 border-b border-gray-200 dark:border-gray-700 last:border-b-0 hover:bg-gray-50 dark:hover:bg-gray-800/30 transition-colors duration-150 rounded px-2 -mx-2">
+											<span className="text-sm font-medium text-gray-600 dark:text-gray-400">Estudio:</span>
+											{isEditing ? (
+												<div className="sm:w-1/2">
+													<FormDropdown
+														options={createDropdownOptions([
+															{ value: 'Inmunohistoquímica', label: 'Inmunohistoquímica' },
+															{ value: 'Biopsia', label: 'Biopsia' },
+															{ value: 'Citología', label: 'Citología' },
+														])}
+														value={editedCase.exam_type || currentCase.exam_type || ''}
+														onChange={(value) => handleInputChange('exam_type', value)}
+														placeholder="Seleccione una opción"
+														className="text-sm border-dashed focus:border-primary focus:ring-primary bg-gray-50 dark:bg-gray-800/50"
+													/>
+												</div>
+											) : (
+												<span className="text-sm text-gray-900 dark:text-gray-100 sm:text-right font-medium">
+													{currentCase.exam_type || 'N/A'}
+												</span>
+											)}
+										</div>
+
+										{/* Médico Tratante - Autocompletado */}
+										<div className="flex flex-col sm:flex-row sm:justify-between py-3 border-b border-gray-200 dark:border-gray-700 last:border-b-0 hover:bg-gray-50 dark:hover:bg-gray-800/30 transition-colors duration-150 rounded px-2 -mx-2">
+											<span className="text-sm font-medium text-gray-600 dark:text-gray-400">Médico tratante:</span>
+											{isEditing ? (
+												<div className="sm:w-1/2">
+													<AutocompleteInput
+														fieldName="treatingDoctor"
+														placeholder="Nombre del Médico"
+														value={editedCase.treating_doctor || currentCase.treating_doctor || ''}
+														onChange={(e) => {
+															const { value } = e.target
+															if (/^[A-Za-zÑñÁáÉéÍíÓóÚúÜü\s]*$/.test(value)) {
+																handleInputChange('treating_doctor', value)
+															}
+														}}
+														className="text-sm border-dashed focus:border-primary focus:ring-primary bg-gray-50 dark:bg-gray-800/50"
+													/>
+												</div>
+											) : (
+												<span className="text-sm text-gray-900 dark:text-gray-100 sm:text-right font-medium">
+													{currentCase.treating_doctor || 'N/A'}
+												</span>
+											)}
+										</div>
+
+										{/* Procedencia - Autocompletado */}
+										<div className="flex flex-col sm:flex-row sm:justify-between py-3 border-b border-gray-200 dark:border-gray-700 last:border-b-0 hover:bg-gray-50 dark:hover:bg-gray-800/30 transition-colors duration-150 rounded px-2 -mx-2">
+											<span className="text-sm font-medium text-gray-600 dark:text-gray-400">Procedencia:</span>
+											{isEditing ? (
+												<div className="sm:w-1/2">
+													<AutocompleteInput
+														fieldName="origin"
+														placeholder="Hospital o Clínica"
+														value={editedCase.origin || currentCase.origin || ''}
+														onChange={(e) => {
+															const { value } = e.target
+															if (/^[A-Za-zÑñÁáÉéÍíÓóÚúÜü\s]*$/.test(value)) {
+																handleInputChange('origin', value)
+															}
+														}}
+														className="text-sm border-dashed focus:border-primary focus:ring-primary bg-gray-50 dark:bg-gray-800/50"
+													/>
+												</div>
+											) : (
+												<span className="text-sm text-gray-900 dark:text-gray-100 sm:text-right font-medium">
+													{currentCase.origin || 'N/A'}
+												</span>
+											)}
+										</div>
+
+										{/* Sede - Dropdown */}
+										<div className="flex flex-col sm:flex-row sm:justify-between py-3 border-b border-gray-200 dark:border-gray-700 last:border-b-0 hover:bg-gray-50 dark:hover:bg-gray-800/30 transition-colors duration-150 rounded px-2 -mx-2">
+											<span className="text-sm font-medium text-gray-600 dark:text-gray-400">Sede:</span>
+											{isEditing ? (
+												<div className="sm:w-1/2">
+													<FormDropdown
+														options={createDropdownOptions(['PMG', 'CPC', 'CNX', 'STX', 'MCY'])}
+														value={editedCase.branch || currentCase.branch || ''}
+														onChange={(value) => handleInputChange('branch', value)}
+														placeholder="Seleccione una sede"
+														className="text-sm border-dashed focus:border-primary focus:ring-primary bg-gray-50 dark:bg-gray-800/50"
+													/>
+												</div>
+											) : (
+												<span className="text-sm text-gray-900 dark:text-gray-100 sm:text-right font-medium">
+													{currentCase.branch || 'N/A'}
+												</span>
+											)}
+										</div>
+
+										{/* Muestra - Autocompletado */}
+										<div className="flex flex-col sm:flex-row sm:justify-between py-3 border-b border-gray-200 dark:border-gray-700 last:border-b-0 hover:bg-gray-50 dark:hover:bg-gray-800/30 transition-colors duration-150 rounded px-2 -mx-2">
+											<span className="text-sm font-medium text-gray-600 dark:text-gray-400">Muestra:</span>
+											{isEditing ? (
+												<div className="sm:w-1/2">
+													<AutocompleteInput
+														fieldName="sampleType"
+														placeholder="Ej: Biopsia de Piel"
+														value={editedCase.sample_type || currentCase.sample_type || ''}
+														onChange={(e) => {
+															const { value } = e.target
+															if (/^[A-Za-zÑñÁáÉéÍíÓóÚúÜü\s]*$/.test(value)) {
+																handleInputChange('sample_type', value)
+															}
+														}}
+														className="text-sm border-dashed focus:border-primary focus:ring-primary bg-gray-50 dark:bg-gray-800/50"
+													/>
+												</div>
+											) : (
+												<span className="text-sm text-gray-900 dark:text-gray-100 sm:text-right font-medium">
+													{currentCase.sample_type || 'N/A'}
+												</span>
+											)}
+										</div>
+
+										{/* Cantidad de muestras - Numérico */}
+										<div className="flex flex-col sm:flex-row sm:justify-between py-3 border-b border-gray-200 dark:border-gray-700 last:border-b-0 hover:bg-gray-50 dark:hover:bg-gray-800/30 transition-colors duration-150 rounded px-2 -mx-2">
+											<span className="text-sm font-medium text-gray-600 dark:text-gray-400">
+												Cantidad de muestras:
+											</span>
+											{isEditing ? (
+												<div className="sm:w-1/2">
+													<Input
+														type="number"
+														placeholder="0"
+														value={
+															editedCase.number_of_samples !== undefined
+																? editedCase.number_of_samples
+																: currentCase.number_of_samples || ''
+														}
+														onChange={(e) => {
+															const value = e.target.value
+															handleInputChange('number_of_samples', value === '' ? 0 : Number(value))
+														}}
+														className="text-sm border-dashed focus:border-primary focus:ring-primary bg-gray-50 dark:bg-gray-800/50"
+													/>
+												</div>
+											) : (
+												<span className="text-sm text-gray-900 dark:text-gray-100 sm:text-right font-medium">
+													{currentCase.number_of_samples || 'N/A'}
+												</span>
+											)}
+										</div>
+
+										{/* Fecha de registro - NO EDITABLE */}
 										<InfoRow
 											label="Fecha de registro"
-											value={new Date(case_.date || '').toLocaleDateString('es-ES')}
+											value={new Date(currentCase.date || '').toLocaleDateString('es-ES')}
 											editable={false}
 										/>
 									</div>
@@ -1007,10 +1210,24 @@ const UnifiedCaseModal: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClo
 								{/* Financial Information */}
 								<InfoSection title="Información Financiera" icon={CreditCard}>
 									<div className="space-y-1">
-										<InfoRow label="Monto total" value={`$${case_.total_amount.toLocaleString()}`} editable={false} />
-										<InfoRow label="Monto faltante" value={`$${case_.remaining.toLocaleString()}`} editable={false} />
-										<InfoRow label="Tasa de cambio" value={case_.exchange_rate?.toFixed(2)} editable={false} />
+										<InfoRow
+											label="Monto total"
+											value={`$${currentCase.total_amount.toLocaleString()}`}
+											editable={false}
+										/>
+										<InfoRow label="Tasa de cambio" value={currentCase.exchange_rate?.toFixed(2)} editable={false} />
 									</div>
+
+									{currentCase.remaining > 0 && (
+										<div className="bg-red-50 dark:bg-red-900/20 p-2 sm:p-3 rounded-lg border border-red-200 dark:border-red-800">
+											<div className="flex items-center gap-1.5 sm:gap-2">
+												<AlertTriangle className="w-5 h-5 text-red-600 dark:text-red-400" />
+												<p className="text-xs sm:text-sm font-medium text-red-800 dark:text-red-300">
+													Monto pendiente: ${remainingUSD.toLocaleString()} - Bs. {remainingVES.toLocaleString()}
+												</p>
+											</div>
+										</div>
+									)}
 
 									{/* Payment Methods */}
 									<div className="mt-4">
@@ -1036,13 +1253,15 @@ const UnifiedCaseModal: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClo
 										</div>
 										<div className="space-y-2">
 											{/* Payment Method 1 */}
-											{(case_.payment_method_1 || (isEditing && editedCase.payment_method_1)) && (
-												<div className="bg-white dark:bg-background p-3 rounded border border-gray-200 dark:border-gray-700 relative transition-transform hover:border-gray-300 dark:hover:border-gray-600">
+											{(currentCase.payment_method_1 || (isEditing && editedCase.payment_method_1)) && (
+												<div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 p-4 rounded-lg border border-blue-200 dark:border-blue-700 relative transition-all duration-200 hover:shadow-md hover:border-blue-300 dark:hover:border-blue-600">
 													{isEditing ? (
 														<>
-															<div className="grid grid-cols-1 md:grid-cols-3 gap-2">
+															<div className="grid grid-cols-1 md:grid-cols-3 gap-3">
 																<div>
-																	<label className="text-xs text-gray-500 dark:text-gray-400 mb-1 block">Método</label>
+																	<label className="text-xs text-gray-500 dark:text-gray-400 mb-1 block font-medium">
+																		Método
+																	</label>
 																	<FormDropdown
 																		options={createDropdownOptions([
 																			'Punto de venta',
@@ -1065,7 +1284,7 @@ const UnifiedCaseModal: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClo
 																	)}
 																</div>
 																<div>
-																	<label className="text-xs text-gray-500 dark:text-gray-400 mb-1 block">
+																	<label className="text-xs text-gray-500 dark:text-gray-400 mb-1 block font-medium">
 																		Referencia
 																	</label>
 																	<Input
@@ -1077,36 +1296,48 @@ const UnifiedCaseModal: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClo
 															</div>
 															<button
 																onClick={() => handleRemovePayment(1)}
-																className="absolute -top-2 -right-2 bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 p-1 rounded-full hover:bg-red-200 dark:hover:bg-red-900/50 transition-none"
+																className="absolute -top-2 -right-2 bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 p-1 rounded-full hover:bg-red-200 dark:hover:bg-red-900/50 transition-all duration-200 hover:scale-110"
 															>
 																<XCircle className="w-4 h-4" />
 															</button>
 														</>
 													) : (
 														<div className="flex justify-between items-center">
-															<span className="text-sm font-medium">{case_.payment_method_1}</span>
-															<span className="text-sm">
-																{getPaymentSymbol(case_.payment_method_1)} {case_.payment_amount_1?.toLocaleString()}
+															<div className="flex items-center gap-2">
+																<CreditCard className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+																<span className="text-sm font-medium text-gray-900 dark:text-gray-100">
+																	{currentCase.payment_method_1}
+																</span>
+															</div>
+															<span className="text-lg font-bold text-blue-600 dark:text-blue-400 font-mono">
+																{getPaymentSymbol(currentCase.payment_method_1)}{' '}
+																{currentCase.payment_amount_1?.toLocaleString('es-VE', {
+																	minimumFractionDigits: 2,
+																	maximumFractionDigits: 2,
+																})}
 															</span>
 														</div>
 													)}
-													{(case_.payment_reference_1 || (isEditing && editedCase.payment_reference_1)) &&
+													{(currentCase.payment_reference_1 || (isEditing && editedCase.payment_reference_1)) &&
 														!isEditing && (
-															<div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-																Ref: {editedCase.payment_reference_1 || case_.payment_reference_1}
+															<div className="text-xs text-gray-500 dark:text-gray-400 mt-2 flex items-center gap-1">
+																<Hash className="w-3 h-3" />
+																Ref: {editedCase.payment_reference_1 || currentCase.payment_reference_1}
 															</div>
 														)}
 												</div>
 											)}
 
 											{/* Payment Method 2 */}
-											{(case_.payment_method_2 || (isEditing && editedCase.payment_method_2)) && (
-												<div className="bg-white dark:bg-background p-3 rounded border border-gray-200 dark:border-gray-700 relative transition-transform hover:border-gray-300 dark:hover:border-gray-600">
+											{(currentCase.payment_method_2 || (isEditing && editedCase.payment_method_2)) && (
+												<div className="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 p-4 rounded-lg border border-green-200 dark:border-green-700 relative transition-all duration-200 hover:shadow-md hover:border-green-300 dark:hover:border-green-600">
 													{isEditing ? (
 														<>
-															<div className="grid grid-cols-1 md:grid-cols-3 gap-2">
+															<div className="grid grid-cols-1 md:grid-cols-3 gap-3">
 																<div>
-																	<label className="text-xs text-gray-500 dark:text-gray-400 mb-1 block">Método</label>
+																	<label className="text-xs text-gray-500 dark:text-gray-400 mb-1 block font-medium">
+																		Método
+																	</label>
 																	<FormDropdown
 																		options={createDropdownOptions([
 																			'Punto de venta',
@@ -1129,7 +1360,7 @@ const UnifiedCaseModal: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClo
 																	)}
 																</div>
 																<div>
-																	<label className="text-xs text-gray-500 dark:text-gray-400 mb-1 block">
+																	<label className="text-xs text-gray-500 dark:text-gray-400 mb-1 block font-medium">
 																		Referencia
 																	</label>
 																	<Input
@@ -1141,36 +1372,48 @@ const UnifiedCaseModal: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClo
 															</div>
 															<button
 																onClick={() => handleRemovePayment(2)}
-																className="absolute -top-2 -right-2 bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 p-1 rounded-full hover:bg-red-200 dark:hover:bg-red-900/50 transition-none"
+																className="absolute -top-2 -right-2 bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 p-1 rounded-full hover:bg-red-200 dark:hover:bg-red-900/50 transition-all duration-200 hover:scale-110"
 															>
 																<XCircle className="w-4 h-4" />
 															</button>
 														</>
 													) : (
 														<div className="flex justify-between items-center">
-															<span className="text-sm font-medium">{case_.payment_method_2}</span>
-															<span className="text-sm">
-																{getPaymentSymbol(case_.payment_method_2)} {case_.payment_amount_2?.toLocaleString()}
+															<div className="flex items-center gap-2">
+																<CreditCard className="w-4 h-4 text-green-600 dark:text-green-400" />
+																<span className="text-sm font-medium text-gray-900 dark:text-gray-100">
+																	{currentCase.payment_method_2}
+																</span>
+															</div>
+															<span className="text-lg font-bold text-green-600 dark:text-green-400 font-mono">
+																{getPaymentSymbol(currentCase.payment_method_2)}{' '}
+																{currentCase.payment_amount_2?.toLocaleString('es-VE', {
+																	minimumFractionDigits: 2,
+																	maximumFractionDigits: 2,
+																})}
 															</span>
 														</div>
 													)}
-													{(case_.payment_reference_2 || (isEditing && editedCase.payment_reference_2)) &&
+													{(currentCase.payment_reference_2 || (isEditing && editedCase.payment_reference_2)) &&
 														!isEditing && (
-															<div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-																Ref: {editedCase.payment_reference_2 || case_.payment_reference_2}
+															<div className="text-xs text-gray-500 dark:text-gray-400 mt-2 flex items-center gap-1">
+																<Hash className="w-3 h-3" />
+																Ref: {editedCase.payment_reference_2 || currentCase.payment_reference_2}
 															</div>
 														)}
 												</div>
 											)}
 
 											{/* Payment Method 3 */}
-											{(case_.payment_method_3 || (isEditing && editedCase.payment_method_3)) && (
-												<div className="bg-white dark:bg-background p-3 rounded border border-gray-200 dark:border-gray-700 relative transition-transform hover:border-gray-300 dark:hover:border-gray-600">
+											{(currentCase.payment_method_3 || (isEditing && editedCase.payment_method_3)) && (
+												<div className="bg-gradient-to-r from-purple-50 to-violet-50 dark:from-purple-900/20 dark:to-violet-900/20 p-4 rounded-lg border border-purple-200 dark:border-purple-700 relative transition-all duration-200 hover:shadow-md hover:border-purple-300 dark:hover:border-purple-600">
 													{isEditing ? (
 														<>
-															<div className="grid grid-cols-1 md:grid-cols-3 gap-2">
+															<div className="grid grid-cols-1 md:grid-cols-3 gap-3">
 																<div>
-																	<label className="text-xs text-gray-500 dark:text-gray-400 mb-1 block">Método</label>
+																	<label className="text-xs text-gray-500 dark:text-gray-400 mb-1 block font-medium">
+																		Método
+																	</label>
 																	<FormDropdown
 																		options={createDropdownOptions([
 																			'Punto de venta',
@@ -1193,7 +1436,7 @@ const UnifiedCaseModal: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClo
 																	)}
 																</div>
 																<div>
-																	<label className="text-xs text-gray-500 dark:text-gray-400 mb-1 block">
+																	<label className="text-xs text-gray-500 dark:text-gray-400 mb-1 block font-medium">
 																		Referencia
 																	</label>
 																	<Input
@@ -1205,36 +1448,48 @@ const UnifiedCaseModal: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClo
 															</div>
 															<button
 																onClick={() => handleRemovePayment(3)}
-																className="absolute -top-2 -right-2 bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 p-1 rounded-full hover:bg-red-200 dark:hover:bg-red-900/50 transition-none"
+																className="absolute -top-2 -right-2 bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 p-1 rounded-full hover:bg-red-200 dark:hover:bg-red-900/50 transition-all duration-200 hover:scale-110"
 															>
 																<XCircle className="w-4 h-4" />
 															</button>
 														</>
 													) : (
 														<div className="flex justify-between items-center">
-															<span className="text-sm font-medium">{case_.payment_method_3}</span>
-															<span className="text-sm">
-																{getPaymentSymbol(case_.payment_method_3)} {case_.payment_amount_3?.toLocaleString()}
+															<div className="flex items-center gap-2">
+																<CreditCard className="w-4 h-4 text-purple-600 dark:text-purple-400" />
+																<span className="text-sm font-medium text-gray-900 dark:text-gray-100">
+																	{currentCase.payment_method_3}
+																</span>
+															</div>
+															<span className="text-lg font-bold text-purple-600 dark:text-purple-400 font-mono">
+																{getPaymentSymbol(currentCase.payment_method_3)}{' '}
+																{currentCase.payment_amount_3?.toLocaleString('es-VE', {
+																	minimumFractionDigits: 2,
+																	maximumFractionDigits: 2,
+																})}
 															</span>
 														</div>
 													)}
-													{(case_.payment_reference_3 || (isEditing && editedCase.payment_reference_3)) &&
+													{(currentCase.payment_reference_3 || (isEditing && editedCase.payment_reference_3)) &&
 														!isEditing && (
-															<div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-																Ref: {editedCase.payment_reference_3 || case_.payment_reference_3}
+															<div className="text-xs text-gray-500 dark:text-gray-400 mt-2 flex items-center gap-1">
+																<Hash className="w-3 h-3" />
+																Ref: {editedCase.payment_reference_3 || currentCase.payment_reference_3}
 															</div>
 														)}
 												</div>
 											)}
 
 											{/* Payment Method 4 */}
-											{(case_.payment_method_4 || (isEditing && editedCase.payment_method_4)) && (
-												<div className="bg-white dark:bg-background p-3 rounded border border-gray-200 dark:border-gray-700 relative transition-transform hover:border-gray-300 dark:hover:border-gray-600">
+											{(currentCase.payment_method_4 || (isEditing && editedCase.payment_method_4)) && (
+												<div className="bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20 p-4 rounded-lg border border-amber-200 dark:border-amber-700 relative transition-all duration-200 hover:shadow-md hover:border-amber-300 dark:hover:border-amber-600">
 													{isEditing ? (
 														<>
-															<div className="grid grid-cols-1 md:grid-cols-3 gap-2">
+															<div className="grid grid-cols-1 md:grid-cols-3 gap-3">
 																<div>
-																	<label className="text-xs text-gray-500 dark:text-gray-400 mb-1 block">Método</label>
+																	<label className="text-xs text-gray-500 dark:text-gray-400 mb-1 block font-medium">
+																		Método
+																	</label>
 																	<FormDropdown
 																		options={createDropdownOptions([
 																			'Punto de venta',
@@ -1257,7 +1512,7 @@ const UnifiedCaseModal: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClo
 																	)}
 																</div>
 																<div>
-																	<label className="text-xs text-gray-500 dark:text-gray-400 mb-1 block">
+																	<label className="text-xs text-gray-500 dark:text-gray-400 mb-1 block font-medium">
 																		Referencia
 																	</label>
 																	<Input
@@ -1269,23 +1524,33 @@ const UnifiedCaseModal: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClo
 															</div>
 															<button
 																onClick={() => handleRemovePayment(4)}
-																className="absolute -top-2 -right-2 bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 p-1 rounded-full hover:bg-red-200 dark:hover:bg-red-900/50 transition-none"
+																className="absolute -top-2 -right-2 bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 p-1 rounded-full hover:bg-red-200 dark:hover:bg-red-900/50 transition-all duration-200 hover:scale-110"
 															>
 																<XCircle className="w-4 h-4" />
 															</button>
 														</>
 													) : (
 														<div className="flex justify-between items-center">
-															<span className="text-sm font-medium">{case_.payment_method_4}</span>
-															<span className="text-sm">
-																{getPaymentSymbol(case_.payment_method_4)} {case_.payment_amount_4?.toLocaleString()}
+															<div className="flex items-center gap-2">
+																<CreditCard className="w-4 h-4 text-amber-600 dark:text-amber-400" />
+																<span className="text-sm font-medium text-gray-900 dark:text-gray-100">
+																	{currentCase.payment_method_4}
+																</span>
+															</div>
+															<span className="text-lg font-bold text-amber-600 dark:text-amber-400 font-mono">
+																{getPaymentSymbol(currentCase.payment_method_4)}{' '}
+																{currentCase.payment_amount_4?.toLocaleString('es-VE', {
+																	minimumFractionDigits: 2,
+																	maximumFractionDigits: 2,
+																})}
 															</span>
 														</div>
 													)}
-													{(case_.payment_reference_4 || (isEditing && editedCase.payment_reference_4)) &&
+													{(currentCase.payment_reference_4 || (isEditing && editedCase.payment_reference_4)) &&
 														!isEditing && (
-															<div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-																Ref: {editedCase.payment_reference_4 || case_.payment_reference_4}
+															<div className="text-xs text-gray-500 dark:text-gray-400 mt-2 flex items-center gap-1">
+																<Hash className="w-3 h-3" />
+																Ref: {editedCase.payment_reference_4 || currentCase.payment_reference_4}
 															</div>
 														)}
 												</div>
@@ -1299,12 +1564,12 @@ const UnifiedCaseModal: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClo
 									<div className="space-y-1">
 										<InfoRow
 											label="Fecha de creación"
-											value={new Date(case_.created_at || '').toLocaleDateString('es-ES')}
+											value={new Date(currentCase.created_at || '').toLocaleDateString('es-ES')}
 											editable={false}
 										/>
 										<InfoRow
 											label="Última actualización"
-											value={new Date(case_.updated_at || '').toLocaleDateString('es-ES')}
+											value={new Date(currentCase.updated_at || '').toLocaleDateString('es-ES')}
 											editable={false}
 										/>
 										<div className="py-2">
@@ -1318,7 +1583,7 @@ const UnifiedCaseModal: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClo
 												/>
 											) : (
 												<p className="text-sm text-gray-900 dark:text-gray-100 mt-1 p-3 bg-white dark:bg-background rounded border">
-													{case_.comments || 'Sin comentarios'}
+													{currentCase.comments || 'Sin comentarios'}
 												</p>
 											)}
 										</div>
@@ -1326,55 +1591,14 @@ const UnifiedCaseModal: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClo
 								</InfoSection>
 
 								{/* Bottom Action Buttons */}
-								<div className="flex gap-2 pt-4 border-t border-gray-200 dark:border-gray-700">
-									{isEditing ? (
-										<>
-											<Button
-												onClick={handleSaveChanges}
-												disabled={isSaving}
-												className="flex-1 flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white"
-											>
-												{isSaving ? (
-													<>
-														<Loader2 className="w-4 h-4 animate-spin" />
-														Guardando...
-													</>
-												) : (
-													<>
-														<Save className="w-4 h-4" />
-														Guardar Cambios
-													</>
-												)}
-											</Button>
-											<Button
-												onClick={handleCancelEdit}
-												variant="outline"
-												className="flex-1 flex items-center gap-2"
-												disabled={isSaving}
-											>
-												<XCircle className="w-4 h-4" />
-												Cancelar
-											</Button>
-										</>
-									) : (
-										<>
-											<Button
-												onClick={handleEditClick}
-												className="flex-1 flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white"
-											>
-												<Edit className="w-4 h-4" />
-												Editar Caso
-											</Button>
-											<Button
-												onClick={handleDeleteClick}
-												variant="destructive"
-												className="flex-1 flex items-center gap-2"
-											>
-												<Trash2 className="w-4 h-4" />
-												Eliminar Caso
-											</Button>
-										</>
-									)}
+								<div className="flex items-center justify-center gap-2 pt-4 border-t border-gray-200 dark:border-gray-700">
+									<button
+										onClick={handleDeleteClick}
+										className="flex items-center justify-center gap-1 px-3 py-2 text-lg font-semibold rounded-md bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300 w-full text-center"
+									>
+										<Trash2 className="size-5" />
+										Eliminar
+									</button>
 								</div>
 							</div>
 						</motion.div>
@@ -1469,22 +1693,33 @@ const UnifiedCaseModal: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClo
 								<label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
 									Monto{isVESPaymentMethod(newPayment.method) ? ' (Bs)' : ' ($)'}
 								</label>
-								<Input
-									type="text"
-									inputMode="decimal"
-									value={formatNumberForInput(parseDecimalNumber(newPayment.amount) || 0)}
-									onChange={(e) => {
-										const parsedValue = parseDecimalNumber(e.target.value)
-										setNewPayment({ ...newPayment, amount: parsedValue.toString() })
-									}}
-									placeholder="0,00"
-									className="text-right"
-								/>
+								{(() => {
+									const calculatorHandler = createCalculatorInputHandler(
+										parseDecimalNumber(newPayment.amount) || 0,
+										(newValue) => setNewPayment({ ...newPayment, amount: newValue.toString() }),
+									)
+
+									return (
+										<Input
+											type="text"
+											inputMode="decimal"
+											value={calculatorHandler.displayValue}
+											onKeyDown={calculatorHandler.handleKeyDown}
+											onPaste={calculatorHandler.handlePaste}
+											onFocus={calculatorHandler.handleFocus}
+											onChange={calculatorHandler.handleChange}
+											placeholder="0,00"
+											className="text-right font-mono"
+											autoComplete="off"
+										/>
+									)
+								})()}
 								{isVESPaymentMethod(newPayment.method) &&
-									case_?.exchange_rate &&
+									currentCase?.exchange_rate &&
 									parseDecimalNumber(newPayment.amount) > 0 && (
-										<p className="text-xs text-green-600 mt-1">
-											≈ ${convertVEStoUSD(parseDecimalNumber(newPayment.amount), case_.exchange_rate).toFixed(2)} USD
+										<p className="text-xs text-green-600 mt-1 font-medium">
+											≈ ${convertVEStoUSD(parseDecimalNumber(newPayment.amount), currentCase.exchange_rate).toFixed(2)}{' '}
+											USD
 										</p>
 									)}
 							</div>
@@ -1516,6 +1751,6 @@ const UnifiedCaseModal: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClo
 			)}
 		</>
 	)
-}
+})
 
 export default UnifiedCaseModal

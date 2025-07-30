@@ -83,94 +83,6 @@ const StepsCaseModal: React.FC<StepsCaseModalProps> = ({ case_, isOpen, onClose,
 		onClose()
 	}
 
-	// const handleGenerateCase = async () => {
-	// 	if (!case_?.id) {
-	// 		toast({
-	// 			title: '❌ Error',
-	// 			description: 'No se encontró el ID del caso.',
-	// 			variant: 'destructive',
-	// 		})
-	// 		return
-	// 	}
-
-	// 	try {
-	// 		setIsSaving(true)
-
-	// 		console.log('Sending request to n8n webhook with case ID:', case_.id)
-
-	// 		const requestBody = {
-	// 			caseId: case_.id,
-	// 		}
-
-	// 		console.log('Request body:', requestBody)
-
-	// 		const response = await fetch(
-	// 			'https://solwareagencia.app.n8n.cloud/webhook-test/36596a3a-0aeb-4ee1-887f-854324cc785b',
-	// 			{
-	// 				method: 'POST',
-	// 				headers: {
-	// 					'Content-Type': 'application/json',
-	// 					Accept: 'application/json',
-	// 				},
-	// 				body: JSON.stringify(requestBody),
-	// 			},
-	// 		)
-
-	// 		console.log('Response status:', response.status)
-
-	// 		if (!response.ok) {
-	// 			let errorMessage = `HTTP ${response.status}: ${response.statusText}`
-
-	// 			try {
-	// 				const errorData = await response.text()
-	// 				console.log('Error response body:', errorData)
-	// 				errorMessage += ` - ${errorData}`
-	// 			} catch (e) {
-	// 				console.log('Could not read error response body', e)
-	// 			}
-
-	// 			throw new Error(errorMessage)
-	// 		}
-
-	// 		// Try to parse the response
-	// 		let responseData
-	// 		try {
-	// 			responseData = await response.json()
-	// 			console.log('Success response:', responseData)
-	// 		} catch (e) {
-	// 			responseData = await response.text()
-	// 			console.log('Success response (text):', responseData, e)
-	// 		}
-
-	// 		toast({
-	// 			title: '✅ Flujo activado',
-	// 			description: 'El flujo de n8n ha sido activado exitosamente.',
-	// 			className: 'bg-green-100 border-green-400 text-green-800',
-	// 		})
-	// 	} catch (error) {
-	// 		console.error('Error in handleGenerateCase:', error)
-
-	// 		let errorMessage = 'Hubo un problema al activar el flujo.'
-
-	// 		if (error instanceof TypeError && error.message === 'Failed to fetch') {
-	// 			errorMessage =
-	// 				'No se pudo conectar con el servidor. Verifica tu conexión a internet o contacta al administrador.'
-	// 		} else if (error instanceof Error && error.message.includes('CORS')) {
-	// 			errorMessage = 'Error de configuración del servidor (CORS). Contacta al administrador.'
-	// 		} else if (error instanceof Error && error.message.includes('HTTP')) {
-	// 			errorMessage = `Error del servidor: ${error.message}`
-	// 		}
-
-	// 		toast({
-	// 			title: '❌ Error al activar flujo',
-	// 			description: errorMessage,
-	// 			variant: 'destructive',
-	// 		})
-	// 	} finally {
-	// 		setIsSaving(false)
-	// 	}
-	// }
-
 	const handleGenerateCaseAndOpenDoc = async () => {
 		if (!case_?.id) {
 			toast({
@@ -425,44 +337,6 @@ const StepsCaseModal: React.FC<StepsCaseModalProps> = ({ case_, isOpen, onClose,
 		}
 	}
 
-	// const handleDownloadPDF = async () => {
-	// 	if (!case_?.id) {
-	// 		toast({
-	// 			title: '❌ Error',
-	// 			description: 'No se encontró el ID del caso.',
-	// 			variant: 'destructive',
-	// 		})
-	// 		return
-	// 	}
-
-	// 	const { data, error } = await supabase
-	// 		.from('medical_records_clean')
-	// 		.select('informepdf_url')
-	// 		.eq('id', case_.id)
-	// 		.single<MedicalRecord>()
-
-	// 	if (error || !data?.informepdf_url) {
-	// 		toast({
-	// 			title: '❌ Error',
-	// 			description: 'No se pudo obtener el enlace del PDF.',
-	// 			variant: 'destructive',
-	// 		})
-	// 		console.error('Error obteniendo informepdf_url:', error)
-	// 		return
-	// 	}
-
-	// 	try {
-	// 		window.open(data.informepdf_url, '_blank')
-	// 	} catch (err) {
-	// 		console.error('Error al abrir el PDF:', err)
-	// 		toast({
-	// 			title: '❌ Error',
-	// 			description: 'No se pudo acceder al PDF. Intenta nuevamente.',
-	// 			variant: 'destructive',
-	// 		})
-	// 	}
-	// }
-
 	const renderStepContent = () => {
 		switch (activeStep) {
 			case 0:
@@ -605,14 +479,14 @@ const StepsCaseModal: React.FC<StepsCaseModalProps> = ({ case_, isOpen, onClose,
 											<motion.div
 												className={`w-8 h-8 rounded-full flex items-center justify-center border-2 transition-transform duration-300 ${
 													isCompleted
-														? 'border-green-500 text-white'
+														? 'border-green-500 text-gray-800 dark:text-white'
 														: isActive
-														? 'border-pink-500 text-white'
+														? 'border-pink-500 text-gray-800 dark:text-white'
 														: 'bg-gray-200 dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-500'
 												}`}
 												whileHover={{ scale: 1.05 }}
 											>
-												<Icon className="w-4 h-4" />
+												<Icon className="w-4 h-4 text-gray-800 dark:text-white" />
 											</motion.div>
 											<div className="mt-2 text-center">
 												<p
@@ -652,7 +526,7 @@ const StepsCaseModal: React.FC<StepsCaseModalProps> = ({ case_, isOpen, onClose,
 								<motion.button
 									onClick={handleBack}
 									disabled={isSaving}
-									className={`flex items-center gap-2 px-6 py-2 bg-transparent border border-pink-500 text-white font-medium rounded-lg hover:from-indigo-600 hover:to-purple-600 transition-transform duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl ${
+									className={`flex items-center gap-2 px-6 py-2 bg-transparent border border-pink-500 text-gray-800 dark:text-white font-medium rounded-lg hover:from-indigo-600 hover:to-purple-600 transition-transform duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl ${
 										activeStep === 0 ? 'hidden' : ''
 									}`}
 									whileHover={{ scale: 1.02 }}
@@ -665,7 +539,7 @@ const StepsCaseModal: React.FC<StepsCaseModalProps> = ({ case_, isOpen, onClose,
 								<motion.button
 									onClick={handleNext}
 									disabled={isCompleting || isSaving}
-									className="flex items-center gap-2 px-6 py-2 bg-transparent border border-pink-500 text-white font-medium rounded-lg hover:from-indigo-600 hover:to-purple-600 transition-transform duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl"
+									className="flex items-center gap-2 px-6 py-2 bg-transparent border border-pink-500 text-gray-800 dark:text-white font-medium rounded-lg hover:from-indigo-600 hover:to-purple-600 transition-transform duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl"
 									whileHover={{ scale: 1.02 }}
 									whileTap={{ scale: 0.98 }}
 								>
