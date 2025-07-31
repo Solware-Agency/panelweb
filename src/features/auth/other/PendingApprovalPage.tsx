@@ -32,10 +32,9 @@ function PendingApprovalPage() {
               <div className="p-4 bg-orange-500 rounded-full mb-4 shadow-lg">
                 <Clock className="text-white size-12" />
               </div>
-              				<div>
-					<h1 className="text-2xl font-bold text-white mb-2">Cuenta Pendiente de Aprobación</h1>
-					<div className="w-16 sm:w-24 h-1 bg-white mt-2 rounded-full" />
-				</div>
+              							<div>
+				<h1 className="text-2xl font-bold text-white mb-2">Cuenta Pendiente de Aprobación</h1>
+			</div>
               <p className="text-slate-300 text-center">
                 Tu cuenta está pendiente de aprobación por un administrador.
               </p>
