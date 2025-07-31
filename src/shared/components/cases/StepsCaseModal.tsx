@@ -5,13 +5,10 @@ import { supabase } from '@lib/supabase/config'
 import {
 	X,
 	User,
-	// FileText,
 	ArrowLeft,
 	ArrowRight,
 	Sparkles,
 	Heart,
-	// Mail,
-	// Phone,
 	Stethoscope,
 	Microscope,
 } from 'lucide-react'
@@ -30,6 +27,7 @@ interface MedicalRecord {
 	informacion_clinica?: string | null
 	googledocs_url?: string | null
 	informepdf_url?: string | null
+	code?: string | null
 }
 
 interface StepsCaseModalProps {
@@ -44,13 +42,13 @@ const steps = [
 		id: 'patient',
 		title: 'Datos',
 		icon: User,
-		description: 'Rellenar el Doc',
+		description: 'Generar Documento',
 	},
 	{
 		id: 'clinical',
 		title: 'Generar',
 		icon: Stethoscope,
-		description: 'Preparar el caso',
+		description: 'Exportar Documento',
 	},
 ]
 
@@ -104,7 +102,7 @@ const StepsCaseModal: React.FC<StepsCaseModalProps> = ({ case_, isOpen, onClose,
 				.single<MedicalRecord>()
 
 			if (initialError) {
-				console.error('[1] Error al obtener googledocs_url:', initialError)
+				console.error('Error al obtener URL del Documento:', initialError)
 				toast({
 					title: '❌ Error',
 					description: 'No se pudo obtener el estado del documento.',
@@ -256,12 +254,6 @@ const StepsCaseModal: React.FC<StepsCaseModalProps> = ({ case_, isOpen, onClose,
 				responseData = await response.text()
 				console.log('Success response (text):', responseData, e)
 			}
-
-			toast({
-				title: '✅ Flujo activado',
-				description: 'El flujo de n8n ha sido activado exitosamente.',
-				className: 'bg-green-100 border-green-400 text-green-800',
-			})
 
 			// ⏱️ Esperar 6 segundos antes de intentar descargar el PDF
 			let attempts = 0
@@ -444,7 +436,7 @@ const StepsCaseModal: React.FC<StepsCaseModalProps> = ({ case_, isOpen, onClose,
 					initial={{ opacity: 0, scale: 0.9, y: 20 }}
 					animate={{ opacity: 1, scale: 1, y: 0 }}
 					exit={{ opacity: 0, scale: 0.9, y: 20 }}
-					className="w-full max-w-2xl bg-white dark:bg-gray-900 rounded-2xl shadow-2xl border border-gray-200 dark:border-gray-700 overflow-hidden z-10"
+					className="w-full max-w-xl bg-white dark:bg-gray-900 rounded-2xl shadow-2xl border border-gray-200 dark:border-gray-700 overflow-hidden z-10"
 				>
 					{/* Header */}
 					<div className="bg-pink-500 px-6 py-4">
@@ -452,14 +444,11 @@ const StepsCaseModal: React.FC<StepsCaseModalProps> = ({ case_, isOpen, onClose,
 							<div className="flex items-center gap-3">
 								<Sparkles className="w-6 h-6 text-white flex-shrink-0" />
 								<div className="min-w-0">
-									<h2 className="text-lg font-bold text-white">Generar Caso Médico</h2>
+									<h2 className="text-lg font-bold text-white">Generar Caso Médico - {case_?.code}</h2>
 									<p className="text-sm text-indigo-100 truncate">{case_ ? `Para ${case_.full_name}` : 'Nuevo caso'}</p>
 								</div>
 							</div>
-							<button
-								onClick={handleClose}
-								className="p-1 hover:bg-white/20 rounded-lg transition-none flex-shrink-0"
-							>
+							<button onClick={handleClose} className="p-1 hover:bg-white/20 rounded-lg transition-none flex-shrink-0">
 								<X className="w-5 h-5 text-white" />
 							</button>
 						</div>
