@@ -207,6 +207,7 @@ function NewPasswordForm() {
 												required
 												className="w-full border-2 border-slate-600 bg-slate-90ext-white rounded-md p-2 pr-10 focus:outline-none focus:ring-2 focus:ring-primary"
 												placeholder="••••••••••••••••••••"
+												autoComplete="new-password"
 											/>
 											<button
 												type="button"
@@ -231,6 +232,7 @@ function NewPasswordForm() {
 												required
 												className="w-full border-2 border-slate-600 bg-slate-900 text-white rounded-md p-2 pr-10 focus:outline-none focus:ring-2 focus:ring-primary"
 												placeholder="••••••••••••••••••••"
+												autoComplete="new-password"
 											/>
 											<button
 												type="button"

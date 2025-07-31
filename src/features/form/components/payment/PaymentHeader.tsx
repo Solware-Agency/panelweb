@@ -1,5 +1,5 @@
 import React, { memo } from 'react'
-import { type Control, useWatch } from 'react-hook-form'
+import { type Control, useWatch, useFormContext } from 'react-hook-form'
 import { type FormValues } from '@features/form/lib/form-schema'
 import { FormField, FormItem, FormLabel, FormControl } from '@shared/components/ui/form'
 import { Input } from '@shared/components/ui/input'
@@ -17,6 +17,7 @@ interface PaymentHeaderProps {
 
 export const PaymentHeader = memo(({ control, inputStyles, exchangeRate, isLoadingRate }: PaymentHeaderProps) => {
 	const { profile } = useUserProfile()
+	const { setValue } = useFormContext()
 	const totalAmount = useWatch({
 		control,
 		name: 'totalAmount',
@@ -30,12 +31,9 @@ export const PaymentHeader = memo(({ control, inputStyles, exchangeRate, isLoadi
 	useEffect(() => {
 		if (profile?.assigned_branch && !branch) {
 			// Set the branch to the user's assigned branch
-			const setValue = control._options.context?.setValue
-			if (setValue) {
-				setValue('branch', profile.assigned_branch)
-			}
+			setValue('branch', profile.assigned_branch)
 		}
-	}, [profile, branch, control])
+	}, [profile, branch, setValue])
 
 	const totalInVes = React.useMemo(() => {
 		if (exchangeRate && totalAmount) {
