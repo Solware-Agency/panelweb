@@ -82,7 +82,10 @@ const MyCases: React.FC = React.memo(() => {
 		<div className="p-3 sm:p-6">
 			{/* Page Title */}
 			<div className="mb-4 sm:mb-6">
-				<h1 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-gray-100">Mis Casos Generados</h1>
+				<div>
+					<h1 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-gray-100">Mis Casos Generados</h1>
+					<div className="w-16 sm:w-24 h-1 bg-primary mt-2 rounded-full" />
+				</div>
 				{cases.length === 0 && !isLoading ? (
 					<p className="text-sm text-gray-600 dark:text-gray-400 mt-1 sm:mt-2">
 						No has generado ningún caso aún. Los casos aparecerán aquí cuando utilices el botón "Generar" en la sección

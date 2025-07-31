@@ -150,10 +150,13 @@ const RequestCaseModal: React.FC<GenerateCaseModalProps> = ({ case_, isOpen, onC
 						<div className="sticky top-0 bg-white dark:bg-background border-b border-gray-200 dark:border-gray-700 p-3 sm:p-6 z-10">
 							<div className="flex items-center justify-between">
 								<div>
-									<h2 className="text-lg sm:text-2xl font-bold text-gray-900 dark:text-gray-100 flex items-center gap-2">
-										{getCaseTypeIcon(caseType)}
-										Generar Caso de {getCaseTypeTitle(caseType)}
-									</h2>
+									<div>
+										<h2 className="text-lg sm:text-2xl font-bold text-gray-900 dark:text-gray-100 flex items-center gap-2">
+											{getCaseTypeIcon(caseType)}
+											Generar Caso de {getCaseTypeTitle(caseType)}
+										</h2>
+										<div className="w-16 sm:w-24 h-1 bg-primary mt-2 rounded-full" />
+									</div>
 									<div className="flex items-center gap-1.5 sm:gap-2 mt-1 sm:mt-2">
 										<p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">
 											{case_.code || case_.id?.slice(-6).toUpperCase()}

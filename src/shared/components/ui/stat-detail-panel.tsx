@@ -92,7 +92,10 @@ const StatDetailPanel: React.FC<StatDetailPanelProps> = ({
 				return (
 					<div className="space-y-6">
 						<div className="bg-white dark:bg-gray-800 rounded-lg p-6 border border-gray-200 dark:border-gray-700">
-							<h3 className="text-xl font-bold mb-4 text-gray-900 dark:text-gray-100">Resumen de Ingresos</h3>
+							<div>
+								<h3 className="text-xl font-bold mb-4 text-gray-900 dark:text-gray-100">Resumen de Ingresos</h3>
+								<div className="w-16 sm:w-24 h-1 bg-primary mt-2 rounded-full" />
+							</div>
 							<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 								<div className="bg-green-50 dark:bg-green-900/20 p-4 rounded-lg border border-green-200 dark:border-green-800">
 									<p className="text-sm text-gray-500 dark:text-gray-400">Ingresos Totales</p>
@@ -113,7 +116,10 @@ const StatDetailPanel: React.FC<StatDetailPanelProps> = ({
 						</div>
 
 						<div className="bg-white dark:bg-gray-800 rounded-lg p-6 border border-gray-200 dark:border-gray-700">
-							<h3 className="text-xl font-bold mb-4 text-gray-900 dark:text-gray-100">Distribución por Sede</h3>
+							<div>
+								<h3 className="text-xl font-bold mb-4 text-gray-900 dark:text-gray-100">Distribución por Sede</h3>
+								<div className="w-16 sm:w-24 h-1 bg-primary mt-2 rounded-full" />
+							</div>
 							<div className="space-y-4">
 								{stats.revenueByBranch &&
 									stats.revenueByBranch.map((branch: any, index: number) => {
@@ -139,7 +145,10 @@ const StatDetailPanel: React.FC<StatDetailPanelProps> = ({
 						</div>
 
 						<div className="bg-white dark:bg-gray-800 rounded-lg p-6 border border-gray-200 dark:border-gray-700">
-							<h3 className="text-xl font-bold mb-4 text-gray-900 dark:text-gray-100">Tendencia Mensual</h3>
+							<div>
+								<h3 className="text-xl font-bold mb-4 text-gray-900 dark:text-gray-100">Tendencia Mensual</h3>
+								<div className="w-16 sm:w-24 h-1 bg-primary mt-2 rounded-full" />
+							</div>
 							<div className="h-40 flex items-end justify-between gap-1">
 								{stats.salesTrendByMonth &&
 									stats.salesTrendByMonth.map((month: any) => {
@@ -174,7 +183,10 @@ const StatDetailPanel: React.FC<StatDetailPanelProps> = ({
 				return (
 					<div className="space-y-6">
 						<div className="bg-white dark:bg-gray-800 rounded-lg p-6 border border-gray-200 dark:border-gray-700">
-							<h3 className="text-xl font-bold mb-4 text-gray-900 dark:text-gray-100">Ingresos Mensuales</h3>
+							<div>
+								<h3 className="text-xl font-bold mb-4 text-gray-900 dark:text-gray-100">Ingresos Mensuales</h3>
+								<div className="w-16 sm:w-24 h-1 bg-primary mt-2 rounded-full" />
+							</div>
 							<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 								<div className="bg-green-50 dark:bg-green-900/20 p-4 rounded-lg border border-green-200 dark:border-green-800">
 									<p className="text-sm text-gray-500 dark:text-gray-400">Ingresos del Mes</p>
@@ -196,7 +208,10 @@ const StatDetailPanel: React.FC<StatDetailPanelProps> = ({
 						</div>
 
 						<div className="bg-white dark:bg-gray-800 rounded-lg p-6 border border-gray-200 dark:border-gray-700">
-							<h3 className="text-xl font-bold mb-4 text-gray-900 dark:text-gray-100">Desglose por Tipo de Examen</h3>
+							<div>
+								<h3 className="text-xl font-bold mb-4 text-gray-900 dark:text-gray-100">Desglose por Tipo de Examen</h3>
+								<div className="w-16 sm:w-24 h-1 bg-primary mt-2 rounded-full" />
+							</div>
 							<div className="space-y-4">
 								{stats.revenueByExamType &&
 									stats.revenueByExamType.slice(0, 5).map((exam: any, index: number) => {
@@ -220,7 +235,10 @@ const StatDetailPanel: React.FC<StatDetailPanelProps> = ({
 						</div>
 
 						<div className="bg-white dark:bg-gray-800 rounded-lg p-6 border border-gray-200 dark:border-gray-700">
-							<h3 className="text-xl font-bold mb-4 text-gray-900 dark:text-gray-100">Nuevos Pacientes</h3>
+							<div>
+								<h3 className="text-xl font-bold mb-4 text-gray-900 dark:text-gray-100">Nuevos Pacientes</h3>
+								<div className="w-16 sm:w-24 h-1 bg-primary mt-2 rounded-full" />
+							</div>
 							<div className="flex items-center justify-between">
 								<div className="flex items-center gap-3">
 									<div className="p-3 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
@@ -241,7 +259,10 @@ const StatDetailPanel: React.FC<StatDetailPanelProps> = ({
 				return (
 					<div className="space-y-6">
 						<div className="bg-white dark:bg-gray-800 rounded-lg p-6 border border-gray-200 dark:border-gray-700">
-							<h3 className="text-xl font-bold mb-4 text-gray-900 dark:text-gray-100">Resumen de Casos</h3>
+							<div>
+								<h3 className="text-xl font-bold mb-4 text-gray-900 dark:text-gray-100">Resumen de Casos</h3>
+								<div className="w-16 sm:w-24 h-1 bg-primary mt-2 rounded-full" />
+							</div>
 							<div className="grid grid-cols-1 md:grid-cols-3 gap-4">
 								<div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg border border-blue-200 dark:border-blue-800">
 									<p className="text-sm text-gray-500 dark:text-gray-400">Total de Casos</p>
@@ -287,7 +308,10 @@ const StatDetailPanel: React.FC<StatDetailPanelProps> = ({
 						</div>
 
 						<div className="bg-white dark:bg-gray-800 rounded-lg p-6 border border-gray-200 dark:border-gray-700">
-							<h3 className="text-xl font-bold mb-4 text-gray-900 dark:text-gray-100">Médicos Tratantes</h3>
+							<div>
+								<h3 className="text-xl font-bold mb-4 text-gray-900 dark:text-gray-100">Médicos Tratantes</h3>
+								<div className="w-16 sm:w-24 h-1 bg-primary mt-2 rounded-full" />
+							</div>
 							<div className="space-y-4">
 								{stats.topTreatingDoctors &&
 									stats.topTreatingDoctors.slice(0, 5).map((doctor: any, index: number) => {
@@ -318,7 +342,10 @@ const StatDetailPanel: React.FC<StatDetailPanelProps> = ({
 				return (
 					<div className="space-y-6">
 						<div className="bg-white dark:bg-gray-800 rounded-lg p-6 border border-gray-200 dark:border-gray-700">
-							<h3 className="text-xl font-bold mb-4 text-gray-900 dark:text-gray-100">Casos Completados</h3>
+							<div>
+								<h3 className="text-xl font-bold mb-4 text-gray-900 dark:text-gray-100">Casos Completados</h3>
+								<div className="w-16 sm:w-24 h-1 bg-primary mt-2 rounded-full" />
+							</div>
 							<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 								<div className="bg-green-50 dark:bg-green-900/20 p-4 rounded-lg border border-green-200 dark:border-green-800">
 									<p className="text-sm text-gray-500 dark:text-gray-400">Total Completados</p>
@@ -334,7 +361,10 @@ const StatDetailPanel: React.FC<StatDetailPanelProps> = ({
 						</div>
 
 						<div className="bg-white dark:bg-gray-800 rounded-lg p-6 border border-gray-200 dark:border-gray-700">
-							<h3 className="text-xl font-bold mb-4 text-gray-900 dark:text-gray-100">Progreso de Completitud</h3>
+							<div>
+								<h3 className="text-xl font-bold mb-4 text-gray-900 dark:text-gray-100">Progreso de Completitud</h3>
+								<div className="w-16 sm:w-24 h-1 bg-primary mt-2 rounded-full" />
+							</div>
 							<div className="space-y-4">
 								<div>
 									<div className="flex items-center justify-between mb-2">
@@ -403,7 +433,10 @@ const StatDetailPanel: React.FC<StatDetailPanelProps> = ({
 				return (
 					<div className="space-y-6">
 						<div className="bg-white dark:bg-gray-800 rounded-lg p-6 border border-gray-200 dark:border-gray-700">
-							<h3 className="text-xl font-bold mb-4 text-gray-900 dark:text-gray-100">Casos Incompletos</h3>
+							<div>
+								<h3 className="text-xl font-bold mb-4 text-gray-900 dark:text-gray-100">Casos Incompletos</h3>
+								<div className="w-16 sm:w-24 h-1 bg-primary mt-2 rounded-full" />
+							</div>
 							<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 								<div className="bg-orange-50 dark:bg-orange-900/20 p-4 rounded-lg border border-orange-200 dark:border-orange-800">
 									<p className="text-sm text-gray-500 dark:text-gray-400">Total Incompletos</p>
@@ -492,7 +525,10 @@ const StatDetailPanel: React.FC<StatDetailPanelProps> = ({
 				return (
 					<div className="space-y-6">
 						<div className="bg-white dark:bg-gray-800 rounded-lg p-6 border border-gray-200 dark:border-gray-700">
-							<h3 className="text-xl font-bold mb-4 text-gray-900 dark:text-gray-100">Pagos Pendientes</h3>
+							<div>
+								<h3 className="text-xl font-bold mb-4 text-gray-900 dark:text-gray-100">Pagos Pendientes</h3>
+								<div className="w-16 sm:w-24 h-1 bg-primary mt-2 rounded-full" />
+							</div>
 							<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 								<div className="bg-red-50 dark:bg-red-900/20 p-4 rounded-lg border border-red-200 dark:border-red-800">
 									<p className="text-sm text-gray-500 dark:text-gray-400">Monto Pendiente</p>
@@ -565,7 +601,10 @@ const StatDetailPanel: React.FC<StatDetailPanelProps> = ({
 				return (
 					<div className="space-y-6">
 						<div className="bg-white dark:bg-gray-800 rounded-lg p-6 border border-gray-200 dark:border-gray-700">
-							<h3 className="text-xl font-bold mb-4 text-gray-900 dark:text-gray-100">Pacientes Únicos</h3>
+							<div>
+								<h3 className="text-xl font-bold mb-4 text-gray-900 dark:text-gray-100">Pacientes Únicos</h3>
+								<div className="w-16 sm:w-24 h-1 bg-primary mt-2 rounded-full" />
+							</div>
 							<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 								<div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg border border-blue-200 dark:border-blue-800">
 									<p className="text-sm text-gray-500 dark:text-gray-400">Total de Pacientes</p>
@@ -579,7 +618,10 @@ const StatDetailPanel: React.FC<StatDetailPanelProps> = ({
 						</div>
 
 						<div className="bg-white dark:bg-gray-800 rounded-lg p-6 border border-gray-200 dark:border-gray-700">
-							<h3 className="text-xl font-bold mb-4 text-gray-900 dark:text-gray-100">Estadísticas de Pacientes</h3>
+							<div>
+								<h3 className="text-xl font-bold mb-4 text-gray-900 dark:text-gray-100">Estadísticas de Pacientes</h3>
+								<div className="w-16 sm:w-24 h-1 bg-primary mt-2 rounded-full" />
+							</div>
 							<div className="space-y-4">
 								<div className="flex items-center justify-between">
 									<span className="text-sm text-gray-600 dark:text-gray-400">Casos por Paciente (Promedio)</span>
@@ -605,7 +647,10 @@ const StatDetailPanel: React.FC<StatDetailPanelProps> = ({
 						</div>
 
 						<div className="bg-white dark:bg-gray-800 rounded-lg p-6 border border-gray-200 dark:border-gray-700">
-							<h3 className="text-xl font-bold mb-4 text-gray-900 dark:text-gray-100">Tendencia de Nuevos Pacientes</h3>
+							<div>
+								<h3 className="text-xl font-bold mb-4 text-gray-900 dark:text-gray-100">Tendencia de Nuevos Pacientes</h3>
+								<div className="w-16 sm:w-24 h-1 bg-primary mt-2 rounded-full" />
+							</div>
 							<div className="h-40 flex items-end justify-between gap-1">
 								{stats.salesTrendByMonth &&
 									stats.salesTrendByMonth.map((_month: any, index: number) => {
@@ -634,7 +679,10 @@ const StatDetailPanel: React.FC<StatDetailPanelProps> = ({
 				return (
 					<div className="space-y-6">
 						<div className="bg-white dark:bg-gray-800 rounded-lg p-6 border border-gray-200 dark:border-gray-700">
-							<h3 className="text-xl font-bold mb-4 text-gray-900 dark:text-gray-100">Ingresos por Sede</h3>
+							<div>
+								<h3 className="text-xl font-bold mb-4 text-gray-900 dark:text-gray-100">Ingresos por Sede</h3>
+								<div className="w-16 sm:w-24 h-1 bg-primary mt-2 rounded-full" />
+							</div>
 							<div className="flex items-center justify-center mb-6">
 								<div className="relative size-48">
 									<svg className="size-full -rotate-90" viewBox="0 0 36 36">
@@ -709,7 +757,10 @@ const StatDetailPanel: React.FC<StatDetailPanelProps> = ({
 						</div>
 
 						<div className="bg-white dark:bg-gray-800 rounded-lg p-6 border border-gray-200 dark:border-gray-700">
-							<h3 className="text-xl font-bold mb-4 text-gray-900 dark:text-gray-100">Comparación de Sedes</h3>
+							<div>
+								<h3 className="text-xl font-bold mb-4 text-gray-900 dark:text-gray-100">Comparación de Sedes</h3>
+								<div className="w-16 sm:w-24 h-1 bg-primary mt-2 rounded-full" />
+							</div>
 							<div className="space-y-4">
 								{stats.revenueByBranch &&
 									stats.revenueByBranch.map((branch: any) => {
@@ -767,7 +818,10 @@ const StatDetailPanel: React.FC<StatDetailPanelProps> = ({
 						</div>
 
 						<div className="bg-white dark:bg-gray-800 rounded-lg p-6 border border-gray-200 dark:border-gray-700">
-							<h3 className="text-xl font-bold mb-4 text-gray-900 dark:text-gray-100">Ingresos por Tipo de Examen</h3>
+							<div>
+								<h3 className="text-xl font-bold mb-4 text-gray-900 dark:text-gray-100">Ingresos por Tipo de Examen</h3>
+								<div className="w-16 sm:w-24 h-1 bg-primary mt-2 rounded-full" />
+							</div>
 							<div className="space-y-4">
 								{stats.revenueByExamType &&
 									stats.revenueByExamType.slice(0, 5).map((exam: any) => {

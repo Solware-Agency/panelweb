@@ -444,7 +444,10 @@ const StepsCaseModal: React.FC<StepsCaseModalProps> = ({ case_, isOpen, onClose,
 							<div className="flex items-center gap-3">
 								<Sparkles className="w-6 h-6 text-white flex-shrink-0" />
 								<div className="min-w-0">
-									<h2 className="text-lg font-bold text-white">Generar Caso Médico - {case_?.code}</h2>
+									<div>
+						<h2 className="text-lg font-bold text-white">Generar Caso Médico - {case_?.code}</h2>
+						<div className="w-16 sm:w-24 h-1 bg-white mt-2 rounded-full" />
+					</div>
 									<p className="text-sm text-indigo-100 truncate">{case_ ? `Para ${case_.full_name}` : 'Nuevo caso'}</p>
 								</div>
 							</div>

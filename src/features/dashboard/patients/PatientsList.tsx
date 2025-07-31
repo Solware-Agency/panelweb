@@ -1,7 +1,7 @@
 import React, { useState, useCallback, useMemo } from 'react'
 import { Phone, Mail, Calendar, ChevronUp, ChevronDown } from 'lucide-react'
 import { Card } from '@shared/components/ui/card'
-import { Button } from '@shared/components/ui/button'
+
 import { getAgeDisplay } from '@lib/supabase-service'
 import { format, parseISO } from 'date-fns'
 import { es } from 'date-fns/locale'
@@ -41,7 +41,6 @@ interface PatientsListProps {
 	recordsData: MedicalRecord[] // ✅ solo array limpio
 	isLoading: boolean
 	error: Error | null
-	handleRefresh: () => void
 }
 
 // Memoized Patient Row Component for better performance
@@ -98,7 +97,7 @@ PatientRow.displayName = 'PatientRow'
 
 // Use React.memo to prevent unnecessary re-renders
 const PatientsList: React.FC<PatientsListProps> = React.memo(
-	({ searchTerm, recordsData, isLoading, error, handleRefresh }) => {
+	({ searchTerm, recordsData, isLoading, error }) => {
 		const [sortField, setSortField] = useState<SortField>('full_name')
 		const [sortDirection, setSortDirection] = useState<SortDirection>('asc')
 		const [selectedPatient, setSelectedPatient] = useState<PatientData | null>(null)
@@ -261,9 +260,7 @@ const PatientsList: React.FC<PatientsListProps> = React.memo(
 						<div className="text-red-500 dark:text-red-400">
 							<p className="text-lg font-medium">Error al cargar los pacientes</p>
 							<p className="text-sm mt-2">Verifica tu conexión a internet o contacta al administrador</p>
-							<Button onClick={handleRefresh} className="mt-4 bg-red-500 hover:bg-red-600 text-white">
-								Reintentar
-							</Button>
+
 						</div>
 					</div>
 				</Card>

@@ -109,7 +109,10 @@ function LoginForm() {
 							}}>
 								<FavIcon fill="#fff" className="size-16" />
 							</div>
-							<h1 className="text-2xl font-bold text-white mb-2">Bienvenido, inicia sesión</h1>
+							<div>
+					<h1 className="text-2xl font-bold text-white mb-2">Bienvenido, inicia sesión</h1>
+					<div className="w-16 sm:w-24 h-1 bg-white mt-2 rounded-full" />
+				</div>
 							<p className="text-slate-400">Ingresa a tu cuenta para continuar.</p>
 						</div>
 

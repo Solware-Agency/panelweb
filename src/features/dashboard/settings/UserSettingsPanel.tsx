@@ -160,7 +160,10 @@ const UserSettingsPanel: React.FC = () => {
 
 	return (
 		<div className="p-3 sm:p-6">
-			<h1 className="text-2xl font-bold mb-6">Ajustes de Usuario</h1>
+			<div className="mb-6">
+				<h1 className="text-2xl font-bold mb-2">Ajustes de Usuario</h1>
+				<div className="w-16 sm:w-24 h-1 bg-primary mt-2 rounded-full" />
+			</div>
 
 			<div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
 				{/* Profile Information */}

@@ -1,6 +1,6 @@
 import React, { useState, useCallback, useMemo } from 'react'
 import CasesTable from '@shared/components/cases/CasesTable'
-import { Users, MapPin, Microscope, FileText, Activity, Download, Search } from 'lucide-react'
+import { Users, MapPin, Microscope, FileText, Activity, Download } from 'lucide-react'
 import { Card, CardContent } from '@shared/components/ui/card'
 import { type MedicalRecord } from '@lib/supabase-service'
 import { useUserProfile } from '@shared/hooks/useUserProfile'
@@ -24,7 +24,7 @@ export const RecordsSection: React.FC<RecordsSectionProps> = ({
 	setIsFullscreen,
 	onSearch,
 }) => {
-	const [searchTerm] = useState('')
+
 	const { profile } = useUserProfile()
 	const [showPendingOnly, setShowPendingOnly] = useState(false)
 	const [selectedExamType, setSelectedExamType] = useState<string | null>(null)
@@ -206,21 +206,7 @@ export const RecordsSection: React.FC<RecordsSectionProps> = ({
 		)
 	}, [cases])
 
-	// Get exam type icon
-	const getExamTypeIcon = useCallback((examType: string | null) => {
-		if (!examType) return <FileText className="h-4 w-4" />
-		
-		switch (examType.toLowerCase()) {
-			case 'biopsia':
-				return <Activity className="h-4 w-4" />
-			case 'citologia':
-				return <FileText className="h-4 w-4" />
-			case 'inmunohistoquimica':
-				return <Microscope className="h-4 w-4" />
-			default:
-				return <FileText className="h-4 w-4" />
-		}
-	}, [])
+
 
 	return (
 		<div>
@@ -404,44 +390,7 @@ export const RecordsSection: React.FC<RecordsSectionProps> = ({
 				</div>
 			</div>
 
-			{/* Active filters indicators */}
-			<div className="flex flex-wrap gap-1.5 sm:gap-2 mb-3 sm:mb-4">
-				{showPendingOnly && (
-					<div className="px-2 sm:px-4 py-1 sm:py-2 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg inline-block">
-						<span className="text-xs sm:text-sm font-medium text-blue-800 dark:text-blue-300 flex items-center gap-1.5 sm:gap-2">
-							<Users className="w-3 h-3 sm:w-4 sm:h-4" />
-							Mostrando solo casos pendientes
-						</span>
-					</div>
-				)}
 
-				{showPdfReadyOnly && (
-					<div className="px-2 sm:px-4 py-1 sm:py-2 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg inline-block">
-						<span className="text-xs sm:text-sm font-medium text-green-800 dark:text-green-300 flex items-center gap-1.5 sm:gap-2">
-							<Download className="w-3 h-3 sm:w-4 sm:h-4" />
-							Mostrando solo casos con PDF disponible
-						</span>
-					</div>
-				)}
-
-				{selectedExamType && (
-					<div className="px-2 sm:px-4 py-1 sm:py-2 bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800 rounded-lg inline-block">
-						<span className="text-xs sm:text-sm font-medium text-purple-800 dark:text-purple-300 flex items-center gap-1.5 sm:gap-2">
-							{getExamTypeIcon(selectedExamType)}
-							Filtrando por: {selectedExamType.charAt(0).toUpperCase() + selectedExamType.slice(1)}
-						</span>
-					</div>
-				)}
-
-				{searchTerm && (
-					<div className="px-2 sm:px-4 py-1 sm:py-2 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg inline-block">
-						<span className="text-xs sm:text-sm font-medium text-blue-800 dark:text-blue-300 flex items-center gap-1.5 sm:gap-2">
-							<Search className="w-3 h-3 sm:w-4 sm:h-4" />
-							Resultados para: "{searchTerm}"
-						</span>
-					</div>
-				)}
-			</div>
 
 			{/* Cases Table */}
 			<CasesTable

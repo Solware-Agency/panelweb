@@ -1,10 +1,10 @@
 import React, { useState, useCallback, useMemo } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { getMedicalRecords } from '@lib/supabase-service'
-import { Search, RefreshCw } from 'lucide-react'
+import { Search } from 'lucide-react'
 import { Card } from '@shared/components/ui/card'
 import { Input } from '@shared/components/ui/input'
-import { Button } from '@shared/components/ui/button'
+
 import PatientsList from './PatientsList'
 
 // Tipo base para los datos que vienen de la API
@@ -43,14 +43,14 @@ type MedicalRecordsQueryResult = {
 
 const PatientsPage: React.FC = React.memo(() => {
 	const [searchTerm, setSearchTerm] = useState('')
-	const [isSearching, setIsSearching] = useState(false)
+
 
 	// Fetch all medical records - optimized to prevent unnecessary refetches
 	const {
 		data: recordsData,
 		isLoading,
 		error,
-		refetch,
+
 	} = useQuery({
 		queryKey: ['all-medical-records'],
 		queryFn: () => getMedicalRecords(),
@@ -64,11 +64,7 @@ const PatientsPage: React.FC = React.memo(() => {
 		setSearchTerm(e.target.value)
 	}, [])
 
-	// Refresh data
-	const handleRefresh = useCallback(() => {
-		setIsSearching(true)
-		refetch().finally(() => setIsSearching(false))
-	}, [refetch])
+
 
 	// Memoize and normalize the records data
 	const memoizedRecordsData = useMemo<MedicalRecordsQueryResult | null>(() => {
@@ -110,7 +106,10 @@ const PatientsPage: React.FC = React.memo(() => {
 		<div className="p-3 sm:p-4">
 			<div className="grid grid-cols-3 mb-4 sm:mb-6">
 				<div className="flex flex-col col-span-1">
+					<div>
 					<h1 className="text-2xl font-bold">Pacientes</h1>
+					<div className="w-16 sm:w-24 h-1 bg-primary mt-2 rounded-full" />
+				</div>
 					<p className="text-sm text-gray-600 dark:text-gray-400 mt-1 sm:mt-2 font-bold">
 						Gestiona la información de los pacientes registrados en el sistema
 					</p>
@@ -127,17 +126,10 @@ const PatientsPage: React.FC = React.memo(() => {
 								onChange={handleSearchChange}
 								className="pl-10"
 							/>
-							{isSearching && (
-								<div className="absolute right-3 top-1/2 transform -translate-y-1/2">
-									<div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary"></div>
-								</div>
-							)}
+
 						</div>
 
-						<Button onClick={handleRefresh} variant="outline" className="flex items-center gap-2 whitespace-nowrap">
-							<RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
-							Actualizar
-						</Button>
+
 					</div>
 				</Card>
 			</div>
@@ -147,7 +139,6 @@ const PatientsPage: React.FC = React.memo(() => {
 				recordsData={memoizedRecordsData?.data ?? []}
 				isLoading={isLoading}
 				error={error || memoizedRecordsData?.error || null}
-				handleRefresh={handleRefresh}
 			/>
 		</div>
 	)
