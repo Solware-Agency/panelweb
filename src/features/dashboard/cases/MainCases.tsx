@@ -180,7 +180,10 @@ const MainCases: React.FC = React.memo(() => {
 		<div className="p-3 sm:p-6">
 			{/* Page Title */}
 			<div className="mb-4 sm:mb-6">
-				<h1 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-gray-100">Casos Médicos</h1>
+				<div>
+					<h1 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-gray-100">Casos Médicos</h1>
+					<div className="w-16 sm:w-24 h-1 bg-primary mt-2 rounded-full" />
+				</div>
 				<p className="text-sm text-gray-600 dark:text-gray-400 mt-1 sm:mt-2">
 					Gestiona todos los casos médicos registrados en el sistema
 				</p>
@@ -338,37 +341,7 @@ const MainCases: React.FC = React.memo(() => {
 				</Card>
 			</div>
 
-			{/* Active filters indicators */}
-			<div className="flex flex-wrap gap-1.5 sm:gap-2 mb-3 sm:mb-4">
-				{showPendingOnly && (
-					<div className="px-2 sm:px-4 py-1 sm:py-2 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg inline-block">
-						<span className="text-xs sm:text-sm font-medium text-blue-800 dark:text-blue-300 flex items-center gap-1.5 sm:gap-2">
-							<Users className="w-3 h-3 sm:w-4 sm:h-4" />
-							Mostrando solo casos pendientes
-						</span>
-					</div>
-				)}
 
-				{showPdfReadyOnly && (
-					<div className="px-2 sm:px-4 py-1 sm:py-2 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg inline-block">
-						<span className="text-xs sm:text-sm font-medium text-green-800 dark:text-green-300 flex items-center gap-1.5 sm:gap-2">
-							<Download className="w-3 h-3 sm:w-4 sm:h-4" />
-							Mostrando solo casos con PDF disponible
-						</span>
-					</div>
-				)}
-
-				{selectedExamType && (
-					<div className="px-2 sm:px-4 py-1 sm:py-2 bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800 rounded-lg inline-block">
-						<span className="text-xs sm:text-sm font-medium text-purple-800 dark:text-purple-300 flex items-center gap-1.5 sm:gap-2">
-							{selectedExamType === 'biopsia' && <Activity className="w-3 h-3 sm:w-4 sm:h-4" />}
-							{selectedExamType === 'citologia' && <FileText className="w-3 h-3 sm:w-4 sm:h-4" />}
-							{selectedExamType === 'inmunohistoquimica' && <Microscope className="w-3 h-3 sm:w-4 sm:h-4" />}
-							Filtrando por: {selectedExamType.charAt(0).toUpperCase() + selectedExamType.slice(1)}
-						</span>
-					</div>
-				)}
-			</div>
 
 			{/* Cases Table */}
 			<CasesTable

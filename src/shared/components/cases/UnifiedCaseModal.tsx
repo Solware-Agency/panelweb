@@ -534,6 +534,36 @@ const UnifiedCaseModal: React.FC<CaseDetailPanelProps> = React.memo(({ case_, is
 		}
 	}
 
+	const handleSendEmail = () => {
+		if (!case_?.email) {
+			toast({
+				title: '❌ Error',
+				description: 'Este caso no tiene un correo electrónico asociado.',
+				variant: 'destructive',
+			})
+			return
+		}
+
+		// Create mailto link with case information
+		const subject = `Caso ${case_.code || case_.id} - ${case_.full_name}`
+		const body = `Hola,\n\nAdjunto los detalles del caso:\n\n` +
+			`Código: ${case_.code || 'N/A'}\n` +
+			`Paciente: ${case_.full_name}\n` +
+			`Cédula: ${case_.id_number || 'N/A'}\n` +
+			`Teléfono: ${case_.phone || 'N/A'}\n` +
+			`Estado: ${case_.payment_status}\n\n` +
+			`Saludos cordiales.`
+
+		const mailtoLink = `mailto:${case_.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`
+		
+		window.open(mailtoLink, '_blank')
+		
+		toast({
+			title: '📧 Correo preparado',
+			description: 'Se ha abierto tu cliente de correo con los detalles del caso.',
+		})
+	}
+
 	const getFieldLabel = (field: string): string => {
 		const labels: Record<string, string> = {
 			full_name: 'Nombre Completo',
@@ -787,9 +817,12 @@ const UnifiedCaseModal: React.FC<CaseDetailPanelProps> = React.memo(({ case_, is
 							<div className="sticky top-0 bg-white dark:bg-background border-b border-gray-200 dark:border-gray-700 p-3 sm:p-6 z-10">
 								<div className="flex items-center justify-between">
 									<div>
-										<h2 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-gray-100">
-											Detalles Del Caso
-										</h2>
+										<div>
+											<h2 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-gray-100">
+												Detalles Del Caso
+											</h2>
+											<div className="w-16 sm:w-24 h-1 bg-primary mt-2 rounded-full" />
+										</div>
 										<div className="flex items-center gap-1.5 sm:gap-2 mt-1 sm:mt-2">
 											{currentCase.code && (
 												<span className="inline-flex items-center gap-1 px-1.5 sm:px-2 py-0.5 sm:py-1 text-xs font-semibold rounded-full bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300">
@@ -858,6 +891,13 @@ const UnifiedCaseModal: React.FC<CaseDetailPanelProps> = React.memo(({ case_, is
 													>
 														<History className="w-4 h-4" />
 														{isChangelogOpen ? 'Ocultar Historial' : 'Ver Historial'}
+													</button>
+													<button
+														onClick={handleSendEmail}
+														className="inline-flex items-center gap-1 px-3 py-2 text-xs font-semibold rounded-md bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300"
+													>
+														<Send className="w-4 h-4" />
+														Enviar por correo
 													</button>
 												</>
 											)}

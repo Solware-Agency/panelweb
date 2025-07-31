@@ -59,7 +59,10 @@ const CaseDetailPanel: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClos
 						<div className="sticky top-0 bg-white dark:bg-background border-b border-gray-200 dark:border-gray-700 p-3 sm:p-6 z-10">
 							<div className="flex items-center justify-between">
 								<div>
-									<h2 className="text-lg sm:text-2xl font-bold text-gray-900 dark:text-gray-100">Detalles del Caso</h2>
+									<div>
+						<h2 className="text-lg sm:text-2xl font-bold text-gray-900 dark:text-gray-100">Detalles del Caso</h2>
+						<div className="w-16 sm:w-24 h-1 bg-primary mt-2 rounded-full" />
+					</div>
 									<div className="flex items-center gap-1.5 sm:gap-2 mt-1 sm:mt-2">
 										{case_.code && (
 											<span className="inline-flex items-center gap-1 px-1.5 sm:px-2 py-0.5 sm:py-1 text-xs font-semibold rounded-full bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300">

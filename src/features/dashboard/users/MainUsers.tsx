@@ -467,9 +467,12 @@ const MainUsers: React.FC = () => {
 		<div className="p-3 sm:p-6">
 			{/* Page Title */}
 			<div className="mb-4 sm:mb-6">
-				<h1 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-gray-100">
-					{profile?.role === 'admin' ? 'Gestión de Médicos' : 'Gestión de Usuarios'}
-				</h1>
+				<div>
+					<h1 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-gray-100">
+						{profile?.role === 'admin' ? 'Gestión de Médicos' : 'Gestión de Usuarios'}
+					</h1>
+					<div className="w-16 sm:w-24 h-1 bg-primary mt-2 rounded-full" />
+				</div>
 				<p className="text-sm text-gray-600 dark:text-gray-400 mt-1 sm:mt-2">
 					{profile?.role === 'admin'
 						? 'Administra los médicos del sistema y sus permisos'
@@ -480,14 +483,14 @@ const MainUsers: React.FC = () => {
 			{/* Estadísticas - Responsive Grid */}
 			<div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3 mb-3 sm:mb-5">
 				<Card className="hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 transition-transform duration-300 shadow-lg">
-					<div className="bg-white dark:bg-background rounded-xl p-3 sm:p-4 md:p-6">
-						<div className="flex items-center justify-between mb-2 sm:mb-4">
-							<div className="p-1.5 sm:p-2 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
+					<div className="bg-white dark:bg-background rounded-xl p-2 sm:p-3">
+						<div className="flex items-center justify-between mb-1 sm:mb-2">
+							<div className="p-1 sm:p-1.5 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
 							</div>
 						</div>
 						<div>
-							<h3 className="text-xs sm:text-sm font-medium text-gray-500 dark:text-gray-400">Total Usuarios</h3>
-							<p className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-700 dark:text-gray-300">
+							<h3 className="text-xs font-medium text-gray-500 dark:text-gray-400">Total Usuarios</h3>
+							<p className="text-lg sm:text-xl font-bold text-gray-700 dark:text-gray-300">
 								{stats.total}
 							</p>
 						</div>
@@ -495,15 +498,15 @@ const MainUsers: React.FC = () => {
 				</Card>
 
 				<Card className="hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 transition-transform duration-300 shadow-lg">
-					<div className="bg-white dark:bg-background rounded-xl p-3 sm:p-4 md:p-6">
-						<div className="flex items-center justify-between mb-2 sm:mb-4">
-							<div className="p-1.5 sm:p-2 bg-yellow-100 dark:bg-yellow-900/30 rounded-lg">
-								<Crown className="w-4 h-4 sm:w-5 sm:h-5 text-yellow-600 dark:text-yellow-400" />
+					<div className="bg-white dark:bg-background rounded-xl p-2 sm:p-3">
+						<div className="flex items-center justify-between mb-1 sm:mb-2">
+							<div className="p-1 sm:p-1.5 bg-yellow-100 dark:bg-yellow-900/30 rounded-lg">
+								<Crown className="w-3 h-3 sm:w-4 sm:h-4 text-yellow-600 dark:text-yellow-400" />
 							</div>
 						</div>
 						<div>
-							<h3 className="text-xs sm:text-sm font-medium text-gray-500 dark:text-gray-400">Propietarios</h3>
-							<p className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-700 dark:text-gray-300">
+							<h3 className="text-xs font-medium text-gray-500 dark:text-gray-400">Propietarios</h3>
+							<p className="text-lg sm:text-xl font-bold text-gray-700 dark:text-gray-300">
 								{stats.owners}
 							</p>
 						</div>
@@ -511,15 +514,15 @@ const MainUsers: React.FC = () => {
 				</Card>
 
 				<Card className="hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 transition-transform duration-300 shadow-lg">
-					<div className="bg-white dark:bg-background rounded-xl p-3 sm:p-4 md:p-6">
-						<div className="flex items-center justify-between mb-2 sm:mb-4">
-							<div className="p-1.5 sm:p-2 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
-								<Briefcase className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600 dark:text-blue-400" />
+					<div className="bg-white dark:bg-background rounded-xl p-2 sm:p-3">
+						<div className="flex items-center justify-between mb-1 sm:mb-2">
+							<div className="p-1 sm:p-1.5 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
+								<Briefcase className="w-3 h-3 sm:w-4 sm:h-4 text-blue-600 dark:text-blue-400" />
 							</div>
 						</div>
 						<div>
-							<h3 className="text-xs sm:text-sm font-medium text-gray-500 dark:text-gray-400">Recepcionistas</h3>
-							<p className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-700 dark:text-gray-300">
+							<h3 className="text-xs font-medium text-gray-500 dark:text-gray-400">Recepcionistas</h3>
+							<p className="text-lg sm:text-xl font-bold text-gray-700 dark:text-gray-300">
 								{stats.employees}
 							</p>
 						</div>
@@ -527,15 +530,15 @@ const MainUsers: React.FC = () => {
 				</Card>
 
 				<Card className="hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 transition-transform duration-300 shadow-lg">
-					<div className="bg-white dark:bg-background rounded-xl p-3 sm:p-4 md:p-6">
-						<div className="flex items-center justify-between mb-2 sm:mb-4">
-							<div className="p-1.5 sm:p-2 bg-purple-100 dark:bg-purple-900/30 rounded-lg">
-								<ShieldCheck className="w-4 h-4 sm:w-5 sm:h-5 text-purple-600 dark:text-purple-400" />
+					<div className="bg-white dark:bg-background rounded-xl p-2 sm:p-3">
+						<div className="flex items-center justify-between mb-1 sm:mb-2">
+							<div className="p-1 sm:p-1.5 bg-purple-100 dark:bg-purple-900/30 rounded-lg">
+								<ShieldCheck className="w-3 h-3 sm:w-4 sm:h-4 text-purple-600 dark:text-purple-400" />
 							</div>
 						</div>
 						<div>
-							<h3 className="text-xs sm:text-sm font-medium text-gray-500 dark:text-gray-400">Administradores</h3>
-							<p className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-700 dark:text-gray-300">
+							<h3 className="text-xs font-medium text-gray-500 dark:text-gray-400">Administradores</h3>
+							<p className="text-lg sm:text-xl font-bold text-gray-700 dark:text-gray-300">
 								{stats.admins}
 							</p>
 						</div>

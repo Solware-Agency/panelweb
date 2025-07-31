@@ -67,7 +67,10 @@ function ForgotPassword() {
 							<div className="p-4 bg-[#9e1157] rounded-full mb-4 shadow-lg">
 								<Lock className="text-white size-16" />
 							</div>
-							<h1 className="text-2xl font-bold text-white mb-2">Restablecer Contraseña</h1>
+							<div>
+					<h1 className="text-2xl font-bold text-white mb-2">Restablecer Contraseña</h1>
+					<div className="w-16 sm:w-24 h-1 bg-white mt-2 rounded-full" />
+				</div>
 							<p className="text-slate-300">Ingresa tu correo electrónico para recibir instrucciones</p>
 						</div>
 

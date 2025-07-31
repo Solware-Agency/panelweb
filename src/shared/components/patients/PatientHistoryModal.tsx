@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { motion, AnimatePresence } from 'motion/react'
-import { X, User, FileText, Calendar, Phone, Mail, Cake, Search, RefreshCw } from 'lucide-react'
+import { X, User, FileText, Calendar, Mail, Cake, Search, RefreshCw } from 'lucide-react'
+import WhatsAppIcon from '@shared/components/icons/WhatsAppIcon'
 import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
 import { useQuery } from '@tanstack/react-query'
@@ -107,9 +108,12 @@ const PatientHistoryModal: React.FC<PatientHistoryModalProps> = ({ isOpen, onClo
 							<div className="sticky top-0 bg-white dark:bg-background border-b border-gray-200 dark:border-gray-700 p-4 sm:p-6 z-10">
 								<div className="flex items-center justify-between">
 									<div>
-										<h2 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-gray-100">
-											Historial del Paciente
-										</h2>
+															<div>
+						<h2 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-gray-100">
+							Historial del Paciente
+						</h2>
+						<div className="w-16 sm:w-24 h-1 bg-primary mt-2 rounded-full" />
+					</div>
 										<p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
 											Todos los casos registrados para este paciente
 										</p>
@@ -149,11 +153,11 @@ const PatientHistoryModal: React.FC<PatientHistoryModalProps> = ({ isOpen, onClo
 														const whatsappUrl = `https://api.whatsapp.com/send/?phone=${phoneNumber}&text=${message}&type=phone_number&app_absent=0`
 														window.open(whatsappUrl, '_blank')
 													}}
-													className="flex items-center gap-1 hover:text-green-600 transition-none cursor-pointer"
+													className="flex items-center gap-2 px-3 py-1.5 rounded-lg hover:bg-green-50 dark:hover:bg-green-900/20 hover:text-green-600 transition-all duration-200 cursor-pointer group"
 													title="Enviar mensaje por WhatsApp"
 												>
-													<Phone className="h-4 w-4 text-gray-500 hover:text-green-600 transition-none" />
-													<span>{patient.phone}</span>
+													<WhatsAppIcon className="h-4 w-4 text-gray-500 group-hover:text-green-600 transition-colors duration-200" />
+													<span className="text-sm font-medium">{patient.phone}</span>
 												</button>
 											</div>
 
