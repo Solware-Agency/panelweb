@@ -37,9 +37,13 @@ export default async function handler(req, res) {
     // 🔥 Ya no se usa .order()
     const { data, error: fetchError } = await supabase
       .from('medical_records_clean')
-      .select('informepdf_url, full_name, code')
+      .select('informepdf_url, full_name, code, token')
       .eq('id', caseId)
       .single()
+
+    if (!data || data.token !== token) {
+      return res.status(401).json({ error: 'Token no coincide' })
+    }
 
     if (fetchError) {
       return res.status(500).json({
