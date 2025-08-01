@@ -47,6 +47,7 @@
     "@supabase/supabase-js": "^2.50.2",
     "@tanstack/react-query": "^5.56.2",
     "@types/react-router-dom": "^5.3.3",
+    "@vercel/node": "^5.3.8",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "cmdk": "^1.0.0",
@@ -79,7 +80,7 @@
   "devDependencies": {
     "@eslint/js": "^9.25.0",
     "@tailwindcss/typography": "^0.5.15",
-    "@types/node": "^22.5.5",
+    "@types/node": "^22.15.32",
     "@types/react": "^19.1.2",
     "@types/react-dom": "^19.1.2",
     "@types/react-window": "^1.8.8",
@@ -94,6 +95,7 @@
     "ts-unused-exports": "^11.0.1",
     "typescript": "~5.8.3",
     "typescript-eslint": "^8.30.1",
+    "vercel": "^44.6.6",
     "vite": "^6.3.5",
     "vite-bundle-visualizer": "^1.0.1"
   },

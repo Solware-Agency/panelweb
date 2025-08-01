@@ -1,4 +1,10 @@
 {
+  "builds": [
+    {
+      "src": "api/get-pdf.ts",
+      "use": "@vercel/node"
+    }
+  ],
   "rewrites": [
     {
       "source": "/(.*)",
@@ -22,6 +28,12 @@
           "value": "1; mode=block"
         }
       ]
+    }
+  ],
+  "routes": [
+    {
+      "src": "/pdf/(.*)",
+      "dest": "/api/get-pdf?filename=$1"
     }
   ]
 }
