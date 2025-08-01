@@ -66,7 +66,7 @@ export default async function handler(req, res) {
 
     const patientName = data.full_name || 'paciente'
     const caseCode = data.code || caseId
-    const fileName = `caso_${caseCode}_${patientName.replace(/[^a-zA-Z0-9]/g, '_')}.pdf`
+    const fileName = `${caseCode}.pdf`
 
     res.setHeader('Content-Type', 'application/pdf')
     res.setHeader('Content-Disposition', `attachment; filename="${fileName}"`)

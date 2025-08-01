@@ -2,16 +2,7 @@ import React, { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Button } from '@shared/components/ui/button'
 import { supabase } from '@lib/supabase/config'
-import {
-	X,
-	User,
-	ArrowLeft,
-	ArrowRight,
-	Sparkles,
-	Heart,
-	Stethoscope,
-	Microscope,
-} from 'lucide-react'
+import { X, User, ArrowLeft, ArrowRight, Sparkles, Heart, Stethoscope, Microscope } from 'lucide-react'
 import { useToast } from '@shared/hooks/use-toast'
 import { useBodyScrollLock } from '@shared/hooks/useBodyScrollLock'
 
@@ -292,35 +283,35 @@ const StepsCaseModal: React.FC<StepsCaseModalProps> = ({ case_, isOpen, onClose,
 				return
 			}
 
-						try {
-							// Descargar el archivo directamente usando fetch
-							const response = await fetch(pdfUrl)
-							if (!response.ok) {
-								throw new Error(`Error al descargar: ${response.status}`)
-							}
+			try {
+				// Descargar el archivo directamente usando fetch
+				const response = await fetch(pdfUrl)
+				if (!response.ok) {
+					throw new Error(`Error al descargar: ${response.status}`)
+				}
 
-							const blob = await response.blob()
-							const url = window.URL.createObjectURL(blob)
-							const link = document.createElement('a')
-							link.href = url
-							link.download = `caso_${case_.id}_${new Date().toISOString().split('T')[0]}.pdf`
-							document.body.appendChild(link)
-							link.click()
-							document.body.removeChild(link)
-							window.URL.revokeObjectURL(url) // Limpiar memoria
+				const blob = await response.blob()
+				const url = window.URL.createObjectURL(blob)
+				const link = document.createElement('a')
+				link.href = url
+				link.download = `${case_.code}.pdf`
+				document.body.appendChild(link)
+				link.click()
+				document.body.removeChild(link)
+				window.URL.revokeObjectURL(url) // Limpiar memoria
 
-							// Ejecutar handleNext automáticamente después de descargar el PDF
-							setTimeout(() => {
-								handleNext()
-							}, 1000) // Pequeño delay para asegurar que la descarga se inicie
-						} catch (err) {
-							console.error('Error al abrir el PDF:', err)
-							toast({
-								title: '❌ Error',
-								description: 'No se pudo acceder al PDF. Intenta nuevamente.',
-								variant: 'destructive',
-							})
-						}
+				// Ejecutar handleNext automáticamente después de descargar el PDF
+				setTimeout(() => {
+					handleNext()
+				}, 1000) // Pequeño delay para asegurar que la descarga se inicie
+			} catch (err) {
+				console.error('Error al abrir el PDF:', err)
+				toast({
+					title: '❌ Error',
+					description: 'No se pudo acceder al PDF. Intenta nuevamente.',
+					variant: 'destructive',
+				})
+			}
 		} catch (error) {
 			console.error('Error en handleTransformToPDF:', error)
 
@@ -461,9 +452,9 @@ const StepsCaseModal: React.FC<StepsCaseModalProps> = ({ case_, isOpen, onClose,
 								<Sparkles className="w-6 h-6 text-white flex-shrink-0" />
 								<div className="min-w-0">
 									<div>
-						<h2 className="text-lg font-bold text-white">Generar Caso Médico - {case_?.code}</h2>
-						<div className="w-16 sm:w-24 h-1 bg-white mt-2 rounded-full" />
-					</div>
+										<h2 className="text-lg font-bold text-white">Generar Caso Médico - {case_?.code}</h2>
+										<div className="w-16 sm:w-24 h-1 bg-white mt-2 rounded-full" />
+									</div>
 									<p className="text-sm text-indigo-100 truncate">{case_ ? `Para ${case_.full_name}` : 'Nuevo caso'}</p>
 								</div>
 							</div>
