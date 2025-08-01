@@ -27,6 +27,7 @@ interface MedicalRecord {
 	informacion_clinica?: string | null
 	googledocs_url?: string | null
 	informepdf_url?: string | null
+	informepdf_qr?: string | null
 	code?: string | null
 }
 
@@ -123,7 +124,7 @@ const StepsCaseModal: React.FC<StepsCaseModalProps> = ({ case_, isOpen, onClose,
 
 			console.log('[2] No existe googledocs_url, enviando POST a n8n...')
 			const webhookRes = await fetch(
-				'https://solwareagencia.app.n8n.cloud/webhook/7c840100-fd50-4598-9c48-c7ce60f82506',
+				'https://solwareagencia.app.n8n.cloud/webhook-test/7c840100-fd50-4598-9c48-c7ce60f82506',
 				{
 					method: 'POST',
 					headers: {
@@ -219,7 +220,7 @@ const StepsCaseModal: React.FC<StepsCaseModalProps> = ({ case_, isOpen, onClose,
 			console.log('Request body:', requestBody)
 
 			const response = await fetch(
-				'https://solwareagencia.app.n8n.cloud/webhook/36596a3a-0aeb-4ee1-887f-854324cc785b',
+				'https://solwareagencia.app.n8n.cloud/webhook-test/36596a3a-0aeb-4ee1-887f-854324cc785b',
 				{
 					method: 'POST',
 					headers: {
@@ -263,17 +264,17 @@ const StepsCaseModal: React.FC<StepsCaseModalProps> = ({ case_, isOpen, onClose,
 			while (attempts < maxAttempts) {
 				const { data, error } = await supabase
 					.from('medical_records_clean')
-					.select('informepdf_url')
+					.select('informepdf_qr')
 					.eq('id', case_.id)
 					.single<MedicalRecord>()
 
 				if (error) {
-					console.error('Error obteniendo informepdf_url:', error)
+					console.error('Error obteniendo informepdf_qr:', error)
 					break
 				}
 
-				if (data?.informepdf_url) {
-					pdfUrl = data.informepdf_url
+				if (data?.informepdf_qr) {
+					pdfUrl = data.informepdf_qr
 					break
 				}
 

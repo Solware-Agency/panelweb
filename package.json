@@ -9,7 +9,11 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "analyze": "vite-bundle-visualizer",
-    "unused:components": "ts-unused-exports tsconfig.json"
+    "unused:components": "ts-unused-exports tsconfig.json",
+    "server": "node server.js",
+    "start": "npm run build && node server.js",
+    "start:prod": "NODE_ENV=production node server.js",
+    "dev:server": "NODE_ENV=development node server.js"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",
@@ -50,8 +54,11 @@
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "cmdk": "^1.0.0",
+    "cors": "^2.8.5",
     "date-fns": "^3.6.0",
+    "dotenv": "^17.2.1",
     "embla-carousel-react": "^8.3.0",
+    "express": "^5.1.0",
     "framer-motion": "^12.23.0",
     "html2canvas": "^1.4.1",
     "input-otp": "^1.2.4",
