@@ -213,7 +213,6 @@ export const RecordsSection: React.FC<RecordsSectionProps> = ({
 			{/* Title Section */}
 			<div className="mb-4 sm:mb-6">
 				<h2 className="text-xl sm:text-2xl font-semibold text-foreground mb-1 sm:mb-2">Casos de Laboratorio</h2>
-				<div className="w-16 sm:w-24 h-1 bg-primary mt-2 rounded-full" />
 			</div>
 
 			{/* Statistics cards */}

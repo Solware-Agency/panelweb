@@ -47,7 +47,7 @@ export const PaymentMethodsList = memo(
 				{fields.map((item, index) => (
 					<PaymentMethodItem
 						key={item.id}
-						className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 items-start bg-secondary p-3 sm:p-4 rounded-lg  max-w-[80%] w-full"
+						className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 items-start bg-secondary p-3 sm:p-4 rounded-lg w-full"
 						control={control}
 						index={index}
 						item={item}

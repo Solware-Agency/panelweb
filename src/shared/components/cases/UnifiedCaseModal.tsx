@@ -840,7 +840,6 @@ const UnifiedCaseModal: React.FC<CaseDetailPanelProps> = React.memo(({ case_, is
 											<h2 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-gray-100">
 												Detalles Del Caso
 											</h2>
-											<div className="w-16 sm:w-24 h-1 bg-primary mt-2 rounded-full" />
 										</div>
 										<div className="flex items-center gap-1.5 sm:gap-2 mt-1 sm:mt-2">
 											{currentCase.code && (

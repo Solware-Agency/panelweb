@@ -155,7 +155,6 @@ const RequestCaseModal: React.FC<GenerateCaseModalProps> = ({ case_, isOpen, onC
 											{getCaseTypeIcon(caseType)}
 											Generar Caso de {getCaseTypeTitle(caseType)}
 										</h2>
-										<div className="w-16 sm:w-24 h-1 bg-primary mt-2 rounded-full" />
 									</div>
 									<div className="flex items-center gap-1.5 sm:gap-2 mt-1 sm:mt-2">
 										<p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">
