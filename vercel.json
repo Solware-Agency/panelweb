@@ -11,55 +11,42 @@
       "src": "/api/get-pdf",
       "dest": "/api/get-pdf",
       "headers": {
-        "Cache-Control": "no-store"
+        "Cache-Control": "no-store",
+        "X-Content-Type-Options": "nosniff"
       }
     },
     {
       "src": "/pdf/(.+)",
       "dest": "/api/get-pdf?filename=$1",
       "headers": {
-        "Cache-Control": "no-store"
+        "Cache-Control": "no-store",
+        "X-Content-Type-Options": "nosniff"
       }
     },
     {
       "src": "/assets/(.*)",
       "headers": {
-        "Cache-Control": "public, max-age=31536000, immutable"
+        "Cache-Control": "public, max-age=31536000, immutable",
+        "X-Content-Type-Options": "nosniff"
       }
+    },
+    {
+      "src": "/(.*)",
+      "headers": {
+        "X-Frame-Options": "DENY",
+        "X-XSS-Protection": "1; mode=block",
+        "Referrer-Policy": "strict-origin-when-cross-origin",
+        "Permissions-Policy": "geolocation=(), microphone=(), camera=()"
+      },
+      "continue": true
     },
     {
       "src": "/(.*)",
       "dest": "/index.html",
       "headers": {
-        "Cache-Control": "no-cache"
+        "Cache-Control": "no-cache",
+        "X-Content-Type-Options": "nosniff"
       }
-    }
-  ],
-  "headers": [
-    {
-      "source": "/.*",
-      "headers": [
-        {
-          "key": "X-Content-Type-Options",
-          "value": "nosniff"
-        },
-        {
-          "key": "X-Frame-Options",
-          "value": "DENY"
-        },
-        {
-          "key": "X-XSS-Protection",
-          "value": "1; mode=block"
-        },
-        {
-          "key": "Referrer-Policy",
-          "value": "strict-origin-when-cross-origin"
-        },
-        {
-          "key": "Permissions-Policy",
-          "value": "geolocation=(), microphone=(), camera=()"
-        }
-      ]
     }
   ]
 }
