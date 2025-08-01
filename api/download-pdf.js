@@ -65,25 +65,37 @@ export default async function handler(req, res) {
     // Buscar el PDF en la base de datos usando el caseId
     console.log(`[DOWNLOAD-PDF] Buscando en Supabase con caseId: ${caseId}`)
 
-    const { data, error } = await supabase
+    // Buscar el registro más reciente con ese ID
+    const { data: allData, error: fetchError } = await supabase
       .from('medical_records_clean')
-      .select('informepdf_url, full_name, code')
+      .select('informepdf_url, full_name, code, created_at')
       .eq('id', caseId)
-      .single()
+      .order('created_at', { ascending: false })
 
-    if (error) {
-      console.error('[DOWNLOAD-PDF] Error en Supabase:', error)
+    if (fetchError) {
+      console.error('[DOWNLOAD-PDF] Error en Supabase:', fetchError)
       console.error('[DOWNLOAD-PDF] Detalles del error:', {
-        message: error.message,
-        details: error.details,
-        hint: error.hint,
-        code: error.code
+        message: fetchError.message,
+        details: fetchError.details,
+        hint: fetchError.hint,
+        code: fetchError.code
       })
       return res.status(500).json({
         error: 'Error al buscar el documento en la base de datos',
-        details: error.message
+        details: fetchError.message
       })
     }
+
+    if (!allData || allData.length === 0) {
+      console.log(`[DOWNLOAD-PDF] No se encontró ningún registro para caso: ${caseId}`)
+      return res.status(404).json({
+        error: 'Documento PDF no encontrado para este caso'
+      })
+    }
+
+    // Tomar el registro más reciente
+    const data = allData[0]
+    console.log(`[DOWNLOAD-PDF] Encontrados ${allData.length} registros, usando el más reciente`)
 
     if (!data?.informepdf_url) {
       console.log(`[DOWNLOAD-PDF] No se encontró PDF para caso: ${caseId}`)
