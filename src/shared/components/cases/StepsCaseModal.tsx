@@ -203,131 +203,125 @@ const StepsCaseModal: React.FC<StepsCaseModalProps> = ({ case_, isOpen, onClose,
 				title: '❌ Error',
 				description: 'No se encontró el ID del caso.',
 				variant: 'destructive',
-			})
-			return
+			});
+			return;
 		}
-
+	
 		try {
-			setIsSaving(true)
-
-			console.log('Sending request to n8n webhook with case ID:', case_.id)
-
-			const requestBody = {
-				caseId: case_.id,
-			}
-
-			console.log('Request body:', requestBody)
-
+			setIsSaving(true);
+	
+			// 1. Activar el flujo de n8n (tu lógica existente)
+			console.log('Enviando solicitud a webhook n8n con case ID:', case_.id);
+			
 			const response = await fetch(
 				'https://solwareagencia.app.n8n.cloud/webhook/36596a3a-0aeb-4ee1-887f-854324cc785b',
 				{
 					method: 'POST',
 					headers: {
 						'Content-Type': 'application/json',
-						Accept: 'application/json',
+						'Accept': 'application/json',
 					},
-					body: JSON.stringify(requestBody),
-				},
-			)
-
-			console.log('Response status:', response.status)
-
-			if (!response.ok) {
-				let errorMessage = `HTTP ${response.status}: ${response.statusText}`
-
-				try {
-					const errorData = await response.text()
-					console.log('Error response body:', errorData)
-					errorMessage += ` - ${errorData}`
-				} catch (e) {
-					console.log('Could not read error response body', e)
+					body: JSON.stringify({ caseId: case_.id }),
 				}
-
-				throw new Error(errorMessage)
+			);
+	
+			if (!response.ok) {
+				const errorText = await response.text();
+				throw new Error(`HTTP ${response.status}: ${errorText || response.statusText}`);
 			}
-
-			let responseData
-			try {
-				responseData = await response.json()
-				console.log('Success response:', responseData)
-			} catch (e) {
-				responseData = await response.text()
-				console.log('Success response (text):', responseData, e)
-			}
-
-			// ⏱️ Esperar 6 segundos antes de intentar descargar el PDF
-			let attempts = 0
-			const maxAttempts = 10
-			let pdfUrl: string | null = null
-
-			while (attempts < maxAttempts) {
+	
+			// 2. Esperar y verificar la generación del PDF (lógica existente mejorada)
+			let pdfUrl: string | null = null;
+			let attempts = 0;
+			const maxAttempts = 10;
+	
+			while (attempts < maxAttempts && !pdfUrl) {
 				const { data, error } = await supabase
 					.from('medical_records_clean')
 					.select('informepdf_url')
 					.eq('id', case_.id)
-					.single<MedicalRecord>()
-
+					.single();
+	
 				if (error) {
-					console.error('Error obteniendo informepdf_url:', error)
-					break
+					console.error('Error obteniendo URL del PDF:', error);
+					await new Promise(resolve => setTimeout(resolve, 2000));
+					attempts++;
+					continue;
 				}
-
+	
 				if (data?.informepdf_url) {
-					pdfUrl = data.informepdf_url
-					break
+					pdfUrl = data.informepdf_url;
+					break;
 				}
-
-				// Esperar 2 segundos antes del próximo intento
-				await new Promise((resolve) => setTimeout(resolve, 2000))
-				attempts++
+	
+				await new Promise(resolve => setTimeout(resolve, 2000));
+				attempts++;
 			}
-
+	
 			if (!pdfUrl) {
 				toast({
 					title: '⏳ Documento no disponible aún',
 					description: 'El PDF aún no está listo. Intenta nuevamente en unos segundos.',
 					variant: 'destructive',
-				})
-				return
+				});
+				return;
 			}
-
-			try {
-				window.open(pdfUrl, '_blank')
-				// Ejecutar handleNext automáticamente después de abrir el PDF
-				setTimeout(() => {
-					handleNext()
-				}, 1000) // Pequeño delay para asegurar que el PDF se abra
-			} catch (err) {
-				console.error('Error al abrir el PDF:', err)
-				toast({
-					title: '❌ Error',
-					description: 'No se pudo acceder al PDF. Intenta nuevamente.',
-					variant: 'destructive',
-				})
+	
+			// 3. Descarga segura mediante el proxy (nueva implementación)
+			const pdfFilename = pdfUrl.split('/').pop()?.split('?')[0] || '';
+			const { data: { session } } = await supabase.auth.getSession();
+	
+			if (!session) {
+				throw new Error('No hay sesión activa');
 			}
+	
+			const proxyResponse = await fetch(`/api/get-pdf?filename=${encodeURIComponent(pdfFilename)}`, {
+				headers: {
+					'Authorization': `Bearer ${session.access_token}`
+				}
+			});
+	
+			if (!proxyResponse.ok) {
+				const errorData = await proxyResponse.json();
+				throw new Error(errorData.error || 'Error al obtener el PDF');
+			}
+	
+			// Manejar la descarga del blob
+			const blob = await proxyResponse.blob();
+			const url = window.URL.createObjectURL(blob);
+			const a = document.createElement('a');
+			a.href = url;
+			a.download = pdfFilename;
+			a.click();
+			window.URL.revokeObjectURL(url);
+	
+			// 4. Continuar con el flujo
+			setTimeout(handleNext, 1000);
+	
 		} catch (error) {
-			console.error('Error en handleTransformToPDF:', error)
-
-			let errorMessage = 'Hubo un problema al activar el flujo.'
-
-			if (error instanceof TypeError && error.message === 'Failed to fetch') {
-				errorMessage =
-					'No se pudo conectar con el servidor. Verifica tu conexión a internet o contacta al administrador.'
-			} else if (error instanceof Error && error.message.includes('CORS')) {
-				errorMessage = 'Error de configuración del servidor (CORS). Contacta al administrador.'
-			} else if (error instanceof Error && error.message.includes('HTTP')) {
-				errorMessage = `Error del servidor: ${error.message}`
+			console.error('Error en handleTransformToPDF:', error);
+			
+			let errorMessage = 'Hubo un problema al generar el PDF.';
+			if (error instanceof Error) {
+				if (error.message.includes('Failed to fetch')) {
+					errorMessage = 'Error de conexión. Verifica tu internet.';
+				} else if (error.message.includes('HTTP')) {
+					errorMessage = `Error del servidor: ${error.message}`;
+				} else {
+					errorMessage = error.message;
+				}
 			}
-
+	
 			toast({
-				title: '❌ Error al activar flujo',
+				title: '❌ Error',
 				description: errorMessage,
 				variant: 'destructive',
-			})
+			});
+	
 		} finally {
-			setIsSaving(false)
+			setIsSaving(false);
 		}
-	}
+	};
 
 	const renderStepContent = () => {
 		switch (activeStep) {
