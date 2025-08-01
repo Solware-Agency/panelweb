@@ -291,20 +291,35 @@ const StepsCaseModal: React.FC<StepsCaseModalProps> = ({ case_, isOpen, onClose,
 				return
 			}
 
-			try {
-				window.open(pdfUrl, '_blank')
-				// Ejecutar handleNext automáticamente después de abrir el PDF
-				setTimeout(() => {
-					handleNext()
-				}, 1000) // Pequeño delay para asegurar que el PDF se abra
-			} catch (err) {
-				console.error('Error al abrir el PDF:', err)
-				toast({
-					title: '❌ Error',
-					description: 'No se pudo acceder al PDF. Intenta nuevamente.',
-					variant: 'destructive',
-				})
-			}
+						try {
+							// Descargar el archivo directamente usando fetch
+							const response = await fetch(pdfUrl)
+							if (!response.ok) {
+								throw new Error(`Error al descargar: ${response.status}`)
+							}
+
+							const blob = await response.blob()
+							const url = window.URL.createObjectURL(blob)
+							const link = document.createElement('a')
+							link.href = url
+							link.download = `caso_${case_.id}_${new Date().toISOString().split('T')[0]}.pdf`
+							document.body.appendChild(link)
+							link.click()
+							document.body.removeChild(link)
+							window.URL.revokeObjectURL(url) // Limpiar memoria
+
+							// Ejecutar handleNext automáticamente después de descargar el PDF
+							setTimeout(() => {
+								handleNext()
+							}, 1000) // Pequeño delay para asegurar que la descarga se inicie
+						} catch (err) {
+							console.error('Error al abrir el PDF:', err)
+							toast({
+								title: '❌ Error',
+								description: 'No se pudo acceder al PDF. Intenta nuevamente.',
+								variant: 'destructive',
+							})
+						}
 		} catch (error) {
 			console.error('Error en handleTransformToPDF:', error)
 

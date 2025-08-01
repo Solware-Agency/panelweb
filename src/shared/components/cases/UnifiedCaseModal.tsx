@@ -779,7 +779,21 @@ const UnifiedCaseModal: React.FC<CaseDetailPanelProps> = React.memo(({ case_, is
 				return
 			}
 
-			window.open(data.informepdf_url, '_blank')
+			// Descargar el archivo directamente usando fetch
+			const response = await fetch(data.informepdf_url)
+			if (!response.ok) {
+				throw new Error(`Error al descargar: ${response.status}`)
+			}
+
+			const blob = await response.blob()
+			const url = window.URL.createObjectURL(blob)
+			const link = document.createElement('a')
+			link.href = url
+			link.download = `caso_${caseId}_${new Date().toISOString().split('T')[0]}.pdf`
+			document.body.appendChild(link)
+			link.click()
+			document.body.removeChild(link)
+			window.URL.revokeObjectURL(url) // Limpiar memoria
 		} catch (err) {
 			console.error('Error al intentar redirigir al PDF:', err)
 			toast({
