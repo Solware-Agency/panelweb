@@ -204,10 +204,8 @@ const ChangelogTable: React.FC = () => {
 		<div className="p-3 sm:p-6">
 			<div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
 				<div>
-					<h1 className="text-2xl font-bold flex items-center gap-2">
-						<History className="text-primary" />
-						Historial de Cambios
-					</h1>
+					<h1 className="text-2xl font-bold">Historial de Cambios</h1>
+					<div className="w-16 sm:w-24 h-1 bg-primary mt-2 rounded-full" />
 					<p className="text-muted-foreground">Registro de todas las acciones realizadas en el sistema</p>
 				</div>
 				<Button onClick={() => refetch()} variant="outline" className="flex items-center gap-2">

@@ -94,7 +94,6 @@ const StatDetailPanel: React.FC<StatDetailPanelProps> = ({
 						<div className="bg-white dark:bg-gray-800 rounded-lg p-6 border border-gray-200 dark:border-gray-700">
 							<div>
 								<h3 className="text-xl font-bold mb-4 text-gray-900 dark:text-gray-100">Resumen de Ingresos</h3>
-								<div className="w-16 sm:w-24 h-1 bg-primary mt-2 rounded-full" />
 							</div>
 							<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 								<div className="bg-green-50 dark:bg-green-900/20 p-4 rounded-lg border border-green-200 dark:border-green-800">
@@ -118,7 +117,6 @@ const StatDetailPanel: React.FC<StatDetailPanelProps> = ({
 						<div className="bg-white dark:bg-gray-800 rounded-lg p-6 border border-gray-200 dark:border-gray-700">
 							<div>
 								<h3 className="text-xl font-bold mb-4 text-gray-900 dark:text-gray-100">Distribución por Sede</h3>
-								<div className="w-16 sm:w-24 h-1 bg-primary mt-2 rounded-full" />
 							</div>
 							<div className="space-y-4">
 								{stats.revenueByBranch &&
@@ -147,7 +145,6 @@ const StatDetailPanel: React.FC<StatDetailPanelProps> = ({
 						<div className="bg-white dark:bg-gray-800 rounded-lg p-6 border border-gray-200 dark:border-gray-700">
 							<div>
 								<h3 className="text-xl font-bold mb-4 text-gray-900 dark:text-gray-100">Tendencia Mensual</h3>
-								<div className="w-16 sm:w-24 h-1 bg-primary mt-2 rounded-full" />
 							</div>
 							<div className="h-40 flex items-end justify-between gap-1">
 								{stats.salesTrendByMonth &&
@@ -185,7 +182,6 @@ const StatDetailPanel: React.FC<StatDetailPanelProps> = ({
 						<div className="bg-white dark:bg-gray-800 rounded-lg p-6 border border-gray-200 dark:border-gray-700">
 							<div>
 								<h3 className="text-xl font-bold mb-4 text-gray-900 dark:text-gray-100">Ingresos Mensuales</h3>
-								<div className="w-16 sm:w-24 h-1 bg-primary mt-2 rounded-full" />
 							</div>
 							<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 								<div className="bg-green-50 dark:bg-green-900/20 p-4 rounded-lg border border-green-200 dark:border-green-800">
@@ -210,7 +206,6 @@ const StatDetailPanel: React.FC<StatDetailPanelProps> = ({
 						<div className="bg-white dark:bg-gray-800 rounded-lg p-6 border border-gray-200 dark:border-gray-700">
 							<div>
 								<h3 className="text-xl font-bold mb-4 text-gray-900 dark:text-gray-100">Desglose por Tipo de Examen</h3>
-								<div className="w-16 sm:w-24 h-1 bg-primary mt-2 rounded-full" />
 							</div>
 							<div className="space-y-4">
 								{stats.revenueByExamType &&
@@ -237,7 +232,6 @@ const StatDetailPanel: React.FC<StatDetailPanelProps> = ({
 						<div className="bg-white dark:bg-gray-800 rounded-lg p-6 border border-gray-200 dark:border-gray-700">
 							<div>
 								<h3 className="text-xl font-bold mb-4 text-gray-900 dark:text-gray-100">Nuevos Pacientes</h3>
-								<div className="w-16 sm:w-24 h-1 bg-primary mt-2 rounded-full" />
 							</div>
 							<div className="flex items-center justify-between">
 								<div className="flex items-center gap-3">
@@ -261,7 +255,6 @@ const StatDetailPanel: React.FC<StatDetailPanelProps> = ({
 						<div className="bg-white dark:bg-gray-800 rounded-lg p-6 border border-gray-200 dark:border-gray-700">
 							<div>
 								<h3 className="text-xl font-bold mb-4 text-gray-900 dark:text-gray-100">Resumen de Casos</h3>
-								<div className="w-16 sm:w-24 h-1 bg-primary mt-2 rounded-full" />
 							</div>
 							<div className="grid grid-cols-1 md:grid-cols-3 gap-4">
 								<div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg border border-blue-200 dark:border-blue-800">
@@ -310,7 +303,6 @@ const StatDetailPanel: React.FC<StatDetailPanelProps> = ({
 						<div className="bg-white dark:bg-gray-800 rounded-lg p-6 border border-gray-200 dark:border-gray-700">
 							<div>
 								<h3 className="text-xl font-bold mb-4 text-gray-900 dark:text-gray-100">Médicos Tratantes</h3>
-								<div className="w-16 sm:w-24 h-1 bg-primary mt-2 rounded-full" />
 							</div>
 							<div className="space-y-4">
 								{stats.topTreatingDoctors &&
@@ -344,7 +336,6 @@ const StatDetailPanel: React.FC<StatDetailPanelProps> = ({
 						<div className="bg-white dark:bg-gray-800 rounded-lg p-6 border border-gray-200 dark:border-gray-700">
 							<div>
 								<h3 className="text-xl font-bold mb-4 text-gray-900 dark:text-gray-100">Casos Completados</h3>
-								<div className="w-16 sm:w-24 h-1 bg-primary mt-2 rounded-full" />
 							</div>
 							<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 								<div className="bg-green-50 dark:bg-green-900/20 p-4 rounded-lg border border-green-200 dark:border-green-800">
@@ -363,7 +354,6 @@ const StatDetailPanel: React.FC<StatDetailPanelProps> = ({
 						<div className="bg-white dark:bg-gray-800 rounded-lg p-6 border border-gray-200 dark:border-gray-700">
 							<div>
 								<h3 className="text-xl font-bold mb-4 text-gray-900 dark:text-gray-100">Progreso de Completitud</h3>
-								<div className="w-16 sm:w-24 h-1 bg-primary mt-2 rounded-full" />
 							</div>
 							<div className="space-y-4">
 								<div>
@@ -435,7 +425,6 @@ const StatDetailPanel: React.FC<StatDetailPanelProps> = ({
 						<div className="bg-white dark:bg-gray-800 rounded-lg p-6 border border-gray-200 dark:border-gray-700">
 							<div>
 								<h3 className="text-xl font-bold mb-4 text-gray-900 dark:text-gray-100">Casos Incompletos</h3>
-								<div className="w-16 sm:w-24 h-1 bg-primary mt-2 rounded-full" />
 							</div>
 							<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 								<div className="bg-orange-50 dark:bg-orange-900/20 p-4 rounded-lg border border-orange-200 dark:border-orange-800">
@@ -527,7 +516,6 @@ const StatDetailPanel: React.FC<StatDetailPanelProps> = ({
 						<div className="bg-white dark:bg-gray-800 rounded-lg p-6 border border-gray-200 dark:border-gray-700">
 							<div>
 								<h3 className="text-xl font-bold mb-4 text-gray-900 dark:text-gray-100">Pagos Pendientes</h3>
-								<div className="w-16 sm:w-24 h-1 bg-primary mt-2 rounded-full" />
 							</div>
 							<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 								<div className="bg-red-50 dark:bg-red-900/20 p-4 rounded-lg border border-red-200 dark:border-red-800">
@@ -603,7 +591,6 @@ const StatDetailPanel: React.FC<StatDetailPanelProps> = ({
 						<div className="bg-white dark:bg-gray-800 rounded-lg p-6 border border-gray-200 dark:border-gray-700">
 							<div>
 								<h3 className="text-xl font-bold mb-4 text-gray-900 dark:text-gray-100">Pacientes Únicos</h3>
-								<div className="w-16 sm:w-24 h-1 bg-primary mt-2 rounded-full" />
 							</div>
 							<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 								<div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg border border-blue-200 dark:border-blue-800">
@@ -620,7 +607,6 @@ const StatDetailPanel: React.FC<StatDetailPanelProps> = ({
 						<div className="bg-white dark:bg-gray-800 rounded-lg p-6 border border-gray-200 dark:border-gray-700">
 							<div>
 								<h3 className="text-xl font-bold mb-4 text-gray-900 dark:text-gray-100">Estadísticas de Pacientes</h3>
-								<div className="w-16 sm:w-24 h-1 bg-primary mt-2 rounded-full" />
 							</div>
 							<div className="space-y-4">
 								<div className="flex items-center justify-between">
@@ -649,7 +635,6 @@ const StatDetailPanel: React.FC<StatDetailPanelProps> = ({
 						<div className="bg-white dark:bg-gray-800 rounded-lg p-6 border border-gray-200 dark:border-gray-700">
 							<div>
 								<h3 className="text-xl font-bold mb-4 text-gray-900 dark:text-gray-100">Tendencia de Nuevos Pacientes</h3>
-								<div className="w-16 sm:w-24 h-1 bg-primary mt-2 rounded-full" />
 							</div>
 							<div className="h-40 flex items-end justify-between gap-1">
 								{stats.salesTrendByMonth &&
@@ -681,7 +666,6 @@ const StatDetailPanel: React.FC<StatDetailPanelProps> = ({
 						<div className="bg-white dark:bg-gray-800 rounded-lg p-6 border border-gray-200 dark:border-gray-700">
 							<div>
 								<h3 className="text-xl font-bold mb-4 text-gray-900 dark:text-gray-100">Ingresos por Sede</h3>
-								<div className="w-16 sm:w-24 h-1 bg-primary mt-2 rounded-full" />
 							</div>
 							<div className="flex items-center justify-center mb-6">
 								<div className="relative size-48">
@@ -759,7 +743,6 @@ const StatDetailPanel: React.FC<StatDetailPanelProps> = ({
 						<div className="bg-white dark:bg-gray-800 rounded-lg p-6 border border-gray-200 dark:border-gray-700">
 							<div>
 								<h3 className="text-xl font-bold mb-4 text-gray-900 dark:text-gray-100">Comparación de Sedes</h3>
-								<div className="w-16 sm:w-24 h-1 bg-primary mt-2 rounded-full" />
 							</div>
 							<div className="space-y-4">
 								{stats.revenueByBranch &&
@@ -820,7 +803,6 @@ const StatDetailPanel: React.FC<StatDetailPanelProps> = ({
 						<div className="bg-white dark:bg-gray-800 rounded-lg p-6 border border-gray-200 dark:border-gray-700">
 							<div>
 								<h3 className="text-xl font-bold mb-4 text-gray-900 dark:text-gray-100">Ingresos por Tipo de Examen</h3>
-								<div className="w-16 sm:w-24 h-1 bg-primary mt-2 rounded-full" />
 							</div>
 							<div className="space-y-4">
 								{stats.revenueByExamType &&

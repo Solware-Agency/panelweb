@@ -33,7 +33,6 @@ export const ServiceSection = memo(({ control, inputStyles }: ServiceSectionProp
 		<Card className="transition-transform duration-300 hover:border-primary hover:shadow-lg hover:shadow-primary/20">
 			<CardHeader className="p-3 sm:p-4 md:p-6">
 				<CardTitle className="text-base sm:text-lg">Servicio</CardTitle>
-				<div className="w-12 sm:w-16 md:w-20 h-1 bg-primary mt-1 rounded-full" />
 			</CardHeader>
 			<CardContent className="p-3 sm:p-4 pt-0 sm:pt-0 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-3">
 				{/* Tipo de Examen - SIN AUTOCOMPLETADO (es un select) */}

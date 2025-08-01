@@ -62,6 +62,10 @@ const StatsPage: React.FC = () => {
 	return (
 		<>
 			<div className="p-2 sm:p-4 md:p-6 overflow-x-hidden">
+				<div className="mb-6">
+					<h1 className="text-2xl sm:text-3xl font-bold text-foreground">Estadísticas</h1>
+					<div className="w-16 sm:w-24 h-1 bg-primary mt-2 rounded-full" />
+				</div>
 				{/* <div className="text-sm text-gray-600 dark:text-gray-400">
 							Mes seleccionado:{' '}
 							<span className="font-medium">{format(selectedMonth, 'MMMM yyyy', { locale: es })}</span>
@@ -304,14 +308,23 @@ const StatsPage: React.FC = () => {
 				<div className="grid grid-cols-1 gap-3 sm:gap-4 md:gap-5">
 					{/* Performance Metrics by Exam Type (Normalized) */}
 					<ExamTypePieChart />
-					<BranchRevenueReport />
-					<RemainingAmount />
-					<div className="grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-4 mb-3 sm:mb-5">
+					
+					{/* Branch Revenue and Remaining Amount side by side */}
+					<div className="grid grid-cols-2 gap-2 sm:gap-3 h-[600px]">
+						<BranchRevenueReport />
+						<RemainingAmount />
+					</div>
+					
+					<div className="grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-4 mb-3 sm:mb-5 h-[500px]">
 						{/* Doctor Revenue Report */}
-						<DoctorRevenueReport />
+						<div className="h-full">
+							<DoctorRevenueReport />
+						</div>
 
 						{/* Origin Revenue Report */}
-						<OriginRevenueReport />
+						<div className="h-full">
+							<OriginRevenueReport />
+						</div>
 					</div>
 				</div>
 			</div>

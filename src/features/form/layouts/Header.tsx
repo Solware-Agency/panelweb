@@ -15,7 +15,6 @@ function Header() {
 			<div className="flex items-center gap-3">
 				<div>
 					<h1 className="text-2xl font-bold">Formulario</h1>
-					<div className="w-16 sm:w-24 h-1 bg-primary mt-2 rounded-full" />
 				</div>
 				{profile?.display_name && (
 					<span className="text-sm text-primary font-medium">Bienvenido, {profile.display_name}</span>

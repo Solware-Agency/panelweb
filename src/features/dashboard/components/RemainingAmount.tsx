@@ -20,10 +20,10 @@ const RemainingAmount: React.FC = () => {
 	const pendingPaymentsPercentage = stats?.totalRevenue ? (stats.pendingPayments / stats.totalRevenue) * 100 : 0
 
 	return (
-		<div className="overflow-x-hidden max-w-full py-3" ref={reportRef}>
+		<div className="overflow-x-hidden max-w-full py-3 h-full" ref={reportRef}>
 			{/* Pending Payments Section */}
-			<Card className="col-span-1 grid hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 transition-transform duration-300 shadow-lg overflow-hidden group cursor-pointer">
-				<div className="bg-white dark:bg-background rounded-xl p-3 sm:p-5">
+			<Card className="col-span-1 grid hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 transition-transform duration-300 shadow-lg overflow-hidden group cursor-pointer h-full">
+				<div className="bg-white dark:bg-background rounded-xl p-3 sm:p-5 h-full flex flex-col">
 					<div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 sm:mb-6">
 						<h3 className="text-lg sm:text-xl font-bold text-gray-700 dark:text-gray-300 mb-2 sm:mb-0 flex items-center gap-2">
 							<AlertCircle className="w-5 h-5 text-red-500 group-hover:scale-110 transition-transform duration-300" />
@@ -35,11 +35,11 @@ const RemainingAmount: React.FC = () => {
 						</div>
 					</div>
 
-					<div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 mb-4 sm:mb-6">
+					<div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 mb-4 sm:mb-6 flex-1">
 						{/* Amount Card - Responsive */}
-						<div className="bg-gradient-to-br from-red-50 to-red-100 dark:from-red-900/20 dark:to-red-800/20 rounded-xl p-3 sm:p-4 border border-red-200 dark:border-red-800/30 group-hover:scale-[1.02] group-hover:shadow-lg group-hover:shadow-red-500/20 transition-transform duration-300 cursor-pointer">
-							<div className="flex items-center gap-3 mb-3">
-								<div className="p-3 bg-red-500 rounded-lg group-hover:scale-110 transition-transform duration-300">
+						<div className="bg-gradient-to-br from-red-50 to-red-100 dark:from-red-900/20 dark:to-red-800/20 rounded-xl p-3 sm:p-4 border border-red-200 dark:border-red-800/30 group-hover:scale-[1.02] group-hover:shadow-lg group-hover:shadow-red-500/20 transition-transform duration-300 cursor-pointer flex flex-col justify-center h-full">
+							<div className="flex flex-col items-center text-center mb-3 flex-1">
+								<div className="p-3 bg-red-500 rounded-lg group-hover:scale-110 transition-transform duration-300 mb-2">
 									<DollarSign className="w-6 h-6 text-white group-hover:scale-110 transition-transform duration-300" />
 								</div>
 								<div>
@@ -60,16 +60,16 @@ const RemainingAmount: React.FC = () => {
 								</div>
 							</div>
 							{pendingPaymentsPercentage <= 15 && (
-								<div className="text-xs text-red-700 dark:text-red-300 mt-1">
+								<div className="text-xs text-red-700 dark:text-red-300 mt-1 text-center">
 									{pendingPaymentsPercentage.toFixed(1)}% del total de ingresos
 								</div>
 							)}
 						</div>
 
 						{/* Cases Card - Responsive */}
-						<div className="bg-gradient-to-br from-orange-50 to-orange-100 dark:from-orange-900/20 dark:to-orange-800/20 rounded-xl p-3 sm:p-4 border border-orange-200 dark:border-orange-800/30 group-hover:scale-[1.02] group-hover:shadow-lg group-hover:shadow-orange-500/20 transition-transform duration-300 cursor-pointer">
-							<div className="flex items-center gap-3 mb-3">
-								<div className="p-3 bg-orange-500 rounded-lg group-hover:scale-110 transition-transform duration-300">
+						<div className="bg-gradient-to-br from-orange-50 to-orange-100 dark:from-orange-900/20 dark:to-orange-800/20 rounded-xl p-3 sm:p-4 border border-orange-200 dark:border-orange-800/30 group-hover:scale-[1.02] group-hover:shadow-lg group-hover:shadow-orange-500/20 transition-transform duration-300 cursor-pointer flex flex-col justify-center h-full">
+							<div className="flex flex-col items-center text-center mb-3 flex-1">
+								<div className="p-3 bg-orange-500 rounded-lg group-hover:scale-110 transition-transform duration-300 mb-2">
 									<Users className="w-6 h-6 text-white group-hover:scale-110 transition-transform duration-300" />
 								</div>
 								<div>
@@ -94,7 +94,7 @@ const RemainingAmount: React.FC = () => {
 								</div>
 							</div>
 							{stats?.totalCases && (stats.incompleteCases / stats.totalCases) * 100 <= 15 && (
-								<div className="text-xs text-orange-700 dark:text-orange-300 mt-1">
+								<div className="text-xs text-orange-700 dark:text-orange-300 mt-1 text-center">
 									{((stats.incompleteCases / stats.totalCases) * 100).toFixed(1)}% del total de casos
 								</div>
 							)}
@@ -102,7 +102,7 @@ const RemainingAmount: React.FC = () => {
 					</div>
 
 					{/* Status Breakdown */}
-					<div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-3 sm:p-4 overflow-hidden group-hover:bg-gray-50 dark:group-hover:bg-gray-800/50 transition-none duration-300">
+					<div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-3 sm:p-4 overflow-hidden group-hover:bg-gray-50 dark:group-hover:bg-gray-800/50 transition-none duration-300 flex-1">
 						<h4 className="text-base font-semibold text-gray-700 dark:text-gray-300 mb-3 sm:mb-4">
 							Desglose de Estatus
 						</h4>

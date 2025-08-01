@@ -6,7 +6,7 @@ import { RadioGroup, RadioGroupItem } from '@shared/components/ui/radio-group'
 import { Label } from '@shared/components/ui/label'
 
 export function SessionTimeoutSettings() {
-	const { sessionTimeout, updateUserTimeout, isLoadingTimeout } = useAuth()
+	const { sessionTimeout, updateUserTimeout, isLoadingTimeout, user } = useAuth()
 
 	const handleTimeoutChange = (value: string) => {
 		const minutes = parseInt(value, 10)
@@ -69,20 +69,44 @@ export function SessionTimeoutSettings() {
 						)}
 					</div>
 
-					{/* Columna derecha - Información adicional */}
+					{/* Columna derecha - Información de seguridad */}
 					<div className="lg:border-l lg:border-gray-200 dark:border-gray-700 lg:pl-6">
-						<div className="text-xs text-gray-500 dark:text-gray-400 space-y-2">
-							<div className="bg-gray-50 dark:bg-gray-800/50 p-3 rounded-md">
-								<p className="font-medium text-gray-700 dark:text-gray-300 mb-2">Información actual:</p>
-								<p>
-									• Su sesión actual está configurada para expirar después de {formatMinutes(sessionTimeout)} de inactividad.
-								</p>
+						<div className="space-y-4">
+							{/* Información de seguridad */}
+							<div className="space-y-3">
+								<div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg border border-blue-200 dark:border-blue-800">
+									<h3 className="font-medium text-blue-800 dark:text-blue-300 mb-2">Último inicio de sesión</h3>
+									<p className="text-blue-700 dark:text-blue-400">
+										{user?.last_sign_in_at ? new Date(user.last_sign_in_at).toLocaleString('es-ES') : 'No disponible'}
+									</p>
+								</div>
 							</div>
-							
-							<div className="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-md">
-								<p className="font-medium text-blue-700 dark:text-blue-300 mb-2">Notas importantes:</p>
-								<p className="mb-1">• Los cambios en esta configuración se aplicarán inmediatamente.</p>
-								<p>• Si cierra sesión manualmente, deberá iniciar sesión nuevamente independientemente de esta configuración.</p>
+
+							{/* Recomendaciones de seguridad */}
+							<div className="bg-gray-50 dark:bg-gray-800/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
+								<h3 className="font-medium text-gray-800 dark:text-gray-300 mb-2">Recomendaciones de seguridad</h3>
+								<ul className="list-disc list-inside space-y-1 text-gray-700 dark:text-gray-400 text-sm">
+									<li>Utiliza contraseñas fuertes con al menos 8 caracteres, incluyendo números y símbolos.</li>
+									<li>No compartas tu contraseña con nadie.</li>
+									<li>Cambia tu contraseña regularmente para mayor seguridad.</li>
+									<li>Cierra sesión cuando utilices dispositivos compartidos.</li>
+								</ul>
+							</div>
+
+							{/* Información del tiempo de inactividad */}
+							<div className="text-xs text-gray-500 dark:text-gray-400 space-y-2">
+								<div className="bg-gray-50 dark:bg-gray-800/50 p-3 rounded-md">
+									<p className="font-medium text-gray-700 dark:text-gray-300 mb-2">Información actual:</p>
+									<p>
+										• Su sesión actual está configurada para expirar después de {formatMinutes(sessionTimeout)} de inactividad.
+									</p>
+								</div>
+								
+								<div className="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-md">
+									<p className="font-medium text-blue-700 dark:text-blue-300 mb-2">Notas importantes:</p>
+									<p className="mb-1">• Los cambios en esta configuración se aplicarán inmediatamente.</p>
+									<p>• Si cierra sesión manualmente, deberá iniciar sesión nuevamente independientemente de esta configuración.</p>
+								</div>
 							</div>
 						</div>
 					</div>

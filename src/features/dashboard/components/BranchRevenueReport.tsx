@@ -24,17 +24,17 @@ const BranchRevenueReport: React.FC = () => {
 	}
 
 	return (
-		<Card className="col-span-1 grid hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 transition-transform duration-300 shadow-lg mb-6">
-			<div className="bg-white dark:bg-background rounded-xl p-3 sm:p-5 overflow-hidden">
-				<div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 sm:mb-6">
-					<h3 className="text-lg sm:text-xl font-bold text-gray-700 dark:text-gray-300 mb-2 sm:mb-0 flex items-center gap-2">
-						<Building className="w-5 h-5 text-blue-500" />
+		<Card className="col-span-1 grid hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 transition-transform duration-300 shadow-lg h-full">
+			<div className="bg-white dark:bg-background rounded-xl p-3 sm:p-4 overflow-hidden h-full flex flex-col">
+				<div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-3 sm:mb-4">
+					<h3 className="text-sm sm:text-base font-bold text-gray-700 dark:text-gray-300 mb-1 sm:mb-0 flex items-center gap-2">
+						<Building className="w-4 h-4 text-blue-500" />
 						Ingreso por Sede
 					</h3>
 				</div>
 
-				<div className="flex items-center justify-center mb-6">
-					<div className="relative size-36 sm:size-48">
+				<div className="flex items-center justify-center mb-3 sm:mb-4 flex-1">
+					<div className="relative size-32 sm:size-36">
 						<svg className="size-full -rotate-90" viewBox="0 0 36 36">
 							<circle
 								cx="18"
@@ -72,30 +72,30 @@ const BranchRevenueReport: React.FC = () => {
 						</svg>
 						<div className="absolute inset-0 flex items-center justify-center">
 							<div className="text-center">
-								<p className="text-xl sm:text-2xl font-bold text-gray-700 dark:text-gray-300">
+								<p className="text-lg sm:text-xl font-bold text-gray-700 dark:text-gray-300">
 									{isLoading ? '...' : formatCurrency(stats?.totalRevenue || 0)}
 								</p>
-								<p className="text-sm text-gray-500 dark:text-gray-400">Total</p>
+								<p className="text-xs text-gray-500 dark:text-gray-400">Total</p>
 							</div>
 						</div>
 					</div>
 				</div>
 
-				<div className="overflow-x-auto w-full">
+				<div className="overflow-x-auto w-full flex-1">
 					{isDesktop ? (
 						<table className="w-full min-w-full">
 							<thead>
 								<tr className="border-b border-gray-200 dark:border-gray-700">
-									<th className="text-left py-3 text-gray-600 dark:text-gray-400 font-medium text-sm">Sede</th>
-									<th className="text-center py-3 text-gray-600 dark:text-gray-400 font-medium text-sm">% del Total</th>
-									<th className="text-right py-3 text-gray-600 dark:text-gray-400 font-medium text-sm">Monto Total</th>
+									<th className="text-left py-2 text-gray-600 dark:text-gray-400 font-medium text-xs">Sede</th>
+									<th className="text-center py-2 text-gray-600 dark:text-gray-400 font-medium text-xs">%</th>
+									<th className="text-right py-2 text-gray-600 dark:text-gray-400 font-medium text-xs">Monto</th>
 								</tr>
 							</thead>
 							<tbody>
 								{isLoading ? (
 									<tr>
-										<td colSpan={3} className="py-8 text-center">
-											<div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-500 mx-auto"></div>
+										<td colSpan={3} className="py-4 text-center">
+											<div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-500 mx-auto"></div>
 										</td>
 									</tr>
 								) : stats?.revenueByBranch && stats.revenueByBranch.length > 0 ? (
@@ -109,29 +109,29 @@ const BranchRevenueReport: React.FC = () => {
 												cursor: 'pointer',
 											}}
 										>
-											<td className="py-4 px-8">
-												<div className="flex items-center gap-2">
+											<td className="py-2 px-2">
+												<div className="flex items-center gap-1.5">
 													<div
-														className={`w-3 h-3 rounded-full ${
+														className={`w-2 h-2 rounded-full ${
 															hoveredBranchIndex === index ? 'animate-pulse' : ''
 														}`}
 														style={{ backgroundColor: getBranchColor(index) }}
 													></div>
-													<p className="font-medium text-gray-700 dark:text-gray-300 text-sm">{branch.branch}</p>
+													<p className="font-medium text-gray-700 dark:text-gray-300 text-xs">{branch.branch}</p>
 												</div>
 											</td>
-											<td className="py-4 text-center">
-												<span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+											<td className="py-2 text-center">
+												<span className="text-xs font-medium text-gray-700 dark:text-gray-300">
 													{branch.percentage.toFixed(1)}%
 												</span>
 											</td>
-											<td className="py-4 text-right pr-8">
-												<p className="text-base font-bold text-gray-700 dark:text-gray-300">
+											<td className="py-2 text-right pr-2">
+												<p className="text-xs font-bold text-gray-700 dark:text-gray-300">
 													{formatCurrency(branch.revenue)}
 												</p>
-												<div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-1.5 mt-1">
+												<div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-1 mt-0.5">
 													<div
-														className="h-1.5 rounded-full transition-transform duration-300"
+														className="h-1 rounded-full transition-transform duration-300"
 														style={{
 															backgroundColor: getBranchColor(index),
 															width: `${
@@ -148,10 +148,10 @@ const BranchRevenueReport: React.FC = () => {
 									))
 								) : (
 									<tr>
-										<td colSpan={3} className="py-8 text-center">
+										<td colSpan={3} className="py-4 text-center">
 											<div className="text-gray-500 dark:text-gray-400">
-												<Building className="w-12 h-12 mx-auto mb-4 opacity-50" />
-												<p className="text-lg font-medium">No hay datos de sedes</p>
+												<Building className="w-8 h-8 mx-auto mb-2 opacity-50" />
+												<p className="text-sm font-medium">No hay datos</p>
 											</div>
 										</td>
 									</tr>
@@ -160,41 +160,41 @@ const BranchRevenueReport: React.FC = () => {
 						</table>
 					) : (
 						// Mobile card view
-						<div className="space-y-3 w-full">
+						<div className="space-y-2 w-full">
 							{isLoading ? (
-								<div className="animate-pulse space-y-3">
+								<div className="animate-pulse space-y-2">
 									{[1, 2, 3].map((i) => (
-										<div key={i} className="h-16 bg-gray-200 dark:bg-gray-700 rounded-lg"></div>
+										<div key={i} className="h-12 bg-gray-200 dark:bg-gray-700 rounded-lg"></div>
 									))}
 								</div>
 							) : stats?.revenueByBranch && stats.revenueByBranch.length > 0 ? (
 								stats.revenueByBranch.map((branch, index) => (
 									<div
 										key={index}
-										className="bg-white dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-lg p-3 w-full"
+										className="bg-white dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-lg p-2 w-full"
 										onMouseEnter={() => setHoveredBranchIndex(index)}
 										onMouseLeave={() => setHoveredBranchIndex(null)}
 									>
-										<div className="flex items-center justify-between mb-2">
-											<div className="flex items-center gap-2">
+										<div className="flex items-center justify-between mb-1">
+											<div className="flex items-center gap-1.5">
 												<div
-													className={`w-3 h-3 rounded-full ${
+													className={`w-2 h-2 rounded-full ${
 														hoveredBranchIndex === index ? 'animate-pulse' : ''
 													}`}
 													style={{ backgroundColor: getBranchColor(index) }}
 												></div>
-												<p className="font-medium text-gray-700 dark:text-gray-300 text-sm">{branch.branch}</p>
+												<p className="font-medium text-gray-700 dark:text-gray-300 text-xs">{branch.branch}</p>
 											</div>
 											<div className="flex flex-col items-end">
-												<p className="text-base font-bold text-gray-700 dark:text-gray-300">
+												<p className="text-xs font-bold text-gray-700 dark:text-gray-300">
 													{formatCurrency(branch.revenue)}
 												</p>
 												<p className="text-xs text-gray-500 dark:text-gray-400">{branch.percentage.toFixed(1)}%</p>
 											</div>
 										</div>
-										<div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-1.5">
+										<div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-1">
 											<div
-												className="h-1.5 rounded-full"
+												className="h-1 rounded-full"
 												style={{
 													backgroundColor: getBranchColor(index),
 													width: `${
@@ -208,9 +208,9 @@ const BranchRevenueReport: React.FC = () => {
 									</div>
 								))
 							) : (
-								<div className="text-center py-6">
-									<Building className="w-12 h-12 mx-auto mb-4 text-gray-300 dark:text-gray-600" />
-									<p className="text-gray-500 dark:text-gray-400">No hay datos de sedes</p>
+								<div className="text-center py-4">
+									<Building className="w-8 h-8 mx-auto mb-2 text-gray-300 dark:text-gray-600" />
+									<p className="text-xs text-gray-500 dark:text-gray-400">No hay datos</p>
 								</div>
 							)}
 						</div>
