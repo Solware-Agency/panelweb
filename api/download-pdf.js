@@ -70,7 +70,6 @@ export default async function handler(req, res) {
       .from('medical_records_clean')
       .select('informepdf_url, full_name, code, created_at')
       .eq('id', caseId)
-      .order('created_at', { ascending: false })
 
     if (fetchError) {
       console.error('[DOWNLOAD-PDF] Error en Supabase:', fetchError)
