@@ -18,7 +18,7 @@ interface MedicalRecord {
 	informacion_clinica?: string | null
 	googledocs_url?: string | null
 	informepdf_url?: string | null
-	informepdf_qr?: string | null
+	informe_qr?: string | null
 	code?: string | null
 }
 
@@ -255,17 +255,17 @@ const StepsCaseModal: React.FC<StepsCaseModalProps> = ({ case_, isOpen, onClose,
 			while (attempts < maxAttempts) {
 				const { data, error } = await supabase
 					.from('medical_records_clean')
-					.select('informepdf_qr')
+					.select('informe_qr')
 					.eq('id', case_.id)
 					.single<MedicalRecord>()
 
 				if (error) {
-					console.error('Error obteniendo informepdf_qr:', error)
+					console.error('Error obteniendo informe_qr:', error)
 					break
 				}
 
-				if (data?.informepdf_qr) {
-					pdfUrl = data.informepdf_qr
+				if (data?.informe_qr) {
+					pdfUrl = data.informe_qr
 					break
 				}
 
