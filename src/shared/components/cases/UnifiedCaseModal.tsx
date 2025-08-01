@@ -546,7 +546,8 @@ const UnifiedCaseModal: React.FC<CaseDetailPanelProps> = React.memo(({ case_, is
 
 		// Create mailto link with case information
 		const subject = `Caso ${case_.code || case_.id} - ${case_.full_name}`
-		const body = `Hola,\n\nAdjunto los detalles del caso:\n\n` +
+		const body =
+			`Hola,\n\nAdjunto los detalles del caso:\n\n` +
 			`Código: ${case_.code || 'N/A'}\n` +
 			`Paciente: ${case_.full_name}\n` +
 			`Cédula: ${case_.id_number || 'N/A'}\n` +
@@ -555,9 +556,9 @@ const UnifiedCaseModal: React.FC<CaseDetailPanelProps> = React.memo(({ case_, is
 			`Saludos cordiales.`
 
 		const mailtoLink = `mailto:${case_.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`
-		
+
 		window.open(mailtoLink, '_blank')
-		
+
 		toast({
 			title: '📧 Correo preparado',
 			description: 'Se ha abierto tu cliente de correo con los detalles del caso.',
@@ -756,7 +757,7 @@ const UnifiedCaseModal: React.FC<CaseDetailPanelProps> = React.memo(({ case_, is
 		try {
 			const { data, error } = await supabase
 				.from('medical_records_clean')
-				.select('informepdf_url')
+				.select('informepdf_url, code, full_name')
 				.eq('id', caseId)
 				.single<MedicalRecord>()
 
@@ -789,7 +790,11 @@ const UnifiedCaseModal: React.FC<CaseDetailPanelProps> = React.memo(({ case_, is
 			const url = window.URL.createObjectURL(blob)
 			const link = document.createElement('a')
 			link.href = url
-			link.download = `caso_${caseId}_${new Date().toISOString().split('T')[0]}.pdf`
+
+			const caseCode = data.code || caseId
+			const fileName = `${caseCode}.pdf`
+			link.download = fileName
+
 			document.body.appendChild(link)
 			link.click()
 			document.body.removeChild(link)
