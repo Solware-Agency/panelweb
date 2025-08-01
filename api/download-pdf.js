@@ -40,20 +40,31 @@ export default async function handler(req, res) {
 
     console.log(`[DOWNLOAD-PDF] Intentando descargar PDF para caso: ${caseId}`)
 
-    // Configurar Supabase
+    // Configurar Supabase con mejor debugging
     const supabaseUrl = process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL
     const supabaseKey = process.env.VITE_SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY
 
+    console.log('[DOWNLOAD-PDF] Variables de entorno:')
+    console.log('- VITE_SUPABASE_URL:', process.env.VITE_SUPABASE_URL ? '✅ Configurada' : '❌ No configurada')
+    console.log('- VITE_SUPABASE_ANON_KEY:', process.env.VITE_SUPABASE_ANON_KEY ? '✅ Configurada' : '❌ No configurada')
+    console.log('- SUPABASE_URL:', process.env.SUPABASE_URL ? '✅ Configurada' : '❌ No configurada')
+    console.log('- SUPABASE_ANON_KEY:', process.env.SUPABASE_ANON_KEY ? '✅ Configurada' : '❌ No configurada')
+
     if (!supabaseUrl || !supabaseKey) {
       console.error('[DOWNLOAD-PDF] Variables de entorno de Supabase no configuradas')
+      console.error('- supabaseUrl:', supabaseUrl ? '✅' : '❌')
+      console.error('- supabaseKey:', supabaseKey ? '✅' : '❌')
       return res.status(500).json({
-        error: 'Error de configuración del servidor'
+        error: 'Error de configuración del servidor - Variables de entorno faltantes'
       })
     }
 
+    console.log('[DOWNLOAD-PDF] Creando cliente de Supabase...')
     const supabase = createClient(supabaseUrl, supabaseKey)
 
     // Buscar el PDF en la base de datos usando el caseId
+    console.log(`[DOWNLOAD-PDF] Buscando en Supabase con caseId: ${caseId}`)
+
     const { data, error } = await supabase
       .from('medical_records_clean')
       .select('informepdf_url, full_name, code')
@@ -62,8 +73,15 @@ export default async function handler(req, res) {
 
     if (error) {
       console.error('[DOWNLOAD-PDF] Error en Supabase:', error)
+      console.error('[DOWNLOAD-PDF] Detalles del error:', {
+        message: error.message,
+        details: error.details,
+        hint: error.hint,
+        code: error.code
+      })
       return res.status(500).json({
-        error: 'Error al buscar el documento en la base de datos'
+        error: 'Error al buscar el documento en la base de datos',
+        details: error.message
       })
     }
 
