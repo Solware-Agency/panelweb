@@ -3,7 +3,7 @@ import { Phone, Mail, Calendar, ChevronUp, ChevronDown } from 'lucide-react'
 import { Card } from '@shared/components/ui/card'
 
 import { getAgeDisplay } from '@lib/supabase-service'
-import { format, parseISO } from 'date-fns'
+import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
 import PatientHistoryModal from '@shared/components/patients/PatientHistoryModal'
 
