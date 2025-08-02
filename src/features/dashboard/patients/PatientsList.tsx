@@ -269,7 +269,7 @@ const PatientsList: React.FC<PatientsListProps> = React.memo(
 				<Card className="overflow-hidden">
 					{/* Desktop view */}
 					<div className="hidden lg:block">
-						<div className="max-h-[600px] overflow-auto">
+						<div className="max-h-[550px] overflow-auto">
 							<table className="w-full">
 								<thead className="bg-gray-50 dark:bg-gray-800/50 backdrop-blur-[10px] sticky top-0 z-10">
 									<tr>

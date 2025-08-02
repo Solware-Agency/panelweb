@@ -82,11 +82,17 @@ const MainCases: React.FC = React.memo(() => {
 		// Filtro de PDF disponibles
 		if (showPdfReadyOnly) {
 			filtered = filtered.filter((c) => {
-				const type = c.exam_type?.toLowerCase().trim()
-				const isGeneratableCase = type?.includes('biops') || type?.includes('inmuno') || type?.includes('citolog')
-				const hasContent =
-					c.diagnostico || c.conclusion_diagnostica || (type?.includes('citolog') && c.descripcion_macroscopica)
-				return isGeneratableCase && hasContent
+				const pdfReadyValue = c.pdf_en_ready
+				// Si es booleano
+				if (typeof pdfReadyValue === 'boolean') {
+					return pdfReadyValue === false
+				}
+				// Si es string
+				if (typeof pdfReadyValue === 'string') {
+					return pdfReadyValue === 'FALSE'
+				}
+				// Por defecto considerar como pendiente
+				return true
 			})
 		}
 
@@ -125,16 +131,21 @@ const MainCases: React.FC = React.memo(() => {
 		return { total, totalAmount, completed }
 	}, [cases])
 
-	// Count PDF-ready cases
-	const pdfReadyCases = useMemo(() => {
+	// Count PDF-ready cases using pdf_en_ready column
+	const pendingPdfCases = useMemo(() => {
 		return (
 			cases?.filter((c) => {
-				const type = c.exam_type?.toLowerCase().trim()
-				const isGeneratableCase = type?.includes('biops') || type?.includes('inmuno') || type?.includes('citolog')
-				const hasContent =
-					c.diagnostico || c.conclusion_diagnostica || (type?.includes('citolog') && c.descripcion_macroscopica)
-
-				return isGeneratableCase && hasContent
+				const pdfReadyValue = c.pdf_en_ready
+				// Si es booleano
+				if (typeof pdfReadyValue === 'boolean') {
+					return pdfReadyValue === false
+				}
+				// Si es string
+				if (typeof pdfReadyValue === 'string') {
+					return pdfReadyValue === 'FALSE'
+				}
+				// Por defecto considerar como pendiente
+				return true
 			}).length || 0
 		)
 	}, [cases])
@@ -256,7 +267,7 @@ const MainCases: React.FC = React.memo(() => {
 								</div>
 								<div>
 									<p className="text-xs font-medium text-muted-foreground">PDF Pendientes</p>
-									<p className="text-xl font-bold">{pdfReadyCases}</p>
+									<p className="text-xl font-bold">{pendingPdfCases}</p>
 								</div>
 							</div>
 							<div className="text-right">

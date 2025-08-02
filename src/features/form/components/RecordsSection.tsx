@@ -75,15 +75,19 @@ export const RecordsSection: React.FC<RecordsSectionProps> = ({
 		// If showPdfReadyOnly is true, filter to show only cases with PDF ready
 		if (showPdfReadyOnly) {
 			filtered = filtered.filter((c) => {
-				const examType = c.exam_type?.toLowerCase().trim() || ''
-				const isGeneratableCase = examType.includes('biops') || examType.includes('inmuno') || examType.includes('citolog')
-				const hasDownloadableContent = isGeneratableCase && (
-					!!c.diagnostico || 
-					!!c.conclusion_diagnostica || 
-					(examType.includes('citolog') && !!c.descripcion_macroscopica)
-				)
-				return hasDownloadableContent
-			})
+				const pdfReadyValue = c.pdf_en_ready;
+				
+				// Verificar si es string antes de usar toLowerCase
+				if (typeof pdfReadyValue === 'string') {
+					return pdfReadyValue === 'FALSE';
+				}
+				// Si es booleano
+				if (typeof pdfReadyValue === 'boolean') {
+					return pdfReadyValue === false;
+				}
+				// Para cualquier otro caso (null, undefined, etc.)
+				return false;
+			});
 		}
 
 		return filtered
@@ -191,22 +195,23 @@ export const RecordsSection: React.FC<RecordsSectionProps> = ({
 		return counts
 	}, [cases])
 
-	// Count PDF-pending cases (biopsias sin diagnóstico)
-	const pdfReadyCases = useMemo(() => {
-		return (
-			cases?.filter((c) => {
-				const type = c.exam_type?.toLowerCase().trim()
-				const isGeneratableCase = type?.includes('biops') || type?.includes('inmuno') || type?.includes('citolog')
-				const hasContent = c.diagnostico || c.conclusion_diagnostica || 
-					(type?.includes('citolog') && c.descripcion_macroscopica)
-
-				// Contar casos generables con contenido (PDF disponibles)
-				return isGeneratableCase && hasContent
-			}).length || 0
-		)
-	}, [cases])
-
-
+	// Count PDF-ready cases using pdf_en_ready column
+	const pendingPdfCases = useMemo(() => {
+		return cases?.filter((c) => {
+			const pdfReadyValue = c.pdf_en_ready;
+			
+			// Verificar si es string antes de usar toLowerCase
+			if (typeof pdfReadyValue === 'string') {
+				return pdfReadyValue === 'FALSE';
+			}
+			// Si es booleano
+			if (typeof pdfReadyValue === 'boolean') {
+				return pdfReadyValue === false;
+			}
+			// Para cualquier otro caso (null, undefined, etc.)
+			return false;
+		}).length || 0;
+	}, [cases]);
 
 	return (
 		<div>
@@ -231,16 +236,16 @@ export const RecordsSection: React.FC<RecordsSectionProps> = ({
 							onClick={handleTogglePendingFilter}
 						>
 							<div className="flex items-center gap-3">
-								<div className={`p-2 rounded-lg transition-none duration-200 ${
-									showPendingOnly 
-										? 'bg-primary/20' 
-										: 'bg-orange-100 dark:bg-orange-900/30 hover:bg-orange-200 dark:hover:bg-orange-800/40'
-								}`}>
+								<div
+									className={`p-2 rounded-lg transition-none duration-200 ${
+										showPendingOnly
+											? 'bg-primary/20'
+											: 'bg-orange-100 dark:bg-orange-900/30 hover:bg-orange-200 dark:hover:bg-orange-800/40'
+									}`}
+								>
 									<Users
 										className={`h-5 w-5 transition-none duration-200 ${
-											showPendingOnly 
-												? 'text-primary' 
-												: 'text-orange-600 dark:text-orange-400'
+											showPendingOnly ? 'text-primary' : 'text-orange-600 dark:text-orange-400'
 										}`}
 									/>
 								</div>
@@ -268,39 +273,33 @@ export const RecordsSection: React.FC<RecordsSectionProps> = ({
 							onClick={handleTogglePdfFilter}
 						>
 							<div className="flex items-center gap-3">
-								<div className={`p-2 rounded-lg transition-none duration-200 ${
-									showPdfReadyOnly 
-										? 'bg-primary/20' 
-										: 'bg-green-100 dark:bg-green-900/30 hover:bg-green-200 dark:hover:bg-green-800/40'
-								}`}>
+								<div
+									className={`p-2 rounded-lg transition-none duration-200 ${
+										showPdfReadyOnly
+											? 'bg-primary/20'
+											: 'bg-green-100 dark:bg-green-900/30 hover:bg-green-200 dark:hover:bg-green-800/40'
+									}`}
+								>
 									<Download
 										className={`h-5 w-5 transition-none duration-200 ${
-											showPdfReadyOnly 
-												? 'text-primary' 
-												: 'text-green-600 dark:text-green-400'
+											showPdfReadyOnly ? 'text-primary' : 'text-green-600 dark:text-green-400'
 										}`}
 									/>
 								</div>
 								<div>
 									<p className="text-xs font-medium text-muted-foreground">PDF Pendientes</p>
-									<p className="text-xl font-bold">{pdfReadyCases}</p>
+									<p className="text-xl font-bold">{pendingPdfCases}</p>
 								</div>
 							</div>
 							<div className="text-right">
-								<p className="text-xs text-muted-foreground">
-									pendientes por generar
-								</p>
+								<p className="text-xs text-muted-foreground">pendientes por generar</p>
 							</div>
 						</button>
 
 						{/* Status indicators */}
 						<div className="mt-3 pt-3 border-t border-border">
-							{showPendingOnly && (
-								<p className="text-xs text-primary font-medium">Mostrando casos pendientes</p>
-							)}
-							{showPdfReadyOnly && (
-								<p className="text-xs text-primary font-medium">Mostrando PDF disponibles</p>
-							)}
+							{showPendingOnly && <p className="text-xs text-primary font-medium">Mostrando casos pendientes</p>}
+							{showPdfReadyOnly && <p className="text-xs text-primary font-medium">Mostrando PDF disponibles</p>}
 							{!showPendingOnly && !showPdfReadyOnly && (
 								<p className="text-xs text-muted-foreground">Haz clic en un botón para filtrar</p>
 							)}
@@ -365,7 +364,7 @@ export const RecordsSection: React.FC<RecordsSectionProps> = ({
 							>
 								<div className="flex items-center gap-2">
 									<Microscope className="h-3 w-3 text-purple-500" />
-									<span className="text-xs font-medium">Inmuno</span>
+									<span className="text-xs font-medium">Inmunohistoquímica</span>
 								</div>
 								<span className="text-sm font-bold">{examTypeCounts['inmunohistoquimica'] || 0}</span>
 							</div>
@@ -386,11 +385,24 @@ export const RecordsSection: React.FC<RecordsSectionProps> = ({
 								</span>
 							</div>
 						)}
+						{selectedExamType && (
+							<div className="flex items-center gap-1.5 sm:gap-2 bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-800 rounded-lg px-2 sm:px-3 py-0.5 sm:py-1">
+								<Activity className="w-4 h-4 text-orange-600 dark:text-orange-400" />
+								<span className="text-xs sm:text-sm font-medium text-orange-800 dark:text-orange-300">
+									Filtrando por:{' '}
+									{selectedExamType === 'biopsia'
+										? 'Biopsia'
+										: selectedExamType === 'citologia'
+										? 'Citología'
+										: selectedExamType === 'inmunohistoquimica'
+										? 'Inmunohistoquímica'
+										: selectedExamType}
+								</span>
+							</div>
+						)}
 					</div>
 				</div>
 			</div>
-
-
 
 			{/* Cases Table */}
 			<CasesTable

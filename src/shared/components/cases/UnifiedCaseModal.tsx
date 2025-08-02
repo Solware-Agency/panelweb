@@ -757,12 +757,12 @@ const UnifiedCaseModal: React.FC<CaseDetailPanelProps> = React.memo(({ case_, is
 		try {
 			const { data, error } = await supabase
 				.from('medical_records_clean')
-				.select('informepdf_url, code, full_name')
+				.select('informe_qr, code, full_name')
 				.eq('id', caseId)
 				.single<MedicalRecord>()
 
 			if (error) {
-				console.error('Error obteniendo informepdf_url:', error)
+				console.error('Error obteniendo informe_qr:', error)
 				toast({
 					title: '❌ Error',
 					description: 'No se pudo obtener el PDF. Intenta nuevamente.',
@@ -771,7 +771,7 @@ const UnifiedCaseModal: React.FC<CaseDetailPanelProps> = React.memo(({ case_, is
 				return
 			}
 
-			if (!data?.informepdf_url) {
+			if (!data?.informe_qr) {
 				toast({
 					title: '📄 Sin PDF disponible',
 					description: 'Este caso aún no tiene un documento generado.',
@@ -781,7 +781,7 @@ const UnifiedCaseModal: React.FC<CaseDetailPanelProps> = React.memo(({ case_, is
 			}
 
 			// Descargar el archivo directamente usando fetch
-			const response = await fetch(data.informepdf_url)
+			const response = await fetch(data.informe_qr)
 			if (!response.ok) {
 				throw new Error(`Error al descargar: ${response.status}`)
 			}
@@ -854,7 +854,7 @@ const UnifiedCaseModal: React.FC<CaseDetailPanelProps> = React.memo(({ case_, is
 											>
 												{currentCase.payment_status}
 											</span>
-											{currentCase.informepdf_url && (
+											{currentCase.informe_qr && (
 												<button
 													onClick={() => handleRedirectToPDF(currentCase.id)}
 													className="inline-flex items-center gap-1 px-1.5 sm:px-2 py-0.5 sm:py-1 text-xs font-semibold rounded-full bg-teal-100 text-teal-800 dark:bg-teal-900/30 dark:text-teal-300"
