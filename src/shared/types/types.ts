@@ -174,6 +174,7 @@ export type Database = {
 					ims: string | null
 					googledocs_url: string | null
 					informepdf_url: string | null
+					informe_qr: string | null
 				}
 				Insert: {
 					id?: string
@@ -230,6 +231,7 @@ export type Database = {
 					ims?: string | null
 					googledocs_url?: string | null
 					informepdf_url?: string | null
+					informe_qr?: string | null
 				}
 				Update: {
 					id?: string
@@ -286,6 +288,7 @@ export type Database = {
 					ims?: string | null
 					googledocs_url?: string | null
 					informepdf_url?: string | null
+					informe_qr?: string | null
 				}
 				Relationships: []
 			}

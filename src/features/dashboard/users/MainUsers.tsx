@@ -59,7 +59,7 @@ const MainUsers: React.FC = () => {
 	const { toast } = useToast()
 	const [searchTerm, setSearchTerm] = useState('')
 	const [roleFilter, setRoleFilter] = useState<string>('all')
-	const [statusFilter, setStatusFilter] = useState<string>('all')
+	const [statusFilter,] = useState<string>('all')
 	const [branchFilter, setbranchFilter] = useState<string>('all')
 	const [approvalFilter, setApprovalFilter] = useState<string>('all')
 	const [confirmDialogOpen, setConfirmDialogOpen] = useState(false)
@@ -581,20 +581,6 @@ const MainUsers: React.FC = () => {
 												: 'Médicos'}
 										</SelectItem>
 									))}
-								</SelectContent>
-							</Select>
-						</div>
-
-						{/* Filtro por estado */}
-						<div className="col-span-1 sm:col-span-1 lg:col-span-1 xl:col-span-1 flex items-center gap-2">
-							<Select value={statusFilter} onValueChange={setStatusFilter}>
-								<SelectTrigger className="w-40">
-									<SelectValue placeholder="Filtrar por estado" />
-								</SelectTrigger>
-								<SelectContent>
-									<SelectItem value="all">Todos los estados</SelectItem>
-									<SelectItem value="verified">Verificados</SelectItem>
-									<SelectItem value="unverified">No verificados</SelectItem>
 								</SelectContent>
 							</Select>
 						</div>

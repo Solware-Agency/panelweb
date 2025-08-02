@@ -120,6 +120,22 @@ export const useHandleTransformToPDF = (case_: MedicalRecord, handleNext: () => 
 				return
 			}
 
+			// Actualizar el campo pdf_en_ready a true cuando el PDF está listo
+			try {
+				const { error: updateError } = await supabase
+					.from('medical_records_clean')
+					.update({ pdf_en_ready: true })
+					.eq('id', case_.id)
+
+				if (updateError) {
+					console.error('Error actualizando pdf_en_ready:', updateError)
+				} else {
+					console.log('✅ pdf_en_ready actualizado a true para el caso:', case_.id)
+				}
+			} catch (updateErr) {
+				console.error('Error inesperado actualizando pdf_en_ready:', updateErr)
+			}
+
 			try {
 				window.open(pdfUrl, '_blank')
 				// Ejecutar handleNext automáticamente después de abrir el PDF
