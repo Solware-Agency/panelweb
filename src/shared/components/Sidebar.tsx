@@ -199,10 +199,26 @@ const Sidebar: React.FC<SidebarProps> = ({ onClose, isExpanded = false, isMobile
 	})
 
 	const toggleGroup = (groupName: string) => {
-		setExpandedGroups((prev) => ({
-			...prev,
-			[groupName]: !prev[groupName],
-		}))
+		setExpandedGroups((prev) => {
+			// En modo mobile, cerrar todos los demás grupos antes de abrir el actual
+			if (isMobile) {
+				const newState = {
+					clinical: false,
+					reports: false,
+				}
+				// Solo abrir el grupo actual si no estaba ya abierto
+				if (!prev[groupName]) {
+					newState[groupName as keyof typeof newState] = true
+				}
+				return newState
+			}
+			
+			// En desktop, comportamiento normal
+			return {
+				...prev,
+				[groupName]: !prev[groupName],
+			}
+		})
 	}
 
 	// Función para determinar qué grupos deben estar expandidos basándose en la ruta actual

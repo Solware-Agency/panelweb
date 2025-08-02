@@ -278,7 +278,7 @@ function MainHome() {
 									})
 								)}
 							</div>
-							<div className="flex justify-between text-[10px] sm:text-xs text-gray-500 dark:text-gray-400 mt-1 sm:mt-2 overflow-x-auto scrollbar-hide">
+							<div className="flex justify-between text-[10px] sm:text-xs text-gray-500 dark:text-gray-400 mt-1 sm:mt-2">
 								{/* FIXED: Force Spanish month labels regardless of system language */}
 								{['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'].map((m) => (
 									<span key={m}>{m}</span>
@@ -353,7 +353,7 @@ function MainHome() {
 								</h3>
 								<ArrowRight className="w-3 h-3 sm:w-4 sm:h-4 text-gray-400 group-hover:text-blue-500 transition-none" />
 							</div>
-							<div className="space-y-1.5 sm:space-y-2 md:space-y-3 flex-1">
+							<div className="space-y-2 sm:space-y-3 flex-1">
 								{isLoading ? (
 									<div className="space-y-2 sm:space-y-3">
 										{[1, 2, 3].map((i) => (
@@ -423,7 +423,7 @@ function MainHome() {
 								</h3>
 								<div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
 							</div>
-							<div className="space-y-1.5 sm:space-y-2 md:space-y-3 flex-1">
+							<div className="space-y-2 sm:space-y-3 flex-1">
 								{/* Incomplete Cases Alert */}
 								<div className="p-1.5 sm:p-2 md:p-3 bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-800 rounded-lg cursor-pointer hover:scale-105 hover:shadow-lg hover:shadow-primary/20 transition-transform duration-300">
 									<div className="flex items-center gap-1.5 sm:gap-2 mb-0.5 sm:mb-1">
@@ -459,7 +459,7 @@ function MainHome() {
 									}}
 								>
 									<BarChart3 className="w-4 h-4" />
-									<span className="hidden sm:inline">Ver Estadísticas Completas</span>
+									<span className="hidden sm:inline">Ver Estadísticas</span>
 									<span className="sm:hidden">Estadísticas</span>
 								</button>
 							</div>

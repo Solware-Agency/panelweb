@@ -619,10 +619,7 @@ const MainUsers: React.FC = () => {
 						</div>
 					</div>
 
-					{/* Contador de resultados */}
-					<div className="mt-3 sm:mt-4 text-xs sm:text-sm text-gray-600 dark:text-gray-400">
-						Mostrando {filteredUsers.length} de {stats.total} usuarios
-					</div>
+
 				</div>
 			</Card>
 

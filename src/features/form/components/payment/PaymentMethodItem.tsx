@@ -117,7 +117,7 @@ export const PaymentMethodItem = memo(
 					name={`payments.${index}.reference`}
 					render={({ field }) => (
 						<FormItem>
-							<FormLabel>Referencia {index + 1}</FormLabel>
+							<FormLabel>Comprobante {index + 1}</FormLabel>
 							<FormControl>
 								<Input
 									placeholder="Referencia de pago"

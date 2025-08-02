@@ -141,8 +141,8 @@ const PatientHistoryModal: React.FC<PatientHistoryModalProps> = ({ isOpen, onClo
 											</div>
 										</div>
 
-										<div className="flex flex-wrap gap-3 sm:ml-auto">
-											<div className="flex items-center gap-1 text-sm">
+										<div className="flex flex-col sm:flex-row gap-2 sm:gap-3 sm:ml-auto w-full sm:w-auto">
+											<div className="flex items-center gap-1 text-sm w-full sm:w-auto">
 												<button
 													onClick={() => {
 														const phoneNumber = patient.phone.replace(/\D/g, '')
@@ -152,7 +152,7 @@ const PatientHistoryModal: React.FC<PatientHistoryModalProps> = ({ isOpen, onClo
 														const whatsappUrl = `https://api.whatsapp.com/send/?phone=${phoneNumber}&text=${message}&type=phone_number&app_absent=0`
 														window.open(whatsappUrl, '_blank')
 													}}
-													className="flex items-center gap-2 px-3 py-1.5 rounded-lg hover:bg-green-50 dark:hover:bg-green-900/20 hover:text-green-600 transition-all duration-200 cursor-pointer group"
+													className="flex items-center gap-2 px-3 py-1.5 rounded-lg hover:bg-green-50 dark:hover:bg-green-900/20 hover:text-green-600 transition-all duration-200 cursor-pointer group w-full sm:w-auto justify-start"
 													title="Enviar mensaje por WhatsApp"
 												>
 													<WhatsAppIcon className="h-4 w-4 text-gray-500 group-hover:text-green-600 transition-colors duration-200" />
@@ -161,14 +161,17 @@ const PatientHistoryModal: React.FC<PatientHistoryModalProps> = ({ isOpen, onClo
 											</div>
 
 											{patient.email && (
-												<div className="flex items-center gap-1 text-sm">
+												<a
+													href={`mailto:${patient.email}`}
+													className="flex items-center gap-1 text-sm w-full sm:w-auto justify-start px-3 py-1.5 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200 cursor-pointer"
+												>
 													<Mail className="h-4 w-4 text-gray-500" />
 													<span>{patient.email}</span>
-												</div>
+												</a>
 											)}
 
 											{patient.edad && (
-												<div className="flex items-center gap-1 text-sm">
+												<div className="flex items-center gap-1 text-sm w-full sm:w-auto justify-start px-3 py-1.5 rounded-lg bg-gray-50 dark:bg-gray-800/50">
 													<Cake className="h-4 w-4 text-gray-500" />
 													<span>{patient.edad}</span>
 												</div>

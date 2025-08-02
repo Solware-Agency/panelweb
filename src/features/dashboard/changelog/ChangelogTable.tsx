@@ -206,7 +206,9 @@ const ChangelogTable: React.FC = () => {
 				<div>
 					<h1 className="text-2xl font-bold">Historial de Cambios</h1>
 					<div className="w-16 sm:w-24 h-1 bg-primary mt-2 rounded-full" />
-					<p className="text-muted-foreground">Registro de todas las acciones realizadas en el sistema</p>
+					<p className="text-sm text-gray-600 dark:text-gray-400 mt-1 sm:mt-2">
+						Registro de todas las acciones realizadas en el sistema
+					</p>
 				</div>
 				<Button onClick={() => refetch()} variant="outline" className="flex items-center gap-2">
 					<RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />

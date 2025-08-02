@@ -1,6 +1,6 @@
 import React, { useState, useCallback, useMemo } from 'react'
 import CasesTable from '@shared/components/cases/CasesTable'
-import { Users, MapPin, Microscope, FileText, Activity, Download } from 'lucide-react'
+import { Users, MapPin, Microscope, FileText, Activity, Download, BarChart3 } from 'lucide-react'
 import { Card, CardContent } from '@shared/components/ui/card'
 import { type MedicalRecord } from '@lib/supabase-service'
 import { useUserProfile } from '@shared/hooks/useUserProfile'
@@ -218,6 +218,7 @@ export const RecordsSection: React.FC<RecordsSectionProps> = ({
 			{/* Title Section */}
 			<div className="mb-4 sm:mb-6">
 				<h2 className="text-xl sm:text-2xl font-semibold text-foreground mb-1 sm:mb-2">Casos de Laboratorio</h2>
+				<div className="w-16 sm:w-24 h-1 bg-primary mt-2 rounded-full"></div>
 			</div>
 
 			{/* Statistics cards */}
@@ -311,7 +312,7 @@ export const RecordsSection: React.FC<RecordsSectionProps> = ({
 					<CardContent className="p-4">
 						<div className="flex items-center gap-3 mb-3">
 							<div className="p-2 rounded-lg bg-blue-100 dark:bg-blue-900/30">
-								<Activity className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+								<BarChart3 className="h-5 w-5 text-blue-600 dark:text-blue-400" />
 							</div>
 							<div>
 								<p className="text-xs font-medium text-muted-foreground">Tipos de Examen</p>
