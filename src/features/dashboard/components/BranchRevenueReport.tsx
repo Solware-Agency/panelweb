@@ -81,7 +81,7 @@ const BranchRevenueReport: React.FC = () => {
 					</div>
 				</div>
 
-				<div className="overflow-x-auto w-full flex-1">
+				<div className="w-full flex-1">
 					{isDesktop ? (
 						<table className="w-full min-w-full">
 							<thead>

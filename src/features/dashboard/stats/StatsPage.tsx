@@ -65,6 +65,9 @@ const StatsPage: React.FC = () => {
 				<div className="mb-6">
 					<h1 className="text-2xl sm:text-3xl font-bold text-foreground">Estadísticas</h1>
 					<div className="w-16 sm:w-24 h-1 bg-primary mt-2 rounded-full" />
+					<p className="text-sm text-gray-600 dark:text-gray-400 mt-1 sm:mt-2">
+						Analiza el rendimiento y las métricas del sistema médico
+					</p>
 				</div>
 				{/* <div className="text-sm text-gray-600 dark:text-gray-400">
 							Mes seleccionado:{' '}
@@ -190,7 +193,7 @@ const StatsPage: React.FC = () => {
 									})
 								)}
 							</div>
-							<div className="flex justify-between text-[10px] sm:text-xs text-gray-500 dark:text-gray-400 mt-2 sm:mt-4 overflow-x-auto scrollbar-hide">
+							<div className="flex justify-between text-[10px] sm:text-xs text-gray-500 dark:text-gray-400 mt-2 sm:mt-4">
 								{/* FIXED: Force Spanish month labels regardless of system language */}
 								{['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'].map((month) => (
 									<span key={month} className="flex-shrink-0">
@@ -310,7 +313,7 @@ const StatsPage: React.FC = () => {
 					<ExamTypePieChart />
 					
 					{/* Branch Revenue and Remaining Amount side by side */}
-					<div className="grid grid-cols-2 gap-2 sm:gap-3 h-[600px]">
+					<div className="grid grid-cols-1 lg:grid-cols-2 gap-2 sm:gap-3 h-auto lg:h-[600px]">
 						<BranchRevenueReport />
 						<RemainingAmount />
 					</div>

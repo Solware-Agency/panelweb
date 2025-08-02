@@ -205,10 +205,26 @@ const Sidebar: React.FC<SidebarProps> = ({
 	})
 
 	const toggleGroup = (groupName: string) => {
-		setExpandedGroups((prev) => ({
-			...prev,
-			[groupName]: !prev[groupName],
-		}))
+		setExpandedGroups((prev) => {
+			// En modo mobile, cerrar todos los demás grupos antes de abrir el actual
+			if (isMobile) {
+				const newState = {
+					clinical: false,
+					reports: false,
+				}
+				// Solo abrir el grupo actual si no estaba ya abierto
+				if (!prev[groupName]) {
+					newState[groupName as keyof typeof newState] = true
+				}
+				return newState
+			}
+			
+			// En desktop, comportamiento normal
+			return {
+				...prev,
+				[groupName]: !prev[groupName],
+			}
+		})
 	}
 
 	// Collapse all groups when sidebar is collapsed

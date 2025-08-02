@@ -63,15 +63,10 @@ const PatientRow = React.memo(
 			{/* ID Number Cell */}
 			<td className="w-[15%] px-4 py-4 text-sm text-gray-900 dark:text-gray-100">{patient.id_number}</td>
 
-			{/* Date of Birth Cell */}
+			{/* Age Cell */}
 			<td className="w-[20%] px-4 py-4 text-sm text-gray-900 dark:text-gray-100">
 				{patient.date_of_birth ? (
-					<div className="flex items-center">
-						<span>{format(parseISO(patient.date_of_birth), 'dd/MM/yyyy', { locale: es })}</span>
-						<span className="ml-2 text-xs text-blue-600 dark:text-blue-400">
-							({getAgeDisplay(patient.date_of_birth)})
-						</span>
-					</div>
+					<span>{getAgeDisplay(patient.date_of_birth)} años</span>
 				) : (
 					<span className="text-gray-500 dark:text-gray-400">No disponible</span>
 				)}
@@ -301,7 +296,7 @@ const PatientsList: React.FC<PatientsListProps> = React.memo(
 												onClick={() => handleSort('date_of_birth')}
 												className="flex items-center gap-2 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider hover:text-gray-700 dark:hover:text-gray-200"
 											>
-												Fecha de Nacimiento
+												Edad
 												<SortIcon field="date_of_birth" />
 											</button>
 										</th>
@@ -392,7 +387,7 @@ const PatientsList: React.FC<PatientsListProps> = React.memo(
 												<div className="flex items-center">
 													<Calendar className="h-3 w-3 text-gray-400 mr-1 flex-shrink-0" />
 													<span className="text-gray-600 dark:text-gray-300 text-xs">
-														{patient.edad ? patient.edad : 'N/A'}
+														{patient.date_of_birth ? `${getAgeDisplay(patient.date_of_birth)} años` : 'N/A'}
 													</span>
 												</div>
 											</div>

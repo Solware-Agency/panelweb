@@ -110,7 +110,7 @@ const PatientsPage: React.FC = React.memo(() => {
 					<h1 className="text-2xl font-bold">Pacientes</h1>
 					<div className="w-16 sm:w-24 h-1 bg-primary mt-2 rounded-full" />
 				</div>
-					<p className="text-sm text-gray-600 dark:text-gray-400 mt-1 sm:mt-2 font-bold">
+					<p className="text-sm text-gray-600 dark:text-gray-400 mt-1 sm:mt-2">
 						Gestiona la información de los pacientes registrados en el sistema
 					</p>
 				</div>

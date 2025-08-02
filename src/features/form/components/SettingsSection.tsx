@@ -163,6 +163,7 @@ export const SettingsSection: React.FC = () => {
   return (
     <div className="animate-fade-in">
       <h1 className="text-2xl font-bold mb-6">Ajustes de Usuario</h1>
+      <div className="w-16 sm:w-24 h-1 bg-primary mt-2 rounded-full mb-6"></div>
       
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Profile Information */}
@@ -330,43 +331,7 @@ export const SettingsSection: React.FC = () => {
         </Card>
       </div>
       
-      {/* Security Information */}
-      <Card className="mt-6 hover:border-primary hover:shadow-lg hover:shadow-primary/20">
-        <div className="p-6">
-          <h2 className="text-xl font-semibold mb-4">Información de Seguridad</h2>
-          
-          <div className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg border border-blue-200 dark:border-blue-800">
-                <h3 className="font-medium text-blue-800 dark:text-blue-300 mb-2">Último inicio de sesión</h3>
-                <p className="text-blue-700 dark:text-blue-400">
-                  {user?.last_sign_in_at 
-                    ? new Date(user.last_sign_in_at).toLocaleString('es-ES') 
-                    : 'No disponible'}
-                </p>
-              </div>
-              
-              <div className="bg-green-50 dark:bg-green-900/20 p-4 rounded-lg border border-green-200 dark:border-green-800">
-                <h3 className="font-medium text-green-800 dark:text-green-300 mb-2">Estado de la cuenta</h3>
-                <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                  <p className="text-green-700 dark:text-green-400">Aprobada</p>
-                </div>
-              </div>
-            </div>
-            
-            <div className="bg-gray-50 dark:bg-gray-800/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
-              <h3 className="font-medium text-gray-800 dark:text-gray-300 mb-2">Recomendaciones de seguridad</h3>
-              <ul className="list-disc list-inside space-y-1 text-gray-700 dark:text-gray-400 text-sm">
-                <li>Utiliza contraseñas fuertes con al menos 8 caracteres, incluyendo números y símbolos.</li>
-                <li>No compartas tu contraseña con nadie.</li>
-                <li>Cambia tu contraseña regularmente para mayor seguridad.</li>
-                <li>Cierra sesión cuando utilices dispositivos compartidos.</li>
-              </ul>
-            </div>
-          </div>
-        </div>
-      </Card>
+
 
       {/* Session Timeout Settings */}
 			<div className="mt-6">

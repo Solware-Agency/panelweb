@@ -192,6 +192,7 @@ export function MedicalFormContainer() {
 				<div className="flex items-center justify-between">
 					<div>
 						<h2 className="text-xl sm:text-2xl font-semibold text-foreground mb-1 sm:mb-2">Formulario de Registro</h2>
+						<div className="w-16 sm:w-24 h-1 bg-primary mt-2 rounded-full"></div>
 					</div>
 				</div>
 				<h3 className="text-sm text-primary font-semibold mt-2 sm:mt-3">Bienvenido, {profile?.display_name}</h3>
