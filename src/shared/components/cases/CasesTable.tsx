@@ -125,7 +125,7 @@ const CasesTable: React.FC<CasesTableProps> = React.memo(
 
 		// const isAdmin = profile?.role === 'admin'
 		// const isOwner = profile?.role === 'owner'
-		const isEmployee = profile?.role === 'employee'
+		// const isEmployee = profile?.role === 'employee'
 
 		// Use a ref to track if we're in the dashboard or form view
 
@@ -324,14 +324,16 @@ const CasesTable: React.FC<CasesTableProps> = React.memo(
 				// PDF ready filter
 				let matchesPdfReady = true
 				if (showPdfReadyOnly) {
-					const examType = case_.exam_type?.toLowerCase().trim() || ''
-					const isGeneratableCase =
-						examType.includes('biops') || examType.includes('inmuno') || examType.includes('citolog')
-					const hasContent =
-						case_.diagnostico ||
-						case_.conclusion_diagnostica ||
-						(examType.includes('citolog') && case_.descripcion_macroscopica)
-					matchesPdfReady = isGeneratableCase && !!hasContent
+					// Usar la columna pdf_en_ready de Supabase
+					// Manejar tanto boolean como string
+					const pdfReadyValue = case_.pdf_en_ready
+					if (pdfReadyValue === true) {
+						matchesPdfReady = true
+					} else if (typeof pdfReadyValue === 'string') {
+						matchesPdfReady = pdfReadyValue === 'true' || pdfReadyValue === 'TRUE'
+					} else {
+						matchesPdfReady = false
+					}
 				}
 
 				// Local search filter (only if onSearch is not provided)
@@ -934,7 +936,6 @@ const CasesTable: React.FC<CasesTableProps> = React.memo(
 								</button>
 
 								{/* PDF Ready Filter */}
-								{!isEmployee && (
 									<div className="flex items-center gap-2 flex-shrink-0">
 										<label className="flex items-center gap-2 cursor-pointer">
 											<input
@@ -946,7 +947,6 @@ const CasesTable: React.FC<CasesTableProps> = React.memo(
 											<span className="text-sm">PDF disponibles</span>
 										</label>
 									</div>
-								)}
 
 								{/* Results count */}
 								<div className="text-sm text-gray-600 dark:text-gray-400 hidden sm:flex">

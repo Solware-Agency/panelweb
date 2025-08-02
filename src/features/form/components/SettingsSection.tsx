@@ -161,217 +161,207 @@ export const SettingsSection: React.FC = () => {
   }
 
   return (
-    <div className="animate-fade-in">
-      <h1 className="text-2xl font-bold mb-6">Ajustes de Usuario</h1>
-      
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Profile Information */}
-        <Card className="hover:border-primary hover:shadow-lg hover:shadow-primary/20">
-          <div className="p-6">
-            <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
-              <User className="text-primary" />
-              Información de Perfil
-            </h2>
-            
-            <form onSubmit={handleProfileUpdate} className="space-y-4">
-              <div>
-                <Label htmlFor="email">Correo Electrónico</Label>
-                <div className="relative">
-                  <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 dark:text-gray-400" />
-                  <Input 
-                    id="email" 
-                    type="email" 
-                    value={email} 
-                    onChange={(e) => setEmail(e.target.value)}
-                    className="pl-10"
-                    disabled
-                  />
-                </div>
-                <p className="text-xs text-gray-500 mt-1">El correo electrónico no se puede cambiar.</p>
-              </div>
-              
-              <div>
-                <Label htmlFor="displayName">Nombre para mostrar</Label>
-                <div className="relative">
-                  <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 dark:text-gray-400" />
-                  <Input 
-                    id="displayName" 
-                    type="text" 
-                    value={displayName} 
-                    onChange={(e) => setDisplayName(e.target.value)}
-                    className="pl-10"
-                    placeholder="Tu nombre para mostrar"
-                  />
-                </div>
-                <p className="text-xs text-gray-500 mt-1">Este nombre se mostrará en toda la aplicación.</p>
-              </div>
-              
-              {profileError && (
-                <div className="bg-red-100 dark:bg-red-900/30 border border-red-400 dark:border-red-800 text-red-700 dark:text-red-300 px-4 py-3 rounded flex items-center gap-2">
-                  <AlertCircle className="h-5 w-5" />
-                  <span>{profileError}</span>
-                </div>
-              )}
-              
-              {profileUpdateSuccess && (
-                <div className="bg-green-100 dark:bg-green-900/30 border border-green-400 dark:border-green-800 text-green-700 dark:text-green-300 px-4 py-3 rounded flex items-center gap-2">
-                  <CheckCircle className="h-5 w-5" />
-                  <span>Perfil actualizado exitosamente</span>
-                </div>
-              )}
-              
-              <Button 
-                type="submit" 
-                className="w-full bg-primary hover:bg-primary/80"
-                disabled={isUpdatingProfile}
-              >
-                {isUpdatingProfile ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Actualizando...
-                  </>
-                ) : (
-                  <>
-                    <Save className="mr-2 h-4 w-4" />
-                    Guardar Cambios
-                  </>
-                )}
-              </Button>
-            </form>
-          </div>
-        </Card>
-        
-        {/* Password Update */}
-        <Card className="hover:border-primary hover:shadow-lg hover:shadow-primary/20">
-          <div className="p-6">
-            <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
-              <Key className="text-primary" />
-              Cambiar Contraseña
-            </h2>
-            
-            <form onSubmit={handlePasswordUpdate} className="space-y-4">
-              <div>
-                <Label htmlFor="newPassword">Nueva Contraseña</Label>
-                <div className="relative">
-                  <Key className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 dark:text-gray-400" />
-                  <Input 
-                    id="newPassword" 
-                    type={showNewPassword ? "text" : "password"} 
-                    value={newPassword} 
-                    onChange={(e) => setNewPassword(e.target.value)}
-                    className="pl-10 pr-10"
-                    placeholder="Nueva contraseña"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowNewPassword(!showNewPassword)}
-                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 dark:text-gray-400"
-                  >
-                    {showNewPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-                  </button>
-                </div>
-              </div>
-              
-              <div>
-                <Label htmlFor="confirmPassword">Confirmar Contraseña</Label>
-                <div className="relative">
-                  <Key className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 dark:text-gray-400" />
-                  <Input 
-                    id="confirmPassword" 
-                    type={showConfirmPassword ? "text" : "password"} 
-                    value={confirmPassword} 
-                    onChange={(e) => setConfirmPassword(e.target.value)}
-                    className="pl-10 pr-10"
-                    placeholder="Confirmar nueva contraseña"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 dark:text-gray-400"
-                  >
-                    {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-                  </button>
-                </div>
-              </div>
-              
-              {passwordError && (
-                <div className="bg-red-100 dark:bg-red-900/30 border border-red-400 dark:border-red-800 text-red-700 dark:text-red-300 px-4 py-3 rounded flex items-center gap-2">
-                  <AlertCircle className="h-5 w-5" />
-                  <span>{passwordError}</span>
-                </div>
-              )}
-              
-              {passwordUpdateSuccess && (
-                <div className="bg-green-100 dark:bg-green-900/30 border border-green-400 dark:border-green-800 text-green-700 dark:text-green-300 px-4 py-3 rounded flex items-center gap-2">
-                  <CheckCircle className="h-5 w-5" />
-                  <span>Contraseña actualizada exitosamente</span>
-                </div>
-              )}
-              
-              <Button 
-                type="submit" 
-                className="w-full bg-primary hover:bg-primary/80"
-                disabled={isUpdatingPassword}
-              >
-                {isUpdatingPassword ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Actualizando...
-                  </>
-                ) : (
-                  <>
-                    <Save className="mr-2 h-4 w-4" />
-                    Actualizar Contraseña
-                  </>
-                )}
-              </Button>
-            </form>
-          </div>
-        </Card>
-      </div>
-      
-      {/* Security Information */}
-      <Card className="mt-6 hover:border-primary hover:shadow-lg hover:shadow-primary/20">
-        <div className="p-6">
-          <h2 className="text-xl font-semibold mb-4">Información de Seguridad</h2>
-          
-          <div className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg border border-blue-200 dark:border-blue-800">
-                <h3 className="font-medium text-blue-800 dark:text-blue-300 mb-2">Último inicio de sesión</h3>
-                <p className="text-blue-700 dark:text-blue-400">
-                  {user?.last_sign_in_at 
-                    ? new Date(user.last_sign_in_at).toLocaleString('es-ES') 
-                    : 'No disponible'}
-                </p>
-              </div>
-              
-              <div className="bg-green-50 dark:bg-green-900/20 p-4 rounded-lg border border-green-200 dark:border-green-800">
-                <h3 className="font-medium text-green-800 dark:text-green-300 mb-2">Estado de la cuenta</h3>
-                <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                  <p className="text-green-700 dark:text-green-400">Aprobada</p>
-                </div>
-              </div>
-            </div>
-            
-            <div className="bg-gray-50 dark:bg-gray-800/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
-              <h3 className="font-medium text-gray-800 dark:text-gray-300 mb-2">Recomendaciones de seguridad</h3>
-              <ul className="list-disc list-inside space-y-1 text-gray-700 dark:text-gray-400 text-sm">
-                <li>Utiliza contraseñas fuertes con al menos 8 caracteres, incluyendo números y símbolos.</li>
-                <li>No compartas tu contraseña con nadie.</li>
-                <li>Cambia tu contraseña regularmente para mayor seguridad.</li>
-                <li>Cierra sesión cuando utilices dispositivos compartidos.</li>
-              </ul>
-            </div>
-          </div>
-        </div>
-      </Card>
+		<div className="">
+			<h2 className="text-2xl font-bold mb-6">Ajustes de Usuario</h2>
 
-      {/* Session Timeout Settings */}
+			<div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+				{/* Profile Information */}
+				<Card className="hover:border-primary hover:shadow-lg hover:shadow-primary/20">
+					<div className="p-6">
+						<h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
+							<User className="text-primary" />
+							Información de Perfil
+						</h2>
+
+						<form onSubmit={handleProfileUpdate} className="space-y-4">
+							<div>
+								<Label htmlFor="email">Correo Electrónico</Label>
+								<div className="relative">
+									<Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 dark:text-gray-400" />
+									<Input
+										id="email"
+										type="email"
+										value={email}
+										onChange={(e) => setEmail(e.target.value)}
+										className="pl-10"
+										disabled
+									/>
+								</div>
+								<p className="text-xs text-gray-500 mt-1">El correo electrónico no se puede cambiar.</p>
+							</div>
+
+							<div>
+								<Label htmlFor="displayName">Nombre para mostrar</Label>
+								<div className="relative">
+									<User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 dark:text-gray-400" />
+									<Input
+										id="displayName"
+										type="text"
+										value={displayName}
+										onChange={(e) => setDisplayName(e.target.value)}
+										className="pl-10"
+										placeholder="Tu nombre para mostrar"
+									/>
+								</div>
+								<p className="text-xs text-gray-500 mt-1">Este nombre se mostrará en toda la aplicación.</p>
+							</div>
+
+							{profileError && (
+								<div className="bg-red-100 dark:bg-red-900/30 border border-red-400 dark:border-red-800 text-red-700 dark:text-red-300 px-4 py-3 rounded flex items-center gap-2">
+									<AlertCircle className="h-5 w-5" />
+									<span>{profileError}</span>
+								</div>
+							)}
+
+							{profileUpdateSuccess && (
+								<div className="bg-green-100 dark:bg-green-900/30 border border-green-400 dark:border-green-800 text-green-700 dark:text-green-300 px-4 py-3 rounded flex items-center gap-2">
+									<CheckCircle className="h-5 w-5" />
+									<span>Perfil actualizado exitosamente</span>
+								</div>
+							)}
+
+							<Button type="submit" className="w-full bg-primary hover:bg-primary/80" disabled={isUpdatingProfile}>
+								{isUpdatingProfile ? (
+									<>
+										<Loader2 className="mr-2 h-4 w-4 animate-spin" />
+										Actualizando...
+									</>
+								) : (
+									<>
+										<Save className="mr-2 h-4 w-4" />
+										Guardar Cambios
+									</>
+								)}
+							</Button>
+						</form>
+					</div>
+				</Card>
+
+				{/* Password Update */}
+				<Card className="hover:border-primary hover:shadow-lg hover:shadow-primary/20">
+					<div className="p-6">
+						<h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
+							<Key className="text-primary" />
+							Cambiar Contraseña
+						</h2>
+
+						<form onSubmit={handlePasswordUpdate} className="space-y-4">
+							<div>
+								<Label htmlFor="newPassword">Nueva Contraseña</Label>
+								<div className="relative">
+									<Key className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 dark:text-gray-400" />
+									<Input
+										id="newPassword"
+										type={showNewPassword ? 'text' : 'password'}
+										value={newPassword}
+										onChange={(e) => setNewPassword(e.target.value)}
+										className="pl-10 pr-10"
+										placeholder="Nueva contraseña"
+									/>
+									<button
+										type="button"
+										onClick={() => setShowNewPassword(!showNewPassword)}
+										className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 dark:text-gray-400"
+									>
+										{showNewPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+									</button>
+								</div>
+							</div>
+
+							<div>
+								<Label htmlFor="confirmPassword">Confirmar Contraseña</Label>
+								<div className="relative">
+									<Key className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 dark:text-gray-400" />
+									<Input
+										id="confirmPassword"
+										type={showConfirmPassword ? 'text' : 'password'}
+										value={confirmPassword}
+										onChange={(e) => setConfirmPassword(e.target.value)}
+										className="pl-10 pr-10"
+										placeholder="Confirmar nueva contraseña"
+									/>
+									<button
+										type="button"
+										onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+										className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 dark:text-gray-400"
+									>
+										{showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+									</button>
+								</div>
+							</div>
+
+							{passwordError && (
+								<div className="bg-red-100 dark:bg-red-900/30 border border-red-400 dark:border-red-800 text-red-700 dark:text-red-300 px-4 py-3 rounded flex items-center gap-2">
+									<AlertCircle className="h-5 w-5" />
+									<span>{passwordError}</span>
+								</div>
+							)}
+
+							{passwordUpdateSuccess && (
+								<div className="bg-green-100 dark:bg-green-900/30 border border-green-400 dark:border-green-800 text-green-700 dark:text-green-300 px-4 py-3 rounded flex items-center gap-2">
+									<CheckCircle className="h-5 w-5" />
+									<span>Contraseña actualizada exitosamente</span>
+								</div>
+							)}
+
+							<Button type="submit" className="w-full bg-primary hover:bg-primary/80" disabled={isUpdatingPassword}>
+								{isUpdatingPassword ? (
+									<>
+										<Loader2 className="mr-2 h-4 w-4 animate-spin" />
+										Actualizando...
+									</>
+								) : (
+									<>
+										<Save className="mr-2 h-4 w-4" />
+										Actualizar Contraseña
+									</>
+								)}
+							</Button>
+						</form>
+					</div>
+				</Card>
+			</div>
+
+			{/* Security Information */}
+			<Card className="mt-6 hover:border-primary hover:shadow-lg hover:shadow-primary/20">
+				<div className="p-6">
+					<h2 className="text-xl font-semibold mb-4">Información de Seguridad</h2>
+
+					<div className="space-y-4">
+						<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+							<div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg border border-blue-200 dark:border-blue-800">
+								<h3 className="font-medium text-blue-800 dark:text-blue-300 mb-2">Último inicio de sesión</h3>
+								<p className="text-blue-700 dark:text-blue-400">
+									{user?.last_sign_in_at ? new Date(user.last_sign_in_at).toLocaleString('es-ES') : 'No disponible'}
+								</p>
+							</div>
+
+							<div className="bg-green-50 dark:bg-green-900/20 p-4 rounded-lg border border-green-200 dark:border-green-800">
+								<h3 className="font-medium text-green-800 dark:text-green-300 mb-2">Estado de la cuenta</h3>
+								<div className="flex items-center gap-2">
+									<div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+									<p className="text-green-700 dark:text-green-400">Aprobada</p>
+								</div>
+							</div>
+						</div>
+
+						<div className="bg-gray-50 dark:bg-gray-800/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
+							<h3 className="font-medium text-gray-800 dark:text-gray-300 mb-2">Recomendaciones de seguridad</h3>
+							<ul className="list-disc list-inside space-y-1 text-gray-700 dark:text-gray-400 text-sm">
+								<li>Utiliza contraseñas fuertes con al menos 8 caracteres, incluyendo números y símbolos.</li>
+								<li>No compartas tu contraseña con nadie.</li>
+								<li>Cambia tu contraseña regularmente para mayor seguridad.</li>
+								<li>Cierra sesión cuando utilices dispositivos compartidos.</li>
+							</ul>
+						</div>
+					</div>
+				</div>
+			</Card>
+
+			{/* Session Timeout Settings */}
 			<div className="mt-6">
 				<SessionTimeoutSettings />
 			</div>
-    </div>
-  )
+		</div>
+	)
 }

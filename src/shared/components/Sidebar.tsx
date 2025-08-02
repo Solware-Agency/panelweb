@@ -108,7 +108,7 @@ const NavGroup: React.FC<NavGroupProps> = ({
 			if (isExpanded) {
 				onToggle()
 			}
-		}, 200) // Delay de 200ms antes de cerrar
+		}, 0) // Delay de 200ms antes de cerrar
 		setHoverTimeout(timeout)
 	}
 
@@ -182,13 +182,7 @@ interface SidebarProps {
 	toggleDarkMode: () => void
 }
 
-const Sidebar: React.FC<SidebarProps> = ({
-	onClose,
-	isExpanded = false,
-	isMobile = false,
-	isDark,
-	toggleDarkMode,
-}) => {
+const Sidebar: React.FC<SidebarProps> = ({ onClose, isExpanded = false, isMobile = false, isDark, toggleDarkMode }) => {
 	// For mobile, always show full sidebar. For desktop, use isExpanded state
 	const showFullContent = isMobile || isExpanded
 	const navigate = useNavigate()
@@ -211,9 +205,33 @@ const Sidebar: React.FC<SidebarProps> = ({
 		}))
 	}
 
-	// Collapse all groups when sidebar is collapsed
+	// Función para determinar qué grupos deben estar expandidos basándose en la ruta actual
+	const getExpandedGroupsForCurrentPath = () => {
+		const currentPath = window.location.pathname
+		const groups: Record<string, boolean> = {
+			clinical: false,
+			reports: false,
+		}
+
+		// Verificar si la ruta actual pertenece a algún grupo
+		if (clinicalPaths.includes(currentPath)) {
+			groups.clinical = true
+		}
+		if (reportsPaths.includes(currentPath)) {
+			groups.reports = true
+		}
+
+		return groups
+	}
+
+	// Expandir grupos automáticamente cuando se abre el sidebar
 	React.useEffect(() => {
-		if (!showFullContent) {
+		if (showFullContent) {
+			// Solo expandir grupos cuando el sidebar está expandido
+			const groupsToExpand = getExpandedGroupsForCurrentPath()
+			setExpandedGroups(groupsToExpand)
+		} else {
+			// Colapsar todos los grupos cuando el sidebar está colapsado
 			setExpandedGroups({
 				clinical: false,
 				reports: false,
@@ -235,7 +253,6 @@ const Sidebar: React.FC<SidebarProps> = ({
 	const isOwner = profile?.role === 'owner'
 	const isEmployee = profile?.role === 'employee'
 
-
 	return (
 		<aside className="bg-white/80 dark:bg-background/50 shadow-lg shadow-primary/50 backdrop-blur-[10px] flex flex-col justify-between h-screen py-4 sm:py-6 px-2 sm:px-4 gap-4 border-gray-600 text-gray-700 dark:text-white ease-in-out overflow-hidden border-r border-input">
 			<div className="flex flex-col items-start gap-4">
@@ -255,7 +272,6 @@ const Sidebar: React.FC<SidebarProps> = ({
 							Conspat
 						</p>
 					</a>
-
 				</div>
 
 				<div className="flex flex-col justify-center gap-4">

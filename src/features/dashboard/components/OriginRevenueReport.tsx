@@ -50,7 +50,7 @@ const OriginRevenueReport: React.FC = () => {
 										{stats.revenueByOrigin.map((origin, index) => (
 											<tr
 												key={index}
-												className="border-b border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors"
+												className="border-b border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800/50"
 											>
 												<td className="py-3 px-2">
 													<div className="flex items-center gap-2">

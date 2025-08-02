@@ -101,9 +101,9 @@ export const useDashboardStats = (selectedMonth?: Date, selectedYear?: number) =
 				)
 				const newPatientsThisMonth = Array.from(monthPatientIds).filter((id) => !existingPatientIds.has(id)).length
 
-				// Calculate revenue by branch
+				// Calculate revenue by branch - FIXED: Use monthRecords for filtering by selected month
 				const branchRevenue = new Map<string, number>()
-				allRecords?.forEach((record) => {
+				monthRecords?.forEach((record) => {
 					const current = branchRevenue.get(record.branch) || 0
 					branchRevenue.set(record.branch, current + (record.total_amount || 0))
 				})
@@ -112,7 +112,7 @@ export const useDashboardStats = (selectedMonth?: Date, selectedYear?: number) =
 					.map(([branch, revenue]) => ({
 						branch,
 						revenue,
-						percentage: totalRevenue > 0 ? (revenue / totalRevenue) * 100 : 0,
+						percentage: monthlyRevenue > 0 ? (revenue / monthlyRevenue) * 100 : 0,
 					}))
 					.sort((a, b) => b.revenue - a.revenue)
 
