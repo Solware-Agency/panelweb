@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useMemo } from 'react'
-import { Download, Users, Activity, FileText, Microscope } from 'lucide-react'
+import { Download, Users, Activity, FileText, Microscope, BarChart3 } from 'lucide-react'
 import CasesTable from '@shared/components/cases/CasesTable'
 // import CaseDetailPanel from '@shared/components/cases/CaseDetailPanel'
 import UnifiedCaseModal from '@shared/components/cases/UnifiedCaseModal'
