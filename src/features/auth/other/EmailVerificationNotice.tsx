@@ -70,9 +70,14 @@ function EmailVerificationNotice() {
 					delay={200}
 					className="w-full h-full flex items-center justify-center"
 				>
-					<div className="flex flex-col items-center justify-center dark:bg-background bg-slate-950 p-8 rounded-none md:rounded-xl w-screen h-screen md:h-auto md:w-full md:max-w-md shadow-2xl border border-slate-700/50">
+					<div className="flex flex-col items-center justify-center md:rounded-xl w-screen h-screen md:h-auto md:w-full md:max-w-md bg-white/10 backdrop-blur-xl rounded-2xl p-8 shadow-2xl border border-white/20">
 						<div className="text-center mb-6 flex flex-col items-center justify-center">
-							<div className="p-4 bg-[#9e1157] rounded-full mb-4 shadow-lg">
+							<div
+								className="p-4 bg-[#9e1157] rounded-full mb-4 shadow-[0_0_15px_rgba(158,17,87,0.4)] hover:shadow-[0_0_25px_rgba(158,17,87,0.7)] transition-transform duration-1000"
+								style={{
+									animation: 'slowPulse 3s ease-in-out infinite',
+								}}
+							>
 								<Mail className="text-white size-12" />
 							</div>
 							<h1 className="text-2xl font-bold text-white mb-2">Verifica tu Correo Electrónico</h1>
@@ -107,7 +112,7 @@ function EmailVerificationNotice() {
 								<button
 									onClick={handleLogout}
 									disabled={checkingVerification || loading}
-									className="w-full bg-transparent border border-primary hover:shadow-sm hover:shadow-primary text-white rounded-md p-2 transition-transform duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-lg transform hover:scale-[1.02] active:scale-[0.98]"
+									className="w-full bg-transparent border border-primary text-white rounded-md p-2 transition-transform duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-sm transform hover:scale-[1.02] active:scale-[0.98]"
 								>
 									{checkingVerification ? (
 										<>
@@ -125,7 +130,7 @@ function EmailVerificationNotice() {
 								<button
 									onClick={handleResendVerification}
 									disabled={loading || checkingVerification}
-									className="w-full bg-transparent border border-orange-500 hover:shadow-sm hover:shadow-orange-500 text-white rounded-md p-2 transition-transform duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-lg transform hover:scale-[1.02] active:scale-[0.98]"
+									className="w-full bg-transparent border border-orange-500 text-white rounded-md p-2 transition-transform duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-sm transform hover:scale-[1.02] active:scale-[0.98]"
 								>
 									{loading ? (
 										<>
@@ -143,11 +148,11 @@ function EmailVerificationNotice() {
 						</div>
 
 						<div className="text-center space-y-3">
-							<p className="text-sm text-slate-400">¿Problemas con la verificación?</p>
+							<p className="text-sm text-slate-300">¿Problemas con la verificación?</p>
 							<button
 								onClick={handleLogout}
 								disabled={loading || checkingVerification}
-								className={`flex items-center justify-center gap-2 text-sm text-purple-400 hover:text-purple-300 transition-none mx-auto ${
+								className={`flex items-center justify-center gap-2 text-sm text-blue-500 hover:text-blue-400 transition-none mx-auto ${
 									loading || checkingVerification ? 'opacity-50 cursor-not-allowed' : ''
 								}`}
 							>
@@ -156,7 +161,7 @@ function EmailVerificationNotice() {
 							</button>
 						</div>
 
-						<div className="mt-4 text-xs text-slate-500 text-center space-y-2">
+						<div className="mt-4 text-xs text-slate-300 text-center space-y-2">
 							<p>
 								💡 <strong>Consejos:</strong>
 							</p>
@@ -164,8 +169,20 @@ function EmailVerificationNotice() {
 								<li>• Revisa tu carpeta de spam/correo no deseado</li>
 								<li>• Espera hasta 5 minutos para que llegue el correo</li>
 								<li>• Asegúrate de que tu email esté escrito correctamente</li>
-								<li>• Después de hacer clic en el enlace del correo, regresa aquí y haz clic en "Ya verifiqué mi email"</li>
+								<li>
+									• Después de hacer clic en el enlace del correo, regresa aquí y haz clic en "Ya verifiqué mi email"
+								</li>
 							</ul>
+						</div>
+
+						{/* Footer */}
+						<div className="mt-6 text-center flex flex-col gap-2">
+							<p className="text-white text-sm">
+								Desarrollado por{' '}
+								<a href="https://www.solware.agency/" className="text-blue-500">
+									Solware
+								</a>
+							</p>
 						</div>
 					</div>
 				</FadeContent>

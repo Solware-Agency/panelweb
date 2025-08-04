@@ -59,7 +59,7 @@ const MainUsers: React.FC = () => {
 	const { toast } = useToast()
 	const [searchTerm, setSearchTerm] = useState('')
 	const [roleFilter, setRoleFilter] = useState<string>('all')
-	const [statusFilter,] = useState<string>('all')
+	const [statusFilter] = useState<string>('all')
 	const [branchFilter, setbranchFilter] = useState<string>('all')
 	const [approvalFilter, setApprovalFilter] = useState<string>('all')
 	const [confirmDialogOpen, setConfirmDialogOpen] = useState(false)
@@ -485,14 +485,13 @@ const MainUsers: React.FC = () => {
 				<Card className="hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 transition-transform duration-300 shadow-lg">
 					<div className="bg-white dark:bg-background rounded-xl p-2 sm:p-3">
 						<div className="flex items-center justify-between mb-1 sm:mb-2">
-							<div className="p-1 sm:p-1.5 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
+							<div className="p-1 sm:p-1.5 bg-green-100 dark:bg-green-900/30 rounded-lg">
+								<User className="w-3 h-3 sm:w-4 sm:h-4 text-green-600 dark:text-green-400" />
 							</div>
 						</div>
 						<div>
 							<h3 className="text-xs font-medium text-gray-500 dark:text-gray-400">Total Usuarios</h3>
-							<p className="text-lg sm:text-xl font-bold text-gray-700 dark:text-gray-300">
-								{stats.total}
-							</p>
+							<p className="text-lg sm:text-xl font-bold text-gray-700 dark:text-gray-300">{stats.total}</p>
 						</div>
 					</div>
 				</Card>
@@ -506,9 +505,7 @@ const MainUsers: React.FC = () => {
 						</div>
 						<div>
 							<h3 className="text-xs font-medium text-gray-500 dark:text-gray-400">Propietarios</h3>
-							<p className="text-lg sm:text-xl font-bold text-gray-700 dark:text-gray-300">
-								{stats.owners}
-							</p>
+							<p className="text-lg sm:text-xl font-bold text-gray-700 dark:text-gray-300">{stats.owners}</p>
 						</div>
 					</div>
 				</Card>
@@ -522,9 +519,7 @@ const MainUsers: React.FC = () => {
 						</div>
 						<div>
 							<h3 className="text-xs font-medium text-gray-500 dark:text-gray-400">Recepcionistas</h3>
-							<p className="text-lg sm:text-xl font-bold text-gray-700 dark:text-gray-300">
-								{stats.employees}
-							</p>
+							<p className="text-lg sm:text-xl font-bold text-gray-700 dark:text-gray-300">{stats.employees}</p>
 						</div>
 					</div>
 				</Card>
@@ -538,9 +533,7 @@ const MainUsers: React.FC = () => {
 						</div>
 						<div>
 							<h3 className="text-xs font-medium text-gray-500 dark:text-gray-400">Administradores</h3>
-							<p className="text-lg sm:text-xl font-bold text-gray-700 dark:text-gray-300">
-								{stats.admins}
-							</p>
+							<p className="text-lg sm:text-xl font-bold text-gray-700 dark:text-gray-300">{stats.admins}</p>
 						</div>
 					</div>
 				</Card>
@@ -618,8 +611,6 @@ const MainUsers: React.FC = () => {
 							</Select>
 						</div>
 					</div>
-
-
 				</div>
 			</Card>
 

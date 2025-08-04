@@ -4,11 +4,12 @@ import CasesTable from '@shared/components/cases/CasesTable'
 // import CaseDetailPanel from '@shared/components/cases/CaseDetailPanel'
 import UnifiedCaseModal from '@shared/components/cases/UnifiedCaseModal'
 import type { MedicalRecord } from '@lib/supabase-service'
-import { useQuery } from '@tanstack/react-query'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { getMedicalRecords } from '@lib/supabase-service'
 import { Card, CardContent } from '@shared/components/ui/card'
 
 const MainCases: React.FC = React.memo(() => {
+	const queryClient = useQueryClient()
 	const [selectedCase, setSelectedCase] = useState<MedicalRecord | null>(null)
 	const [isPanelOpen, setIsPanelOpen] = useState(false)
 	const [isFullscreen, setIsFullscreen] = useState(false)
@@ -22,9 +23,10 @@ const MainCases: React.FC = React.memo(() => {
 	const casesQueryResult = useQuery({
 		queryKey: ['medical-cases'],
 		queryFn: () => getMedicalRecords(),
-		staleTime: 1000 * 60 * 5, // 5 minutes
-		refetchOnWindowFocus: false, // Prevent refetching on window focus
-		refetchOnReconnect: false, // Prevent refetching on reconnect
+		staleTime: 1000 * 60 * 2, // 5 minutes
+		refetchOnWindowFocus: true, // Prevent refetching on window focus
+		refetchOnReconnect: true,
+		refetchInterval: 1000 * 60 * 1, // Prevent refetching on reconnect
 	})
 
 	const { refetch, isLoading } = casesQueryResult
@@ -41,6 +43,12 @@ const MainCases: React.FC = React.memo(() => {
 		// Delay clearing selected case to allow animation to complete
 		setTimeout(() => setSelectedCase(null), 300)
 	}, [])
+
+	// Function to invalidate cache after case deletion
+	const handleCaseDeleted = useCallback(() => {
+		// Invalidate the medical-cases query to refresh the data
+		queryClient.invalidateQueries({ queryKey: ['medical-cases'] })
+	}, [queryClient])
 
 	// Handlers para filtros
 	const handleTogglePendingFilter = useCallback(() => {
@@ -352,8 +360,6 @@ const MainCases: React.FC = React.memo(() => {
 				</Card>
 			</div>
 
-
-
 			{/* Cases Table */}
 			<CasesTable
 				onCaseSelect={handleCaseSelect}
@@ -371,6 +377,7 @@ const MainCases: React.FC = React.memo(() => {
 				isOpen={isPanelOpen}
 				onClose={handlePanelClose}
 				onCaseSelect={handleCaseSelect}
+				onDelete={handleCaseDeleted}
 			/>
 		</div>
 	)

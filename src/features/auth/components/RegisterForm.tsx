@@ -147,20 +147,25 @@ function RegisterForm() {
 					delay={200}
 					className="w-full h-full flex items-center justify-center"
 				>
-					<div className="flex flex-col items-center justify-center dark:bg-background bg-slate-950 p-8 rounded-none md:rounded-xl w-screen h-screen md:h-auto md:w-full md:max-w-md shadow-2xl border border-slate-700/50">
+					<div className="flex flex-col items-center justify-center md:rounded-xl w-screen h-screen md:h-auto md:w-full md:max-w-md bg-white/10 backdrop-blur-xl rounded-2xl p-8 shadow-2xl border border-white/20">
 						<div className="text-center mb-4 flex flex-col items-center justify-center">
-							<div className="p-4 bg-[#9e1157] rounded-full mb-4 shadow-lg">
+							<div
+								className="p-4 bg-[#9e1157] rounded-full mb-4 shadow-[0_0_15px_rgba(158,17,87,0.4)] hover:shadow-[0_0_25px_rgba(158,17,87,0.7)] transition-transform duration-1000"
+								style={{
+									animation: 'slowPulse 3s ease-in-out infinite',
+								}}
+							>
 								<UserRound className="text-white size-16" />
 							</div>
-										<div>
-				<h1 className="text-2xl font-bold text-white mb-2">Bienvenido a Conspat, Regístrate</h1>
-			</div>
+							<div>
+								<h1 className="text-2xl font-bold text-white mb-2">Bienvenido a Conspat, Regístrate</h1>
+							</div>
 							<p className="text-slate-300">Crea una cuenta para continuar</p>
 						</div>
 
 						<form className="w-full" onSubmit={handleRegister}>
 							<div className="flex flex-col gap-2 mb-4 w-full">
-								<p className="text-sm text-slate-400">Correo electrónico:</p>
+								<p className="text-sm text-slate-300">Correo electrónico:</p>
 								<input
 									type="email"
 									name="email"
@@ -169,11 +174,11 @@ function RegisterForm() {
 									onChange={(e) => setEmail(e.target.value)}
 									required
 									disabled={loading || rateLimitError}
-									className="border-2 border-slate-600 rounded-md p-2 w-full focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary disabled:opacity-50 disabled:cursor-not-allowed bg-slate-900 text-white placeholder-slate-400 transition-transform duration-200"
+									className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all duration-200"
 									autoComplete="email"
 								/>
 
-								<p className="text-sm text-slate-400">Nombre para mostrar:</p>
+								<p className="text-sm text-slate-300">Nombre para mostrar:</p>
 								<input
 									type="text"
 									name="displayName"
@@ -182,11 +187,11 @@ function RegisterForm() {
 									onChange={(e) => setDisplayName(e.target.value)}
 									required
 									disabled={loading || rateLimitError}
-									className="border-2 border-slate-600 rounded-md p-2 w-full focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary disabled:opacity-50 disabled:cursor-not-allowed bg-slate-900 text-white placeholder-slate-400 transition-transform duration-200"
+									className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all duration-200"
 									autoComplete="name"
 								/>
 
-								<p className="text-sm text-slate-400">Contraseña:</p>
+								<p className="text-sm text-slate-300">Contraseña:</p>
 								<div className="relative">
 									<input
 										type={showPassword ? 'text' : 'password'}
@@ -196,20 +201,20 @@ function RegisterForm() {
 										onChange={(e) => setPassword(e.target.value)}
 										required
 										disabled={loading || rateLimitError}
-										className="border-2 border-slate-600 rounded-md p-2 w-full pr-10 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary disabled:opacity-50 disabled:cursor-not-allowed bg-slate-900 text-white placeholder-slate-400 transition-transform duration-200"
+										className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all duration-200"
 										autoComplete="new-password"
 									/>
 									<button
 										type="button"
 										onClick={() => setShowPassword(!showPassword)}
 										disabled={loading || rateLimitError}
-										className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-white disabled:opacity-50"
+										className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-300 hover:text-white disabled:opacity-50 transition-none"
 									>
 										{showPassword ? <Eye size={20} /> : <EyeOff size={20} />}
 									</button>
 								</div>
 
-								<p className="text-sm text-slate-400">Confirmar contraseña:</p>
+								<p className="text-sm text-slate-300">Confirmar contraseña:</p>
 								<div className="relative">
 									<input
 										type={showConfirmPassword ? 'text' : 'password'}
@@ -219,14 +224,14 @@ function RegisterForm() {
 										onChange={(e) => setConfirmPassword(e.target.value)}
 										required
 										disabled={loading || rateLimitError}
-										className="border-2 border-slate-600 rounded-md p-2 w-full pr-10 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary disabled:opacity-50 disabled:cursor-not-allowed bg-slate-900 text-white placeholder-slate-400 transition-transform duration-200"
+										className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all duration-200"
 										autoComplete="new-password"
 									/>
 									<button
 										type="button"
 										onClick={() => setShowConfirmPassword(!showConfirmPassword)}
 										disabled={loading || rateLimitError}
-										className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-white disabled:opacity-50"
+										className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-300 hover:text-white disabled:opacity-50 transition-none"
 									>
 										{showConfirmPassword ? <Eye size={20} /> : <EyeOff size={20} />}
 									</button>
@@ -241,7 +246,11 @@ function RegisterForm() {
 											: 'bg-red-900/80 border-red-700 text-red-200'
 									}`}
 								>
-									{rateLimitError ? <Clock className="w-5 h-5 mt-0.5 flex-shrink-0" /> : <AlertCircle className="w-5 h-5 mt-0.5 flex-shrink-0" />}
+									{rateLimitError ? (
+										<Clock className="w-5 h-5 mt-0.5 flex-shrink-0" />
+									) : (
+										<AlertCircle className="w-5 h-5 mt-0.5 flex-shrink-0" />
+									)}
 									<div className="flex-1">
 										<p className="font-medium">{error}</p>
 										{rateLimitError && (
@@ -278,7 +287,7 @@ function RegisterForm() {
 							<button
 								type="submit"
 								disabled={loading || rateLimitError}
-								className="w-full bg-transparent border border-primary hover:shadow-sm hover:shadow-primary text-white rounded-md p-2 transition-transform duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-lg transform hover:scale-[1.02] active:scale-[0.98]"
+								className="w-full bg-transparent border border-primary text-white rounded-md p-2 transition-transform duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-sm transform hover:scale-[1.02] active:scale-[0.98]"
 							>
 								{loading ? (
 									<>
@@ -297,15 +306,23 @@ function RegisterForm() {
 						</form>
 
 						{/* Footer */}
-						<div className="mt-6 text-center">
-							<p className="text-sm text-slate-400">
+						<div className="mt-6 text-center flex flex-col gap-2">
+							<p className="text-sm text-slate-300">
 								¿Ya tienes una cuenta?{' '}
 								<Link
 									to="/"
-									className={`font-medium text-blue-500 hover:text-blue-400 transition-none ${loading || rateLimitError ? 'pointer-events-none opacity-50' : ''}`}
+									className={`font-medium text-blue-500 hover:text-blue-400 transition-none ${
+										loading || rateLimitError ? 'pointer-events-none opacity-50' : ''
+									}`}
 								>
 									Inicia sesión aquí
 								</Link>
+							</p>
+							<p className="text-white text-sm">
+								Desarrollado por{' '}
+								<a href="https://www.solware.agency/" className="text-blue-500">
+									Solware
+								</a>
 							</p>
 						</div>
 					</div>

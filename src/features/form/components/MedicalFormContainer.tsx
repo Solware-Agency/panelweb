@@ -183,6 +183,19 @@ export function MedicalFormContainer() {
 		})
 	}, [form, toast])
 
+	// Listen for clear form events from parent components
+	useEffect(() => {
+		const handleClearFormEvent = () => {
+			handleClearForm()
+		}
+
+		window.addEventListener('clearForm', handleClearFormEvent)
+
+		return () => {
+			window.removeEventListener('clearForm', handleClearFormEvent)
+		}
+	}, [handleClearForm])
+
 	const inputStyles = 'transition-transform duration-300 focus:border-primary focus:ring-primary'
 	const { profile } = useUserProfile()
 

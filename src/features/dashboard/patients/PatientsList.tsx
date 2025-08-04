@@ -264,7 +264,7 @@ const PatientsList: React.FC<PatientsListProps> = React.memo(
 
 		// Render the component
 		return (
-			<div className="space-y-4">
+			<div className="">
 				{/* Patients table */}
 				<Card className="overflow-hidden">
 					{/* Desktop view */}
