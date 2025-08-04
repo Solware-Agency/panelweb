@@ -19,9 +19,9 @@ const RemainingAmount: React.FC = () => {
 	const pendingPaymentsPercentage = stats?.totalRevenue ? (stats.pendingPayments / stats.totalRevenue) * 100 : 0
 
 	return (
-		<Card className="hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 transition-transform duration-300 shadow-lg h-full min-h-[400px] lg:min-h-0">
-			<div className="bg-white dark:bg-background rounded-xl p-3 sm:p-4 h-full flex flex-col">
-				<div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 flex-shrink-0">
+		<Card className="hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 transition-transform duration-300 shadow-lg">
+			<div className="bg-white dark:bg-background rounded-xl p-3 sm:p-4">
+				<div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4">
 					<h3 className="text-lg sm:text-xl font-bold text-gray-700 dark:text-gray-300 mb-2 sm:mb-0 flex items-center gap-2">
 						<AlertCircle className="w-5 h-5 text-red-500" />
 						Casos por Cobrar
@@ -31,13 +31,13 @@ const RemainingAmount: React.FC = () => {
 					</div>
 				</div>
 
-				<div className="flex-1 overflow-hidden">
+				<div className="overflow-hidden">
 					{isLoading ? (
 						<div className="flex items-center justify-center h-full">
 							<div className="animate-spin rounded-full h-8 w-8 border-b-2 border-red-500"></div>
 						</div>
 					) : (
-						<div className="h-full flex flex-col">
+						<div>
 							{/* Summary Cards */}
 							<div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
 								{/* Amount Card */}

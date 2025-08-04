@@ -602,8 +602,8 @@ const CasesTable: React.FC<CasesTableProps> = React.memo(
 									className="flex items-center gap-2"
 									title="Filtrar por médico"
 								>
-									<Stethoscope className="w-4 h-4" />
-									<span className="hidden sm:inline">Médicos</span>
+									<Stethoscope className="w-4 h-4 hidden sm:inline" />
+									<span className="inline">Médicos</span>
 									{selectedDoctors.length > 0 && (
 										<span className="bg-white dark:bg-gray-800 text-primary text-xs px-2 py-0.5 rounded-full">
 											{selectedDoctors.length}
@@ -612,17 +612,15 @@ const CasesTable: React.FC<CasesTableProps> = React.memo(
 								</Button>
 
 								{/* PDF Ready Filter */}
-								<div className="flex items-center gap-2">
-									<label className="flex items-center gap-2 cursor-pointer">
-										<input
-											type="checkbox"
-											checked={showPdfReadyOnly}
-											onChange={handlePdfFilterToggle}
-											className="rounded border-gray-300 text-primary focus:ring-primary"
-										/>
-										<span className="text-sm">PDF disponibles</span>
-									</label>
-								</div>
+								<Button
+									onClick={handlePdfFilterToggle}
+									variant={showPdfReadyOnly ? 'default' : 'outline'}
+									className="flex items-center gap-2"
+									title="Filtrar PDF disponibles"
+								>
+									<FileText className="w-4 h-4" />
+									<span className="text-sm font-medium">PDF</span>
+								</Button>
 							</div>
 
 							{/* Results count */}
@@ -917,8 +915,8 @@ const CasesTable: React.FC<CasesTableProps> = React.memo(
 									className="flex items-center gap-2 flex-shrink-0"
 									title="Filtrar por médico"
 								>
-									<Stethoscope className="w-4 h-4" />
-									<span className="hidden sm:inline">Médicos</span>
+									<Stethoscope className="w-4 h-4 hidden sm:inline" />
+									<span className="inline">Médicos</span>
 									{selectedDoctors.length > 0 && (
 										<span className="bg-white dark:bg-gray-800 text-primary text-xs px-2 py-0.5 rounded-full">
 											{selectedDoctors.length}
@@ -936,17 +934,15 @@ const CasesTable: React.FC<CasesTableProps> = React.memo(
 								</button>
 
 								{/* PDF Ready Filter */}
-									<div className="flex items-center gap-2 flex-shrink-0">
-										<label className="flex items-center gap-2 cursor-pointer">
-											<input
-												type="checkbox"
-												checked={showPdfReadyOnly}
-												onChange={handlePdfFilterToggle}
-												className="rounded border-gray-300 text-primary focus:ring-primary"
-											/>
-											<span className="text-sm">PDF disponibles</span>
-										</label>
-									</div>
+								<Button
+									onClick={handlePdfFilterToggle}
+									variant={showPdfReadyOnly ? 'default' : 'outline'}
+									className="flex items-center gap-2 flex-shrink-0"
+									title="Filtrar PDF disponibles"
+								>
+									<FileText className="w-4 h-4" />
+									<span className="text-sm font-medium">PDF</span>
+								</Button>
 
 								{/* Results count */}
 								<div className="text-sm text-gray-600 dark:text-gray-400 hidden sm:flex">

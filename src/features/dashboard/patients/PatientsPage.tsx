@@ -104,31 +104,32 @@ const PatientsPage: React.FC = React.memo(() => {
 
 	return (
 		<div className="p-3 sm:p-4">
-			<div className="grid grid-cols-3 mb-4">
-				<div className="flex flex-col col-span-1">
-					<div>
-						<h1 className="text-2xl font-bold">Pacientes</h1>
-						<div className="w-16 sm:w-24 h-1 bg-primary mt-2 rounded-full" />
-					</div>
-					<p className="text-sm text-gray-600 dark:text-gray-400 mt-1 sm:mt-2 font-bold">
-						Gestiona la información de los pacientes registrados en el sistema
-					</p>
+			{/* Título y descripción arriba */}
+			<div className="mb-6">
+				<div>
+					<h1 className="text-2xl font-bold">Pacientes</h1>
+					<div className="w-16 sm:w-24 h-1 bg-primary mt-2 rounded-full" />
 				</div>
+				<p className="text-sm text-gray-600 dark:text-gray-400 mt-1 sm:mt-2">
+					Gestiona la información de los pacientes registrados en el sistema
+				</p>
+			</div>
 
-				<div className="p-4 col-span-2">
-					<div className="relative flex-1">
-						<Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400 z-50" />
-						<Input
-							type="text"
-							placeholder="Buscar por nombre, cédula, teléfono o email..."
-							value={searchTerm}
-							onChange={handleSearchChange}
-							className="pl-10"
-						/>
-					</div>
+			{/* Barra de búsqueda justo encima de los resultados */}
+			<div className="mb-4">
+				<div className="relative max-w-md">
+					<Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400 z-50" />
+					<Input
+						type="text"
+						placeholder="Buscar por nombre, cédula, teléfono o email..."
+						value={searchTerm}
+						onChange={handleSearchChange}
+						className="pl-10"
+					/>
 				</div>
 			</div>
 
+			{/* Resultados */}
 			<PatientsList
 				searchTerm={searchTerm}
 				recordsData={memoizedRecordsData?.data ?? []}
