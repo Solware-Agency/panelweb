@@ -5,8 +5,6 @@ import { YearSelector } from '@shared/components/ui/year-selector'
 import StatCard from '@shared/components/ui/stat-card'
 import StatDetailPanel from '@shared/components/ui/stat-detail-panel'
 import type { StatType } from '@shared/components/ui/stat-detail-panel'
-import { format } from 'date-fns'
-import { es } from 'date-fns/locale'
 import { Card } from '@shared/components/ui/card'
 import ExamTypePieChart from '@features/dashboard/components/ExamTypePieChart'
 import DoctorRevenueReport from '@features/dashboard/components/DoctorRevenueReport'
@@ -183,7 +181,7 @@ const StatsPage: React.FC = () => {
 														: 'bg-gradient-to-t from-blue-500 to-blue-300 hover:from-blue-600 hover:to-blue-400'
 												}`}
 												style={{ height: `${Math.max(height, 20)}%` }} // FIXED: Increased minimum height for better UX
-												title={`${format(new Date(month.month), 'MMM yyyy', { locale: es })}: ${formatCurrency(
+												title={`${month.month}: ${formatCurrency(
 													month.revenue,
 												)}`}
 												onClick={() => handleMonthBarClick(month)}

@@ -20,6 +20,7 @@ interface MedicalRecord {
 	informepdf_url?: string | null
 	informe_qr?: string | null
 	code?: string | null
+	pdf_en_ready?: boolean | null
 }
 
 interface StepsCaseModalProps {
@@ -391,13 +392,15 @@ const StepsCaseModal: React.FC<StepsCaseModalProps> = ({ case_, isOpen, onClose,
 									variant="outline"
 									onClick={handleTransformToPDF}
 									className="flex-1"
-									disabled={isSaving}
+									disabled={isSaving || !case_?.pdf_en_ready}
 								>
 									{isSaving ? (
 										<>
 											<div className="w-4 h-4 border-2 border-gray-600 border-t-transparent rounded-full animate-spin mr-2" />
 											Generando PDF...
 										</>
+									) : !case_?.pdf_en_ready ? (
+										'PDF no disponible aún'
 									) : (
 										'Descargar PDF'
 									)}
@@ -406,9 +409,9 @@ const StepsCaseModal: React.FC<StepsCaseModalProps> = ({ case_, isOpen, onClose,
 						</div>
 						<div className="bg-gradient-to-br from-teal-50 to-cyan-50 dark:from-teal-900/20 dark:to-cyan-900/20 p-4 rounded-lg border border-teal-200 dark:border-teal-800">
 							<p className="text-teal-400 text-sm">
-								Dale clic al botón que tienes arriba y espera unos segundos mientras preparamos tu documento. Ten
-								paciencia, este proceso puede tardar un poco dependiendo de la carga del sistema. No cierres esta
-								pestaña hasta que el documento esté listo.
+								{!case_?.pdf_en_ready
+									? 'El PDF aún no está listo para descargar. Completa el primer paso y espera a que el sistema procese el documento.'
+									: 'Dale clic al botón que tienes arriba y espera unos segundos mientras preparamos tu documento. Ten paciencia, este proceso puede tardar un poco dependiendo de la carga del sistema. No cierres esta pestaña hasta que el documento esté listo.'}
 							</p>
 						</div>
 					</motion.div>
@@ -453,7 +456,6 @@ const StepsCaseModal: React.FC<StepsCaseModalProps> = ({ case_, isOpen, onClose,
 								<div className="min-w-0">
 									<div>
 										<h2 className="text-lg font-bold text-white">Generar Caso Médico - {case_?.code}</h2>
-										<div className="w-16 sm:w-24 h-1 bg-white mt-2 rounded-full" />
 									</div>
 									<p className="text-sm text-indigo-100 truncate">{case_ ? `Para ${case_.full_name}` : 'Nuevo caso'}</p>
 								</div>

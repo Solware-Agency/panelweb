@@ -62,22 +62,27 @@ function ForgotPassword() {
 					delay={200}
 					className="w-full h-full flex items-center justify-center"
 				>
-					<div className="flex flex-col items-center justify-center dark:bg-background bg-slate-950 p-8 rounded-none md:rounded-xl w-screen h-screen md:h-auto md:w-full md:max-w-md shadow-2xl border border-slate-700/50">
+					<div className="flex flex-col items-center justify-center md:rounded-xl w-screen h-screen md:h-auto md:w-full md:max-w-md bg-white/10 backdrop-blur-xl rounded-2xl p-8 shadow-2xl border border-white/20">
 						<div className="text-center mb-4 flex flex-col items-center justify-center">
-							<div className="p-4 bg-[#9e1157] rounded-full mb-4 shadow-lg">
+							<div
+								className="p-4 bg-[#9e1157] rounded-full mb-4 shadow-[0_0_15px_rgba(158,17,87,0.4)] hover:shadow-[0_0_25px_rgba(158,17,87,0.7)] transition-transform duration-1000"
+								style={{
+									animation: 'slowPulse 3s ease-in-out infinite',
+								}}
+							>
 								<Lock className="text-white size-16" />
 							</div>
-										<div>
-				<h1 className="text-2xl font-bold text-white mb-2">Restablecer Contraseña</h1>
-			</div>
+							<div>
+								<h1 className="text-2xl font-bold text-white mb-2">Restablecer Contraseña</h1>
+							</div>
 							<p className="text-slate-300">Ingresa tu correo electrónico para recibir instrucciones</p>
 						</div>
 
 						<form className="w-full" onSubmit={handleResetPassword}>
 							<div className="flex flex-col gap-2 mb-4 w-full">
-								<p className="text-sm text-slate-400">Correo electrónico:</p>
+								<p className="text-sm text-slate-300">Correo electrónico:</p>
 								<div className="relative">
-									<Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400" />
+									<Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-300" />
 									<input
 										type="email"
 										name="email"
@@ -86,7 +91,7 @@ function ForgotPassword() {
 										onChange={(e) => setEmail(e.target.value)}
 										required
 										disabled={loading}
-										className="border-2 border-slate-600 rounded-md p-2 pl-10 w-full focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary disabled:opacity-50 disabled:cursor-not-allowed bg-slate-700/80 text-white placeholder-slate-400 transition-transform duration-200"
+										className="w-full px-4 py-3 pl-10 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all duration-200"
 										autoComplete="email"
 									/>
 								</div>
@@ -109,7 +114,7 @@ function ForgotPassword() {
 							<button
 								type="submit"
 								disabled={loading}
-								className="w-full bg-transparent border border-primary hover:shadow-sm hover:shadow-primary text-white rounded-md p-2 transition-transform duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-lg transform hover:scale-[1.02] active:scale-[0.98]"
+								className="w-full bg-transparent border border-primary text-white rounded-md p-2 transition-transform duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-sm transform hover:scale-[1.02] active:scale-[0.98]"
 							>
 								{loading ? (
 									<>
@@ -123,16 +128,22 @@ function ForgotPassword() {
 						</form>
 
 						{/* Footer */}
-						<div className="mt-6 text-center">
+						<div className="mt-6 text-center flex flex-col gap-2">
 							<Link
 								to="/"
-								className={`flex items-center justify-center gap-2 text-sm text-purple-400 hover:text-purple-300 transition-none ${
+								className={`flex items-center justify-center gap-2 text-sm text-blue-500 hover:text-blue-400 transition-none ${
 									loading ? 'pointer-events-none opacity-50' : ''
 								}`}
 							>
 								<ArrowLeft size={16} />
 								Volver al inicio de sesión
 							</Link>
+							<p className="text-white text-sm">
+								Desarrollado por{' '}
+								<a href="https://www.solware.agency/" className="text-blue-500">
+									Solware
+								</a>
+							</p>
 						</div>
 					</div>
 				</FadeContent>

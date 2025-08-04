@@ -130,7 +130,9 @@ function MainHome() {
 													cy="18"
 													r="14"
 													fill="none"
-													className={`stroke-current ${colors[index % colors.length]} transition-transform duration-200`}
+													className={`stroke-current ${
+														colors[index % colors.length]
+													} transition-transform duration-200`}
 													strokeWidth={hoveredBranchIndex === index ? '5' : '4'}
 													strokeDasharray={`${branch.percentage} ${100 - branch.percentage}`}
 													strokeDashoffset={-offset}
@@ -269,9 +271,7 @@ function MainHome() {
 														: 'bg-gradient-to-t from-blue-500 to-blue-300 hover:from-blue-600 hover:to-blue-400'
 												}`}
 												style={{ height: `${Math.max(height, 20)}%` }} // FIXED: Increased minimum height for better UX
-												title={`${format(new Date(month.month), 'MMM yyyy', { locale: es })}: ${formatCurrency(
-													month.revenue,
-												)}`}
+												title={`${month.month}: ${formatCurrency(month.revenue)}`}
 												onClick={() => handleMonthBarClick(month)}
 											></div>
 										)

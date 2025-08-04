@@ -2,10 +2,10 @@ import { Toaster } from '@shared/components/ui/toaster'
 import { Toaster as Sonner } from '@shared/components/ui/sonner'
 import { ThemeProvider } from '@app/providers/ThemeProvider'
 import { useQuery } from '@tanstack/react-query'
-import { MedicalForm } from '@features/form/components/MedicalForm'
+import { MedicalForm, type MedicalFormRef } from '@features/form/components/MedicalForm'
 import { RecordsSection } from '@features/form/components/RecordsSection'
 import { SettingsSection } from '@features/form/components/SettingsSection'
-import { useState, useCallback, Suspense, useEffect } from 'react'
+import { useState, useCallback, Suspense, useEffect, useRef } from 'react'
 import { Tabs, TabsContent } from '@shared/components/ui/tabs'
 import { getMedicalRecords, searchMedicalRecords } from '@lib/supabase-service'
 import { RefreshCw, Loader2, Trash2 } from 'lucide-react'
@@ -67,10 +67,10 @@ function FormContent() {
 	const location = useLocation()
 	const navigate = useNavigate()
 	const [, setUsdValue] = useState('')
-	const [, setVesInputValue] = useState('')
 	const [, setIsSubmitted] = useState(false)
 	const form = useForm<FormValues>({ defaultValues: getInitialFormValues() })
 	const { toast } = useToast()
+	const medicalFormRef = useRef<MedicalFormRef>(null)
 
 	// Determine active tab based on current route
 	useEffect(() => {
@@ -87,8 +87,6 @@ function FormContent() {
 			setActiveTab('settings')
 		}
 	}, [location.pathname])
-
-
 
 	const handleSidebarMouseEnter = () => {
 		setSidebarExpanded(true)
@@ -151,15 +149,10 @@ function FormContent() {
 	useResetForm(form, getInitialFormValues, setUsdValue, setIsSubmitted, toast)
 
 	const handleClearForm = useCallback(() => {
-		form.reset(getInitialFormValues())
-		setUsdValue('')
-		setVesInputValue('')
-		setIsSubmitted(false)
-		toast({
-			title: '🧹 Formulario Limpio',
-			description: 'Todos los campos han sido reiniciados.',
-		})
-	}, [form, toast])
+		if (medicalFormRef.current) {
+			medicalFormRef.current.clearForm()
+		}
+	}, [])
 
 	return (
 		<>
@@ -210,7 +203,7 @@ function FormContent() {
 			</AnimatePresence>
 
 			<div
-				className={`fixed top-0 left-0 h-screen z-[9999999] lg:z-10 transform transition-transform duration-300 ease-in-out lg:translate-x-0 ${
+				className={`fixed top-0 left-0 h-screen z-[9999999] lg:z-10 transform transition-all duration-300 ease-in-out lg:translate-x-0 ${
 					sidebarOpen ? 'translate-x-0' : '-translate-x-full'
 				} ${
 					// On desktop: collapsed by default (w-16), expanded on hover (w-56)
@@ -232,13 +225,13 @@ function FormContent() {
 			</div>
 			<div className="container mx-auto py-4 px-2 sm:px-4">
 				<main
-					className={`min-h-screen flex flex-col transition-transform duration-300 ease-in-out z-50 ${
+					className={`min-h-screen flex flex-col transition-all duration-300 ease-in-out z-50 ${
 						sidebarExpanded ? 'lg:ml-56' : 'lg:ml-16'
 					}`}
 				>
 					<Tabs defaultValue="form" value={activeTab} onValueChange={handleTabChange}>
 						<TabsContent value="form" className="mt-4">
-							<MedicalForm />
+							<MedicalForm ref={medicalFormRef} />
 						</TabsContent>
 
 						<TabsContent value="records" className="mt-4">

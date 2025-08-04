@@ -2,8 +2,6 @@ import React from 'react'
 import { Menu } from 'lucide-react'
 
 interface HeaderProps {
-	isDark: boolean
-	toggleDarkMode: () => void
 	onMenuClick: () => void
 }
 

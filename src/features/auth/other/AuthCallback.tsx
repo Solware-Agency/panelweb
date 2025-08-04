@@ -263,12 +263,15 @@ function AuthCallback() {
 					delay={200}
 					className="w-full h-full flex items-center justify-center"
 				>
-					<div className="flex flex-col items-center justify-center dark:bg-background bg-slate-950 p-8 rounded-none md:rounded-xl w-screen h-screen md:h-auto md:w-full md:max-w-md shadow-2xl border border-slate-700/50">
+					<div className="flex flex-col items-center justify-center md:rounded-xl w-screen h-screen md:h-auto md:w-full md:max-w-md bg-white/10 backdrop-blur-xl rounded-2xl p-8 shadow-2xl border border-white/20">
 						<div className="text-center mb-6 flex flex-col items-center justify-center">
 							<div
-								className={`p-4 rounded-full mb-4 ${
+								className={`p-4 rounded-full mb-4 shadow-[0_0_15px_rgba(158,17,87,0.4)] hover:shadow-[0_0_25px_rgba(158,17,87,0.7)] transition-transform duration-1000 ${
 									status === 'loading' ? 'bg-blue-500' : status === 'success' ? 'bg-green-500' : 'bg-red-500'
 								}`}
+								style={{
+									animation: 'slowPulse 3s ease-in-out infinite',
+								}}
 							>
 								{status === 'loading' && <RefreshCw className="text-white size-12 animate-spin" />}
 								{status === 'success' && <CheckCircle className="text-white size-12" />}
@@ -296,12 +299,22 @@ function AuthCallback() {
 							<div className="w-full">
 								<button
 									onClick={() => navigate('/')}
-									className="w-full bg-transparent border border-primary hover:shadow-sm hover:shadow-primary text-white rounded-md p-2 transition-transform duration-200 transform hover:scale-[1.02] active:scale-[0.98]"
+									className="w-full bg-transparent border border-primary text-white rounded-md p-2 transition-transform duration-200 shadow-sm transform hover:scale-[1.02] active:scale-[0.98]"
 								>
 									Ir al Login
 								</button>
 							</div>
 						)}
+
+						{/* Footer */}
+						<div className="mt-6 text-center flex flex-col gap-2">
+							<p className="text-white text-sm">
+								Desarrollado por{' '}
+								<a href="https://www.solware.agency/" className="text-blue-500">
+									Solware
+								</a>
+							</p>
+						</div>
 					</div>
 				</FadeContent>
 			</div>
