@@ -67,7 +67,6 @@ function FormContent() {
 	const location = useLocation()
 	const navigate = useNavigate()
 	const [, setUsdValue] = useState('')
-	const [, setVesInputValue] = useState('')
 	const [, setIsSubmitted] = useState(false)
 	const form = useForm<FormValues>({ defaultValues: getInitialFormValues() })
 	const { toast } = useToast()

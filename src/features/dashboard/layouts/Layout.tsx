@@ -2,8 +2,8 @@ import React, { useState } from 'react'
 import { Outlet } from 'react-router-dom'
 import { AnimatePresence, motion } from 'framer-motion'
 import { useDarkMode } from '@shared/hooks/useDarkMode'
-import Header from './Header'
-import Sidebar from '../../../shared/components/Sidebar'
+import Sidebar from '@shared/components/Sidebar'
+import {Menu} from 'lucide-react'
 
 const Layout: React.FC = () => {
 	const { isDark, toggleDarkMode } = useDarkMode()
@@ -59,10 +59,15 @@ const Layout: React.FC = () => {
 					toggleDarkMode={toggleDarkMode}
 				/>
 			</div>
+			<button
+					onClick={toggleSidebar}
+					className="lg:hidden flex fixed items-center justify-center p-2 bg-white dark:bg-background border border-input rounded-lg shadow-lg top-4 right-4 z-50"
+				>
+					<Menu className="h-5 w-5 text-gray-600 dark:text-gray-400 " />
+				</button>
 
 			{/* Main content - Updated margin to accommodate collapsible sidebar */}
 			<main className={`min-h-screen flex flex-col z-50 transition-all duration-300 ${sidebarExpanded ? 'lg:ml-56' : 'lg:ml-16'}`}>
-				<Header isDark={isDark} toggleDarkMode={toggleDarkMode} onMenuClick={toggleSidebar} />
 				<div className="flex-1 overflow-x-hidden overflow-y-auto">
 					<Outlet />
 				</div>

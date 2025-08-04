@@ -301,11 +301,5 @@ function NewPasswordForm() {
 		</div>
 	)
 }
-					</div>
-				</FadeContent>
-			</div>
-		</div>
-	)
-}
 
 export default NewPasswordForm

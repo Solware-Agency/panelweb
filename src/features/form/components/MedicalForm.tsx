@@ -5,7 +5,7 @@ export interface MedicalFormRef {
 	clearForm: () => void
 }
 
-export const MedicalForm = forwardRef<MedicalFormRef>((props, ref) => {
+export const MedicalForm = forwardRef<MedicalFormRef>((_, ref) => {
 	useImperativeHandle(
 		ref,
 		() => ({
