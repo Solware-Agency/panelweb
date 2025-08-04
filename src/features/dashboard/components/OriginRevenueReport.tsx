@@ -17,9 +17,9 @@ const OriginRevenueReport: React.FC = () => {
     }).format(amount)
   }
 
-  return (
+  	return (
 		<Card className="hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 transition-transform duration-300 shadow-lg">
-			<div className="bg-white dark:bg-background rounded-xl p-3 sm:p-4 overflow-hidden flex flex-col">
+			<div className="bg-white dark:bg-background rounded-xl p-3 sm:p-4 overflow-hidden">
 				<div className="flex items-center gap-3 mb-4 flex-shrink-0">
 					<div className="p-2 bg-purple-100 dark:bg-purple-900/30 rounded-lg">
 						<MapPin className="w-5 h-5 text-purple-600 dark:text-purple-400" />

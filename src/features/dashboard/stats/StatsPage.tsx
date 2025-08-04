@@ -9,7 +9,6 @@ import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
 import { Card } from '@shared/components/ui/card'
 import ExamTypePieChart from '@features/dashboard/components/ExamTypePieChart'
-import BranchRevenueReport from '@features/dashboard/components/BranchRevenueReport'
 import DoctorRevenueReport from '@features/dashboard/components/DoctorRevenueReport'
 import OriginRevenueReport from '@features/dashboard/components/OriginRevenueReport'
 import RemainingAmount from '@features/dashboard/components/RemainingAmount'
@@ -61,7 +60,7 @@ const StatsPage: React.FC = () => {
 
 	return (
 		<>
-			<div className="p-2 sm:p-4 md:p-6 overflow-x-hidden">
+			<div className="p-2 sm:p-4 md:p-6">
 				<div className="mb-6">
 					<h1 className="text-2xl sm:text-3xl font-bold text-foreground">Estadísticas</h1>
 					<div className="w-16 sm:w-24 h-1 bg-primary mt-2 rounded-full" />
@@ -309,25 +308,18 @@ const StatsPage: React.FC = () => {
 
 				{/* Detailed Tables */}
 				<div className="grid grid-cols-1 gap-3 sm:gap-4 md:gap-5">
-					{/* Performance Metrics by Exam Type (Normalized) */}
-					<ExamTypePieChart />
-					
-					{/* Branch Revenue and Remaining Amount side by side */}
-					<div className="grid grid-cols-1 lg:grid-cols-2 gap-2 sm:gap-3 h-auto lg:h-[600px]">
-						<BranchRevenueReport />
+					{/* Performance Metrics by Exam Type and Remaining Amount side by side */}
+					<div className="grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-4 md:gap-5">
+						<ExamTypePieChart />
 						<RemainingAmount />
 					</div>
 					
-					<div className="grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-4 mb-3 sm:mb-5 h-[500px]">
+					<div className="grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-4 mb-3 sm:mb-5">
 						{/* Doctor Revenue Report */}
-						<div className="h-full">
-							<DoctorRevenueReport />
-						</div>
+						<DoctorRevenueReport />
 
 						{/* Origin Revenue Report */}
-						<div className="h-full">
-							<OriginRevenueReport />
-						</div>
+						<OriginRevenueReport />
 					</div>
 				</div>
 			</div>
