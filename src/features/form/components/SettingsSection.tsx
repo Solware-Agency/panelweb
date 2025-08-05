@@ -7,7 +7,7 @@ import { useAuth } from '@app/providers/AuthContext'
 import { useUserProfile } from '@shared/hooks/useUserProfile'
 import { updatePassword, updateUserProfile, updateUserMetadata } from '@lib/supabase/auth'
 import { useToast } from '@shared/hooks/use-toast'
-import { Eye, EyeOff, User, Mail, Key, Save, Loader2, CheckCircle, AlertCircle } from 'lucide-react'
+import { Eye, EyeOff, User, Key, Save, Loader2, CheckCircle, AlertCircle } from 'lucide-react'
 import { SessionTimeoutSettings } from '@features/dashboard/settings/SessionTimeoutSettings'
 
 export const SettingsSection: React.FC = () => {
@@ -161,15 +161,15 @@ export const SettingsSection: React.FC = () => {
   }
 
   return (
-    <div className="animate-fade-in">
+    <div className="p-3 sm:p-6">
       <div className="mb-4 sm:mb-6">
-        <h1 className="text-2xl sm:text-3xl font-bold mb-1 sm:mb-2">Ajustes de Usuario</h1>
-        <div className="w-16 sm:w-24 h-1 bg-primary mt-2 rounded-full"></div>
+        <h1 className="text-2xl sm:text-3xl font-bold mb-2">Ajustes de Usuario</h1>
+        <div className="w-16 sm:w-24 h-1 bg-primary mt-2 rounded-full" />
       </div>
       
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Profile Information */}
-        <Card className="hover:border-primary hover:shadow-lg hover:shadow-primary/20">
+        <Card className="hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 transition-transform duration-300 shadow-lg">
           <div className="p-6">
             <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
               <User className="text-primary" />
@@ -180,13 +180,11 @@ export const SettingsSection: React.FC = () => {
               <div>
                 <Label htmlFor="email">Correo Electrónico</Label>
                 <div className="relative">
-                  <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 dark:text-gray-400" />
-                  <Input 
-                    id="email" 
-                    type="email" 
-                    value={email} 
+                  <Input
+                    id="email"
+                    type="email"
+                    value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="pl-10"
                     disabled
                   />
                 </div>
@@ -197,12 +195,11 @@ export const SettingsSection: React.FC = () => {
                 <Label htmlFor="displayName">Nombre para mostrar</Label>
                 <div className="relative">
                   <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 dark:text-gray-400" />
-                  <Input 
-                    id="displayName" 
-                    type="text" 
-                    value={displayName} 
+                  <Input
+                    id="displayName"
+                    type="text"
+                    value={displayName}
                     onChange={(e) => setDisplayName(e.target.value)}
-                    className="pl-10"
                     placeholder="Tu nombre para mostrar"
                   />
                 </div>
@@ -245,7 +242,7 @@ export const SettingsSection: React.FC = () => {
         </Card>
         
         {/* Password Update */}
-        <Card className="hover:border-primary hover:shadow-lg hover:shadow-primary/20">
+        <Card className="hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 transition-transform duration-300 shadow-lg">
           <div className="p-6">
             <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
               <Key className="text-primary" />
@@ -253,17 +250,27 @@ export const SettingsSection: React.FC = () => {
             </h2>
             
             <form onSubmit={handlePasswordUpdate} className="space-y-4">
+              {/* Hidden username field for accessibility and password managers */}
+              <input
+                type="text"
+                name="username"
+                value={email}
+                autoComplete="username"
+                style={{ display: 'none' }}
+                readOnly
+              />
+
               <div>
                 <Label htmlFor="newPassword">Nueva Contraseña</Label>
                 <div className="relative">
                   <Key className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 dark:text-gray-400" />
-                  <Input 
-                    id="newPassword" 
-                    type={showNewPassword ? "text" : "password"} 
-                    value={newPassword} 
+                  <Input
+                    id="newPassword"
+                    type={showNewPassword ? 'text' : 'password'}
+                    value={newPassword}
                     onChange={(e) => setNewPassword(e.target.value)}
-                    className="pl-10 pr-10"
                     placeholder="Nueva contraseña"
+                    autoComplete="new-password"
                   />
                   <button
                     type="button"
@@ -273,19 +280,20 @@ export const SettingsSection: React.FC = () => {
                     {showNewPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                   </button>
                 </div>
+                <p className="text-xs text-gray-500 mt-1">Debe tener al menos 6 caracteres para mayor seguridad.</p>
               </div>
               
               <div>
                 <Label htmlFor="confirmPassword">Confirmar Contraseña</Label>
                 <div className="relative">
                   <Key className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 dark:text-gray-400" />
-                  <Input 
-                    id="confirmPassword" 
-                    type={showConfirmPassword ? "text" : "password"} 
-                    value={confirmPassword} 
+                  <Input
+                    id="confirmPassword"
+                    type={showConfirmPassword ? 'text' : 'password'}
+                    value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
-                    className="pl-10 pr-10"
                     placeholder="Confirmar nueva contraseña"
+                    autoComplete="new-password"
                   />
                   <button
                     type="button"
@@ -295,6 +303,7 @@ export const SettingsSection: React.FC = () => {
                     {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                   </button>
                 </div>
+                <p className="text-xs text-gray-500 mt-1">Repite la contraseña para confirmar que es correcta.</p>
               </div>
               
               {passwordError && (
@@ -311,11 +320,7 @@ export const SettingsSection: React.FC = () => {
                 </div>
               )}
               
-              <Button 
-                type="submit" 
-                className="w-full bg-primary hover:bg-primary/80"
-                disabled={isUpdatingPassword}
-              >
+              <Button type="submit" className="w-full bg-primary hover:bg-primary/80" disabled={isUpdatingPassword}>
                 {isUpdatingPassword ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -332,43 +337,7 @@ export const SettingsSection: React.FC = () => {
           </div>
         </Card>
       </div>
-      
 
-			{/* Security Information */}
-			<Card className="mt-6 hover:border-primary hover:shadow-lg hover:shadow-primary/20">
-				<div className="p-6">
-					<h2 className="text-xl font-semibold mb-4">Información de Seguridad</h2>
-
-					<div className="space-y-4">
-						<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-							<div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg border border-blue-200 dark:border-blue-800">
-								<h3 className="font-medium text-blue-800 dark:text-blue-300 mb-2">Último inicio de sesión</h3>
-								<p className="text-blue-700 dark:text-blue-400">
-									{user?.last_sign_in_at ? new Date(user.last_sign_in_at).toLocaleString('es-ES') : 'No disponible'}
-								</p>
-							</div>
-
-							<div className="bg-green-50 dark:bg-green-900/20 p-4 rounded-lg border border-green-200 dark:border-green-800">
-								<h3 className="font-medium text-green-800 dark:text-green-300 mb-2">Estado de la cuenta</h3>
-								<div className="flex items-center gap-2">
-									<div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-									<p className="text-green-700 dark:text-green-400">Aprobada</p>
-								</div>
-							</div>
-						</div>
-
-						<div className="bg-gray-50 dark:bg-gray-800/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
-							<h3 className="font-medium text-gray-800 dark:text-gray-300 mb-2">Recomendaciones de seguridad</h3>
-							<ul className="list-disc list-inside space-y-1 text-gray-700 dark:text-gray-400 text-sm">
-								<li>Utiliza contraseñas fuertes con al menos 8 caracteres, incluyendo números y símbolos.</li>
-								<li>No compartas tu contraseña con nadie.</li>
-								<li>Cambia tu contraseña regularmente para mayor seguridad.</li>
-								<li>Cierra sesión cuando utilices dispositivos compartidos.</li>
-							</ul>
-						</div>
-					</div>
-				</div>
-			</Card>
 
 			{/* Session Timeout Settings */}
 			<div className="mt-6">

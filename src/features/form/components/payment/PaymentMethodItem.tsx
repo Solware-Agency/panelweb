@@ -38,103 +38,105 @@ export const PaymentMethodItem = memo(
 		const handleRemove = useCallback(() => remove(index), [remove, index])
 
 		return (
-			<div
-				className={
-					className ||
-					'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 items-start bg-secondary p-3 sm:p-4 rounded-lg'
-				}
-			>
-				<FormField
-					control={control}
-					name={`payments.${index}.method`}
-					render={({ field }) => (
-						<FormItem>
-							<FormLabel>Forma de Pago {index + 1}</FormLabel>
-							<FormControl>
-								<FormDropdown
-									options={createDropdownOptions([
-										'Punto de venta',
-										'Dólares en efectivo',
-										'Zelle',
-										'Pago móvil',
-										'Bs en efectivo',
-									])}
-									value={field.value}
-									onChange={field.onChange}
-									placeholder="Seleccione una opción"
-									className={inputStyles}
-								/>
-							</FormControl>
-						</FormItem>
-					)}
-				/>
-				<FormField
-					control={control}
-					name={`payments.${index}.amount`}
-					render={({ field }) => {
-						const calculatorHandler = createCalculatorInputHandlerWithCurrency(
-							field.value || 0,
-							field.onChange,
-							paymentMethod,
-							exchangeRate,
-						)
-
-						return (
+			<div className="relative">
+				<div
+					className={
+						className ||
+						'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-3 items-start bg-secondary p-3 sm:p-4 rounded-lg'
+					}
+				>
+					<FormField
+						control={control}
+						name={`payments.${index}.method`}
+						render={({ field }) => (
 							<FormItem>
-								<FormLabel>
-									Monto {index + 1} {currencyLabel}
-								</FormLabel>
+								<FormLabel>Forma de Pago {index + 1}</FormLabel>
 								<FormControl>
-									<div className="flex flex-col gap-1 w-full">
-										<div className="w-full">
-											<Input
-												type="text"
-												inputMode="decimal"
-												
-												placeholder={calculatorHandler.placeholder}
-												value={calculatorHandler.displayValue}
-												onKeyDown={calculatorHandler.handleKeyDown}
-												onPaste={calculatorHandler.handlePaste}
-												onFocus={calculatorHandler.handleFocus}
-												onChange={calculatorHandler.handleChange}
-												className={`${inputStyles} text-right font-mono`}
-												autoComplete="off"
-											/>
-										</div>
-										{calculatorHandler.conversionText && (
-											<p className="text-xs text-green-600 dark:text-green-400 text-right">
-												{calculatorHandler.conversionText}
-											</p>
-										)}
-									</div>
+									<FormDropdown
+										options={createDropdownOptions([
+											'Punto de venta',
+											'Dólares en efectivo',
+											'Zelle',
+											'Pago móvil',
+											'Bs en efectivo',
+										])}
+										value={field.value}
+										onChange={field.onChange}
+										placeholder="Seleccione una opción"
+										className={inputStyles}
+									/>
 								</FormControl>
 							</FormItem>
-						)
-					}}
-				/>
-				<FormField
-					control={control}
-					name={`payments.${index}.reference`}
-					render={({ field }) => (
-						<FormItem>
-							<FormLabel>Comprobante {index + 1}</FormLabel>
-							<FormControl>
-								<Input
-									placeholder="Referencia de pago"
-									{...field}
-									className={inputStyles}
-									iconRight={<FileText className="h-4 w-4 text-muted-foreground" />}
-								/>
-							</FormControl>
-						</FormItem>
-					)}
-				/>
+						)}
+					/>
+					<FormField
+						control={control}
+						name={`payments.${index}.amount`}
+						render={({ field }) => {
+							const calculatorHandler = createCalculatorInputHandlerWithCurrency(
+								field.value || 0,
+								field.onChange,
+								paymentMethod,
+								exchangeRate,
+							)
+
+							return (
+								<FormItem>
+									<FormLabel>
+										Monto {index + 1} {currencyLabel}
+									</FormLabel>
+									<FormControl>
+										<div className="flex flex-col gap-1 w-full">
+											<div className="w-full">
+												<Input
+													type="text"
+													inputMode="decimal"
+													
+													placeholder={calculatorHandler.placeholder}
+													value={calculatorHandler.displayValue}
+													onKeyDown={calculatorHandler.handleKeyDown}
+													onPaste={calculatorHandler.handlePaste}
+													onFocus={calculatorHandler.handleFocus}
+													onChange={calculatorHandler.handleChange}
+													className={`${inputStyles} text-right font-mono`}
+													autoComplete="off"
+												/>
+											</div>
+											{calculatorHandler.conversionText && (
+												<p className="text-xs text-green-600 dark:text-green-400 text-right">
+													{calculatorHandler.conversionText}
+												</p>
+											)}
+										</div>
+									</FormControl>
+								</FormItem>
+							)
+						}}
+					/>
+					<FormField
+						control={control}
+						name={`payments.${index}.reference`}
+						render={({ field }) => (
+							<FormItem>
+								<FormLabel>Comprobante {index + 1}</FormLabel>
+								<FormControl>
+									<Input
+										placeholder="Referencia de pago"
+										{...field}
+										className={inputStyles}
+										iconRight={<FileText className="h-4 w-4 text-muted-foreground" />}
+									/>
+								</FormControl>
+							</FormItem>
+						)}
+					/>
+				</div>
 				{fieldsLength > 1 && (
 					<Button
 						type="button"
 						variant="ghost"
 						size="icon"
-						className="text-destructive mt-8"
+						className="absolute top-2 right-2 text-destructive z-10"
 						onClick={handleRemove}
 						aria-label="Eliminar método de pago"
 					>

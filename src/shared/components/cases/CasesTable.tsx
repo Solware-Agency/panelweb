@@ -5,7 +5,6 @@ import {
 	Search,
 	Filter,
 	Eye,
-	CalendarIcon,
 	User,
 	Stethoscope,
 	FileText,
@@ -14,8 +13,6 @@ import {
 } from 'lucide-react'
 import type { MedicalRecord } from '@lib/supabase-service'
 import { getAgeDisplay } from '@lib/supabase-service'
-import { format } from 'date-fns'
-import { es } from 'date-fns/locale'
 import { useToast } from '@shared/hooks/use-toast'
 import { Button } from '@shared/components/ui/button'
 import { useAuth } from '@app/providers/AuthContext'
@@ -407,53 +404,33 @@ const CasesTable: React.FC<CasesTableProps> = React.memo(
 		// Mobile Card Component - Memoized to prevent unnecessary re-renders
 		const CaseCard = useCallback(
 			({ case_ }: { case_: MedicalRecord }) => {
-				const ageDisplay = case_.edad ? getAgeDisplay(case_.edad) : ''
-				const formattedDate = case_.created_at
-					? format(new Date(case_.created_at), 'dd/MM/yyyy', { locale: es })
-					: 'N/A'
-
 				return (
 					<div className="bg-white dark:bg-background rounded-lg p-3 border border-gray-200 dark:border-gray-700 hover:shadow-md">
 						{/* Header with status and code */}
-						<div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-2">
-							<div className="flex flex-wrap gap-1.5">
-								<span
-									className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(
-										case_.payment_status,
-									)}`}
-								>
-									{case_.payment_status}
-								</span>
-								<div className="flex items-center">
-									{case_.code && (
-										<span className="inline-flex items-center gap-1 px-2 py-1 text-xs font-semibold rounded-full bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300">
-											{case_.code}
-										</span>
-									)}
-								</div>
-							</div>
-							<span className="text-xs text-gray-500 dark:text-gray-400 flex items-center gap-1">
-								<CalendarIcon className="w-3 h-3" />
-								{formattedDate}
+						<div className="flex flex-wrap gap-1.5 mb-2">
+							<span
+								className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(
+									case_.payment_status,
+								)}`}
+							>
+								{case_.payment_status}
 							</span>
+							<div className="flex items-center">
+								{case_.code && (
+									<span className="inline-flex items-center gap-1 px-2 py-1 text-xs font-semibold rounded-full bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300">
+										{case_.code}
+									</span>
+								)}
+							</div>
 						</div>
 
 						{/* Patient info */}
-						<div className="grid grid-cols-2 gap-2 mb-2">
-							<div className="col-span-2">
+						<div className="grid grid-cols-1 gap-2 mb-2">
+							<div>
 								<div className="flex items-center gap-2">
 									<User className="w-4 h-4 text-blue-600 dark:text-blue-400 flex-shrink-0" />
 									<div className="min-w-0">
 										<p className="font-medium text-gray-900 dark:text-gray-100 text-sm truncate">{case_.full_name}</p>
-										<div className="flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400 flex-wrap">
-											<span className="truncate">{case_.id_number}</span>
-											{ageDisplay && (
-												<>
-													<span>•</span>
-													<span>{ageDisplay}</span>
-												</>
-											)}
-										</div>
 									</div>
 								</div>
 							</div>
@@ -462,18 +439,13 @@ const CasesTable: React.FC<CasesTableProps> = React.memo(
 								<p className="text-xs text-gray-500 dark:text-gray-400">Tipo</p>
 								<p className="text-sm text-gray-900 dark:text-gray-100 truncate">{case_.exam_type}</p>
 							</div>
-
-							<div>
-								<p className="text-xs text-gray-500 dark:text-gray-400">Sede</p>
-								<BranchBadge branch={case_.branch} className="text-xs" />
-							</div>
 						</div>
 
 						{/* Medical info */}
 						<div className="grid grid-cols-2 gap-2 mb-2">
 							<div>
-								<p className="text-xs text-gray-500 dark:text-gray-400">Médico</p>
-								<p className="text-sm text-gray-900 dark:text-gray-100 truncate">{case_.treating_doctor}</p>
+								<p className="text-xs text-gray-500 dark:text-gray-400">Sede</p>
+								<BranchBadge branch={case_.branch} className="text-xs" />
 							</div>
 
 							<div>
@@ -481,11 +453,6 @@ const CasesTable: React.FC<CasesTableProps> = React.memo(
 								<p className="text-sm font-medium text-gray-900 dark:text-gray-100">
 									${case_.total_amount.toLocaleString()}
 								</p>
-								{case_.remaining > 0 && (
-									<p className="text-xs text-red-600 dark:text-red-400">
-										Faltante: ${case_.remaining.toLocaleString()}
-									</p>
-								)}
 							</div>
 						</div>
 
