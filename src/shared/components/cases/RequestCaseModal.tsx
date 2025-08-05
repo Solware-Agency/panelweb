@@ -223,31 +223,6 @@ const RequestCaseModal: React.FC<GenerateCaseModalProps> = ({ case_, isOpen, onC
 														</p>
 													</div>
 
-													{inmunorreacciones.length > 0 && (
-														<div className="bg-white dark:bg-gray-800 p-3 rounded border">
-															<p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-																Resumen de la solicitud:
-															</p>
-															<div className="grid grid-cols-3 gap-4 text-sm">
-																Información Clínica *
-																<div>
-																	<span className="text-gray-500 dark:text-gray-400">Cantidad:</span>
-																	<p className="font-medium">{inmunorreacciones.length} reacciones</p>
-																</div>
-																<div>
-																	<span className="text-gray-500 dark:text-gray-400">Precio unitario:</span>
-																	<p className="font-medium">$18.00</p>
-																</div>
-																<div>
-																	<span className="text-gray-500 dark:text-gray-400">Total:</span>
-																	<p className="font-medium text-green-600 dark:text-green-400">
-																		${(inmunorreacciones.length * 18).toFixed(2)}
-																	</p>
-																</div>
-															</div>
-														</div>
-													)}
-
 													<Button
 														type="button"
 														onClick={handleRequestImmunoreactions}

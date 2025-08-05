@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import {
 	History,
 	Search,
@@ -16,7 +16,7 @@ import { Card } from '@shared/components/ui/card'
 import { Input } from '@shared/components/ui/input'
 import { Button } from '@shared/components/ui/button'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@shared/components/ui/select'
-import { useQuery } from '@tanstack/react-query'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { getAllChangeLogs } from '@lib/supabase-service'
 import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
@@ -26,9 +26,10 @@ import { supabase } from '@lib/supabase/config'
 import { Popover, PopoverContent, PopoverTrigger } from '@shared/components/ui/popover'
 import { Calendar as CalendarComponent } from '@shared/components/ui/calendar'
 
-interface ChangeLogEntry {
+// Type for the actual data returned from the query
+type ChangeLogData = {
 	id: string
-	medical_record_id: string
+	medical_record_id: string | null
 	user_id: string
 	user_email: string
 	field_name: string
@@ -37,16 +38,41 @@ interface ChangeLogEntry {
 	new_value: string | null
 	changed_at: string
 	created_at: string | null
-	medical_records_clean: {
-		id: string
-		full_name: string
+	deleted_record_info?: string | null
+	medical_records_clean?: {
+		id: string | null
+		full_name: string | null
 		code: string | null
 	} | null
 }
 
 const ChangelogTable: React.FC = () => {
 	const { toast } = useToast()
+	const queryClient = useQueryClient()
 	useUserProfile()
+
+	// Realtime subscription for change logs
+	useEffect(() => {
+		const channel = supabase
+			.channel('realtime-changelog')
+			.on(
+				'postgres_changes',
+				{
+					event: '*', // INSERT | UPDATE | DELETE
+					schema: 'public',
+					table: 'change_logs',
+				},
+				() => {
+					queryClient.invalidateQueries({ queryKey: ['change-logs'] }) // tanstack refetch
+				},
+			)
+			.subscribe()
+
+		return () => {
+			supabase.removeChannel(channel)
+		}
+	}, [queryClient])
+
 	const [searchTerm, setSearchTerm] = useState('')
 	const [actionFilter, setActionFilter] = useState<string>('all')
 	const [dateFilter, setDateFilter] = useState<Date | undefined>(undefined)
@@ -75,12 +101,14 @@ const ChangelogTable: React.FC = () => {
 	const filteredLogs = React.useMemo(() => {
 		if (!logsData?.data) return []
 
-		return logsData.data.filter((log: any) => {
+		return logsData.data.filter((log: ChangeLogData) => {
 			// Search filter
 			const matchesSearch =
 				log.user_email.toLowerCase().includes(searchTerm.toLowerCase()) ||
 				log.field_label.toLowerCase().includes(searchTerm.toLowerCase()) ||
-				(log.medical_records_clean?.full_name || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+				(log.medical_records_clean?.full_name || log.deleted_record_info || '')
+					.toLowerCase()
+					.includes(searchTerm.toLowerCase()) ||
 				(log.medical_records_clean?.code || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
 				(log.old_value || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
 				(log.new_value || '').toLowerCase().includes(searchTerm.toLowerCase())
@@ -155,7 +183,7 @@ const ChangelogTable: React.FC = () => {
 	}
 
 	// Get action type display text and icon
-	const getActionTypeInfo = (log: ChangeLogEntry) => {
+	const getActionTypeInfo = (log: ChangeLogData) => {
 		if (log.field_name === 'created_record') {
 			return {
 				text: 'Creación',
@@ -336,7 +364,7 @@ const ChangelogTable: React.FC = () => {
 										</tr>
 									</thead>
 									<tbody className="divide-y divide-gray-200 dark:divide-gray-700">
-										{filteredLogs.map((log: any) => {
+										{filteredLogs.map((log: ChangeLogData) => {
 											const actionInfo = getActionTypeInfo(log)
 
 											return (
@@ -363,7 +391,7 @@ const ChangelogTable: React.FC = () => {
 													<td className="px-4 py-4">
 														<div className="flex flex-col">
 															<span className="text-sm font-medium text-gray-900 dark:text-gray-100">
-																{log.medical_records_clean?.full_name || 'Caso eliminado'}
+																{log.medical_records_clean?.full_name || log.deleted_record_info || 'Caso eliminado'}
 															</span>
 															{log.medical_records_clean?.code && (
 																<span className="text-xs text-gray-500 dark:text-gray-400">
@@ -402,7 +430,9 @@ const ChangelogTable: React.FC = () => {
 																			{log.old_value || '(vacío)'}
 																		</span>
 																		<span className="text-xs">→</span>
-																		<span className="text-green-600 dark:text-green-400">{log.new_value || '(vacío)'}</span>
+																		<span className="text-green-600 dark:text-green-400">
+																			{log.new_value || '(vacío)'}
+																		</span>
 																	</div>
 																</div>
 															)}
@@ -414,41 +444,46 @@ const ChangelogTable: React.FC = () => {
 									</tbody>
 								</table>
 							</div>
-							
+
 							{/* Mobile view - Card layout */}
 							<div className="lg:hidden">
 								<div className="space-y-4 p-3">
-									{filteredLogs.map((log: any) => {
-										const actionInfo = getActionTypeInfo(log);
-										const logDate = format(new Date(log.changed_at), 'dd/MM/yyyy', { locale: es });
-										const logTime = format(new Date(log.changed_at), 'HH:mm:ss', { locale: es });
-										
+									{filteredLogs.map((log: ChangeLogData) => {
+										const actionInfo = getActionTypeInfo(log)
+										const logDate = format(new Date(log.changed_at), 'dd/MM/yyyy', { locale: es })
+										const logTime = format(new Date(log.changed_at), 'HH:mm:ss', { locale: es })
+
 										return (
-											<div key={log.id} className="bg-white dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-lg p-3 shadow-sm">
+											<div
+												key={log.id}
+												className="bg-white dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-lg p-3 shadow-sm"
+											>
 												{/* Header with date and action type */}
 												<div className="flex items-center justify-between mb-2">
 													<div className="flex flex-col">
 														<span className="text-xs font-medium">{logDate}</span>
 														<span className="text-xs text-gray-500">{logTime}</span>
 													</div>
-													<div className={`inline-flex items-center gap-1 px-2 py-1 text-xs font-medium rounded-full ${actionInfo.bgColor} ${actionInfo.textColor}`}>
+													<div
+														className={`inline-flex items-center gap-1 px-2 py-1 text-xs font-medium rounded-full ${actionInfo.bgColor} ${actionInfo.textColor}`}
+													>
 														{actionInfo.icon}
 														<span>{actionInfo.text}</span>
 													</div>
 												</div>
-												
+
 												{/* User */}
 												<div className="flex items-center gap-2 mb-2 border-t border-gray-100 dark:border-gray-700 pt-2">
 													<User className="w-4 h-4 text-gray-500 dark:text-gray-400" />
 													<span className="text-xs text-gray-900 dark:text-gray-100 truncate">{log.user_email}</span>
 												</div>
-												
+
 												{/* Case */}
 												<div className="mb-2">
 													<span className="text-xs text-gray-500 dark:text-gray-400">Caso:</span>
 													<div className="flex flex-col">
 														<span className="text-sm font-medium text-gray-900 dark:text-gray-100">
-															{log.medical_records_clean?.full_name || 'Caso eliminado'}
+															{log.medical_records_clean?.full_name || log.deleted_record_info || 'Caso eliminado'}
 														</span>
 														{log.medical_records_clean?.code && (
 															<span className="text-xs text-gray-500 dark:text-gray-400">
@@ -457,7 +492,7 @@ const ChangelogTable: React.FC = () => {
 														)}
 													</div>
 												</div>
-												
+
 												{/* Details */}
 												<div className="border-t border-gray-100 dark:border-gray-700 pt-2">
 													<span className="text-xs text-gray-500 dark:text-gray-400">Detalles:</span>
@@ -478,14 +513,16 @@ const ChangelogTable: React.FC = () => {
 																		{log.old_value || '(vacío)'}
 																	</span>
 																	<span className="text-xs">→</span>
-																	<span className="text-green-600 dark:text-green-400 text-xs">{log.new_value || '(vacío)'}</span>
+																	<span className="text-green-600 dark:text-green-400 text-xs">
+																		{log.new_value || '(vacío)'}
+																	</span>
 																</div>
 															</div>
 														)}
 													</div>
 												</div>
 											</div>
-										);
+										)
 									})}
 								</div>
 							</div>

@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useMemo } from 'react'
+import React, { useState, useCallback, useMemo, useEffect } from 'react'
 import { Download, Users, Activity, FileText, Microscope, BarChart3 } from 'lucide-react'
 import CasesTable from '@shared/components/cases/CasesTable'
 // import CaseDetailPanel from '@shared/components/cases/CaseDetailPanel'
@@ -7,9 +7,32 @@ import type { MedicalRecord } from '@lib/supabase-service'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { getMedicalRecords } from '@lib/supabase-service'
 import { Card, CardContent } from '@shared/components/ui/card'
+import { supabase } from '@lib/supabase/config'
 
 const MainCases: React.FC = React.memo(() => {
 	const queryClient = useQueryClient()
+
+	useEffect(() => {
+		const channel = supabase
+			.channel('realtime-cases')
+			.on(
+				'postgres_changes',
+				{
+					event: '*', // INSERT | UPDATE | DELETE
+					schema: 'public',
+					table: 'medical_records_clean',
+				},
+				() => {
+					queryClient.invalidateQueries({ queryKey: ['medical-cases'] }) // tanstack refetch
+				},
+			)
+			.subscribe()
+	
+		return () => {
+			supabase.removeChannel(channel)
+		}
+	}, [queryClient])
+
 	const [selectedCase, setSelectedCase] = useState<MedicalRecord | null>(null)
 	const [isPanelOpen, setIsPanelOpen] = useState(false)
 	const [isFullscreen, setIsFullscreen] = useState(false)

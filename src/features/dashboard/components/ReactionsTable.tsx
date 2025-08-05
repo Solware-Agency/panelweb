@@ -1,5 +1,5 @@
-import React, { useRef, useState } from 'react'
-import { useQuery } from '@tanstack/react-query'
+import React, { useRef, useState, useEffect } from 'react'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { supabase } from '@lib/supabase/config'
 import { useToast } from '@shared/hooks/use-toast'
 import { Loader2 } from 'lucide-react'
@@ -25,6 +25,30 @@ const ReactionsTable: React.FC = () => {
 	const { toast } = useToast()
 	const [selectAll, setSelectAll] = useState(false)
 	const [editingPrices, setEditingPrices] = useState<Record<string, string>>({})
+	const queryClient = useQueryClient()
+
+	// Realtime subscription for immuno_requests
+	useEffect(() => {
+		const channel = supabase
+			.channel('realtime-immuno-requests')
+			.on(
+				'postgres_changes',
+				{
+					event: '*',
+					schema: 'public',
+					table: 'immuno_requests',
+				},
+				() => {
+					// Invalidate and refetch the immuno requests query
+					queryClient.invalidateQueries({ queryKey: ['immuno-requests'] })
+				},
+			)
+			.subscribe()
+
+		return () => {
+			supabase.removeChannel(channel)
+		}
+	}, [queryClient])
 
 	// Query to fetch immuno requests
 	const {
@@ -37,13 +61,15 @@ const ReactionsTable: React.FC = () => {
 		queryFn: async () => {
 			const { data, error } = await supabase
 				.from('immuno_requests')
-				.select(`
+				.select(
+					`
 					*,
 					medical_records_clean!inner(
 						code,
 						full_name
 					)
-				`)
+				`,
+				)
 				.order('created_at', { ascending: false })
 
 			if (error) {
@@ -58,10 +84,7 @@ const ReactionsTable: React.FC = () => {
 
 	const handlePaymentToggle = async (requestId: string, currentStatus: boolean) => {
 		try {
-			const { error } = await supabase
-				.from('immuno_requests')
-				.update({ pagado: !currentStatus })
-				.eq('id', requestId)
+			const { error } = await supabase.from('immuno_requests').update({ pagado: !currentStatus }).eq('id', requestId)
 
 			if (error) {
 				throw error
@@ -73,7 +96,7 @@ const ReactionsTable: React.FC = () => {
 			toast({
 				title: !currentStatus ? '✅ Marcado como pagado' : '⏳ Marcado como pendiente',
 				description: `El estado de pago ha sido actualizado.`,
-				className: !currentStatus 
+				className: !currentStatus
 					? 'bg-green-100 border-green-400 text-green-800'
 					: 'bg-orange-100 border-orange-400 text-orange-800',
 			})
@@ -106,16 +129,16 @@ const ReactionsTable: React.FC = () => {
 
 		try {
 			// Find the request to get n_reacciones
-			const request = immunoRequests?.find(r => r.id === requestId)
+			const request = immunoRequests?.find((r) => r.id === requestId)
 			if (!request) return
 
 			const newTotal = request.n_reacciones * price
 
 			const { error } = await supabase
 				.from('immuno_requests')
-				.update({ 
+				.update({
 					precio_unitario: price,
-					total: newTotal
+					total: newTotal,
 				})
 				.eq('id', requestId)
 
@@ -124,7 +147,7 @@ const ReactionsTable: React.FC = () => {
 			}
 
 			// Clear editing state
-			setEditingPrices(prev => {
+			setEditingPrices((prev) => {
 				const newState = { ...prev }
 				delete newState[requestId]
 				return newState
@@ -149,14 +172,14 @@ const ReactionsTable: React.FC = () => {
 	}
 
 	const startEditingPrice = (requestId: string, currentPrice: number) => {
-		setEditingPrices(prev => ({
+		setEditingPrices((prev) => ({
 			...prev,
-			[requestId]: currentPrice.toString()
+			[requestId]: currentPrice.toString(),
 		}))
 	}
 
 	const cancelEditingPrice = (requestId: string) => {
-		setEditingPrices(prev => {
+		setEditingPrices((prev) => {
 			const newState = { ...prev }
 			delete newState[requestId]
 			return newState
@@ -198,9 +221,7 @@ const ReactionsTable: React.FC = () => {
 	return (
 		<div className="p-3 sm:p-6 overflow-x-hidden max-w-full" ref={reportRef}>
 			<div className="mb-4">
-				<h2 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-2">
-					Solicitudes de Inmunorreacciones
-				</h2>
+				<h2 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-2">Solicitudes de Inmunorreacciones</h2>
 				<p className="text-sm text-gray-600 dark:text-gray-400">
 					Gestiona las solicitudes de inmunorreacciones y su estado de pago
 				</p>
@@ -236,79 +257,85 @@ const ReactionsTable: React.FC = () => {
 						immunoRequests.map((request) => {
 							const caseCode = request.medical_records_clean?.code || request.case_id.slice(-6).toUpperCase()
 							const isEditingPrice = editingPrices[request.id] !== undefined
-							
-						return (
-							<tr
-								key={request.id}
-								className={`hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-none ${
-									request.pagado ? 'bg-green-50/50 dark:bg-green-900/20' : ''
-								}`}
-							>
-								<td className="py-3 px-4 text-center">
-									<div className="flex justify-center items-center">
-										<input
-											type="checkbox"
-											checked={request.pagado}
-											onChange={() => handlePaymentToggle(request.id, request.pagado)}
-											className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded dark:bg-gray-700 dark:border-gray-600 cursor-pointer"
-										/>
-									</div>
-								</td>
-								<td className="py-3 px-4 text-center text-gray-800 dark:text-gray-200">{caseCode}</td>
-								<td className="py-3 px-4 text-center text-gray-700 dark:text-gray-300">{request.inmunorreacciones}</td>
-								<td className="py-3 px-4 text-center text-gray-700 dark:text-gray-300">{request.n_reacciones}</td>
-								<td className="py-3 px-4 text-center text-gray-700 dark:text-gray-300">
-									{isEditingPrice ? (
-										<div className="flex items-center justify-center gap-2">
-											<input
-												type="number"
-												step="0.01"
-												min="0"
-												value={editingPrices[request.id]}
-												onChange={(e) => setEditingPrices(prev => ({
-													...prev,
-													[request.id]: e.target.value
-												}))}
-												className="w-20 px-2 py-1 text-center border border-gray-300 rounded text-sm"
-												onKeyDown={(e) => {
-													if (e.key === 'Enter') {
-														handlePriceChange(request.id, editingPrices[request.id])
-													} else if (e.key === 'Escape') {
-														cancelEditingPrice(request.id)
-													}
-												}}
-												autoFocus
-											/>
-											<button
-												onClick={() => handlePriceChange(request.id, editingPrices[request.id])}
-												className="text-green-600 hover:text-green-800 text-xs"
-											>
-												✓
-											</button>
-											<button
-												onClick={() => cancelEditingPrice(request.id)}
-												className="text-red-600 hover:text-red-800 text-xs"
-											>
-												✕
-											</button>
-										</div>
-									) : (
-										<button
-											onClick={() => startEditingPrice(request.id, request.precio_unitario)}
-											className="text-blue-600 hover:text-blue-800 hover:underline"
-										>
-											${request.precio_unitario.toFixed(2)}
-										</button>
-									)}
-								</td>
-								<td
-									className={`py-3 px-4 text-center font-medium ${
-										request.pagado ? 'text-green-800 dark:text-green-300 line-through' : 'text-green-600 dark:text-green-400'
+
+							return (
+								<tr
+									key={request.id}
+									className={`hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-none ${
+										request.pagado ? 'bg-green-50/50 dark:bg-green-900/20' : ''
 									}`}
 								>
-									${request.total.toFixed(2)}
-								</td>
-							</tr>
+									<td className="py-3 px-4 text-center">
+										<div className="flex justify-center items-center">
+											<input
+												type="checkbox"
+												checked={request.pagado}
+												onChange={() => handlePaymentToggle(request.id, request.pagado)}
+												className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded dark:bg-gray-700 dark:border-gray-600 cursor-pointer"
+											/>
+										</div>
+									</td>
+									<td className="py-3 px-4 text-center text-gray-800 dark:text-gray-200">{caseCode}</td>
+									<td className="py-3 px-4 text-center text-gray-700 dark:text-gray-300">
+										{request.inmunorreacciones}
+									</td>
+									<td className="py-3 px-4 text-center text-gray-700 dark:text-gray-300">{request.n_reacciones}</td>
+									<td className="py-3 px-4 text-center text-gray-700 dark:text-gray-300">
+										{isEditingPrice ? (
+											<div className="flex items-center justify-center gap-2">
+												<input
+													type="number"
+													step="0.01"
+													min="0"
+													value={editingPrices[request.id]}
+													onChange={(e) =>
+														setEditingPrices((prev) => ({
+															...prev,
+															[request.id]: e.target.value,
+														}))
+													}
+													className="w-20 px-2 py-1 text-center border border-gray-300 rounded text-sm"
+													onKeyDown={(e) => {
+														if (e.key === 'Enter') {
+															handlePriceChange(request.id, editingPrices[request.id])
+														} else if (e.key === 'Escape') {
+															cancelEditingPrice(request.id)
+														}
+													}}
+													autoFocus
+												/>
+												<button
+													onClick={() => handlePriceChange(request.id, editingPrices[request.id])}
+													className="text-green-600 hover:text-green-800 text-xs"
+												>
+													✓
+												</button>
+												<button
+													onClick={() => cancelEditingPrice(request.id)}
+													className="text-red-600 hover:text-red-800 text-xs"
+												>
+													✕
+												</button>
+											</div>
+										) : (
+											<button
+												onClick={() => startEditingPrice(request.id, request.precio_unitario)}
+												className="text-blue-600 hover:text-blue-800 hover:underline"
+											>
+												${request.precio_unitario.toFixed(2)}
+											</button>
+										)}
+									</td>
+									<td
+										className={`py-3 px-4 text-center font-medium ${
+											request.pagado
+												? 'text-green-800 dark:text-green-300 line-through'
+												: 'text-green-600 dark:text-green-400'
+										}`}
+									>
+										${request.total.toFixed(2)}
+									</td>
+								</tr>
 							)
 						})
 					) : (
@@ -330,7 +357,7 @@ const ReactionsTable: React.FC = () => {
 						<td className="py-3 px-4 text-center font-bold text-green-700 dark:text-green-300">
 							{immunoRequests ? (
 								<>
-									{immunoRequests.every(r => r.pagado) ? (
+									{immunoRequests.every((r) => r.pagado) ? (
 										<span className="line-through">
 											${immunoRequests.reduce((sum, r) => sum + r.total, 0).toFixed(2)}
 										</span>
@@ -350,7 +377,7 @@ const ReactionsTable: React.FC = () => {
 			<div className="mt-4 text-sm text-gray-600 dark:text-gray-400">
 				{immunoRequests ? (
 					<>
-						{immunoRequests.filter(r => r.pagado).length} de {immunoRequests.length} pagos completados
+						{immunoRequests.filter((r) => r.pagado).length} de {immunoRequests.length} pagos completados
 					</>
 				) : (
 					'0 de 0 pagos completados'

@@ -1,9 +1,11 @@
-import React, { useState, useCallback, useMemo } from 'react'
+import React, { useState, useCallback, useMemo, useEffect } from 'react'
 import CasesTable from '@shared/components/cases/CasesTable'
 import { Users, MapPin, Microscope, FileText, Activity, Download, BarChart3 } from 'lucide-react'
 import { Card, CardContent } from '@shared/components/ui/card'
 import { type MedicalRecord } from '@lib/supabase-service'
 import { useUserProfile } from '@shared/hooks/useUserProfile'
+import { useQueryClient } from '@tanstack/react-query'
+import { supabase } from '@lib/supabase/config'
 
 interface RecordsSectionProps {
 	cases: MedicalRecord[]
@@ -24,6 +26,32 @@ export const RecordsSection: React.FC<RecordsSectionProps> = ({
 	setIsFullscreen,
 	onSearch,
 }) => {
+	const queryClient = useQueryClient()
+
+	useEffect(() => {
+		const channel = supabase
+			.channel('realtime-records-section')
+			.on(
+				'postgres_changes',
+				{
+					event: '*', // INSERT | UPDATE | DELETE
+					schema: 'public',
+					table: 'medical_records_clean',
+				},
+				() => {
+					// Invalidate any queries that might be used by the parent component
+					queryClient.invalidateQueries({ queryKey: ['medical-cases'] })
+					queryClient.invalidateQueries({ queryKey: ['my-medical-cases'] })
+					// Also trigger the refetch function passed as prop
+					refetch()
+				},
+			)
+			.subscribe()
+
+		return () => {
+			supabase.removeChannel(channel)
+		}
+	}, [queryClient, refetch])
 
 	const { profile } = useUserProfile()
 	const [showPendingOnly, setShowPendingOnly] = useState(false)
@@ -75,19 +103,19 @@ export const RecordsSection: React.FC<RecordsSectionProps> = ({
 		// If showPdfReadyOnly is true, filter to show only cases with PDF ready
 		if (showPdfReadyOnly) {
 			filtered = filtered.filter((c) => {
-				const pdfReadyValue = c.pdf_en_ready;
-				
+				const pdfReadyValue = c.pdf_en_ready
+
 				// Verificar si es string antes de usar toLowerCase
 				if (typeof pdfReadyValue === 'string') {
-					return pdfReadyValue === 'FALSE';
+					return pdfReadyValue === 'FALSE'
 				}
 				// Si es booleano
 				if (typeof pdfReadyValue === 'boolean') {
-					return pdfReadyValue === false;
+					return pdfReadyValue === false
 				}
 				// Para cualquier otro caso (null, undefined, etc.)
-				return false;
-			});
+				return false
+			})
 		}
 
 		return filtered
@@ -197,21 +225,23 @@ export const RecordsSection: React.FC<RecordsSectionProps> = ({
 
 	// Count PDF-ready cases using pdf_en_ready column
 	const pendingPdfCases = useMemo(() => {
-		return cases?.filter((c) => {
-			const pdfReadyValue = c.pdf_en_ready;
-			
-			// Verificar si es string antes de usar toLowerCase
-			if (typeof pdfReadyValue === 'string') {
-				return pdfReadyValue === 'FALSE';
-			}
-			// Si es booleano
-			if (typeof pdfReadyValue === 'boolean') {
-				return pdfReadyValue === false;
-			}
-			// Para cualquier otro caso (null, undefined, etc.)
-			return false;
-		}).length || 0;
-	}, [cases]);
+		return (
+			cases?.filter((c) => {
+				const pdfReadyValue = c.pdf_en_ready
+
+				// Verificar si es string antes de usar toLowerCase
+				if (typeof pdfReadyValue === 'string') {
+					return pdfReadyValue === 'FALSE'
+				}
+				// Si es booleano
+				if (typeof pdfReadyValue === 'boolean') {
+					return pdfReadyValue === false
+				}
+				// Para cualquier otro caso (null, undefined, etc.)
+				return false
+			}).length || 0
+		)
+	}, [cases])
 
 	return (
 		<div>
