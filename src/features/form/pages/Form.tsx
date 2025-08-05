@@ -225,7 +225,7 @@ function FormContent() {
 			</div>
 			<div className="container mx-auto py-4 px-2 sm:px-4">
 				<main
-					className={`min-h-screen flex flex-col transition-all duration-300 ease-in-out z-50 ${
+					className={`min-h-screen flex flex-col transition-all duration-300 ease-in-out z-50 overflow-y-auto ${
 						sidebarExpanded ? 'lg:ml-56' : 'lg:ml-16'
 					}`}
 				>

@@ -100,12 +100,24 @@
     /* Solo mantener transiciones para efectos hover/focus, no para cambios de tema */
   }
 
+  html {
+    height: 100%;
+    overflow-y: auto;
+  }
+
   body {
     @apply bg-background text-foreground font-sans;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     overflow-x: hidden;
+    overflow-y: auto;
+    min-height: 100%;
     /* Sin transiciones para cambio instantáneo */
+  }
+
+  #root {
+    min-height: 100%;
+    overflow-y: auto;
   }
 }
 

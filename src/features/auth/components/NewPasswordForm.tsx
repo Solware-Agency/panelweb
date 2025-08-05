@@ -176,7 +176,7 @@ function NewPasswordForm() {
 								<Lock className="text-white size-12" />
 							</div>
 							<div>
-								<h1 className="text-2xl font-bold text-white mb-2">Nueva Contraseña</h1>
+								<h1 className="text-2xl sm:text-3xl font-bold text-white mb-2">Nueva Contraseña</h1>
 							</div>
 							<p className="text-slate-300 text-center">
 								Ingresa tu nueva contraseña para completar el restablecimiento.

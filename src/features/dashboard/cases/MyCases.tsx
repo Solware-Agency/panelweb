@@ -98,7 +98,7 @@ const MyCases: React.FC = React.memo(() => {
 			{/* Page Title */}
 			<div className="mb-4 sm:mb-6">
 				<div>
-					<h1 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-gray-100">Mis Casos Generados</h1>
+					<h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-gray-100">Mis Casos Generados</h1>
 					<div className="w-16 sm:w-24 h-1 bg-primary mt-2 rounded-full" />
 				</div>
 				{cases.length === 0 && !isLoading ? (

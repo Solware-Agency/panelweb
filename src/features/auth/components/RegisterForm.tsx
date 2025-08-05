@@ -158,7 +158,7 @@ function RegisterForm() {
 								<UserRound className="text-white size-16" />
 							</div>
 							<div>
-								<h1 className="text-2xl font-bold text-white mb-2">Bienvenido a Conspat, Regístrate</h1>
+								<h1 className="text-2xl sm:text-3xl font-bold text-white mb-2">Bienvenido a SolHub</h1>
 							</div>
 							<p className="text-slate-300">Crea una cuenta para continuar</p>
 						</div>

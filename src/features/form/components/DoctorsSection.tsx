@@ -4,15 +4,13 @@ import { Stethoscope, Info } from 'lucide-react'
 
 export const DoctorsSection: React.FC = () => {
   return (
-    <div className="animate-fade-in p-3 sm:p-6">
-      			<div className="mb-4 sm:mb-6">
-				<div className="flex items-center justify-between">
-					<div>
-						<h2 className="text-xl sm:text-2xl font-semibold text-foreground mb-1 sm:mb-2">Médicos Tratantes</h2>
-						<div className="w-16 sm:w-24 h-1 bg-primary mt-2 rounded-full"></div>
-					</div>
-				</div>
-			</div>
+    <div className="animate-fade-in p-3 sm:p-4">
+      <div className="mb-4 sm:mb-6">
+        <div>
+          <h2 className="text-2xl sm:text-3xl font-bold">Médicos Tratantes</h2>
+          <div className="w-16 sm:w-24 h-1 bg-primary mt-2 rounded-full"></div>
+        </div>
+      </div>
       <div className="grid grid-cols-1 gap-6">
         <Card className="hover:border-primary hover:shadow-lg hover:shadow-primary/20">
           <div className="p-6">
