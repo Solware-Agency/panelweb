@@ -392,14 +392,14 @@ const StepsCaseModal: React.FC<StepsCaseModalProps> = ({ case_, isOpen, onClose,
 									variant="outline"
 									onClick={handleTransformToPDF}
 									className="flex-1"
-									disabled={isSaving || !case_?.pdf_en_ready}
+									disabled={isSaving || !case_?.googledocs_url}
 								>
 									{isSaving ? (
 										<>
 											<div className="w-4 h-4 border-2 border-gray-600 border-t-transparent rounded-full animate-spin mr-2" />
 											Generando PDF...
 										</>
-									) : !case_?.pdf_en_ready ? (
+									) : !case_?.googledocs_url ? (
 										'PDF no disponible aún'
 									) : (
 										'Descargar PDF'
@@ -409,7 +409,7 @@ const StepsCaseModal: React.FC<StepsCaseModalProps> = ({ case_, isOpen, onClose,
 						</div>
 						<div className="bg-gradient-to-br from-teal-50 to-cyan-50 dark:from-teal-900/20 dark:to-cyan-900/20 p-4 rounded-lg border border-teal-200 dark:border-teal-800">
 							<p className="text-teal-400 text-sm">
-								{!case_?.pdf_en_ready
+								{!case_?.googledocs_url
 									? 'El PDF aún no está listo para descargar. Completa el primer paso y espera a que el sistema procese el documento.'
 									: 'Dale clic al botón que tienes arriba y espera unos segundos mientras preparamos tu documento. Ten paciencia, este proceso puede tardar un poco dependiendo de la carga del sistema. No cierres esta pestaña hasta que el documento esté listo.'}
 							</p>
