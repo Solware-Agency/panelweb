@@ -278,7 +278,7 @@ function AuthCallback() {
 								{status === 'error' && <AlertCircle className="text-white size-12" />}
 							</div>
 
-							<h1 className="text-2xl font-bold text-white mb-2">
+															<h1 className="text-2xl sm:text-3xl font-bold text-white mb-2">
 								{status === 'loading' && 'Verificando...'}
 								{status === 'success' && '¡Verificación Exitosa!'}
 								{status === 'error' && 'Error de Verificación'}

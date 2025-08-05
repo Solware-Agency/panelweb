@@ -75,7 +75,7 @@ function PasswordResetForm() {
 								<Lock className="text-white size-16" />
 							</div>
 							<div>
-								<h1 className="text-2xl font-bold text-white mb-2">Restablecer Contraseña</h1>
+								<h1 className="text-2xl sm:text-3xl font-bold text-white mb-2">Restablecer Contraseña</h1>
 							</div>
 							<p className="text-slate-300">Ingresa tu correo electrónico para recibir instrucciones</p>
 						</div>

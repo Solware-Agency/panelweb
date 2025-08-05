@@ -14,7 +14,7 @@ const ExamTypePieChart: React.FC = () => {
 		const updateSize = () => {
 			if (containerRef.current) {
 				const { width } = containerRef.current.getBoundingClientRect()
-				const size = Math.min(width * 0.8, 300) // Limit max size
+				const size = Math.min(width * 0.7, 220) // Limit max size
 				setChartSize({ width: size, height: size })
 			}
 		}
@@ -73,34 +73,33 @@ const ExamTypePieChart: React.FC = () => {
 		})) || []
 
 	// SVG path for pie slice
-	const createPieSlice = (startAngle: number, endAngle: number, radius: number) => {
-		const center = radius
+	const createPieSlice = (startAngle: number, endAngle: number, radius: number, centerX: number, centerY: number) => {
 		const start = {
-			x: center + radius * Math.cos((startAngle - 90) * (Math.PI / 180)),
-			y: center + radius * Math.sin((startAngle - 90) * (Math.PI / 180)),
+			x: centerX + radius * Math.cos((startAngle - 90) * (Math.PI / 180)),
+			y: centerY + radius * Math.sin((startAngle - 90) * (Math.PI / 180)),
 		}
 		const end = {
-			x: center + radius * Math.cos((endAngle - 90) * (Math.PI / 180)),
-			y: center + radius * Math.sin((endAngle - 90) * (Math.PI / 180)),
+			x: centerX + radius * Math.cos((endAngle - 90) * (Math.PI / 180)),
+			y: centerY + radius * Math.sin((endAngle - 90) * (Math.PI / 180)),
 		}
 
 		const largeArcFlag = endAngle - startAngle <= 180 ? 0 : 1
 
-		return `M ${center} ${center} L ${start.x} ${start.y} A ${radius} ${radius} 0 ${largeArcFlag} 1 ${end.x} ${end.y} Z`
+		return `M ${centerX} ${centerY} L ${start.x} ${start.y} A ${radius} ${radius} 0 ${largeArcFlag} 1 ${end.x} ${end.y} Z`
 	}
 
 	return (
-		<Card className="col-span-1 grid hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 transition-transform duration-300 shadow-lg">
-			<div className="bg-white dark:bg-background rounded-xl p-3 sm:p-5 overflow-hidden">
-				<div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 sm:mb-6">
-					<h3 className="text-lg sm:text-xl font-bold text-gray-700 dark:text-gray-300 mb-2 sm:mb-0">
+		<Card className="col-span-1 grid hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 transition-transform duration-300 shadow-lg h-full">
+			<div className="bg-white dark:bg-background rounded-xl p-3 overflow-hidden flex flex-col h-full">
+				<div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-3">
+					<h3 className="text-lg font-bold text-gray-700 dark:text-gray-300 mb-2 sm:mb-0">
 						Tipos de Exámenes Más Solicitados
 					</h3>
 				</div>
 
-				<div className="flex flex-col lg:flex-row items-center gap-4 sm:gap-6">
+				<div className="flex flex-col lg:flex-row items-center gap-3 flex-1">
 					{/* Pie Chart */}
-					<div ref={containerRef} className="relative flex items-center justify-center w-full lg:w-1/2">
+					<div ref={containerRef} className="relative flex items-center justify-center w-full lg:w-1/2 flex-shrink-0 p-2">
 						{isLoading ? (
 							<div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
 						) : pieData.length > 0 ? (
@@ -108,17 +107,19 @@ const ExamTypePieChart: React.FC = () => {
 								<svg
 									width={chartSize.width}
 									height={chartSize.height}
-									viewBox={`0 0 ${chartSize.width} ${chartSize.height}`}
+									viewBox={`-10 -10 ${chartSize.width + 20} ${chartSize.height + 20}`}
 									className="transform -rotate-90"
 								>
 									{pieData.map((item, index) => {
-										const radius = chartSize.width / 2
+										const radius = (chartSize.width - 20) / 2
+										const centerX = chartSize.width / 2
+										const centerY = chartSize.height / 2
 										const isHovered = hoveredSegmentIndex === index
 
 										return (
 											<path
 												key={index}
-												d={createPieSlice(item.startAngle, item.endAngle, radius * (isHovered ? 0.95 : 0.9))}
+												d={createPieSlice(item.startAngle, item.endAngle, radius * (isHovered ? 0.95 : 0.9), centerX, centerY)}
 												fill={item.color}
 												stroke="white"
 												strokeWidth={isHovered ? 3 : 1}
@@ -137,7 +138,7 @@ const ExamTypePieChart: React.FC = () => {
 									<circle
 										cx={chartSize.width / 2}
 										cy={chartSize.height / 2}
-										r={chartSize.width / 4}
+										r={(chartSize.width - 20) / 4}
 										fill="white"
 										className="dark:fill-background"
 									/>
@@ -160,15 +161,15 @@ const ExamTypePieChart: React.FC = () => {
 					</div>
 
 					{/* Legend */}
-					<div className="max-w-full lg:w-1/2 space-y-2 mt-4 lg:mt-0">
+					<div className="max-w-full lg:w-1/2 space-y-2 lg:mt-0 flex-1 min-h-0">
 						{isLoading ? (
 							<div className="space-y-2">
 								{[1, 2, 3].map((i) => (
-									<div key={i} className="animate-pulse bg-gray-200 dark:bg-gray-700 h-10 rounded-lg"></div>
+									<div key={i} className="animate-pulse bg-gray-200 dark:bg-gray-700 h-8 rounded-lg"></div>
 								))}
 							</div>
 						) : pieData.length > 0 ? (
-							<div className="space-y-2 max-h-[300px] overflow-y-auto pr-2">
+							<div className="space-y-1.5 max-h-full overflow-y-auto pr-2">
 								{pieData.map((item, index) => (
 									<div
 										key={index}
@@ -178,7 +179,7 @@ const ExamTypePieChart: React.FC = () => {
 									>
 										<div className="flex items-center gap-2">
 											<div
-												className="w-8 h-8 rounded-lg flex items-center justify-center"
+												className="w-7 h-7 rounded-lg flex items-center justify-center"
 												style={{ backgroundColor: item.color }}
 											>
 												{getExamTypeIcon(item.examType)}
@@ -195,7 +196,7 @@ const ExamTypePieChart: React.FC = () => {
 												</div>
 											</div>
 										</div>
-										<p className="text-base font-bold text-gray-700 dark:text-gray-300 whitespace-nowrap">
+										<p className="text-sm font-bold text-gray-700 dark:text-gray-300 whitespace-nowrap">
 											{formatCurrency(item.revenue)}
 										</p>
 									</div>

@@ -38,7 +38,7 @@ function PendingApprovalPage() {
 								<Clock className="text-white size-12" />
 							</div>
 							<div>
-								<h1 className="text-2xl font-bold text-white mb-2">Cuenta Pendiente de Aprobación</h1>
+								<h1 className="text-2xl sm:text-3xl font-bold text-white mb-2">Cuenta Pendiente de Aprobación</h1>
 							</div>
 							<p className="text-slate-300 text-center">Tu cuenta está pendiente de aprobación por un administrador.</p>
 						</div>

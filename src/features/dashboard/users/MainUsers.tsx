@@ -58,10 +58,10 @@ const MainUsers: React.FC = () => {
 	const { profile } = useUserProfile()
 	const { toast } = useToast()
 	const [searchTerm, setSearchTerm] = useState('')
-	const [roleFilter, setRoleFilter] = useState<string>('all')
+	const [roleFilter, setRoleFilter] = useState<string>('')
 	const [statusFilter] = useState<string>('all')
-	const [branchFilter, setbranchFilter] = useState<string>('all')
-	const [approvalFilter, setApprovalFilter] = useState<string>('all')
+	const [branchFilter, setbranchFilter] = useState<string>('')
+	const [approvalFilter, setApprovalFilter] = useState<string>('')
 	const [confirmDialogOpen, setConfirmDialogOpen] = useState(false)
 	const [roleFilterOptions, setRoleFilterOptions] = useState<string[]>(['all', 'owner', 'employee', 'admin'])
 	const [userToUpdate, setUserToUpdate] = useState<{
@@ -401,20 +401,20 @@ const MainUsers: React.FC = () => {
 			const matchesSearch =
 				user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
 				(user.display_name || '').toLowerCase().includes(searchTerm.toLowerCase())
-			const matchesRole = roleFilter === 'all' || user.role === roleFilter
-			const matchesStatus =
-				statusFilter === 'all' ||
-				(statusFilter === 'verified' && user.email_confirmed_at) ||
-				(statusFilter === 'unverified' && !user.email_confirmed_at)
-			const matchesBranch =
-				branchFilter === 'all' ||
-				(branchFilter === 'assigned' && user.assigned_branch) ||
-				(branchFilter === 'unassigned' && !user.assigned_branch) ||
-				user.assigned_branch === branchFilter
-			const matchesApproval =
-				approvalFilter === 'all' ||
-				(approvalFilter === 'aprobado' && user.estado === 'aprobado') ||
-				(approvalFilter === 'pendiente' && user.estado === 'pendiente')
+					const matchesRole = roleFilter === '' || roleFilter === 'all' || user.role === roleFilter
+		const matchesStatus =
+			statusFilter === 'all' ||
+			(statusFilter === 'verified' && user.email_confirmed_at) ||
+			(statusFilter === 'unverified' && !user.email_confirmed_at)
+		const matchesBranch =
+			branchFilter === '' || branchFilter === 'all' ||
+			(branchFilter === 'assigned' && user.assigned_branch) ||
+			(branchFilter === 'unassigned' && !user.assigned_branch) ||
+			user.assigned_branch === branchFilter
+		const matchesApproval =
+			approvalFilter === '' || approvalFilter === 'all' ||
+			(approvalFilter === 'aprobado' && user.estado === 'aprobado') ||
+			(approvalFilter === 'pendiente' && user.estado === 'pendiente')
 
 			return matchesSearch && matchesRole && matchesStatus && matchesBranch && matchesApproval
 		}) || []
@@ -468,7 +468,7 @@ const MainUsers: React.FC = () => {
 			{/* Page Title */}
 			<div className="mb-4 sm:mb-6">
 				<div>
-					<h1 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-gray-100">
+					<h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-gray-100">
 						{profile?.role === 'admin' ? 'Gestión de Médicos' : 'Gestión de Usuarios'}
 					</h1>
 					<div className="w-16 sm:w-24 h-1 bg-primary mt-2 rounded-full" />
@@ -480,135 +480,118 @@ const MainUsers: React.FC = () => {
 				</p>
 			</div>
 
-			{/* Estadísticas - Responsive Grid */}
-			<div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3 mb-3 sm:mb-5">
-				<Card className="hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 transition-transform duration-300 shadow-lg">
-					<div className="bg-white dark:bg-background rounded-xl p-2 sm:p-3">
-						<div className="flex items-center justify-between mb-1 sm:mb-2">
-							<div className="p-1 sm:p-1.5 bg-green-100 dark:bg-green-900/30 rounded-lg">
-								<User className="w-3 h-3 sm:w-4 sm:h-4 text-green-600 dark:text-green-400" />
-							</div>
-						</div>
-						<div>
-							<h3 className="text-xs font-medium text-gray-500 dark:text-gray-400">Total Usuarios</h3>
-							<p className="text-lg sm:text-xl font-bold text-gray-700 dark:text-gray-300">{stats.total}</p>
-						</div>
-					</div>
-				</Card>
-
-				<Card className="hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 transition-transform duration-300 shadow-lg">
-					<div className="bg-white dark:bg-background rounded-xl p-2 sm:p-3">
-						<div className="flex items-center justify-between mb-1 sm:mb-2">
-							<div className="p-1 sm:p-1.5 bg-yellow-100 dark:bg-yellow-900/30 rounded-lg">
-								<Crown className="w-3 h-3 sm:w-4 sm:h-4 text-yellow-600 dark:text-yellow-400" />
-							</div>
-						</div>
-						<div>
-							<h3 className="text-xs font-medium text-gray-500 dark:text-gray-400">Propietarios</h3>
-							<p className="text-lg sm:text-xl font-bold text-gray-700 dark:text-gray-300">{stats.owners}</p>
-						</div>
-					</div>
-				</Card>
-
-				<Card className="hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 transition-transform duration-300 shadow-lg">
-					<div className="bg-white dark:bg-background rounded-xl p-2 sm:p-3">
-						<div className="flex items-center justify-between mb-1 sm:mb-2">
-							<div className="p-1 sm:p-1.5 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
-								<Briefcase className="w-3 h-3 sm:w-4 sm:h-4 text-blue-600 dark:text-blue-400" />
-							</div>
-						</div>
-						<div>
-							<h3 className="text-xs font-medium text-gray-500 dark:text-gray-400">Recepcionistas</h3>
-							<p className="text-lg sm:text-xl font-bold text-gray-700 dark:text-gray-300">{stats.employees}</p>
-						</div>
-					</div>
-				</Card>
-
-				<Card className="hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 transition-transform duration-300 shadow-lg">
-					<div className="bg-white dark:bg-background rounded-xl p-2 sm:p-3">
-						<div className="flex items-center justify-between mb-1 sm:mb-2">
-							<div className="p-1 sm:p-1.5 bg-purple-100 dark:bg-purple-900/30 rounded-lg">
-								<ShieldCheck className="w-3 h-3 sm:w-4 sm:h-4 text-purple-600 dark:text-purple-400" />
-							</div>
-						</div>
-						<div>
-							<h3 className="text-xs font-medium text-gray-500 dark:text-gray-400">Administradores</h3>
-							<p className="text-lg sm:text-xl font-bold text-gray-700 dark:text-gray-300">{stats.admins}</p>
-						</div>
-					</div>
-				</Card>
-			</div>
-
-			{/* Filtros y búsqueda */}
+			{/* Filtros, búsqueda y estadísticas */}
 			<Card className="hover:border-primary hover:shadow-lg hover:shadow-primary/20 transition-transform duration-300 shadow-lg mb-3 sm:mb-5">
 				<div className="bg-white dark:bg-background rounded-xl p-3 sm:p-6">
-					<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-6 gap-2 sm:gap-3">
-						{/* Búsqueda */}
-						<div className="col-span-1 sm:col-span-2 lg:col-span-2 xl:col-span-2 relative">
-							<Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
-							<Input
-								type="text"
-								placeholder="Buscar por email o nombre..."
-								value={searchTerm}
-								onChange={(e) => setSearchTerm(e.target.value)}
-								className="pl-10"
-							/>
+					{/* Todo en una sola línea horizontal */}
+					<div className="flex items-center justify-between gap-2 overflow-x-auto">
+						{/* Lado izquierdo: Búsqueda y filtros */}
+						<div className="flex items-center gap-2 flex-shrink-0">
+							{/* Búsqueda */}
+							<div className="relative w-48">
+								<Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+								<Input
+									type="text"
+									placeholder="Buscar..."
+									value={searchTerm}
+									onChange={(e) => setSearchTerm(e.target.value)}
+									className="pl-10 h-8 text-xs"
+								/>
+							</div>
+
+							{/* Filtros súper compactos */}
+							<div className="flex items-center gap-1">
+								{/* Filtro por rol */}
+								<div className="flex items-center gap-1">
+									<Filter className="w-3 h-3 text-gray-400" />
+									<Select value={roleFilter} onValueChange={setRoleFilter}>
+										<SelectTrigger className="w-24 h-8 text-xs">
+											<SelectValue placeholder="Rol" />
+										</SelectTrigger>
+										<SelectContent>
+											{roleFilterOptions.map((role) => (
+												<SelectItem key={role} value={role}>
+													{role === 'all'
+														? 'Todos'
+														: role === 'owner'
+														? 'Propietarios'
+														: role === 'employee'
+														? 'Recepcionistas'
+														: 'Médicos'}
+												</SelectItem>
+											))}
+										</SelectContent>
+									</Select>
+								</div>
+
+								{/* Filtro por aprobación */}
+								<Select value={approvalFilter} onValueChange={setApprovalFilter}>
+									<SelectTrigger className="w-24 h-8 text-xs">
+										<SelectValue placeholder="Estado" />
+									</SelectTrigger>
+									<SelectContent>
+										<SelectItem value="all">Todos</SelectItem>
+										<SelectItem value="aprobado">Aprobados</SelectItem>
+										<SelectItem value="pendiente">Pendientes</SelectItem>
+									</SelectContent>
+								</Select>
+
+								{/* Filtro por sede */}
+								<Select value={branchFilter} onValueChange={setbranchFilter}>
+									<SelectTrigger className="w-24 h-8 text-xs">
+										<SelectValue placeholder="Sede" />
+									</SelectTrigger>
+									<SelectContent>
+										<SelectItem value="all">Todas</SelectItem>
+										<SelectItem value="assigned">Asignada</SelectItem>
+										<SelectItem value="unassigned">Sin sede</SelectItem>
+										<SelectItem value="PMG">PMG</SelectItem>
+										<SelectItem value="CPC">CPC</SelectItem>
+										<SelectItem value="CNX">CNX</SelectItem>
+										<SelectItem value="STX">STX</SelectItem>
+										<SelectItem value="MCY">MCY</SelectItem>
+									</SelectContent>
+								</Select>
+							</div>
 						</div>
 
-						{/* Filtro por rol */}
-						<div className="col-span-1 sm:col-span-1 lg:col-span-1 xl:col-span-1 flex items-center gap-2">
-							<Filter className="w-4 h-4 text-gray-400" />
-							<Select value={roleFilter} onValueChange={setRoleFilter}>
-								<SelectTrigger className="w-40">
-									<SelectValue placeholder={profile?.role === 'admin' ? 'Médicos' : 'Filtrar por rol'} />
-								</SelectTrigger>
-								<SelectContent>
-									{roleFilterOptions.map((role) => (
-										<SelectItem key={role} value={role}>
-											{role === 'all'
-												? 'Todos los roles'
-												: role === 'owner'
-												? 'Propietarios'
-												: role === 'employee'
-												? 'Recepcionistas'
-												: 'Médicos'}
-										</SelectItem>
-									))}
-								</SelectContent>
-							</Select>
-						</div>
+						{/* Lado derecho: Estadísticas compactas */}
+						<div className="flex items-center gap-1 flex-shrink-0">
+							{/* Total Usuarios */}
+							<div className="flex items-center gap-1 bg-green-50 dark:bg-green-900/20 hover:bg-green-100 dark:hover:bg-green-900/30 rounded px-2 py-1 transition-colors cursor-default">
+								<User className="w-3 h-3 text-green-600 dark:text-green-400" />
+								<div className="flex flex-col">
+									<span className="text-xs font-medium text-gray-600 dark:text-gray-400">Total</span>
+									<span className="text-xs font-bold text-green-700 dark:text-green-300">{stats.total}</span>
+								</div>
+							</div>
 
-						{/* Filtro por aprobación */}
-						<div className="col-span-1 sm:col-span-1 lg:col-span-1 xl:col-span-1 flex items-center gap-2">
-							<Select value={approvalFilter} onValueChange={setApprovalFilter}>
-								<SelectTrigger className="w-40">
-									<SelectValue placeholder="Filtrar por aprobación" />
-								</SelectTrigger>
-								<SelectContent>
-									<SelectItem value="all">Todos</SelectItem>
-									<SelectItem value="aprobado">Aprobados</SelectItem>
-									<SelectItem value="pendiente">Pendientes</SelectItem>
-								</SelectContent>
-							</Select>
-						</div>
+							{/* Propietarios */}
+							<div className="flex items-center gap-1 bg-yellow-50 dark:bg-yellow-900/20 hover:bg-yellow-100 dark:hover:bg-yellow-900/30 rounded px-2 py-1 transition-colors cursor-default">
+								<Crown className="w-3 h-3 text-yellow-600 dark:text-yellow-400" />
+								<div className="flex flex-col">
+									<span className="text-xs font-medium text-gray-600 dark:text-gray-400">Propietarios</span>
+									<span className="text-xs font-bold text-yellow-700 dark:text-yellow-300">{stats.owners}</span>
+								</div>
+							</div>
 
-						{/* Filtro por sede */}
-						<div className="col-span-1 sm:col-span-1 lg:col-span-1 xl:col-span-1 flex items-center gap-2">
-							<Select value={branchFilter} onValueChange={setbranchFilter}>
-								<SelectTrigger className="w-40">
-									<SelectValue placeholder="Filtrar por sede" />
-								</SelectTrigger>
-								<SelectContent>
-									<SelectItem value="all">Todas las sedes</SelectItem>
-									<SelectItem value="assigned">Con sede asignada</SelectItem>
-									<SelectItem value="unassigned">Sin sede asignada</SelectItem>
-									<SelectItem value="PMG">PMG</SelectItem>
-									<SelectItem value="CPC">CPC</SelectItem>
-									<SelectItem value="CNX">CNX</SelectItem>
-									<SelectItem value="STX">STX</SelectItem>
-									<SelectItem value="MCY">MCY</SelectItem>
-								</SelectContent>
-							</Select>
+							{/* Recepcionistas */}
+							<div className="flex items-center gap-1 bg-blue-50 dark:bg-blue-900/20 hover:bg-blue-100 dark:hover:bg-blue-900/30 rounded px-2 py-1 transition-colors cursor-default">
+								<Briefcase className="w-3 h-3 text-blue-600 dark:text-blue-400" />
+								<div className="flex flex-col">
+									<span className="text-xs font-medium text-gray-600 dark:text-gray-400">Recepcionistas</span>
+									<span className="text-xs font-bold text-blue-700 dark:text-blue-300">{stats.employees}</span>
+								</div>
+							</div>
+
+							{/* Administradores */}
+							<div className="flex items-center gap-1 bg-purple-50 dark:bg-purple-900/20 hover:bg-purple-100 dark:hover:bg-purple-900/30 rounded px-2 py-1 transition-colors cursor-default">
+								<ShieldCheck className="w-3 h-3 text-purple-600 dark:text-purple-400" />
+								<div className="flex flex-col">
+									<span className="text-xs font-medium text-gray-600 dark:text-gray-400">Administradores</span>
+									<span className="text-xs font-bold text-purple-700 dark:text-purple-300">{stats.admins}</span>
+								</div>
+							</div>
 						</div>
 					</div>
 				</div>

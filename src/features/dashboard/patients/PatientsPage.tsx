@@ -98,16 +98,16 @@ const PatientsPage: React.FC = React.memo(() => {
 	}, [recordsData])
 
 	// Solo bloquear scroll cuando estamos en la página de pacientes del dashboard
-	// No bloquear cuando estamos en el formulario como tab
-	const isDashboardPatientsPage = location.pathname === '/patients'
+	// No bloquear cuando estamos en el formulario como tab o en rutas de empleados
+	const isDashboardPatientsPage = location.pathname === '/dashboard/patients'
 	useBodyScrollLock(isDashboardPatientsPage)
 
 	return (
 		<div className="p-3 sm:p-4">
 			{/* Título y descripción arriba */}
-			<div className="mb-6">
+			<div className="mb-4 sm:mb-6">
 				<div>
-					<h1 className="text-2xl font-bold">Pacientes</h1>
+					<h1 className="text-2xl sm:text-3xl font-bold">Pacientes</h1>
 					<div className="w-16 sm:w-24 h-1 bg-primary mt-2 rounded-full" />
 				</div>
 				<p className="text-sm text-gray-600 dark:text-gray-400 mt-1 sm:mt-2">

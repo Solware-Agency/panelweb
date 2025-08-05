@@ -162,8 +162,10 @@ export const SettingsSection: React.FC = () => {
 
   return (
     <div className="animate-fade-in">
-      <h1 className="text-2xl font-bold mb-6">Ajustes de Usuario</h1>
-      <div className="w-16 sm:w-24 h-1 bg-primary mt-2 rounded-full mb-6"></div>
+      <div className="mb-4 sm:mb-6">
+        <h1 className="text-2xl sm:text-3xl font-bold mb-1 sm:mb-2">Ajustes de Usuario</h1>
+        <div className="w-16 sm:w-24 h-1 bg-primary mt-2 rounded-full"></div>
+      </div>
       
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Profile Information */}
