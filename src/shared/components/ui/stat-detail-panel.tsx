@@ -1,6 +1,6 @@
 import React from 'react'
 import { motion, AnimatePresence } from 'motion/react'
-import { X, BarChart3, DollarSign, Users, Clock, CheckCircle, XCircle } from 'lucide-react'
+import { X, BarChart3, DollarSign, Users, CheckCircle, XCircle } from 'lucide-react'
 import { Button } from '@shared/components/ui/button'
 import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
@@ -486,26 +486,10 @@ const StatDetailPanel: React.FC<StatDetailPanelProps> = ({
 						</div>
 
 						<div className="bg-white dark:bg-gray-800 rounded-lg p-6 border border-gray-200 dark:border-gray-700">
-							<h3 className="text-xl font-bold mb-4 text-gray-900 dark:text-gray-100">Acciones Recomendadas</h3>
-							<div className="space-y-3">
-								<div className="bg-orange-50 dark:bg-orange-900/20 p-4 rounded-lg border border-orange-200 dark:border-orange-800">
-									<div className="flex items-center gap-2 mb-1">
-										<Clock className="w-4 h-4 text-orange-600 dark:text-orange-400" />
-										<span className="text-sm font-medium text-orange-800 dark:text-orange-300">
-											Seguimiento de Pagos
-										</span>
-									</div>
-									<p className="text-xs text-orange-700 dark:text-orange-300">
-										Hay {stats.incompleteCases} casos con pagos pendientes por un total de{' '}
-										{formatCurrency(stats.pendingPayments)}
-									</p>
-								</div>
-
-								<Button className="w-full bg-primary hover:bg-primary/80">
-									<BarChart3 className="w-4 h-4 mr-2" />
-									Ver Todos los Casos Incompletos
-								</Button>
-							</div>
+							<Button className="w-full bg-primary hover:bg-primary/80">
+								<BarChart3 className="w-4 h-4 mr-2" />
+								Ver Todos los Casos Incompletos
+							</Button>
 						</div>
 					</div>
 				)
@@ -561,26 +545,10 @@ const StatDetailPanel: React.FC<StatDetailPanelProps> = ({
 						</div>
 
 						<div className="bg-white dark:bg-gray-800 rounded-lg p-6 border border-gray-200 dark:border-gray-700">
-							<h3 className="text-xl font-bold mb-4 text-gray-900 dark:text-gray-100">Acciones Recomendadas</h3>
-							<div className="space-y-3">
-								<div className="bg-orange-50 dark:bg-orange-900/20 p-4 rounded-lg border border-orange-200 dark:border-orange-800">
-									<div className="flex items-center gap-2 mb-1">
-										<Clock className="w-4 h-4 text-orange-600 dark:text-orange-400" />
-										<span className="text-sm font-medium text-orange-800 dark:text-orange-300">
-											Seguimiento de Pagos
-										</span>
-									</div>
-									<p className="text-xs text-orange-700 dark:text-orange-300">
-										Hay {stats.incompleteCases} casos con pagos pendientes por un total de{' '}
-										{formatCurrency(stats.pendingPayments)}
-									</p>
-								</div>
-
-								<Button className="w-full bg-primary hover:bg-primary/80">
-									<BarChart3 className="w-4 h-4 mr-2" />
-									Ver Todos los Casos con Pagos Pendientes
-								</Button>
-							</div>
+							<Button className="w-full bg-primary hover:bg-primary/80">
+								<BarChart3 className="w-4 h-4 mr-2" />
+								Ver Todos los Casos con Pagos Pendientes
+							</Button>
 						</div>
 					</div>
 				)

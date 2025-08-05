@@ -143,6 +143,7 @@ export function MedicalFormContainer() {
 						title: '✅ Registro guardado exitosamente',
 						description: `El registro médico ha sido guardado con código: ${insertedRecord.code || insertedRecord.id}`,
 						className: 'bg-green-100 border-green-400 text-green-800',
+						duration: 12000, // 12 segundos
 					})
 					setIsSubmitted(true)
 

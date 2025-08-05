@@ -274,6 +274,7 @@ const UserSettingsPanel: React.FC = () => {
 										{showNewPassword ? <EyeOff size={18} /> : <Eye size={18} />}
 									</button>
 								</div>
+								<p className="text-xs text-gray-500 mt-1">Debe tener al menos 6 caracteres para mayor seguridad.</p>
 							</div>
 
 							<div>
@@ -296,6 +297,7 @@ const UserSettingsPanel: React.FC = () => {
 										{showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
 									</button>
 								</div>
+								<p className="text-xs text-gray-500 mt-1">Repite la contraseña para confirmar que es correcta.</p>
 							</div>
 
 							{passwordError && (
