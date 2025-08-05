@@ -354,7 +354,7 @@ export const deleteMedicalRecord = async (id: string) => {
 		console.log(`🗑️ Deleting medical record ${id} from ${TABLE_NAME}`)
 
 		// Get record details before deleting for the log
-		const { data: recordToDelete, error: fetchError } = await getMedicalRecordById(id)
+		const { error: fetchError } = await getMedicalRecordById(id)
 
 		// If record doesn't exist, treat as successful deletion
 		if (fetchError && typeof fetchError === 'object' && 'code' in fetchError && fetchError.code === 'PGRST116') {
@@ -367,28 +367,8 @@ export const deleteMedicalRecord = async (id: string) => {
 			return { data: null, error: fetchError }
 		}
 
-		// Log the deletion action first
-		try {
-			const {
-				data: { user },
-			} = await supabase.auth.getUser()
-			if (user && recordToDelete) {
-				await saveChangeLog(id, user.id, user.email || 'unknown@email.com', [
-					{
-						field: 'deleted_record',
-						fieldLabel: 'Registro Eliminado',
-						oldValue: `${recordToDelete.code || id} - ${recordToDelete.full_name}`,
-						newValue: null,
-					},
-				])
-				console.log(`✅ Deletion logged successfully for record ${id}`)
-			} else {
-				console.warn('⚠️ Could not log deletion: User or record not found')
-			}
-		} catch (logError) {
-			console.error('❌ Error logging record deletion:', logError)
-			// Continue with deletion even if logging fails
-		}
+		// The trigger will automatically create the deletion log
+		// No need to manually log the deletion here
 
 		// Perform the actual deletion
 		const { data, error } = await supabase.from(TABLE_NAME).delete().eq('id', id).select()
@@ -474,11 +454,41 @@ export const getAllChangeLogs = async (limit = 50, offset = 0) => {
 	try {
 		const { data, error } = await supabase
 			.from(CHANGE_LOG_TABLE)
-			.select('*, medical_records_clean!inner(id, full_name, code)')
+			.select(
+				`
+				*,
+				medical_records_clean(
+					id,
+					full_name,
+					code
+				)
+			`,
+			)
 			.order('changed_at', { ascending: false })
 			.range(offset, offset + limit - 1)
 
-		return { data, error }
+		if (error) {
+			console.error('Error fetching all change logs:', error)
+			return { data: null, error }
+		}
+
+		// Transform the data to handle deleted records
+		const transformedData = data?.map((log: any) => {
+			// If medical_record_id is null (deleted record), use deleted_record_info
+			if (!log.medical_record_id && log.deleted_record_info) {
+				return {
+					...log,
+					medical_records_clean: {
+						id: null,
+						full_name: log.deleted_record_info,
+						code: null,
+					},
+				}
+			}
+			return log
+		})
+
+		return { data: transformedData, error: null }
 	} catch (error) {
 		console.error('Error fetching all change logs:', error)
 		return { data: null, error }

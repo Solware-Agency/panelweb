@@ -1,16 +1,37 @@
-import React, { useState, useCallback, useMemo } from 'react'
-import { Download, RefreshCw } from 'lucide-react'
+import React, { useState, useCallback, useMemo, useEffect } from 'react'
 import CasesTable from '@shared/components/cases/CasesTable'
 import CaseDetailPanel from '@shared/components/cases/CaseDetailPanel'
 import type { MedicalRecord } from '@lib/supabase-service'
-import { useQuery } from '@tanstack/react-query'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { supabase } from '@lib/supabase/config'
-import { Card } from '@shared/components/ui/card'
 import { useAuth } from '@app/providers/AuthContext'
 import { useUserProfile } from '@shared/hooks/useUserProfile'
 import DoctorFilterPanel from '@shared/components/cases/DoctorFilterPanel'
 
 const MyCases: React.FC = React.memo(() => {
+	const queryClient = useQueryClient()
+
+	useEffect(() => {
+		const channel = supabase
+			.channel('realtime-my-cases')
+			.on(
+				'postgres_changes',
+				{
+					event: '*', // INSERT | UPDATE | DELETE
+					schema: 'public',
+					table: 'medical_records_clean',
+				},
+				() => {
+					queryClient.invalidateQueries({ queryKey: ['my-medical-cases'] }) // tanstack refetch
+				},
+			)
+			.subscribe()
+
+		return () => {
+			supabase.removeChannel(channel)
+		}
+	}, [queryClient])
+
 	const [selectedCase, setSelectedCase] = useState<MedicalRecord | null>(null)
 	const [isPanelOpen, setIsPanelOpen] = useState(false)
 	const [isFullscreen, setIsFullscreen] = useState(false)
@@ -24,17 +45,17 @@ const MyCases: React.FC = React.memo(() => {
 		queryKey: ['my-medical-cases'],
 		queryFn: async () => {
 			if (!user) return { data: [] }
-			
+
 			const { data, error } = await supabase
 				.from('medical_records_clean')
 				.select('*')
 				.eq('generated_by', user.id)
 				.order('created_at', { ascending: false })
-			
+
 			if (error) {
 				throw error
 			}
-			
+
 			return { data: data || [] }
 		},
 		staleTime: 1000 * 60 * 5, // 5 minutes
@@ -63,18 +84,12 @@ const MyCases: React.FC = React.memo(() => {
 		setSelectedDoctors(doctors)
 	}, [])
 
-	// Toggle doctor filter panel
-
-	const handleRefresh = useCallback(() => {
-		refetch()
-	}, [refetch])
-
 	// Filter cases by selected doctors
 	const filteredCases = React.useMemo(() => {
 		if (selectedDoctors.length === 0) return cases
-		
-		return cases.filter(caseItem => 
-			caseItem.treating_doctor && selectedDoctors.includes(caseItem.treating_doctor.trim())
+
+		return cases.filter(
+			(caseItem) => caseItem.treating_doctor && selectedDoctors.includes(caseItem.treating_doctor.trim()),
 		)
 	}, [cases, selectedDoctors])
 
@@ -96,43 +111,6 @@ const MyCases: React.FC = React.memo(() => {
 						Aquí puedes ver todos los casos que has generado como médico
 					</p>
 				)}
-			</div>
-
-			{/* Action Buttons */}
-			<div className="grid grid-cols-2 gap-2 sm:gap-4 mb-4 sm:mb-6">
-				<Card className="col-span-1 grid hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 transition-transform duration-300 shadow-lg">
-					<button className="bg-white dark:bg-background rounded-xl p-2 sm:p-4 flex items-center gap-2 sm:gap-3">
-						<div className="p-1 sm:p-2 bg-green-100 dark:bg-green-900/30 rounded-lg">
-							<Download className="w-3 h-3 sm:w-4 sm:h-4 md:w-5 md:h-5 text-green-600 dark:text-green-400" />
-						</div>
-						<div className="text-left">
-							<p className="text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300">Exportar</p>
-							<p className="text-[10px] text-gray-500 dark:text-gray-400 hidden sm:block">Descargar datos</p>
-						</div>
-					</button>
-				</Card>
-
-				<Card className="col-span-1 grid hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 transition-transform duration-300 shadow-lg">
-					<button
-						onClick={handleRefresh}
-						disabled={isLoading}
-						className="bg-white dark:bg-background rounded-xl p-2 sm:p-4 flex items-center gap-2 sm:gap-3"
-					>
-						<div className="p-1 sm:p-2 bg-orange-100 dark:bg-orange-900/30 rounded-lg">
-							<RefreshCw
-								className={`w-3 h-3 sm:w-4 sm:h-4 md:w-5 md:h-5 text-orange-600 dark:text-orange-400 ${
-									isLoading ? 'animate-spin' : ''
-								}`}
-							/>
-						</div>
-						<div className="text-left">
-							<p className="text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300">
-								{isLoading ? 'Actualizando...' : 'Actualizar'}
-							</p>
-							<p className="text-[10px] text-gray-500 dark:text-gray-400 hidden sm:block">Recargar datos</p>
-						</div>
-					</button>
-				</Card>
 			</div>
 
 			{/* Doctor Filter Panel - Conditionally rendered */}
