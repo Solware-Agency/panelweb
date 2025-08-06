@@ -2,11 +2,13 @@ import React, { useState } from 'react'
 import { Outlet } from 'react-router-dom'
 import { AnimatePresence, motion } from 'framer-motion'
 import { useDarkMode } from '@shared/hooks/useDarkMode'
+import { useFullscreenDetection } from '@shared/hooks/useFullscreenDetection'
 import Sidebar from '@shared/components/Sidebar'
 import {Menu} from 'lucide-react'
 
 const Layout: React.FC = () => {
 	const { isDark, toggleDarkMode } = useDarkMode()
+	const isFullscreenMode = useFullscreenDetection()
 
 	const [sidebarOpen, setSidebarOpen] = useState(false)
 	const [sidebarExpanded, setSidebarExpanded] = useState(false) // New state for hover expansion
@@ -16,7 +18,9 @@ const Layout: React.FC = () => {
 	}
 
 	const handleSidebarMouseEnter = () => {
-		setSidebarExpanded(true)
+		if (!isFullscreenMode) {
+			setSidebarExpanded(true)
+		}
 	}
 
 	const handleSidebarMouseLeave = () => {
@@ -39,34 +43,39 @@ const Layout: React.FC = () => {
 			</AnimatePresence>
 
 			{/* Sidebar - Now overlays content instead of pushing it */}
-			<div
-				className={`fixed top-0 left-0 h-screen z-50 transform transition-all duration-300 ease-in-out lg:translate-x-0 ${
-					sidebarOpen ? 'translate-x-0' : '-translate-x-full'
-				} ${
-					// On desktop: collapsed by default (w-16), expanded on hover (w-56)
-					sidebarExpanded ? 'lg:w-56' : 'lg:w-16'
-				}`}
-				onMouseEnter={handleSidebarMouseEnter}
-				onMouseLeave={handleSidebarMouseLeave}
-			>
-				<Sidebar
-					onClose={() => setSidebarOpen(false)}
-					isExpanded={sidebarExpanded}
-					isMobile={sidebarOpen}
-					isDark={isDark}
-					toggleDarkMode={toggleDarkMode}
-				/>
-			</div>
+			{!isFullscreenMode && (
+				<div
+					className={`fixed top-0 left-0 h-screen z-50 transform transition-all duration-300 ease-in-out lg:translate-x-0 ${
+						sidebarOpen ? 'translate-x-0' : '-translate-x-full'
+					} ${
+						// On desktop: collapsed by default (w-16), expanded on hover (w-56)
+						sidebarExpanded ? 'lg:w-56' : 'lg:w-16'
+					}`}
+					onMouseEnter={handleSidebarMouseEnter}
+					onMouseLeave={handleSidebarMouseLeave}
+				>
+					<Sidebar
+						onClose={() => setSidebarOpen(false)}
+						isExpanded={sidebarExpanded}
+						isMobile={sidebarOpen}
+						isDark={isDark}
+						toggleDarkMode={toggleDarkMode}
+					/>
+				</div>
+			)}
 			
-			<button
-				onClick={toggleSidebar}
-				className="lg:hidden flex fixed items-center justify-center p-2 bg-white/80 dark:bg-background/80 backdrop-blur-sm border border-input rounded-lg shadow-lg top-4 right-4 z-50"
-			>
-				<Menu className="h-5 w-5 text-gray-600 dark:text-gray-400 " />
-			</button>
+			{/* Mobile menu button - hidden in fullscreen mode */}
+			{!isFullscreenMode && (
+				<button
+					onClick={toggleSidebar}
+					className="lg:hidden flex fixed items-center justify-center p-2 bg-white/80 dark:bg-background/80 backdrop-blur-sm border border-input rounded-lg shadow-lg top-4 right-4 z-50"
+				>
+					<Menu className="h-5 w-5 text-gray-600 dark:text-gray-400 " />
+				</button>
+			)}
 
 			{/* Main content - Adjusted z-index and positioning */}
-			<main className="min-h-screen flex flex-col relative z-10 lg:pl-16">
+			<main className={`min-h-screen flex flex-col relative z-10 ${!isFullscreenMode ? 'lg:pl-16' : ''}`}>
 				<div className="flex-1 overflow-x-hidden overflow-y-auto">
 					<Outlet />
 				</div>

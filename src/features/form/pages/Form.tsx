@@ -21,6 +21,7 @@ import { Button } from '@shared/components/ui/button'
 import { useResetForm } from '@shared/hooks/useResetForm'
 import { type FormValues } from '@features/form/lib/form-schema'
 import { useToast } from '@shared/hooks/use-toast'
+import { useFullscreenDetection } from '@shared/hooks/useFullscreenDetection'
 
 // Import Menu icon for mobile sidebar toggle
 import { Menu } from 'lucide-react'
@@ -61,6 +62,7 @@ function FormContent() {
 	const [searchTerm, setSearchTerm] = useState('')
 	const { profile } = useUserProfile()
 	const { isDark, toggleDarkMode } = useDarkMode()
+	const isFullscreenMode = useFullscreenDetection()
 
 	const [sidebarOpen, setSidebarOpen] = useState(false)
 	const [sidebarExpanded, setSidebarExpanded] = useState(false) // New state for hover expansion
@@ -89,7 +91,9 @@ function FormContent() {
 	}, [location.pathname])
 
 	const handleSidebarMouseEnter = () => {
-		setSidebarExpanded(true)
+		if (!isFullscreenMode) {
+			setSidebarExpanded(true)
+		}
 	}
 
 	const handleSidebarMouseLeave = () => {
@@ -182,12 +186,14 @@ function FormContent() {
 						</button>
 					</>
 				)}
-				<button
-					onClick={() => setSidebarOpen(!sidebarOpen)}
-					className="lg:hidden flex items-center justify-center p-2 bg-white/80 dark:bg-background/80 backdrop-blur-sm border border-input rounded-lg shadow-lg"
-				>
-					<Menu className="h-5 w-5 text-gray-600 dark:text-gray-400" />
-				</button>
+				{!isFullscreenMode && (
+					<button
+						onClick={() => setSidebarOpen(!sidebarOpen)}
+						className="lg:hidden flex items-center justify-center p-2 bg-white/80 dark:bg-background/80 backdrop-blur-sm border border-input rounded-lg shadow-lg"
+					>
+						<Menu className="h-5 w-5 text-gray-600 dark:text-gray-400" />
+					</button>
+				)}
 			</div>
 
 			<AnimatePresence>
@@ -202,30 +208,32 @@ function FormContent() {
 				)}
 			</AnimatePresence>
 
-			<div
-				className={`fixed top-0 left-0 h-screen z-50 transform transition-all duration-300 ease-in-out lg:translate-x-0 ${
-					sidebarOpen ? 'translate-x-0' : '-translate-x-full'
-				} ${
-					// On desktop: collapsed by default (w-16), expanded on hover (w-56)
-					sidebarExpanded ? 'lg:w-56' : 'lg:w-16'
-				}`}
-				onMouseEnter={handleSidebarMouseEnter}
-				onMouseLeave={handleSidebarMouseLeave}
-			>
-				<Sidebar
-					onClose={() => {
-						setSidebarOpen(false)
-						setSidebarExpanded(false)
-					}}
-					isExpanded={sidebarExpanded}
-					isMobile={sidebarOpen}
-					isDark={isDark}
-					toggleDarkMode={toggleDarkMode}
-				/>
-			</div>
+			{!isFullscreenMode && (
+				<div
+					className={`fixed top-0 left-0 h-screen z-50 transform transition-all duration-300 ease-in-out lg:translate-x-0 ${
+						sidebarOpen ? 'translate-x-0' : '-translate-x-full'
+					} ${
+						// On desktop: collapsed by default (w-16), expanded on hover (w-56)
+						sidebarExpanded ? 'lg:w-56' : 'lg:w-16'
+					}`}
+					onMouseEnter={handleSidebarMouseEnter}
+					onMouseLeave={handleSidebarMouseLeave}
+				>
+					<Sidebar
+						onClose={() => {
+							setSidebarOpen(false)
+							setSidebarExpanded(false)
+						}}
+						isExpanded={sidebarExpanded}
+						isMobile={sidebarOpen}
+						isDark={isDark}
+						toggleDarkMode={toggleDarkMode}
+					/>
+				</div>
+			)}
 			<div className="container mx-auto py-4 px-2 sm:px-4">
 				<main
-					className={`min-h-screen flex flex-col relative z-10 lg:pl-16 transition-all duration-300 ease-in-out overflow-y-auto`}
+					className={`min-h-screen flex flex-col relative z-10 ${!isFullscreenMode ? 'lg:pl-16' : ''} transition-all duration-300 ease-in-out overflow-y-auto`}
 				>
 					<Tabs defaultValue="form" value={activeTab} onValueChange={handleTabChange}>
 						<TabsContent value="form" className="mt-4">
