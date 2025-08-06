@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState } from 'react'
+import { createContext, useContext, useEffect, useState, useRef } from 'react'
 import { supabase } from '@lib/supabase/config'
 import { signOut as authSignOut } from '@lib/supabase/auth' // Rename to avoid conflicts
 import { useSessionTimeoutSettings } from '@shared/hooks/useSessionTimeoutSettings'
@@ -39,6 +39,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 	const [user, setUser] = useState<User | null>(null)
 	const [session, setSession] = useState<Session | null>(null)
 	const [loading, setLoading] = useState(true)
+	const isLoggingOut = useRef(false)
+	const authSubscription = useRef<{ unsubscribe: () => void } | null>(null)
 
 	// Handle session timeout
 	const handleSessionTimeout = async () => {
@@ -98,6 +100,25 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 		}
 	}
 
+	// Función para limpiar completamente el storage
+	const clearAllStorage = () => {
+		console.log('🧹 Limpiando todo el storage...')
+
+		// Limpiar localStorage completamente
+		localStorage.clear()
+		console.log('✅ localStorage limpiado')
+
+		// Limpiar sessionStorage completamente
+		sessionStorage.clear()
+		console.log('✅ sessionStorage limpiado')
+
+		// Limpiar cookies relacionadas con Supabase
+		document.cookie.split(';').forEach(function (c) {
+			document.cookie = c.replace(/^ +/, '').replace(/=.*/, '=;expires=' + new Date().toUTCString() + ';path=/')
+		})
+		console.log('✅ Cookies limpiadas')
+	}
+
 	useEffect(() => {
 		// Get initial session
 		const getInitialSession = async () => {
@@ -109,9 +130,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 				setUser(initialSession?.user ?? null)
 			} catch (error) {
 				console.error('Error getting initial session:', error)
-				await supabase.auth.signOut({ scope: 'global' }).catch((error) => {
-					console.error("Error en signOut:", error);
-				});
+				await supabase.auth.signOut().catch((error) => {
+					console.error('Error en signOut:', error)
+				})
 				setSession(null)
 				setUser(null)
 			} finally {
@@ -124,14 +145,25 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 		// Listen for auth changes
 		const {
 			data: { subscription },
-		} = supabase.auth.onAuthStateChange(async (_event, currentSession) => {
+		} = supabase.auth.onAuthStateChange(async (event, currentSession) => {
+			// NO actualizar estado si estamos en proceso de logout
+			if (isLoggingOut.current) {
+				console.log('🚫 Ignoring auth state change during logout process')
+				return
+			}
+
+			console.log('🔄 Auth state change:', event, currentSession?.user?.email)
 			setSession(currentSession)
 			setUser(currentSession?.user ?? null)
 			setLoading(false)
 		})
 
+		authSubscription.current = subscription
+
 		return () => {
-			subscription.unsubscribe()
+			if (authSubscription.current) {
+				authSubscription.current.unsubscribe()
+			}
 		}
 	}, [])
 
@@ -143,22 +175,59 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 				loading,
 				signOut: async () => {
 					try {
-						const { error } = await authSignOut()
-						if (error) {
-							console.error('Error during manual sign out:', error)
-							return
+						console.log('🚪 Iniciando proceso de logout...')
+
+						// Marcar que estamos en proceso de logout
+						isLoggingOut.current = true
+
+						// Desuscribirse del listener de auth para evitar re-autenticación
+						if (authSubscription.current) {
+							authSubscription.current.unsubscribe()
+							console.log('🔌 Auth subscription desuscrita')
 						}
 
-						// Solo actualizamos el estado y redirigimos después de un cierre de sesión exitoso
+						// Limpiar estado inmediatamente
 						setUser(null)
 						setSession(null)
+						console.log('🧹 Estado limpiado')
 
-						// Pequeña pausa para asegurar que los estados se actualicen
-						await new Promise((resolve) => setTimeout(resolve, 100))
+						// Limpiar TODO el storage
+						clearAllStorage()
 
+						// Intentar logout con Supabase
+						console.log('🔐 Intentando logout con Supabase...')
+						const { error } = await authSignOut()
+						if (error) {
+							console.error('❌ Error durante logout:', error)
+						}
+
+						// Forzar logout adicional
+						await supabase.auth.signOut()
+						console.log('✅ Logout adicional completado')
+
+						// Limpiar storage nuevamente
+						clearAllStorage()
+
+						// Pausa más larga para asegurar limpieza
+						await new Promise((resolve) => setTimeout(resolve, 500))
+						console.log('⏳ Pausa completada')
+
+						// Redirigir con replace para evitar navegación hacia atrás
+						console.log('🔄 Redirigiendo a /')
 						window.location.replace('/')
 					} catch (err) {
-						console.error('Unexpected error during sign out:', err)
+						console.error('💥 Error inesperado durante logout:', err)
+						// Aún así, limpiar y redirigir
+						setUser(null)
+						setSession(null)
+						clearAllStorage()
+						window.location.replace('/')
+					} finally {
+						// Resetear el flag después de un tiempo más largo
+						setTimeout(() => {
+							isLoggingOut.current = false
+							console.log(' Flag de logout reseteado')
+						}, 2000)
 					}
 				},
 				refreshUser,
