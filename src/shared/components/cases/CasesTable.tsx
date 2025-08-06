@@ -10,6 +10,8 @@ import {
 	FileText,
 	Maximize2,
 	FlaskConical,
+	ChevronLeft,
+	ChevronRight,
 } from 'lucide-react'
 import type { MedicalRecord } from '@lib/supabase-service'
 import { getAgeDisplay } from '@lib/supabase-service'
@@ -65,6 +67,10 @@ const CasesTable: React.FC<CasesTableProps> = React.memo(
 		const [isSearching, setIsSearching] = useState(false)
 		const [isStepsModalOpen, setIsStepsModalOpen] = useState(false)
 		const [shouldUpdateSelectedCase, setShouldUpdateSelectedCase] = useState(false)
+
+		// Paginación
+		const [currentPage, setCurrentPage] = useState(1)
+		const [itemsPerPage, setItemsPerPage] = useState(20)
 		const handleGenerateEmployeeCase = useCallback((case_: MedicalRecord) => {
 			setSelectedCaseForGenerate(case_)
 			setIsStepsModalOpen(true)
@@ -80,6 +86,11 @@ const CasesTable: React.FC<CasesTableProps> = React.memo(
 				setShouldUpdateSelectedCase(false)
 			}
 		}, [cases, selectedCaseForView, shouldUpdateSelectedCase])
+
+		// Reset pagination when filters change
+		useEffect(() => {
+			setCurrentPage(1)
+		}, [statusFilter, branchFilter, showPdfReadyOnly, selectedDoctors, searchTerm])
 
 		// Case actions popover component
 		// Modifica el CaseActionsPopover para cambiar las restricciones de roles
@@ -287,8 +298,8 @@ const CasesTable: React.FC<CasesTableProps> = React.memo(
 				(searchTerm && searchTerm.trim() !== '') ||
 				(onSearch && searchTerm && searchTerm.trim() !== '')
 
-			// If no filters are active, limit to first 100 cases for performance
-			const casesToProcess = hasActiveFilters ? cases : cases.slice(0, 100)
+			// Process all cases for filtering (pagination will handle the limiting)
+			const casesToProcess = cases
 
 			// Apply client-side filtering only for local filters
 			// (searchTerm is handled by the parent component via onSearch)
@@ -387,6 +398,37 @@ const CasesTable: React.FC<CasesTableProps> = React.memo(
 			selectedDoctors,
 		])
 
+		// Paginación
+		const totalPages = Math.ceil(filteredAndSortedCases.filtered.length / itemsPerPage)
+		const startIndex = (currentPage - 1) * itemsPerPage
+		const endIndex = startIndex + itemsPerPage
+		const paginatedCases = filteredAndSortedCases.filtered.slice(startIndex, endIndex)
+
+		// Funciones de paginación
+		const goToPage = useCallback(
+			(page: number) => {
+				setCurrentPage(Math.max(1, Math.min(page, totalPages)))
+			},
+			[totalPages],
+		)
+
+		const goToNextPage = useCallback(() => {
+			if (currentPage < totalPages) {
+				setCurrentPage(currentPage + 1)
+			}
+		}, [currentPage, totalPages])
+
+		const goToPreviousPage = useCallback(() => {
+			if (currentPage > 1) {
+				setCurrentPage(currentPage - 1)
+			}
+		}, [currentPage])
+
+		const handleItemsPerPageChange = useCallback((newItemsPerPage: number) => {
+			setItemsPerPage(newItemsPerPage)
+			setCurrentPage(1) // Reset to first page when changing items per page
+		}, [])
+
 		const SortIcon = useCallback(
 			({ field }: { field: SortField }) => {
 				if (sortField !== field) {
@@ -465,6 +507,103 @@ const CasesTable: React.FC<CasesTableProps> = React.memo(
 			},
 			[getStatusColor, handleCaseSelect, handleGenerateCase, handleDownloadCase, isDownloading],
 		)
+
+		// Componente de paginación
+		const Pagination = useCallback(() => {
+			if (totalPages <= 1) return null
+
+			const getPageNumbers = () => {
+				const pages = []
+				const maxVisiblePages = 5
+				let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2))
+				const endPage = Math.min(totalPages, startPage + maxVisiblePages - 1)
+
+				if (endPage - startPage + 1 < maxVisiblePages) {
+					startPage = Math.max(1, endPage - maxVisiblePages + 1)
+				}
+
+				for (let i = startPage; i <= endPage; i++) {
+					pages.push(i)
+				}
+
+				return pages
+			}
+
+			return (
+				<div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-4 border-t border-gray-200 dark:border-gray-700">
+					{/* Información de resultados */}
+					<div className="text-sm text-gray-600 dark:text-gray-400">
+						Mostrando {startIndex + 1}-{Math.min(endIndex, filteredAndSortedCases.filtered.length)} de{' '}
+						{filteredAndSortedCases.filtered.length} casos
+					</div>
+
+					{/* Controles de paginación */}
+					<div className="flex items-center gap-2">
+						{/* Items por página */}
+						<div className="flex items-center gap-2">
+							<span className="text-sm text-gray-600 dark:text-gray-400">Mostrar:</span>
+							<select
+								value={itemsPerPage}
+								onChange={(e) => handleItemsPerPageChange(Number(e.target.value))}
+								className="px-2 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+							>
+								<option value={10}>10</option>
+								<option value={20}>20</option>
+								<option value={50}>50</option>
+								<option value={100}>100</option>
+							</select>
+						</div>
+
+						{/* Botones de navegación */}
+						<div className="flex items-center gap-1">
+							<button
+								onClick={goToPreviousPage}
+								disabled={currentPage === 1}
+								className="p-2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 disabled:opacity-50 disabled:cursor-not-allowed rounded-md hover:bg-gray-100 dark:hover:bg-gray-800"
+								title="Página anterior"
+							>
+								<ChevronLeft className="w-4 h-4" />
+							</button>
+
+							{/* Números de página */}
+							{getPageNumbers().map((page) => (
+								<button
+									key={page}
+									onClick={() => goToPage(page)}
+									className={`px-3 py-2 text-sm rounded-md transition-colors ${
+										page === currentPage
+											? 'bg-primary text-white'
+											: 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800'
+									}`}
+								>
+									{page}
+								</button>
+							))}
+
+							<button
+								onClick={goToNextPage}
+								disabled={currentPage === totalPages}
+								className="p-2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 disabled:opacity-50 disabled:cursor-not-allowed rounded-md hover:bg-gray-100 dark:hover:bg-gray-800"
+								title="Página siguiente"
+							>
+								<ChevronRight className="w-4 h-4" />
+							</button>
+						</div>
+					</div>
+				</div>
+			)
+		}, [
+			currentPage,
+			totalPages,
+			startIndex,
+			endIndex,
+			filteredAndSortedCases.filtered.length,
+			itemsPerPage,
+			handleItemsPerPageChange,
+			goToPage,
+			goToNextPage,
+			goToPreviousPage,
+		])
 
 		// Render loading state
 		if (isLoading) {
@@ -640,8 +779,8 @@ const CasesTable: React.FC<CasesTableProps> = React.memo(
 						{/* Mobile View - Cards */}
 						<div className="block lg:hidden h-full overflow-y-auto px-3 py-4">
 							<div className="p-2 sm:p-4 space-y-3 max-h-[60vh] overflow-y-auto">
-								{filteredAndSortedCases.filtered.length > 0 ? (
-									filteredAndSortedCases.filtered.map((case_) => <CaseCard key={case_.id} case_={case_} />)
+								{paginatedCases.length > 0 ? (
+									paginatedCases.map((case_) => <CaseCard key={case_.id} case_={case_} />)
 								) : (
 									<div className="text-center py-12">
 										<div className="text-gray-500 dark:text-gray-400">
@@ -714,9 +853,9 @@ const CasesTable: React.FC<CasesTableProps> = React.memo(
 									</tr>
 								</thead>
 								<tbody className="divide-y divide-gray-200 dark:divide-gray-700">
-									{filteredAndSortedCases.filtered.length > 0 ? (
-										// Only render the first 100 rows for better performance
-										filteredAndSortedCases.filtered.slice(0, 100).map((case_) => {
+									{paginatedCases.length > 0 ? (
+										// Render paginated cases
+										paginatedCases.map((case_) => {
 											const ageDisplay = case_.edad ? getAgeDisplay(case_.edad) : ''
 
 											return (
@@ -799,19 +938,8 @@ const CasesTable: React.FC<CasesTableProps> = React.memo(
 								</tbody>
 							</table>
 
-							{filteredAndSortedCases.filtered.length > 100 && (
-								<div className="text-center py-4 border-t border-gray-200 dark:border-gray-700">
-									<p className="text-sm text-gray-500 dark:text-gray-400">
-										Mostrando 100 de {filteredAndSortedCases.filtered.length} casos
-									</p>
-									<button
-										onClick={() => setIsFullscreen(true)}
-										className="mt-2 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/80"
-									>
-										Ver todos los casos
-									</button>
-								</div>
-							)}
+							{/* Paginación en vista fullscreen */}
+							<Pagination />
 						</div>
 					</div>
 				</div>
@@ -904,7 +1032,7 @@ const CasesTable: React.FC<CasesTableProps> = React.memo(
 
 								{/* Results count */}
 								<div className="text-sm text-gray-600 dark:text-gray-400 hidden sm:flex">
-									Mostrando {filteredAndSortedCases.filtered.length} de {filteredAndSortedCases.totalCases} casos
+									Mostrando {paginatedCases.length} de {filteredAndSortedCases.totalCases} casos
 								</div>
 
 								{/* Fullscreen Button */}
@@ -929,8 +1057,8 @@ const CasesTable: React.FC<CasesTableProps> = React.memo(
 					{/* Mobile View - Cards */}
 					<div className="block lg:hidden overflow-hidden">
 						<div className="p-4 space-y-4 max-h-[60vh] overflow-y-auto">
-							{filteredAndSortedCases.filtered.length > 0 ? (
-								filteredAndSortedCases.filtered.slice(0, 50).map((case_) => <CaseCard key={case_.id} case_={case_} />)
+							{paginatedCases.length > 0 ? (
+								paginatedCases.map((case_) => <CaseCard key={case_.id} case_={case_} />)
 							) : (
 								<div className="text-center py-12">
 									<div className="text-gray-500 dark:text-gray-400">
@@ -938,25 +1066,6 @@ const CasesTable: React.FC<CasesTableProps> = React.memo(
 										<p className="text-lg font-medium">No se encontraron casos</p>
 										<p className="text-sm">Intenta ajustar los filtros de búsqueda</p>
 									</div>
-								</div>
-							)}
-
-							{filteredAndSortedCases.filtered.length > 50 && (
-								<div className="text-center py-4 border-t border-gray-200 dark:border-gray-700">
-									<p className="text-sm text-gray-500 dark:text-gray-400">
-										Mostrando 50 de {filteredAndSortedCases.filtered.length} casos
-									</p>
-									{!filteredAndSortedCases.hasActiveFilters && filteredAndSortedCases.totalCases > 100 && (
-										<p className="text-xs text-orange-600 dark:text-orange-400 mb-2">
-											Vista limitada - usa filtros para buscar casos específicos
-										</p>
-									)}
-									<button
-										onClick={() => setIsFullscreen(true)}
-										className="mt-2 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/80"
-									>
-										Ver todos los casos
-									</button>
 								</div>
 							)}
 						</div>
@@ -1024,9 +1133,9 @@ const CasesTable: React.FC<CasesTableProps> = React.memo(
 										</tr>
 									</thead>
 									<tbody className="divide-y divide-gray-200 dark:divide-gray-700">
-										{filteredAndSortedCases.filtered.length > 0 ? (
-											// Only render the first 100 rows for better performance
-											filteredAndSortedCases.filtered.slice(0, 100).map((case_) => {
+										{paginatedCases.length > 0 ? (
+											// Render paginated cases
+											paginatedCases.map((case_) => {
 												const ageDisplay = case_.edad || ''
 
 												return (
@@ -1109,25 +1218,9 @@ const CasesTable: React.FC<CasesTableProps> = React.memo(
 									</tbody>
 								</table>
 
-								{filteredAndSortedCases.filtered.length > 100 && !isFullscreen && (
-									<div className="text-center py-3 sm:py-4 border-t border-gray-200 dark:border-gray-700">
-										<p className="text-sm text-gray-500 dark:text-gray-400">
-											Mostrando 100 de {filteredAndSortedCases.filtered.length} casos
-										</p>
-										{!filteredAndSortedCases.hasActiveFilters && filteredAndSortedCases.totalCases > 100 && (
-											<p className="text-xs text-orange-600 dark:text-orange-400 mb-2">
-												Vista limitada - usa filtros para buscar casos específicos
-											</p>
-										)}
-										<button
-											onClick={() => setIsFullscreen(true)}
-											className="mt-2 px-3 sm:px-4 py-1.5 sm:py-2 bg-primary text-white rounded-lg hover:bg-primary/80 text-sm"
-										>
-											Ver todos los casos
-										</button>
-									</div>
-								)}
+								{/* Paginación en vista normal */}
 							</div>
+							<Pagination />
 						</div>
 					</div>
 				</div>

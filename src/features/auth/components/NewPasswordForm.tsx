@@ -137,7 +137,7 @@ function NewPasswordForm() {
 
 			// Sign out the user after successful password reset
 			setTimeout(async () => {
-				await supabase.auth.signOut({ scope: 'global' }).catch((error) => {
+				await supabase.auth.signOut().catch((error) => {
 					console.error("Error en signOut:", error);
 				});
 				navigate('/', { replace: true })

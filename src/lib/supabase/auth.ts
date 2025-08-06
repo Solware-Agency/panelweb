@@ -107,31 +107,42 @@ export const signIn = async (email: string, password: string): Promise<AuthRespo
 // Sign out
 export const signOut = async (): Promise<{ error: AuthError | null }> => {
 	try {
-		// First attempt to sign out with Supabase
+		console.log('🧹 Iniciando limpieza de storage...')
+		
+		// Limpiar TODO el localStorage
+		localStorage.clear()
+		console.log('✅ localStorage completamente limpiado')
+		
+		// Limpiar TODO el sessionStorage
+		sessionStorage.clear()
+		console.log('✅ sessionStorage completamente limpiado')
+		
+		// Limpiar cookies
+		document.cookie.split(";").forEach(function(c) { 
+			document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/"); 
+		});
+		console.log('✅ Cookies limpiadas')
+
+		// Intentar logout con Supabase
+		console.log('🔐 Intentando logout con Supabase...')
 		const { error } = await supabase.auth.signOut()
 
-		// If successful or if session already doesn't exist, clear local storage
-		if (!error || error.message?.includes('Session from session_id claim in JWT does not exist')) {
-			// Clear session storage after successful signout
-			localStorage.removeItem('last_activity_time')
-			localStorage.removeItem('session_expiry_time')
-			localStorage.removeItem('session_timeout_minutes')
+		// Limpiar storage nuevamente después del logout
+		localStorage.clear()
+		sessionStorage.clear()
+		console.log('✅ Storage limpiado nuevamente')
 
-			if (error?.message?.includes('Session from session_id claim in JWT does not exist')) {
-				console.log('Session already expired or invalid - user effectively logged out')
-				return { error: null }
-			}
+		if (error) {
+			console.log('⚠️ Logout error (but continuing cleanup):', error)
 		}
 
-		return { error }
+		return { error: null }
 	} catch (err) {
-		console.error('Unexpected signout error:', err)
-		return {
-			error: {
-				message: 'An unexpected error occurred during signout',
-				name: 'UnexpectedError',
-			} as AuthError,
-		}
+		console.error('💥 Unexpected signout error:', err)
+		// Aún así, limpiar todo
+		localStorage.clear()
+		sessionStorage.clear()
+		return { error: null }
 	}
 }
 
