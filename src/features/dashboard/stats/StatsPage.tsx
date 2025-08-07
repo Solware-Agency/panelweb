@@ -1,9 +1,10 @@
 import React, { useState, Suspense } from 'react'
-import { Users, DollarSign, ShoppingCart, ArrowUpRight, AlertTriangle, Clock } from 'lucide-react'
+import { Users, DollarSign, ShoppingCart, ArrowUpRight, AlertTriangle, Clock, Info } from 'lucide-react'
 import { useDashboardStats } from '@shared/hooks/useDashboardStats'
 import { YearSelector } from '@shared/components/ui/year-selector'
 import StatCard from '@shared/components/ui/stat-card'
 import { Card } from '@shared/components/ui/card'
+import { Tooltip, TooltipContent, TooltipTrigger } from '@shared/components/ui/tooltip'
 
 // Lazy loaded components
 import {
@@ -167,8 +168,19 @@ const StatsPage: React.FC = () => {
 										minYear={2020}
 										maxYear={new Date().getFullYear() + 2}
 									/>
-									<span className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">
+									<span className="flex items-center gap-2 text-xs sm:text-sm text-gray-600 dark:text-gray-400">
 										12 meses de {selectedYear}
+										<Tooltip>
+											<TooltipTrigger>
+												<Info className="size-4" />
+											</TooltipTrigger>
+											<TooltipContent>
+												<p>
+													En esta estadistica puedes dar click sobre la barra del mes al que quieres filtrar y el panel
+													se adaptara y te mostrara los ingresos de ese mes.
+												</p>
+											</TooltipContent>
+										</Tooltip>
 									</span>
 								</div>
 							</div>
@@ -217,8 +229,16 @@ const StatsPage: React.FC = () => {
 					{/* Service Distribution by Branch */}
 					<Card className="col-span-1 grid hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 transition-transform duration-300 shadow-lg">
 						<div className="bg-white dark:bg-background rounded-xl p-3 sm:p-4 md:p-6">
-							<h3 className="text-base sm:text-lg md:text-xl font-bold text-gray-700 dark:text-gray-300 mb-3 sm:mb-4 md:mb-6">
-								Distribución por Sede
+							<h3 className="flex items-center justify-between text-base sm:text-lg md:text-xl font-bold text-gray-700 dark:text-gray-300 mb-3 sm:mb-4 md:mb-6">
+								Distribución por Sede{' '}
+								<Tooltip>
+									<TooltipTrigger>
+										<Info className="size-4" />
+									</TooltipTrigger>
+									<TooltipContent>
+										<p>Esta estadistica refleja el porcentaje de ingresos por sede en el mes seleccionado.</p>
+									</TooltipContent>
+								</Tooltip>
 							</h3>
 							<div className="flex items-center justify-center mb-3 sm:mb-4 md:mb-6">
 								<div className="relative size-28 sm:size-36 md:size-48">
@@ -266,7 +286,7 @@ const StatsPage: React.FC = () => {
 									<div className="absolute inset-0 flex items-center justify-center">
 										<div className="text-center">
 											<p className="text-xl sm:text-2xl font-bold text-gray-700 dark:text-gray-300">
-												{isLoading ? '...' : formatCurrency(stats?.totalRevenue || 0)}
+												{isLoading ? '...' : formatCurrency(stats?.monthlyRevenue || 0)}
 											</p>
 											<p className="text-sm text-gray-500 dark:text-gray-400">Total</p>
 										</div>

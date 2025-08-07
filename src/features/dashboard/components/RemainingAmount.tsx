@@ -1,7 +1,8 @@
 import React from 'react'
-import { DollarSign, Users, AlertCircle } from 'lucide-react'
+import { DollarSign, Users, AlertCircle, Info } from 'lucide-react'
 import { Card } from '@shared/components/ui/card'
 import { useDashboardStats } from '@shared/hooks/useDashboardStats'
+import { Tooltip, TooltipContent, TooltipTrigger } from '@shared/components/ui/tooltip'
 
 const RemainingAmount: React.FC = () => {
 	const { data: stats, isLoading } = useDashboardStats()
@@ -26,9 +27,16 @@ const RemainingAmount: React.FC = () => {
 						<AlertCircle className="w-5 h-5 text-red-500" />
 						Casos por Cobrar
 					</h3>
-					<div className="flex items-center gap-2 px-3 py-2 bg-red-100 dark:bg-red-900/30 rounded-lg">
-						<span className="text-sm font-medium text-red-700 dark:text-red-300">Pagos pendientes</span>
-					</div>
+					<Tooltip>
+						<TooltipTrigger>
+							<Info className="size-4" />
+						</TooltipTrigger>
+						<TooltipContent>
+							<p>
+								Esta estadistica refleja el porcentaje de ingresos pendientes de pago y el numero de casos incompletos.
+							</p>
+						</TooltipContent>
+					</Tooltip>
 				</div>
 
 				<div className="overflow-hidden flex-1 flex flex-col">
@@ -104,8 +112,6 @@ const RemainingAmount: React.FC = () => {
 									)}
 								</div>
 							</div>
-
-
 						</div>
 					)}
 				</div>

@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { Card } from '@shared/components/ui/card'
-import { Stethoscope, Activity, Heart, Eye } from 'lucide-react'
+import { Stethoscope, Activity, Heart, Eye, Info } from 'lucide-react'
 import { useDashboardStats } from '@shared/hooks/useDashboardStats'
-
+import { Tooltip, TooltipContent, TooltipTrigger } from '@shared/components/ui/tooltip'
 const ExamTypePieChart: React.FC = () => {
 	const { data: stats, isLoading } = useDashboardStats()
 	const [hoveredSegmentIndex, setHoveredSegmentIndex] = useState<number | null>(null)
@@ -93,13 +93,24 @@ const ExamTypePieChart: React.FC = () => {
 			<div className="bg-white dark:bg-background rounded-xl p-3 overflow-hidden flex flex-col h-full">
 				<div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-3">
 					<h3 className="text-lg font-bold text-gray-700 dark:text-gray-300 mb-2 sm:mb-0">
-						Tipos de Exámenes Más Solicitados
+						Tipos de Exámenes Más Solicitados{' '}
 					</h3>
+					<Tooltip>
+						<TooltipTrigger>
+							<Info className="size-4" />
+						</TooltipTrigger>
+						<TooltipContent>
+							<p>En esta estadistica puedes ver las ganancias totales por tipo de examen.</p>
+						</TooltipContent>
+					</Tooltip>
 				</div>
 
 				<div className="flex flex-col lg:flex-row items-center gap-3 flex-1">
 					{/* Pie Chart */}
-					<div ref={containerRef} className="relative flex items-center justify-center w-full lg:w-1/2 flex-shrink-0 p-2">
+					<div
+						ref={containerRef}
+						className="relative flex items-center justify-center w-full lg:w-1/2 flex-shrink-0 p-2"
+					>
 						{isLoading ? (
 							<div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
 						) : pieData.length > 0 ? (
@@ -119,7 +130,13 @@ const ExamTypePieChart: React.FC = () => {
 										return (
 											<path
 												key={index}
-												d={createPieSlice(item.startAngle, item.endAngle, radius * (isHovered ? 0.95 : 0.9), centerX, centerY)}
+												d={createPieSlice(
+													item.startAngle,
+													item.endAngle,
+													radius * (isHovered ? 0.95 : 0.9),
+													centerX,
+													centerY,
+												)}
 												fill={item.color}
 												stroke="white"
 												strokeWidth={isHovered ? 3 : 1}
