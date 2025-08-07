@@ -212,7 +212,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onClose, isExpanded = false, isMobile
 				}
 				return newState
 			}
-			
+
 			// En desktop, comportamiento normal
 			return {
 				...prev,
@@ -329,6 +329,13 @@ const Sidebar: React.FC<SidebarProps> = ({ onClose, isExpanded = false, isMobile
 								onClick={onClose}
 							/>
 							<NavItem
+								to="/dashboard/changelog"
+								icon={<History className="stroke-2 size-5 shrink-0" />}
+								label="Historial"
+								showFullContent={showFullContent}
+								onClick={onClose}
+							/>
+							<NavItem
 								to="/patients"
 								icon={<Users className="stroke-2 size-5 shrink-0" />}
 								label="Pacientes"
@@ -435,6 +442,16 @@ const Sidebar: React.FC<SidebarProps> = ({ onClose, isExpanded = false, isMobile
 							to="/dashboard/users"
 							icon={<Users className="stroke-2 size-4 sm:size-5 shrink-0" />}
 							label="Usuarios"
+							showFullContent={showFullContent}
+							onClick={onClose}
+						/>
+					)}
+
+					{isAdmin && (
+						<NavItem
+							to="/dashboard/changelog"
+							icon={<History className="stroke-2 size-5 shrink-0" />}
+							label="Historial"
 							showFullContent={showFullContent}
 							onClick={onClose}
 						/>

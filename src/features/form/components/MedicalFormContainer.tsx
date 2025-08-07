@@ -202,25 +202,27 @@ export function MedicalFormContainer() {
 
 	return (
 		<div className="animate-fade-in">
-			<div className="mb-4 sm:mb-6">
-				<div className="flex items-center justify-between">
-					<div>
-						<h2 className="text-2xl sm:text-3xl font-bold text-foreground mb-1 sm:mb-2">Formulario de Registro</h2>
-						<div className="w-16 sm:w-24 h-1 bg-primary mt-2 rounded-full"></div>
+			<div className="flex justify-between mb-4 sm:mb-6">
+				<div>
+					<div className="flex items-center justify-between">
+						<div>
+							<h2 className="text-2xl sm:text-3xl font-bold text-foreground mb-1 sm:mb-2">Formulario de Registro</h2>
+							<div className="w-16 sm:w-24 h-1 bg-primary mt-2 rounded-full"></div>
+						</div>
 					</div>
+					<h3 className="text-sm text-primary font-semibold mt-2 sm:mt-3">Bienvenido, {profile?.display_name}</h3>
 				</div>
-				<h3 className="text-sm text-primary font-semibold mt-2 sm:mt-3">Bienvenido, {profile?.display_name}</h3>
-			</div>
-			<div className="fixed hidden lg:flex justify-end mb-2 sm:mb-3 lg:right-11 lg:top-9 z-[9999999999]">
-				<Button
-					type="button"
-					onClick={handleClearForm}
-					variant="outline"
-					className="flex items-center gap-1 text-xs py-1 px-2 sm:py-1.5 sm:px-2.5"
-				>
-					<Trash2 className="h-4 w-4" />
-					Limpiar
-				</Button>
+				<div className="hidden lg:flex justify-end mb-2 sm:mb-3 z-[9999999999]">
+					<Button
+						type="button"
+						onClick={handleClearForm}
+						variant="outline"
+						className="flex items-center gap-1 text-xs py-1 px-2 sm:py-1.5 sm:px-2.5"
+					>
+						<Trash2 className="h-4 w-4" />
+						Limpiar
+					</Button>
+				</div>
 			</div>
 			<Form {...form}>
 				<form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 sm:space-y-6">
@@ -246,7 +248,7 @@ export function MedicalFormContainer() {
 						<Button
 							type="button"
 							onClick={handleNewRecord}
-							className="w-full font-bold text-sm sm:text-base py-1.5 sm:py-2 bg-gradient-to-r from-teal-500 to-cyan-600 hover:from-teal-600 hover:to-cyan-700 text-white transition-transform duration-300 transform hover:scale-[1.02] active:scale-[0.98]"
+							className="w-full font-bold text-sm sm:text-base py-1.5 sm:py-2 bg-gradient-to-r from-teal-500 to-cyan-600 hover:from-teal-600 hover:to-cyan-700 text-white transition-transform duration-300 transform hover:-translate-y-1"
 						>
 							<FilePlus2 />
 							Nuevo Registro
@@ -254,7 +256,7 @@ export function MedicalFormContainer() {
 					) : (
 						<Button
 							type="submit"
-							className="w-full font-bold text-sm sm:text-base py-1.5 sm:py-2 bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white transition-transform duration-300 transform hover:scale-[1.02] active:scale-[0.98]"
+							className="w-full font-bold text-sm sm:text-base py-1.5 sm:py-2 bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white transition-transform duration-300 transform hover:-translate-y-1"
 							disabled={isSubmitting}
 						>
 							{isSubmitting ? (

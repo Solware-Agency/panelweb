@@ -1,16 +1,35 @@
 import EyeTrackingComponent from '@features/dashboard/home/RobotTraking'
-import { TrendingUp, Users, DollarSign, ArrowRight, BarChart3, AlertTriangle, Clock, Stethoscope } from 'lucide-react'
+import {
+	TrendingUp,
+	Users,
+	DollarSign,
+	// ArrowRight,
+	BarChart3,
+	AlertTriangle,
+	Clock,
+	Stethoscope,
+	Info,
+} from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { useDashboardStats } from '@shared/hooks/useDashboardStats'
 import { YearSelector } from '@shared/components/ui/year-selector'
 import StatCard from '@shared/components/ui/stat-card'
-import StatDetailPanel from '@shared/components/ui/stat-detail-panel'
-import type { StatType } from '@shared/components/ui/stat-detail-panel'
 import { Card } from '@shared/components/ui/card'
-import { useState } from 'react'
+import { useState, Suspense } from 'react'
 import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
 import { useUserProfile } from '@shared/hooks/useUserProfile'
+import { Tooltip, TooltipContent, TooltipTrigger } from '@shared/components/ui/tooltip'
+
+// Lazy loaded components
+import { StatDetailPanel } from '@shared/components/lazy-components'
+
+// Loading fallback for StatDetailPanel
+const StatDetailPanelFallback = () => (
+	<div className="flex items-center justify-center h-64">
+		<div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+	</div>
+)
 
 function MainHome() {
 	const navigate = useNavigate()
@@ -19,7 +38,7 @@ function MainHome() {
 	const { data: stats, isLoading, error } = useDashboardStats(selectedMonth, selectedYear)
 	const { profile } = useUserProfile()
 	const [hoveredBranchIndex, setHoveredBranchIndex] = useState<number | null>(null)
-	const [selectedStat, setSelectedStat] = useState<StatType | null>(null)
+	const [selectedStat, setSelectedStat] = useState<any>(null)
 	const [isDetailPanelOpen, setIsDetailPanelOpen] = useState(false)
 
 	if (error) {
@@ -47,7 +66,7 @@ function MainHome() {
 		setSelectedMonth(new Date(year, selectedMonth.getMonth(), 1))
 	}
 
-	const handleStatCardClick = (statType: StatType) => {
+	const handleStatCardClick = (statType: any) => {
 		setSelectedStat(statType)
 		setIsDetailPanelOpen(true)
 	}
@@ -86,11 +105,7 @@ function MainHome() {
 						</div>
 						<div className="relative">
 							<div className="absolute inset-0 bg-gradient-to-r from-blue-400 to-purple-500 rounded-full blur-xl opacity-5 animate-pulse"></div>
-							<EyeTrackingComponent
-								className={
-									'size-20 sm:size-28 md:size-32 lg:size-40 drop-shadow-[0px_5px_10px_rgba(59,130,246,0.3)] dark:drop-shadow-[0px_5px_10px_rgba(147,197,253,0.3)] hover:scale-105 transition-transform duration-300 relative z-10'
-								}
-							/>
+							<EyeTrackingComponent className="w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 lg:w-28 lg:h-28" />
 						</div>
 					</Card>
 
@@ -100,8 +115,16 @@ function MainHome() {
 						onClick={() => handleStatCardClick('branchRevenue')}
 					>
 						<div className="h-full flex flex-col">
-							<h3 className="text-base sm:text-lg md:text-xl font-bold text-gray-700 dark:text-gray-300 mb-2 sm:mb-3 md:mb-4">
-								Distribución por Sede
+							<h3 className="flex items-center justify-between text-base sm:text-lg md:text-xl font-bold text-gray-700 dark:text-gray-300 mb-2 sm:mb-3 md:mb-4">
+								Distribución por Sede{' '}
+								<Tooltip>
+									<TooltipTrigger>
+										<Info className="size-4" />
+									</TooltipTrigger>
+									<TooltipContent>
+										<p>Esta estadistica refleja el porcentaje de ingresos por sede en el mes seleccionado.</p>
+									</TooltipContent>
+								</Tooltip>
 							</h3>
 							<div className="flex items-center justify-center mb-2 sm:mb-3 md:mb-4">
 								<div className="relative size-24 sm:size-28 md:size-36">
@@ -149,9 +172,9 @@ function MainHome() {
 									<div className="absolute inset-0 flex items-center justify-center">
 										<div className="text-center">
 											<p className="text-xl sm:text-2xl font-bold text-gray-700 dark:text-gray-300">
-												{isLoading ? '...' : formatCurrency(stats?.totalRevenue || 0)}
+												{isLoading ? '...' : formatCurrency(stats?.monthlyRevenue || 0)}
 											</p>
-											<p className="text-sm text-gray-500 dark:text-gray-400">Total</p>
+											<p className="text-sm text-gray-500 dark:text-gray-400">Total del Mes</p>
 										</div>
 									</div>
 								</div>
@@ -247,8 +270,19 @@ function MainHome() {
 										minYear={2020}
 										maxYear={new Date().getFullYear() + 2}
 									/>
-									<span className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">
-										12 meses de {selectedYear}
+									<span className="flex items-center gap-2 text-xs sm:text-sm text-gray-600 dark:text-gray-400">
+										12 meses de {selectedYear}{' '}
+										<Tooltip>
+											<TooltipTrigger>
+												<Info className="size-4" />
+											</TooltipTrigger>
+											<TooltipContent>
+												<p>
+													En esta estadistica puedes dar click sobre la barra del mes al que quieres filtrar y el panel
+													se adaptara y te mostrara los ingresos de ese mes.
+												</p>
+											</TooltipContent>
+										</Tooltip>
 									</span>
 								</div>
 							</div>
@@ -299,7 +333,14 @@ function MainHome() {
 										Médicos Tratantes
 									</h3>
 								</div>
-								<ArrowRight className="w-3 h-3 sm:w-4 sm:h-4 text-gray-400 group-hover:text-blue-500 transition-none" />
+								<Tooltip>
+									<TooltipTrigger>
+										<Info className="size-4" />
+									</TooltipTrigger>
+									<TooltipContent>
+										<p>En esta estadistica puedes ver los médicos tratantes con mas ingresos.</p>
+									</TooltipContent>
+								</Tooltip>
 							</div>
 
 							<div className="space-y-2 sm:space-y-3 flex-1">
@@ -351,7 +392,14 @@ function MainHome() {
 								<h3 className="text-xs sm:text-sm md:text-base font-bold text-gray-700 dark:text-gray-300">
 									Estudios Más Frecuentes
 								</h3>
-								<ArrowRight className="w-3 h-3 sm:w-4 sm:h-4 text-gray-400 group-hover:text-blue-500 transition-none" />
+								<Tooltip>
+									<TooltipTrigger>
+										<Info className="size-4" />
+									</TooltipTrigger>
+									<TooltipContent>
+										<p>En esta estadistica puedes ver los estudios mas frecuentes y los que generan mas ingresos.</p>
+									</TooltipContent>
+								</Tooltip>
 							</div>
 							<div className="space-y-2 sm:space-y-3 flex-1">
 								{isLoading ? (
@@ -421,7 +469,17 @@ function MainHome() {
 								<h3 className="text-xs sm:text-sm md:text-base font-bold text-gray-700 dark:text-gray-300">
 									Estado del Sistema
 								</h3>
-								<div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+								<Tooltip>
+									<TooltipTrigger>
+										<Info className="size-4" />
+									</TooltipTrigger>
+									<TooltipContent>
+										<p>
+											En esta estadistica puedes ver el estado de los casos pendientes de completar y los pagos
+											pendientes de cobrar.
+										</p>
+									</TooltipContent>
+								</Tooltip>
 							</div>
 							<div className="space-y-2 sm:space-y-3 flex-1">
 								{/* Incomplete Cases Alert */}
@@ -466,20 +524,18 @@ function MainHome() {
 						</div>
 					</Card>
 				</div>
-			</main>
 
-			{/* Stat Detail Panel - Responsive */}
-			{selectedStat && (
-				<StatDetailPanel
-					isOpen={isDetailPanelOpen}
-					onClose={handleDetailPanelClose}
-					statType={selectedStat}
-					stats={stats}
-					isLoading={isLoading}
-					selectedMonth={selectedMonth}
-					selectedYear={selectedYear}
-				/>
-			)}
+				{/* Stat Detail Panel */}
+				<Suspense fallback={<StatDetailPanelFallback />}>
+					<StatDetailPanel
+						isOpen={isDetailPanelOpen}
+						onClose={handleDetailPanelClose}
+						statType={selectedStat}
+						stats={stats}
+						isLoading={isLoading}
+					/>
+				</Suspense>
+			</main>
 		</div>
 	)
 }

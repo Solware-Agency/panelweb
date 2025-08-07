@@ -1,13 +1,23 @@
-import React, { useState, useCallback, useMemo, useEffect } from 'react'
+import React, { useState, useCallback, useMemo, useEffect, Suspense } from 'react'
 import { Download, Users, Activity, FileText, Microscope, BarChart3 } from 'lucide-react'
 import CasesTable from '@shared/components/cases/CasesTable'
 // import CaseDetailPanel from '@shared/components/cases/CaseDetailPanel'
-import UnifiedCaseModal from '@shared/components/cases/UnifiedCaseModal'
+// import UnifiedCaseModal from '@shared/components/cases/UnifiedCaseModal'
 import type { MedicalRecord } from '@lib/supabase-service'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { getMedicalRecords } from '@lib/supabase-service'
 import { Card, CardContent } from '@shared/components/ui/card'
 import { supabase } from '@lib/supabase/config'
+
+// Lazy loaded components
+import { UnifiedCaseModal } from '@shared/components/lazy-components'
+
+// Loading fallback for UnifiedCaseModal
+const UnifiedCaseModalFallback = () => (
+	<div className="flex items-center justify-center h-64">
+		<div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+	</div>
+)
 
 const MainCases: React.FC = React.memo(() => {
 	const queryClient = useQueryClient()
@@ -27,7 +37,7 @@ const MainCases: React.FC = React.memo(() => {
 				},
 			)
 			.subscribe()
-	
+
 		return () => {
 			supabase.removeChannel(channel)
 		}
@@ -395,13 +405,15 @@ const MainCases: React.FC = React.memo(() => {
 			/>
 
 			{/* Case Detail Panel */}
-			<UnifiedCaseModal
-				case_={selectedCase}
-				isOpen={isPanelOpen}
-				onClose={handlePanelClose}
-				onCaseSelect={handleCaseSelect}
-				onDelete={handleCaseDeleted}
-			/>
+			<Suspense fallback={<UnifiedCaseModalFallback />}>
+				<UnifiedCaseModal
+					case_={selectedCase}
+					isOpen={isPanelOpen}
+					onClose={handlePanelClose}
+					onCaseSelect={handleCaseSelect}
+					onDelete={handleCaseDeleted}
+				/>
+			</Suspense>
 		</div>
 	)
 })

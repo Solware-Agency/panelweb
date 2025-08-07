@@ -238,10 +238,6 @@ const ChangelogTable: React.FC = () => {
 						Registro de todas las acciones realizadas en el sistema
 					</p>
 				</div>
-				<Button onClick={() => refetch()} variant="outline" className="flex items-center gap-2">
-					<RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
-					Actualizar
-				</Button>
 			</div>
 
 			{/* Filters */}

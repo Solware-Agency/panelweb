@@ -2,16 +2,11 @@ import { Toaster } from '@shared/components/ui/toaster'
 import { Toaster as Sonner } from '@shared/components/ui/sonner'
 import { ThemeProvider } from '@app/providers/ThemeProvider'
 import { useQuery } from '@tanstack/react-query'
-import { MedicalForm, type MedicalFormRef } from '@features/form/components/MedicalForm'
-import { RecordsSection } from '@features/form/components/RecordsSection'
-import { SettingsSection } from '@features/form/components/SettingsSection'
 import { useState, useCallback, Suspense, useEffect, useRef } from 'react'
 import { Tabs, TabsContent } from '@shared/components/ui/tabs'
 import { getMedicalRecords, searchMedicalRecords } from '@lib/supabase-service'
-import { RefreshCw, Loader2, Trash2 } from 'lucide-react'
+import { Loader2, Trash2 } from 'lucide-react'
 import { useUserProfile } from '@shared/hooks/useUserProfile'
-import { DoctorsSection } from '@features/form/components/DoctorsSection'
-import PatientsPage from '@features/dashboard/patients/PatientsPage'
 import Sidebar from '@shared/components/Sidebar'
 import { useDarkMode } from '@shared/hooks/useDarkMode'
 import { AnimatePresence, motion } from 'framer-motion'
@@ -25,6 +20,18 @@ import { useFullscreenDetection } from '@shared/hooks/useFullscreenDetection'
 
 // Import Menu icon for mobile sidebar toggle
 import { Menu } from 'lucide-react'
+
+// Lazy loaded components
+import {
+	MedicalForm,
+	RecordsSection,
+	SettingsSection,
+	DoctorsSection,
+	PatientsPage,
+} from '@shared/components/lazy-components'
+
+// Type for MedicalFormRef
+import type { MedicalFormRef } from '@features/form/components/MedicalForm'
 
 const getInitialFormValues = (): FormValues => ({
 	fullName: '',
@@ -117,10 +124,6 @@ function FormContent() {
 		enabled: activeTab === 'records',
 	})
 
-	const handleRefreshCases = useCallback(() => {
-		refetchCases()
-	}, [refetchCases])
-
 	const handleSearch = useCallback((term: string) => {
 		setSearchTerm(term)
 	}, [])
@@ -175,17 +178,6 @@ function FormContent() {
 						Limpiar
 					</Button>
 				)}
-				{activeTab === 'records' && (
-					<>
-						<button
-							onClick={handleRefreshCases}
-							disabled={casesLoading}
-							className="flex items-center bg-white gap-2 px-3 py-2 border border-input rounded-lg focus:ring-2 focus:ring-primary dark:bg-background dark:text-white text-sm hover:bg-gray-50 dark:hover:bg-gray-700 shadow-xl dark:shadow-black shadow-black/40"
-						>
-							<RefreshCw className={`w-4 h-4 ${casesLoading ? 'animate-spin' : ''}`} />
-						</button>
-					</>
-				)}
 				{!isFullscreenMode && (
 					<button
 						onClick={() => setSidebarOpen(!sidebarOpen)}
@@ -233,7 +225,9 @@ function FormContent() {
 			)}
 			<div className="container mx-auto py-4 px-2 sm:px-4">
 				<main
-					className={`min-h-screen flex flex-col relative z-10 ${!isFullscreenMode ? 'lg:pl-16' : ''} transition-all duration-300 ease-in-out overflow-y-auto`}
+					className={`min-h-screen flex flex-col relative z-10 ${
+						!isFullscreenMode ? 'lg:pl-16' : ''
+					} transition-all duration-300 ease-in-out overflow-y-auto`}
 				>
 					<Tabs defaultValue="form" value={activeTab} onValueChange={handleTabChange}>
 						<TabsContent value="form" className="mt-4">
