@@ -83,12 +83,12 @@ const DoctorFilterPanel: React.FC<DoctorFilterPanelProps> = ({ cases, onFilterCh
 			</div>
 
 			<div className="relative mb-4">
-				<Search className="absolute left-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+				<Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
 				<Input
 					placeholder="Buscar médico..."
 					value={searchTerm}
 					onChange={(e) => setSearchTerm(e.target.value)}
-					className="pl-8"
+					className="pl-10"
 				/>
 			</div>
 

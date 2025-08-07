@@ -17,6 +17,7 @@ import type { MedicalRecord } from '@lib/supabase-service'
 import { getAgeDisplay } from '@lib/supabase-service'
 import { useToast } from '@shared/hooks/use-toast'
 import { Button } from '@shared/components/ui/button'
+import { Input } from '@shared/components/ui/input'
 import { useAuth } from '@app/providers/AuthContext'
 import { useUserProfile } from '@shared/hooks/useUserProfile'
 import RequestCaseModal from './RequestCaseModal'
@@ -655,13 +656,13 @@ const CasesTable: React.FC<CasesTableProps> = React.memo(
 								{/* Search - Acortada */}
 								<div className="w-full sm:max-w-md relative flex-1">
 									<Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
-									<input
+									<Input
 										type="text"
 										placeholder="Buscar por nombre, código, cédula, estudio o médico..."
 										value={searchTerm}
 										onChange={handleSearchChange}
 										onKeyDown={handleSearchKeyDown}
-										className="w-full pl-10 pr-4 py-2 border border-input rounded-lg focus:ring-2 focus:ring-primary dark:bg-background dark:text-white text-sm hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors duration-200"
+										className="pl-10"
 									/>
 									{isSearching && (
 										<div className="absolute right-3 top-1/2 transform -translate-y-1/2">
@@ -731,7 +732,7 @@ const CasesTable: React.FC<CasesTableProps> = React.memo(
 
 							{/* Results count */}
 							<div className="text-sm text-gray-600 dark:text-gray-400 hidden sm:block">
-								Mostrando {filteredAndSortedCases.filtered.length} de {filteredAndSortedCases.totalCases} casos
+								
 							</div>
 
 							{/* Close button */}
@@ -775,7 +776,7 @@ const CasesTable: React.FC<CasesTableProps> = React.memo(
 					</div>
 
 					{/* Scrollable Content Area */}
-					<div className="flex-1 overflow-hidden mobile-scroll-container">
+					<div className="flex-1 overflow-hidden">
 						{/* Mobile View - Cards */}
 						<div className="block lg:hidden h-full overflow-y-auto px-3 py-4">
 							<div className="p-2 sm:p-4 space-y-3 max-h-[60vh] overflow-y-auto">
@@ -957,13 +958,13 @@ const CasesTable: React.FC<CasesTableProps> = React.memo(
 								{/* Search - Acortada */}
 								<div className="flex-1 min-w-[200px] relative">
 									<Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
-									<input
+									<Input
 										type="text"
 										placeholder="Buscar por nombre, código, cédula, estudio o médico..."
 										value={searchTerm}
 										onChange={handleSearchChange}
 										onKeyDown={handleSearchKeyDown}
-										className="w-full pl-10 pr-4 py-2 border border-input rounded-lg focus:ring-2 focus:ring-primary dark:bg-background dark:text-white text-sm hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors duration-200"
+										className="pl-10"
 									/>
 									{isSearching && (
 										<div className="absolute right-3 top-1/2 transform -translate-y-1/2">
@@ -1032,7 +1033,7 @@ const CasesTable: React.FC<CasesTableProps> = React.memo(
 
 								{/* Results count */}
 								<div className="text-sm text-gray-600 dark:text-gray-400 hidden sm:flex">
-									Mostrando {paginatedCases.length} de {filteredAndSortedCases.totalCases} casos
+									
 								</div>
 
 								{/* Fullscreen Button */}

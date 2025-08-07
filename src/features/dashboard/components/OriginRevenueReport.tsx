@@ -72,16 +72,9 @@ const OriginRevenueReport: React.FC = () => {
 												className="border-b border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors"
 											>
 												<td className="py-2 px-1">
-													<div className="flex items-center gap-1">
-														<div className="w-6 h-6 bg-purple-100 dark:bg-purple-900/30 rounded-full flex items-center justify-center flex-shrink-0">
-															<MapPin className="w-3 h-3 text-purple-600 dark:text-purple-400" />
-														</div>
-														<div className="min-w-0 flex-1">
-															<p className="font-semibold text-gray-700 dark:text-gray-300 text-xs truncate">
-																{origin.origin}
-															</p>
-														</div>
-													</div>
+													<p className="font-semibold text-gray-700 dark:text-gray-300 text-xs truncate">
+														{origin.origin}
+													</p>
 												</td>
 												<td className="py-2 px-1 text-center">
 													<span className="inline-flex items-center justify-center px-1.5 py-0.5 text-xs font-semibold rounded-full bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300">
@@ -127,9 +120,6 @@ const OriginRevenueReport: React.FC = () => {
 										className="bg-white dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-lg p-3 hover:shadow-md transition-shadow"
 									>
 										<div className="flex items-center gap-3 mb-2">
-											<div className="w-8 h-8 bg-purple-100 dark:bg-purple-900/30 rounded-full flex items-center justify-center flex-shrink-0">
-												<MapPin className="w-4 h-4 text-purple-600 dark:text-purple-400" />
-											</div>
 											<div className="flex-1 min-w-0">
 												<p className="font-semibold text-gray-700 dark:text-gray-300 text-sm truncate">
 													{origin.origin}

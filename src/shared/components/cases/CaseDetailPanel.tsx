@@ -53,10 +53,10 @@ const CaseDetailPanel: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClos
 						animate={{ x: 0 }}
 						exit={{ x: '100%' }}
 						transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-						className="fixed right-0 top-0 h-full w-full sm:w-2/3 lg:w-1/2 xl:w-2/5 bg-white dark:bg-background shadow-2xl z-[99999999] overflow-y-auto rounded-lg border-l border-input flex flex-col"
+						className="fixed right-0 top-0 h-full w-full sm:w-2/3 lg:w-1/2 xl:w-2/5 bg-white/80 dark:bg-background/50 backdrop-blur-[10px] shadow-2xl z-[99999999] overflow-y-auto rounded-lg border-l border-input flex flex-col"
 					>
 						{/* Header */}
-						<div className="sticky top-0 bg-white dark:bg-background border-b border-gray-200 dark:border-gray-700 p-3 sm:p-6 z-10">
+						<div className="sticky top-0 bg-white/80 dark:bg-background/50 backdrop-blur-[10px] border-b border-input p-3 sm:p-6 z-10">
 							<div className="flex items-center justify-between">
 								<div>
 									<div>
@@ -95,7 +95,7 @@ const CaseDetailPanel: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClos
 						{/* Content */}
 						<div className="p-3 space-y-4 sm:space-y-6 overflow-y-auto flex-1">
 							{/* Patient Information */}
-							<div className="bg-white dark:bg-background rounded-lg p-3 sm:p-4 border border-input">
+							<div className="bg-white/60 dark:bg-background/30 backdrop-blur-[5px] rounded-lg p-3 sm:p-4 border border-input">
 								<div className="flex items-center gap-1.5 sm:gap-2 mb-3 sm:mb-4">
 									<User className="text-blue-500 size-6" />
 									<h3 className="text-lg sm:text-xl font-semibold">Información del Paciente</h3>
@@ -131,7 +131,7 @@ const CaseDetailPanel: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClos
 							</div>
 
 							{/* Medical Information */}
-							<div className="bg-white dark:bg-background rounded-lg p-3 sm:p-4 border border-input">
+							<div className="bg-white/60 dark:bg-background/30 backdrop-blur-[5px] rounded-lg p-3 sm:p-4 border border-input">
 								<div className="flex items-center justify-between gap-1.5 sm:gap-2 mb-3 sm:mb-4">
 									<div className="flex items-center gap-2">
 										<Microscope className="text-primary size-6" />
@@ -193,7 +193,7 @@ const CaseDetailPanel: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClos
 
 							{/* Biopsy Information (only for biopsy cases) */}
 							{case_.exam_type?.toLowerCase() === 'biopsia' && (
-								<div className="bg-white dark:bg-background rounded-lg p-3 sm:p-4 border border-input">
+								<div className="bg-white/60 dark:bg-background/30 backdrop-blur-[5px] rounded-lg p-3 sm:p-4 border border-input">
 									<div className="flex items-center gap-1.5 sm:gap-2 mb-3 sm:mb-4">
 										<FileText className="text-green-500 size-6" />
 										<h3 className="text-lg sm:text-xl font-semibold">Información de Biopsia</h3>
@@ -233,7 +233,7 @@ const CaseDetailPanel: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClos
 							)}
 
 							{/* Payment Information */}
-							<div className="bg-white dark:bg-background rounded-lg p-3 sm:p-4 border border-input">
+							<div className="bg-white/60 dark:bg-background/30 backdrop-blur-[5px] rounded-lg p-3 sm:p-4 border border-input">
 								<div className="flex items-center gap-1.5 sm:gap-2 mb-3 sm:mb-4">
 									<DollarSign className="text-purple-500 size-6" />
 									<h3 className="text-lg sm:text-xl font-semibold">Información de Pago</h3>
@@ -335,7 +335,7 @@ const CaseDetailPanel: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClos
 							</div>
 
 							{/* Additional Information */}
-							<div className="bg-white dark:bg-background rounded-lg p-3 sm:p-4 border border-input">
+							<div className="bg-white/60 dark:bg-background/30 backdrop-blur-[5px] rounded-lg p-3 sm:p-4 border border-input">
 								<div className="flex items-center gap-1.5 sm:gap-2 mb-3 sm:mb-4">
 									<FileText className="text-blue-500 size-6" />
 									<h3 className="text-lg sm:text-xl font-semibold">Información Adicional</h3>

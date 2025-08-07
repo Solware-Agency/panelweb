@@ -341,9 +341,9 @@ const StatsPage: React.FC = () => {
 						<ExamTypePieChart />
 					</Suspense>
 
-					{/* Doctor Revenue Report */}
+					{/* Remaining Amount */}
 					<Suspense fallback={<ComponentFallback />}>
-						<DoctorRevenueReport />
+						<RemainingAmount />
 					</Suspense>
 				</div>
 
@@ -354,9 +354,9 @@ const StatsPage: React.FC = () => {
 						<OriginRevenueReport />
 					</Suspense>
 
-					{/* Remaining Amount */}
+					{/* Doctor Revenue Report */}
 					<Suspense fallback={<ComponentFallback />}>
-						<RemainingAmount />
+						<DoctorRevenueReport />
 					</Suspense>
 				</div>
 			</div>

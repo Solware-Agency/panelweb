@@ -716,7 +716,7 @@ const UnifiedCaseModal: React.FC<CaseDetailPanelProps> = React.memo(({ case_, is
 			icon: React.ComponentType<{ className?: string }>
 			children: React.ReactNode
 		}) => (
-			<div className="bg-white dark:bg-background rounded-lg p-4 border border-input shadow-sm hover:shadow-md transition-shadow duration-200">
+			<div className="bg-white/60 dark:bg-background/30 backdrop-blur-[5px] rounded-lg p-4 border border-input shadow-sm hover:shadow-md transition-shadow duration-200">
 				<div className="flex items-center gap-2 mb-3">
 					<Icon className="w-5 h-5 text-blue-600 dark:text-blue-400" />
 					<h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">{title}</h3>
@@ -831,9 +831,9 @@ const UnifiedCaseModal: React.FC<CaseDetailPanelProps> = React.memo(({ case_, is
 							animate={{ x: 0 }}
 							exit={{ x: '100%' }}
 							transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-							className="fixed right-0 top-0 h-full w-full sm:w-2/3 lg:w-1/2 xl:w-2/5 bg-white dark:bg-background shadow-2xl z-[99999999] overflow-y-auto rounded-lg border-l border-input"
+							className="fixed right-0 top-0 h-full w-full sm:w-2/3 lg:w-1/2 xl:w-2/5 bg-white/80 dark:bg-background/50 backdrop-blur-[10px] shadow-2xl z-[99999999] overflow-y-auto rounded-lg border-l border-input"
 						>
-							<div className="sticky top-0 bg-white dark:bg-background border-b border-gray-200 dark:border-gray-700 p-3 sm:p-6 z-10">
+							<div className="sticky top-0 bg-white/80 dark:bg-background/50 backdrop-blur-[10px] border-b border-input p-3 sm:p-6 z-10">
 								<div className="flex items-center justify-between">
 									<div>
 										<div>
@@ -1667,7 +1667,7 @@ const UnifiedCaseModal: React.FC<CaseDetailPanelProps> = React.memo(({ case_, is
 			{/* Delete Confirmation Modal */}
 			{isDeleteModalOpen && (
 				<div className="fixed inset-0 z-[999999999] flex items-center justify-center bg-black/50">
-					<div className="bg-white dark:bg-background rounded-lg p-6 max-w-md w-full mx-4 shadow-xl border border-gray-200 dark:border-gray-700">
+					<div className="bg-white/90 dark:bg-background/70 backdrop-blur-[10px] rounded-lg p-6 max-w-md w-full mx-4 shadow-xl border border-input">
 						<div className="flex items-center gap-3 mb-4">
 							<div className="p-2 bg-red-100 dark:bg-red-900/30 rounded-full">
 								<AlertCircle className="w-6 h-6 text-red-600 dark:text-red-400" />
@@ -1711,7 +1711,7 @@ const UnifiedCaseModal: React.FC<CaseDetailPanelProps> = React.memo(({ case_, is
 			{/* Add Payment Modal */}
 			{isAddPaymentModalOpen && (
 				<div className="fixed inset-0 z-[999999999] flex items-center justify-center bg-black/50">
-					<div className="bg-white dark:bg-background rounded-lg p-6 max-w-md w-full mx-4 shadow-xl border border-gray-200 dark:border-gray-700">
+					<div className="bg-white/90 dark:bg-background/70 backdrop-blur-[10px] rounded-lg p-6 max-w-md w-full mx-4 shadow-xl border border-input">
 						<div className="flex items-center justify-between mb-4">
 							<div className="flex items-center gap-3">
 								<div className="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-full">

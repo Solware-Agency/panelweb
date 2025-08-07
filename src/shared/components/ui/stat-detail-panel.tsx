@@ -91,7 +91,7 @@ const StatDetailPanel: React.FC<StatDetailPanelProps> = ({
 			case 'totalRevenue':
 				return (
 					<div className="space-y-6">
-						<div className="bg-white dark:bg-gray-800 rounded-lg p-6 border border-gray-200 dark:border-gray-700">
+						<div className="bg-white/60 dark:bg-background/30 backdrop-blur-[5px] rounded-lg p-6 border border-input">
 							<div>
 								<h3 className="text-xl font-bold mb-4 text-gray-900 dark:text-gray-100">Resumen de Ingresos</h3>
 							</div>
@@ -114,7 +114,7 @@ const StatDetailPanel: React.FC<StatDetailPanelProps> = ({
 							</div>
 						</div>
 
-						<div className="bg-white dark:bg-gray-800 rounded-lg p-6 border border-gray-200 dark:border-gray-700">
+						<div className="bg-white/60 dark:bg-background/30 backdrop-blur-[5px] rounded-lg p-6 border border-input">
 							<div>
 								<h3 className="text-xl font-bold mb-4 text-gray-900 dark:text-gray-100">Distribución por Sede</h3>
 							</div>
@@ -142,7 +142,7 @@ const StatDetailPanel: React.FC<StatDetailPanelProps> = ({
 							</div>
 						</div>
 
-						<div className="bg-white dark:bg-gray-800 rounded-lg p-6 border border-gray-200 dark:border-gray-700">
+						<div className="bg-white/60 dark:bg-background/30 backdrop-blur-[5px] rounded-lg p-6 border border-input">
 							<div>
 								<h3 className="text-xl font-bold mb-4 text-gray-900 dark:text-gray-100">Tendencia Mensual</h3>
 							</div>
@@ -179,7 +179,7 @@ const StatDetailPanel: React.FC<StatDetailPanelProps> = ({
 			case 'monthlyRevenue':
 				return (
 					<div className="space-y-6">
-						<div className="bg-white dark:bg-gray-800 rounded-lg p-6 border border-gray-200 dark:border-gray-700">
+						<div className="bg-white/60 dark:bg-background/30 backdrop-blur-[5px] rounded-lg p-6 border border-input">
 							<div>
 								<h3 className="text-xl font-bold mb-4 text-gray-900 dark:text-gray-100">Ingresos Mensuales</h3>
 							</div>
@@ -203,7 +203,7 @@ const StatDetailPanel: React.FC<StatDetailPanelProps> = ({
 							</div>
 						</div>
 
-						<div className="bg-white dark:bg-gray-800 rounded-lg p-6 border border-gray-200 dark:border-gray-700">
+						<div className="bg-white/60 dark:bg-background/30 backdrop-blur-[5px] rounded-lg p-6 border border-input">
 							<div>
 								<h3 className="text-xl font-bold mb-4 text-gray-900 dark:text-gray-100">Desglose por Tipo de Examen</h3>
 							</div>
@@ -229,7 +229,7 @@ const StatDetailPanel: React.FC<StatDetailPanelProps> = ({
 							</div>
 						</div>
 
-						<div className="bg-white dark:bg-gray-800 rounded-lg p-6 border border-gray-200 dark:border-gray-700">
+						<div className="bg-white/60 dark:bg-background/30 backdrop-blur-[5px] rounded-lg p-6 border border-input">
 							<div>
 								<h3 className="text-xl font-bold mb-4 text-gray-900 dark:text-gray-100">Nuevos Pacientes</h3>
 							</div>
@@ -252,7 +252,7 @@ const StatDetailPanel: React.FC<StatDetailPanelProps> = ({
 			case 'totalCases':
 				return (
 					<div className="space-y-6">
-						<div className="bg-white dark:bg-gray-800 rounded-lg p-6 border border-gray-200 dark:border-gray-700">
+						<div className="bg-white/60 dark:bg-background/30 backdrop-blur-[5px] rounded-lg p-6 border border-input">
 							<div>
 								<h3 className="text-xl font-bold mb-4 text-gray-900 dark:text-gray-100">Resumen de Casos</h3>
 							</div>
@@ -272,7 +272,7 @@ const StatDetailPanel: React.FC<StatDetailPanelProps> = ({
 							</div>
 						</div>
 
-						<div className="bg-white dark:bg-gray-800 rounded-lg p-6 border border-gray-200 dark:border-gray-700">
+						<div className="bg-white/60 dark:bg-background/30 backdrop-blur-[5px] rounded-lg p-6 border border-input">
 							<h3 className="text-xl font-bold mb-4 text-gray-900 dark:text-gray-100">
 								Distribución por Tipo de Examen
 							</h3>
@@ -300,7 +300,7 @@ const StatDetailPanel: React.FC<StatDetailPanelProps> = ({
 							</div>
 						</div>
 
-						<div className="bg-white dark:bg-gray-800 rounded-lg p-6 border border-gray-200 dark:border-gray-700">
+						<div className="bg-white/60 dark:bg-background/30 backdrop-blur-[5px] rounded-lg p-6 border border-input">
 							<div>
 								<h3 className="text-xl font-bold mb-4 text-gray-900 dark:text-gray-100">Médicos Tratantes</h3>
 							</div>
@@ -333,7 +333,7 @@ const StatDetailPanel: React.FC<StatDetailPanelProps> = ({
 			case 'completedCases':
 				return (
 					<div className="space-y-6">
-						<div className="bg-white dark:bg-gray-800 rounded-lg p-6 border border-gray-200 dark:border-gray-700">
+						<div className="bg-white/60 dark:bg-background/30 backdrop-blur-[5px] rounded-lg p-6 border border-input">
 							<div>
 								<h3 className="text-xl font-bold mb-4 text-gray-900 dark:text-gray-100">Casos Completados</h3>
 							</div>
@@ -351,7 +351,7 @@ const StatDetailPanel: React.FC<StatDetailPanelProps> = ({
 							</div>
 						</div>
 
-						<div className="bg-white dark:bg-gray-800 rounded-lg p-6 border border-gray-200 dark:border-gray-700">
+						<div className="bg-white/60 dark:bg-background/30 backdrop-blur-[5px] rounded-lg p-6 border border-input">
 							<div>
 								<h3 className="text-xl font-bold mb-4 text-gray-900 dark:text-gray-100">Progreso de Completitud</h3>
 							</div>
@@ -398,7 +398,7 @@ const StatDetailPanel: React.FC<StatDetailPanelProps> = ({
 							</div>
 						</div>
 
-						<div className="bg-white dark:bg-gray-800 rounded-lg p-6 border border-gray-200 dark:border-gray-700">
+						<div className="bg-white/60 dark:bg-background/30 backdrop-blur-[5px] rounded-lg p-6 border border-input">
 							<h3 className="text-xl font-bold mb-4 text-gray-900 dark:text-gray-100">
 								Ingresos por Casos Completados
 							</h3>
@@ -422,7 +422,7 @@ const StatDetailPanel: React.FC<StatDetailPanelProps> = ({
 			case 'incompleteCases':
 				return (
 					<div className="space-y-6">
-						<div className="bg-white dark:bg-gray-800 rounded-lg p-6 border border-gray-200 dark:border-gray-700">
+						<div className="bg-white/60 dark:bg-background/30 backdrop-blur-[5px] rounded-lg p-6 border border-input">
 							<div>
 								<h3 className="text-xl font-bold mb-4 text-gray-900 dark:text-gray-100">Casos Incompletos</h3>
 							</div>
@@ -440,7 +440,7 @@ const StatDetailPanel: React.FC<StatDetailPanelProps> = ({
 							</div>
 						</div>
 
-						<div className="bg-white dark:bg-gray-800 rounded-lg p-6 border border-gray-200 dark:border-gray-700">
+						<div className="bg-white/60 dark:bg-background/30 backdrop-blur-[5px] rounded-lg p-6 border border-input">
 							<h3 className="text-xl font-bold mb-4 text-gray-900 dark:text-gray-100">Progreso de Completitud</h3>
 							<div className="space-y-4">
 								<div>
@@ -485,7 +485,7 @@ const StatDetailPanel: React.FC<StatDetailPanelProps> = ({
 							</div>
 						</div>
 
-						<div className="bg-white dark:bg-gray-800 rounded-lg p-6 border border-gray-200 dark:border-gray-700">
+						<div className="bg-white/60 dark:bg-background/30 backdrop-blur-[5px] rounded-lg p-6 border border-input">
 							<Button className="w-full bg-primary hover:bg-primary/80">
 								<BarChart3 className="w-4 h-4 mr-2" />
 								Ver Todos los Casos Incompletos
@@ -497,7 +497,7 @@ const StatDetailPanel: React.FC<StatDetailPanelProps> = ({
 			case 'pendingPayments':
 				return (
 					<div className="space-y-6">
-						<div className="bg-white dark:bg-gray-800 rounded-lg p-6 border border-gray-200 dark:border-gray-700">
+						<div className="bg-white/60 dark:bg-background/30 backdrop-blur-[5px] rounded-lg p-6 border border-input">
 							<div>
 								<h3 className="text-xl font-bold mb-4 text-gray-900 dark:text-gray-100">Pagos Pendientes</h3>
 							</div>
@@ -515,7 +515,7 @@ const StatDetailPanel: React.FC<StatDetailPanelProps> = ({
 							</div>
 						</div>
 
-						<div className="bg-white dark:bg-gray-800 rounded-lg p-6 border border-gray-200 dark:border-gray-700">
+						<div className="bg-white/60 dark:bg-background/30 backdrop-blur-[5px] rounded-lg p-6 border border-input">
 							<h3 className="text-xl font-bold mb-4 text-gray-900 dark:text-gray-100">
 								Porcentaje de Pagos Pendientes
 							</h3>
@@ -544,7 +544,7 @@ const StatDetailPanel: React.FC<StatDetailPanelProps> = ({
 							</div>
 						</div>
 
-						<div className="bg-white dark:bg-gray-800 rounded-lg p-6 border border-gray-200 dark:border-gray-700">
+						<div className="bg-white/60 dark:bg-background/30 backdrop-blur-[5px] rounded-lg p-6 border border-input">
 							<Button className="w-full bg-primary hover:bg-primary/80">
 								<BarChart3 className="w-4 h-4 mr-2" />
 								Ver Todos los Casos con Pagos Pendientes
@@ -556,7 +556,7 @@ const StatDetailPanel: React.FC<StatDetailPanelProps> = ({
 			case 'uniquePatients':
 				return (
 					<div className="space-y-6">
-						<div className="bg-white dark:bg-gray-800 rounded-lg p-6 border border-gray-200 dark:border-gray-700">
+						<div className="bg-white/60 dark:bg-background/30 backdrop-blur-[5px] rounded-lg p-6 border border-input">
 							<div>
 								<h3 className="text-xl font-bold mb-4 text-gray-900 dark:text-gray-100">Pacientes Únicos</h3>
 							</div>
@@ -572,7 +572,7 @@ const StatDetailPanel: React.FC<StatDetailPanelProps> = ({
 							</div>
 						</div>
 
-						<div className="bg-white dark:bg-gray-800 rounded-lg p-6 border border-gray-200 dark:border-gray-700">
+						<div className="bg-white/60 dark:bg-background/30 backdrop-blur-[5px] rounded-lg p-6 border border-input">
 							<div>
 								<h3 className="text-xl font-bold mb-4 text-gray-900 dark:text-gray-100">Estadísticas de Pacientes</h3>
 							</div>
@@ -600,7 +600,7 @@ const StatDetailPanel: React.FC<StatDetailPanelProps> = ({
 							</div>
 						</div>
 
-						<div className="bg-white dark:bg-gray-800 rounded-lg p-6 border border-gray-200 dark:border-gray-700">
+						<div className="bg-white/60 dark:bg-background/30 backdrop-blur-[5px] rounded-lg p-6 border border-input">
 							<div>
 								<h3 className="text-xl font-bold mb-4 text-gray-900 dark:text-gray-100">Tendencia de Nuevos Pacientes</h3>
 							</div>
@@ -631,7 +631,7 @@ const StatDetailPanel: React.FC<StatDetailPanelProps> = ({
 			case 'branchRevenue':
 				return (
 					<div className="space-y-6">
-						<div className="bg-white dark:bg-gray-800 rounded-lg p-6 border border-gray-200 dark:border-gray-700">
+						<div className="bg-white/60 dark:bg-background/30 backdrop-blur-[5px] rounded-lg p-6 border border-input">
 							<div>
 								<h3 className="text-xl font-bold mb-4 text-gray-900 dark:text-gray-100">Ingresos por Sede</h3>
 							</div>
@@ -708,7 +708,7 @@ const StatDetailPanel: React.FC<StatDetailPanelProps> = ({
 							</div>
 						</div>
 
-						<div className="bg-white dark:bg-gray-800 rounded-lg p-6 border border-gray-200 dark:border-gray-700">
+						<div className="bg-white/60 dark:bg-background/30 backdrop-blur-[5px] rounded-lg p-6 border border-input">
 							<div>
 								<h3 className="text-xl font-bold mb-4 text-gray-900 dark:text-gray-100">Comparación de Sedes</h3>
 							</div>
@@ -740,7 +740,7 @@ const StatDetailPanel: React.FC<StatDetailPanelProps> = ({
 			case 'examTypes':
 				return (
 					<div className="space-y-6">
-						<div className="bg-white dark:bg-gray-800 rounded-lg p-6 border border-gray-200 dark:border-gray-700">
+						<div className="bg-white/60 dark:bg-background/30 backdrop-blur-[5px] rounded-lg p-6 border border-input">
 							<h3 className="text-xl font-bold mb-4 text-gray-900 dark:text-gray-100">
 								Distribución por Tipo de Examen
 							</h3>
@@ -768,7 +768,7 @@ const StatDetailPanel: React.FC<StatDetailPanelProps> = ({
 							</div>
 						</div>
 
-						<div className="bg-white dark:bg-gray-800 rounded-lg p-6 border border-gray-200 dark:border-gray-700">
+						<div className="bg-white/60 dark:bg-background/30 backdrop-blur-[5px] rounded-lg p-6 border border-input">
 							<div>
 								<h3 className="text-xl font-bold mb-4 text-gray-900 dark:text-gray-100">Ingresos por Tipo de Examen</h3>
 							</div>
@@ -834,10 +834,10 @@ const StatDetailPanel: React.FC<StatDetailPanelProps> = ({
 						animate={{ x: 0 }}
 						exit={{ x: '100%' }}
 						transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-						className="fixed right-0 top-0 h-full w-full sm:w-2/3 lg:w-1/2 xl:w-2/5 bg-white dark:bg-background shadow-2xl z-[99999999] overflow-y-auto rounded-lg border-l border-input flex flex-col"
+						className="fixed right-0 top-0 h-full w-full sm:w-2/3 lg:w-1/2 xl:w-2/5 bg-white/80 dark:bg-background/50 backdrop-blur-[10px] shadow-2xl z-[99999999] overflow-y-auto rounded-lg border-l border-input flex flex-col"
 					>
 						{/* Header */}
-						<div className="sticky top-0 bg-white dark:bg-background border-b border-gray-200 dark:border-gray-700 p-3 sm:p-6 z-10">
+						<div className="sticky top-0 bg-white/80 dark:bg-background/50 backdrop-blur-[10px] border-b border-input p-3 sm:p-6 z-10">
 							<div className="flex items-center justify-between">
 								<div>
 									<h2 className="text-lg sm:text-2xl font-bold text-gray-900 dark:text-gray-100">{getStatTitle()}</h2>

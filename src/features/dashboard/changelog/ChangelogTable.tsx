@@ -4,7 +4,6 @@ import {
 	Search,
 	Filter,
 	Calendar,
-	User,
 	FileText,
 	RefreshCw,
 	ArrowUpDown,
@@ -375,13 +374,10 @@ const ChangelogTable: React.FC = () => {
 														</div>
 													</td>
 
-													{/* User */}
-													<td className="px-4 py-4">
-														<div className="flex items-center gap-2">
-															<User className="w-4 h-4 text-gray-500 dark:text-gray-400" />
-															<span className="text-sm text-gray-900 dark:text-gray-100">{log.user_email}</span>
-														</div>
-													</td>
+																		{/* User */}
+					<td className="px-4 py-4">
+						<span className="text-sm text-gray-900 dark:text-gray-100">{log.user_email}</span>
+					</td>
 
 													{/* Case */}
 													<td className="px-4 py-4">
@@ -469,8 +465,7 @@ const ChangelogTable: React.FC = () => {
 												</div>
 
 												{/* User */}
-												<div className="flex items-center gap-2 mb-2 border-t border-gray-100 dark:border-gray-700 pt-2">
-													<User className="w-4 h-4 text-gray-500 dark:text-gray-400" />
+												<div className="mb-2 border-t border-gray-100 dark:border-gray-700 pt-2">
 													<span className="text-xs text-gray-900 dark:text-gray-100 truncate">{log.user_email}</span>
 												</div>
 
