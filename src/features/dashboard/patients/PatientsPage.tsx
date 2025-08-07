@@ -122,7 +122,7 @@ const PatientsPage: React.FC = React.memo(() => {
 			{/* Barra de búsqueda justo encima de los resultados */}
 			<div className="mb-4">
 				<div className="relative max-w-md">
-					<Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400 z-50" />
+					<Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
 					<Input
 						type="text"
 						placeholder="Buscar por nombre, cédula, teléfono o email..."

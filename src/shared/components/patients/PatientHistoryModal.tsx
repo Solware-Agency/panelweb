@@ -101,11 +101,11 @@ const PatientHistoryModal: React.FC<PatientHistoryModalProps> = ({ isOpen, onClo
 						onClick={onClose}
 					>
 						<div 
-							className="bg-white dark:bg-background rounded-lg shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col"
+							className="bg-white/80 dark:bg-background/50 backdrop-blur-[10px] rounded-lg shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col border border-input"
 							onClick={(e) => e.stopPropagation()}
 						>
 							{/* Header */}
-							<div className="sticky top-0 bg-white dark:bg-background border-b border-gray-200 dark:border-gray-700 p-4 sm:p-6 z-10">
+							<div className="sticky top-0 bg-white/80 dark:bg-background/50 backdrop-blur-[10px] border-b border-input p-4 sm:p-6 z-10">
 								<div className="flex items-center justify-between">
 									<div>
 															<div>
@@ -247,7 +247,7 @@ const PatientHistoryModal: React.FC<PatientHistoryModalProps> = ({ isOpen, onClo
 											{filteredCases.map((caseItem: MedicalRecord) => (
 												<div
 													key={caseItem.id}
-													className="bg-white dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-lg p-4 hover:shadow-md transition-shadow"
+													className="bg-white/60 dark:bg-background/30 backdrop-blur-[5px] border border-input rounded-lg p-4 hover:shadow-md transition-shadow"
 												>
 													<div className="flex flex-col sm:flex-row sm:items-center gap-3 mb-3">
 														<div className="flex items-center gap-2">

@@ -150,11 +150,6 @@
 
 /* Improved mobile scrolling */
 @media (max-width: 640px) {
-  .mobile-scroll-container {
-    -webkit-overflow-scrolling: touch;
-    scroll-behavior: smooth;
-  }
-
   .mobile-card-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));

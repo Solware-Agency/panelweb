@@ -446,7 +446,7 @@ const StepsCaseModal: React.FC<StepsCaseModalProps> = ({ case_, isOpen, onClose,
 					initial={{ opacity: 0, scale: 0.9, y: 20 }}
 					animate={{ opacity: 1, scale: 1, y: 0 }}
 					exit={{ opacity: 0, scale: 0.9, y: 20 }}
-					className="w-full max-w-xl bg-white dark:bg-gray-900 rounded-2xl shadow-2xl border border-gray-200 dark:border-gray-700 overflow-hidden z-10"
+					className="w-full max-w-xl bg-white/80 dark:bg-background/50 backdrop-blur-[10px] rounded-2xl shadow-2xl border border-input overflow-hidden z-10"
 				>
 					{/* Header */}
 					<div className="bg-pink-500 px-6 py-4">

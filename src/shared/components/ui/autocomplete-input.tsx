@@ -2,7 +2,7 @@ import * as React from "react";
 import { Input } from "@shared/components/ui/input";
 import { cn } from "@shared/lib/cn";
 import { useAutocomplete } from "@shared/hooks/useAutocomplete";
-import { Loader2,  User } from "lucide-react";
+import { Loader2 } from "lucide-react";
 
 interface AutocompleteInputProps extends React.ComponentProps<typeof Input> {
   fieldName: string;
@@ -214,10 +214,7 @@ export const AutocompleteInput = React.memo(React.forwardRef<
     return null;
   }, [isLoading, searchTerminated, isAutofilled, fieldName, showSuggestions, inputValue, hasFocused]);
 
-  // Determine suggestion header text - memoized to prevent unnecessary recalculations
-  const getSuggestionHeaderText = React.useMemo(() => {
-    return `${suggestions.length} sugerencia${suggestions.length !== 1 ? 's' : ''} encontrada${suggestions.length !== 1 ? 's' : ''}`;
-  }, [suggestions.length]);
+
 
   return (
     <div className="relative">
@@ -255,10 +252,7 @@ export const AutocompleteInput = React.memo(React.forwardRef<
           ref={suggestionsRef}
           className="absolute z-[9999] w-full mt-1 bg-white dark:bg-background border border-gray-200 dark:border-gray-700 rounded-md shadow-xl max-h-60 overflow-auto"
         >
-          <div className="px-3 py-2 text-xs text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 flex items-center gap-2">
-            {fieldName === 'idNumber' && <User className="h-3 w-3" />}
-            {getSuggestionHeaderText}
-          </div>
+
           {suggestions.map((suggestion, index) => (
             <div
               key={`${suggestion.value}-${index}`}

@@ -491,7 +491,7 @@ const MainUsers: React.FC = () => {
 									placeholder="Buscar usuarios..."
 									value={searchTerm}
 									onChange={(e) => setSearchTerm(e.target.value)}
-									className="pl-10 h-10 text-sm hover:border-primary hover:shadow-sm transition-transform duration-200"
+									className="pl-10"
 								/>
 							</div>
 

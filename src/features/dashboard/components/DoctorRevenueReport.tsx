@@ -1,6 +1,6 @@
 import React from 'react'
 import { Card } from '@shared/components/ui/card'
-import { User, Info } from 'lucide-react'
+import { Stethoscope, Info } from 'lucide-react'
 import { useDashboardStats } from '@shared/hooks/useDashboardStats'
 import { useBreakpoint } from '@shared/components/ui/media-query'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@shared/components/ui/tooltip'
@@ -24,7 +24,7 @@ const DoctorRevenueReport: React.FC = () => {
 				<div className="flex items-center justify-between mb-3">
 					<div className="flex items-center gap-3">
 						<div className="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
-							<User className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+							<Stethoscope className="w-5 h-5 text-blue-600 dark:text-blue-400" />
 						</div>
 						<h3 className="flex items-center justify-between text-lg font-bold text-gray-700 dark:text-gray-300">
 							Ingreso por Médico Tratante
@@ -74,16 +74,9 @@ const DoctorRevenueReport: React.FC = () => {
 												className="border-b border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors"
 											>
 												<td className="py-2 px-1">
-													<div className="flex items-center gap-1">
-														<div className="w-6 h-6 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center flex-shrink-0">
-															<User className="w-3 h-3 text-blue-600 dark:text-blue-400" />
-														</div>
-														<div className="min-w-0 flex-1">
-															<p className="font-semibold text-gray-700 dark:text-gray-300 text-xs truncate">
-																{doctor.doctor}
-															</p>
-														</div>
-													</div>
+													<p className="font-semibold text-gray-700 dark:text-gray-300 text-xs truncate">
+														{doctor.doctor}
+													</p>
 												</td>
 												<td className="py-2 px-1 text-center">
 													<span className="inline-flex items-center justify-center px-1.5 py-0.5 text-xs font-semibold rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300">
@@ -129,9 +122,6 @@ const DoctorRevenueReport: React.FC = () => {
 										className="bg-white dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-lg p-3 hover:shadow-md transition-shadow"
 									>
 										<div className="flex items-center gap-3 mb-2">
-											<div className="w-8 h-8 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center flex-shrink-0">
-												<User className="w-4 h-4 text-blue-600 dark:text-blue-400" />
-											</div>
 											<div className="flex-1 min-w-0">
 												<p className="font-semibold text-gray-700 dark:text-gray-300 text-sm truncate">
 													{doctor.doctor}
@@ -170,7 +160,7 @@ const DoctorRevenueReport: React.FC = () => {
 					) : (
 						<div className="flex flex-col items-center justify-center h-full text-center">
 							<div className="w-16 h-16 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center mb-4">
-								<User className="w-8 h-8 text-blue-600 dark:text-blue-400" />
+								<Stethoscope className="w-8 h-8 text-blue-600 dark:text-blue-400" />
 							</div>
 							<p className="text-lg font-semibold text-gray-700 dark:text-gray-300 mb-2">No hay datos de médicos</p>
 							<p className="text-sm text-gray-500 dark:text-gray-400">
