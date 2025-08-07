@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useMemo } from 'react'
+import React, { useState, useCallback, useMemo, useEffect } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { useLocation } from 'react-router-dom'
 import { getMedicalRecords } from '@lib/supabase-service'
@@ -97,10 +97,14 @@ const PatientsPage: React.FC = React.memo(() => {
 		}
 	}, [recordsData])
 
-	// Solo bloquear scroll cuando estamos en la página de pacientes del dashboard
-	// No bloquear cuando estamos en el formulario como tab o en rutas de empleados
-	const isDashboardPatientsPage = location.pathname === '/dashboard/patients'
-	useBodyScrollLock(isDashboardPatientsPage)
+	const [shouldLockScroll, setShouldLockScroll] = useState(false)
+
+	useEffect(() => {
+		const isOnPatientsPage = location.pathname === '/dashboard/patients'
+		setShouldLockScroll(isOnPatientsPage)
+	}, [location.pathname])
+
+	useBodyScrollLock(shouldLockScroll)
 
 	return (
 		<div className="p-3 sm:p-4">
