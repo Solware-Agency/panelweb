@@ -99,7 +99,7 @@ const StatDetailPanel: React.FC<StatDetailPanelProps> = ({
 								<div className="bg-green-50 dark:bg-green-900/20 p-4 rounded-lg border border-green-200 dark:border-green-800">
 									<p className="text-sm text-gray-500 dark:text-gray-400">Ingresos Totales</p>
 									<p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-										{formatCurrency(stats.totalRevenue)}
+										{formatCurrency(stats.monthlyRevenue)}
 									</p>
 								</div>
 								<div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg border border-blue-200 dark:border-blue-800">
@@ -410,7 +410,7 @@ const StatDetailPanel: React.FC<StatDetailPanelProps> = ({
 									<div>
 										<p className="text-sm text-gray-500 dark:text-gray-400">Ingresos Totales</p>
 										<p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-											{formatCurrency(stats.totalRevenue)}
+											{formatCurrency(stats.monthlyRevenue)}
 										</p>
 									</div>
 								</div>
@@ -524,7 +524,7 @@ const StatDetailPanel: React.FC<StatDetailPanelProps> = ({
 									<div className="flex items-center justify-between mb-2">
 										<span className="text-sm font-medium text-gray-600 dark:text-gray-400">Pagos Pendientes</span>
 										<span className="text-sm font-bold text-red-700 dark:text-red-300">
-											{stats.totalRevenue > 0 ? ((stats.pendingPayments / stats.totalRevenue) * 100).toFixed(1) : 0}%
+											{stats.monthlyRevenue > 0 ? ((stats.pendingPayments / stats.monthlyRevenue) * 100).toFixed(1) : 0}%
 										</span>
 									</div>
 									<div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2.5">
@@ -532,13 +532,13 @@ const StatDetailPanel: React.FC<StatDetailPanelProps> = ({
 											className="bg-red-500 h-2.5 rounded-full"
 											style={{
 												width: `${
-													stats.totalRevenue > 0 ? Math.min((stats.pendingPayments / stats.totalRevenue) * 100, 100) : 0
+													stats.monthlyRevenue > 0 ? Math.min((stats.pendingPayments / stats.monthlyRevenue) * 100, 100) : 0
 												}%`,
 											}}
 										></div>
 									</div>
 									<p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-										Del total de ingresos: {formatCurrency(stats.totalRevenue)}
+										Del total de ingresos del mes: {formatCurrency(stats.monthlyRevenue)}
 									</p>
 								</div>
 							</div>
@@ -587,7 +587,7 @@ const StatDetailPanel: React.FC<StatDetailPanelProps> = ({
 									<span className="text-sm text-gray-600 dark:text-gray-400">Ingresos por Paciente (Promedio)</span>
 									<span className="text-sm font-medium text-gray-700 dark:text-gray-300">
 										{stats.uniquePatients > 0
-											? formatCurrency(stats.totalRevenue / stats.uniquePatients)
+											? formatCurrency(stats.monthlyRevenue / stats.uniquePatients)
 											: formatCurrency(0)}
 									</span>
 								</div>
@@ -677,9 +677,9 @@ const StatDetailPanel: React.FC<StatDetailPanelProps> = ({
 									<div className="absolute inset-0 flex items-center justify-center">
 										<div className="text-center">
 											<p className="text-xl font-bold text-gray-700 dark:text-gray-300">
-												{formatCurrency(stats.totalRevenue || 0)}
+												{formatCurrency(stats.monthlyRevenue || 0)}
 											</p>
-											<p className="text-xs text-gray-500 dark:text-gray-400">Total</p>
+											<p className="text-xs text-gray-500 dark:text-gray-400">Total del Mes</p>
 										</div>
 									</div>
 								</div>
@@ -792,8 +792,8 @@ const StatDetailPanel: React.FC<StatDetailPanelProps> = ({
 												<div className="flex justify-between text-xs text-gray-500 dark:text-gray-400 mt-1">
 													<span>{exam.count} casos</span>
 													<span>
-														{stats.totalRevenue > 0 ? ((exam.revenue / stats.totalRevenue) * 100).toFixed(1) : 0}% del
-														total
+														{stats.monthlyRevenue > 0 ? ((exam.revenue / stats.monthlyRevenue) * 100).toFixed(1) : 0}% del
+														total del mes
 													</span>
 												</div>
 											</div>

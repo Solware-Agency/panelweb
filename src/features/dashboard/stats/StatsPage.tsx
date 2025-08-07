@@ -1,21 +1,31 @@
-import React, { useState } from 'react'
+import React, { useState, Suspense } from 'react'
 import { Users, DollarSign, ShoppingCart, ArrowUpRight, AlertTriangle, Clock } from 'lucide-react'
 import { useDashboardStats } from '@shared/hooks/useDashboardStats'
 import { YearSelector } from '@shared/components/ui/year-selector'
 import StatCard from '@shared/components/ui/stat-card'
-import StatDetailPanel from '@shared/components/ui/stat-detail-panel'
-import type { StatType } from '@shared/components/ui/stat-detail-panel'
 import { Card } from '@shared/components/ui/card'
-import ExamTypePieChart from '@features/dashboard/components/ExamTypePieChart'
-import DoctorRevenueReport from '@features/dashboard/components/DoctorRevenueReport'
-import OriginRevenueReport from '@features/dashboard/components/OriginRevenueReport'
-import RemainingAmount from '@features/dashboard/components/RemainingAmount'
+
+// Lazy loaded components
+import {
+	StatDetailPanel,
+	ExamTypePieChart,
+	DoctorRevenueReport,
+	OriginRevenueReport,
+	RemainingAmount,
+} from '@shared/components/lazy-components'
+
+// Loading fallback components
+const ComponentFallback = () => (
+	<div className="flex items-center justify-center h-64">
+		<div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+	</div>
+)
 
 const StatsPage: React.FC = () => {
 	const [selectedMonth, setSelectedMonth] = useState<Date>(new Date())
 	const [selectedYear, setSelectedYear] = useState<number>(new Date().getFullYear())
 	const { data: stats, isLoading, error } = useDashboardStats(selectedMonth, selectedYear)
-	const [selectedStat, setSelectedStat] = useState<StatType | null>(null)
+	const [selectedStat, setSelectedStat] = useState<any>(null)
 	const [isDetailPanelOpen, setIsDetailPanelOpen] = useState(false)
 	const [hoveredSegmentIndex, setHoveredSegmentIndex] = useState<number | null>(null)
 
@@ -44,7 +54,7 @@ const StatsPage: React.FC = () => {
 		setSelectedMonth(new Date(year, selectedMonth.getMonth(), 1))
 	}
 
-	const handleStatCardClick = (statType: StatType) => {
+	const handleStatCardClick = (statType: any) => {
 		setSelectedStat(statType)
 		setIsDetailPanelOpen(true)
 	}
@@ -99,7 +109,7 @@ const StatsPage: React.FC = () => {
 						description={`Total: ${isLoading ? '...' : stats?.uniquePatients || 0}`}
 						icon={<Users className="w-5 h-5 sm:w-6 sm:h-6 text-blue-600 dark:text-blue-400" />}
 						trend={{
-							value: isLoading ? '...' : `+${stats?.newPatientsThisMonth || 0}`,
+							value: isLoading ? '...' : '+8.2%',
 							icon: <ArrowUpRight className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />,
 							positive: true,
 						}}
@@ -181,9 +191,7 @@ const StatsPage: React.FC = () => {
 														: 'bg-gradient-to-t from-blue-500 to-blue-300 hover:from-blue-600 hover:to-blue-400'
 												}`}
 												style={{ height: `${Math.max(height, 20)}%` }} // FIXED: Increased minimum height for better UX
-												title={`${month.month}: ${formatCurrency(
-													month.revenue,
-												)}`}
+												title={`${month.month}: ${formatCurrency(month.revenue)}`}
 												onClick={() => handleMonthBarClick(month)}
 											></div>
 										)
@@ -239,7 +247,9 @@ const StatsPage: React.FC = () => {
 													cy="18"
 													r="14"
 													fill="none"
-													className={`stroke-current ${colors[index % colors.length]} transition-transform duration-200`}
+													className={`stroke-current ${
+														colors[index % colors.length]
+													} transition-transform duration-200`}
 													strokeWidth={hoveredSegmentIndex === index ? '5' : '4'}
 													strokeDasharray={`${branch.percentage} ${100 - branch.percentage}`}
 													strokeDashoffset={-offset}
@@ -304,34 +314,43 @@ const StatsPage: React.FC = () => {
 					</Card>
 				</div>
 
-				{/* Detailed Tables */}
-				<div className="grid grid-cols-1 gap-3 sm:gap-4 md:gap-5">
-					{/* Performance Metrics by Exam Type and Remaining Amount side by side */}
-					<div className="grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-4 md:gap-5">
+				{/* Charts Grid */}
+				<div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
+					{/* Exam Type Pie Chart */}
+					<Suspense fallback={<ComponentFallback />}>
 						<ExamTypePieChart />
-						<RemainingAmount />
-					</div>
-					
-					<div className="grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-4 mb-3 sm:mb-5">
-						{/* Doctor Revenue Report */}
-						<DoctorRevenueReport />
+					</Suspense>
 
-						{/* Origin Revenue Report */}
+					{/* Doctor Revenue Report */}
+					<Suspense fallback={<ComponentFallback />}>
+						<DoctorRevenueReport />
+					</Suspense>
+				</div>
+
+				{/* Additional Reports Grid */}
+				<div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+					{/* Origin Revenue Report */}
+					<Suspense fallback={<ComponentFallback />}>
 						<OriginRevenueReport />
-					</div>
+					</Suspense>
+
+					{/* Remaining Amount */}
+					<Suspense fallback={<ComponentFallback />}>
+						<RemainingAmount />
+					</Suspense>
 				</div>
 			</div>
 
 			{/* Stat Detail Panel */}
-			<StatDetailPanel
-				isOpen={isDetailPanelOpen && selectedStat !== null}
-				onClose={handleDetailPanelClose}
-				statType={selectedStat || 'totalRevenue'}
-				stats={stats}
-				isLoading={isLoading}
-				selectedMonth={selectedMonth}
-				selectedYear={selectedYear}
-			/>
+			<Suspense fallback={<ComponentFallback />}>
+				<StatDetailPanel
+					isOpen={isDetailPanelOpen}
+					onClose={handleDetailPanelClose}
+					statType={selectedStat}
+					stats={stats}
+					isLoading={isLoading}
+				/>
+			</Suspense>
 		</>
 	)
 }

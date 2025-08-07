@@ -491,7 +491,7 @@ const MainUsers: React.FC = () => {
 									placeholder="Buscar usuarios..."
 									value={searchTerm}
 									onChange={(e) => setSearchTerm(e.target.value)}
-									className="pl-10 h-10 text-sm hover:border-primary hover:shadow-sm transition-all duration-200"
+									className="pl-10 h-10 text-sm hover:border-primary hover:shadow-sm transition-transform duration-200"
 								/>
 							</div>
 
@@ -499,7 +499,7 @@ const MainUsers: React.FC = () => {
 							<div className="flex items-center gap-2">
 								{/* Filtro por aprobación */}
 								<Select value={approvalFilter} onValueChange={setApprovalFilter}>
-									<SelectTrigger className="w-32 h-10 text-sm hover:border-primary hover:shadow-sm transition-all duration-200">
+									<SelectTrigger className="w-32 h-10 text-sm hover:border-primary hover:shadow-sm transition-transform duration-200">
 										<SelectValue placeholder="Estado" />
 									</SelectTrigger>
 									<SelectContent>
@@ -511,7 +511,7 @@ const MainUsers: React.FC = () => {
 
 								{/* Filtro por sede */}
 								<Select value={branchFilter} onValueChange={setbranchFilter}>
-									<SelectTrigger className="w-32 h-10 text-sm hover:border-primary hover:shadow-sm transition-all duration-200">
+									<SelectTrigger className="w-32 h-10 text-sm hover:border-primary hover:shadow-sm transition-transform duration-200">
 										<SelectValue placeholder="Sede" />
 									</SelectTrigger>
 									<SelectContent>
@@ -533,7 +533,7 @@ const MainUsers: React.FC = () => {
 							{/* Total Usuarios */}
 							<div 
 								onClick={() => profile?.role !== 'admin' && setRoleFilter('')}
-								className={`flex items-center gap-2 rounded px-3 py-2 transition-colors w-32 ${
+								className={`flex items-center gap-2 rounded px-3 py-2 w-32 ${
 									profile?.role === 'admin' 
 										? 'cursor-not-allowed opacity-50 bg-gray-50 dark:bg-gray-900/20' 
 										: 'cursor-pointer'
@@ -553,7 +553,7 @@ const MainUsers: React.FC = () => {
 							{/* Propietarios */}
 							<div 
 								onClick={() => profile?.role !== 'admin' && setRoleFilter('owner')}
-								className={`flex items-center gap-2 rounded px-3 py-2 transition-colors w-32 ${
+								className={`flex items-center gap-2 rounded px-3 py-2 w-32 ${
 									profile?.role === 'admin' 
 										? 'cursor-not-allowed opacity-50 bg-gray-50 dark:bg-gray-900/20' 
 										: 'cursor-pointer'
@@ -573,7 +573,7 @@ const MainUsers: React.FC = () => {
 							{/* Recepcionistas */}
 							<div 
 								onClick={() => profile?.role !== 'admin' && setRoleFilter('employee')}
-								className={`flex items-center gap-2 rounded px-3 py-2 transition-colors w-32 ${
+								className={`flex items-center gap-2 rounded px-3 py-2 w-32 ${
 									profile?.role === 'admin' 
 										? 'cursor-not-allowed opacity-50 bg-gray-50 dark:bg-gray-900/20' 
 										: 'cursor-pointer'
@@ -593,7 +593,7 @@ const MainUsers: React.FC = () => {
 							{/* Administradores */}
 							<div 
 								onClick={() => setRoleFilter('admin')}
-								className={`flex items-center gap-2 rounded px-3 py-2 transition-colors cursor-pointer w-32 ${
+								className={`flex items-center gap-2 rounded px-3 py-2 cursor-pointer w-32 ${
 									roleFilter === 'admin'
 										? 'bg-purple-200 dark:bg-purple-800 border-2 border-purple-400 dark:border-purple-600'
 										: 'bg-purple-50 dark:bg-purple-900/20 hover:bg-purple-100 dark:hover:bg-purple-900/30'
