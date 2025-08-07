@@ -116,7 +116,7 @@ function MainHome() {
 					>
 						<div className="h-full flex flex-col">
 							<h3 className="flex items-center justify-between text-base sm:text-lg md:text-xl font-bold text-gray-700 dark:text-gray-300 mb-2 sm:mb-3 md:mb-4">
-								Distribución por Sede{' '}
+								Distribución por Sede
 								<Tooltip>
 									<TooltipTrigger>
 										<Info className="size-4" />
@@ -271,7 +271,7 @@ function MainHome() {
 										maxYear={new Date().getFullYear() + 2}
 									/>
 									<span className="flex items-center gap-2 text-xs sm:text-sm text-gray-600 dark:text-gray-400">
-										12 meses de {selectedYear}{' '}
+										12 meses de {selectedYear}
 										<Tooltip>
 											<TooltipTrigger>
 												<Info className="size-4" />
