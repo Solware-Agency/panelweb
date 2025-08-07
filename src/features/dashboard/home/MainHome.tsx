@@ -105,7 +105,7 @@ function MainHome() {
 						</div>
 						<div className="relative">
 							<div className="absolute inset-0 bg-gradient-to-r from-blue-400 to-purple-500 rounded-full blur-xl opacity-5 animate-pulse"></div>
-							<EyeTrackingComponent className="w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 lg:w-28 lg:h-28" />
+							<EyeTrackingComponent className="w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 lg:w-28 lg:h-28 z-10" />
 						</div>
 					</Card>
 
