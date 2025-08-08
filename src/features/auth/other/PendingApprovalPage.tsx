@@ -1,5 +1,5 @@
 import { Clock, ArrowLeft } from 'lucide-react'
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { signOut } from '@lib/supabase/auth'
 import Aurora from '@shared/components/ui/Aurora'
@@ -7,11 +7,16 @@ import FadeContent from '@shared/components/ui/FadeContent'
 import { useUserProfile } from '@shared/hooks/useUserProfile'
 import { useSecureRedirect } from '@shared/hooks/useSecureRedirect'
 import { supabase } from '@lib/supabase/config'
+import type { RealtimePostgresChangesPayload } from '@supabase/supabase-js'
+import type { Tables } from '@shared/types/types'
+import { useQueryClient } from '@tanstack/react-query'
 
 function PendingApprovalPage() {
 	const navigate = useNavigate()
 	const { profile, isLoading } = useUserProfile()
 	const { redirectUser } = useSecureRedirect({ redirectOnMount: false })
+	const queryClient = useQueryClient()
+	const redirectedRef = useRef(false)
 
 	const handleLogout = async () => {
 		await signOut()
@@ -33,14 +38,20 @@ function PendingApprovalPage() {
 			.on(
 				'postgres_changes',
 				{ event: 'UPDATE', schema: 'public', table: 'profiles', filter: `id=eq.${profile.id}` },
-				(payload: { new?: { estado?: string } | null }) => {
-					const next = payload?.new ?? null
+				(payload: RealtimePostgresChangesPayload<Tables<'profiles'>>) => {
+					console.log('[RT][PendingApproval] change payload:', payload)
+					const next = (payload?.new as Tables<'profiles'>) ?? null
 					if (next?.estado === 'aprobado') {
-						redirectUser()
+						// Actualizamos la caché antes de redirigir para que useSecureRedirect vea el estado correcto
+						queryClient.setQueryData(['userProfile', profile.id], next)
+						if (!redirectedRef.current) {
+							redirectedRef.current = true
+							setTimeout(() => redirectUser(), 0)
+						}
 					}
 				},
 			)
-			.subscribe()
+			.subscribe((status) => console.log('[RT][PendingApproval] channel status:', status))
 
 		return () => {
 			supabase.removeChannel(channel)

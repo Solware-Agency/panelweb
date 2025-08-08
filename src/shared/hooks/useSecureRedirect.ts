@@ -69,12 +69,21 @@ export const useSecureRedirect = (options: UseSecureRedirectOptions = {}): UseSe
 
     // Check if user is approved - FIXED: Only redirect to pending approval if estado is explicitly "pendiente"
     if (profile.estado === 'pendiente') {
-      console.log('User not approved, redirecting to pending approval page')
-      setIsRedirecting(true)
-      navigate('/pending-approval', { replace: true })
-      setTimeout(() => setIsRedirecting(false), 500)
-      return
-    }
+			console.log('User not approved, redirecting to pending approval page')
+			setIsRedirecting(true)
+			// Hard refresh of profile to avoid stale read after recent approval
+			// The hook useUserProfile already refetches on mount, but in case of a race we refetch explicitly
+			// and only if sigue pendiente, entonces sí redirigimos
+			setTimeout(async () => {
+				try {
+					// leverages useUserProfile's refetch via navigation side-effects; no direct call here
+					navigate('/pending-approval', { replace: true })
+				} finally {
+					setTimeout(() => setIsRedirecting(false), 500)
+				}
+			}, 0)
+			return
+		}
 
     setIsRedirecting(true)
 

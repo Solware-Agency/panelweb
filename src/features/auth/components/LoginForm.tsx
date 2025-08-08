@@ -37,9 +37,15 @@ function LoginForm() {
 				'postgres_changes',
 				{ event: 'UPDATE', schema: 'public', table: 'profiles', filter: `email=eq.${email}` },
 				async (payload) => {
+					console.log('[RT][Login] change payload:', payload)
 					const next = payload?.new as { estado?: string } | null
 					if (next?.estado === 'aprobado') {
 						toast({ title: '¡Cuenta aprobada!', description: 'Iniciando sesión...' })
+						// Cerrar canal para evitar duplicados
+						try {
+							supabase.removeChannel(channel)
+						} catch {}
+						// Reintenta login inmediatamente
 						const { user } = await signIn(email, password)
 						if (user) {
 							await refreshUser()
@@ -47,7 +53,7 @@ function LoginForm() {
 					}
 				},
 			)
-			.subscribe()
+			.subscribe((status) => console.log('[RT][Login] channel status:', status))
 
 		return () => {
 			supabase.removeChannel(channel)
