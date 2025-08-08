@@ -25,31 +25,27 @@ function PendingApprovalPage() {
 		}
 	}, [isLoading, profile?.estado, redirectUser])
 
-	// Fallback polling: check approval status periodically in case Realtime is unavailable
+	// Realtime directo: si el estado cambia a aprobado, redirige
 	useEffect(() => {
-		let timer: number | null = null
-		const startPolling = () => {
-			if (timer) return
-			timer = window.setInterval(async () => {
-				try {
-					if (!profile?.id) return
-					const { data, error } = await supabase.from('profiles').select('estado').eq('id', profile.id).single()
-					if (!error && data?.estado === 'aprobado') {
-						if (timer) window.clearInterval(timer)
-						timer = null
+		if (!profile?.id) return
+		const channel = supabase
+			.channel(`realtime-pending-approval-${profile.id}`)
+			.on(
+				'postgres_changes',
+				{ event: 'UPDATE', schema: 'public', table: 'profiles', filter: `id=eq.${profile.id}` },
+				(payload: { new?: { estado?: string } | null }) => {
+					const next = payload?.new ?? null
+					if (next?.estado === 'aprobado') {
 						redirectUser()
 					}
-				} catch (_) {
-					// ignore
-				}
-			}, 4000)
-		}
-		// start when profile exists and is pending
-		if (profile?.estado === 'pendiente') startPolling()
+				},
+			)
+			.subscribe()
+
 		return () => {
-			if (timer) window.clearInterval(timer)
+			supabase.removeChannel(channel)
 		}
-	}, [profile?.id, profile?.estado, redirectUser])
+	}, [profile?.id, redirectUser])
 
 	return (
 		<div className="w-screen h-screen relative overflow-hidden bg-gradient-to-br from-black via-black to-black">
