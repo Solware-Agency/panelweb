@@ -45,15 +45,17 @@ function RecoveryGate() {
 		const isOnCallback = location.pathname === '/auth/callback'
 		const isOnNewPassword = location.pathname === '/new-password'
 
-		if (!isOnCallback && !isOnNewPassword) {
+    if (!isOnCallback && !isOnNewPassword) {
 			const searchParams = new URLSearchParams(location.search)
 			const typeQuery = searchParams.get('type')
+			const tokenQuery = searchParams.get('token') || searchParams.get('code')
 
 			const rawHash = window.location.hash.startsWith('#') ? window.location.hash.slice(1) : window.location.hash
 			const hashParams = new URLSearchParams(rawHash)
 			const typeHash = hashParams.get('type')
+			const tokenHash = hashParams.get('token') || hashParams.get('code') || hashParams.get('access_token')
 
-			if (typeQuery === 'recovery' || typeHash === 'recovery') {
+			if (typeQuery === 'recovery' || typeHash === 'recovery' || tokenQuery || tokenHash) {
 				const nextUrl = `/auth/callback${location.search || ''}${location.hash || ''}`
 				navigate(nextUrl, { replace: true })
 			}

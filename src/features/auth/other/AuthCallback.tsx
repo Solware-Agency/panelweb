@@ -29,7 +29,8 @@ function AuthCallback() {
 
 				// PRIORITY 1: Check for password recovery first
 				const type = searchParams.get('type')
-				const code = searchParams.get('code')
+				const codeFromQuery = searchParams.get('code')
+				const tokenFromQuery = searchParams.get('token')
 
 				// Some providers (and some Supabase versions/configs) return params in the URL hash
 				// Example: #type=recovery&access_token=...&refresh_token=...
@@ -39,19 +40,21 @@ function AuthCallback() {
 				const accessToken = hashParams.get('access_token')
 
 				console.log('Callback type (query):', type)
-				console.log('Has code (query):', !!code)
+				console.log('Has code (query):', !!codeFromQuery)
+				console.log('Has token (query):', !!tokenFromQuery)
 				console.log('Callback type (hash):', hashType)
 				console.log('Has access_token (hash):', !!accessToken)
 
 				// Handle password recovery with highest priority
-				// Case A: Recovery via PKCE authorization code in query params
-				if (type === 'recovery' && code) {
+				// Case A: Recovery via PKCE authorization code/token in query params
+				const recoveryCode = codeFromQuery || tokenFromQuery || hashParams.get('code') || hashParams.get('token')
+				if (type === 'recovery' && recoveryCode) {
 					console.log('Password recovery flow detected - handling with priority')
 
 					try {
 						// Exchange the code for a session
 						console.log('Exchanging code for session...')
-						const { data, error } = await supabase.auth.exchangeCodeForSession(code)
+						const { data, error } = await supabase.auth.exchangeCodeForSession(recoveryCode)
 
 						if (error) {
 							console.error('Error exchanging code for session:', error)
@@ -65,7 +68,7 @@ function AuthCallback() {
 									replace: true,
 									state: {
 										recoveryMode: true,
-										recoveryCode: code,
+										recoveryCode: recoveryCode,
 									},
 								})
 								return
@@ -88,7 +91,7 @@ function AuthCallback() {
 								replace: true,
 								state: {
 									recoveryMode: true,
-									recoveryCode: code,
+									recoveryCode: recoveryCode,
 								},
 							})
 							return
@@ -105,7 +108,13 @@ function AuthCallback() {
 				// If we detect type=recovery in the hash, assume session is (or will be) established
 				// by detectSessionInUrl and go straight to the new-password screen.
 				if (hashType === 'recovery') {
-					console.log('Password recovery detected via hash params - redirecting to /new-password')
+					console.log('Password recovery detected via hash params - checking session then redirecting')
+					const { data: sessionData } = await supabase.auth.getSession()
+					if (sessionData?.session) {
+						navigate('/new-password', { replace: true })
+						return
+					}
+					// Even if session not yet ready, try redirecting so the page can attempt exchange
 					navigate('/new-password', { replace: true })
 					return
 				}
@@ -186,8 +195,10 @@ function AuthCallback() {
 					}
 				} else {
 					console.log('No session found, checking if this was a confirmation link')
-
 					// Try to exchange the URL for a session (for email confirmation)
+					const params = new URLSearchParams(window.location.search)
+					const code = params.get('code')
+					
 					if (code) {
 						const { data: exchangeData, error: exchangeError } = await supabase.auth.exchangeCodeForSession(code)
 
