@@ -2,7 +2,6 @@ import { UserRound, Eye, EyeOff, Clock, AlertCircle, CheckCircle } from 'lucide-
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { signUp } from '@lib/supabase/auth'
-import { supabase } from '@lib/supabase/config'
 import Aurora from '@shared/components/ui/Aurora'
 import FadeContent from '@shared/components/ui/FadeContent'
 
@@ -161,7 +160,7 @@ function RegisterForm() {
 					delay={200}
 					className="w-full h-full flex items-center justify-center"
 				>
-					<div className="flex flex-col items-center justify-center md:rounded-xl w-screen h-screen md:h-auto md:w-full md:max-w-md bg-white/10 backdrop-blur-xl rounded-2xl p-8 shadow-2xl border border-white/20">
+					<div className="flex flex-col items-center justify-center md:rounded-xl w-screen h-screen md:h-auto md:w-full md:max-w-xl bg-white/10 backdrop-blur-xl rounded-2xl p-8 shadow-2xl border border-white/20">
 						<div className="text-center mb-4 flex flex-col items-center justify-center">
 							<div
 								className="p-4 bg-[#9e1157] rounded-full mb-4 shadow-[0_0_15px_rgba(158,17,87,0.4)] hover:shadow-[0_0_25px_rgba(158,17,87,0.7)] transition-transform duration-1000"
@@ -192,18 +191,36 @@ function RegisterForm() {
 									autoComplete="email"
 								/>
 
-								<p className="text-sm text-slate-300">Nombre para mostrar:</p>
-								<input
-									type="text"
-									name="displayName"
-									placeholder="Tu nombre"
-									value={displayName}
-									onChange={(e) => setDisplayName(e.target.value)}
-									required
-									disabled={loading || rateLimitError}
-									className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all duration-200"
-									autoComplete="name"
-								/>
+								<div className="flex items-center gap-2">
+									<div className="w-full">
+										<p className="text-sm text-slate-300">Nombre para mostrar:</p>
+										<input
+											type="text"
+											name="displayName"
+											placeholder="Tu nombre"
+											value={displayName}
+											onChange={(e) => setDisplayName(e.target.value)}
+											required
+											disabled={loading || rateLimitError}
+											className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all duration-200"
+											autoComplete="name"
+										/>
+									</div>
+									<div className="w-full">
+										<p className="text-sm text-slate-300">Número de teléfono:</p>
+										<input
+											type="tel"
+											name="phone"
+											placeholder="04121234567"
+											value={phone}
+											onChange={(e) => setPhone(e.target.value)}
+											required
+											disabled={loading || rateLimitError}
+											className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all duration-200"
+											autoComplete="tel"
+										/>
+									</div>
+								</div>
 
 								<p className="text-sm text-slate-300">Contraseña:</p>
 								<div className="relative">
@@ -250,19 +267,6 @@ function RegisterForm() {
 										{showConfirmPassword ? <Eye size={20} /> : <EyeOff size={20} />}
 									</button>
 								</div>
-
-								<p className="text-sm text-slate-300">Número de teléfono:</p>
-								<input
-									type="tel"
-									name="phone"
-									placeholder="Ej: 0412-1234567 o +584121234567"
-									value={phone}
-									onChange={(e) => setPhone(e.target.value)}
-									required
-									disabled={loading || rateLimitError}
-									className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all duration-200"
-									autoComplete="tel"
-								/>
 							</div>
 
 							{error && (
