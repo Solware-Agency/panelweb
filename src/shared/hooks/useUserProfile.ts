@@ -18,7 +18,9 @@ export const useUserProfile = () => {
 			return getAndSyncUserProfile(user.id, user.user_metadata)
 		},
 		enabled: !!user && !authLoading,
-		staleTime: 1000 * 60 * 2, // 2 min
+		// Force fresh reads on mount to avoid stale approval status after signin
+		staleTime: 0,
+		refetchOnMount: 'always',
 		refetchOnWindowFocus: false,
 		refetchOnReconnect: true,
 	})
@@ -33,10 +35,13 @@ export const useUserProfile = () => {
 				'postgres_changes',
 				{ event: '*', schema: 'public', table: 'profiles', filter: `id=eq.${user.id}` },
 				(payload: RealtimePostgresChangesPayload<Tables<'profiles'>>) => {
+					console.log('[RT][useUserProfile] change payload:', payload)
 					const nextProfile = (payload?.new as Tables<'profiles'>) ?? null
 					const prevProfile = (payload?.old as Tables<'profiles'>) ?? null
 					// Update React Query cache immediately for snappy UI
 					queryClient.setQueryData(['userProfile', user.id], nextProfile)
+					// Invalida queries que dependan del perfil para forzar re-evaluación de rutas/guards
+					queryClient.invalidateQueries({ queryKey: ['userProfile', user.id] })
 					// Optional: ensure consistency by refetching in background
 					query.refetch()
 
@@ -53,7 +58,7 @@ export const useUserProfile = () => {
 					}
 				},
 			)
-			.subscribe()
+			.subscribe((status) => console.log('[RT][useUserProfile] channel status:', status))
 
 		return () => {
 			supabase.removeChannel(channel)
