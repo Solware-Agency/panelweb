@@ -1,18 +1,30 @@
 import { Clock, ArrowLeft } from 'lucide-react'
+import { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { signOut } from '@lib/supabase/auth'
 import Aurora from '@shared/components/ui/Aurora'
 import FadeContent from '@shared/components/ui/FadeContent'
+import { useUserProfile } from '@shared/hooks/useUserProfile'
+import { useSecureRedirect } from '@shared/hooks/useSecureRedirect'
 
 function PendingApprovalPage() {
-  const navigate = useNavigate()
+	const navigate = useNavigate()
+	const { profile, isLoading } = useUserProfile()
+	const { redirectUser } = useSecureRedirect({ redirectOnMount: false })
 
-  const handleLogout = async () => {
-    await signOut()
-    navigate('/')
-  }
+	const handleLogout = async () => {
+		await signOut()
+		navigate('/')
+	}
 
-  return (
+	// Auto-redirect when the account gets approved (Realtime will update profile)
+	useEffect(() => {
+		if (!isLoading && profile?.estado === 'aprobado') {
+			redirectUser()
+		}
+	}, [isLoading, profile?.estado, redirectUser])
+
+	return (
 		<div className="w-screen h-screen relative overflow-hidden bg-gradient-to-br from-black via-black to-black">
 			{/* Aurora Background with New Color Palette */}
 			<Aurora colorStops={['#ec4699', '#750c41', '#ec4699']} blend={0.7} amplitude={1.3} speed={0.3} />

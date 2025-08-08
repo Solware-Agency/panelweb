@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Eye, EyeOff } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { signIn } from '@lib/supabase/auth'
@@ -7,12 +7,16 @@ import { useSecureRedirect } from '@shared/hooks/useSecureRedirect'
 import Aurora from '@shared/components/ui/Aurora'
 import FadeContent from '@shared/components/ui/FadeContent'
 import FavIcon from '@shared/components/icons/FavIcon'
+import { supabase } from '@lib/supabase/config'
+import { toast } from '@shared/hooks/use-toast'
 
 function LoginForm() {
 	const [email, setEmail] = useState('')
 	const [password, setPassword] = useState('')
 	const [error, setError] = useState('')
 	const [loading, setLoading] = useState(false)
+	const [awaitingApproval, setAwaitingApproval] = useState(false)
+	const retryTimerRef = useRef<number | null>(null)
 	const { refreshUser } = useAuth()
 	const [showPassword, setShowPassword] = useState(false)
 
@@ -22,6 +26,40 @@ function LoginForm() {
 			console.log(`User with role "${role}" being redirected to: ${path}`)
 		},
 	})
+
+	// Suscripción Realtime por email para detectar aprobación estando en login
+	useEffect(() => {
+		if (!awaitingApproval || !email) return
+
+		const channel = supabase
+			.channel(`realtime-approval-${email}`)
+			.on(
+				'postgres_changes',
+				{ event: 'UPDATE', schema: 'public', table: 'profiles', filter: `email=eq.${email}` },
+				async (payload) => {
+					const next = payload?.new as { estado?: string } | null
+					if (next?.estado === 'aprobado') {
+						toast({ title: '¡Cuenta aprobada!', description: 'Iniciando sesión...' })
+						const { user } = await signIn(email, password)
+						if (user) {
+							await refreshUser()
+						}
+					}
+				},
+			)
+			.subscribe()
+
+		return () => {
+			supabase.removeChannel(channel)
+		}
+	}, [awaitingApproval, email, password, refreshUser])
+
+	// Cleanup del intervalo de reintento
+	useEffect(() => {
+		return () => {
+			if (retryTimerRef.current) window.clearInterval(retryTimerRef.current)
+		}
+	}, [])
 
 	const handleLogin = async (event: React.FormEvent<HTMLFormElement>) => {
 		event.preventDefault()
@@ -40,6 +78,24 @@ function LoginForm() {
 				// Handle specific Supabase auth errors
 				if (signInError.message.includes('Invalid login credentials')) {
 					setError('Credenciales inválidas. Verifica tu email y contraseña.')
+				} else if (
+					signInError.message.includes('User account is pending approval') ||
+					signInError.message.toLowerCase().includes('pending approval')
+				) {
+					setError('Tu cuenta está pendiente de aprobación por un administrador.')
+					setAwaitingApproval(true)
+					// Iniciar reintentos silenciosos de login como respaldo (si Realtime está bloqueado por RLS)
+					if (retryTimerRef.current) window.clearInterval(retryTimerRef.current)
+					retryTimerRef.current = window.setInterval(async () => {
+						const { user: retryUser, error: retryErr } = await signIn(email, password)
+						if (retryUser && !retryErr) {
+							if (retryTimerRef.current) window.clearInterval(retryTimerRef.current)
+							retryTimerRef.current = null
+							toast({ title: '¡Cuenta aprobada!', description: 'Iniciando sesión...' })
+							await refreshUser()
+							return
+						}
+					}, 5000)
 				} else if (signInError.name === 'EmailNotConfirmed' || signInError.message.includes('Email not confirmed')) {
 					console.log('Email not confirmed, redirecting to verification notice')
 					// If user exists but email not confirmed, redirect to verification notice
