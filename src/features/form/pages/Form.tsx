@@ -19,6 +19,7 @@ import { useFullscreenDetection } from '@shared/hooks/useFullscreenDetection'
 
 // Import Menu icon for mobile sidebar toggle
 import { Menu } from 'lucide-react'
+import { useGlobalOverlayOpen } from '@shared/hooks/useGlobalOverlayOpen'
 
 // Lazy loaded components
 import {
@@ -79,6 +80,9 @@ function FormContent() {
 	const form = useForm<FormValues>({ defaultValues: getInitialFormValues() })
 	const { toast } = useToast()
 	const medicalFormRef = useRef<MedicalFormRef>(null)
+
+  // Si el sidebar móvil está abierto, ocultar el botón hamburguesa globalmente
+  useGlobalOverlayOpen(sidebarOpen)
 
 	// Determine active tab based on current route
 	useEffect(() => {
@@ -176,10 +180,10 @@ function FormContent() {
 						Limpiar
 					</Button>
 				)}
-				{!isFullscreenMode && (
+        {!isFullscreenMode && (
 					<button
 						onClick={() => setSidebarOpen(!sidebarOpen)}
-						className="lg:hidden flex items-center justify-center p-2 bg-white/80 dark:bg-background/80 backdrop-blur-sm border border-input rounded-lg shadow-lg"
+            className="mobile-hamburger lg:hidden flex items-center justify-center p-2 bg-white/80 dark:bg-background/80 backdrop-blur-sm border border-input rounded-lg shadow-lg"
 					>
 						<Menu className="h-5 w-5 text-gray-600 dark:text-gray-400" />
 					</button>

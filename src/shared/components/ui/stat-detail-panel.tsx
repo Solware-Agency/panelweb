@@ -5,6 +5,7 @@ import { Button } from '@shared/components/ui/button'
 import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
 import { useBodyScrollLock } from '@shared/hooks/useBodyScrollLock'
+import { useGlobalOverlayOpen } from '@shared/hooks/useGlobalOverlayOpen'
 
 export type StatType =
 	| 'totalRevenue'
@@ -36,6 +37,7 @@ const StatDetailPanel: React.FC<StatDetailPanelProps> = ({
 	selectedMonth,
 }) => {
   useBodyScrollLock(isOpen)
+  useGlobalOverlayOpen(isOpen)
 	const formatCurrency = (amount: number) => {
 		return new Intl.NumberFormat('es-VE', {
 			style: 'currency',

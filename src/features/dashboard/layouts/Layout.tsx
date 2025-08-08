@@ -5,6 +5,7 @@ import { useDarkMode } from '@shared/hooks/useDarkMode'
 import { useFullscreenDetection } from '@shared/hooks/useFullscreenDetection'
 import Sidebar from '@shared/components/Sidebar'
 import {Menu} from 'lucide-react'
+import { useGlobalOverlayOpen } from '@shared/hooks/useGlobalOverlayOpen'
 
 const Layout: React.FC = () => {
 	const { isDark, toggleDarkMode } = useDarkMode()
@@ -27,7 +28,10 @@ const Layout: React.FC = () => {
 		setSidebarExpanded(false)
 	}
 
-	return (
+  // Contar sidebar móvil como overlay abierto para ocultar hamburguesa
+  useGlobalOverlayOpen(sidebarOpen)
+
+  return (
 		<div className="min-h-screen bg-white dark:bg-background">
 			{/* Mobile overlay */}
 			<AnimatePresence>
@@ -68,7 +72,7 @@ const Layout: React.FC = () => {
 			{!isFullscreenMode && (
 				<button
 					onClick={toggleSidebar}
-					className="lg:hidden flex fixed items-center justify-center p-2 bg-white/80 dark:bg-background/80 backdrop-blur-sm border border-input rounded-lg shadow-lg top-4 right-4 z-50"
+            className="mobile-hamburger lg:hidden flex fixed items-center justify-center p-2 bg-white/80 dark:bg-background/80 backdrop-blur-sm border border-input rounded-lg shadow-lg top-4 right-4 z-50"
 				>
 					<Menu className="h-5 w-5 text-gray-600 dark:text-gray-400 " />
 				</button>

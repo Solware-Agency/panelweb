@@ -357,14 +357,13 @@ const PatientsList: React.FC<PatientsListProps> = React.memo(
 										className="bg-white dark:bg-gray-800/50 p-3 rounded-lg border border-gray-200 dark:border-gray-700 hover:shadow-md transition-transform duration-200 cursor-pointer"
 										onClick={() => handlePatientClick(patient)}
 									>
-										<div className="flex items-center mb-2">
-											<div className="ml-2 min-w-0">
-												<p className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">
-													{patient.full_name}
-												</p>
-												<p className="text-xs text-gray-500 dark:text-gray-400">Cédula: {patient.id_number}</p>
-											</div>
-										</div>
+                                        <div className="flex items-center mb-2">
+                                            <div className="ml-2 min-w-0">
+                                                <p className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">
+                                                    {patient.full_name}
+                                                </p>
+                                            </div>
+                                        </div>
 
 										<div className="grid grid-cols-2 gap-2 text-xs">
 											<div className="col-span-2">
