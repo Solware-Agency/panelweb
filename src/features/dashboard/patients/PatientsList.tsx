@@ -318,15 +318,6 @@ const PatientsList: React.FC<PatientsListProps> = React.memo(
 												<SortIcon field="email" />
 											</button>
 										</th>
-										<th className="w-[15%] px-4 py-3 text-left">
-											<button
-												onClick={() => handleSort('lastVisit')}
-												className="flex items-center gap-2 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider hover:text-gray-700 dark:hover:text-gray-200"
-											>
-												Última Visita
-												<SortIcon field="lastVisit" />
-											</button>
-										</th>
 									</tr>
 								</thead>
 								<tbody className="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-700">

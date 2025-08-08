@@ -31,41 +31,51 @@ function AuthCallback() {
 				const type = searchParams.get('type')
 				const code = searchParams.get('code')
 
-				console.log('Callback type:', type)
-				console.log('Has code:', !!code)
+				// Some providers (and some Supabase versions/configs) return params in the URL hash
+				// Example: #type=recovery&access_token=...&refresh_token=...
+				const rawHash = window.location.hash.startsWith('#') ? window.location.hash.slice(1) : window.location.hash
+				const hashParams = new URLSearchParams(rawHash)
+				const hashType = hashParams.get('type')
+				const accessToken = hashParams.get('access_token')
+
+				console.log('Callback type (query):', type)
+				console.log('Has code (query):', !!code)
+				console.log('Callback type (hash):', hashType)
+				console.log('Has access_token (hash):', !!accessToken)
 
 				// Handle password recovery with highest priority
+				// Case A: Recovery via PKCE authorization code in query params
 				if (type === 'recovery' && code) {
 					console.log('Password recovery flow detected - handling with priority')
-					
+
 					try {
 						// Exchange the code for a session
 						console.log('Exchanging code for session...')
 						const { data, error } = await supabase.auth.exchangeCodeForSession(code)
-						
+
 						if (error) {
 							console.error('Error exchanging code for session:', error)
-							
+
 							// Special handling for PKCE errors
 							if (error.message.includes('code verifier') || error.message.includes('PKCE')) {
 								console.log('PKCE error detected, redirecting to password reset page anyway')
 								// Even with PKCE error, redirect to password reset page
 								// The component will handle session validation
-								navigate('/new-password', { 
+								navigate('/new-password', {
 									replace: true,
-									state: { 
+									state: {
 										recoveryMode: true,
-										recoveryCode: code
-									}
+										recoveryCode: code,
+									},
 								})
 								return
 							}
-							
+
 							setStatus('error')
 							setMessage('Error al procesar el enlace de recuperación. El enlace puede haber expirado.')
 							return
 						}
-						
+
 						if (data.session) {
 							console.log('Session established successfully for password recovery')
 							// Redirect to password reset page
@@ -74,12 +84,12 @@ function AuthCallback() {
 						} else {
 							console.log('No session data returned, but no error either')
 							// Still try to redirect to password reset page
-							navigate('/new-password', { 
+							navigate('/new-password', {
 								replace: true,
-								state: { 
+								state: {
 									recoveryMode: true,
-									recoveryCode: code
-								}
+									recoveryCode: code,
+								},
 							})
 							return
 						}
@@ -89,6 +99,15 @@ function AuthCallback() {
 						setMessage('Error al procesar el enlace de recuperación.')
 						return
 					}
+				}
+
+				// Case B: Recovery via implicit/hash params (production often ends here)
+				// If we detect type=recovery in the hash, assume session is (or will be) established
+				// by detectSessionInUrl and go straight to the new-password screen.
+				if (hashType === 'recovery') {
+					console.log('Password recovery detected via hash params - redirecting to /new-password')
+					navigate('/new-password', { replace: true })
+					return
 				}
 
 				// PRIORITY 2: Check for general errors
@@ -137,11 +156,7 @@ function AuthCallback() {
 
 						// Check if user is approved before redirecting
 						try {
-							const { data: profileData } = await supabase
-								.from('profiles')
-								.select('estado')
-								.eq('id', user.id)
-								.single()
+							const { data: profileData } = await supabase.from('profiles').select('estado').eq('id', user.id).single()
 
 							// FIXED: Only check for explicit "pendiente" status
 							if (profileData && profileData.estado === 'pendiente') {
