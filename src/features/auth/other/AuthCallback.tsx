@@ -139,8 +139,8 @@ function AuthCallback() {
 					return
 				}
 
-				// PRIORITY 3: Handle email confirmation (only if not password recovery)
-				console.log('Not a password recovery, checking for email confirmation...')
+				// PRIORITY 3: Handle email confirmation or fallback recovery (only if not explicit password recovery)
+				console.log('Not an explicit password recovery, checking for email confirmation or fallback...')
 
 				// Check for session from URL hash or query params
 				const { data, error: sessionError } = await supabase.auth.getSession()
@@ -150,6 +150,34 @@ function AuthCallback() {
 					setStatus('error')
 					setMessage('Error al verificar la sesión. Inténtalo de nuevo.')
 					return
+				}
+
+				// Fallback: if we have a code BUT localStorage says recovery pending, treat as recovery
+				const localRecovery = (() => {
+					try {
+						const raw = localStorage.getItem('pw_recovery_pending')
+						if (!raw) return null
+						const parsed = JSON.parse(raw)
+						// Consider valid for 15 minutes
+						if (parsed?.ts && Date.now() - parsed.ts < 15 * 60 * 1000) return parsed
+						return null
+					} catch {
+						return null
+					}
+				})()
+
+				if (!data.session?.user) {
+					const params = new URLSearchParams(window.location.search)
+					const genericCode = params.get('code') || hashParams.get('code')
+					if (genericCode && localRecovery) {
+						console.log('Treating generic ?code as recovery due to local flag')
+						const { data: exch, error: exchErr } = await supabase.auth.exchangeCodeForSession(genericCode)
+						if (!exchErr && exch?.session) {
+							localStorage.removeItem('pw_recovery_pending')
+							navigate('/new-password', { replace: true })
+							return
+						}
+					}
 				}
 
 				// Handle email confirmation
@@ -198,7 +226,7 @@ function AuthCallback() {
 					// Try to exchange the URL for a session (for email confirmation)
 					const params = new URLSearchParams(window.location.search)
 					const code = params.get('code')
-					
+
 					if (code) {
 						const { data: exchangeData, error: exchangeError } = await supabase.auth.exchangeCodeForSession(code)
 
