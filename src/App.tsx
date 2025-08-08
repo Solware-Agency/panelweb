@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route, useLocation, useNavigate } from 'react-router-dom'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { Suspense } from 'react'
+import { Toaster } from '@shared/components/ui/toaster'
 import {
 	LoginPage,
 	RegisterPage,
@@ -45,7 +46,7 @@ function RecoveryGate() {
 		const isOnCallback = location.pathname === '/auth/callback'
 		const isOnNewPassword = location.pathname === '/new-password'
 
-    if (!isOnCallback && !isOnNewPassword) {
+		if (!isOnCallback && !isOnNewPassword) {
 			const searchParams = new URLSearchParams(location.search)
 			const typeQuery = searchParams.get('type')
 			const tokenQuery = searchParams.get('token') || searchParams.get('code')
@@ -75,6 +76,7 @@ function App() {
 				}}
 			>
 				<div className="App">
+					<Toaster />
 					<Suspense fallback={<LoadingSpinner />}>
 						<RecoveryGate />
 						<Routes>

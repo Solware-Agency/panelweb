@@ -1,4 +1,3 @@
-import { Toaster } from '@shared/components/ui/toaster'
 import { Toaster as Sonner } from '@shared/components/ui/sonner'
 import { ThemeProvider } from '@app/providers/ThemeProvider'
 import { useQuery } from '@tanstack/react-query'
@@ -163,7 +162,6 @@ function FormContent() {
 
 	return (
 		<>
-			<Toaster />
 			<Sonner />
 			<div className="fixed top-4 right-4 z-50 flex items-center gap-2">
 				{/* Mobile sidebar toggle button */}
