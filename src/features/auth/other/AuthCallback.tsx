@@ -188,6 +188,18 @@ function AuthCallback() {
 					console.log('User metadata:', user.user_metadata)
 
 					if (user.email_confirmed_at) {
+						// Sync phone from metadata -> profiles on confirmation
+						try {
+							const rawPhone = user.user_metadata?.phone as string | undefined
+							if (rawPhone) {
+								const digits = String(rawPhone).replace(/\D/g, '')
+								await supabase.from('profiles').update({ phone: digits }).eq('id', user.id)
+								console.log('Phone synced to profiles on confirmation')
+							}
+						} catch (e) {
+							console.error('Failed syncing phone on confirmation:', e)
+						}
+
 						setStatus('success')
 						setMessage('¡Email verificado exitosamente! Redirigiendo...')
 
@@ -227,7 +239,7 @@ function AuthCallback() {
 					const params = new URLSearchParams(window.location.search)
 					const code = params.get('code')
 
-					if (code) {
+						if (code) {
 						const { data: exchangeData, error: exchangeError } = await supabase.auth.exchangeCodeForSession(code)
 
 						if (exchangeError) {
@@ -240,47 +252,59 @@ function AuthCallback() {
 							return
 						}
 
-						if (exchangeData.session?.user) {
-							const user = exchangeData.session.user
-							console.log('Email confirmed via code exchange:', user.email)
+							if (exchangeData.session?.user) {
+								const user = exchangeData.session.user
+								console.log('Email confirmed via code exchange:', user.email)
 
-							setStatus('success')
-							setMessage('¡Email verificado exitosamente! Redirigiendo...')
+								// Sync phone from metadata -> profiles on confirmation
+								try {
+									const rawPhone = user.user_metadata?.phone as string | undefined
+									if (rawPhone) {
+										const digits = String(rawPhone).replace(/\D/g, '')
+										await supabase.from('profiles').update({ phone: digits }).eq('id', user.id)
+										console.log('Phone synced to profiles on confirmation (code exchange)')
+									}
+								} catch (e) {
+									console.error('Failed syncing phone on confirmation (code exchange):', e)
+								}
 
-							// Check if user is approved before redirecting
-							try {
-								const { data: profileData } = await supabase
-									.from('profiles')
-									.select('estado')
-									.eq('id', user.id)
-									.single()
+								setStatus('success')
+								setMessage('¡Email verificado exitosamente! Redirigiendo...')
 
-								// FIXED: Only check for explicit "pendiente" status
-								if (profileData && profileData.estado === 'pendiente') {
-									// User is not approved, redirect to pending approval page
-									setTimeout(() => {
-										navigate('/pending-approval')
-									}, 2000)
-								} else {
-									// User is approved or estado is null/undefined/anything else, use secure redirect for role-based navigation
+								// Check if user is approved before redirecting
+								try {
+									const { data: profileData } = await supabase
+										.from('profiles')
+										.select('estado')
+										.eq('id', user.id)
+										.single()
+
+									// FIXED: Only check for explicit "pendiente" status
+									if (profileData && profileData.estado === 'pendiente') {
+										// User is not approved, redirect to pending approval page
+										setTimeout(() => {
+											navigate('/pending-approval')
+										}, 2000)
+									} else {
+										// User is approved or estado is null/undefined/anything else, use secure redirect for role-based navigation
+										setTimeout(() => {
+											redirectUser()
+										}, 2000)
+									}
+								} catch (profileError) {
+									console.error('Error checking user approval status:', profileError)
+									// Default to secure redirect if we can't check approval status
 									setTimeout(() => {
 										redirectUser()
 									}, 2000)
 								}
-							} catch (profileError) {
-								console.error('Error checking user approval status:', profileError)
-								// Default to secure redirect if we can't check approval status
+							} else {
+								setStatus('error')
+								setMessage('No se pudo verificar la sesión. Redirigiendo al login...')
 								setTimeout(() => {
-									redirectUser()
-								}, 2000)
+									navigate('/')
+								}, 3000)
 							}
-						} else {
-							setStatus('error')
-							setMessage('No se pudo verificar la sesión. Redirigiendo al login...')
-							setTimeout(() => {
-								navigate('/')
-							}, 3000)
-						}
 					} else {
 						setStatus('error')
 						setMessage('No se encontró un código de verificación. Redirigiendo al login...')
