@@ -16,8 +16,8 @@ export interface UserProfile {
 	assigned_branch?: string | null
 	display_name?: string | null
 	estado?: 'pendiente' | 'aprobado'
-	// Nota: en BD el campo puede ser numeric; aquí aceptamos number o string para robustez
-	phone?: string | number | null
+	// Debe alinear con BD (text)
+	phone?: string | null
 }
 
 // Sign up with email and password - ENHANCED WITH PROPER EMAIL VERIFICATION
@@ -377,10 +377,20 @@ export const updateUserProfile = async (
 	updates: Partial<Omit<UserProfile, 'id' | 'created_at'>>,
 ): Promise<{ error: AuthError | null }> => {
 	try {
+		// Normalizar phone si viene presente
+		let normalizedPhone: string | null | undefined = updates.phone
+		if (typeof normalizedPhone !== 'undefined') {
+			normalizedPhone = normalizedPhone === null ? null : String(normalizedPhone).replace(/\D/g, '')
+		}
+
 		// First update the profile in the profiles table
 		const { error: profileError } = await supabase
 			.from('profiles')
-			.update({ ...updates, updated_at: new Date().toISOString() })
+			.update({
+				...updates,
+				...(typeof normalizedPhone !== 'undefined' ? { phone: normalizedPhone } : {}),
+				updated_at: new Date().toISOString(),
+			})
 			.eq('id', userId)
 
 		if (profileError) {
@@ -389,7 +399,7 @@ export const updateUserProfile = async (
 		}
 
 		// If display_name or phone is being updated, also update it in auth.users metadata
-		if (updates.display_name !== undefined || updates.phone !== undefined) {
+		if (updates.display_name !== undefined || typeof normalizedPhone !== 'undefined') {
 			// Get current user metadata
 			const { data: userData } = await supabase.auth.getUser()
 
@@ -398,7 +408,7 @@ export const updateUserProfile = async (
 				const { error: metadataError } = await updateUserMetadata({
 					...userData.user.user_metadata,
 					display_name: updates.display_name ?? userData.user.user_metadata?.display_name ?? null,
-					phone: (updates as any).phone ?? userData.user.user_metadata?.phone ?? null,
+					phone: typeof normalizedPhone !== 'undefined' ? normalizedPhone : userData.user.user_metadata?.phone ?? null,
 				})
 
 				if (metadataError) {

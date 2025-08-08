@@ -338,6 +338,7 @@ export type Database = {
 					assigned_branch: string | null
 					display_name: string | null
 					estado: 'pendiente' | 'aprobado'
+					phone: string | null
 				}
 				Insert: {
 					id: string
@@ -348,6 +349,7 @@ export type Database = {
 					assigned_branch?: string | null
 					display_name?: string | null
 					estado?: 'pendiente' | 'aprobado'
+					phone?: string | null
 				}
 				Update: {
 					id?: string
@@ -358,6 +360,7 @@ export type Database = {
 					assigned_branch?: string | null
 					display_name?: string | null
 					estado?: 'pendiente' | 'aprobado'
+					phone?: string | null
 				}
 				Relationships: []
 			}
