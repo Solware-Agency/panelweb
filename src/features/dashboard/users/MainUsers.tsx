@@ -15,7 +15,7 @@ import {
 import { Card } from '@shared/components/ui/card'
 import { Input } from '@shared/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@shared/components/ui/select'
-import { useQuery } from '@tanstack/react-query'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { supabase } from '@lib/supabase/config'
 import {
 	updateUserRole,
@@ -56,6 +56,7 @@ const MainUsers: React.FC = () => {
 	const { user: currentUser } = useAuth()
 	const { profile } = useUserProfile()
 	const { toast } = useToast()
+	const queryClient = useQueryClient()
 	const [searchTerm, setSearchTerm] = useState('')
 	const [roleFilter, setRoleFilter] = useState<string>('')
 	const [statusFilter] = useState<string>('all')
@@ -113,6 +114,21 @@ const MainUsers: React.FC = () => {
 			setRoleFilter('admin')
 		}
 	}, [profile?.role])
+
+	// Realtime: refetch users when profiles change (insert/update/delete)
+	useEffect(() => {
+		const channel = supabase
+			.channel('realtime-users')
+			.on('postgres_changes', { event: '*', schema: 'public', table: 'profiles' }, () => {
+				// O bien invalidar la query, o usar refetch directo
+				queryClient.invalidateQueries({ queryKey: ['users'] })
+			})
+			.subscribe()
+
+		return () => {
+			supabase.removeChannel(channel)
+		}
+	}, [queryClient])
 
 	// Query para verificar permisos del usuario actual
 	const { data: canManage } = useQuery({
@@ -397,20 +413,22 @@ const MainUsers: React.FC = () => {
 			const matchesSearch =
 				user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
 				(user.display_name || '').toLowerCase().includes(searchTerm.toLowerCase())
-					const matchesRole = roleFilter === '' || roleFilter === 'all' || user.role === roleFilter
-		const matchesStatus =
-			statusFilter === 'all' ||
-			(statusFilter === 'verified' && user.email_confirmed_at) ||
-			(statusFilter === 'unverified' && !user.email_confirmed_at)
-		const matchesBranch =
-			branchFilter === '' || branchFilter === 'all' ||
-			(branchFilter === 'assigned' && user.assigned_branch) ||
-			(branchFilter === 'unassigned' && !user.assigned_branch) ||
-			user.assigned_branch === branchFilter
-		const matchesApproval =
-			approvalFilter === '' || approvalFilter === 'all' ||
-			(approvalFilter === 'aprobado' && user.estado === 'aprobado') ||
-			(approvalFilter === 'pendiente' && user.estado === 'pendiente')
+			const matchesRole = roleFilter === '' || roleFilter === 'all' || user.role === roleFilter
+			const matchesStatus =
+				statusFilter === 'all' ||
+				(statusFilter === 'verified' && user.email_confirmed_at) ||
+				(statusFilter === 'unverified' && !user.email_confirmed_at)
+			const matchesBranch =
+				branchFilter === '' ||
+				branchFilter === 'all' ||
+				(branchFilter === 'assigned' && user.assigned_branch) ||
+				(branchFilter === 'unassigned' && !user.assigned_branch) ||
+				user.assigned_branch === branchFilter
+			const matchesApproval =
+				approvalFilter === '' ||
+				approvalFilter === 'all' ||
+				(approvalFilter === 'aprobado' && user.estado === 'aprobado') ||
+				(approvalFilter === 'pendiente' && user.estado === 'pendiente')
 
 			return matchesSearch && matchesRole && matchesStatus && matchesBranch && matchesApproval
 		}) || []
@@ -531,11 +549,11 @@ const MainUsers: React.FC = () => {
 						{/* Lado derecho: Estadísticas compactas como filtros */}
 						<div className="flex items-center gap-2 flex-shrink-0">
 							{/* Total Usuarios */}
-							<div 
+							<div
 								onClick={() => profile?.role !== 'admin' && setRoleFilter('')}
 								className={`flex items-center gap-2 rounded px-3 py-2 w-32 ${
-									profile?.role === 'admin' 
-										? 'cursor-not-allowed opacity-50 bg-gray-50 dark:bg-gray-900/20' 
+									profile?.role === 'admin'
+										? 'cursor-not-allowed opacity-50 bg-gray-50 dark:bg-gray-900/20'
 										: 'cursor-pointer'
 								} ${
 									roleFilter === '' || roleFilter === 'all'
@@ -551,11 +569,11 @@ const MainUsers: React.FC = () => {
 							</div>
 
 							{/* Propietarios */}
-							<div 
+							<div
 								onClick={() => profile?.role !== 'admin' && setRoleFilter('owner')}
 								className={`flex items-center gap-2 rounded px-3 py-2 w-32 ${
-									profile?.role === 'admin' 
-										? 'cursor-not-allowed opacity-50 bg-gray-50 dark:bg-gray-900/20' 
+									profile?.role === 'admin'
+										? 'cursor-not-allowed opacity-50 bg-gray-50 dark:bg-gray-900/20'
 										: 'cursor-pointer'
 								} ${
 									roleFilter === 'owner'
@@ -571,11 +589,11 @@ const MainUsers: React.FC = () => {
 							</div>
 
 							{/* Recepcionistas */}
-							<div 
+							<div
 								onClick={() => profile?.role !== 'admin' && setRoleFilter('employee')}
 								className={`flex items-center gap-2 rounded px-3 py-2 w-32 ${
-									profile?.role === 'admin' 
-										? 'cursor-not-allowed opacity-50 bg-gray-50 dark:bg-gray-900/20' 
+									profile?.role === 'admin'
+										? 'cursor-not-allowed opacity-50 bg-gray-50 dark:bg-gray-900/20'
 										: 'cursor-pointer'
 								} ${
 									roleFilter === 'employee'
@@ -591,7 +609,7 @@ const MainUsers: React.FC = () => {
 							</div>
 
 							{/* Administradores */}
-							<div 
+							<div
 								onClick={() => setRoleFilter('admin')}
 								className={`flex items-center gap-2 rounded px-3 py-2 cursor-pointer w-32 ${
 									roleFilter === 'admin'
