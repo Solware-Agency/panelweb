@@ -1,10 +1,8 @@
-import React, { useState, useCallback, useMemo, useEffect } from 'react'
+import React, { useState, useCallback, useMemo } from 'react'
 import { useQuery } from '@tanstack/react-query'
-import { useLocation } from 'react-router-dom'
 import { getMedicalRecords } from '@lib/supabase-service'
 import { Search } from 'lucide-react'
 import { Input } from '@shared/components/ui/input'
-import { useBodyScrollLock } from '@shared/hooks/useBodyScrollLock'
 import PatientsList from './PatientsList'
 
 // Tipo base para los datos que vienen de la API
@@ -43,7 +41,6 @@ type MedicalRecordsQueryResult = {
 
 const PatientsPage: React.FC = React.memo(() => {
 	const [searchTerm, setSearchTerm] = useState('')
-	const location = useLocation()
 
 	// Fetch all medical records - optimized to prevent unnecessary refetches
 	const {
@@ -96,15 +93,6 @@ const PatientsPage: React.FC = React.memo(() => {
 			error: error as Error | null,
 		}
 	}, [recordsData])
-
-	const [shouldLockScroll, setShouldLockScroll] = useState(false)
-
-	useEffect(() => {
-		const isOnPatientsPage = location.pathname === '/dashboard/patients'
-		setShouldLockScroll(isOnPatientsPage)
-	}, [location.pathname])
-
-	useBodyScrollLock(shouldLockScroll)
 
 	return (
 		<div className="p-3 sm:p-4">

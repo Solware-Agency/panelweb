@@ -51,7 +51,7 @@ export const PaymentMethodsList = memo(
 					<div className="flex justify-center">
 						{/* Alerta de monto pendiente */}
 						{!isPaymentComplete && missingAmount && missingAmount > 0 && (
-							<div className="bg-red-900/70 text-red-200 border border-red-700 rounded-lg px-3 py-2 text-xs font-semibold w-full text-center">
+							<div className="dark:bg-red-900 bg-red-900 text-red-200 border border-red-700 rounded-lg px-3 py-2 text-xs font-semibold w-full text-center">
 								<div className="flex items-center justify-center">
 									<span className="mr-1">⚠️</span>
 									Monto pendiente: ${missingAmount.toFixed(2)}
@@ -88,7 +88,7 @@ export const PaymentMethodsList = memo(
 						<div className="flex justify-center">
 							{/* Alerta de monto pendiente */}
 							{!isPaymentComplete && missingAmount && missingAmount > 0 && (
-								<div className="bg-red-900/70 text-red-200 border border-red-700 rounded-lg px-3 py-2 text-xs font-semibold">
+								<div className="dark:bg-red-900 bg-red-900 text-red-200 border border-red-700 rounded-lg px-3 py-2 text-xs font-semibold">
 									<div className="flex items-center">
 										<span className="mr-1">⚠️</span>
 										Monto pendiente: ${missingAmount.toFixed(2)}
