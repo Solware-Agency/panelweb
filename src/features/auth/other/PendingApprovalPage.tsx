@@ -6,6 +6,7 @@ import Aurora from '@shared/components/ui/Aurora'
 import FadeContent from '@shared/components/ui/FadeContent'
 import { useUserProfile } from '@shared/hooks/useUserProfile'
 import { useSecureRedirect } from '@shared/hooks/useSecureRedirect'
+import { supabase } from '@lib/supabase/config'
 
 function PendingApprovalPage() {
 	const navigate = useNavigate()
@@ -23,6 +24,32 @@ function PendingApprovalPage() {
 			redirectUser()
 		}
 	}, [isLoading, profile?.estado, redirectUser])
+
+	// Fallback polling: check approval status periodically in case Realtime is unavailable
+	useEffect(() => {
+		let timer: number | null = null
+		const startPolling = () => {
+			if (timer) return
+			timer = window.setInterval(async () => {
+				try {
+					if (!profile?.id) return
+					const { data, error } = await supabase.from('profiles').select('estado').eq('id', profile.id).single()
+					if (!error && data?.estado === 'aprobado') {
+						if (timer) window.clearInterval(timer)
+						timer = null
+						redirectUser()
+					}
+				} catch (_) {
+					// ignore
+				}
+			}, 4000)
+		}
+		// start when profile exists and is pending
+		if (profile?.estado === 'pendiente') startPolling()
+		return () => {
+			if (timer) window.clearInterval(timer)
+		}
+	}, [profile?.id, profile?.estado, redirectUser])
 
 	return (
 		<div className="w-screen h-screen relative overflow-hidden bg-gradient-to-br from-black via-black to-black">
