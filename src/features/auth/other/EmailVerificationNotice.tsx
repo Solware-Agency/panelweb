@@ -80,7 +80,7 @@ function EmailVerificationNotice() {
 							>
 								<Mail className="text-white size-12" />
 							</div>
-															<h1 className="text-2xl sm:text-3xl font-bold text-white mb-2">Verifica tu Correo Electrónico</h1>
+							<h1 className="text-2xl sm:text-3xl font-bold text-white mb-2">Verifica tu Correo Electrónico</h1>
 							<p className="text-slate-300 text-center">
 								Por favor verifica tu dirección de correo electrónico para continuar.
 							</p>
