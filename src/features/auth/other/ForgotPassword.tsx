@@ -38,6 +38,11 @@ function ForgotPassword() {
 			}
 
 			setMessage('Revisa tu correo electrónico para obtener instrucciones de restablecimiento de contraseña.')
+
+			// Marca local para identificar que el siguiente callback con ?code sin type proviene de recuperación
+			try {
+				localStorage.setItem('pw_recovery_pending', JSON.stringify({ ts: Date.now(), email }))
+			} catch {}
 		} catch (err: any) {
 			console.error('Reset password error:', err)
 			setError('Error al enviar el correo de restablecimiento. Inténtalo de nuevo.')
