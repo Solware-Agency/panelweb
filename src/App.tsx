@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, useLocation, useNavigate } from 'react-router-dom'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { Suspense } from 'react'
 import {
@@ -36,6 +36,33 @@ const LoadingSpinner = () => (
 // Create a client instance
 const queryClient = new QueryClient()
 
+function RecoveryGate() {
+	const location = useLocation()
+	const navigate = useNavigate()
+
+	// Redirige a /auth/callback si detecta tipo recovery en query o en hash
+	if (typeof window !== 'undefined') {
+		const isOnCallback = location.pathname === '/auth/callback'
+		const isOnNewPassword = location.pathname === '/new-password'
+
+		if (!isOnCallback && !isOnNewPassword) {
+			const searchParams = new URLSearchParams(location.search)
+			const typeQuery = searchParams.get('type')
+
+			const rawHash = window.location.hash.startsWith('#') ? window.location.hash.slice(1) : window.location.hash
+			const hashParams = new URLSearchParams(rawHash)
+			const typeHash = hashParams.get('type')
+
+			if (typeQuery === 'recovery' || typeHash === 'recovery') {
+				const nextUrl = `/auth/callback${location.search || ''}${location.hash || ''}`
+				navigate(nextUrl, { replace: true })
+			}
+		}
+	}
+
+	return null
+}
+
 function App() {
 	return (
 		<QueryClientProvider client={queryClient}>
@@ -47,6 +74,7 @@ function App() {
 			>
 				<div className="App">
 					<Suspense fallback={<LoadingSpinner />}>
+						<RecoveryGate />
 						<Routes>
 							{/* Public routes */}
 							<Route path="/" element={<LoginPage />} />
