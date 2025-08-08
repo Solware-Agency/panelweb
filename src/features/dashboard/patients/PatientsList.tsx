@@ -3,8 +3,6 @@ import { Phone, Mail, Calendar, ChevronUp, ChevronDown } from 'lucide-react'
 import { Card } from '@shared/components/ui/card'
 
 import { getAgeDisplay } from '@lib/supabase-service'
-import { format } from 'date-fns'
-import { es } from 'date-fns/locale'
 import PatientHistoryModal from '@shared/components/patients/PatientHistoryModal'
 
 // Define interface for patient data
@@ -78,11 +76,6 @@ const PatientRow = React.memo(
 			{/* Email Cell */}
 			<td className="w-[15%] px-4 py-4 text-sm text-gray-900 dark:text-gray-100 truncate">
 				{patient.email || <span className="text-gray-500 dark:text-gray-400">No disponible</span>}
-			</td>
-
-			{/* Last Visit Cell */}
-			<td className="w-[15%] px-4 py-4 text-sm text-gray-900 dark:text-gray-100 text-center">
-				{format(new Date(patient.lastVisit), 'dd/MM/yyyy', { locale: es })}
 			</td>
 		</tr>
 	),
@@ -387,14 +380,6 @@ const PatientsList: React.FC<PatientsListProps> = React.memo(
 												<div className="flex items-center">
 													<Phone className="h-3 w-3 text-gray-400 mr-1 flex-shrink-0" />
 													<span className="text-gray-600 dark:text-gray-300 text-xs truncate">{patient.phone}</span>
-												</div>
-											</div>
-
-											<div>
-												<div className="flex items-center justify-end">
-													<div className="px-1.5 py-0.5 text-xs font-medium rounded-full bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300">
-														{patient.totalVisits} visita{patient.totalVisits !== 1 ? 's' : ''}
-													</div>
 												</div>
 											</div>
 

@@ -2,6 +2,7 @@ import { UserRound, Eye, EyeOff, Clock, AlertCircle, CheckCircle } from 'lucide-
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { signUp } from '@lib/supabase/auth'
+import { supabase } from '@lib/supabase/config'
 import Aurora from '@shared/components/ui/Aurora'
 import FadeContent from '@shared/components/ui/FadeContent'
 
@@ -10,6 +11,7 @@ function RegisterForm() {
 	const [password, setPassword] = useState('')
 	const [confirmPassword, setConfirmPassword] = useState('')
 	const [displayName, setDisplayName] = useState('')
+	const [phone, setPhone] = useState('')
 	const [showPassword, setShowPassword] = useState(false)
 	const [showConfirmPassword, setShowConfirmPassword] = useState(false)
 	const [error, setError] = useState('')
@@ -18,6 +20,8 @@ function RegisterForm() {
 	const [rateLimitError, setRateLimitError] = useState(false)
 	const [retryCountdown, setRetryCountdown] = useState(0)
 	const navigate = useNavigate()
+
+	const normalizePhone = (value: string) => value.replace(/\D/g, '')
 
 	const startRetryCountdown = (seconds: number) => {
 		setRetryCountdown(seconds)
@@ -54,9 +58,17 @@ function RegisterForm() {
 		try {
 			setLoading(true)
 
+			// Validar teléfono obligatorio y numérico
+			const normalizedPhone = normalizePhone(phone)
+			if (!normalizedPhone) {
+				setError('El número de teléfono es obligatorio.')
+				setLoading(false)
+				return
+			}
+
 			console.log('Attempting to register user:', email)
 
-			const { user, error: signUpError } = await signUp(email, password, displayName)
+			const { user, error: signUpError } = await signUp(email, password, displayName, normalizedPhone)
 
 			if (signUpError) {
 				console.error('Registration error:', signUpError)
@@ -92,6 +104,8 @@ function RegisterForm() {
 				console.log('User registered successfully:', user.email)
 				console.log('Email confirmed at registration:', user.email_confirmed_at)
 				console.log('Confirmation sent at:', user.confirmation_sent_at)
+
+				// No escribir en profiles aquí: metadata ya contiene el phone
 
 				// CRITICAL: Always redirect to email verification notice
 				// New users should NEVER be automatically verified
@@ -236,6 +250,19 @@ function RegisterForm() {
 										{showConfirmPassword ? <Eye size={20} /> : <EyeOff size={20} />}
 									</button>
 								</div>
+
+								<p className="text-sm text-slate-300">Número de teléfono:</p>
+								<input
+									type="tel"
+									name="phone"
+									placeholder="Ej: 0412-1234567 o +584121234567"
+									value={phone}
+									onChange={(e) => setPhone(e.target.value)}
+									required
+									disabled={loading || rateLimitError}
+									className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all duration-200"
+									autoComplete="tel"
+								/>
 							</div>
 
 							{error && (

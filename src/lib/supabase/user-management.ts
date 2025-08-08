@@ -9,6 +9,7 @@ export interface UserProfile {
 	assigned_branch?: string | null
 	display_name?: string | null
 	estado?: 'pendiente' | 'aprobado'
+	phone?: string | number | null
 }
 
 /**

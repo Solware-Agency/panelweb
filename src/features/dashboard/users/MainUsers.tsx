@@ -11,6 +11,9 @@ import {
 	Clock,
 	User,
 	ShieldCheck,
+	Info,
+	Copy,
+	Phone,
 } from 'lucide-react'
 import { Card } from '@shared/components/ui/card'
 import { Input } from '@shared/components/ui/input'
@@ -37,6 +40,8 @@ import {
 	DialogHeader,
 	DialogTitle,
 } from '@shared/components/ui/dialog'
+import { formatPhoneForDisplay } from '@shared/utils/phone-utils'
+import { Tooltip, TooltipContent, TooltipTrigger } from '@shared/components/ui/tooltip'
 
 interface UserProfile {
 	id: string
@@ -50,6 +55,7 @@ interface UserProfile {
 	assigned_branch?: string | null
 	display_name?: string | null
 	estado?: 'pendiente' | 'aprobado'
+	phone?: string | number | null
 }
 
 const MainUsers: React.FC = () => {
@@ -204,6 +210,23 @@ const MainUsers: React.FC = () => {
 				return 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300'
 			default:
 				return 'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-300'
+		}
+	}
+
+	const handleCopyToClipboard = async (value: string, label: string) => {
+		try {
+			await navigator.clipboard.writeText(value)
+			toast({
+				title: '📋 Copiado',
+				description: `${label} copiado al portapapeles`,
+				className: 'bg-green-100 border-green-400 text-green-800',
+			})
+		} catch {
+			toast({
+				title: '❌ No se pudo copiar',
+				description: 'Intenta nuevamente.',
+				variant: 'destructive',
+			})
 		}
 	}
 
@@ -834,13 +857,54 @@ const MainUsers: React.FC = () => {
 								{filteredUsers.map((user) => (
 									<tr key={user.id} className="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-none">
 										<td className="px-6 py-4">
-											<div className="flex items-center gap-3">
-												<div>
-													<p className="text-sm font-medium text-gray-900 dark:text-gray-100">{user.email}</p>
-													{user.display_name && (
-														<p className="text-xs text-gray-500 dark:text-gray-400">{user.display_name}</p>
-													)}
-												</div>
+											<div className="flex items-center justify-between gap-3">
+												<p className="text-sm font-medium text-gray-900 dark:text-gray-100">{user.display_name}</p>
+												<Tooltip>
+													<TooltipTrigger>
+														<Info className="size-4" />
+													</TooltipTrigger>
+													<TooltipContent className="p-2">
+														<div className="flex flex-col gap-2 text-xs min-w-[220px]">
+															<div className="flex items-center justify-between gap-2">
+																<div className="flex items-center gap-1.5 text-gray-900 dark:text-gray-100">
+																	<Mail className="w-3 h-3 text-gray-600 dark:text-gray-400" />
+																	<span className="truncate max-w-[160px]">{user.email}</span>
+																</div>
+																<Button
+																	variant="ghost"
+																	size="icon"
+																	className="h-6 w-6"
+																	onClick={(e) => {
+																		e.stopPropagation()
+																		handleCopyToClipboard(user.email, 'Email')
+																	}}
+																	aria-label="Copiar email"
+																>
+																	<Copy className="w-3 h-3" />
+																</Button>
+															</div>
+
+															<div className="flex items-center justify-between gap-2">
+																<div className="flex items-center gap-1.5 text-gray-900 dark:text-gray-100">
+																	<Phone className="w-3 h-3 text-gray-600 dark:text-gray-400" />
+																	<span className="truncate max-w-[200px]">{formatPhoneForDisplay(user.phone)}</span>
+																</div>
+																<Button
+																	variant="ghost"
+																	size="icon"
+																	className="h-6 w-6"
+																	onClick={(e) => {
+																		e.stopPropagation()
+																		handleCopyToClipboard(formatPhoneForDisplay(user.phone), 'Teléfono')
+																	}}
+																	aria-label="Copiar teléfono"
+																>
+																	<Copy className="w-3 h-3" />
+																</Button>
+															</div>
+														</div>
+													</TooltipContent>
+												</Tooltip>
 											</div>
 										</td>
 										<td className="px-6 py-4">

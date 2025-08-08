@@ -16,10 +16,17 @@ export interface UserProfile {
 	assigned_branch?: string | null
 	display_name?: string | null
 	estado?: 'pendiente' | 'aprobado'
+	// Nota: en BD el campo puede ser numeric; aquí aceptamos number o string para robustez
+	phone?: string | number | null
 }
 
 // Sign up with email and password - ENHANCED WITH PROPER EMAIL VERIFICATION
-export const signUp = async (email: string, password: string, displayName?: string): Promise<AuthResponse> => {
+export const signUp = async (
+	email: string,
+	password: string,
+	displayName?: string,
+	phone?: string,
+): Promise<AuthResponse> => {
 	try {
 		console.log('Attempting to sign up user:', email)
 		console.log('Using redirect URL:', `${REDIRECT_URL}/auth/callback`)
@@ -33,6 +40,7 @@ export const signUp = async (email: string, password: string, displayName?: stri
 				data: {
 					email_confirm: true,
 					display_name: displayName || null,
+					phone: phone || null,
 				},
 			},
 		})
@@ -108,19 +116,19 @@ export const signIn = async (email: string, password: string): Promise<AuthRespo
 export const signOut = async (): Promise<{ error: AuthError | null }> => {
 	try {
 		console.log('🧹 Iniciando limpieza de storage...')
-		
+
 		// Limpiar TODO el localStorage
 		localStorage.clear()
 		console.log('✅ localStorage completamente limpiado')
-		
+
 		// Limpiar TODO el sessionStorage
 		sessionStorage.clear()
 		console.log('✅ sessionStorage completamente limpiado')
-		
+
 		// Limpiar cookies
-		document.cookie.split(";").forEach(function(c) { 
-			document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/"); 
-		});
+		document.cookie.split(';').forEach(function (c) {
+			document.cookie = c.replace(/^ +/, '').replace(/=.*/, '=;expires=' + new Date().toUTCString() + ';path=/')
+		})
 		console.log('✅ Cookies limpiadas')
 
 		// Intentar logout con Supabase
@@ -149,7 +157,11 @@ export const signOut = async (): Promise<{ error: AuthError | null }> => {
 // Get user session timeout setting
 export const getUserSessionTimeout = async (userId: string): Promise<number> => {
 	try {
-		const { data, error } = await supabase.from('user_settings').select('session_timeout').eq('id', userId).maybeSingle()
+		const { data, error } = await supabase
+			.from('user_settings')
+			.select('session_timeout')
+			.eq('id', userId)
+			.maybeSingle()
 
 		if (error) {
 			// If no settings found, create with default timeout
@@ -376,8 +388,8 @@ export const updateUserProfile = async (
 			return { error: profileError as unknown as AuthError }
 		}
 
-		// If display_name is being updated, also update it in auth.users metadata
-		if (updates.display_name !== undefined) {
+		// If display_name or phone is being updated, also update it in auth.users metadata
+		if (updates.display_name !== undefined || updates.phone !== undefined) {
 			// Get current user metadata
 			const { data: userData } = await supabase.auth.getUser()
 
@@ -385,7 +397,8 @@ export const updateUserProfile = async (
 				// Update the display_name in user metadata
 				const { error: metadataError } = await updateUserMetadata({
 					...userData.user.user_metadata,
-					display_name: updates.display_name,
+					display_name: updates.display_name ?? userData.user.user_metadata?.display_name ?? null,
+					phone: (updates as any).phone ?? userData.user.user_metadata?.phone ?? null,
 				})
 
 				if (metadataError) {
