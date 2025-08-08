@@ -8,6 +8,8 @@ import { useAuth } from '@app/providers/AuthContext'
 import { useUserProfile } from '@shared/hooks/useUserProfile'
 import { updateMedicalRecordWithLog, createOrUpdateImmunoRequest } from '@lib/supabase-service'
 import type { MedicalRecord } from '@lib/supabase-service'
+import { useBodyScrollLock } from '@shared/hooks/useBodyScrollLock'
+import { useGlobalOverlayOpen } from '@shared/hooks/useGlobalOverlayOpen'
 
 interface GenerateCaseModalProps {
 	case_: MedicalRecord | null
@@ -22,6 +24,8 @@ const RequestCaseModal: React.FC<GenerateCaseModalProps> = ({ case_, isOpen, onC
 	const { toast } = useToast()
 	const { user } = useAuth()
 	const { profile } = useUserProfile()
+  useBodyScrollLock(isOpen)
+  useGlobalOverlayOpen(isOpen)
 
 	// Determine case type from exam_type
 	const getCaseType = (examType: string): 'biopsia' | 'inmunohistoquimica' | 'citologia' => {

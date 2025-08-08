@@ -5,6 +5,7 @@ import { supabase } from '@lib/supabase/config'
 import { X, User, ArrowLeft, ArrowRight, Sparkles, Heart, Stethoscope, Microscope } from 'lucide-react'
 import { useToast } from '@shared/hooks/use-toast'
 import { useBodyScrollLock } from '@shared/hooks/useBodyScrollLock'
+import { useGlobalOverlayOpen } from '@shared/hooks/useGlobalOverlayOpen'
 
 interface MedicalRecord {
 	id?: string
@@ -50,7 +51,8 @@ const StepsCaseModal: React.FC<StepsCaseModalProps> = ({ case_, isOpen, onClose,
 	const [isCompleting, setIsCompleting] = useState(false)
 	const [isSaving, setIsSaving] = useState(false)
 	const { toast } = useToast()
-	useBodyScrollLock(isOpen)
+    useBodyScrollLock(isOpen)
+    useGlobalOverlayOpen(isOpen)
 	const handleNext = () => {
 		if (activeStep < steps.length - 1) {
 			setActiveStep((prev) => prev + 1)

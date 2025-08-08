@@ -269,9 +269,10 @@ const Sidebar: React.FC<SidebarProps> = ({ onClose, isExpanded = false, isMobile
 	const isOwner = profile?.role === 'owner'
 	const isEmployee = profile?.role === 'employee'
 
-	return (
-		<aside className="bg-white/80 dark:bg-background/50 shadow-lg shadow-primary/50 backdrop-blur-[10px] flex flex-col justify-between h-screen py-4 sm:py-6 px-2 sm:px-4 gap-4 border-gray-600 text-gray-700 dark:text-white ease-in-out overflow-hidden border-r border-input">
-			<div className="flex flex-col items-start gap-4">
+  return (
+		<aside className="bg-white/80 dark:bg-background/50 shadow-lg shadow-primary/50 backdrop-blur-[10px] flex flex-col h-screen py-4 sm:py-6 px-2 sm:px-4 gap-0 border-gray-600 text-gray-700 dark:text-white ease-in-out overflow-hidden border-r border-input">
+			{/* Zona scrollable: navegación y grupos */}
+			<div className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden pr-1 flex flex-col items-start gap-4 scrollbar-hide">
 				<div className="flex justify-between items-center w-full mb-2 sm:mb-4">
 					<a
 						href="https://conspat.solware.agency/"
@@ -459,7 +460,8 @@ const Sidebar: React.FC<SidebarProps> = ({ onClose, isExpanded = false, isMobile
 				</div>
 			</div>
 
-			<div className="flex flex-col justify-center gap-1">
+			{/* Pie fijo: Ajustes, tema y salir */}
+			<div className="shrink-0 flex flex-col justify-center gap-1 border-t border-input pt-2 sm:pt-3">
 				{isEmployee && (
 					<NavItem
 						to="/settings"

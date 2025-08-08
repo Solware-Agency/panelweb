@@ -121,6 +121,13 @@
   }
 }
 
+/* Ocultar botón hamburguesa móvil cuando haya overlay/modal abierto */
+@media (max-width: 1024px) {
+  body.has-overlay-open .mobile-hamburger {
+    display: none !important;
+  }
+}
+
 ::-moz-selection {
   /* Para Firefox */
   background: hsl(330 81% 60%);

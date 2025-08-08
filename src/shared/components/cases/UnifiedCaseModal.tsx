@@ -45,6 +45,7 @@ import {
 	autoCorrectDecimalAmount,
 } from '@shared/utils/number-utils'
 import { useBodyScrollLock } from '@shared/hooks/useBodyScrollLock'
+import { useGlobalOverlayOpen } from '@shared/hooks/useGlobalOverlayOpen'
 
 interface ChangeLogEntry {
 	id: string
@@ -80,7 +81,8 @@ interface ImmunoRequest {
 }
 
 const UnifiedCaseModal: React.FC<CaseDetailPanelProps> = React.memo(({ case_, isOpen, onClose, onSave, onDelete }) => {
-	useBodyScrollLock(isOpen)
+    useBodyScrollLock(isOpen)
+    useGlobalOverlayOpen(isOpen)
 	const { toast } = useToast()
 	const { user } = useAuth()
 	const { profile } = useUserProfile()

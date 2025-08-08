@@ -12,18 +12,36 @@ const DialogPortal = DialogPrimitive.Portal
 
 const DialogClose = DialogPrimitive.Close
 
+// Contador local para overlays de Radix
+let radixDialogOverlayCount = 0
+
 const DialogOverlay = React.forwardRef<
   React.ElementRef<typeof DialogPrimitive.Overlay>,
   React.ComponentPropsWithoutRef<typeof DialogPrimitive.Overlay>
 >(({ className, ...props }, ref) => (
-  <DialogPrimitive.Overlay
-    ref={ref}
-    className={cn(
-      "fixed inset-0 z-50 bg-black/80 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
-      className
-    )}
-    {...props}
-  />
+  (() => {
+    React.useEffect(() => {
+      radixDialogOverlayCount += 1
+      document.body.classList.add('has-overlay-open')
+      return () => {
+        radixDialogOverlayCount = Math.max(0, radixDialogOverlayCount - 1)
+        if (radixDialogOverlayCount === 0) {
+          document.body.classList.remove('has-overlay-open')
+        }
+      }
+    }, [])
+
+    return (
+      <DialogPrimitive.Overlay
+        ref={ref}
+        className={cn(
+          "fixed inset-0 z-50 bg-black/80 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
+          className
+        )}
+        {...props}
+      />
+    )
+  })()
 ))
 DialogOverlay.displayName = DialogPrimitive.Overlay.displayName
 
