@@ -18,6 +18,7 @@ export interface ChangeLog {
 	medical_record_id: string
 	user_id: string
 	user_email: string
+	user_display_name: string | null
 	field_name: string
 	field_label: string
 	old_value: string | null
@@ -407,10 +408,20 @@ export const saveChangeLog = async (
 	try {
 		console.log('💾 Saving change logs for record:', medicalRecordId)
 
+		// Fetch display name to store alongside logs (best-effort; optional)
+		let userDisplayName: string | null = null
+		try {
+			const { data: profile } = await supabase.from('profiles').select('display_name').eq('id', userId).single()
+			userDisplayName = profile?.display_name ?? null
+		} catch (e) {
+			// ignore profile lookup errors
+		}
+
 		const changeLogEntries = changes.map((change) => ({
 			medical_record_id: medicalRecordId,
 			user_id: userId,
 			user_email: userEmail,
+			user_display_name: userDisplayName,
 			field_name: change.field,
 			field_label: change.fieldLabel,
 			old_value: change.oldValue === null || change.oldValue === undefined ? null : String(change.oldValue),

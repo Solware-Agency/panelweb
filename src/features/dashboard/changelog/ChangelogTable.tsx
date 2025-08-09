@@ -31,6 +31,7 @@ type ChangeLogData = {
 	medical_record_id: string | null
 	user_id: string
 	user_email: string
+	user_display_name?: string | null
 	field_name: string
 	field_label: string
 	old_value: string | null
@@ -103,6 +104,7 @@ const ChangelogTable: React.FC = () => {
 		return logsData.data.filter((log: ChangeLogData) => {
 			// Search filter
 			const matchesSearch =
+				(log.user_display_name || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
 				log.user_email.toLowerCase().includes(searchTerm.toLowerCase()) ||
 				log.field_label.toLowerCase().includes(searchTerm.toLowerCase()) ||
 				(log.medical_records_clean?.full_name || log.deleted_record_info || '')
@@ -209,7 +211,7 @@ const ChangelogTable: React.FC = () => {
 
 	if (error) {
 		return (
-			<div className="p-3 sm:p-6">
+			<div>
 				<Card className="p-6 bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800">
 					<div className="flex items-center gap-3 mb-4">
 						<AlertCircle className="w-8 h-8 text-red-600 dark:text-red-400" />
@@ -228,7 +230,7 @@ const ChangelogTable: React.FC = () => {
 	}
 
 	return (
-		<div className="p-3 sm:p-6">
+		<div>
 			<div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4 sm:mb-6">
 				<div>
 					<h1 className="text-2xl sm:text-3xl font-bold">Historial de Cambios</h1>
@@ -374,10 +376,12 @@ const ChangelogTable: React.FC = () => {
 														</div>
 													</td>
 
-																		{/* User */}
-					<td className="px-4 py-4">
-						<span className="text-sm text-gray-900 dark:text-gray-100">{log.user_email}</span>
-					</td>
+													{/* User */}
+													<td className="px-4 py-4">
+														<span className="text-sm text-gray-900 dark:text-gray-100">
+															{log.user_display_name || log.user_email}
+														</span>
+													</td>
 
 													{/* Case */}
 													<td className="px-4 py-4">

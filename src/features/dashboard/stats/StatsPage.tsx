@@ -69,7 +69,7 @@ const StatsPage: React.FC = () => {
 
 	return (
 		<>
-			<div className="p-2 sm:p-4 md:p-6">
+			<div>
 				<div className="mb-4 sm:mb-6">
 					<h1 className="text-2xl sm:text-3xl font-bold text-foreground">Estadísticas</h1>
 					<div className="w-16 sm:w-24 h-1 bg-primary mt-2 rounded-full" />

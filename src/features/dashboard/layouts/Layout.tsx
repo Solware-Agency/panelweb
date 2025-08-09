@@ -67,12 +67,12 @@ const Layout: React.FC = () => {
 					/>
 				</div>
 			)}
-			
+
 			{/* Mobile menu button - hidden in fullscreen mode */}
 			{!isFullscreenMode && (
 				<button
 					onClick={toggleSidebar}
-            className="mobile-hamburger lg:hidden flex fixed items-center justify-center p-2 bg-white/80 dark:bg-background/80 backdrop-blur-sm border border-input rounded-lg shadow-lg top-4 right-4 z-50"
+					className="mobile-hamburger lg:hidden flex fixed items-center justify-center p-2 bg-white/80 dark:bg-background/80 backdrop-blur-sm border border-input rounded-lg shadow-lg top-4 right-4 z-50"
 				>
 					<Menu className="h-5 w-5 text-gray-600 dark:text-gray-400 " />
 				</button>
@@ -81,7 +81,9 @@ const Layout: React.FC = () => {
 			{/* Main content - Adjusted z-index and positioning */}
 			<main className={`min-h-screen flex flex-col relative z-10 ${!isFullscreenMode ? 'lg:pl-16' : ''}`}>
 				<div className="flex-1 overflow-x-hidden overflow-y-auto">
-					<Outlet />
+					<div className="container mx-auto px-2 sm:px-4 py-4 sm:py-6">
+						<Outlet />
+					</div>
 				</div>
 			</main>
 		</div>

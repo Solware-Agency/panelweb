@@ -571,7 +571,7 @@ const CasesTable: React.FC<CasesTableProps> = React.memo(
 								<button
 									key={page}
 									onClick={() => goToPage(page)}
-									className={`px-3 py-2 text-sm rounded-md transition-colors ${
+									className={`px-3 py-2 text-sm rounded-md transition-none ${
 										page === currentPage
 											? 'bg-primary text-white'
 											: 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800'
@@ -677,7 +677,7 @@ const CasesTable: React.FC<CasesTableProps> = React.memo(
 										title="Filtrar por estado"
 										value={statusFilter}
 										onChange={(e) => setStatusFilter(e.target.value)}
-										className="px-3 py-2 border border-input rounded-lg focus:ring-2 focus:ring-primary dark:bg-background dark:text-white text-sm hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors duration-200"
+										className="px-3 py-2 border border-input rounded-lg focus:ring-2 focus:ring-primary dark:bg-background dark:text-white text-sm hover:bg-gray-50 dark:hover:bg-gray-800 transition-none duration-200"
 									>
 										<option value="all">Todos los estatus</option>
 										<option value="Completado">Completado</option>
@@ -691,7 +691,7 @@ const CasesTable: React.FC<CasesTableProps> = React.memo(
 										title="Filtrar por sede"
 										value={branchFilter}
 										onChange={(e) => setBranchFilter(e.target.value)}
-										className="px-3 py-2 border border-input rounded-lg focus:ring-2 focus:ring-primary dark:bg-background dark:text-white text-sm hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors duration-200"
+										className="px-3 py-2 border border-input rounded-lg focus:ring-2 focus:ring-primary dark:bg-background dark:text-white text-sm hover:bg-gray-50 dark:hover:bg-gray-800 transition-none duration-200"
 									>
 										<option value="all">Todas las sedes</option>
 										<option value="PMG">PMG</option>
@@ -979,7 +979,7 @@ const CasesTable: React.FC<CasesTableProps> = React.memo(
 										title="Filtrar por estado"
 										value={statusFilter}
 										onChange={(e) => setStatusFilter(e.target.value)}
-										className="px-3 py-2 border border-input rounded-lg focus:ring-2 focus:ring-primary dark:bg-background dark:text-white text-sm hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors duration-200"
+										className="px-3 py-2 border border-input rounded-lg focus:ring-2 focus:ring-primary dark:bg-background dark:text-white text-sm hover:bg-gray-50 dark:hover:bg-gray-800 transition-none duration-200"
 									>
 										<option value="all">Todos los estatus</option>
 										<option value="Completado">Completado</option>
@@ -993,7 +993,7 @@ const CasesTable: React.FC<CasesTableProps> = React.memo(
 										title="Filtrar por sede"
 										value={branchFilter}
 										onChange={(e) => setBranchFilter(e.target.value)}
-										className="px-3 py-2 border border-input rounded-lg focus:ring-2 focus:ring-primary dark:bg-background dark:text-white text-sm hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors duration-200"
+										className="px-3 py-2 border border-input rounded-lg focus:ring-2 focus:ring-primary dark:bg-background dark:text-white text-sm hover:bg-gray-50 dark:hover:bg-gray-800 transition-none duration-200"
 									>
 										<option value="all">Todas las sedes</option>
 										<option value="PMG">PMG</option>

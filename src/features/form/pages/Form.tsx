@@ -180,10 +180,10 @@ function FormContent() {
 						Limpiar
 					</Button>
 				)}
-        {!isFullscreenMode && (
+				{!isFullscreenMode && (
 					<button
 						onClick={() => setSidebarOpen(!sidebarOpen)}
-            className="mobile-hamburger lg:hidden flex items-center justify-center p-2 bg-white/80 dark:bg-background/80 backdrop-blur-sm border border-input rounded-lg shadow-lg"
+						className="mobile-hamburger lg:hidden flex items-center justify-center p-2 bg-white/80 dark:bg-background/80 backdrop-blur-sm border border-input rounded-lg shadow-lg"
 					>
 						<Menu className="h-5 w-5 text-gray-600 dark:text-gray-400" />
 					</button>
@@ -225,18 +225,18 @@ function FormContent() {
 					/>
 				</div>
 			)}
-			<div className="container mx-auto py-4 px-2 sm:px-4">
+			<div className="container mx-auto px-2 sm:px-4 py-4 sm:py-6">
 				<main
 					className={`min-h-screen flex flex-col relative z-10 ${
 						!isFullscreenMode ? 'lg:pl-16' : ''
-					} transition-all duration-300 ease-in-out overflow-y-auto`}
+					} transition-transform duration-300 ease-in-out overflow-y-auto`}
 				>
 					<Tabs defaultValue="form" value={activeTab} onValueChange={handleTabChange}>
-						<TabsContent value="form" className="mt-4">
+						<TabsContent value="form">
 							<MedicalForm ref={medicalFormRef} />
 						</TabsContent>
 
-						<TabsContent value="records" className="mt-4">
+						<TabsContent value="records">
 							<Suspense fallback={<LoadingFallback />}>
 								<RecordsSection
 									cases={casesData?.data || []}
@@ -250,15 +250,15 @@ function FormContent() {
 							</Suspense>
 						</TabsContent>
 
-						<TabsContent value="settings" className="mt-4">
+						<TabsContent value="settings">
 							<SettingsSection />
 						</TabsContent>
 
-						<TabsContent value="doctors" className="mt-4">
+						<TabsContent value="doctors">
 							<DoctorsSection />
 						</TabsContent>
 
-						<TabsContent value="patients" className="mt-4">
+						<TabsContent value="patients">
 							<PatientsPage />
 						</TabsContent>
 					</Tabs>
