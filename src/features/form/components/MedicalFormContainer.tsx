@@ -202,7 +202,7 @@ export function MedicalFormContainer() {
 
 	return (
 		<div className="animate-fade-in">
-			<div className="flex justify-between mb-4 sm:mb-6">
+			<div className="flex justify-between mb-3 sm:mb-4 md:mb-6">
 				<div>
 					<div className="flex items-center justify-between">
 						<div>
@@ -225,7 +225,7 @@ export function MedicalFormContainer() {
 				</div>
 			</div>
 			<Form {...form}>
-				<form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 sm:space-y-6">
+				<form onSubmit={form.handleSubmit(onSubmit)} className="space-y-3 sm:space-y-4 md:space-y-6">
 					<PatientDataSection control={formControl} inputStyles={inputStyles} />
 					<ServiceSection control={formControl} inputStyles={inputStyles} />
 					<PaymentSection

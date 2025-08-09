@@ -77,7 +77,7 @@ function MainHome() {
 
 	return (
 		<div className="overflow-x-hidden">
-			<main className="p-2 sm:p-5">
+			<main>
 				{/* Welcome Banner - Full width on mobile */}
 
 				{/* Mobile-first responsive grid */}

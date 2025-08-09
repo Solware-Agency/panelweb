@@ -92,7 +92,7 @@ const MyCases: React.FC = React.memo(() => {
 	}, [cases, selectedDoctors])
 
 	return (
-		<div className="p-3 sm:p-6">
+		<div>
 			{/* Page Title */}
 			<div className="mb-4 sm:mb-6">
 				<div>

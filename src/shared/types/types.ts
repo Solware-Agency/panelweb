@@ -454,6 +454,7 @@ export type Database = {
 					medical_record_id: string
 					user_id: string
 					user_email: string
+					user_display_name: string | null
 					field_name: string
 					field_label: string
 					old_value: string | null
@@ -466,6 +467,7 @@ export type Database = {
 					medical_record_id: string
 					user_id: string
 					user_email: string
+					user_display_name?: string | null
 					field_name: string
 					field_label: string
 					old_value?: string | null
@@ -478,6 +480,7 @@ export type Database = {
 					medical_record_id?: string
 					user_id?: string
 					user_email?: string
+					user_display_name?: string | null
 					field_name?: string
 					field_label?: string
 					old_value?: string | null

@@ -95,7 +95,7 @@ const PatientsPage: React.FC = React.memo(() => {
 	}, [recordsData])
 
 	return (
-		<div className="p-3 sm:p-4">
+		<div>
 			{/* Título y descripción arriba */}
 			<div className="mb-4 sm:mb-6">
 				<div>

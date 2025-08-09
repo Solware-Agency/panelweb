@@ -141,7 +141,7 @@ const UnifiedCaseModal: React.FC<CaseDetailPanelProps> = React.memo(({ case_, is
 
 			const { data, error } = await supabase
 				.from('change_logs')
-				.select('user_id, user_email')
+				.select('user_id, user_email, user_display_name')
 				.eq('medical_record_id', case_.id)
 				.order('changed_at', { ascending: true })
 				.limit(1)
@@ -153,12 +153,20 @@ const UnifiedCaseModal: React.FC<CaseDetailPanelProps> = React.memo(({ case_, is
 
 			if (data && data.length > 0) {
 				// Get the user profile to get the display name
+				const displayName = data[0].user_display_name
+				if (displayName) {
+					return {
+						id: data[0].user_id,
+						email: data[0].user_email,
+						displayName,
+					}
+				}
+				// fallback: fetch from profiles if not present
 				const { data: profileData } = await supabase
 					.from('profiles')
 					.select('display_name')
 					.eq('id', data[0].user_id)
 					.single()
-
 				return {
 					id: data[0].user_id,
 					email: data[0].user_email,

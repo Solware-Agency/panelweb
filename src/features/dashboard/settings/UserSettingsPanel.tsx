@@ -165,192 +165,192 @@ const UserSettingsPanel: React.FC = () => {
 		}
 	}
 
-	return (
-		<div className="p-3 sm:p-6">
-			<div className="mb-4 sm:mb-6">
-				<h1 className="text-2xl sm:text-3xl font-bold mb-2">Ajustes de Usuario</h1>
-				<div className="w-16 sm:w-24 h-1 bg-primary mt-2 rounded-full" />
-			</div>
+    return (
+			<div>
+				<div className="mb-4 sm:mb-6">
+					<h1 className="text-2xl sm:text-3xl font-bold mb-2">Ajustes de Usuario</h1>
+					<div className="w-16 sm:w-24 h-1 bg-primary mt-2 rounded-full" />
+				</div>
 
-			<div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-				{/* Profile Information */}
-				<Card className="hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 transition-transform duration-300 shadow-lg">
-					<div className="p-6">
-						<h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
-							<User className="text-primary" />
-							Información de Perfil
-						</h2>
+				<div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+					{/* Profile Information */}
+					<Card className="hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 transition-transform duration-300 shadow-lg">
+						<div className="p-6">
+							<h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
+								<User className="text-primary" />
+								Información de Perfil
+							</h2>
 
-						<form onSubmit={handleProfileUpdate} className="space-y-4">
-							<div>
-								<Label htmlFor="email">Correo Electrónico</Label>
-								<div className="relative">
-									<Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} disabled />
+							<form onSubmit={handleProfileUpdate} className="space-y-4">
+								<div>
+									<Label htmlFor="email">Correo Electrónico</Label>
+									<div className="relative">
+										<Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} disabled />
+									</div>
+									<p className="text-xs text-gray-500 mt-1">El correo electrónico no se puede cambiar.</p>
 								</div>
-								<p className="text-xs text-gray-500 mt-1">El correo electrónico no se puede cambiar.</p>
-							</div>
 
-							<div>
-								<Label htmlFor="displayName">Nombre para mostrar</Label>
-								<div className="relative">
-									<User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 dark:text-gray-400" />
+								<div>
+									<Label htmlFor="displayName">Nombre para mostrar</Label>
+									<div className="relative">
+										<User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 dark:text-gray-400" />
+										<Input
+											id="displayName"
+											type="text"
+											value={displayName}
+											onChange={(e) => setDisplayName(e.target.value)}
+											placeholder="Tu nombre para mostrar"
+										/>
+									</div>
+									<p className="text-xs text-gray-500 mt-1">Este nombre se mostrará en toda la aplicación.</p>
+								</div>
+
+								<div>
+									<Label htmlFor="phone">Teléfono</Label>
 									<Input
-										id="displayName"
-										type="text"
-										value={displayName}
-										onChange={(e) => setDisplayName(e.target.value)}
-										placeholder="Tu nombre para mostrar"
+										id="phone"
+										type="tel"
+										value={phone}
+										onChange={(e) => setPhone(e.target.value)}
+										placeholder="Ej: 0412-1234567 o +584121234567"
 									/>
+									<p className="text-xs text-gray-500 mt-1">Se usará para contacto interno.</p>
 								</div>
-								<p className="text-xs text-gray-500 mt-1">Este nombre se mostrará en toda la aplicación.</p>
-							</div>
 
-							<div>
-								<Label htmlFor="phone">Teléfono</Label>
-								<Input
-									id="phone"
-									type="tel"
-									value={phone}
-									onChange={(e) => setPhone(e.target.value)}
-									placeholder="Ej: 0412-1234567 o +584121234567"
+								{profileError && (
+									<div className="bg-red-100 dark:bg-red-900/30 border border-red-400 dark:border-red-800 text-red-700 dark:text-red-300 px-4 py-3 rounded flex items-center gap-2">
+										<AlertCircle className="h-5 w-5" />
+										<span>{profileError}</span>
+									</div>
+								)}
+
+								{profileUpdateSuccess && (
+									<div className="bg-green-100 dark:bg-green-900/30 border border-green-400 dark:border-green-800 text-green-700 dark:text-green-300 px-4 py-3 rounded flex items-center gap-2">
+										<CheckCircle className="h-5 w-5" />
+										<span>Perfil actualizado exitosamente</span>
+									</div>
+								)}
+
+								<Button type="submit" className="w-full bg-primary hover:bg-primary/80" disabled={isUpdatingProfile}>
+									{isUpdatingProfile ? (
+										<>
+											<Loader2 className="mr-2 h-4 w-4 animate-spin" />
+											Actualizando...
+										</>
+									) : (
+										<>
+											<Save className="mr-2 h-4 w-4" />
+											Guardar Cambios
+										</>
+									)}
+								</Button>
+							</form>
+						</div>
+					</Card>
+
+					{/* Password Update */}
+					<Card className="hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 transition-transform duration-300 shadow-lg">
+						<div className="p-6">
+							<h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
+								<Key className="text-primary" />
+								Cambiar Contraseña
+							</h2>
+
+							<form onSubmit={handlePasswordUpdate} className="space-y-4">
+								{/* Hidden username field for accessibility and password managers */}
+								<input
+									type="text"
+									name="username"
+									value={email}
+									autoComplete="username"
+									style={{ display: 'none' }}
+									readOnly
 								/>
-								<p className="text-xs text-gray-500 mt-1">Se usará para contacto interno.</p>
-							</div>
 
-							{profileError && (
-								<div className="bg-red-100 dark:bg-red-900/30 border border-red-400 dark:border-red-800 text-red-700 dark:text-red-300 px-4 py-3 rounded flex items-center gap-2">
-									<AlertCircle className="h-5 w-5" />
-									<span>{profileError}</span>
+								<div>
+									<Label htmlFor="newPassword">Nueva Contraseña</Label>
+									<div className="relative">
+										<Key className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 dark:text-gray-400" />
+										<Input
+											id="newPassword"
+											type={showNewPassword ? 'text' : 'password'}
+											value={newPassword}
+											onChange={(e) => setNewPassword(e.target.value)}
+											placeholder="Nueva contraseña"
+											autoComplete="new-password"
+										/>
+										<button
+											type="button"
+											onClick={() => setShowNewPassword(!showNewPassword)}
+											className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 dark:text-gray-400"
+										>
+											{showNewPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+										</button>
+									</div>
+									<p className="text-xs text-gray-500 mt-1">Debe tener al menos 6 caracteres para mayor seguridad.</p>
 								</div>
-							)}
 
-							{profileUpdateSuccess && (
-								<div className="bg-green-100 dark:bg-green-900/30 border border-green-400 dark:border-green-800 text-green-700 dark:text-green-300 px-4 py-3 rounded flex items-center gap-2">
-									<CheckCircle className="h-5 w-5" />
-									<span>Perfil actualizado exitosamente</span>
+								<div>
+									<Label htmlFor="confirmPassword">Confirmar Contraseña</Label>
+									<div className="relative">
+										<Key className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 dark:text-gray-400" />
+										<Input
+											id="confirmPassword"
+											type={showConfirmPassword ? 'text' : 'password'}
+											value={confirmPassword}
+											onChange={(e) => setConfirmPassword(e.target.value)}
+											placeholder="Confirmar nueva contraseña"
+											autoComplete="new-password"
+										/>
+										<button
+											type="button"
+											onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+											className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 dark:text-gray-400"
+										>
+											{showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+										</button>
+									</div>
+									<p className="text-xs text-gray-500 mt-1">Repite la contraseña para confirmar que es correcta.</p>
 								</div>
-							)}
 
-							<Button type="submit" className="w-full bg-primary hover:bg-primary/80" disabled={isUpdatingProfile}>
-								{isUpdatingProfile ? (
-									<>
-										<Loader2 className="mr-2 h-4 w-4 animate-spin" />
-										Actualizando...
-									</>
-								) : (
-									<>
-										<Save className="mr-2 h-4 w-4" />
-										Guardar Cambios
-									</>
+								{passwordError && (
+									<div className="bg-red-100 dark:bg-red-900/30 border border-red-400 dark:border-red-800 text-red-700 dark:text-red-300 px-4 py-3 rounded flex items-center gap-2">
+										<AlertCircle className="h-5 w-5" />
+										<span>{passwordError}</span>
+									</div>
 								)}
-							</Button>
-						</form>
-					</div>
-				</Card>
 
-				{/* Password Update */}
-				<Card className="hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 transition-transform duration-300 shadow-lg">
-					<div className="p-6">
-						<h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
-							<Key className="text-primary" />
-							Cambiar Contraseña
-						</h2>
-
-						<form onSubmit={handlePasswordUpdate} className="space-y-4">
-							{/* Hidden username field for accessibility and password managers */}
-							<input
-								type="text"
-								name="username"
-								value={email}
-								autoComplete="username"
-								style={{ display: 'none' }}
-								readOnly
-							/>
-
-							<div>
-								<Label htmlFor="newPassword">Nueva Contraseña</Label>
-								<div className="relative">
-									<Key className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 dark:text-gray-400" />
-									<Input
-										id="newPassword"
-										type={showNewPassword ? 'text' : 'password'}
-										value={newPassword}
-										onChange={(e) => setNewPassword(e.target.value)}
-										placeholder="Nueva contraseña"
-										autoComplete="new-password"
-									/>
-									<button
-										type="button"
-										onClick={() => setShowNewPassword(!showNewPassword)}
-										className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 dark:text-gray-400"
-									>
-										{showNewPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-									</button>
-								</div>
-								<p className="text-xs text-gray-500 mt-1">Debe tener al menos 6 caracteres para mayor seguridad.</p>
-							</div>
-
-							<div>
-								<Label htmlFor="confirmPassword">Confirmar Contraseña</Label>
-								<div className="relative">
-									<Key className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 dark:text-gray-400" />
-									<Input
-										id="confirmPassword"
-										type={showConfirmPassword ? 'text' : 'password'}
-										value={confirmPassword}
-										onChange={(e) => setConfirmPassword(e.target.value)}
-										placeholder="Confirmar nueva contraseña"
-										autoComplete="new-password"
-									/>
-									<button
-										type="button"
-										onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-										className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 dark:text-gray-400"
-									>
-										{showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-									</button>
-								</div>
-								<p className="text-xs text-gray-500 mt-1">Repite la contraseña para confirmar que es correcta.</p>
-							</div>
-
-							{passwordError && (
-								<div className="bg-red-100 dark:bg-red-900/30 border border-red-400 dark:border-red-800 text-red-700 dark:text-red-300 px-4 py-3 rounded flex items-center gap-2">
-									<AlertCircle className="h-5 w-5" />
-									<span>{passwordError}</span>
-								</div>
-							)}
-
-							{passwordUpdateSuccess && (
-								<div className="bg-green-100 dark:bg-green-900/30 border border-green-400 dark:border-green-800 text-green-700 dark:text-green-300 px-4 py-3 rounded flex items-center gap-2">
-									<CheckCircle className="h-5 w-5" />
-									<span>Contraseña actualizada exitosamente</span>
-								</div>
-							)}
-
-							<Button type="submit" className="w-full bg-primary hover:bg-primary/80" disabled={isUpdatingPassword}>
-								{isUpdatingPassword ? (
-									<>
-										<Loader2 className="mr-2 h-4 w-4 animate-spin" />
-										Actualizando...
-									</>
-								) : (
-									<>
-										<Save className="mr-2 h-4 w-4" />
-										Actualizar Contraseña
-									</>
+								{passwordUpdateSuccess && (
+									<div className="bg-green-100 dark:bg-green-900/30 border border-green-400 dark:border-green-800 text-green-700 dark:text-green-300 px-4 py-3 rounded flex items-center gap-2">
+										<CheckCircle className="h-5 w-5" />
+										<span>Contraseña actualizada exitosamente</span>
+									</div>
 								)}
-							</Button>
-						</form>
-					</div>
-				</Card>
-			</div>
 
-			{/* Session Timeout Settings */}
-			<div className="mt-6">
-				<SessionTimeoutSettings />
+								<Button type="submit" className="w-full bg-primary hover:bg-primary/80" disabled={isUpdatingPassword}>
+									{isUpdatingPassword ? (
+										<>
+											<Loader2 className="mr-2 h-4 w-4 animate-spin" />
+											Actualizando...
+										</>
+									) : (
+										<>
+											<Save className="mr-2 h-4 w-4" />
+											Actualizar Contraseña
+										</>
+									)}
+								</Button>
+							</form>
+						</div>
+					</Card>
+				</div>
+
+				{/* Session Timeout Settings */}
+				<div className="mt-6">
+					<SessionTimeoutSettings />
+				</div>
 			</div>
-		</div>
-	)
+		)
 }
 
 export default UserSettingsPanel
