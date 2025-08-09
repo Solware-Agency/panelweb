@@ -76,7 +76,7 @@ export const RecordsSection: React.FC<RecordsSectionProps> = ({
 
 		// If showPendingOnly is true, filter to show only incomplete cases
 		if (showPendingOnly) {
-			filtered = filtered.filter((c) => c.payment_status !== 'Completado')
+			filtered = filtered.filter((c) => c.payment_status !== 'Pagado')
 		}
 
 		// If an exam type is selected, filter by that type
@@ -132,7 +132,7 @@ export const RecordsSection: React.FC<RecordsSectionProps> = ({
 			(sum: number, record: MedicalRecord) => sum + (record.total_amount || 0),
 			0,
 		)
-		const completed = filteredCases.filter((record: MedicalRecord) => record.payment_status === 'Completado').length
+		const completed = filteredCases.filter((record: MedicalRecord) => record.payment_status === 'Pagado').length
 
 		// Count cases by exam type
 		const examTypes: Record<string, number> = {}
@@ -193,8 +193,8 @@ export const RecordsSection: React.FC<RecordsSectionProps> = ({
 
 			cases.forEach((record) => {
 				if (record.exam_type) {
-					// Solo contar casos pendientes (no completados)
-					const isPending = record.payment_status?.toLowerCase().trim() !== 'completado'
+					// Solo contar casos pendientes (no pagados)
+					const isPending = record.payment_status?.toLowerCase().trim() !== 'pagado'
 					if (!isPending) return
 
 					const originalType = record.exam_type

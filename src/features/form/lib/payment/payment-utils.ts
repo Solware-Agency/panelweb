@@ -29,13 +29,13 @@ export const calculatePaymentDetails = (
 	const totalAmountValue = totalAmount ? parseDecimalNumber(totalAmount) : 0
 
 	// If total amount is 0, consider payment complete
-	if (totalAmountValue === 0) {
-		return {
-			paymentStatus: 'Completado',
-			isPaymentComplete: true,
-			missingAmount: 0,
+    if (totalAmountValue === 0) {
+			return {
+				paymentStatus: 'Pagado',
+				isPaymentComplete: true,
+				missingAmount: 0,
+			}
 		}
-	}
 
 	const currentTotalPaid = payments.reduce((acc, payment) => {
 		const amount = payment.amount ? parseDecimalNumber(payment.amount) : 0
@@ -66,13 +66,13 @@ export const calculatePaymentDetails = (
 		// Consider payment complete if difference is less than 1 cent
 		isPaymentComplete = Math.abs(finalTotalPaid - totalAmountValue) < 0.01
 
-		if (isPaymentComplete) {
-			paymentStatus = 'Completado'
-			missingAmount = 0
-		} else if (missingAmount > 0.009) {
-			// If missing less than 1 cent, don't show anything
-			paymentStatus = `Incompleto`
-		}
+        if (isPaymentComplete) {
+					paymentStatus = 'Pagado'
+					missingAmount = 0
+				} else if (missingAmount > 0.009) {
+					// If missing less than 1 cent, don't show anything
+					paymentStatus = `Incompleto`
+				}
 	}
 
 	return { paymentStatus, isPaymentComplete, missingAmount }
@@ -95,13 +95,13 @@ export const calculatePaymentDetailsFromRecord = (record: {
 	const exchangeRate = record.exchange_rate || undefined
 
 	// If total amount is 0, consider payment complete
-	if (totalAmount === 0) {
-		return {
-			paymentStatus: 'Completado',
-			isPaymentComplete: true,
-			missingAmount: 0,
+    if (totalAmount === 0) {
+			return {
+				paymentStatus: 'Pagado',
+				isPaymentComplete: true,
+				missingAmount: 0,
+			}
 		}
-	}
 
 	// Convert medical record payment fields to payments array format
 	const payments = []

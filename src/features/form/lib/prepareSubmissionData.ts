@@ -8,9 +8,10 @@ export function prepareSubmissionData(data: FormValues, exchangeRate: number | u
 	const totalAmount = data.totalAmount || 0
 	const payments = data.payments || []
 	
-	const { paymentStatus, missingAmount } = totalAmount === 0 
-		? { paymentStatus: 'Completado', missingAmount: 0 } 
-		: calculatePaymentDetails(payments, totalAmount, exchangeRate)
+    const { paymentStatus, missingAmount } =
+			totalAmount === 0
+				? { paymentStatus: 'Pagado', missingAmount: 0 }
+				: calculatePaymentDetails(payments, totalAmount, exchangeRate)
 		
 	const paymentsColumns = mapPaymentsToColumns(payments)
 
@@ -34,7 +35,7 @@ export function prepareSubmissionData(data: FormValues, exchangeRate: number | u
 		comments: data.comments,
 		exchange_rate: exchangeRate || null,
 		payment_status: paymentStatus || 'N/A',
-		remaining: paymentStatus === 'Completado' ? 0 : missingAmount,
+		remaining: paymentStatus === 'Pagado' ? 0 : missingAmount,
 		...paymentsColumns,
 	}
 }

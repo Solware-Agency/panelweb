@@ -67,16 +67,16 @@ export const useDashboardStats = (selectedMonth?: Date, selectedYear?: number) =
 				const uniquePatientIds = new Set(validRecords.map((record) => record.id_number))
 				const uniquePatients = uniquePatientIds.size
 
-				// Calculate completed and incomplete cases
-				const completedCases = allRecords?.filter((record) => record.payment_status === 'Completado').length || 0
+				// Calcular casos pagados e incompletos
+				const completedCases = allRecords?.filter((record) => record.payment_status === 'Pagado').length || 0
 				const totalCases = allRecords?.length || 0
 				const incompleteCases = totalCases - completedCases
 
-				// Calculate pending payments (remaining amounts)
+				// Calcular pagos pendientes (montos restantes)
 				const pendingPayments =
 					allRecords?.reduce((sum, record) => {
-						// If payment status is not completed, add the remaining amount
-						if (record.payment_status !== 'Completado') {
+						// Si el estado de pago no es pagado, sumar el restante
+						if (record.payment_status !== 'Pagado') {
 							return sum + (record.remaining || record.total_amount || 0)
 						}
 						return sum + (record.remaining || 0)

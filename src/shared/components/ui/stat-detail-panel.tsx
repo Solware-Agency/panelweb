@@ -56,7 +56,7 @@ const StatDetailPanel: React.FC<StatDetailPanelProps> = ({
 			case 'totalCases':
 				return 'Total de Casos'
 			case 'completedCases':
-				return 'Casos Completados'
+				return 'Casos Pagados'
 			case 'incompleteCases':
 				return 'Casos Incompletos'
 			case 'pendingPayments':
@@ -264,7 +264,7 @@ const StatDetailPanel: React.FC<StatDetailPanelProps> = ({
 									<p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{stats.totalCases}</p>
 								</div>
 								<div className="bg-green-50 dark:bg-green-900/20 p-4 rounded-lg border border-green-200 dark:border-green-800">
-									<p className="text-sm text-gray-500 dark:text-gray-400">Casos Completados</p>
+									<p className="text-sm text-gray-500 dark:text-gray-400">Casos Pagados</p>
 									<p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{stats.completedCases}</p>
 								</div>
 								<div className="bg-orange-50 dark:bg-orange-900/20 p-4 rounded-lg border border-orange-200 dark:border-orange-800">
@@ -337,11 +337,11 @@ const StatDetailPanel: React.FC<StatDetailPanelProps> = ({
 					<div className="space-y-6">
 						<div className="bg-white/60 dark:bg-background/30 backdrop-blur-[5px] rounded-lg p-6 border border-input">
 							<div>
-								<h3 className="text-xl font-bold mb-4 text-gray-900 dark:text-gray-100">Casos Completados</h3>
+								<h3 className="text-xl font-bold mb-4 text-gray-900 dark:text-gray-100">Casos Pagados</h3>
 							</div>
 							<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 								<div className="bg-green-50 dark:bg-green-900/20 p-4 rounded-lg border border-green-200 dark:border-green-800">
-									<p className="text-sm text-gray-500 dark:text-gray-400">Total Completados</p>
+									<p className="text-sm text-gray-500 dark:text-gray-400">Total Pagados</p>
 									<p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{stats.completedCases}</p>
 								</div>
 								<div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg border border-blue-200 dark:border-blue-800">
@@ -362,7 +362,7 @@ const StatDetailPanel: React.FC<StatDetailPanelProps> = ({
 									<div className="flex items-center justify-between mb-2">
 										<div className="flex items-center gap-2">
 											<CheckCircle className="w-4 h-4 text-green-600 dark:text-green-400" />
-											<span className="text-sm font-medium text-gray-600 dark:text-gray-400">Casos Completados</span>
+											<span className="text-sm font-medium text-gray-600 dark:text-gray-400">Casos Pagados</span>
 										</div>
 										<span className="text-sm font-bold text-green-700 dark:text-green-300">
 											{stats.totalCases > 0 ? ((stats.completedCases / stats.totalCases) * 100).toFixed(1) : 0}%
@@ -401,9 +401,7 @@ const StatDetailPanel: React.FC<StatDetailPanelProps> = ({
 						</div>
 
 						<div className="bg-white/60 dark:bg-background/30 backdrop-blur-[5px] rounded-lg p-6 border border-input">
-							<h3 className="text-xl font-bold mb-4 text-gray-900 dark:text-gray-100">
-								Ingresos por Casos Completados
-							</h3>
+							<h3 className="text-xl font-bold mb-4 text-gray-900 dark:text-gray-100">Ingresos por Casos Pagados</h3>
 							<div className="flex items-center justify-between">
 								<div className="flex items-center gap-3">
 									<div className="p-3 bg-green-100 dark:bg-green-900/30 rounded-lg">
@@ -469,7 +467,7 @@ const StatDetailPanel: React.FC<StatDetailPanelProps> = ({
 									<div className="flex items-center justify-between mb-2">
 										<div className="flex items-center gap-2">
 											<CheckCircle className="w-4 h-4 text-green-600 dark:text-green-400" />
-											<span className="text-sm font-medium text-gray-600 dark:text-gray-400">Casos Completados</span>
+											<span className="text-sm font-medium text-gray-600 dark:text-gray-400">Casos Pagados</span>
 										</div>
 										<span className="text-sm font-bold text-green-700 dark:text-green-300">
 											{stats.totalCases > 0 ? ((stats.completedCases / stats.totalCases) * 100).toFixed(1) : 0}%
@@ -526,7 +524,8 @@ const StatDetailPanel: React.FC<StatDetailPanelProps> = ({
 									<div className="flex items-center justify-between mb-2">
 										<span className="text-sm font-medium text-gray-600 dark:text-gray-400">Pagos Pendientes</span>
 										<span className="text-sm font-bold text-red-700 dark:text-red-300">
-											{stats.monthlyRevenue > 0 ? ((stats.pendingPayments / stats.monthlyRevenue) * 100).toFixed(1) : 0}%
+											{stats.monthlyRevenue > 0 ? ((stats.pendingPayments / stats.monthlyRevenue) * 100).toFixed(1) : 0}
+											%
 										</span>
 									</div>
 									<div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2.5">
@@ -534,7 +533,9 @@ const StatDetailPanel: React.FC<StatDetailPanelProps> = ({
 											className="bg-red-500 h-2.5 rounded-full"
 											style={{
 												width: `${
-													stats.monthlyRevenue > 0 ? Math.min((stats.pendingPayments / stats.monthlyRevenue) * 100, 100) : 0
+													stats.monthlyRevenue > 0
+														? Math.min((stats.pendingPayments / stats.monthlyRevenue) * 100, 100)
+														: 0
 												}%`,
 											}}
 										></div>
@@ -604,7 +605,9 @@ const StatDetailPanel: React.FC<StatDetailPanelProps> = ({
 
 						<div className="bg-white/60 dark:bg-background/30 backdrop-blur-[5px] rounded-lg p-6 border border-input">
 							<div>
-								<h3 className="text-xl font-bold mb-4 text-gray-900 dark:text-gray-100">Tendencia de Nuevos Pacientes</h3>
+								<h3 className="text-xl font-bold mb-4 text-gray-900 dark:text-gray-100">
+									Tendencia de Nuevos Pacientes
+								</h3>
 							</div>
 							<div className="h-40 flex items-end justify-between gap-1">
 								{stats.salesTrendByMonth &&
@@ -794,8 +797,8 @@ const StatDetailPanel: React.FC<StatDetailPanelProps> = ({
 												<div className="flex justify-between text-xs text-gray-500 dark:text-gray-400 mt-1">
 													<span>{exam.count} casos</span>
 													<span>
-														{stats.monthlyRevenue > 0 ? ((exam.revenue / stats.monthlyRevenue) * 100).toFixed(1) : 0}% del
-														total del mes
+														{stats.monthlyRevenue > 0 ? ((exam.revenue / stats.monthlyRevenue) * 100).toFixed(1) : 0}%
+														del total del mes
 													</span>
 												</div>
 											</div>

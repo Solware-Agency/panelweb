@@ -377,10 +377,10 @@ const ReactionsTable: React.FC = () => {
 			<div className="mt-4 text-sm text-gray-600 dark:text-gray-400">
 				{immunoRequests ? (
 					<>
-						{immunoRequests.filter((r) => r.pagado).length} de {immunoRequests.length} pagos completados
+						{immunoRequests.filter((r) => r.pagado).length} de {immunoRequests.length} pagos pagados
 					</>
 				) : (
-					'0 de 0 pagos completados'
+					'0 de 0 pagos pagados'
 				)}
 			</div>
 		</div>
