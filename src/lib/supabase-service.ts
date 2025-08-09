@@ -560,13 +560,13 @@ export const getMedicalRecordsStats = async () => {
 
 		if (error) return { data: null, error }
 
-		const stats = {
-			total: data.length,
-			totalAmount: data.reduce((sum, record) => sum + record.total_amount, 0),
-			completed: data.filter((record) => record.payment_status === 'Completado').length,
-			pending: data.filter((record) => record.payment_status === 'Pendiente').length,
-			incomplete: data.filter((record) => record.payment_status === 'Incompleto').length,
-		}
+        const stats = {
+					total: data.length,
+					totalAmount: data.reduce((sum, record) => sum + record.total_amount, 0),
+					completed: data.filter((record) => record.payment_status === 'Pagado').length,
+					pending: data.filter((record) => record.payment_status === 'Pendiente').length,
+					incomplete: data.filter((record) => record.payment_status === 'Incompleto').length,
+				}
 
 		return { data: stats, error: null }
 	} catch (error) {

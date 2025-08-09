@@ -119,9 +119,9 @@ const StatsPage: React.FC = () => {
 						isSelected={selectedStat === 'uniquePatients' && isDetailPanelOpen}
 					/>
 
-					{/* Completed Projects Card */}
+					{/* Paid Cases Card */}
 					<StatCard
-						title="Casos Completados"
+						title="Casos Pagados"
 						value={isLoading ? '...' : stats?.completedCases || 0}
 						description={`Total casos: ${isLoading ? '...' : stats?.totalCases || 0}`}
 						icon={<ShoppingCart className="w-5 h-5 sm:w-6 sm:h-6 text-purple-600 dark:text-purple-400" />}

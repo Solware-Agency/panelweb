@@ -117,7 +117,7 @@ const MainCases: React.FC = React.memo(() => {
 
 		// Filtro de casos pendientes
 		if (showPendingOnly) {
-			filtered = filtered.filter((c) => c.payment_status !== 'Completado')
+			filtered = filtered.filter((c) => c.payment_status !== 'Pagado')
 		}
 
 		// Filtro de PDF disponibles
@@ -167,7 +167,7 @@ const MainCases: React.FC = React.memo(() => {
 
 		const total = cases.length
 		const totalAmount = cases.reduce((sum: number, record: MedicalRecord) => sum + (record.total_amount || 0), 0)
-		const completed = cases.filter((record: MedicalRecord) => record.payment_status === 'Completado').length
+		const completed = cases.filter((record: MedicalRecord) => record.payment_status === 'Pagado').length
 
 		return { total, totalAmount, completed }
 	}, [cases])
@@ -202,8 +202,8 @@ const MainCases: React.FC = React.memo(() => {
 		if (cases) {
 			cases.forEach((record) => {
 				if (record.exam_type) {
-					// Solo contar casos pendientes (no completados)
-					const isPending = record.payment_status?.toLowerCase().trim() !== 'completado'
+					// Solo contar casos pendientes (no pagados)
+					const isPending = record.payment_status?.toLowerCase().trim() !== 'pagado'
 					if (!isPending) return
 
 					const type = record.exam_type.toLowerCase().trim()

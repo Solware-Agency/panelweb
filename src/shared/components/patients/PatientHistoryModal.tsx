@@ -93,16 +93,19 @@ const PatientHistoryModal: React.FC<PatientHistoryModalProps> = ({ isOpen, onClo
 	}, [data?.data, searchTerm])
 
 	// Get status color
-	const getStatusColor = (status: string) => {
-		switch (status) {
-			case 'Completado':
-				return 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300'
-			case 'Pendiente':
-				return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300'
-			default:
-				return 'bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-300'
+    const getStatusColor = (status: string) => {
+			const normalized = (status || '').toString().trim().toLowerCase()
+			switch (normalized) {
+				case 'pagado':
+				case 'completado':
+					return 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300'
+				case 'pendiente':
+					return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300'
+				case 'incompleto':
+				default:
+					return 'bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-300'
+			}
 		}
-	}
 
 	if (!patient) return null
 
