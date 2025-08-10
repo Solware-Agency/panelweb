@@ -51,6 +51,7 @@ const MainCases: React.FC = React.memo(() => {
 	const [showPendingOnly, setShowPendingOnly] = useState(false)
 	const [showPdfReadyOnly, setShowPdfReadyOnly] = useState(false)
 	const [selectedExamType, setSelectedExamType] = useState<string | null>(null)
+  const [selectedDocAprobado, setSelectedDocAprobado] = useState<'faltante' | 'pendiente' | 'aprobado' | null>(null)
 
 	// Query for refreshing data - optimized to prevent unnecessary refetches
 	const casesQueryResult = useQuery({
@@ -94,6 +95,7 @@ const MainCases: React.FC = React.memo(() => {
 		setShowPdfReadyOnly(!showPdfReadyOnly)
 		setShowPendingOnly(false)
 		setSelectedExamType(null)
+		setSelectedDocAprobado(null)
 	}, [showPdfReadyOnly])
 
 	const handleExamTypeFilter = useCallback(
@@ -104,9 +106,25 @@ const MainCases: React.FC = React.memo(() => {
 				setSelectedExamType(examType)
 				setShowPendingOnly(false)
 				setShowPdfReadyOnly(false)
+				setSelectedDocAprobado(null)
 			}
 		},
 		[selectedExamType],
+	)
+
+	// Toggle filtro por estado de documento aprobado (faltante | pendiente | aprobado)
+	const handleDocAprobadoFilter = useCallback(
+		(status: 'faltante' | 'pendiente' | 'aprobado') => {
+			if (selectedDocAprobado === status) {
+				setSelectedDocAprobado(null)
+			} else {
+				setSelectedDocAprobado(status)
+				setShowPendingOnly(false)
+				setShowPdfReadyOnly(false)
+				setSelectedExamType(null)
+			}
+		},
+		[selectedDocAprobado],
 	)
 
 	// Filtrar casos basado en los filtros activos
@@ -156,8 +174,17 @@ const MainCases: React.FC = React.memo(() => {
 			})
 		}
 
+		// Filtro por estado de documento aprobado (doc_aprobado)
+		if (selectedDocAprobado) {
+			filtered = filtered.filter((c) => {
+				const raw = c.doc_aprobado as string | undefined | null
+				const status = (raw ? String(raw) : 'faltante').toLowerCase().trim()
+				return status === selectedDocAprobado
+			})
+		}
+
 		return filtered
-	}, [cases, showPendingOnly, showPdfReadyOnly, selectedExamType])
+	}, [cases, showPendingOnly, showPdfReadyOnly, selectedExamType, selectedDocAprobado])
 
 	// Calculate statistics
 	const stats = useMemo(() => {
@@ -228,6 +255,27 @@ const MainCases: React.FC = React.memo(() => {
 		return counts
 	}, [cases])
 
+	// Conteos por estado de documento (doc_aprobado)
+	const docAprobadoCounts = useMemo(() => {
+		const counts: Record<'faltante' | 'pendiente' | 'aprobado', number> = {
+			faltante: 0,
+			pendiente: 0,
+			aprobado: 0,
+		}
+
+		if (cases) {
+			cases.forEach((record) => {
+				const raw = record.doc_aprobado as string | undefined | null
+				const status = (raw ? String(raw) : 'faltante').toLowerCase().trim()
+				if (status === 'faltante' || status === 'pendiente' || status === 'aprobado') {
+					counts[status] += 1
+				}
+			})
+		}
+
+		return counts
+	}, [cases])
+
 	return (
 		<div>
 			{/* Page Title */}
@@ -242,7 +290,7 @@ const MainCases: React.FC = React.memo(() => {
 			</div>
 
 			{/* Statistics cards */}
-			<div className="grid grid-cols-1 md:grid-cols-3 gap-5 w-full mb-4 sm:mb-6">
+			<div className="grid grid-cols-1 md:grid-cols-4 gap-5 w-full mb-4 sm:mb-6">
 				{/* Combined Pending Cases and PDF Card */}
 				<Card className="hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 group transition-transform duration-300">
 					<CardContent className="p-4">
@@ -387,6 +435,71 @@ const MainCases: React.FC = React.memo(() => {
 									<span className="text-xs font-medium">Inmuno</span>
 								</div>
 								<span className="text-sm font-bold">{examTypeCounts['inmunohistoquimica'] || 0}</span>
+							</button>
+						</div>
+					</CardContent>
+				</Card>
+
+				{/* Document Status Card (doc_aprobado) */}
+				<Card className="hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 group transition-transform duration-300">
+					<CardContent className="p-4">
+						<div className="flex items-center gap-3 mb-3">
+							<div className="p-2 rounded-lg bg-teal-100 dark:bg-teal-900/30">
+								<FileText className="h-5 w-5 text-teal-600 dark:text-teal-400" />
+							</div>
+							<div>
+								<p className="text-xs font-medium text-muted-foreground">Estatus de Documento</p>
+								<p className="text-xs text-muted-foreground">Faltante / Pendiente / Aprobado</p>
+							</div>
+						</div>
+
+						<div className="space-y-2">
+							{/* Faltante */}
+							<button
+								className={`w-full flex items-center justify-between p-2 rounded-lg border transition-transform duration-300 cursor-pointer hover:bg-accent ${
+									selectedDocAprobado === 'faltante'
+										? 'border-primary bg-primary/10'
+										: 'border-border hover:border-primary/50'
+								}`}
+								onClick={() => handleDocAprobadoFilter('faltante')}
+							>
+								<div className="flex items-center gap-2">
+									<FileText className="h-3 w-3 text-red-500" />
+									<span className="text-xs font-medium">Faltante</span>
+								</div>
+								<span className="text-sm font-bold">{docAprobadoCounts['faltante'] || 0}</span>
+							</button>
+
+							{/* Pendiente */}
+							<button
+								className={`w-full flex items-center justify-between p-2 rounded-lg border transition-transform duration-300 cursor-pointer hover:bg-accent ${
+									selectedDocAprobado === 'pendiente'
+										? 'border-primary bg-primary/10'
+										: 'border-border hover:border-primary/50'
+								}`}
+								onClick={() => handleDocAprobadoFilter('pendiente')}
+							>
+								<div className="flex items-center gap-2">
+									<FileText className="h-3 w-3 text-yellow-500" />
+									<span className="text-xs font-medium">Pendiente</span>
+								</div>
+								<span className="text-sm font-bold">{docAprobadoCounts['pendiente'] || 0}</span>
+							</button>
+
+							{/* Aprobado */}
+							<button
+								className={`w-full flex items-center justify-between p-2 rounded-lg border transition-transform duration-300 cursor-pointer hover:bg-accent ${
+									selectedDocAprobado === 'aprobado'
+										? 'border-primary bg-primary/10'
+										: 'border-border hover:border-primary/50'
+								}`}
+								onClick={() => handleDocAprobadoFilter('aprobado')}
+							>
+								<div className="flex items-center gap-2">
+									<FileText className="h-3 w-3 text-green-500" />
+									<span className="text-xs font-medium">Aprobado</span>
+								</div>
+								<span className="text-sm font-bold">{docAprobadoCounts['aprobado'] || 0}</span>
 							</button>
 						</div>
 					</CardContent>
