@@ -175,6 +175,7 @@ export type Database = {
 					googledocs_url: string | null
 					informepdf_url: string | null
 					informe_qr: string | null
+					doc_aprobado?: 'faltante' | 'pendiente' | 'aprobado'
 				}
 				Insert: {
 					id?: string
@@ -232,6 +233,7 @@ export type Database = {
 					googledocs_url?: string | null
 					informepdf_url?: string | null
 					informe_qr?: string | null
+					doc_aprobado?: 'faltante' | 'pendiente' | 'aprobado'
 				}
 				Update: {
 					id?: string
@@ -289,6 +291,7 @@ export type Database = {
 					googledocs_url?: string | null
 					informepdf_url?: string | null
 					informe_qr?: string | null
+					doc_aprobado?: 'faltante' | 'pendiente' | 'aprobado'
 				}
 				Relationships: []
 			}

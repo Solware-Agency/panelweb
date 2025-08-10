@@ -422,12 +422,14 @@ const UnifiedCaseModal: React.FC<CaseDetailPanelProps> = React.memo(({ case_, is
 				// Skip if value hasn't changed
 				if (value === currentCase[key as keyof MedicalRecord]) continue
 
-				// Add to changes array
+				// Add to changes array (coerce undefined to null to satisfy types)
+				const oldVal = currentCase[key as keyof MedicalRecord]
+				const newVal = value as string | number | boolean | null | undefined
 				changes.push({
 					field: key,
 					fieldLabel: getFieldLabel(key),
-					oldValue: currentCase[key as keyof MedicalRecord],
-					newValue: value,
+					oldValue: (oldVal ?? null) as string | number | boolean | null,
+					newValue: (newVal ?? null) as string | number | boolean | null,
 				})
 			}
 

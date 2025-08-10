@@ -1,11 +1,15 @@
-import React, { useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
+import type { RealtimePostgresChangesPayload } from '@supabase/supabase-js'
+import type { Tables } from '@shared/types/types'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Button } from '@shared/components/ui/button'
 import { supabase } from '@lib/supabase/config'
-import { X, User, ArrowLeft, ArrowRight, Sparkles, Heart, Stethoscope, Microscope } from 'lucide-react'
+import { X, User, ArrowLeft, ArrowRight, Sparkles, Heart, Shredder, FileCheck, Download } from 'lucide-react'
+import { markCaseAsPending, approveCaseDocument } from '@lib/supabase/services/cases'
 import { useToast } from '@shared/hooks/use-toast'
 import { useBodyScrollLock } from '@shared/hooks/useBodyScrollLock'
 import { useGlobalOverlayOpen } from '@shared/hooks/useGlobalOverlayOpen'
+import { useUserProfile } from '@shared/hooks/useUserProfile'
 
 interface MedicalRecord {
 	id?: string
@@ -22,6 +26,7 @@ interface MedicalRecord {
 	informe_qr?: string | null
 	code?: string | null
 	pdf_en_ready?: boolean | null
+	doc_aprobado?: 'faltante' | 'pendiente' | 'aprobado'
 }
 
 interface StepsCaseModalProps {
@@ -31,7 +36,7 @@ interface StepsCaseModalProps {
 	onSuccess: () => void
 }
 
-const steps = [
+const baseSteps = [
 	{
 		id: 'patient',
 		title: 'Datos',
@@ -39,22 +44,69 @@ const steps = [
 		description: 'Generar Documento',
 	},
 	{
-		id: 'clinical',
-		title: 'Generar',
-		icon: Stethoscope,
-		description: 'Exportar Documento',
+		id: 'complete',
+		title: 'Completar',
+		icon: Shredder,
+		description: 'Completar Documento',
 	},
 ]
+
+const pdfStep = {
+	id: 'pdf',
+	title: 'PDF',
+	icon: Download,
+	description: 'Exportar Documento',
+}
 
 const StepsCaseModal: React.FC<StepsCaseModalProps> = ({ case_, isOpen, onClose, onSuccess }) => {
 	const [activeStep, setActiveStep] = useState(0)
 	const [isCompleting, setIsCompleting] = useState(false)
 	const [isSaving, setIsSaving] = useState(false)
 	const { toast } = useToast()
-    useBodyScrollLock(isOpen)
-    useGlobalOverlayOpen(isOpen)
+	const { profile } = useUserProfile()
+	useBodyScrollLock(isOpen)
+	useGlobalOverlayOpen(isOpen)
+
+	const isOwner = profile?.role === 'owner'
+
+	const [docAprobado, setDocAprobado] = useState<'faltante' | 'pendiente' | 'aprobado'>(
+		case_?.doc_aprobado ?? 'faltante',
+	)
+	const [docUrl, setDocUrl] = useState<string | null>(case_?.googledocs_url ?? null)
+
+	// Sincronizar estado inicial al abrir el modal
+	useEffect(() => {
+		if (!isOpen || !case_?.id) return
+		;(async () => {
+			const { data, error } = await supabase
+				.from('medical_records_clean')
+				.select('doc_aprobado, googledocs_url')
+				.eq('id', case_.id as string)
+				.single<Pick<MedicalRecord, 'doc_aprobado' | 'googledocs_url'>>()
+			if (!error && data) {
+				if (data.doc_aprobado) setDocAprobado(data.doc_aprobado)
+				if (typeof data.googledocs_url === 'string') setDocUrl(data.googledocs_url)
+			}
+		})()
+	}, [isOpen, case_?.id])
+
+	// Construir los pasos dinámicamente: si es owner, agregamos "Aprobar" antes del PDF; el PDF siempre es el último
+	const computedSteps = useMemo(() => {
+		const stepsList = [...baseSteps]
+		if (isOwner) {
+			stepsList.push({
+				id: 'approve',
+				title: 'Aprobar',
+				icon: FileCheck,
+				description: 'Aprobar Documento',
+			})
+		}
+		stepsList.push(pdfStep)
+		return stepsList
+	}, [isOwner])
+
 	const handleNext = () => {
-		if (activeStep < steps.length - 1) {
+		if (activeStep < computedSteps.length - 1) {
 			setActiveStep((prev) => prev + 1)
 		} else {
 			handleFinish()
@@ -75,6 +127,27 @@ const StepsCaseModal: React.FC<StepsCaseModalProps> = ({ case_, isOpen, onClose,
 		setIsCompleting(false)
 		onClose()
 	}
+
+	// Realtime para sincronizar doc_aprobado y googledocs_url
+	useEffect(() => {
+		if (!case_?.id) return
+		const channel = supabase
+			.channel(`rt-doc-aprobado-${case_.id as string}`)
+			.on(
+				'postgres_changes',
+				{ event: 'UPDATE', schema: 'public', table: 'medical_records_clean', filter: `id=eq.${case_.id}` },
+				(payload: RealtimePostgresChangesPayload<Tables<'medical_records_clean'>>) => {
+					const next = (payload?.new as Tables<'medical_records_clean'>) ?? null
+					if (next?.doc_aprobado) setDocAprobado(next.doc_aprobado)
+					if (typeof next?.googledocs_url === 'string') setDocUrl(next.googledocs_url)
+				},
+			)
+			.subscribe()
+
+		return () => {
+			supabase.removeChannel(channel)
+		}
+	}, [case_?.id])
 
 	const handleGenerateCaseAndOpenDoc = async () => {
 		if (!case_?.id) {
@@ -108,6 +181,7 @@ const StepsCaseModal: React.FC<StepsCaseModalProps> = ({ case_, isOpen, onClose,
 
 			if (initialData?.googledocs_url) {
 				console.log('[1] Documento ya existe, abriendo:', initialData.googledocs_url)
+				setDocUrl(initialData.googledocs_url)
 				window.open(initialData.googledocs_url, '_blank')
 				// Ejecutar handleNext automáticamente después de abrir el documento
 				setTimeout(() => {
@@ -168,6 +242,7 @@ const StepsCaseModal: React.FC<StepsCaseModalProps> = ({ case_, isOpen, onClose,
 
 			try {
 				window.open(foundURL as string, '_blank')
+				setDocUrl(foundURL as string)
 				// Ejecutar handleNext automáticamente después de abrir el documento
 				setTimeout(() => {
 					handleNext()
@@ -187,6 +262,71 @@ const StepsCaseModal: React.FC<StepsCaseModalProps> = ({ case_, isOpen, onClose,
 				description: 'Ocurrió un problema al abrir el documento.',
 				variant: 'destructive',
 			})
+		} finally {
+			setIsSaving(false)
+		}
+	}
+
+	const handleMarkAsCompleted = async () => {
+		if (!case_?.id) {
+			toast({ title: '❌ Error', description: 'No se encontró el ID del caso.', variant: 'destructive' })
+			return
+		}
+		if (!docUrl) {
+			toast({
+				title: '❌ Documento faltante',
+				description: 'Primero genera/abre el documento en el paso 1.',
+				variant: 'destructive',
+			})
+			return
+		}
+		try {
+			setIsSaving(true)
+			const { error } = await markCaseAsPending(case_.id)
+			if (error) throw error
+			setDocAprobado('pendiente')
+			toast({ title: '✅ Marcado como completado', description: 'Documento listo para revisión.' })
+		} catch (err) {
+			console.error('Error marcando como completado:', err)
+			toast({ title: '❌ Error', description: 'No se pudo marcar como completado.', variant: 'destructive' })
+		} finally {
+			setIsSaving(false)
+		}
+	}
+
+	const handleApprove = async () => {
+		if (!case_?.id) {
+			toast({ title: '❌ Error', description: 'No se encontró el ID del caso.', variant: 'destructive' })
+			return
+		}
+		try {
+			setIsSaving(true)
+			const { error } = await approveCaseDocument(case_.id)
+			if (error) throw error
+			setDocAprobado('aprobado')
+			toast({ title: '✅ Documento aprobado', description: 'Ya puedes descargar el PDF.' })
+		} catch (err) {
+			console.error('Error aprobando documento:', err)
+			toast({ title: '❌ Error', description: 'No se pudo aprobar el documento.', variant: 'destructive' })
+		} finally {
+			setIsSaving(false)
+		}
+	}
+
+	const handleRevertToPending = async () => {
+		if (!case_?.id) {
+			toast({ title: '❌ Error', description: 'No se encontró el ID del caso.', variant: 'destructive' })
+			return
+		}
+		try {
+			setIsSaving(true)
+			const { error } = await markCaseAsPending(case_.id)
+			if (error) throw error
+			setDocAprobado('pendiente')
+			toast({ title: '↩️ Devuelto a pendiente', description: 'El documento vuelve a estado pendiente.' })
+		} catch (err) {
+			console.error('Error devolviendo a pendiente:', err)
+			toast({ title: '❌ Error', description: 'No se pudo devolver a pendiente.', variant: 'destructive' })
 		} finally {
 			setIsSaving(false)
 		}
@@ -340,8 +480,9 @@ const StepsCaseModal: React.FC<StepsCaseModalProps> = ({ case_, isOpen, onClose,
 	}
 
 	const renderStepContent = () => {
-		switch (activeStep) {
-			case 0:
+		const currentStepId = computedSteps[activeStep]?.id
+		switch (currentStepId) {
+			case 'patient':
 				return (
 					<motion.div
 						initial={{ opacity: 0, y: 20 }}
@@ -362,7 +503,7 @@ const StepsCaseModal: React.FC<StepsCaseModalProps> = ({ case_, isOpen, onClose,
 										{isSaving ? (
 											<div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
 										) : (
-											<Microscope className="w-4 h-4 mr-2" />
+											<User className="w-4 h-4 mr-2" />
 										)}
 										Rellenar los Datos
 									</Button>
@@ -378,7 +519,110 @@ const StepsCaseModal: React.FC<StepsCaseModalProps> = ({ case_, isOpen, onClose,
 					</motion.div>
 				)
 
-			case 1:
+			case 'complete':
+				return (
+					<motion.div
+						initial={{ opacity: 0, y: 20 }}
+						animate={{ opacity: 1, y: 0 }}
+						exit={{ opacity: 0, y: -20 }}
+						className="space-y-4"
+					>
+						<div className="grid gap-4">
+							{/* Activa el nodo principal de n8n */}
+							<div className="bg-gradient-to-br from-teal-50 to-cyan-50 dark:from-teal-900/20 dark:to-cyan-900/20 p-4 rounded-lg border border-teal-200 dark:border-teal-800">
+								<div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
+									<Button
+										type="button"
+										className="flex-1 bg-primary hover:bg-primary/80"
+										onClick={handleMarkAsCompleted}
+										disabled={isSaving || docAprobado !== 'faltante' || !docUrl}
+									>
+										{isSaving ? (
+											<div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+										) : (
+											<Shredder className="w-4 h-4 mr-2" />
+										)}
+										Marcar como Completado
+									</Button>
+								</div>
+							</div>
+							<div className="bg-gradient-to-br from-teal-50 to-cyan-50 dark:from-teal-900/20 dark:to-cyan-900/20 p-4 rounded-lg border border-teal-200 dark:border-teal-800">
+								<p className="text-teal-400 text-sm">
+									Para completar este paso, haz clic en el botón de arriba para marcar el documento como completado y
+									espera por la aprobacion para continuar con el siguiente paso.
+								</p>
+							</div>
+						</div>
+					</motion.div>
+				)
+
+			case 'approve':
+				return (
+					<motion.div
+						initial={{ opacity: 0, y: 20 }}
+						animate={{ opacity: 1, y: 0 }}
+						exit={{ opacity: 0, y: -20 }}
+						className="space-y-4"
+					>
+						<div className="grid gap-4">
+							{/* Paso exclusivo para OWNER: aprobar documento */}
+							<div className="bg-gradient-to-br from-teal-50 to-cyan-50 dark:from-teal-900/20 dark:to-cyan-900/20 p-4 rounded-lg border border-teal-200 dark:border-teal-800">
+								<div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
+									{docUrl && (
+										<Button
+											type="button"
+											className="flex-1 bg-primary hover:bg-primary/80"
+											onClick={() => window.open(docUrl, '_blank')}
+											disabled={isSaving}
+										>
+											{isSaving ? (
+												<div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+											) : (
+												<User className="w-4 h-4 mr-2" />
+											)}
+											Revisar documento
+										</Button>
+									)}
+									<Button
+										type="button"
+										className="flex-1 bg-primary hover:bg-primary/80"
+										onClick={handleApprove}
+										disabled={isSaving || docAprobado !== 'pendiente'}
+									>
+										{isSaving ? (
+											<div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+										) : (
+											<FileCheck className="w-4 h-4 mr-2" />
+										)}
+										Marcar como Aprobado
+									</Button>
+									<Button
+										type="button"
+										className="flex-1 bg-primary hover:bg-primary/80"
+										onClick={handleRevertToPending}
+										disabled={isSaving || docAprobado !== 'aprobado'}
+									>
+										{isSaving ? (
+											<div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+										) : (
+											<Shredder className="w-4 h-4 mr-2" />
+										)}
+										Devolver a Pendiente
+									</Button>
+								</div>
+							</div>
+							<div className="bg-gradient-to-br from-teal-50 to-cyan-50 dark:from-teal-900/20 dark:to-cyan-900/20 p-4 rounded-lg border border-teal-200 dark:border-teal-800">
+								<p className="text-teal-400 text-sm">
+									{docAprobado === 'faltante'
+										? 'Esperando que se complete el documento'
+										: 'Para completar este paso, revisa el documento y marca como aprobado para habilitar la descarga del PDF.'}
+								</p>
+							</div>
+						</div>
+					</motion.div>
+				)
+
+			case 'pdf':
 				return (
 					<motion.div
 						initial={{ opacity: 0, y: 20 }}
@@ -394,7 +638,7 @@ const StepsCaseModal: React.FC<StepsCaseModalProps> = ({ case_, isOpen, onClose,
 									variant="outline"
 									onClick={handleTransformToPDF}
 									className="flex-1"
-									disabled={isSaving || !case_?.googledocs_url}
+									disabled={isSaving || !docUrl || docAprobado !== 'aprobado'}
 								>
 									{isSaving ? (
 										<>
@@ -404,15 +648,22 @@ const StepsCaseModal: React.FC<StepsCaseModalProps> = ({ case_, isOpen, onClose,
 									) : !case_?.googledocs_url ? (
 										'PDF no disponible aún'
 									) : (
-										'Descargar PDF'
+										<>
+											<Download className="w-4 h-4 mr-2" />
+											Descargar PDF
+										</>
 									)}
 								</Button>
 							</div>
 						</div>
 						<div className="bg-gradient-to-br from-teal-50 to-cyan-50 dark:from-teal-900/20 dark:to-cyan-900/20 p-4 rounded-lg border border-teal-200 dark:border-teal-800">
 							<p className="text-teal-400 text-sm">
-								{!case_?.googledocs_url
+								{!docUrl
 									? 'El PDF aún no está listo para descargar. Completa el primer paso y espera a que el sistema procese el documento.'
+									: docAprobado !== 'aprobado'
+									? docAprobado === 'pendiente'
+										? 'Esperando aprobación del owner'
+										: 'Completa los pasos previos para habilitar la descarga'
 									: 'Dale clic al botón que tienes arriba y espera unos segundos mientras preparamos tu documento. Ten paciencia, este proceso puede tardar un poco dependiendo de la carga del sistema. No cierres esta pestaña hasta que el documento esté listo.'}
 							</p>
 						</div>
@@ -448,7 +699,7 @@ const StepsCaseModal: React.FC<StepsCaseModalProps> = ({ case_, isOpen, onClose,
 					initial={{ opacity: 0, scale: 0.9, y: 20 }}
 					animate={{ opacity: 1, scale: 1, y: 0 }}
 					exit={{ opacity: 0, scale: 0.9, y: 20 }}
-					className="w-full max-w-xl bg-white/80 dark:bg-background/50 backdrop-blur-[10px] rounded-2xl shadow-2xl border border-input overflow-hidden z-10"
+					className="w-full max-w-2xl bg-white/80 dark:bg-background/50 backdrop-blur-[10px] rounded-2xl shadow-2xl border border-input overflow-hidden z-10"
 				>
 					{/* Header */}
 					<div className="bg-pink-500 px-6 py-4">
@@ -471,7 +722,7 @@ const StepsCaseModal: React.FC<StepsCaseModalProps> = ({ case_, isOpen, onClose,
 					{/* Steps Indicator */}
 					<div className="px-6 py-4 bg-gray-50 dark:bg-gray-800/50">
 						<div className="flex items-center justify-between">
-							{steps.map((step, index) => {
+							{computedSteps.map((step, index) => {
 								const Icon = step.icon
 								const isActive = index === activeStep
 								const isCompleted = index < activeStep
@@ -502,7 +753,7 @@ const StepsCaseModal: React.FC<StepsCaseModalProps> = ({ case_, isOpen, onClose,
 												<p className="text-xs text-gray-500 dark:text-gray-500 hidden sm:block">{step.description}</p>
 											</div>
 										</div>
-										{index < steps.length - 1 && (
+										{index < computedSteps.length - 1 && (
 											<div
 												className={`flex-1 h-0.5 mx-2 transition-none duration-300 ${
 													index < activeStep ? 'bg-green-500' : 'bg-gray-300 dark:bg-gray-600'
@@ -556,7 +807,7 @@ const StepsCaseModal: React.FC<StepsCaseModalProps> = ({ case_, isOpen, onClose,
 											<div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
 											<span className="hidden sm:inline">Cargando...</span>
 										</>
-									) : activeStep === steps.length - 1 ? (
+									) : activeStep === computedSteps.length - 1 ? (
 										<>
 											<Heart className="w-4 h-4" />
 											<span className="hidden sm:inline">Terminar Proceso</span>
