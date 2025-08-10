@@ -45,7 +45,7 @@ const baseSteps = [
 	},
 	{
 		id: 'complete',
-		title: 'Completar',
+		title: 'Marcar',
 		icon: Shredder,
 		description: 'Completar Documento',
 	},
@@ -96,7 +96,7 @@ const StepsCaseModal: React.FC<StepsCaseModalProps> = ({ case_, isOpen, onClose,
 		if (isOwner) {
 			stepsList.push({
 				id: 'approve',
-				title: 'Aprobar',
+				title: 'Autorizar',
 				icon: FileCheck,
 				description: 'Aprobar Documento',
 			})
@@ -500,11 +500,7 @@ const StepsCaseModal: React.FC<StepsCaseModalProps> = ({ case_, isOpen, onClose,
 										onClick={handleGenerateCaseAndOpenDoc}
 										disabled={isSaving}
 									>
-										{isSaving ? (
-											<div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-										) : (
-											<User className="w-4 h-4 mr-2" />
-										)}
+										<User className="w-4 h-4 mr-2" />
 										Rellenar los Datos
 									</Button>
 								</div>
@@ -537,11 +533,7 @@ const StepsCaseModal: React.FC<StepsCaseModalProps> = ({ case_, isOpen, onClose,
 										onClick={handleMarkAsCompleted}
 										disabled={isSaving || docAprobado !== 'faltante' || !docUrl}
 									>
-										{isSaving ? (
-											<div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-										) : (
-											<Shredder className="w-4 h-4 mr-2" />
-										)}
+										<Shredder className="w-4 h-4 mr-2" />
 										Marcar como Completado
 									</Button>
 								</div>
@@ -575,11 +567,7 @@ const StepsCaseModal: React.FC<StepsCaseModalProps> = ({ case_, isOpen, onClose,
 											onClick={() => window.open(docUrl, '_blank')}
 											disabled={isSaving}
 										>
-											{isSaving ? (
-												<div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-											) : (
-												<User className="w-4 h-4 mr-2" />
-											)}
+											<User className="w-4 h-4 mr-2" />
 											Revisar documento
 										</Button>
 									)}
@@ -589,11 +577,7 @@ const StepsCaseModal: React.FC<StepsCaseModalProps> = ({ case_, isOpen, onClose,
 										onClick={handleApprove}
 										disabled={isSaving || docAprobado !== 'pendiente'}
 									>
-										{isSaving ? (
-											<div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-										) : (
-											<FileCheck className="w-4 h-4 mr-2" />
-										)}
+										<FileCheck className="w-4 h-4 mr-2" />
 										Marcar como Aprobado
 									</Button>
 									<Button
@@ -602,11 +586,7 @@ const StepsCaseModal: React.FC<StepsCaseModalProps> = ({ case_, isOpen, onClose,
 										onClick={handleRevertToPending}
 										disabled={isSaving || docAprobado !== 'aprobado'}
 									>
-										{isSaving ? (
-											<div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-										) : (
-											<Shredder className="w-4 h-4 mr-2" />
-										)}
+										<Shredder className="w-4 h-4 mr-2" />
 										Devolver a Pendiente
 									</Button>
 								</div>
@@ -641,12 +621,7 @@ const StepsCaseModal: React.FC<StepsCaseModalProps> = ({ case_, isOpen, onClose,
 									disabled={isSaving || !docUrl || docAprobado !== 'aprobado'}
 								>
 									{isSaving ? (
-										<>
-											<div className="w-4 h-4 border-2 border-gray-600 border-t-transparent rounded-full animate-spin mr-2" />
-											Generando PDF...
-										</>
-									) : !case_?.googledocs_url ? (
-										'PDF no disponible aún'
+										<>Generando PDF...</>
 									) : (
 										<>
 											<Download className="w-4 h-4 mr-2" />
@@ -699,7 +674,7 @@ const StepsCaseModal: React.FC<StepsCaseModalProps> = ({ case_, isOpen, onClose,
 					initial={{ opacity: 0, scale: 0.9, y: 20 }}
 					animate={{ opacity: 1, scale: 1, y: 0 }}
 					exit={{ opacity: 0, scale: 0.9, y: 20 }}
-					className="w-full max-w-2xl bg-white/80 dark:bg-background/50 backdrop-blur-[10px] rounded-2xl shadow-2xl border border-input overflow-hidden z-10"
+					className="w-full max-w-2xl bg-white/80 dark:bg-background/50 backdrop-blur-[3px] dark:backdrop-blur-[10px] rounded-2xl shadow-2xl border border-input overflow-hidden z-10"
 				>
 					{/* Header */}
 					<div className="bg-pink-500 px-6 py-4">
@@ -720,7 +695,7 @@ const StepsCaseModal: React.FC<StepsCaseModalProps> = ({ case_, isOpen, onClose,
 					</div>
 
 					{/* Steps Indicator */}
-					<div className="px-6 py-4 bg-gray-50 dark:bg-gray-800/50">
+					<div className="px-6 py-4 bg-gray-50/50 dark:bg-gray-800/50">
 						<div className="flex items-center justify-between">
 							{computedSteps.map((step, index) => {
 								const Icon = step.icon
@@ -774,7 +749,7 @@ const StepsCaseModal: React.FC<StepsCaseModalProps> = ({ case_, isOpen, onClose,
 					</div>
 
 					{/* Footer */}
-					<div className="px-6 py-4 bg-gray-50 dark:bg-gray-800/50 border-t border-gray-200 dark:border-gray-700">
+					<div className="px-6 py-4 bg-gray-50/50 dark:bg-gray-800/50 border-t border-gray-200 dark:border-gray-700">
 						<div className="flex items-center justify-end gap-3">
 							<div className="flex items-center gap-5">
 								<motion.button

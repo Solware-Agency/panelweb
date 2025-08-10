@@ -12,7 +12,16 @@ export type CalendarProps = React.ComponentProps<typeof DayPicker>
 
 function Calendar({ className, classNames, showOutsideDays = true, ...props }: CalendarProps) {
 	const [showYearPicker, setShowYearPicker] = React.useState(false)
-	const [currentMonth, setCurrentMonth] = React.useState(props.defaultMonth || new Date())
+	// Use month from props if controlled, otherwise maintain internal state
+	const [internalMonth, setInternalMonth] = React.useState(props.defaultMonth || new Date())
+	const currentMonth = props.month || internalMonth
+
+	// Update internal month when props.month changes (for controlled usage)
+	React.useEffect(() => {
+		if (props.month) {
+			setInternalMonth(props.month)
+		}
+	}, [props.month])
 
 	// Year picker functionality
 	const currentYear = new Date().getFullYear()
@@ -21,7 +30,10 @@ function Calendar({ className, classNames, showOutsideDays = true, ...props }: C
 
 	const handleYearSelect = (year: number) => {
 		const newDate = new Date(year, currentMonth.getMonth(), 1)
-		setCurrentMonth(newDate)
+		// Update internal state if not controlled
+		if (!props.month) {
+			setInternalMonth(newDate)
+		}
 		setShowYearPicker(false)
 		// Call the onMonthChange prop if it exists
 		props.onMonthChange?.(newDate)
@@ -38,22 +50,28 @@ function Calendar({ className, classNames, showOutsideDays = true, ...props }: C
 	// Funciones para cambiar de mes
 	const handlePrevMonth = () => {
 		const prevMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1, 1)
-		setCurrentMonth(prevMonth)
+		// Update internal state if not controlled
+		if (!props.month) {
+			setInternalMonth(prevMonth)
+		}
 		props.onMonthChange?.(prevMonth)
 	}
 
 	const handleNextMonth = () => {
 		const nextMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 1)
-		setCurrentMonth(nextMonth)
+		// Update internal state if not controlled
+		if (!props.month) {
+			setInternalMonth(nextMonth)
+		}
 		props.onMonthChange?.(nextMonth)
 	}
 
 	const renderYearPicker = () => {
 		const years = generateYearGrid()
 		const selectedYear = currentMonth.getFullYear()
-		
+
 		return (
-			<div className="absolute top-0 left-0 right-0 bottom-0 bg-white dark:bg-background z-50 rounded-md border shadow-lg p-3 sm:p-4">
+			<div className="absolute top-0 left-0 right-0 bottom-0 bg-white dark:bg-background z-100 rounded-md border shadow-lg p-3 sm:p-4">
 				<div className="flex items-center justify-between mb-3 sm:mb-4">
 					<h3 className="text-base sm:text-lg font-semibold text-gray-700 dark:text-gray-300">Seleccionar Año</h3>
 					<button
@@ -131,11 +149,17 @@ function Calendar({ className, classNames, showOutsideDays = true, ...props }: C
 	return (
 		<div className="relative calendar-container">
 			{showYearPicker && renderYearPicker()}
-			<DayPicker 
+			<DayPicker
 				showOutsideDays={showOutsideDays}
 				className={cn('p-2 sm:p-3 bg-popover', className)}
 				month={currentMonth}
-				onMonthChange={setCurrentMonth}
+				onMonthChange={(month) => {
+					// Update internal state if not controlled
+					if (!props.month) {
+						setInternalMonth(month)
+					}
+					props.onMonthChange?.(month)
+				}}
 				classNames={{
 					months: 'flex flex-col sm:flex-row space-y-4 sm:space-x-4 sm:space-y-0',
 					month: 'space-y-4',
