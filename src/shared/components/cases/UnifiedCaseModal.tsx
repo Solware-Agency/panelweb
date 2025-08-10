@@ -80,9 +80,60 @@ interface ImmunoRequest {
 	updated_at: string
 }
 
+// Helper to parse edad string like "10 AÑOS" or "5 MESES"
+function parseEdad(edad: string | null | undefined): { value: number | ''; unit: 'AÑOS' | 'MESES' | '' } {
+	if (!edad) return { value: '', unit: '' }
+	const match = String(edad)
+		.trim()
+		.match(/^(\d+)\s*(AÑOS|MESES)$/i)
+	if (!match) return { value: '', unit: '' }
+	const value = Number(match[1])
+	const unit = match[2].toUpperCase() as 'AÑOS' | 'MESES'
+	return { value: Number.isNaN(value) ? '' : value, unit }
+}
+
+// Stable InfoRow component to avoid remounts on each keystroke
+interface InfoRowProps {
+	label: string
+	value: string | number | undefined
+	field?: string
+	editable?: boolean
+	type?: 'text' | 'number' | 'email'
+	isEditing?: boolean
+	editedValue?: string | number | null
+	onChange?: (field: string, value: unknown) => void
+}
+
+const InfoRow: React.FC<InfoRowProps> = React.memo(
+	({ label, value, field, editable = true, type = 'text', isEditing = false, editedValue, onChange }) => {
+		const isEditableField = Boolean(isEditing && editable && field && onChange)
+		const displayValue = field ? editedValue ?? value : value
+
+		return (
+			<div className="flex flex-col sm:flex-row sm:justify-between py-3 border-b border-gray-200 dark:border-gray-700 last:border-b-0 hover:bg-gray-50 dark:hover:bg-gray-800/30 transition-colors duration-150 rounded px-2 -mx-2">
+				<span className="text-sm font-medium text-gray-600 dark:text-gray-400">{label}:</span>
+				{isEditableField ? (
+					<div className="sm:w-1/2">
+						<Input
+							type={type}
+							value={String(displayValue ?? '')}
+							onChange={(e) => onChange?.(field!, e.target.value)}
+							className="text-sm border-dashed focus:border-primary focus:ring-primary bg-gray-50 dark:bg-gray-800/50"
+						/>
+					</div>
+				) : (
+					<span className="text-sm text-gray-900 dark:text-gray-100 sm:text-right font-medium">
+						{displayValue || 'N/A'}
+					</span>
+				)}
+			</div>
+		)
+	},
+)
+
 const UnifiedCaseModal: React.FC<CaseDetailPanelProps> = React.memo(({ case_, isOpen, onClose, onSave, onDelete }) => {
-    useBodyScrollLock(isOpen)
-    useGlobalOverlayOpen(isOpen)
+	useBodyScrollLock(isOpen)
+	useGlobalOverlayOpen(isOpen)
 	const { toast } = useToast()
 	const { user } = useAuth()
 	const { profile } = useUserProfile()
@@ -676,46 +727,7 @@ const UnifiedCaseModal: React.FC<CaseDetailPanelProps> = React.memo(({ case_, is
 	const isAdmin = profile?.role === 'admin'
 	const canEditImmuno = isAdmin && isImmunoCase
 
-	// Memoize the InfoRow component to prevent unnecessary re-renders
-	const InfoRow = useCallback(
-		({
-			label,
-			value,
-			field,
-			editable = true,
-			type = 'text',
-		}: {
-			label: string
-			value: string | number | undefined
-			field?: string
-			editable?: boolean
-			type?: 'text' | 'number' | 'email'
-		}) => {
-			const isEditableField = isEditing && editable && field
-			const fieldValue = field ? editedCase[field as keyof MedicalRecord] ?? value : value
-
-			return (
-				<div className="flex flex-col sm:flex-row sm:justify-between py-3 border-b border-gray-200 dark:border-gray-700 last:border-b-0 hover:bg-gray-50 dark:hover:bg-gray-800/30 transition-colors duration-150 rounded px-2 -mx-2">
-					<span className="text-sm font-medium text-gray-600 dark:text-gray-400">{label}:</span>
-					{isEditableField ? (
-						<div className="sm:w-1/2">
-							<Input
-								type={type}
-								value={String(fieldValue || '')}
-								onChange={(e) => handleInputChange(field!, e.target.value)}
-								className="text-sm border-dashed focus:border-primary focus:ring-primary bg-gray-50 dark:bg-gray-800/50"
-							/>
-						</div>
-					) : (
-						<span className="text-sm text-gray-900 dark:text-gray-100 sm:text-right font-medium">
-							{fieldValue || 'N/A'}
-						</span>
-					)}
-				</div>
-			)
-		},
-		[isEditing, editedCase, handleInputChange],
-	)
+	// (removed inline InfoRow; now using top-level memoized InfoRow)
 
 	// Memoize the InfoSection component
 	const InfoSection = useCallback(
@@ -739,23 +751,23 @@ const UnifiedCaseModal: React.FC<CaseDetailPanelProps> = React.memo(({ case_, is
 		[],
 	)
 
-    const getStatusColor = (status: string) => {
-			const normalized = (status || '').toString().trim().toLowerCase()
-			switch (normalized) {
-				case 'pagado':
-				case 'completado':
-					return 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300'
-				case 'en proceso':
-					return 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300'
-				case 'pendiente':
-					return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300'
-				case 'cancelado':
-					return 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300'
-				case 'incompleto':
-				default:
-					return 'bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-300'
-			}
+	const getStatusColor = (status: string) => {
+		const normalized = (status || '').toString().trim().toLowerCase()
+		switch (normalized) {
+			case 'pagado':
+			case 'completado':
+				return 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300'
+			case 'en proceso':
+				return 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300'
+			case 'pendiente':
+				return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300'
+			case 'cancelado':
+				return 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300'
+			case 'incompleto':
+			default:
+				return 'bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-300'
 		}
+	}
 
 	if (!currentCase) return null
 
@@ -1111,11 +1123,88 @@ const UnifiedCaseModal: React.FC<CaseDetailPanelProps> = React.memo(({ case_, is
 								{/* Patient Information */}
 								<InfoSection title="Información del Paciente" icon={User}>
 									<div className="space-y-1">
-										<InfoRow label="Nombre completo" value={currentCase.full_name} field="full_name" />
-										<InfoRow label="Cédula" value={currentCase.id_number} field="id_number" />
-										<InfoRow label="Edad" value={currentCase.edad || 'Sin edad'} field="edad" />
-										<InfoRow label="Teléfono" value={currentCase.phone} field="phone" />
-										<InfoRow label="Email" value={currentCase.email || 'N/A'} field="email" type="email" />
+										<InfoRow
+											label="Nombre completo"
+											value={currentCase.full_name}
+											field="full_name"
+											isEditing={isEditing}
+											editedValue={editedCase.full_name ?? null}
+											onChange={handleInputChange}
+										/>
+										<InfoRow
+											label="Cédula"
+											value={currentCase.id_number}
+											field="id_number"
+											isEditing={isEditing}
+											editedValue={editedCase.id_number ?? null}
+											onChange={handleInputChange}
+										/>
+										{/* Edad: input numérico + dropdown (AÑOS/MESES) */}
+										<div className="flex flex-col sm:flex-row sm:justify-between py-3 border-b border-gray-200 dark:border-gray-700 last:border-b-0 hover:bg-gray-50 dark:hover:bg-gray-800/30 transition-colors duration-150 rounded px-2 -mx-2">
+											<span className="text-sm font-medium text-gray-600 dark:text-gray-400">Edad:</span>
+											{isEditing ? (
+												<div className="sm:w-1/2 grid grid-cols-2 gap-2">
+													{(() => {
+														const parsed = parseEdad((editedCase.edad ?? currentCase.edad) as string | null)
+														const ageValue = parsed.value
+														const ageUnit = parsed.unit
+														return (
+															<>
+																<Input
+																	type="number"
+																	placeholder="0"
+																	value={ageValue === '' ? '' : ageValue}
+																	min={0}
+																	max={150}
+																	onChange={(e) => {
+																		const newValue = e.target.value
+																		const numeric = newValue === '' ? '' : Number(newValue)
+																		const unitToUse = ageUnit || 'AÑOS'
+																		const newEdad = newValue === '' ? null : `${numeric} ${unitToUse}`
+																		handleInputChange('edad', newEdad)
+																	}}
+																	className="text-sm border-dashed focus:border-primary focus:ring-primary bg-gray-50 dark:bg-gray-800/50"
+																/>
+																<FormDropdown
+																	options={createDropdownOptions(['MESES', 'AÑOS'])}
+																	value={ageUnit || 'AÑOS'}
+																	onChange={(newUnit) => {
+																		const parsedNow = parseEdad((editedCase.edad ?? currentCase.edad) as string | null)
+																		const valueNow = parsedNow.value
+																		const valueToUse = valueNow === '' ? '' : valueNow
+																		const newEdad = valueToUse === '' ? null : `${valueToUse} ${newUnit}`
+																		handleInputChange('edad', newEdad)
+																	}}
+																	placeholder="Unidad"
+																	className="text-sm border-dashed focus:border-primary focus:ring-primary bg-gray-50 dark:bg-gray-800/50"
+																/>
+															</>
+														)
+													})()}
+												</div>
+											) : (
+												<span className="text-sm text-gray-900 dark:text-gray-100 sm:text-right font-medium">
+													{currentCase.edad || 'Sin edad'}
+												</span>
+											)}
+										</div>
+										<InfoRow
+											label="Teléfono"
+											value={currentCase.phone}
+											field="phone"
+											isEditing={isEditing}
+											editedValue={editedCase.phone ?? null}
+											onChange={handleInputChange}
+										/>
+										<InfoRow
+											label="Email"
+											value={currentCase.email || 'N/A'}
+											field="email"
+											type="email"
+											isEditing={isEditing}
+											editedValue={editedCase.email ?? null}
+											onChange={handleInputChange}
+										/>
 										<InfoRow label="Relación" value={currentCase.relationship || 'N/A'} editable={false} />
 									</div>
 								</InfoSection>
