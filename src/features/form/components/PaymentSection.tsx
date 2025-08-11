@@ -71,7 +71,7 @@ export const PaymentSection = memo(({
 				<CardTitle className="text-lg sm:text-xl">Pago</CardTitle>
 			</CardHeader>
 			<CardContent className="p-4 sm:p-6 pt-0 sm:pt-0 space-y-4 sm:space-y-6">
-				<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6">
+				<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
 					<PaymentHeader
 						control={control}
 						inputStyles={inputStyles}
@@ -89,6 +89,37 @@ export const PaymentSection = memo(({
 						isLoadingRate={isLoadingRate}
 						inputStyles={inputStyles}
 					/>
+					
+					{/* Estado de pago - aparece en la misma línea */}
+					<div className="flex items-center justify-center">
+						{/* Alerta de monto pendiente */}
+						{!isPaymentComplete && missingAmount && missingAmount > 0 && (
+							<div className="dark:bg-red-900 bg-red-900 text-red-200 border border-red-700 rounded-lg px-3 py-2 text-xs font-semibold">
+								<div className="flex items-center">
+									<span className="mr-1">⚠️</span>
+									Monto pendiente: ${missingAmount.toFixed(2)}
+								</div>
+								{exchangeRate && (
+									<div className="mt-1 text-xs text-red-300 font-normal">
+										Equivalente: Bs {(missingAmount * exchangeRate).toFixed(2)}
+									</div>
+								)}
+							</div>
+						)}
+
+						{/* Mensaje de pago completado */}
+						{isPaymentComplete && (
+							<div className="bg-green-900/70 text-green-200 border border-green-700 rounded-lg px-3 py-2 text-xs font-semibold">
+								<div className="flex items-center">
+									<span className="mr-1">✅</span>
+									Pago completado
+								</div>
+								<div className="mt-1 text-xs text-green-300 font-normal">
+									El monto total ha sido cubierto
+								</div>
+							</div>
+						)}
+					</div>
 				</div>
 
 				<PaymentMethodsList
@@ -98,8 +129,6 @@ export const PaymentSection = memo(({
 					remove={remove}
 					inputStyles={inputStyles}
 					paymentStatus={paymentStatus}
-					isPaymentComplete={isPaymentComplete}
-					missingAmount={missingAmount}
 					exchangeRate={exchangeRate}
 				/>
 			</CardContent>

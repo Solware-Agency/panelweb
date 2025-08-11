@@ -38,6 +38,7 @@ import { AutocompleteInput } from '@shared/components/ui/autocomplete-input'
 import { useAuth } from '@app/providers/AuthContext'
 import { useUserProfile } from '@shared/hooks/useUserProfile'
 import TagInput from '@shared/components/ui/tag-input'
+import { WhatsAppIcon } from '@shared/components/icons/WhatsAppIcon'
 import {
 	parseDecimalNumber,
 	createCalculatorInputHandler,
@@ -629,6 +630,37 @@ const UnifiedCaseModal: React.FC<CaseDetailPanelProps> = React.memo(({ case_, is
 		})
 	}
 
+	const handleSendWhatsApp = () => {
+		if (!case_?.phone) {
+			toast({
+				title: '❌ Error',
+				description: 'Este caso no tiene un número de teléfono asociado.',
+				variant: 'destructive',
+			})
+			return
+		}
+
+		// Create WhatsApp message with case information
+		const message =
+			`Hola, le escribo sobre el caso:\n\n` +
+			`Código: ${case_.code || 'N/A'}\n` +
+			`Paciente: ${case_.full_name}\n` +
+			`Cédula: ${case_.id_number || 'N/A'}\n` +
+			`Estado: ${case_.payment_status}\n\n` +
+			`¿Podría proporcionarme más información?`
+
+		// Format phone number (remove spaces, dashes, etc.)
+		const cleanPhone = case_.phone.replace(/[\s\-\(\)]/g, '')
+		const whatsappLink = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(message)}`
+
+		window.open(whatsappLink, '_blank')
+
+		toast({
+			title: '📱 WhatsApp abierto',
+			description: 'Se ha abierto WhatsApp con los detalles del caso.',
+		})
+	}
+
 	const getFieldLabel = (field: string): string => {
 		const labels: Record<string, string> = {
 			full_name: 'Nombre Completo',
@@ -944,6 +976,13 @@ const UnifiedCaseModal: React.FC<CaseDetailPanelProps> = React.memo(({ case_, is
 													>
 														<Send className="w-4 h-4" />
 														Enviar por correo
+													</button>
+													<button
+														onClick={handleSendWhatsApp}
+														className="inline-flex items-center gap-1 px-3 py-2 text-xs font-semibold rounded-md bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300"
+													>
+														<WhatsAppIcon className="w-4 h-4" />
+														Contactar por WhatsApp
 													</button>
 												</>
 											)}

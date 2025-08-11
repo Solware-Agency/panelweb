@@ -863,17 +863,17 @@ const MainUsers: React.FC = () => {
 													<TooltipTrigger>
 														<Info className="size-4" />
 													</TooltipTrigger>
-													<TooltipContent className="p-2">
-														<div className="flex flex-col gap-2 text-xs min-w-[220px]">
-															<div className="flex items-center justify-between gap-2">
-																<div className="flex items-center gap-1.5 text-gray-900 dark:text-gray-100">
-																	<Mail className="w-3 h-3 text-gray-600 dark:text-gray-400" />
-																	<span className="truncate max-w-[160px]">{user.email}</span>
+													<TooltipContent className="p-3">
+														<div className="flex flex-col gap-3 text-xs">
+															<div className="flex items-center justify-between gap-3">
+																<div className="flex items-center gap-2 text-gray-900 dark:text-gray-100">
+																	<Mail className="w-3 h-3 text-gray-600 dark:text-gray-400 flex-shrink-0" />
+																	<span className="break-all">{user.email}</span>
 																</div>
 																<Button
 																	variant="ghost"
 																	size="icon"
-																	className="h-6 w-6"
+																	className="h-6 w-6 flex-shrink-0"
 																	onClick={(e) => {
 																		e.stopPropagation()
 																		handleCopyToClipboard(user.email, 'Email')
@@ -884,24 +884,26 @@ const MainUsers: React.FC = () => {
 																</Button>
 															</div>
 
-															<div className="flex items-center justify-between gap-2">
-																<div className="flex items-center gap-1.5 text-gray-900 dark:text-gray-100">
-																	<Phone className="w-3 h-3 text-gray-600 dark:text-gray-400" />
-																	<span className="truncate max-w-[200px]">{formatPhoneForDisplay(user.phone)}</span>
+															{user.phone && (
+																<div className="flex items-center justify-between gap-3">
+																	<div className="flex items-center gap-2 text-gray-900 dark:text-gray-100">
+																		<Phone className="w-3 h-3 text-gray-600 dark:text-gray-400 flex-shrink-0" />
+																		<span className="break-all">{formatPhoneForDisplay(user.phone)}</span>
+																	</div>
+																	<Button
+																		variant="ghost"
+																		size="icon"
+																		className="h-6 w-6 flex-shrink-0"
+																		onClick={(e) => {
+																			e.stopPropagation()
+																			handleCopyToClipboard(formatPhoneForDisplay(user.phone), 'Teléfono')
+																		}}
+																		aria-label="Copiar teléfono"
+																	>
+																		<Copy className="w-3 h-3" />
+																	</Button>
 																</div>
-																<Button
-																	variant="ghost"
-																	size="icon"
-																	className="h-6 w-6"
-																	onClick={(e) => {
-																		e.stopPropagation()
-																		handleCopyToClipboard(formatPhoneForDisplay(user.phone), 'Teléfono')
-																	}}
-																	aria-label="Copiar teléfono"
-																>
-																	<Copy className="w-3 h-3" />
-																</Button>
-															</div>
+															)}
 														</div>
 													</TooltipContent>
 												</Tooltip>

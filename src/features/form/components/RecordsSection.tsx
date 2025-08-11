@@ -1,6 +1,6 @@
 import React, { useState, useCallback, useMemo, useEffect } from 'react'
 import CasesTable from '@shared/components/cases/CasesTable'
-import { Users, MapPin, Microscope, FileText, Activity, Download, BarChart3 } from 'lucide-react'
+import { Users, MapPin, FileText, Activity, Download, BarChart3, Stethoscope, FlaskConical } from 'lucide-react'
 import { Card, CardContent } from '@shared/components/ui/card'
 import { type MedicalRecord } from '@lib/supabase-service'
 import { useUserProfile } from '@shared/hooks/useUserProfile'
@@ -389,18 +389,17 @@ export const RecordsSection: React.FC<RecordsSectionProps> = ({
 				{/* Exam Types Card - Rediseñada más compacta */}
 				<Card className="hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 group transition-transform duration-300">
 					<CardContent className="p-4">
-						<div className="flex items-center gap-3 mb-3">
+                        <div className="flex items-center gap-3 mb-3">
 							<div className="p-2 rounded-lg bg-blue-100 dark:bg-blue-900/30">
 								<BarChart3 className="h-5 w-5 text-blue-600 dark:text-blue-400" />
 							</div>
 							<div>
-								<p className="text-xs font-medium text-muted-foreground">Tipos de Examen</p>
-								<p className="text-xs text-muted-foreground">Pendientes por tipo</p>
+                                <p className="text-xs font-medium text-muted-foreground">Tipos de Examen</p>
 							</div>
 						</div>
 
 						<div className="space-y-2">
-							{/* Biopsia */}
+                            {/* Biopsia */}
 							<div
 								className={`flex items-center justify-between p-2 rounded-lg border transition-transform duration-200 cursor-pointer hover:bg-accent ${
 									selectedExamType === 'biopsia'
@@ -410,13 +409,13 @@ export const RecordsSection: React.FC<RecordsSectionProps> = ({
 								onClick={() => handleExamTypeFilter('biopsia')}
 							>
 								<div className="flex items-center gap-2">
-									<Activity className="h-3 w-3 text-red-500" />
+                                    <Activity className="h-3 w-3 text-green-500" />
 									<span className="text-xs font-medium">Biopsia</span>
 								</div>
 								<span className="text-sm font-bold">{examTypeCounts['biopsia'] || 0}</span>
 							</div>
 
-							{/* Citología */}
+                            {/* Citología */}
 							<div
 								className={`flex items-center justify-between p-2 rounded-lg border transition-transform duration-200 cursor-pointer hover:bg-accent ${
 									selectedExamType === 'citologia'
@@ -425,14 +424,14 @@ export const RecordsSection: React.FC<RecordsSectionProps> = ({
 								}`}
 								onClick={() => handleExamTypeFilter('citologia')}
 							>
-								<div className="flex items-center gap-2">
-									<FileText className="h-3 w-3 text-blue-500" />
+                                <div className="flex items-center gap-2">
+                                    <Stethoscope className="h-3 w-3 text-blue-500" />
 									<span className="text-xs font-medium">Citología</span>
 								</div>
 								<span className="text-sm font-bold">{examTypeCounts['citologia'] || 0}</span>
 							</div>
 
-							{/* Inmunohistoquímica */}
+                            {/* Inmunohistoquímica */}
 							<div
 								className={`flex items-center justify-between p-2 rounded-lg border transition-transform duration-200 cursor-pointer hover:bg-accent ${
 									selectedExamType === 'inmunohistoquimica'
@@ -441,9 +440,9 @@ export const RecordsSection: React.FC<RecordsSectionProps> = ({
 								}`}
 								onClick={() => handleExamTypeFilter('inmunohistoquimica')}
 							>
-								<div className="flex items-center gap-2">
-									<Microscope className="h-3 w-3 text-purple-500" />
-									<span className="text-xs font-medium">Inmunohistoquímica</span>
+                                <div className="flex items-center gap-2">
+                                    <FlaskConical className="h-3 w-3 text-orange-500" />
+                                    <span className="text-xs font-medium">Inmunohistoquímica</span>
 								</div>
 								<span className="text-sm font-bold">{examTypeCounts['inmunohistoquimica'] || 0}</span>
 							</div>
@@ -454,13 +453,12 @@ export const RecordsSection: React.FC<RecordsSectionProps> = ({
 				{/* Document Status Card (doc_aprobado) */}
 				<Card className="hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 group transition-transform duration-300">
 					<CardContent className="p-4">
-						<div className="flex items-center gap-3 mb-3">
+                        <div className="flex items-center gap-3 mb-3">
 							<div className="p-2 rounded-lg bg-teal-100 dark:bg-teal-900/30">
 								<FileText className="h-5 w-5 text-teal-600 dark:text-teal-400" />
 							</div>
 							<div>
-								<p className="text-xs font-medium text-muted-foreground">Estatus de Documento</p>
-								<p className="text-xs text-muted-foreground">Faltante / Pendiente / Aprobado</p>
+                                <p className="text-xs font-medium text-muted-foreground">Estatus de Documento</p>
 							</div>
 						</div>
 
