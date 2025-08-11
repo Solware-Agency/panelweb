@@ -1,5 +1,5 @@
 import React, { useState, Suspense } from 'react'
-import { Users, DollarSign, ShoppingCart, ArrowUpRight, AlertTriangle, Clock, Info } from 'lucide-react'
+import { Users, DollarSign, CheckCircle2, ArrowUpRight, AlertTriangle, Clock, Info } from 'lucide-react'
 import { useDashboardStats } from '@shared/hooks/useDashboardStats'
 import { YearSelector } from '@shared/components/ui/year-selector'
 import StatCard from '@shared/components/ui/stat-card'
@@ -120,11 +120,11 @@ const StatsPage: React.FC = () => {
 					/>
 
 					{/* Paid Cases Card */}
-					<StatCard
+                    <StatCard
 						title="Casos Pagados"
 						value={isLoading ? '...' : stats?.completedCases || 0}
 						description={`Total casos: ${isLoading ? '...' : stats?.totalCases || 0}`}
-						icon={<ShoppingCart className="w-5 h-5 sm:w-6 sm:h-6 text-purple-600 dark:text-purple-400" />}
+                        icon={<CheckCircle2 className="w-5 h-5 sm:w-6 sm:h-6 text-green-600 dark:text-green-400" />}
 						trend={{
 							value: isLoading ? '...' : `${completionRate.toFixed(1)}%`,
 							icon: <ArrowUpRight className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />,

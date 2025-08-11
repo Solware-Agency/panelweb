@@ -33,7 +33,7 @@ export function SessionTimeoutSettings() {
 					<div>
 						<div className="flex items-start space-x-3 mb-4"></div>
 
-						<h4 className="text-sm font-medium mb-3">Seleccione el tiempo de inactividad:</h4>
+					{/* Subtitle removed per request */}
 						{isLoadingTimeout ? (
 							<div className="animate-pulse space-y-2">
 								{[1, 2, 3, 4, 5].map((i) => (

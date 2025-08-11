@@ -10,12 +10,7 @@ const DoctorRevenueReport: React.FC = () => {
 	const isDesktop = useBreakpoint('lg')
 
 	const formatCurrency = (amount: number) => {
-		return new Intl.NumberFormat('es-VE', {
-			style: 'currency',
-			currency: 'USD',
-			minimumFractionDigits: 0,
-			maximumFractionDigits: 0,
-		}).format(amount)
+		return `$${amount.toLocaleString('es-VE')}`
 	}
 
 	return (
@@ -63,7 +58,7 @@ const DoctorRevenueReport: React.FC = () => {
 												% del Total
 											</th>
 											<th className="text-right py-2 px-1 text-gray-600 dark:text-gray-400 font-semibold text-xs">
-												Monto Total
+												Monto Total ($)
 											</th>
 										</tr>
 									</thead>

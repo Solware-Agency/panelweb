@@ -800,14 +800,17 @@ const CasesTable: React.FC<CasesTableProps> = React.memo(
 										</DatePopoverContent>
 									</DatePopover>
 
-									{startDate && (
-										<button
-											onClick={() => setStartDate(undefined)}
-											className="text-xs text-gray-600 dark:text-gray-300 underline"
-										>
-											Limpiar
-										</button>
-									)}
+                                    {startDate && (
+                                        <Button
+                                            onClick={() => setStartDate(undefined)}
+                                            variant="ghost"
+                                            size="sm"
+                                            className="text-xs px-2 py-1"
+                                            title="Limpiar fecha inicial"
+                                        >
+                                            Limpiar
+                                        </Button>
+                                    )}
 								</div>
 
 								{/* Branch Filter - Only show if user doesn't have assigned branch */}
@@ -896,7 +899,7 @@ const CasesTable: React.FC<CasesTableProps> = React.memo(
 					<div className="flex-1 overflow-hidden">
 						{/* Mobile View - Cards */}
 						<div className="block lg:hidden h-full overflow-y-auto px-3 py-4">
-							<div className="p-2 sm:p-4 space-y-3 max-h-[60vh] overflow-y-auto">
+							<div className="p-2 sm:p-4 space-y-3 max-h-[45vh] overflow-y-auto">
 								{paginatedCases.length > 0 ? (
 									paginatedCases.map((case_) => <CaseCard key={case_.id} case_={case_} />)
 								) : (
@@ -913,8 +916,8 @@ const CasesTable: React.FC<CasesTableProps> = React.memo(
 
 						{/* Desktop View - Table with virtualization */}
 						<div className="hidden lg:block h-full overflow-y-auto">
-							<table className="w-full responsive-table">
-								<thead className="bg-gray-50/50 dark:bg-background/50 backdrop-blur-[10px] sticky top-0 z-[60]">
+														<table className="w-full responsive-table">
+								<thead className="bg-gray-50/50 dark:bg-background/50 backdrop-blur-[10px] sticky top-0 z-[1000]">
 									<tr>
 										<th className="px-4 py-3 text-left">
 											<button
@@ -1126,14 +1129,17 @@ const CasesTable: React.FC<CasesTableProps> = React.memo(
 										</DatePopoverContent>
 									</DatePopover>
 
-									{startDate && (
-										<button
-											onClick={() => setStartDate(undefined)}
-											className="text-xs text-gray-600 dark:text-gray-300 underline"
-										>
-											Limpiar
-										</button>
-									)}
+                                    {startDate && (
+                                        <Button
+                                            onClick={() => setStartDate(undefined)}
+                                            variant="ghost"
+                                            size="sm"
+                                            className="text-xs px-2 py-1"
+                                            title="Limpiar fecha inicial"
+                                        >
+                                            Limpiar
+                                        </Button>
+                                    )}
 								</div>
 
 								{/* Branch Filter */}
@@ -1198,7 +1204,7 @@ const CasesTable: React.FC<CasesTableProps> = React.memo(
 
 					{/* Mobile View - Cards */}
 					<div className="block lg:hidden overflow-hidden">
-						<div className="p-4 space-y-4 max-h-[60vh] overflow-y-auto">
+						<div className="p-4 space-y-4 max-h-[45vh] overflow-y-auto">
 							{paginatedCases.length > 0 ? (
 								paginatedCases.map((case_) => <CaseCard key={case_.id} case_={case_} />)
 							) : (
@@ -1216,9 +1222,9 @@ const CasesTable: React.FC<CasesTableProps> = React.memo(
 					{/* Desktop View - Table */}
 					<div className="hidden lg:block">
 						<div className="overflow-x-auto responsive-table">
-							<div className="max-h-[60vh] overflow-y-auto">
+							<div className="max-h-[45vh] overflow-y-auto">
 								<table className="w-full min-w-[800px]">
-									<thead className="bg-gray-50/50 dark:bg-background/50 backdrop-blur-[10px] sticky top-0 z-[50]">
+                                    <thead className="bg-gray-50/50 dark:bg-background/50 backdrop-blur-[10px] sticky top-0 z-[1000]">
 										<tr>
 											<th className="px-4 py-3 text-left">
 												<button

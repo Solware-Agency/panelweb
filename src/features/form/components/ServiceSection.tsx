@@ -172,7 +172,7 @@ export const ServiceSection = memo(({ control, inputStyles }: ServiceSectionProp
 							<FormControl>
 								<AutocompleteInput
 									fieldName="relationship"
-									placeholder="Relación con la muestra"
+                                    placeholder="Relación con el Caso"
 									{...field}
 									className={inputStyles}
 								/>

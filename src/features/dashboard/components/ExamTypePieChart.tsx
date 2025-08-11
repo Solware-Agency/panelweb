@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { Card } from '@shared/components/ui/card'
-import { Stethoscope, Activity, Heart, Eye, Info } from 'lucide-react'
+import { Stethoscope, Activity, FlaskRound, Info } from 'lucide-react'
 import { useDashboardStats } from '@shared/hooks/useDashboardStats'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@shared/components/ui/tooltip'
 const ExamTypePieChart: React.FC = () => {
@@ -33,18 +33,23 @@ const ExamTypePieChart: React.FC = () => {
 		}).format(amount)
 	}
 
-	// Get exam type icon based on type
-	const getExamTypeIcon = (examType: string) => {
-		const type = examType.toLowerCase()
-		if (type.includes('citologia')) {
-			return <Eye className="w-4 h-4 text-white" />
-		} else if (type.includes('biopsia')) {
-			return <Activity className="w-4 h-4 text-white" />
-		} else if (type.includes('inmunohistoquimica')) {
-			return <Heart className="w-4 h-4 text-white" />
-		}
-		return <Stethoscope className="w-4 h-4 text-white" />
-	}
+    // Get exam type icon based on type (tolerant to accents/variants)
+    const getExamTypeIcon = (examType: string) => {
+        const normalized = examType
+            .toLowerCase()
+            .normalize('NFD')
+            .replace(/[\u0300-\u036f]/g, '')
+        if (normalized.includes('citologia')) {
+            return <Stethoscope className="w-4 h-4 text-white" />
+        }
+        if (normalized.includes('biopsia')) {
+            return <Activity className="w-4 h-4 text-white" />
+        }
+        if (normalized.includes('inmunohistoquimica') || normalized.includes('inmuno')) {
+            return <FlaskRound className="w-4 h-4 text-white" />
+        }
+        return <Stethoscope className="w-4 h-4 text-white" />
+    }
 
 	// Get color for exam type - using the same colors as other charts
 	const getExamTypeColor = (index: number) => {

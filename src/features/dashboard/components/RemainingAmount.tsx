@@ -1,5 +1,5 @@
 import React from 'react'
-import { DollarSign, Users, AlertCircle, Info } from 'lucide-react'
+import { DollarSign, AlertTriangle, AlertCircle, Info } from 'lucide-react'
 import { Card } from '@shared/components/ui/card'
 import { useDashboardStats } from '@shared/hooks/useDashboardStats'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@shared/components/ui/tooltip'
@@ -81,8 +81,8 @@ const RemainingAmount: React.FC = () => {
 								{/* Cases Card */}
 								<div className="bg-gradient-to-br from-orange-50 to-orange-100 dark:from-orange-900/20 dark:to-orange-800/20 rounded-xl p-3 border border-orange-200 dark:border-orange-800/30 hover:scale-[1.01] hover:shadow-md transition-all duration-200 cursor-pointer flex flex-col justify-center">
 									<div className="flex flex-col items-center text-center mb-2">
-										<div className="p-2 bg-orange-500 rounded-lg mb-2">
-											<Users className="w-5 h-5 text-white" />
+                                        <div className="p-2 bg-orange-500 rounded-lg mb-2">
+                                            <AlertTriangle className="w-5 h-5 text-white" />
 										</div>
 										<div>
 											<p className="text-sm text-orange-700 dark:text-orange-300">Casos Incompletos</p>
