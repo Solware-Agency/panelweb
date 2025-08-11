@@ -41,6 +41,7 @@ import {
 import { Calendar as CalendarComponent } from '@shared/components/ui/calendar'
 import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
+import { CustomDropdown } from '@shared/components/ui/custom-dropdown'
 
 interface CasesTableProps {
 	cases: MedicalRecord[]
@@ -83,6 +84,38 @@ const CasesTable: React.FC<CasesTableProps> = React.memo(
 		// Paginación
 		const [currentPage, setCurrentPage] = useState(1)
 		const [itemsPerPage, setItemsPerPage] = useState(20)
+
+		// Dropdown options
+		const statusOptions = useMemo(
+			() => [
+				{ value: 'all', label: 'Todos los estatus' },
+				{ value: 'Pagado', label: 'Pagado' },
+				{ value: 'Incompleto', label: 'Incompleto' },
+			],
+			[],
+		)
+
+		const branchOptions = useMemo(
+			() => [
+				{ value: 'all', label: 'Todas las sedes' },
+				{ value: 'PMG', label: 'PMG' },
+				{ value: 'CPC', label: 'CPC' },
+				{ value: 'CNX', label: 'CNX' },
+				{ value: 'STX', label: 'STX' },
+				{ value: 'MCY', label: 'MCY' },
+			],
+			[],
+		)
+
+		const pageSizeOptions = useMemo(
+			() => [
+				{ value: '10', label: '10' },
+				{ value: '20', label: '20' },
+				{ value: '50', label: '50' },
+				{ value: '100', label: '100' },
+			],
+			[],
+		)
 		const handleGenerateEmployeeCase = useCallback((case_: MedicalRecord) => {
 			setSelectedCaseForGenerate(case_)
 			setIsStepsModalOpen(true)
@@ -605,16 +638,14 @@ const CasesTable: React.FC<CasesTableProps> = React.memo(
 						{/* Items por página */}
 						<div className="flex items-center gap-2">
 							<span className="text-sm text-gray-600 dark:text-gray-400">Mostrar:</span>
-							<select
-								value={itemsPerPage}
-								onChange={(e) => handleItemsPerPageChange(Number(e.target.value))}
-								className="px-2 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
-							>
-								<option value={10}>10</option>
-								<option value={20}>20</option>
-								<option value={50}>50</option>
-								<option value={100}>100</option>
-							</select>
+							<div className="min-w-[80px]">
+								<CustomDropdown
+									options={pageSizeOptions}
+									value={String(itemsPerPage)}
+									onChange={(val) => handleItemsPerPageChange(Number(val))}
+									data-testid="pagination-size"
+								/>
+							</div>
 						</div>
 
 						{/* Botones de navegación */}
@@ -734,17 +765,14 @@ const CasesTable: React.FC<CasesTableProps> = React.memo(
 								</div>
 
 								{/* Status Filter - Updated with only Pagado and Incompleto */}
-								<div className="flex items-center gap-2">
-									<select
-										title="Filtrar por estado"
+								<div className="flex items-center gap-2 flex-shrink-0 min-w-[180px]">
+									<CustomDropdown
+										options={statusOptions}
 										value={statusFilter}
-										onChange={(e) => setStatusFilter(e.target.value)}
-										className="px-3 py-2 border border-input rounded-lg focus:ring-2 focus:ring-primary dark:bg-background dark:text-white text-sm hover:bg-gray-50 dark:hover:bg-gray-800 transition-none duration-200"
-									>
-										<option value="all">Todos los estatus</option>
-										<option value="Pagado">Pagado</option>
-										<option value="Incompleto">Incompleto</option>
-									</select>
+										placeholder="Estatus"
+										onChange={(val) => setStatusFilter(val)}
+										data-testid="status-filter"
+									/>
 								</div>
 
 								{/* Date Filter (single) */}
@@ -757,7 +785,7 @@ const CasesTable: React.FC<CasesTableProps> = React.memo(
 											</Button>
 										</DatePopoverTrigger>
 										<DatePopoverContent className="w-auto p-0">
-									<CalendarComponent
+											<CalendarComponent
 												mode="single"
 												selected={startDate}
 												onSelect={(date) => {
@@ -766,8 +794,8 @@ const CasesTable: React.FC<CasesTableProps> = React.memo(
 												}}
 												initialFocus
 												locale={es}
-										toDate={new Date()}
-										disabled={{ after: new Date() }}
+												toDate={new Date()}
+												disabled={{ after: new Date() }}
 											/>
 										</DatePopoverContent>
 									</DatePopover>
@@ -783,20 +811,14 @@ const CasesTable: React.FC<CasesTableProps> = React.memo(
 								</div>
 
 								{/* Branch Filter - Only show if user doesn't have assigned branch */}
-								<div className="flex items-center gap-2">
-									<select
-										title="Filtrar por sede"
+								<div className="flex items-center gap-2 flex-shrink-0 min-w-[180px]">
+									<CustomDropdown
+										options={branchOptions}
 										value={branchFilter}
-										onChange={(e) => setBranchFilter(e.target.value)}
-										className="px-3 py-2 border border-input rounded-lg focus:ring-2 focus:ring-primary dark:bg-background dark:text-white text-sm hover:bg-gray-50 dark:hover:bg-gray-800 transition-none duration-200"
-									>
-										<option value="all">Todas las sedes</option>
-										<option value="PMG">PMG</option>
-										<option value="CPC">CPC</option>
-										<option value="CNX">CNX</option>
-										<option value="STX">STX</option>
-										<option value="MCY">MCY</option>
-									</select>
+										placeholder="Sede"
+										onChange={(val) => setBranchFilter(val)}
+										data-testid="branch-filter"
+									/>
 								</div>
 
 								{/* Doctor Filter Button */}
@@ -1068,18 +1090,15 @@ const CasesTable: React.FC<CasesTableProps> = React.memo(
 									)}
 								</div>
 
-								{/* Status Filter - Updated with only Pagado and Incompleto */}
-								<div className="flex items-center gap-2 flex-shrink-0">
-									<select
-										title="Filtrar por estado"
+								{/* Status Filter - CustomDropdown */}
+								<div className="flex items-center gap-2 flex-shrink-0 min-w-[180px]">
+									<CustomDropdown
+										options={statusOptions}
 										value={statusFilter}
-										onChange={(e) => setStatusFilter(e.target.value)}
-										className="px-3 py-2 border border-input rounded-lg focus:ring-2 focus:ring-primary dark:bg-background dark:text-white text-sm hover:bg-gray-50 dark:hover:bg-gray-800 transition-none duration-200"
-									>
-										<option value="all">Todos los estatus</option>
-										<option value="Pagado">Pagado</option>
-										<option value="Incompleto">Incompleto</option>
-									</select>
+										placeholder="Estatus"
+										onChange={(val) => setStatusFilter(val)}
+										data-testid="status-filter"
+									/>
 								</div>
 
 								{/* Date Filter (single) */}
@@ -1092,7 +1111,7 @@ const CasesTable: React.FC<CasesTableProps> = React.memo(
 											</Button>
 										</DatePopoverTrigger>
 										<DatePopoverContent className="w-auto p-0">
-									<CalendarComponent
+											<CalendarComponent
 												mode="single"
 												selected={startDate}
 												onSelect={(date) => {
@@ -1101,8 +1120,8 @@ const CasesTable: React.FC<CasesTableProps> = React.memo(
 												}}
 												initialFocus
 												locale={es}
-										toDate={new Date()}
-										disabled={{ after: new Date() }}
+												toDate={new Date()}
+												disabled={{ after: new Date() }}
 											/>
 										</DatePopoverContent>
 									</DatePopover>
@@ -1118,20 +1137,14 @@ const CasesTable: React.FC<CasesTableProps> = React.memo(
 								</div>
 
 								{/* Branch Filter */}
-								<div className="flex items-center gap-2 flex-shrink-0">
-									<select
-										title="Filtrar por sede"
+								<div className="flex items-center gap-2 flex-shrink-0 min-w-[180px]">
+									<CustomDropdown
+										options={branchOptions}
 										value={branchFilter}
-										onChange={(e) => setBranchFilter(e.target.value)}
-										className="px-3 py-2 border border-input rounded-lg focus:ring-2 focus:ring-primary dark:bg-background dark:text-white text-sm hover:bg-gray-50 dark:hover:bg-gray-800 transition-none duration-200"
-									>
-										<option value="all">Todas las sedes</option>
-										<option value="PMG">PMG</option>
-										<option value="CPC">CPC</option>
-										<option value="CNX">CNX</option>
-										<option value="STX">STX</option>
-										<option value="MCY">MCY</option>
-									</select>
+										placeholder="Sede"
+										onChange={(val) => setBranchFilter(val)}
+										data-testid="branch-filter"
+									/>
 								</div>
 
 								{/* Doctor Filter Button */}

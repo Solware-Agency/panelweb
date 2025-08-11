@@ -32,7 +32,8 @@ import { useToast } from '@shared/hooks/use-toast'
 import { Button } from '@shared/components/ui/button'
 import { Input } from '@shared/components/ui/input'
 import { Textarea } from '@shared/components/ui/textarea'
-import { FormDropdown, createDropdownOptions } from '@shared/components/ui/form-dropdown'
+import { createDropdownOptions } from '@shared/components/ui/form-dropdown'
+import { CustomDropdown } from '@shared/components/ui/custom-dropdown'
 import { AutocompleteInput } from '@shared/components/ui/autocomplete-input'
 import { useAuth } from '@app/providers/AuthContext'
 import { useUserProfile } from '@shared/hooks/useUserProfile'
@@ -1165,7 +1166,7 @@ const UnifiedCaseModal: React.FC<CaseDetailPanelProps> = React.memo(({ case_, is
 																	}}
 																	className="text-sm border-dashed focus:border-primary focus:ring-primary bg-gray-50 dark:bg-gray-800/50"
 																/>
-																<FormDropdown
+																<CustomDropdown
 																	options={createDropdownOptions(['MESES', 'AÑOS'])}
 																	value={ageUnit || 'AÑOS'}
 																	onChange={(newUnit) => {
@@ -1176,7 +1177,8 @@ const UnifiedCaseModal: React.FC<CaseDetailPanelProps> = React.memo(({ case_, is
 																		handleInputChange('edad', newEdad)
 																	}}
 																	placeholder="Unidad"
-																	className="text-sm border-dashed focus:border-primary focus:ring-primary bg-gray-50 dark:bg-gray-800/50"
+																	className="text-sm"
+																	direction="auto"
 																/>
 															</>
 														)
@@ -1217,7 +1219,7 @@ const UnifiedCaseModal: React.FC<CaseDetailPanelProps> = React.memo(({ case_, is
 											<span className="text-sm font-medium text-gray-600 dark:text-gray-400">Estudio:</span>
 											{isEditing ? (
 												<div className="sm:w-1/2">
-													<FormDropdown
+													<CustomDropdown
 														options={createDropdownOptions([
 															{ value: 'Inmunohistoquímica', label: 'Inmunohistoquímica' },
 															{ value: 'Biopsia', label: 'Biopsia' },
@@ -1226,7 +1228,8 @@ const UnifiedCaseModal: React.FC<CaseDetailPanelProps> = React.memo(({ case_, is
 														value={editedCase.exam_type || currentCase.exam_type || ''}
 														onChange={(value) => handleInputChange('exam_type', value)}
 														placeholder="Seleccione una opción"
-														className="text-sm border-dashed focus:border-primary focus:ring-primary bg-gray-50 dark:bg-gray-800/50"
+														className="text-sm"
+														direction="auto"
 													/>
 												</div>
 											) : (
@@ -1291,12 +1294,13 @@ const UnifiedCaseModal: React.FC<CaseDetailPanelProps> = React.memo(({ case_, is
 											<span className="text-sm font-medium text-gray-600 dark:text-gray-400">Sede:</span>
 											{isEditing ? (
 												<div className="sm:w-1/2">
-													<FormDropdown
+													<CustomDropdown
 														options={createDropdownOptions(['PMG', 'CPC', 'CNX', 'STX', 'MCY'])}
 														value={editedCase.branch || currentCase.branch || ''}
 														onChange={(value) => handleInputChange('branch', value)}
 														placeholder="Seleccione una sede"
-														className="text-sm border-dashed focus:border-primary focus:ring-primary bg-gray-50 dark:bg-gray-800/50"
+														className="text-sm"
+														direction="auto"
 													/>
 												</div>
 											) : (
@@ -1424,7 +1428,7 @@ const UnifiedCaseModal: React.FC<CaseDetailPanelProps> = React.memo(({ case_, is
 																	<label className="text-xs text-gray-500 dark:text-gray-400 mb-1 block font-medium">
 																		Método
 																	</label>
-																	<FormDropdown
+																	<CustomDropdown
 																		options={createDropdownOptions([
 																			'Punto de venta',
 																			'Dólares en efectivo',
@@ -1435,7 +1439,8 @@ const UnifiedCaseModal: React.FC<CaseDetailPanelProps> = React.memo(({ case_, is
 																		value={editedCase.payment_method_1 || ''}
 																		onChange={(value) => handleInputChange('payment_method_1', value)}
 																		placeholder="Seleccionar método"
-																		className="text-sm border-dashed focus:border-primary focus:ring-primary bg-gray-50 dark:bg-gray-800/50"
+																		className="text-sm"
+																		direction="auto"
 																	/>
 																</div>
 																<div>
@@ -1500,7 +1505,7 @@ const UnifiedCaseModal: React.FC<CaseDetailPanelProps> = React.memo(({ case_, is
 																	<label className="text-xs text-gray-500 dark:text-gray-400 mb-1 block font-medium">
 																		Método
 																	</label>
-																	<FormDropdown
+																	<CustomDropdown
 																		options={createDropdownOptions([
 																			'Punto de venta',
 																			'Dólares en efectivo',
@@ -1511,7 +1516,8 @@ const UnifiedCaseModal: React.FC<CaseDetailPanelProps> = React.memo(({ case_, is
 																		value={editedCase.payment_method_2 || ''}
 																		onChange={(value) => handleInputChange('payment_method_2', value)}
 																		placeholder="Seleccionar método"
-																		className="text-sm border-dashed focus:border-primary focus:ring-primary bg-gray-50 dark:bg-gray-800/50"
+																		className="text-sm"
+																		direction="auto"
 																	/>
 																</div>
 																<div>
@@ -1576,7 +1582,7 @@ const UnifiedCaseModal: React.FC<CaseDetailPanelProps> = React.memo(({ case_, is
 																	<label className="text-xs text-gray-500 dark:text-gray-400 mb-1 block font-medium">
 																		Método
 																	</label>
-																	<FormDropdown
+																	<CustomDropdown
 																		options={createDropdownOptions([
 																			'Punto de venta',
 																			'Dólares en efectivo',
@@ -1587,7 +1593,8 @@ const UnifiedCaseModal: React.FC<CaseDetailPanelProps> = React.memo(({ case_, is
 																		value={editedCase.payment_method_3 || ''}
 																		onChange={(value) => handleInputChange('payment_method_3', value)}
 																		placeholder="Seleccionar método"
-																		className="text-sm border-dashed focus:border-primary focus:ring-primary bg-gray-50 dark:bg-gray-800/50"
+																		className="text-sm"
+																		direction="auto"
 																	/>
 																</div>
 																<div>
@@ -1652,7 +1659,7 @@ const UnifiedCaseModal: React.FC<CaseDetailPanelProps> = React.memo(({ case_, is
 																	<label className="text-xs text-gray-500 dark:text-gray-400 mb-1 block font-medium">
 																		Método
 																	</label>
-																	<FormDropdown
+																	<CustomDropdown
 																		options={createDropdownOptions([
 																			'Punto de venta',
 																			'Dólares en efectivo',
@@ -1663,7 +1670,8 @@ const UnifiedCaseModal: React.FC<CaseDetailPanelProps> = React.memo(({ case_, is
 																		value={editedCase.payment_method_4 || ''}
 																		onChange={(value) => handleInputChange('payment_method_4', value)}
 																		placeholder="Seleccionar método"
-																		className="text-sm border-dashed focus:border-primary focus:ring-primary bg-gray-50 dark:bg-gray-800/50"
+																		className="text-sm"
+																		direction="auto"
 																	/>
 																</div>
 																<div>
@@ -1836,7 +1844,7 @@ const UnifiedCaseModal: React.FC<CaseDetailPanelProps> = React.memo(({ case_, is
 								<label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
 									Método de Pago
 								</label>
-								<FormDropdown
+								<CustomDropdown
 									options={createDropdownOptions([
 										'Punto de venta',
 										'Dólares en efectivo',
@@ -1848,6 +1856,7 @@ const UnifiedCaseModal: React.FC<CaseDetailPanelProps> = React.memo(({ case_, is
 									onChange={(value) => setNewPayment({ ...newPayment, method: value })}
 									placeholder="Seleccionar método"
 									className="w-full"
+									direction="auto"
 								/>
 							</div>
 

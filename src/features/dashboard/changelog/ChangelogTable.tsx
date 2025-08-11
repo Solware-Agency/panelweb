@@ -14,7 +14,7 @@ import {
 import { Card } from '@shared/components/ui/card'
 import { Input } from '@shared/components/ui/input'
 import { Button } from '@shared/components/ui/button'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@shared/components/ui/select'
+import { CustomDropdown } from '@shared/components/ui/custom-dropdown'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { getAllChangeLogs } from '@lib/supabase-service'
 import { format } from 'date-fns'
@@ -259,17 +259,19 @@ const ChangelogTable: React.FC = () => {
 					{/* Action Type Filter */}
 					<div className="flex items-center gap-2">
 						<Filter className="w-4 h-4 text-gray-400" />
-						<Select value={actionFilter} onValueChange={setActionFilter}>
-							<SelectTrigger className="w-40">
-								<SelectValue placeholder="Tipo de acción" />
-							</SelectTrigger>
-							<SelectContent>
-								<SelectItem value="all">Todas las acciones</SelectItem>
-								<SelectItem value="created">Creaciones</SelectItem>
-								<SelectItem value="edited">Ediciones</SelectItem>
-								<SelectItem value="deleted">Eliminaciones</SelectItem>
-							</SelectContent>
-						</Select>
+						<div className="w-40">
+							<CustomDropdown
+								value={actionFilter}
+								onChange={(v) => setActionFilter(v)}
+								placeholder="Tipo de acción"
+								options={[
+									{ value: 'all', label: 'Todas las acciones' },
+									{ value: 'created', label: 'Creaciones' },
+									{ value: 'edited', label: 'Ediciones' },
+									{ value: 'deleted', label: 'Eliminaciones' },
+								]}
+							/>
+						</div>
 					</div>
 
 					{/* Date Filter */}
@@ -532,23 +534,22 @@ const ChangelogTable: React.FC = () => {
 							Mostrando {filteredLogs.length} de {logsData?.data?.length || 0} registros
 						</div>
 						<div className="flex items-center gap-2">
-							<Select
-								value={rowsPerPage.toString()}
-								onValueChange={(value) => {
-									setRowsPerPage(parseInt(value))
-									setPage(0) // Reset to first page when changing rows per page
-								}}
-							>
-								<SelectTrigger className="w-32">
-									<SelectValue placeholder="Filas por página" />
-								</SelectTrigger>
-								<SelectContent>
-									<SelectItem value="10">10 por página</SelectItem>
-									<SelectItem value="20">20 por página</SelectItem>
-									<SelectItem value="50">50 por página</SelectItem>
-									<SelectItem value="100">100 por página</SelectItem>
-								</SelectContent>
-							</Select>
+							<div className="w-32">
+								<CustomDropdown
+									value={rowsPerPage.toString()}
+									onChange={(value) => {
+										setRowsPerPage(parseInt(value))
+										setPage(0)
+									}}
+									placeholder="Filas por página"
+									options={[
+										{ value: '10', label: '10 por página' },
+										{ value: '20', label: '20 por página' },
+										{ value: '50', label: '50 por página' },
+										{ value: '100', label: '100 por página' },
+									]}
+								/>
+							</div>
 							<Button variant="outline" onClick={() => setPage(Math.max(0, page - 1))} disabled={page === 0}>
 								Anterior
 							</Button>
