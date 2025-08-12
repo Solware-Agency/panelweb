@@ -145,8 +145,8 @@ const CustomDropdown = forwardRef<HTMLDivElement, CustomDropdownProps>(
 				<div
 					onClick={handleToggle}
 					className={cn(
-						'flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 cursor-pointer transition-transform duration-300',
-						disabled && 'cursor-not-allowed opacity-50',
+						'flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 cursor-pointer transition-all duration-200 hover:border-primary hover:shadow-sm hover:bg-accent/50',
+						disabled && 'cursor-not-allowed opacity-50 hover:border-input hover:shadow-none hover:bg-background',
 						isOpen && 'ring-2 ring-ring ring-offset-2',
 					)}
 					tabIndex={disabled ? -1 : 0}
@@ -179,7 +179,7 @@ const CustomDropdown = forwardRef<HTMLDivElement, CustomDropdownProps>(
 									key={option.value}
 									onClick={() => !option.disabled && handleSelect(option.value)}
 									className={cn(
-										'relative flex w-full cursor-pointer select-none items-center rounded-sm px-3 py-2 text-sm outline-none transition-none hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground',
+										'relative flex w-full cursor-pointer select-none items-center rounded-sm px-3 py-2 text-sm outline-none transition-colors duration-150 hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground',
 										option.disabled && 'pointer-events-none opacity-50',
 										selectedValue === option.value && 'bg-accent text-accent-foreground',
 									)}

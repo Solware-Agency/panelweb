@@ -128,6 +128,15 @@
   }
 }
 
+/* Asegurar que los modales tengan la máxima prioridad de z-index */
+.modal-overlay {
+  z-index: 999999998 !important;
+}
+
+.modal-content {
+  z-index: 999999999 !important;
+}
+
 ::-moz-selection {
   /* Para Firefox */
   background: hsl(330 81% 60%);

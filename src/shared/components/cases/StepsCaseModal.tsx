@@ -62,6 +62,7 @@ const StepsCaseModal: React.FC<StepsCaseModalProps> = ({ case_, isOpen, onClose,
 	const [activeStep, setActiveStep] = useState(0)
 	const [isCompleting, setIsCompleting] = useState(false)
 	const [isSaving, setIsSaving] = useState(false)
+	const [isGeneratingPDF, setIsGeneratingPDF] = useState(false)
 	const { toast } = useToast()
 	const { profile } = useUserProfile()
 	useBodyScrollLock(isOpen)
@@ -344,6 +345,7 @@ const StepsCaseModal: React.FC<StepsCaseModalProps> = ({ case_, isOpen, onClose,
 
 		try {
 			setIsSaving(true)
+			setIsGeneratingPDF(true)
 
 			console.log('Sending request to n8n webhook with case ID:', case_.id)
 
@@ -390,9 +392,15 @@ const StepsCaseModal: React.FC<StepsCaseModalProps> = ({ case_, isOpen, onClose,
 				console.log('Success response (text):', responseData, e)
 			}
 
-			// ⏱️ Esperar 6 segundos antes de intentar descargar el PDF
+			// Mostrar mensaje de progreso
+			toast({
+				title: '⏳ Generando PDF...',
+				description: 'El documento se está procesando. Por favor espera.',
+			})
+
+			// ⏱️ Esperar antes de intentar descargar el PDF
 			let attempts = 0
-			const maxAttempts = 10
+			const maxAttempts = 15 // Aumentar intentos
 			let pdfUrl: string | null = null
 
 			while (attempts < maxAttempts) {
@@ -437,16 +445,21 @@ const StepsCaseModal: React.FC<StepsCaseModalProps> = ({ case_, isOpen, onClose,
 				const url = window.URL.createObjectURL(blob)
 				const link = document.createElement('a')
 				link.href = url
-				link.download = `${case_.code}.pdf`
+				link.download = `${case_.code || 'documento'}.pdf`
 				document.body.appendChild(link)
 				link.click()
 				document.body.removeChild(link)
 				window.URL.revokeObjectURL(url) // Limpiar memoria
 
+				toast({
+					title: '✅ PDF descargado',
+					description: 'El documento se ha descargado correctamente.',
+				})
+
 				// Ejecutar handleNext automáticamente después de descargar el PDF
 				setTimeout(() => {
 					handleNext()
-				}, 1000) // Pequeño delay para asegurar que la descarga se inicie
+				}, 1500) // Aumentar delay para mejor UX
 			} catch (err) {
 				console.error('Error al abrir el PDF:', err)
 				toast({
@@ -476,6 +489,7 @@ const StepsCaseModal: React.FC<StepsCaseModalProps> = ({ case_, isOpen, onClose,
 			})
 		} finally {
 			setIsSaving(false)
+			setIsGeneratingPDF(false)
 		}
 	}
 
@@ -618,10 +632,13 @@ const StepsCaseModal: React.FC<StepsCaseModalProps> = ({ case_, isOpen, onClose,
 									variant="outline"
 									onClick={handleTransformToPDF}
 									className="flex-1"
-									disabled={isSaving || !docUrl || docAprobado !== 'aprobado'}
+									disabled={isGeneratingPDF || !docUrl || docAprobado !== 'aprobado'}
 								>
-									{isSaving ? (
-										<>Generando PDF...</>
+									{isGeneratingPDF ? (
+										<>
+											<div className="w-4 h-4 border-2 border-teal-600 border-t-transparent rounded-full animate-spin mr-2" />
+											Generando PDF...
+										</>
 									) : (
 										<>
 											<Download className="w-4 h-4 mr-2" />
@@ -639,7 +656,7 @@ const StepsCaseModal: React.FC<StepsCaseModalProps> = ({ case_, isOpen, onClose,
 									? docAprobado === 'pendiente'
 										? 'Esperando aprobación del owner'
 										: 'Completa los pasos previos para habilitar la descarga'
-									: 'Dale clic al botón que tienes arriba y espera unos segundos mientras preparamos tu documento. Ten paciencia, este proceso puede tardar un poco dependiendo de la carga del sistema. No cierres esta pestaña hasta que el documento esté listo.'}
+									: 'Haz clic en el botón "Descargar PDF" y espera mientras preparamos tu documento. El proceso puede tardar unos segundos dependiendo de la carga del sistema.'}
 							</p>
 						</div>
 					</motion.div>
@@ -659,23 +676,23 @@ const StepsCaseModal: React.FC<StepsCaseModalProps> = ({ case_, isOpen, onClose,
 
 	return (
 		<AnimatePresence>
-			<div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-				{/* Backdrop */}
-				<motion.div
-					initial={{ opacity: 0 }}
-					animate={{ opacity: 1 }}
-					exit={{ opacity: 0 }}
-					onClick={handleClose}
-					className="fixed inset-0 bg-black/50 backdrop-blur-sm"
-				/>
+			{/* Backdrop */}
+			<motion.div
+				initial={{ opacity: 0 }}
+				animate={{ opacity: 1 }}
+				exit={{ opacity: 0 }}
+				onClick={handleClose}
+				className="fixed inset-0 bg-black/50 backdrop-blur-sm modal-overlay"
+			/>
 
-				{/* Modal */}
-				<motion.div
-					initial={{ opacity: 0, scale: 0.9, y: 20 }}
-					animate={{ opacity: 1, scale: 1, y: 0 }}
-					exit={{ opacity: 0, scale: 0.9, y: 20 }}
-					className="w-full max-w-2xl bg-white/80 dark:bg-background/50 backdrop-blur-[3px] dark:backdrop-blur-[10px] rounded-2xl shadow-2xl border border-input overflow-hidden z-10"
-				>
+			{/* Modal */}
+			<motion.div
+				initial={{ opacity: 0, scale: 0.9, y: 20 }}
+				animate={{ opacity: 1, scale: 1, y: 0 }}
+				exit={{ opacity: 0, scale: 0.9, y: 20 }}
+				className="fixed inset-0 modal-content flex items-center justify-center p-4"
+			>
+				<div className="w-full max-w-2xl bg-white/80 dark:bg-background/50 backdrop-blur-[3px] dark:backdrop-blur-[10px] rounded-2xl shadow-2xl border border-input overflow-hidden">
 					{/* Header */}
 					<div className="bg-pink-500 px-6 py-4">
 						<div className="flex items-center justify-between">
@@ -767,7 +784,7 @@ const StepsCaseModal: React.FC<StepsCaseModalProps> = ({ case_, isOpen, onClose,
 
 								<motion.button
 									onClick={handleNext}
-									disabled={isCompleting || isSaving}
+									disabled={isCompleting || isSaving || isGeneratingPDF}
 									className="flex items-center gap-2 px-6 py-2 bg-transparent border border-pink-500 text-gray-800 dark:text-white font-medium rounded-lg hover:from-indigo-600 hover:to-purple-600 transition-transform duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl"
 									whileHover={{ scale: 1.02 }}
 									whileTap={{ scale: 0.98 }}
@@ -777,7 +794,7 @@ const StepsCaseModal: React.FC<StepsCaseModalProps> = ({ case_, isOpen, onClose,
 											<div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
 											<span className="hidden sm:inline">Saliendo...</span>
 										</>
-									) : isSaving ? (
+									) : isSaving || isGeneratingPDF ? (
 										<>
 											<div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
 											<span className="hidden sm:inline">Cargando...</span>
@@ -797,8 +814,8 @@ const StepsCaseModal: React.FC<StepsCaseModalProps> = ({ case_, isOpen, onClose,
 							</div>
 						</div>
 					</div>
-				</motion.div>
-			</div>
+				</div>
+			</motion.div>
 		</AnimatePresence>
 	)
 }

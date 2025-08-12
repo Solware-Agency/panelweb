@@ -62,7 +62,7 @@ export const PaymentMethodItem = memo(
 										])}
 										value={field.value}
 										onChange={field.onChange}
-										placeholder="Seleccione una opción"
+										placeholder="Método"
 										className={inputStyles}
 									/>
 								</FormControl>
@@ -83,7 +83,7 @@ export const PaymentMethodItem = memo(
 							return (
 								<FormItem>
 									<FormLabel>
-										Monto {index + 1} {currencyLabel}
+										Monto {currencyLabel}
 									</FormLabel>
 									<FormControl>
 										<div className="flex flex-col gap-1 w-full">
@@ -118,10 +118,10 @@ export const PaymentMethodItem = memo(
 						name={`payments.${index}.reference`}
 						render={({ field }) => (
 							<FormItem>
-								<FormLabel>Comprobante {index + 1}</FormLabel>
+								<FormLabel>Comprobante</FormLabel>
 								<FormControl>
 									<Input
-										placeholder="Referencia de pago"
+										placeholder="Referencia"
 										{...field}
 										className={inputStyles}
 										iconRight={<FileText className="h-4 w-4 text-muted-foreground" />}

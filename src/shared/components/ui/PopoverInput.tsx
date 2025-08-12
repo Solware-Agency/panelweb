@@ -90,7 +90,7 @@ export function PopoverTrigger({ children, className }: PopoverTriggerProps) {
 			key="button"
 			layoutId={`popover-${uniqueId}`}
 			className={cn(
-				'flex h-9 items-center border border-zinc-950/10 bg-white px-3 text-zinc-950 dark:border-input dark:bg-background dark:hover:bg-background/50 dark:text-zinc-50',
+				'flex h-9 items-center border border-zinc-950/10 bg-white px-3 text-zinc-950 dark:border-input dark:bg-background hover:bg-gray-50 dark:hover:bg-background/50 dark:text-zinc-50 transition-colors duration-200',
 				className,
 			)}
 			style={{
@@ -287,7 +287,7 @@ export function PopoverButton({
 	return (
 		<button
 			className={cn(
-				'flex w-full items-center gap-2 rounded-md px-4 py-2 text-left text-sm hover:bg-zinc-100 dark:hover:bg-blue-900/20',
+				'flex w-full items-center gap-2 rounded-md px-4 py-2 text-left text-sm hover:bg-zinc-100 dark:hover:bg-blue-900/20 transition-colors duration-150',
 				className,
 			)}
 			onClick={onClick}

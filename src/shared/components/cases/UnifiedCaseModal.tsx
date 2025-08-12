@@ -968,21 +968,21 @@ const UnifiedCaseModal: React.FC<CaseDetailPanelProps> = React.memo(({ case_, is
 														className="inline-flex items-center gap-1 px-3 py-2 text-xs font-semibold rounded-md bg-violet-100 text-violet-800 dark:bg-violet-900/30 dark:text-violet-300"
 													>
 														<History className="w-4 h-4" />
-														{isChangelogOpen ? 'Ocultar Historial' : 'Ver Historial'}
+														{isChangelogOpen ? 'Ocultar' : 'Historial'}
 													</button>
 													<button
 														onClick={handleSendEmail}
 														className="inline-flex items-center gap-1 px-3 py-2 text-xs font-semibold rounded-md bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300"
 													>
 														<Send className="w-4 h-4" />
-														Enviar por correo
+														Correo
 													</button>
 													<button
 														onClick={handleSendWhatsApp}
 														className="inline-flex items-center gap-1 px-3 py-2 text-xs font-semibold rounded-md bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300"
 													>
 														<WhatsAppIcon className="w-4 h-4" />
-														Contactar por WhatsApp
+														WhatsApp
 													</button>
 												</>
 											)}

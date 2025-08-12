@@ -858,7 +858,7 @@ const CasesTable: React.FC<CasesTableProps> = React.memo(
 							{/* Close button */}
 							<button
 								onClick={() => setIsFullscreen(false)}
-								className="text-gray-500 dark:text-gray-300 hover:text-red-500 dark:hover:text-red-400 text-sm border px-2 sm:px-3 py-1 rounded-md ml-auto sm:ml-0"
+								className="text-gray-500 dark:text-gray-300 hover:text-red-500 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 text-sm border px-2 sm:px-3 py-1 rounded-md ml-auto sm:ml-0 transition-all duration-200"
 							>
 								<span className="hidden sm:inline">Cerrar</span> ✕
 							</button>
@@ -1186,7 +1186,7 @@ const CasesTable: React.FC<CasesTableProps> = React.memo(
 								{/* Fullscreen Button */}
 								<button
 									onClick={() => setIsFullscreen(true)}
-									className="hidden lg:flex items-center gap-2 px-3 py-2 border border-input rounded-lg focus:ring-2 focus:ring-primary dark:bg-background dark:text-white text-sm hover:bg-gray-50 dark:hover:bg-gray-800 flex-shrink-0 whitespace-nowrap"
+									className="hidden lg:flex items-center gap-2 px-3 py-2 border border-input rounded-lg focus:ring-2 focus:ring-primary dark:bg-background dark:text-white text-sm hover:bg-gray-50 dark:hover:bg-gray-800 hover:border-primary hover:shadow-sm transition-all duration-200 flex-shrink-0 whitespace-nowrap"
 								>
 									<Maximize2 className="w-4 h-4" />
 									Expandir
