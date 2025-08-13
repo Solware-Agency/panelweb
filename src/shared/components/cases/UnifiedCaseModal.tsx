@@ -613,12 +613,7 @@ const UnifiedCaseModal: React.FC<CaseDetailPanelProps> = React.memo(({ case_, is
 		// Create mailto link with case information
 		const subject = `Caso ${case_.code || case_.id} - ${case_.full_name}`
 		const body =
-			`Hola,\n\nAdjunto los detalles del caso:\n\n` +
-			`Código: ${case_.code || 'N/A'}\n` +
-			`Paciente: ${case_.full_name}\n` +
-			`Cédula: ${case_.id_number || 'N/A'}\n` +
-			`Teléfono: ${case_.phone || 'N/A'}\n` +
-			`Estado: ${case_.payment_status}\n\n` +
+			`Hola ${case_.full_name},\n\nLe escribimos desde el laboratorio conspat por su caso ${case_.code || 'N/A'}.\n\n` +
 			`Saludos cordiales.`
 
 		const mailtoLink = `mailto:${case_.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`
@@ -643,12 +638,7 @@ const UnifiedCaseModal: React.FC<CaseDetailPanelProps> = React.memo(({ case_, is
 
 		// Create WhatsApp message with case information
 		const message =
-			`Hola, le escribo sobre el caso:\n\n` +
-			`Código: ${case_.code || 'N/A'}\n` +
-			`Paciente: ${case_.full_name}\n` +
-			`Cédula: ${case_.id_number || 'N/A'}\n` +
-			`Estado: ${case_.payment_status}\n\n` +
-			`¿Podría proporcionarme más información?`
+			`Hola ${case_.full_name}, le escribimos desde el laboratorio conspat por su caso ${case_.code || 'N/A'}.`
 
 		// Format phone number (remove spaces, dashes, etc.)
 		const cleanPhone = case_.phone.replace(/[\s-()]/g, '')
@@ -669,6 +659,18 @@ const UnifiedCaseModal: React.FC<CaseDetailPanelProps> = React.memo(({ case_, is
 			phone: 'Teléfono',
 			email: 'Correo Electrónico',
 			edad: 'Edad',
+			exam_type: 'Tipo de Examen',
+			origin: 'Origen',
+			treating_doctor: 'Médico Tratante',
+			sample_type: 'Tipo de Muestra',
+			number_of_samples: 'Cantidad de Muestras',
+			relationship: 'Relación',
+			branch: 'Sede',
+			date: 'Fecha de Registro',
+			total_amount: 'Monto Total',
+			exchange_rate: 'Tasa de Cambio',
+			payment_status: 'Estado de Pago',
+			remaining: 'Monto Restante',
 			comments: 'Comentarios',
 			payment_method_1: 'Método de Pago 1',
 			payment_amount_1: 'Monto de Pago 1',
@@ -1027,28 +1029,28 @@ const UnifiedCaseModal: React.FC<CaseDetailPanelProps> = React.memo(({ case_, is
 												<>
 													<button
 														onClick={handleEditClick}
-														className="inline-flex items-center gap-1 px-3 py-2 text-xs font-semibold rounded-md bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300"
+														className="inline-flex items-center gap-1 px-3 py-2 text-xs font-semibold rounded-md bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300 hover:bg-blue-200 dark:hover:bg-blue-800/40 hover:scale-105 transition-all duration-200"
 													>
 														<Edit className="w-4 h-4" />
 														Editar
 													</button>
 													<button
 														onClick={toggleChangelog}
-														className="inline-flex items-center gap-1 px-3 py-2 text-xs font-semibold rounded-md bg-violet-100 text-violet-800 dark:bg-violet-900/30 dark:text-violet-300"
+														className="inline-flex items-center gap-1 px-3 py-2 text-xs font-semibold rounded-md bg-violet-100 text-violet-800 dark:bg-violet-900/30 dark:text-violet-300 hover:bg-violet-200 dark:hover:bg-violet-800/40 hover:scale-105 transition-all duration-200"
 													>
 														<History className="w-4 h-4" />
 														{isChangelogOpen ? 'Ocultar' : 'Historial'}
 													</button>
 													<button
 														onClick={handleSendEmail}
-														className="inline-flex items-center gap-1 px-3 py-2 text-xs font-semibold rounded-md bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300"
+														className="inline-flex items-center gap-1 px-3 py-2 text-xs font-semibold rounded-md bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300 hover:bg-green-200 dark:hover:bg-green-800/40 hover:scale-105 transition-all duration-200"
 													>
 														<Send className="w-4 h-4" />
 														Correo
 													</button>
 													<button
 														onClick={handleSendWhatsApp}
-														className="inline-flex items-center gap-1 px-3 py-2 text-xs font-semibold rounded-md bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300"
+														className="inline-flex items-center gap-1 px-3 py-2 text-xs font-semibold rounded-md bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300 hover:bg-green-200 dark:hover:bg-green-800/40 hover:scale-105 transition-all duration-200"
 													>
 														<WhatsAppIcon className="w-4 h-4" />
 														WhatsApp
@@ -1872,7 +1874,7 @@ const UnifiedCaseModal: React.FC<CaseDetailPanelProps> = React.memo(({ case_, is
 								<div className="flex items-center justify-center gap-2 pt-4 border-t border-gray-200 dark:border-gray-700">
 									<button
 										onClick={handleDeleteClick}
-										className="flex items-center justify-center gap-1 px-3 py-2 text-lg font-semibold rounded-md bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300 w-full text-center"
+										className="flex items-center justify-center gap-1 px-3 py-2 text-lg font-semibold rounded-md bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300 w-full text-center hover:bg-red-200 dark:hover:bg-red-800/40 hover:scale-105 transition-all duration-200"
 									>
 										<Trash2 className="size-5" />
 										Eliminar

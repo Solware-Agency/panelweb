@@ -17,6 +17,57 @@
   }
 }
 
+/* Custom Scrollbar Styles - Compatible con todos los navegadores */
+@layer base {
+  /* WebKit browsers (Chrome, Safari, Edge) */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: hsl(var(--muted));
+    border-radius: 4px;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: hsl(var(--muted-foreground) / 0.3);
+    border-radius: 4px;
+    transition: background-color 0.2s ease;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: hsl(var(--muted-foreground) / 0.5);
+  }
+
+  ::-webkit-scrollbar-corner {
+    background: hsl(var(--muted));
+  }
+
+  /* Firefox */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: hsl(var(--muted-foreground) / 0.3) hsl(var(--muted));
+  }
+
+  /* Dark mode adjustments */
+  .dark ::-webkit-scrollbar-track {
+    background: hsl(var(--muted));
+  }
+
+  .dark ::-webkit-scrollbar-thumb {
+    background: hsl(var(--muted-foreground) / 0.4);
+  }
+
+  .dark ::-webkit-scrollbar-thumb:hover {
+    background: hsl(var(--muted-foreground) / 0.6);
+  }
+
+  .dark * {
+    scrollbar-color: hsl(var(--muted-foreground) / 0.4) hsl(var(--muted));
+  }
+}
+
 @keyframes slowPulse {
   0%, 100% {
     box-shadow: 0 0 25px rgba(158, 17, 87, 0.4);
