@@ -15,7 +15,6 @@ import {
 	ChevronDown,
 	ChevronRight,
 	Folder,
-	Stethoscope,
 	Clipboard,
 } from 'lucide-react'
 import { NavLink, useNavigate } from 'react-router-dom'
