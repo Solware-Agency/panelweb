@@ -2,6 +2,7 @@ import { UserRound, Eye, EyeOff, Clock, AlertCircle, CheckCircle } from 'lucide-
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { signUp } from '@lib/supabase/auth'
+import { getUserByEmail } from '@lib/supabase/user-management'
 import Aurora from '@shared/components/ui/Aurora'
 import FadeContent from '@shared/components/ui/FadeContent'
 
@@ -67,7 +68,31 @@ function RegisterForm() {
 
 			console.log('Attempting to register user:', email)
 
-			const { user, error: signUpError } = await signUp(email, password, displayName, normalizedPhone)
+			// Verificar si ya existe un usuario con ese correo en perfiles (pre-check)
+			const cleanedEmail = email.trim().toLowerCase()
+			try {
+				const { data: existingUser, error: existingUserError } = await getUserByEmail(cleanedEmail)
+				// Si existe el perfil, impedir registro
+				if (existingUser) {
+					setError('Ya existe una cuenta con este correo electrónico.')
+					setLoading(false)
+					return
+				}
+				// Si no existe y el error es PGRST116 (no rows), continuar; para otros errores, mostrar genérico
+				if (existingUserError && existingUserError.code !== 'PGRST116') {
+					console.error('Error verificando correo existente:', existingUserError)
+					setError('No se pudo validar el correo en este momento. Inténtalo de nuevo.')
+					setLoading(false)
+					return
+				}
+			} catch (checkErr) {
+				console.error('Unexpected error on email existence check:', checkErr)
+				setError('No se pudo validar el correo en este momento. Inténtalo de nuevo.')
+				setLoading(false)
+				return
+			}
+
+			const { user, error: signUpError } = await signUp(cleanedEmail, password, displayName, normalizedPhone)
 
 			if (signUpError) {
 				console.error('Registration error:', signUpError)
@@ -112,18 +137,26 @@ function RegisterForm() {
 					'¡Cuenta creada exitosamente! Se ha enviado un correo de verificación a tu email. Revisa tu bandeja de entrada y carpeta de spam.',
 				)
 
+				// Persistir email para mostrarlo en la pantalla de verificación aun sin sesión activa
+				try {
+					localStorage.setItem('pending_verification_email', cleanedEmail)
+				} catch {
+					// ignore storage errors
+				}
+
 				// Always redirect to email verification notice
 				setTimeout(() => {
 					navigate('/email-verification-notice')
 				}, 2000)
 			}
-		} catch (err: any) {
+		} catch (err: unknown) {
 			console.error('Registration error:', err)
 
 			// Check if the error is related to rate limiting
+			const message = err instanceof Error ? err.message : ''
 			if (
-				err.message &&
-				(err.message.includes('email rate limit exceeded') || err.message.includes('over_email_send_rate_limit'))
+				message &&
+				(message.includes('email rate limit exceeded') || message.includes('over_email_send_rate_limit'))
 			) {
 				setRateLimitError(true)
 				setError(

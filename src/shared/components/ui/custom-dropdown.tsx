@@ -1,4 +1,6 @@
 import { useState, useRef, useEffect, forwardRef } from 'react'
+import type React from 'react'
+import ReactDOM from 'react-dom'
 import { ChevronDown } from 'lucide-react'
 import { cn } from '@shared/lib/cn'
 
@@ -17,7 +19,6 @@ interface CustomDropdownProps {
 	onChange?: (value: string) => void
 	defaultValue?: string
 	direction?: 'auto' | 'up' | 'down'
-	dropdownMaxHeight?: number
 	'data-testid'?: string
 }
 
@@ -32,7 +33,6 @@ const CustomDropdown = forwardRef<HTMLDivElement, CustomDropdownProps>(
 			onChange,
 			defaultValue,
 			direction = 'auto',
-			dropdownMaxHeight = 240,
 			...props
 		},
 		ref,
@@ -41,8 +41,8 @@ const CustomDropdown = forwardRef<HTMLDivElement, CustomDropdownProps>(
 		const [selectedValue, setSelectedValue] = useState(value || defaultValue || '')
 		const dropdownRef = useRef<HTMLDivElement>(null)
 		const listRef = useRef<HTMLDivElement>(null)
-		const [openDirection, setOpenDirection] = useState<'up' | 'down'>('down')
-		const [computedMaxHeight, setComputedMaxHeight] = useState<number>(dropdownMaxHeight)
+		const [, setOpenDirection] = useState<'up' | 'down'>('down')
+		const [menuStyle, setMenuStyle] = useState<React.CSSProperties | null>(null)
 
 		// Combine refs
 		const combinedRef = (node: HTMLDivElement) => {
@@ -57,7 +57,11 @@ const CustomDropdown = forwardRef<HTMLDivElement, CustomDropdownProps>(
 		// Close dropdown when clicking outside
 		useEffect(() => {
 			const handleClickOutside = (event: MouseEvent) => {
-				if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+				const targetNode = event.target as Node
+				const clickedInsideTrigger = dropdownRef.current?.contains(targetNode)
+				const clickedInsideList = listRef.current?.contains(targetNode)
+
+				if (!clickedInsideTrigger && !clickedInsideList) {
 					setIsOpen(false)
 				}
 			}
@@ -119,9 +123,23 @@ const CustomDropdown = forwardRef<HTMLDivElement, CustomDropdownProps>(
 
 			setOpenDirection(nextDirection)
 
-			const available = nextDirection === 'down' ? spaceBelow - 8 : spaceAbove - 8
-			const safeMax = Math.max(120, Math.min(dropdownMaxHeight, available))
-			setComputedMaxHeight(safeMax)
+			// Fixed positioning to avoid clipping by overflow ancestors
+			if (nextDirection === 'down') {
+				setMenuStyle({
+					position: 'fixed',
+					top: rect.bottom + 4,
+					left: rect.left,
+					width: rect.width,
+				})
+			} else {
+				setMenuStyle({
+					position: 'fixed',
+					top: rect.top - 4,
+					left: rect.left,
+					width: rect.width,
+					transform: 'translateY(-100%)',
+				})
+			}
 		}
 
 		const handleToggle = () => {
@@ -130,6 +148,19 @@ const CustomDropdown = forwardRef<HTMLDivElement, CustomDropdownProps>(
 			if (next) computePositioning()
 			setIsOpen(next)
 		}
+
+		// Reposition on scroll/resize while open
+		useEffect(() => {
+			if (!isOpen) return
+			const onScroll = () => computePositioning()
+			const onResize = () => computePositioning()
+			window.addEventListener('scroll', onScroll, true)
+			window.addEventListener('resize', onResize)
+			return () => {
+				window.removeEventListener('scroll', onScroll, true)
+				window.removeEventListener('resize', onResize)
+			}
+		}, [isOpen])
 
 		const handleSelect = (optionValue: string) => {
 			setSelectedValue(optionValue)
@@ -145,7 +176,7 @@ const CustomDropdown = forwardRef<HTMLDivElement, CustomDropdownProps>(
 				<div
 					onClick={handleToggle}
 					className={cn(
-						'flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 cursor-pointer transition-all duration-200 hover:border-primary hover:shadow-sm hover:bg-accent/50',
+						'flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 cursor-pointer transition-transform duration-200 hover:border-primary hover:shadow-sm hover:bg-accent/50',
 						disabled && 'cursor-not-allowed opacity-50 hover:border-input hover:shadow-none hover:bg-background',
 						isOpen && 'ring-2 ring-ring ring-offset-2',
 					)}
@@ -161,37 +192,39 @@ const CustomDropdown = forwardRef<HTMLDivElement, CustomDropdownProps>(
 				</div>
 
 				{/* Dropdown Content */}
-				{isOpen && (
-					<div
-						ref={listRef}
-						className={cn(
-							'absolute z-[100] w-full overflow-auto rounded-md border bg-popover text-popover-foreground shadow-md animate-in fade-in-0 duration-200',
-							openDirection === 'down' ? 'top-full mt-1' : 'bottom-full mb-1',
-						)}
-						style={{ maxHeight: computedMaxHeight }}
-						role="listbox"
-					>
-						{options.length === 0 ? (
-							<div className="px-3 py-2 text-sm text-muted-foreground">No hay opciones disponibles</div>
-						) : (
-							options.map((option) => (
-								<div
-									key={option.value}
-									onClick={() => !option.disabled && handleSelect(option.value)}
-									className={cn(
-										'relative flex w-full cursor-pointer select-none items-center rounded-sm px-3 py-2 text-sm outline-none transition-colors duration-150 hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground',
-										option.disabled && 'pointer-events-none opacity-50',
-										selectedValue === option.value && 'bg-accent text-accent-foreground',
-									)}
-									role="option"
-									aria-selected={selectedValue === option.value}
-								>
-									<span className={cn(selectedValue === option.value && '')}>{option.label}</span>
-								</div>
-							))
-						)}
-					</div>
-				)}
+				{isOpen &&
+					menuStyle &&
+					ReactDOM.createPortal(
+						<div
+							ref={listRef}
+							className={cn(
+								'fixed z-[99999] overflow-visible rounded-md border bg-popover text-popover-foreground shadow-md animate-in fade-in-0 duration-200',
+							)}
+							style={menuStyle}
+							role="listbox"
+						>
+							{options.length === 0 ? (
+								<div className="px-3 py-2 text-sm text-muted-foreground">No hay opciones disponibles</div>
+							) : (
+								options.map((option) => (
+									<div
+										key={option.value}
+										onClick={() => !option.disabled && handleSelect(option.value)}
+										className={cn(
+											'relative flex w-full cursor-pointer select-none items-center rounded-sm px-3 py-2 text-sm outline-none transition-none duration-150 hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground',
+											option.disabled && 'pointer-events-none opacity-50',
+											selectedValue === option.value && 'bg-accent text-accent-foreground',
+										)}
+										role="option"
+										aria-selected={selectedValue === option.value}
+									>
+										<span className={cn(selectedValue === option.value && '')}>{option.label}</span>
+									</div>
+								))
+							)}
+						</div>,
+						document.body,
+					)}
 			</div>
 		)
 	},

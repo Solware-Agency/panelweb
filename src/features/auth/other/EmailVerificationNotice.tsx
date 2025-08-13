@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Mail, RefreshCw, ArrowLeft, CheckCircle, AlertCircle } from 'lucide-react'
 import { useAuth } from '@app/providers/AuthContext'
 import { resendConfirmation, signOut } from '@lib/supabase/auth'
@@ -8,23 +8,37 @@ import FadeContent from '@shared/components/ui/FadeContent'
 
 function EmailVerificationNotice() {
 	const { user } = useAuth()
+	const [storedEmail, setStoredEmail] = useState<string>('')
 	const [checkingVerification] = useState(false)
 	const [message, setMessage] = useState('')
 	const [error, setError] = useState('')
 	const [loading, setLoading] = useState(false)
 	const navigate = useNavigate()
 
+	useEffect(() => {
+		if (!user?.email) {
+			try {
+				const pending = localStorage.getItem('pending_verification_email')
+				if (pending) setStoredEmail(pending)
+			} catch {
+				// ignore read errors
+			}
+		}
+	}, [user?.email])
+
+	const displayEmail = useMemo(() => user?.email || storedEmail || '', [user?.email, storedEmail])
+
 	const handleResendVerification = async () => {
-		if (!user?.email) return
+		if (!displayEmail) return
 
 		try {
 			setMessage('')
 			setError('')
 			setLoading(true)
 
-			console.log('Resending verification email to:', user.email)
+			console.log('Resending verification email to:', displayEmail)
 
-			const { error: resendError } = await resendConfirmation(user.email)
+			const { error: resendError } = await resendConfirmation(displayEmail)
 
 			if (resendError) {
 				console.error('Resend error:', resendError)
@@ -41,7 +55,7 @@ function EmailVerificationNotice() {
 			}
 
 			setMessage('Correo de verificación enviado. Revisa tu bandeja de entrada y carpeta de spam.')
-		} catch (err: any) {
+		} catch (err: unknown) {
 			console.error('Resend verification error:', err)
 			setError('Error al enviar el correo de verificación. Inténtalo de nuevo.')
 		} finally {
@@ -90,7 +104,7 @@ function EmailVerificationNotice() {
 							<div className="bg-blue-900/50 border border-blue-700/50 text-blue-200 px-4 py-3 rounded mb-4">
 								<p className="text-sm">
 									Hemos enviado un correo de verificación a: <br />
-									<strong>{user?.email}</strong>
+									<strong>{displayEmail || '—'}</strong>
 								</p>
 							</div>
 

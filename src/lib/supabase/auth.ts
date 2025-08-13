@@ -2,6 +2,17 @@ import { supabase, REDIRECT_URL } from './config'
 import type { User, AuthError } from '@supabase/supabase-js'
 import { SESSION_TIMEOUT_OPTIONS } from '@shared/hooks/useSessionTimeout'
 
+// Normaliza nombres propios: trim, colapsa espacios y capitaliza cada palabra
+function normalizeDisplayName(rawName?: string | null): string | null {
+  if (rawName == null) return null
+  const trimmed = String(rawName).trim().replace(/\s+/g, ' ')
+  if (trimmed === '') return null
+  return trimmed
+    .split(' ')
+    .map((word) => (word ? word[0].toUpperCase() + word.slice(1).toLowerCase() : ''))
+    .join(' ')
+}
+
 export interface AuthResponse {
 	user: User | null
 	error: AuthError | null
@@ -31,6 +42,8 @@ export const signUp = async (
 		console.log('Attempting to sign up user:', email)
 		console.log('Using redirect URL:', `${REDIRECT_URL}/auth/callback`)
 
+    const normalizedDisplayName = normalizeDisplayName(displayName ?? null)
+
 		const { data, error } = await supabase.auth.signUp({
 			email,
 			password,
@@ -39,7 +52,7 @@ export const signUp = async (
 				emailRedirectTo: `${REDIRECT_URL}/auth/callback`,
 				data: {
 					email_confirm: true,
-					display_name: displayName || null,
+          display_name: normalizedDisplayName,
 					phone: phone || null,
 				},
 			},
@@ -383,11 +396,16 @@ export const updateUserProfile = async (
 			normalizedPhone = normalizedPhone === null ? null : String(normalizedPhone).replace(/\D/g, '')
 		}
 
+    // Normalizar display_name si viene presente
+    const normalizedDisplayName =
+      updates.display_name !== undefined ? normalizeDisplayName(updates.display_name ?? null) : undefined
+
 		// First update the profile in the profiles table
 		const { error: profileError } = await supabase
 			.from('profiles')
 			.update({
-				...updates,
+        ...updates,
+        ...(normalizedDisplayName !== undefined ? { display_name: normalizedDisplayName } : {}),
 				...(typeof normalizedPhone !== 'undefined' ? { phone: normalizedPhone } : {}),
 				updated_at: new Date().toISOString(),
 			})
@@ -399,7 +417,7 @@ export const updateUserProfile = async (
 		}
 
 		// If display_name or phone is being updated, also update it in auth.users metadata
-		if (updates.display_name !== undefined || typeof normalizedPhone !== 'undefined') {
+    if (updates.display_name !== undefined || typeof normalizedPhone !== 'undefined') {
 			// Get current user metadata
 			const { data: userData } = await supabase.auth.getUser()
 
@@ -407,7 +425,10 @@ export const updateUserProfile = async (
 				// Update the display_name in user metadata
 				const { error: metadataError } = await updateUserMetadata({
 					...userData.user.user_metadata,
-					display_name: updates.display_name ?? userData.user.user_metadata?.display_name ?? null,
+          display_name:
+            normalizedDisplayName !== undefined
+              ? normalizedDisplayName
+              : userData.user.user_metadata?.display_name ?? null,
 					phone: typeof normalizedPhone !== 'undefined' ? normalizedPhone : userData.user.user_metadata?.phone ?? null,
 				})
 

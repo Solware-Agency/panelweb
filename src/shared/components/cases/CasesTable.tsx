@@ -800,17 +800,17 @@ const CasesTable: React.FC<CasesTableProps> = React.memo(
 										</DatePopoverContent>
 									</DatePopover>
 
-                                    {startDate && (
-                                        <Button
-                                            onClick={() => setStartDate(undefined)}
-                                            variant="ghost"
-                                            size="sm"
-                                            className="text-xs px-2 py-1"
-                                            title="Limpiar fecha inicial"
-                                        >
-                                            Limpiar
-                                        </Button>
-                                    )}
+									{startDate && (
+										<Button
+											onClick={() => setStartDate(undefined)}
+											variant="ghost"
+											size="sm"
+											className="text-xs px-2 py-1"
+											title="Limpiar fecha inicial"
+										>
+											Limpiar
+										</Button>
+									)}
 								</div>
 
 								{/* Branch Filter - Only show if user doesn't have assigned branch */}
@@ -916,7 +916,7 @@ const CasesTable: React.FC<CasesTableProps> = React.memo(
 
 						{/* Desktop View - Table with virtualization */}
 						<div className="hidden lg:block h-full overflow-y-auto">
-														<table className="w-full responsive-table">
+							<table className="w-full responsive-table">
 								<thead className="bg-gray-50/50 dark:bg-background/50 backdrop-blur-[10px] sticky top-0 z-[1000]">
 									<tr>
 										<th className="px-4 py-3 text-left">
@@ -1069,7 +1069,7 @@ const CasesTable: React.FC<CasesTableProps> = React.memo(
 
 		return (
 			<>
-				<div className="bg-white dark:bg-background rounded-xl h-full overflow-hidden">
+				<div className="bg-white dark:bg-background rounded-xl h-full overflow-hidden border border-gray-200 dark:border-gray-700">
 					{/* Search and Filter Controls */}
 					<div className="p-3 sm:p-6 border-b border-gray-200 dark:border-gray-700">
 						<div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4">
@@ -1129,17 +1129,17 @@ const CasesTable: React.FC<CasesTableProps> = React.memo(
 										</DatePopoverContent>
 									</DatePopover>
 
-                                    {startDate && (
-                                        <Button
-                                            onClick={() => setStartDate(undefined)}
-                                            variant="ghost"
-                                            size="sm"
-                                            className="text-xs px-2 py-1"
-                                            title="Limpiar fecha inicial"
-                                        >
-                                            Limpiar
-                                        </Button>
-                                    )}
+									{startDate && (
+										<Button
+											onClick={() => setStartDate(undefined)}
+											variant="ghost"
+											size="sm"
+											className="text-xs px-2 py-1"
+											title="Limpiar fecha inicial"
+										>
+											Limpiar
+										</Button>
+									)}
 								</div>
 
 								{/* Branch Filter */}
@@ -1186,7 +1186,7 @@ const CasesTable: React.FC<CasesTableProps> = React.memo(
 								{/* Fullscreen Button */}
 								<button
 									onClick={() => setIsFullscreen(true)}
-									className="hidden lg:flex items-center gap-2 px-3 py-2 border border-input rounded-lg focus:ring-2 focus:ring-primary dark:bg-background dark:text-white text-sm hover:bg-gray-50 dark:hover:bg-gray-800 hover:border-primary hover:shadow-sm transition-all duration-200 flex-shrink-0 whitespace-nowrap"
+									className="hidden lg:flex items-center gap-2 px-3 py-2 border border-input rounded-lg focus:ring-2 focus:ring-primary dark:bg-background dark:text-white text-sm hover:bg-gray-50 dark:hover:bg-gray-800 hover:border-primary hover:shadow-sm transition-transform duration-200 flex-shrink-0 whitespace-nowrap"
 								>
 									<Maximize2 className="w-4 h-4" />
 									Expandir
@@ -1224,7 +1224,7 @@ const CasesTable: React.FC<CasesTableProps> = React.memo(
 						<div className="overflow-x-auto responsive-table">
 							<div className="max-h-[45vh] overflow-y-auto">
 								<table className="w-full min-w-[800px]">
-                                    <thead className="bg-gray-50/50 dark:bg-background/50 backdrop-blur-[10px] sticky top-0 z-[1000]">
+									<thead className="bg-gray-50/50 dark:bg-background/50 backdrop-blur-[10px] sticky top-0 z-[1000]">
 										<tr>
 											<th className="px-4 py-3 text-left">
 												<button

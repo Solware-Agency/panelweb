@@ -48,6 +48,7 @@ import {
 } from '@shared/utils/number-utils'
 import { useBodyScrollLock } from '@shared/hooks/useBodyScrollLock'
 import { useGlobalOverlayOpen } from '@shared/hooks/useGlobalOverlayOpen'
+import { Tooltip, TooltipContent, TooltipTrigger } from '@shared/components/ui/tooltip'
 
 interface ChangeLogEntry {
 	id: string
@@ -112,7 +113,7 @@ const InfoRow: React.FC<InfoRowProps> = React.memo(
 		const displayValue = field ? editedValue ?? value : value
 
 		return (
-			<div className="flex flex-col sm:flex-row sm:justify-between py-3 border-b border-gray-200 dark:border-gray-700 last:border-b-0 hover:bg-gray-50 dark:hover:bg-gray-800/30 transition-colors duration-150 rounded px-2 -mx-2">
+			<div className="flex flex-col sm:flex-row sm:justify-between py-3 border-b border-gray-200 dark:border-gray-700 last:border-b-0 hover:bg-gray-50 dark:hover:bg-gray-800/30 transition-transform duration-150 rounded px-2 -mx-2">
 				<span className="text-sm font-medium text-gray-600 dark:text-gray-400">{label}:</span>
 				{isEditableField ? (
 					<div className="sm:w-1/2">
@@ -650,7 +651,7 @@ const UnifiedCaseModal: React.FC<CaseDetailPanelProps> = React.memo(({ case_, is
 			`¿Podría proporcionarme más información?`
 
 		// Format phone number (remove spaces, dashes, etc.)
-		const cleanPhone = case_.phone.replace(/[\s\-\(\)]/g, '')
+		const cleanPhone = case_.phone.replace(/[\s-()]/g, '')
 		const whatsappLink = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(message)}`
 
 		window.open(whatsappLink, '_blank')
@@ -903,9 +904,77 @@ const UnifiedCaseModal: React.FC<CaseDetailPanelProps> = React.memo(({ case_, is
 										</div>
 										<div className="flex items-center gap-1.5 sm:gap-2 mt-1 sm:mt-2">
 											{currentCase.code && (
-												<span className="inline-flex items-center gap-1 px-1.5 sm:px-2 py-0.5 sm:py-1 text-xs font-semibold rounded-full bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300">
-													{currentCase.code}
-												</span>
+												<Tooltip>
+													<TooltipTrigger>
+														<span className="inline-flex items-center gap-1 px-1.5 sm:px-2 py-0.5 sm:py-1 text-xs font-semibold rounded-full bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300">
+															{currentCase.code}
+														</span>
+													</TooltipTrigger>
+													<TooltipContent>
+														{(() => {
+															const code = String(currentCase.code ?? '')
+															// Formato esperado: D + YY + NNN + L (ej: 125005H)
+															const isValid = /^\d{6}[A-Za-z]$/.test(code)
+
+															if (!isValid) {
+																return <p>Código del caso.</p>
+															}
+
+															const typeDigit = code[0]
+															const yearSuffix = code.slice(1, 3)
+															const yearNumber = 2000 + Number.parseInt(yearSuffix, 10)
+															const caseNumber = code.slice(3, 6)
+															const monthLetter = code.slice(6).toUpperCase()
+
+															const examTypeMap: Record<string, string> = {
+																'1': 'Citología',
+																'2': 'Biopsia',
+																'3': 'Inmunohistoquímica',
+															}
+															const monthMap: Record<string, string> = {
+																A: 'Enero',
+																B: 'Febrero',
+																C: 'Marzo',
+																D: 'Abril',
+																E: 'Mayo',
+																F: 'Junio',
+																G: 'Julio',
+																H: 'Agosto',
+																I: 'Septiembre',
+																J: 'Octubre',
+																K: 'Noviembre',
+																L: 'Diciembre',
+															}
+
+															const examType = examTypeMap[typeDigit] ?? 'Desconocido'
+															const monthName = monthMap[monthLetter] ?? 'Desconocido'
+
+															return (
+																<div className="text-xs leading-5 max-w-none">
+																	<div className="font-semibold mb-1">Explicación del código</div>
+																	<div className="font-mono text-sm mb-1">{code}</div>
+																	<ul className="list-disc pl-4 space-y-0.5 text-left text-xs">
+																		<li>
+																			1er dígito: <b>{typeDigit}</b> = {examType}{' '}
+																			{examType === 'Desconocido'
+																				? ' (1 = Citología, 2 = Biopsia, 3 = Inmunohistoquímica)'
+																				: ''}
+																		</li>
+																		<li>
+																			Siguientes dos: <b>{yearSuffix}</b> = Año {yearNumber}
+																		</li>
+																		<li>
+																			Siguientes tres: <b>{caseNumber}</b> = Consecutivo del mes
+																		</li>
+																		<li className="whitespace-nowrap">
+																			Última letra: <b>{monthLetter}</b> = {monthName} (A = Enero ... L = Diciembre)
+																		</li>
+																	</ul>
+																</div>
+															)
+														})()}
+													</TooltipContent>
+												</Tooltip>
 											)}
 											<span
 												className={`inline-flex px-1.5 sm:px-2 py-0.5 sm:py-1 text-xs font-semibold rounded-full ${getStatusColor(
@@ -1180,7 +1249,7 @@ const UnifiedCaseModal: React.FC<CaseDetailPanelProps> = React.memo(({ case_, is
 											onChange={handleInputChange}
 										/>
 										{/* Edad: input numérico + dropdown (AÑOS/MESES) */}
-										<div className="flex flex-col sm:flex-row sm:justify-between py-3 border-b border-gray-200 dark:border-gray-700 last:border-b-0 hover:bg-gray-50 dark:hover:bg-gray-800/30 transition-colors duration-150 rounded px-2 -mx-2">
+										<div className="flex flex-col sm:flex-row sm:justify-between py-3 border-b border-gray-200 dark:border-gray-700 last:border-b-0 hover:bg-gray-50 dark:hover:bg-gray-800/30 transition-transform duration-150 rounded px-2 -mx-2">
 											<span className="text-sm font-medium text-gray-600 dark:text-gray-400">Edad:</span>
 											{isEditing ? (
 												<div className="sm:w-1/2 grid grid-cols-2 gap-2">
@@ -1254,7 +1323,7 @@ const UnifiedCaseModal: React.FC<CaseDetailPanelProps> = React.memo(({ case_, is
 								<InfoSection title="Información Médica" icon={Stethoscope}>
 									<div className="space-y-1">
 										{/* Estudio - Dropdown */}
-										<div className="flex flex-col sm:flex-row sm:justify-between py-3 border-b border-gray-200 dark:border-gray-700 last:border-b-0 hover:bg-gray-50 dark:hover:bg-gray-800/30 transition-colors duration-150 rounded px-2 -mx-2">
+										<div className="flex flex-col sm:flex-row sm:justify-between py-3 border-b border-gray-200 dark:border-gray-700 last:border-b-0 hover:bg-gray-50 dark:hover:bg-gray-800/30 transition-transform duration-150 rounded px-2 -mx-2">
 											<span className="text-sm font-medium text-gray-600 dark:text-gray-400">Estudio:</span>
 											{isEditing ? (
 												<div className="sm:w-1/2">
@@ -1279,7 +1348,7 @@ const UnifiedCaseModal: React.FC<CaseDetailPanelProps> = React.memo(({ case_, is
 										</div>
 
 										{/* Médico Tratante - Autocompletado */}
-										<div className="flex flex-col sm:flex-row sm:justify-between py-3 border-b border-gray-200 dark:border-gray-700 last:border-b-0 hover:bg-gray-50 dark:hover:bg-gray-800/30 transition-colors duration-150 rounded px-2 -mx-2">
+										<div className="flex flex-col sm:flex-row sm:justify-between py-3 border-b border-gray-200 dark:border-gray-700 last:border-b-0 hover:bg-gray-50 dark:hover:bg-gray-800/30 transition-transform duration-150 rounded px-2 -mx-2">
 											<span className="text-sm font-medium text-gray-600 dark:text-gray-400">Médico tratante:</span>
 											{isEditing ? (
 												<div className="sm:w-1/2">
@@ -1304,7 +1373,7 @@ const UnifiedCaseModal: React.FC<CaseDetailPanelProps> = React.memo(({ case_, is
 										</div>
 
 										{/* Procedencia - Autocompletado */}
-										<div className="flex flex-col sm:flex-row sm:justify-between py-3 border-b border-gray-200 dark:border-gray-700 last:border-b-0 hover:bg-gray-50 dark:hover:bg-gray-800/30 transition-colors duration-150 rounded px-2 -mx-2">
+										<div className="flex flex-col sm:flex-row sm:justify-between py-3 border-b border-gray-200 dark:border-gray-700 last:border-b-0 hover:bg-gray-50 dark:hover:bg-gray-800/30 transition-transform duration-150 rounded px-2 -mx-2">
 											<span className="text-sm font-medium text-gray-600 dark:text-gray-400">Procedencia:</span>
 											{isEditing ? (
 												<div className="sm:w-1/2">
@@ -1329,7 +1398,7 @@ const UnifiedCaseModal: React.FC<CaseDetailPanelProps> = React.memo(({ case_, is
 										</div>
 
 										{/* Sede - Dropdown */}
-										<div className="flex flex-col sm:flex-row sm:justify-between py-3 border-b border-gray-200 dark:border-gray-700 last:border-b-0 hover:bg-gray-50 dark:hover:bg-gray-800/30 transition-colors duration-150 rounded px-2 -mx-2">
+										<div className="flex flex-col sm:flex-row sm:justify-between py-3 border-b border-gray-200 dark:border-gray-700 last:border-b-0 hover:bg-gray-50 dark:hover:bg-gray-800/30 transition-transform duration-150 rounded px-2 -mx-2">
 											<span className="text-sm font-medium text-gray-600 dark:text-gray-400">Sede:</span>
 											{isEditing ? (
 												<div className="sm:w-1/2">
@@ -1350,7 +1419,7 @@ const UnifiedCaseModal: React.FC<CaseDetailPanelProps> = React.memo(({ case_, is
 										</div>
 
 										{/* Muestra - Autocompletado */}
-										<div className="flex flex-col sm:flex-row sm:justify-between py-3 border-b border-gray-200 dark:border-gray-700 last:border-b-0 hover:bg-gray-50 dark:hover:bg-gray-800/30 transition-colors duration-150 rounded px-2 -mx-2">
+										<div className="flex flex-col sm:flex-row sm:justify-between py-3 border-b border-gray-200 dark:border-gray-700 last:border-b-0 hover:bg-gray-50 dark:hover:bg-gray-800/30 transition-transform duration-150 rounded px-2 -mx-2">
 											<span className="text-sm font-medium text-gray-600 dark:text-gray-400">Muestra:</span>
 											{isEditing ? (
 												<div className="sm:w-1/2">
@@ -1375,7 +1444,7 @@ const UnifiedCaseModal: React.FC<CaseDetailPanelProps> = React.memo(({ case_, is
 										</div>
 
 										{/* Cantidad de muestras - Numérico */}
-										<div className="flex flex-col sm:flex-row sm:justify-between py-3 border-b border-gray-200 dark:border-gray-700 last:border-b-0 hover:bg-gray-50 dark:hover:bg-gray-800/30 transition-colors duration-150 rounded px-2 -mx-2">
+										<div className="flex flex-col sm:flex-row sm:justify-between py-3 border-b border-gray-200 dark:border-gray-700 last:border-b-0 hover:bg-gray-50 dark:hover:bg-gray-800/30 transition-transform duration-150 rounded px-2 -mx-2">
 											<span className="text-sm font-medium text-gray-600 dark:text-gray-400">
 												Cantidad de muestras:
 											</span>
