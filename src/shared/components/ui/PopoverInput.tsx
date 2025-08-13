@@ -90,7 +90,7 @@ export function PopoverTrigger({ children, className }: PopoverTriggerProps) {
 			key="button"
 			layoutId={`popover-${uniqueId}`}
 			className={cn(
-				'flex h-9 items-center border border-zinc-950/10 bg-white px-3 text-zinc-950 dark:border-input dark:bg-background hover:bg-gray-50 dark:hover:bg-background/50 dark:text-zinc-50 transition-colors duration-200',
+				'flex h-9 items-center border border-zinc-950/10 bg-white px-3 text-zinc-950 dark:border-input dark:bg-background hover:bg-gray-50 dark:hover:bg-background/50 dark:text-zinc-50 transition-transform duration-200',
 				className,
 			)}
 			style={{
@@ -255,7 +255,7 @@ export function PopoverSubmitButton({ className }: PopoverSubmitButtonProps) {
 	return (
 		<button
 			className={cn(
-				'relative ml-1 flex h-8 shrink-0 scale-100 select-none appearance-none items-center justify-center rounded-lg border border-zinc-950/10 bg-transparent px-2 text-sm text-zinc-500 transition-none hover:bg-zinc-100 hover:text-zinc-800 focus-visible:ring-2 active:scale-[0.98] dark:border-gray-500 dark:text-zinc-50 dark:hover:bg-background/50',
+				'relative ml-1 flex h-8 shrink-0 scale-100 select-none appearance-none items-center justify-center rounded-lg border border-zinc-950/10 bg-transparent px-2 text-sm text-zinc-500 transition-transform duration-150 hover:bg-zinc-100 hover:text-zinc-800 focus-visible:ring-2 active:scale-[0.98] dark:border-gray-500 dark:text-zinc-50 dark:hover:bg-background/50',
 				className,
 			)}
 			type="submit"
@@ -287,7 +287,7 @@ export function PopoverButton({
 	return (
 		<button
 			className={cn(
-				'flex w-full items-center gap-2 rounded-md px-4 py-2 text-left text-sm hover:bg-zinc-100 dark:hover:bg-blue-900/20 transition-colors duration-150',
+				'flex w-full items-center gap-2 rounded-md px-4 py-2 text-left text-sm hover:bg-zinc-100 dark:hover:bg-blue-900/20 transition-transform duration-150',
 				className,
 			)}
 			onClick={onClick}

@@ -17,7 +17,7 @@ import {
 } from 'lucide-react'
 import { Card } from '@shared/components/ui/card'
 import { Input } from '@shared/components/ui/input'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@shared/components/ui/select'
+import { CustomDropdown } from '@shared/components/ui/custom-dropdown'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { supabase } from '@lib/supabase/config'
 import {
@@ -521,7 +521,7 @@ const MainUsers: React.FC = () => {
 			<Card className="hover:border-primary hover:shadow-lg hover:shadow-primary/20 transition-transform duration-300 shadow-lg mb-3 sm:mb-5">
 				<div className="bg-white dark:bg-background rounded-xl p-3 sm:p-6">
 					{/* Todo en una sola línea horizontal */}
-					<div className="flex items-center justify-between gap-2 overflow-x-auto">
+					<div className="flex items-center justify-between gap-2 overflow-x-auto" style={{ overflowY: 'visible' }}>
 						{/* Lado izquierdo: Búsqueda y filtros */}
 						<div className="flex items-center gap-3 flex-shrink-0">
 							{/* Búsqueda */}
@@ -539,33 +539,35 @@ const MainUsers: React.FC = () => {
 							{/* Filtros */}
 							<div className="flex items-center gap-2">
 								{/* Filtro por aprobación */}
-								<Select value={approvalFilter} onValueChange={setApprovalFilter}>
-									<SelectTrigger className="w-32 h-10 text-sm hover:border-primary hover:shadow-sm transition-transform duration-200">
-										<SelectValue placeholder="Estado" />
-									</SelectTrigger>
-									<SelectContent>
-										<SelectItem value="all">Todos</SelectItem>
-										<SelectItem value="aprobado">Aprobados</SelectItem>
-										<SelectItem value="pendiente">Pendientes</SelectItem>
-									</SelectContent>
-								</Select>
+								<CustomDropdown
+									value={approvalFilter}
+									onChange={setApprovalFilter}
+									options={[
+										{ value: 'all', label: 'Todos' },
+										{ value: 'aprobado', label: 'Aprobados' },
+										{ value: 'pendiente', label: 'Pendientes' },
+									]}
+									placeholder="Estado"
+									className="w-32 text-sm"
+								/>
 
 								{/* Filtro por sede */}
-								<Select value={branchFilter} onValueChange={setbranchFilter}>
-									<SelectTrigger className="w-32 h-10 text-sm hover:border-primary hover:shadow-sm transition-transform duration-200">
-										<SelectValue placeholder="Sede" />
-									</SelectTrigger>
-									<SelectContent>
-										<SelectItem value="all">Todas</SelectItem>
-										<SelectItem value="assigned">Asignada</SelectItem>
-										<SelectItem value="unassigned">Sin sede</SelectItem>
-										<SelectItem value="PMG">PMG</SelectItem>
-										<SelectItem value="CPC">CPC</SelectItem>
-										<SelectItem value="CNX">CNX</SelectItem>
-										<SelectItem value="STX">STX</SelectItem>
-										<SelectItem value="MCY">MCY</SelectItem>
-									</SelectContent>
-								</Select>
+								<CustomDropdown
+									value={branchFilter}
+									onChange={setbranchFilter}
+									options={[
+										{ value: 'all', label: 'Todas' },
+										{ value: 'assigned', label: 'Asignada' },
+										{ value: 'unassigned', label: 'Sin sede' },
+										{ value: 'PMG', label: 'PMG' },
+										{ value: 'CPC', label: 'CPC' },
+										{ value: 'CNX', label: 'CNX' },
+										{ value: 'STX', label: 'STX' },
+										{ value: 'MCY', label: 'MCY' },
+									]}
+									placeholder="Sede"
+									className="w-32 text-sm"
+								/>
 							</div>
 						</div>
 
@@ -652,7 +654,7 @@ const MainUsers: React.FC = () => {
 			</Card>
 
 			{/* Tabla de usuarios */}
-			<Card className="hover:border-primary hover:shadow-lg hover:shadow-primary/20 transition-transform duration-300 shadow-lg overflow-hidden">
+			<Card className="hover:border-primary hover:shadow-lg hover:shadow-primary/20 transition-transform duration-300 shadow-lg">
 				<div className="bg-white dark:bg-background rounded-xl">
 					{/* Vista móvil - Cards */}
 					<div className="block lg:hidden p-3 sm:p-4">
@@ -727,7 +729,7 @@ const MainUsers: React.FC = () => {
 									</div>
 
 									{/* Fecha de registro */}
-									<div className="flex items-center gap-1.5 sm:gap-2 mb-2 sm:mb-3">
+									<div className="flex items-center text gap-1.5 sm:gap-2 mb-2 sm:mb-3">
 										<Calendar className="w-4 h-4 text-gray-600 dark:text-gray-400" />
 										<p className="text-[10px] sm:text-xs text-gray-500 dark:text-gray-400">
 											Registrado: {format(new Date(user.created_at), 'dd/MM/yyyy HH:mm', { locale: es })}
@@ -740,28 +742,16 @@ const MainUsers: React.FC = () => {
 											<label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
 												Estado de Aprobación:
 											</label>
-											<Select
+											<CustomDropdown
 												defaultValue={user.estado || 'pendiente'}
-												onValueChange={(value: 'pendiente' | 'aprobado') => handleApprovalChange(user.id, value)}
-											>
-												<SelectTrigger className="w-full">
-													<SelectValue placeholder="Seleccionar estado" />
-												</SelectTrigger>
-												<SelectContent>
-													<SelectItem value="aprobado">
-														<div className="flex items-center gap-2">
-															<CheckCircle className="w-4 h-4 text-green-600 dark:text-green-400" />
-															<span>Aprobado</span>
-														</div>
-													</SelectItem>
-													<SelectItem value="pendiente">
-														<div className="flex items-center gap-2">
-															<Clock className="w-4 h-4 text-orange-600 dark:text-orange-400" />
-															<span>Pendiente</span>
-														</div>
-													</SelectItem>
-												</SelectContent>
-											</Select>
+												onChange={(value) => handleApprovalChange(user.id, value as 'pendiente' | 'aprobado')}
+												options={[
+													{ value: 'aprobado', label: 'Aprobado' },
+													{ value: 'pendiente', label: 'Pendiente' },
+												]}
+												placeholder="Seleccionar estado"
+												className="w-full"
+											/>
 										</div>
 									)}
 
@@ -771,34 +761,17 @@ const MainUsers: React.FC = () => {
 											<label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
 												Cambiar Rol:
 											</label>
-											<Select
+											<CustomDropdown
 												defaultValue={user.role}
-												onValueChange={(value: 'owner' | 'employee' | 'admin') => handleRoleChange(user.id, value)}
-											>
-												<SelectTrigger className="w-full">
-													<SelectValue placeholder="Seleccionar rol" />
-												</SelectTrigger>
-												<SelectContent>
-													<SelectItem value="owner">
-														<div className="flex items-center gap-2">
-															<Crown className="w-4 h-4 text-yellow-600 dark:text-yellow-400" />
-															<span>Propietario</span>
-														</div>
-													</SelectItem>
-													<SelectItem value="employee">
-														<div className="flex items-center gap-2">
-															<Briefcase className="w-4 h-4 text-blue-600 dark:text-blue-400" />
-															<span>Recepcionista</span>
-														</div>
-													</SelectItem>
-													<SelectItem value="admin">
-														<div className="flex items-center gap-2">
-															<ShieldCheck className="w-4 h-4 text-purple-600 dark:text-purple-400" />
-															<span>Administrador</span>
-														</div>
-													</SelectItem>
-												</SelectContent>
-											</Select>
+												onChange={(value) => handleRoleChange(user.id, value as 'owner' | 'employee' | 'admin')}
+												options={[
+													{ value: 'owner', label: 'Propietario' },
+													{ value: 'employee', label: 'Recepcionista' },
+													{ value: 'admin', label: 'Administrador' },
+												]}
+												placeholder="Seleccionar rol"
+												className="w-full"
+											/>
 										</div>
 									)}
 
@@ -808,22 +781,20 @@ const MainUsers: React.FC = () => {
 											<label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
 												Asignar Sede:
 											</label>
-											<Select
+											<CustomDropdown
 												defaultValue={user.assigned_branch || 'none'}
-												onValueChange={(value) => handleBranchChange(user.id, value === 'none' ? null : value)}
-											>
-												<SelectTrigger className="w-full">
-													<SelectValue placeholder="Seleccionar sede" />
-												</SelectTrigger>
-												<SelectContent>
-													<SelectItem value="none">Sin restricción de sede</SelectItem>
-													<SelectItem value="PMG">PMG</SelectItem>
-													<SelectItem value="CPC">CPC</SelectItem>
-													<SelectItem value="CNX">CNX</SelectItem>
-													<SelectItem value="STX">STX</SelectItem>
-													<SelectItem value="MCY">MCY</SelectItem>
-												</SelectContent>
-											</Select>
+												onChange={(value) => handleBranchChange(user.id, value === 'none' ? null : value)}
+												options={[
+													{ value: 'none', label: 'Sin restricción de sede' },
+													{ value: 'PMG', label: 'PMG' },
+													{ value: 'CPC', label: 'CPC' },
+													{ value: 'CNX', label: 'CNX' },
+													{ value: 'STX', label: 'STX' },
+													{ value: 'MCY', label: 'MCY' },
+												]}
+												placeholder="Seleccionar sede"
+												className="w-full"
+											/>
 										</div>
 									)}
 								</div>
@@ -832,9 +803,9 @@ const MainUsers: React.FC = () => {
 					</div>
 
 					{/* Vista desktop - Tabla */}
-					<div className="hidden lg:block overflow-x-auto">
+					<div className="hidden lg:block overflow-x-auto overflow-y-auto max-h-[60vh] relative">
 						<table className="w-full responsive-table">
-							<thead className="bg-gray-50/50 dark:bg-background/50 backdrop-blur-[10px]">
+							<thead className="bg-gray-50/50 dark:bg-background/50 backdrop-blur-[10px] sticky top-0 z-20 rounded-t-lg">
 								<tr>
 									<th className="px-6 py-4 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
 										Usuario
@@ -911,34 +882,17 @@ const MainUsers: React.FC = () => {
 										</td>
 										<td className="px-6 py-4">
 											{canManage && user.id !== currentUser?.id ? (
-												<Select
+												<CustomDropdown
 													defaultValue={user.role}
-													onValueChange={(value: 'owner' | 'employee' | 'admin') => handleRoleChange(user.id, value)}
-												>
-													<SelectTrigger className="w-40">
-														<SelectValue placeholder="Seleccionar rol" />
-													</SelectTrigger>
-													<SelectContent>
-														<SelectItem value="owner">
-															<div className="flex items-center gap-2">
-																<Crown className="w-4 h-4 text-yellow-600 dark:text-yellow-400" />
-																<span>Propietario</span>
-															</div>
-														</SelectItem>
-														<SelectItem value="employee">
-															<div className="flex items-center gap-2">
-																<Briefcase className="w-4 h-4 text-blue-600 dark:text-blue-400" />
-																<span>Recepcionista</span>
-															</div>
-														</SelectItem>
-														<SelectItem value="admin">
-															<div className="flex items-center gap-2">
-																<ShieldCheck className="w-4 h-4 text-purple-600 dark:text-purple-400" />
-																<span>Administrador</span>
-															</div>
-														</SelectItem>
-													</SelectContent>
-												</Select>
+													onChange={(value) => handleRoleChange(user.id, value as 'owner' | 'employee' | 'admin')}
+													options={[
+														{ value: 'owner', label: 'Propietario' },
+														{ value: 'employee', label: 'Recepcionista' },
+														{ value: 'admin', label: 'Administrador' },
+													]}
+													placeholder="Seleccionar rol"
+													className="w-40"
+												/>
 											) : (
 												<span
 													className={`inline-flex items-center gap-1 px-2 py-1 text-xs font-semibold rounded-full ${getRoleColor(
@@ -956,22 +910,20 @@ const MainUsers: React.FC = () => {
 										</td>
 										<td className="px-6 py-4">
 											{canManage ? (
-												<Select
+												<CustomDropdown
 													defaultValue={user.assigned_branch || 'none'}
-													onValueChange={(value) => handleBranchChange(user.id, value === 'none' ? null : value)}
-												>
-													<SelectTrigger className="w-40">
-														<SelectValue placeholder="Seleccionar sede" className="text-white" />
-													</SelectTrigger>
-													<SelectContent className="bg-white dark:bg-background">
-														<SelectItem value="none">Sin restricción</SelectItem>
-														<SelectItem value="PMG">PMG</SelectItem>
-														<SelectItem value="CPC">CPC</SelectItem>
-														<SelectItem value="CNX">CNX</SelectItem>
-														<SelectItem value="STX">STX</SelectItem>
-														<SelectItem value="MCY">MCY</SelectItem>
-													</SelectContent>
-												</Select>
+													onChange={(value) => handleBranchChange(user.id, value === 'none' ? null : value)}
+													options={[
+														{ value: 'none', label: 'Sin restricción' },
+														{ value: 'PMG', label: 'PMG' },
+														{ value: 'CPC', label: 'CPC' },
+														{ value: 'CNX', label: 'CNX' },
+														{ value: 'STX', label: 'STX' },
+														{ value: 'MCY', label: 'MCY' },
+													]}
+													placeholder="Seleccionar sede"
+													className="w-40"
+												/>
 											) : user.assigned_branch ? (
 												<span
 													className={`inline-flex items-center gap-1 px-2 py-1 text-xs font-semibold rounded-full ${getBranchColor(
@@ -987,28 +939,16 @@ const MainUsers: React.FC = () => {
 										</td>
 										<td className="px-6 py-4">
 											{canManage && user.id !== currentUser?.id ? (
-												<Select
+												<CustomDropdown
 													defaultValue={user.estado || 'pendiente'}
-													onValueChange={(value: 'pendiente' | 'aprobado') => handleApprovalChange(user.id, value)}
-												>
-													<SelectTrigger className="w-40">
-														<SelectValue placeholder="Seleccionar estado" />
-													</SelectTrigger>
-													<SelectContent>
-														<SelectItem value="aprobado">
-															<div className="flex items-center gap-2">
-																<CheckCircle className="w-4 h-4 text-green-600 dark:text-green-400" />
-																<span>Aprobado</span>
-															</div>
-														</SelectItem>
-														<SelectItem value="pendiente">
-															<div className="flex items-center gap-2">
-																<Clock className="w-4 h-4 text-orange-600 dark:text-orange-400" />
-																<span>Pendiente</span>
-															</div>
-														</SelectItem>
-													</SelectContent>
-												</Select>
+													onChange={(value) => handleApprovalChange(user.id, value as 'pendiente' | 'aprobado')}
+													options={[
+														{ value: 'aprobado', label: 'Aprobado' },
+														{ value: 'pendiente', label: 'Pendiente' },
+													]}
+													placeholder="Seleccionar estado"
+													className="w-40"
+												/>
 											) : (
 												<span
 													className={`inline-flex items-center gap-1 px-2 py-1 text-xs font-semibold rounded-full ${getApprovalColor(

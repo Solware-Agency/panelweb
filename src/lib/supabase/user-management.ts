@@ -224,23 +224,36 @@ export const getUserStats = async () => {
  * Get user by email
  */
 export const getUserByEmail = async (email: string): Promise<{ data: UserProfile | null; error: any }> => {
-	try {
-		const { data, error } = await supabase
-			.from('profiles')
-			.select('*')
-			.eq('email', email)
-			.single()
+    try {
+			// Normalizar email para búsqueda case-insensitive
+			const normalizedEmail = String(email).trim().toLowerCase()
 
-		if (error) {
-			console.error('Error fetching user by email:', error)
-			throw error
+			const { data, error, status } = await supabase
+				.from('profiles')
+				.select('id, email, role, created_at, updated_at, assigned_branch, display_name, estado, phone')
+				.ilike('email', normalizedEmail)
+				.maybeSingle()
+
+			// Si no hay filas, maybeSingle retorna data=null y error=null con status 200 o 206
+			if (!data && !error) {
+				return { data: null, error: null }
+			}
+
+			// Manejar específicamente el caso PGRST116 (0 filas con single), por si algún cliente retorna 406
+			if (error && (error.code === 'PGRST116' || status === 406)) {
+				return { data: null, error: null }
+			}
+
+			if (error) {
+				console.error('Error fetching user by email:', error)
+				return { data: null, error }
+			}
+
+			return { data: data as UserProfile, error: null }
+		} catch (error) {
+			console.error('Unexpected error fetching user by email:', error)
+			return { data: null, error }
 		}
-
-		return { data, error: null }
-	} catch (error) {
-		console.error('Unexpected error fetching user by email:', error)
-		return { data: null, error }
-	}
 }
 
 /**

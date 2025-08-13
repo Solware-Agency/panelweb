@@ -49,7 +49,7 @@ const NavItem: React.FC<NavItemProps> = ({ to, icon, label, showFullContent, onC
 		<NavLink
 			to={to}
 			className={({ isActive }) =>
-				`flex justify-between items-center gap-2 sm:gap-3 cursor-pointer w-full py-2 px-1 rounded-md ${
+				`flex justify-between items-center gap-2 sm:gap-3 cursor-pointer w-full py-2 px-1 rounded-md transition-none ${
 					isActive ? 'text-primary border-primary' : 'hover:text-primary'
 				}`
 			}
@@ -59,7 +59,7 @@ const NavItem: React.FC<NavItemProps> = ({ to, icon, label, showFullContent, onC
 			<div className="flex gap-3 items-center min-w-0">
 				{icon}
 				<p
-					className={`text-md whitespace-nowrap ${
+					className={`text-md whitespace-nowrap transition-none ${
 						showFullContent ? 'opacity-100 w-auto' : 'opacity-0 w-0 overflow-hidden'
 					}`}
 				>
@@ -139,7 +139,7 @@ const NavGroup: React.FC<NavGroupProps> = ({
 	return (
 		<div className="space-y-1" onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
 			<div
-				className={`flex justify-between items-center gap-2 sm:gap-3 cursor-pointer w-full py-2 px-1 rounded-md ${
+				className={`flex justify-between items-center gap-2 sm:gap-3 cursor-pointer w-full py-2 px-1 rounded-md transition-none ${
 					isExpanded || isChildActive ? 'text-primary' : 'hover:text-primary'
 				}`}
 				title={!showFullContent ? label : undefined}
@@ -148,7 +148,7 @@ const NavGroup: React.FC<NavGroupProps> = ({
 				<div className="flex gap-3 items-center min-w-0">
 					{icon}
 					<p
-						className={`text-md whitespace-nowrap ${
+						className={`text-md whitespace-nowrap transition-none ${
 							showFullContent ? 'opacity-100 w-auto' : 'opacity-0 w-0 overflow-hidden'
 						}`}
 					>
@@ -164,8 +164,8 @@ const NavGroup: React.FC<NavGroupProps> = ({
 
 			<div
 				className={cn(
-					'pl-2 space-y-1 overflow-hidden transition-all duration-500',
-					isExpanded ? 'max-h-96 transition-all duration-500' : 'max-h-0 transition-all duration-500',
+					'pl-2 space-y-1 overflow-hidden transition-[max-height] duration-500',
+					isExpanded ? 'max-h-96 transition-[max-height] duration-500' : 'max-h-0 transition-[max-height] duration-300',
 				)}
 			>
 				{children}
@@ -269,7 +269,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onClose, isExpanded = false, isMobile
 	const isOwner = profile?.role === 'owner'
 	const isEmployee = profile?.role === 'employee'
 
-  return (
+	return (
 		<aside className="bg-white/80 dark:bg-background/50 shadow-lg shadow-primary/50 backdrop-blur-[3px] dark:backdrop-blur-[10px] flex flex-col h-screen py-4 sm:py-6 px-2 sm:px-4 gap-0 border-gray-600 text-gray-700 dark:text-white ease-in-out overflow-hidden border-r border-input">
 			{/* Zona scrollable: navegación y grupos */}
 			<div className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden pr-1 flex flex-col items-start gap-4 scrollbar-hide">
@@ -278,11 +278,11 @@ const Sidebar: React.FC<SidebarProps> = ({ onClose, isExpanded = false, isMobile
 						href="https://conspat.solware.agency/"
 						target="_blank"
 						rel="noopener noreferrer"
-						className="flex items-center gap-3 hover:opacity-80 transition-opacity"
+						className="flex items-center gap-3 hover:opacity-80 transition-none"
 					>
 						<FavIcon fill="#e82084" className="size-8 shrink-0 -ml-1" />
 						<p
-							className={`text-2xl font-bold whitespace-nowrap ${
+							className={`text-2xl font-bold whitespace-nowrap transition-none ${
 								showFullContent ? 'opacity-100 w-auto' : 'opacity-0 w-0 overflow-hidden'
 							}`}
 						>
@@ -322,13 +322,13 @@ const Sidebar: React.FC<SidebarProps> = ({ onClose, isExpanded = false, isMobile
 								showFullContent={showFullContent}
 								onClick={onClose}
 							/>
-							<NavItem
+							{/* <NavItem
 								to="/doctors"
 								icon={<Stethoscope className="stroke-2 size-5 shrink-0" />}
 								label="Médicos"
 								showFullContent={showFullContent}
 								onClick={onClose}
-							/>
+							/> */}
 							<NavItem
 								to="/dashboard/changelog"
 								icon={<History className="stroke-2 size-5 shrink-0" />}
@@ -387,6 +387,17 @@ const Sidebar: React.FC<SidebarProps> = ({ onClose, isExpanded = false, isMobile
 									onClick={onClose}
 								/>
 							)}
+							{isOwner && (
+								<>
+									<NavItem
+										to="/form"
+										icon={<FileText className="stroke-2 size-5 shrink-0" />}
+										label="Formulario"
+										showFullContent={showFullContent}
+										onClick={onClose}
+									/>
+								</>
+							)}
 						</NavGroup>
 					)}
 
@@ -416,7 +427,18 @@ const Sidebar: React.FC<SidebarProps> = ({ onClose, isExpanded = false, isMobile
 								showFullContent={showFullContent}
 								onClick={onClose}
 							/>
+						</NavGroup>
+					)}
 
+					{isOwner && (
+						<>
+							{/* <NavItem
+								to="/dashboard/doctors"
+								icon={<Stethoscope className="stroke-2 size-5 shrink-0" />}
+								label="Médicos"
+								showFullContent={showFullContent}
+								onClick={onClose}
+							/> */}
 							<NavItem
 								to="/dashboard/changelog"
 								icon={<History className="stroke-2 size-5 shrink-0" />}
@@ -424,17 +446,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onClose, isExpanded = false, isMobile
 								showFullContent={showFullContent}
 								onClick={onClose}
 							/>
-						</NavGroup>
-					)}
-
-					{isOwner && (
-						<NavItem
-							to="/dashboard/doctors"
-							icon={<Stethoscope className="stroke-2 size-5 shrink-0" />}
-							label="Médicos"
-							showFullContent={showFullContent}
-							onClick={onClose}
-						/>
+						</>
 					)}
 
 					{/* Users - For owner and admin */}
@@ -485,7 +497,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onClose, isExpanded = false, isMobile
 				<div
 					onClick={toggleDarkMode}
 					title={!showFullContent ? 'Cambiar color' : undefined}
-					className="flex items-center gap-2 cursor-pointer hover:text-primary py-2 px-1 rounded-md"
+					className="flex items-center gap-2 cursor-pointer hover:text-primary py-2 px-1 rounded-md transition-none"
 					aria-label={isDark ? 'Activar modo claro' : 'Activar modo oscuro'}
 				>
 					{isDark ? (
@@ -494,7 +506,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onClose, isExpanded = false, isMobile
 						<Moon className="stroke-2 size-4 sm:size-5 shrink-0" />
 					)}
 					<p
-						className={`text-md whitespace-nowrap ${
+						className={`text-md whitespace-nowrap transition-none ${
 							showFullContent ? 'opacity-100 w-auto' : 'opacity-0 w-0 overflow-hidden'
 						}`}
 					>
@@ -504,11 +516,11 @@ const Sidebar: React.FC<SidebarProps> = ({ onClose, isExpanded = false, isMobile
 				<div
 					onClick={handleLogout}
 					title={!showFullContent ? 'Salir' : undefined}
-					className="flex items-center gap-2 cursor-pointer hover:text-red-500 py-2 px-1 rounded-md"
+					className="flex items-center gap-2 cursor-pointer hover:text-red-500 py-2 px-1 rounded-md transition-none"
 				>
 					<LogOut className="stroke-2 size-4 sm:size-5 shrink-0 text-red-500" />
 					<p
-						className={`text-md whitespace-nowrap ${
+						className={`text-md whitespace-nowrap transition-none ${
 							showFullContent ? 'opacity-100 w-auto' : 'opacity-0 w-0 overflow-hidden'
 						}`}
 					>

@@ -201,7 +201,7 @@ export function MedicalFormContainer() {
 	const { profile } = useUserProfile()
 
 	return (
-		<div className="animate-fade-in">
+		<div className="">
 			<div className="flex justify-between mb-3 sm:mb-4 md:mb-6">
 				<div>
 					<div className="flex items-center justify-between">
