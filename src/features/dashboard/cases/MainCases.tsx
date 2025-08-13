@@ -317,16 +317,11 @@ const MainCases: React.FC = React.memo(() => {
 										}`}
 									/>
 								</div>
-								<div>
-									<p className="text-xs font-medium text-muted-foreground">Casos Pendientes</p>
-									<p className="text-xl font-bold">
-										{stats.total > 0 ? Math.round(((stats.total - stats.completed) / stats.total) * 100) : 0}%
-									</p>
-								</div>
+								<p className="text-sm font-medium text-muted-foreground">Casos Pendientes</p>
 							</div>
 							<div className="text-right">
-								<p className="text-xs text-muted-foreground">
-									{stats.total - stats.completed} de {stats.total} casos
+								<p className="text-xl font-bold">
+									{stats.total > 0 ? Math.round(((stats.total - stats.completed) / stats.total) * 100) : 0}%
 								</p>
 							</div>
 						</button>
@@ -354,23 +349,17 @@ const MainCases: React.FC = React.memo(() => {
 										}`}
 									/>
 								</div>
-								<div>
-									<p className="text-xs font-medium text-muted-foreground">PDF Pendientes</p>
-									<p className="text-xl font-bold">{pendingPdfCases}</p>
-								</div>
+								<p className="text-sm font-medium text-muted-foreground">PDF Pendientes</p>
 							</div>
 							<div className="text-right">
-								<p className="text-xs text-muted-foreground">pendientes por generar</p>
+								<p className="text-xl font-bold">{pendingPdfCases}</p>
 							</div>
 						</button>
 
 						{/* Status indicators */}
-						<div className="mt-3 pt-3 border-t border-border">
+						<div className="mt-3">
 							{showPendingOnly && <p className="text-xs text-primary font-medium">Mostrando casos pendientes</p>}
 							{showPdfReadyOnly && <p className="text-xs text-primary font-medium">Mostrando PDF disponibles</p>}
-							{!showPendingOnly && !showPdfReadyOnly && (
-								<p className="text-xs text-muted-foreground">Haz clic en un botón para filtrar</p>
-							)}
 						</div>
 					</CardContent>
 				</Card>

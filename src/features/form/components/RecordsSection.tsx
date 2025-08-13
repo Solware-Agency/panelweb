@@ -379,9 +379,6 @@ export const RecordsSection: React.FC<RecordsSectionProps> = ({
 						<div className="mt-3 pt-3 border-t border-border">
 							{showPendingOnly && <p className="text-xs text-primary font-medium">Mostrando casos pendientes</p>}
 							{showPdfReadyOnly && <p className="text-xs text-primary font-medium">Mostrando PDF disponibles</p>}
-							{!showPendingOnly && !showPdfReadyOnly && (
-								<p className="text-xs text-muted-foreground">Haz clic en un botón para filtrar</p>
-							)}
 						</div>
 					</CardContent>
 				</Card>
