@@ -163,7 +163,7 @@ export const PatientDataSection = memo(({ control, inputStyles }: PatientDataSec
 												const value = e.target.value
 												field.onChange(value === '' ? 0 : Number(value))
 											}}
-											className={inputStyles + ' transition-none'}
+											className={inputStyles + ' transition-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none'}
 										/>
 									</FormControl>
 								</FormItem>
