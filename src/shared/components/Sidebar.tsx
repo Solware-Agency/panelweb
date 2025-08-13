@@ -386,7 +386,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onClose, isExpanded = false, isMobile
 									onClick={onClose}
 								/>
 							)}
-							{isOwner && (
+							{/* {isOwner && (
 								<>
 									<NavItem
 										to="/form"
@@ -396,7 +396,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onClose, isExpanded = false, isMobile
 										onClick={onClose}
 									/>
 								</>
-							)}
+							)} */}
 						</NavGroup>
 					)}
 
