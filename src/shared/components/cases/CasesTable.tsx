@@ -4,14 +4,9 @@ import {
 	ChevronDown,
 	Search,
 	Filter,
-	Eye,
-	User,
 	Stethoscope,
 	FileText,
 	Maximize2,
-	FlaskConical,
-	ChevronLeft,
-	ChevronRight,
 	Calendar as CalendarIcon,
 } from 'lucide-react'
 import type { MedicalRecord } from '@lib/supabase-service'
@@ -25,13 +20,10 @@ import RequestCaseModal from './RequestCaseModal'
 import DoctorFilterPanel from './DoctorFilterPanel'
 import UnifiedCaseModal from './UnifiedCaseModal'
 import HorizontalLinearStepper from './StepsCaseModal'
-import {
-	PopoverBody,
-	PopoverButton,
-	PopoverContent,
-	PopoverRoot,
-	PopoverTrigger,
-} from '@shared/components/ui/PopoverInput'
+import CaseActionsPopover from './CaseActionsPopover'
+import CaseCard from './CaseCard'
+import Pagination from './Pagination'
+import { getStatusColor } from './status'
 import { BranchBadge } from '@shared/components/ui/branch-badge'
 import {
 	Popover as DatePopover,
@@ -71,7 +63,6 @@ const CasesTable: React.FC<CasesTableProps> = React.memo(
 		const [sortDirection, setSortDirection] = useState<SortDirection>('desc')
 		const [selectedCaseForGenerate, setSelectedCaseForGenerate] = useState<MedicalRecord | null>(null)
 		const [isGenerateModalOpen, setIsGenerateModalOpen] = useState(false)
-		const [isDownloading, setIsDownloading] = useState<string | null>(null)
 		const [selectedCaseForView, setSelectedCaseForView] = useState<MedicalRecord | null>(null)
 		const [isViewModalOpen, setIsViewModalOpen] = useState(false)
 		const [showPdfReadyOnly, setShowPdfReadyOnly] = useState(false)
@@ -137,41 +128,6 @@ const CasesTable: React.FC<CasesTableProps> = React.memo(
 			setCurrentPage(1)
 		}, [statusFilter, branchFilter, showPdfReadyOnly, selectedDoctors, searchTerm, startDate])
 
-		// Case actions popover component
-		// Modifica el CaseActionsPopover para cambiar las restricciones de roles
-		const CaseActionsPopover = ({ case_ }: { case_: MedicalRecord }) => {
-			const examType = case_.exam_type?.toLowerCase().trim() || ''
-			const isRequestableCase = examType.includes('inmuno')
-
-			return (
-				<PopoverRoot>
-					<PopoverTrigger className="px-3 py-1 text-xs">Acciones</PopoverTrigger>
-					<PopoverContent className="w-30 h-auto">
-						<PopoverBody className="p-1">
-							<PopoverButton onClick={() => handleCaseSelect(case_)}>
-								<Eye className="w-4 h-4" />
-								<span>Ver</span>
-							</PopoverButton>
-
-							{/* Botón Generar - Visible para todos los roles */}
-							<PopoverButton onClick={() => handleGenerateEmployeeCase(case_)}>
-								<FileText className="w-4 h-4" />
-								<span>Generar</span>
-							</PopoverButton>
-
-							{/* Botón Solicitar - Solo visible para admin y solo para inmunohistoquímica */}
-							{(profile?.role === 'admin' || profile?.role === 'owner') && isRequestableCase && (
-								<PopoverButton onClick={() => handleGenerateCase(case_)}>
-									<FlaskConical className="w-4 h-4" />
-									<span>Reacciones</span>
-								</PopoverButton>
-							)}
-						</PopoverBody>
-					</PopoverContent>
-				</PopoverRoot>
-			)
-		}
-
 		// Determine if user can edit, delete, or generate cases based on role
 		// const canGenerate = profile?.role === 'owner' || profile?.role === 'admin'
 		const canRequest = profile?.role === 'owner' || profile?.role === 'admin'
@@ -181,24 +137,6 @@ const CasesTable: React.FC<CasesTableProps> = React.memo(
 		// const isEmployee = profile?.role === 'employee'
 
 		// Use a ref to track if we're in the dashboard or form view
-
-		const getStatusColor = useCallback((status: string) => {
-			const normalized = (status || '').toString().trim().toLowerCase()
-			switch (normalized) {
-				case 'pagado':
-				case 'completado':
-					return 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300'
-				case 'en proceso':
-					return 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300'
-				case 'pendiente':
-					return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300'
-				case 'cancelado':
-					return 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300'
-				case 'incompleto':
-				default:
-					return 'bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-300'
-			}
-		}, [])
 
 		const handleSort = useCallback(
 			(field: SortField) => {
@@ -241,48 +179,6 @@ const CasesTable: React.FC<CasesTableProps> = React.memo(
 				setIsGenerateModalOpen(true)
 			},
 			[toast, canRequest],
-		)
-
-		const handleDownloadCase = useCallback(
-			async (case_: MedicalRecord) => {
-				// Check if this case has the required content for PDF generation
-				const examType = case_.exam_type?.toLowerCase().trim() || ''
-				const hasContent =
-					case_.diagnostico ||
-					case_.conclusion_diagnostica ||
-					(examType.includes('citolog') && case_.descripcion_macroscopica)
-
-				if (!hasContent) {
-					toast({
-						title: '❌ Sin diagnóstico',
-						description: 'Este caso no tiene un diagnóstico. Primero debe generar el caso.',
-						variant: 'destructive',
-					})
-					return
-				}
-
-				setIsDownloading(case_.id ?? null)
-				try {
-					// Use the new pdf-lib based generator
-					// await generatePDF(case_)
-
-					toast({
-						title: '✅ PDF generado exitosamente',
-						description: `El informe ha sido descargado correctamente.`,
-						className: 'bg-green-100 border-green-400 text-green-800',
-					})
-				} catch (error) {
-					console.error('Error generating PDF:', error)
-					toast({
-						title: '❌ Error al generar PDF',
-						description: 'Hubo un problema al generar el PDF. Inténtalo de nuevo.',
-						variant: 'destructive',
-					})
-				} finally {
-					setIsDownloading(null)
-				}
-			},
-			[toast],
 		)
 
 		// Handle search input change
@@ -539,166 +435,6 @@ const CasesTable: React.FC<CasesTableProps> = React.memo(
 			[sortField, sortDirection],
 		)
 
-		// Mobile Card Component - Memoized to prevent unnecessary re-renders
-		const CaseCard = useCallback(
-			({ case_ }: { case_: MedicalRecord }) => {
-				return (
-					<div className="bg-white dark:bg-background rounded-lg p-3 border border-gray-200 dark:border-gray-700 hover:shadow-md">
-						{/* Header with status and code */}
-						<div className="flex flex-wrap gap-1.5 mb-2">
-							<span
-								className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(
-									case_.payment_status,
-								)}`}
-							>
-								{case_.payment_status}
-							</span>
-							<div className="flex items-center">
-								{case_.code && (
-									<span className="inline-flex items-center gap-1 px-2 py-1 text-xs font-semibold rounded-full bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300">
-										{case_.code}
-									</span>
-								)}
-							</div>
-						</div>
-
-						{/* Patient info */}
-						<div className="grid grid-cols-1 gap-2 mb-2">
-							<div>
-								<div className="flex items-center gap-2">
-									<User className="w-4 h-4 text-blue-600 dark:text-blue-400 flex-shrink-0" />
-									<div className="min-w-0">
-										<p className="font-medium text-gray-900 dark:text-gray-100 text-sm truncate">{case_.full_name}</p>
-									</div>
-								</div>
-							</div>
-
-							<div>
-								<p className="text-xs text-gray-500 dark:text-gray-400">Tipo</p>
-								<p className="text-sm text-gray-900 dark:text-gray-100 truncate">{case_.exam_type}</p>
-							</div>
-						</div>
-
-						{/* Medical info */}
-						<div className="grid grid-cols-2 gap-2 mb-2">
-							<div>
-								<p className="text-xs text-gray-500 dark:text-gray-400">Sede</p>
-								<BranchBadge branch={case_.branch} className="text-xs" />
-							</div>
-
-							<div>
-								<p className="text-xs text-gray-500 dark:text-gray-400">Monto</p>
-								<p className="text-sm font-medium text-gray-900 dark:text-gray-100">
-									${case_.total_amount.toLocaleString()}
-								</p>
-							</div>
-						</div>
-
-						{/* Action buttons */}
-						<div className="flex justify-center mt-2 pt-2 border-t border-gray-200 dark:border-gray-700">
-							<CaseActionsPopover case_={case_} />
-						</div>
-					</div>
-				)
-			},
-			[getStatusColor, handleCaseSelect, handleGenerateCase, handleDownloadCase, isDownloading],
-		)
-
-		// Componente de paginación
-		const Pagination = useCallback(() => {
-			if (totalPages <= 1) return null
-
-			const getPageNumbers = () => {
-				const pages = []
-				const maxVisiblePages = 5
-				let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2))
-				const endPage = Math.min(totalPages, startPage + maxVisiblePages - 1)
-
-				if (endPage - startPage + 1 < maxVisiblePages) {
-					startPage = Math.max(1, endPage - maxVisiblePages + 1)
-				}
-
-				for (let i = startPage; i <= endPage; i++) {
-					pages.push(i)
-				}
-
-				return pages
-			}
-
-			return (
-				<div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-4 border-t border-gray-200 dark:border-gray-700">
-					{/* Información de resultados */}
-					<div className="text-sm text-gray-600 dark:text-gray-400">
-						Mostrando {startIndex + 1}-{Math.min(endIndex, filteredAndSortedCases.filtered.length)} de{' '}
-						{filteredAndSortedCases.filtered.length} casos
-					</div>
-
-					{/* Controles de paginación */}
-					<div className="flex items-center gap-2">
-						{/* Items por página */}
-						<div className="flex items-center gap-2">
-							<span className="text-sm text-gray-600 dark:text-gray-400">Mostrar:</span>
-							<div className="min-w-[80px]">
-								<CustomDropdown
-									options={pageSizeOptions}
-									value={String(itemsPerPage)}
-									onChange={(val) => handleItemsPerPageChange(Number(val))}
-									data-testid="pagination-size"
-								/>
-							</div>
-						</div>
-
-						{/* Botones de navegación */}
-						<div className="flex items-center gap-1">
-							<button
-								onClick={goToPreviousPage}
-								disabled={currentPage === 1}
-								className="p-2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 disabled:opacity-50 disabled:cursor-not-allowed rounded-md hover:bg-gray-100 dark:hover:bg-gray-800"
-								title="Página anterior"
-							>
-								<ChevronLeft className="w-4 h-4" />
-							</button>
-
-							{/* Números de página */}
-							{getPageNumbers().map((page) => (
-								<button
-									key={page}
-									onClick={() => goToPage(page)}
-									className={`px-3 py-2 text-sm rounded-md transition-none ${
-										page === currentPage
-											? 'bg-primary text-white'
-											: 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800'
-									}`}
-								>
-									{page}
-								</button>
-							))}
-
-							<button
-								onClick={goToNextPage}
-								disabled={currentPage === totalPages}
-								className="p-2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 disabled:opacity-50 disabled:cursor-not-allowed rounded-md hover:bg-gray-100 dark:hover:bg-gray-800"
-								title="Página siguiente"
-							>
-								<ChevronRight className="w-4 h-4" />
-							</button>
-						</div>
-					</div>
-				</div>
-			)
-		}, [
-			currentPage,
-			totalPages,
-			startIndex,
-			endIndex,
-			filteredAndSortedCases.filtered.length,
-			itemsPerPage,
-			handleItemsPerPageChange,
-			goToPage,
-			goToNextPage,
-			goToPreviousPage,
-		])
-
 		// Render loading state
 		if (isLoading) {
 			return (
@@ -901,7 +637,16 @@ const CasesTable: React.FC<CasesTableProps> = React.memo(
 						<div className="block lg:hidden h-full overflow-y-auto px-3 py-4">
 							<div className="p-2 sm:p-4 space-y-3 max-h-[45vh] overflow-y-auto">
 								{paginatedCases.length > 0 ? (
-									paginatedCases.map((case_) => <CaseCard key={case_.id} case_={case_} />)
+									paginatedCases.map((case_) => (
+										<CaseCard
+											key={case_.id}
+											case_={case_}
+											onView={handleCaseSelect}
+											onGenerate={handleGenerateEmployeeCase}
+											onReactions={handleGenerateCase}
+											canRequest={canRequest}
+										/>
+									))
 								) : (
 									<div className="text-center py-12">
 										<div className="text-gray-500 dark:text-gray-400">
@@ -1037,7 +782,13 @@ const CasesTable: React.FC<CasesTableProps> = React.memo(
 													</td>
 													<td className="px-4 py-4">
 														<div className="flex justify-center mx-5">
-															<CaseActionsPopover case_={case_} />
+															<CaseActionsPopover
+																case_={case_}
+																onView={handleCaseSelect}
+																onGenerate={handleGenerateEmployeeCase}
+																onReactions={handleGenerateCase}
+																canRequest={canRequest}
+															/>
 														</div>
 													</td>
 												</tr>
@@ -1060,7 +811,19 @@ const CasesTable: React.FC<CasesTableProps> = React.memo(
 							</table>
 
 							{/* Paginación en vista fullscreen */}
-							<Pagination />
+							<Pagination
+								currentPage={currentPage}
+								totalPages={totalPages}
+								startIndex={startIndex}
+								endIndex={endIndex}
+								totalItems={filteredAndSortedCases.filtered.length}
+								itemsPerPage={itemsPerPage}
+								pageSizeOptions={pageSizeOptions}
+								onItemsPerPageChange={handleItemsPerPageChange}
+								onGoToPage={goToPage}
+								onNext={goToNextPage}
+								onPrev={goToPreviousPage}
+							/>
 						</div>
 					</div>
 				</div>
@@ -1206,7 +969,16 @@ const CasesTable: React.FC<CasesTableProps> = React.memo(
 					<div className="block lg:hidden overflow-hidden">
 						<div className="p-4 space-y-4 max-h-[45vh] overflow-y-auto">
 							{paginatedCases.length > 0 ? (
-								paginatedCases.map((case_) => <CaseCard key={case_.id} case_={case_} />)
+								paginatedCases.map((case_) => (
+									<CaseCard
+										key={case_.id}
+										case_={case_}
+										onView={handleCaseSelect}
+										onGenerate={handleGenerateEmployeeCase}
+										onReactions={handleGenerateCase}
+										canRequest={canRequest}
+									/>
+								))
 							) : (
 								<div className="text-center py-12">
 									<div className="text-gray-500 dark:text-gray-400">
@@ -1344,7 +1116,13 @@ const CasesTable: React.FC<CasesTableProps> = React.memo(
 														</td>
 														<td className="px-4 py-4">
 															<div className="flex justify-center mx-5">
-																<CaseActionsPopover case_={case_} />
+																<CaseActionsPopover
+																	case_={case_}
+																	onView={handleCaseSelect}
+																	onGenerate={handleGenerateEmployeeCase}
+																	onReactions={handleGenerateCase}
+																	canRequest={canRequest}
+																/>
 															</div>
 														</td>
 													</tr>
@@ -1368,7 +1146,19 @@ const CasesTable: React.FC<CasesTableProps> = React.memo(
 
 								{/* Paginación en vista normal */}
 							</div>
-							<Pagination />
+							<Pagination
+								currentPage={currentPage}
+								totalPages={totalPages}
+								startIndex={startIndex}
+								endIndex={endIndex}
+								totalItems={filteredAndSortedCases.filtered.length}
+								itemsPerPage={itemsPerPage}
+								pageSizeOptions={pageSizeOptions}
+								onItemsPerPageChange={handleItemsPerPageChange}
+								onGoToPage={goToPage}
+								onNext={goToNextPage}
+								onPrev={goToPreviousPage}
+							/>
 						</div>
 					</div>
 				</div>
