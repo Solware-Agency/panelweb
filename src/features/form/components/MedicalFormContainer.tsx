@@ -201,29 +201,32 @@ export function MedicalFormContainer() {
 	const { profile } = useUserProfile()
 
 	return (
-		<div className="">
-			<div className="flex justify-between mb-3 sm:mb-4 md:mb-6">
-				<div>
-					<div className="flex items-center justify-between">
-						<div>
-							<h2 className="text-2xl sm:text-3xl font-bold text-foreground mb-1 sm:mb-2">Formulario de Registro</h2>
-							<div className="w-16 sm:w-24 h-1 bg-primary mt-2 rounded-full"></div>
-						</div>
-					</div>
-					<h3 className="text-sm text-primary font-semibold mt-2 sm:mt-3">Bienvenido, {profile?.display_name}</h3>
-				</div>
-				<div className="hidden lg:flex justify-end mb-2 sm:mb-3 z-[9999999999]">
-					<Button
-						type="button"
-						onClick={handleClearForm}
-						variant="outline"
-						className="flex items-center gap-1 text-xs py-1 px-2 sm:py-1.5 sm:px-2.5"
-					>
-						<Trash2 className="h-4 w-4" />
-						Limpiar
-					</Button>
-				</div>
+		<>
+			{/* Botón sticky fuera del contenedor principal */}
+			<div className="hidden lg:block fixed top-4 right-4 z-50">
+				<Button
+					type="button"
+					onClick={handleClearForm}
+					variant="outline"
+					className="flex items-center gap-1 text-xs py-1 px-2 sm:py-1.5 sm:px-2.5 bg-background/95 backdrop-blur-sm border-2 hover:border-primary transition-all duration-300 shadow-lg hover:shadow-xl"
+				>
+					<Trash2 className="h-4 w-4" />
+					Limpiar
+				</Button>
 			</div>
+			
+			<div className="">
+				<div className="flex justify-between mb-3 sm:mb-4 md:mb-6">
+					<div>
+						<div className="flex items-center justify-between">
+							<div>
+								<h2 className="text-2xl sm:text-3xl font-bold text-foreground mb-1 sm:mb-2">Formulario de Registro</h2>
+								<div className="w-16 sm:w-24 h-1 bg-primary mt-2 rounded-full"></div>
+							</div>
+						</div>
+						<h3 className="text-sm text-primary font-semibold mt-2 sm:mt-3">Bienvenido, {profile?.display_name}</h3>
+					</div>
+				</div>
 			<Form {...form}>
 				<form onSubmit={form.handleSubmit(onSubmit)} className="space-y-3 sm:space-y-4 md:space-y-6">
 					<PatientDataSection control={formControl} inputStyles={inputStyles} />
@@ -272,5 +275,6 @@ export function MedicalFormContainer() {
 				</form>
 			</Form>
 		</div>
+		</>
 	)
 }
