@@ -27,6 +27,27 @@ export interface ChangeLog {
 	log?: string | null
 }
 
+// Result row type for getAllChangeLogs with joined case info
+export interface ChangeLogJoined {
+  id: string
+  medical_record_id: string | null
+  user_id: string
+  user_email: string
+  user_display_name: string | null
+  field_name: string
+  field_label: string
+  old_value: string | null
+  new_value: string | null
+  changed_at: string
+  created_at: string | null
+  deleted_record_info?: string | null
+  medical_records_clean?: {
+    id: string | null
+    full_name: string | null
+    code: string | null
+  } | null
+}
+
 // Helper function to format age display
 export const getAgeDisplay = (edad: string | null): string => {
 	if (!edad) return 'Sin edad'
@@ -481,24 +502,43 @@ export const getAllChangeLogs = async (limit = 50, offset = 0) => {
 			return { data: null, error }
 		}
 
-		// Transform the data to handle deleted records
-		const transformedData: Array<Record<string, unknown>> | undefined = data?.map((log: Record<string, unknown>) => {
-			const medicalRecordId = (log['medical_record_id'] as string | null) ?? null
-			const deletedRecordInfo = (log['deleted_record_info'] as string | null) ?? null
-			if (!medicalRecordId && deletedRecordInfo) {
-				return {
-					...log,
-					medical_records_clean: {
-						id: null,
-						full_name: deletedRecordInfo,
-						code: null,
-					},
-				}
-			}
-			return log
-		})
+        // Transform the data to handle deleted records and return a strongly-typed array
+        const transformedData: ChangeLogJoined[] | undefined = data?.map((row: unknown) => {
+            const log = row as Record<string, unknown>
+            const result: ChangeLogJoined = {
+                id: String(log['id'] ?? ''),
+                medical_record_id: (log['medical_record_id'] as string | null) ?? null,
+                user_id: String(log['user_id'] ?? ''),
+                user_email: String(log['user_email'] ?? ''),
+                user_display_name: (log['user_display_name'] as string | null) ?? null,
+                field_name: String(log['field_name'] ?? ''),
+                field_label: String(log['field_label'] ?? ''),
+                old_value: (log['old_value'] as string | null) ?? null,
+                new_value: (log['new_value'] as string | null) ?? null,
+                changed_at: String(log['changed_at'] ?? ''),
+                created_at: (log['created_at'] as string | null) ?? null,
+                deleted_record_info: (log['deleted_record_info'] as string | null) ?? null,
+                medical_records_clean: (log['medical_records_clean'] as {
+                    id: string | null
+                    full_name: string | null
+                    code: string | null
+                } | null | undefined) ?? undefined,
+            }
 
-		return { data: transformedData, error: null }
+            if (!result.medical_record_id && result.deleted_record_info) {
+                return {
+                    ...result,
+                    medical_records_clean: {
+                        id: null,
+                        full_name: result.deleted_record_info,
+                        code: null,
+                    },
+                }
+            }
+            return result
+        })
+
+        return { data: transformedData, error: null }
 	} catch (error) {
 		console.error('Error fetching all change logs:', error)
 		return { data: null, error }
