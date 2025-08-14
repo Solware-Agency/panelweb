@@ -3,7 +3,6 @@ import { type FormValues } from '@features/form/lib/form-schema'
 import { prepareSubmissionData } from '@features/form/lib/prepareSubmissionData'
 import { calculatePaymentDetailsFromRecord } from '@features/form/lib/payment/payment-utils'
 import type { MedicalRecordInsert } from '@shared/types/types'
-import { generateMedicalRecordCode } from '@lib/code-generator'
 import type { Database } from '@shared/types/types'
 
 export type MedicalRecord = Database['public']['Tables']['medical_records_clean']['Row']
@@ -25,6 +24,7 @@ export interface ChangeLog {
 	new_value: string | null
 	changed_at: string
 	created_at?: string
+	log?: string | null
 }
 
 // Helper function to format age display
@@ -87,10 +87,8 @@ export const insertMedicalRecord = async (
 			console.log('⚠️ Total amount was 0 or negative, adjusted to 0.01 to comply with database constraint')
 		}
 
-		// Generar el código único ANTES de la inserción
-		console.log('🔢 Generando código único...')
-		const newCode = await generateMedicalRecordCode(formData.examType, formData.registrationDate)
-		console.log(`✅ Código generado: ${newCode}`)
+		// El código ahora lo genera la BD vía trigger BEFORE INSERT
+		console.log('🔢 Código se generará en la BD (trigger)')
 
 		// Get current user info for tracking who created the record
 		const {
@@ -137,7 +135,7 @@ export const insertMedicalRecord = async (
 			payment_amount_4: submissionData.payment_amount_4,
 			payment_reference_4: submissionData.payment_reference_4,
 			comments: submissionData.comments || undefined,
-			code: newCode, // ✨ Añadir el código generado
+			// code: lo generará la BD mediante trigger
 			created_by: user?.id || undefined,
 			created_by_display_name: displayName || undefined,
 			material_remitido: undefined,
@@ -413,7 +411,7 @@ export const saveChangeLog = async (
 		try {
 			const { data: profile } = await supabase.from('profiles').select('display_name').eq('id', userId).single()
 			userDisplayName = profile?.display_name ?? null
-		} catch (e) {
+		} catch {
 			// ignore profile lookup errors
 		}
 
@@ -484,14 +482,15 @@ export const getAllChangeLogs = async (limit = 50, offset = 0) => {
 		}
 
 		// Transform the data to handle deleted records
-		const transformedData = data?.map((log: any) => {
-			// If medical_record_id is null (deleted record), use deleted_record_info
-			if (!log.medical_record_id && log.deleted_record_info) {
+		const transformedData: Array<Record<string, unknown>> | undefined = data?.map((log: Record<string, unknown>) => {
+			const medicalRecordId = (log['medical_record_id'] as string | null) ?? null
+			const deletedRecordInfo = (log['deleted_record_info'] as string | null) ?? null
+			if (!medicalRecordId && deletedRecordInfo) {
 				return {
 					...log,
 					medical_records_clean: {
 						id: null,
-						full_name: log.deleted_record_info,
+						full_name: deletedRecordInfo,
 						code: null,
 					},
 				}
