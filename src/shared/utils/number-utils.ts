@@ -411,11 +411,16 @@ export const createCalculatorInputHandlerWithCurrency = (
 	const currencySymbol = isVES ? 'Bs' : '$'
 	const placeholder = `0,00 ${currencySymbol}`
 
-	// Calculate conversion if it's VES and we have exchange rate
+	// Calculate conversion text (both directions) when we have exchange rate
 	let conversionText = ''
-	if (isVES && exchangeRate && currentValue > 0) {
-		const usdAmount = convertVEStoUSD(currentValue, exchangeRate)
-		conversionText = `≈ $${usdAmount.toFixed(2)} USD`
+	if (exchangeRate && currentValue > 0) {
+		if (isVES) {
+			const usdAmount = convertVEStoUSD(currentValue, exchangeRate)
+			conversionText = `≈ $${usdAmount.toFixed(2)} USD`
+		} else {
+			const vesAmount = convertUSDtoVES(currentValue, exchangeRate)
+			conversionText = `≈ ${vesAmount.toFixed(2)} Bs`
+		}
 	}
 
 	return {

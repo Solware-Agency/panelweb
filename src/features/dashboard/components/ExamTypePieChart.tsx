@@ -213,7 +213,7 @@ const ExamTypePieChart: React.FC = () => {
 														{item.count} caso{item.count !== 1 ? 's' : ''}
 													</span>
 													<span className="text-xs text-gray-500 dark:text-gray-400">
-														{item.percentage.toFixed(1)}%
+														{Math.round(item.percentage)}%
 													</span>
 												</div>
 											</div>

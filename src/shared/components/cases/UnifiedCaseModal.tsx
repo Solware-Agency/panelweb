@@ -637,8 +637,9 @@ const UnifiedCaseModal: React.FC<CaseDetailPanelProps> = React.memo(({ case_, is
 		}
 
 		// Create WhatsApp message with case information
-		const message =
-			`Hola ${case_.full_name}, le escribimos desde el laboratorio conspat por su caso ${case_.code || 'N/A'}.`
+		const message = `Hola ${case_.full_name}, le escribimos desde el laboratorio conspat por su caso ${
+			case_.code || 'N/A'
+		}.`
 
 		// Format phone number (remove spaces, dashes, etc.)
 		const cleanPhone = case_.phone.replace(/[\s-()]/g, '')
@@ -729,7 +730,41 @@ const UnifiedCaseModal: React.FC<CaseDetailPanelProps> = React.memo(({ case_, is
 		[case_?.exchange_rate, handleInputChange],
 	)
 
-	const remainingUSD = currentCase?.remaining || 0
+	// Cálculo en vivo del monto pendiente (USD y VES) mientras se edita
+	const getPaymentInUSD = useCallback(
+		(amount?: number | null, method?: string | null) => {
+			if (!amount || amount <= 0) return 0
+			if (isVESPaymentMethod(method || '')) {
+				const rate = currentCase?.exchange_rate ?? 0
+				return rate > 0 ? convertVEStoUSD(amount, rate) : 0
+			}
+			return amount
+		},
+		[currentCase?.exchange_rate],
+	)
+
+	const sumPaymentsUSD = useCallback(
+		(source: Partial<MedicalRecord> | MedicalRecord | null | undefined) => {
+			if (!source) return 0
+			type PaymentMethodKeys = 'payment_method_1' | 'payment_method_2' | 'payment_method_3' | 'payment_method_4'
+			type PaymentAmountKeys = 'payment_amount_1' | 'payment_amount_2' | 'payment_amount_3' | 'payment_amount_4'
+
+			let total = 0
+			for (let i = 1 as 1 | 2 | 3 | 4; i <= 4; i = (i + 1) as 1 | 2 | 3 | 4) {
+				const methodKey = `payment_method_${i}` as PaymentMethodKeys
+				const amountKey = `payment_amount_${i}` as PaymentAmountKeys
+				const method = (source as Partial<Record<PaymentMethodKeys, string | null>>)[methodKey]
+				const amount = (source as Partial<Record<PaymentAmountKeys, number | null>>)[amountKey]
+				total += getPaymentInUSD(amount ?? 0, method ?? null)
+			}
+			return total
+		},
+		[getPaymentInUSD],
+	)
+
+	const paidUSD = sumPaymentsUSD(isEditing ? (editedCase as Partial<MedicalRecord>) : currentCase)
+	const totalUSD = (editedCase.total_amount as number | undefined) ?? currentCase?.total_amount ?? 0
+	const remainingUSD = Math.max(0, totalUSD - paidUSD)
 	const remainingVES = currentCase?.exchange_rate ? remainingUSD * currentCase.exchange_rate : 0
 
 	// Get action type display text and icon for changelog
@@ -1494,7 +1529,7 @@ const UnifiedCaseModal: React.FC<CaseDetailPanelProps> = React.memo(({ case_, is
 										<InfoRow label="Tasa de cambio" value={currentCase.exchange_rate?.toFixed(2)} editable={false} />
 									</div>
 
-									{currentCase.remaining > 0 && (
+									{remainingUSD > 0 && (
 										<div className="bg-red-50 dark:bg-red-900/20 p-2 sm:p-3 rounded-lg border border-red-200 dark:border-red-800">
 											<div className="flex items-center gap-1.5 sm:gap-2">
 												<AlertTriangle className="w-5 h-5 text-red-600 dark:text-red-400" />

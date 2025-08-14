@@ -80,7 +80,7 @@ const DoctorRevenueReport: React.FC = () => {
 												</td>
 												<td className="py-2 px-1 text-center">
 													<span className="text-xs font-semibold text-gray-700 dark:text-gray-300">
-														{((doctor.revenue / stats.totalRevenue) * 100).toFixed(1)}%
+														{Math.round((doctor.revenue / stats.totalRevenue) * 100)}%
 													</span>
 												</td>
 												<td className="py-2 px-1 text-right">
@@ -132,7 +132,7 @@ const DoctorRevenueReport: React.FC = () => {
 												{doctor.cases} caso{doctor.cases !== 1 ? 's' : ''}
 											</span>
 											<span className="text-xs font-semibold text-gray-700 dark:text-gray-300">
-												{((doctor.revenue / stats.totalRevenue) * 100).toFixed(1)}%
+												{Math.round((doctor.revenue / stats.totalRevenue) * 100)}%
 											</span>
 										</div>
 
