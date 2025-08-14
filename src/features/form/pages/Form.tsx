@@ -174,7 +174,7 @@ function FormContent() {
 						type="button"
 						onClick={handleClearForm}
 						variant="outline"
-						className="flex lg:hidden items-center gap-1 text-xs py-1 px-2 sm:py-1.5 sm:px-2.5"
+						className="flex lg:hidden items-center gap-1 text-xs py-1 px-2 sm:py-1.5 sm:px-2.5 bg-background/95 backdrop-blur-sm border-2 hover:border-primary transition-all duration-300 shadow-lg hover:shadow-xl"
 					>
 						<Trash2 className="h-4 w-4" />
 						Limpiar

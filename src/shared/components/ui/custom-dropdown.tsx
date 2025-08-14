@@ -149,10 +149,10 @@ const CustomDropdown = forwardRef<HTMLDivElement, CustomDropdownProps>(
 			setIsOpen(next)
 		}
 
-		// Reposition on scroll/resize while open
+		// Close dropdown on scroll and reposition on resize while open
 		useEffect(() => {
 			if (!isOpen) return
-			const onScroll = () => computePositioning()
+			const onScroll = () => setIsOpen(false) // Close dropdown on scroll to keep it fixed
 			const onResize = () => computePositioning()
 			window.addEventListener('scroll', onScroll, true)
 			window.addEventListener('resize', onResize)

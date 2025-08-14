@@ -67,6 +67,23 @@ export const AutocompleteInput = React.memo(React.forwardRef<
     };
   }, []);
 
+  // Close suggestions on scroll to keep them fixed
+  React.useEffect(() => {
+    if (!showSuggestions) return;
+    
+    const handleScroll = () => {
+      setShowSuggestions(false);
+      setSelectedIndex(-1);
+      setSearchTerminated(true);
+    };
+    
+    window.addEventListener('scroll', handleScroll, true);
+    
+    return () => {
+      window.removeEventListener('scroll', handleScroll, true);
+    };
+  }, [showSuggestions]);
+
   // Debounced search effect - prevent infinite loops
   React.useEffect(() => {
     // Clear previous timeout
