@@ -28,9 +28,7 @@ const OriginRevenueReport: React.FC = () => {
 							<Info className="size-4" />
 						</TooltipTrigger>
 						<TooltipContent>
-							<p>
-								Esta estadistica refleja el porcentaje de ingresos por procedencia de los pacientes en Conspat.
-							</p>
+							<p>Esta estadistica refleja el porcentaje de ingresos por procedencia de los pacientes en Conspat.</p>
 						</TooltipContent>
 					</Tooltip>
 				</div>
@@ -78,7 +76,7 @@ const OriginRevenueReport: React.FC = () => {
 												</td>
 												<td className="py-2 px-1 text-center">
 													<span className="text-xs font-semibold text-gray-700 dark:text-gray-300">
-														{origin.percentage.toFixed(1)}%
+														{Math.round(origin.percentage)}%
 													</span>
 												</td>
 												<td className="py-2 px-1 text-right">
@@ -130,7 +128,7 @@ const OriginRevenueReport: React.FC = () => {
 												{origin.cases} caso{origin.cases !== 1 ? 's' : ''}
 											</span>
 											<span className="text-xs font-semibold text-gray-700 dark:text-gray-300">
-												{origin.percentage.toFixed(1)}%
+												{Math.round(origin.percentage)}%
 											</span>
 										</div>
 

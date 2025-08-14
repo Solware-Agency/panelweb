@@ -92,7 +92,7 @@ const StatsPage: React.FC = () => {
 						description={`Total: ${isLoading ? '...' : formatCurrency(stats?.totalRevenue || 0)}`}
 						icon={<DollarSign className="w-5 h-5 sm:w-6 sm:h-6 text-green-600 dark:text-green-400" />}
 						trend={{
-							value: isLoading ? '...' : '+12.5%',
+							value: isLoading ? '...' : '+13%',
 							icon: <ArrowUpRight className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />,
 							positive: true,
 						}}
@@ -110,7 +110,7 @@ const StatsPage: React.FC = () => {
 						description={`Total: ${isLoading ? '...' : stats?.uniquePatients || 0}`}
 						icon={<Users className="w-5 h-5 sm:w-6 sm:h-6 text-blue-600 dark:text-blue-400" />}
 						trend={{
-							value: isLoading ? '...' : '+8.2%',
+							value: isLoading ? '...' : '+8%',
 							icon: <ArrowUpRight className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />,
 							positive: true,
 						}}
@@ -120,13 +120,13 @@ const StatsPage: React.FC = () => {
 					/>
 
 					{/* Paid Cases Card */}
-                    <StatCard
+					<StatCard
 						title="Casos Pagados"
 						value={isLoading ? '...' : stats?.completedCases || 0}
 						description={`Total casos: ${isLoading ? '...' : stats?.totalCases || 0}`}
-                        icon={<CheckCircle2 className="w-5 h-5 sm:w-6 sm:h-6 text-green-600 dark:text-green-400" />}
+						icon={<CheckCircle2 className="w-5 h-5 sm:w-6 sm:h-6 text-green-600 dark:text-green-400" />}
 						trend={{
-							value: isLoading ? '...' : `${completionRate.toFixed(1)}%`,
+							value: isLoading ? '...' : `${Math.round(completionRate)}%`,
 							icon: <ArrowUpRight className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />,
 							positive: true,
 						}}
@@ -323,7 +323,7 @@ const StatsPage: React.FC = () => {
 													<span className="text-sm text-gray-600 dark:text-gray-400">{branch.branch}</span>
 												</div>
 												<span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-													{branch.percentage.toFixed(1)}% ({formatCurrency(branch.revenue)})
+													{Math.round(branch.percentage)}% ({formatCurrency(branch.revenue)})
 												</span>
 											</div>
 										)

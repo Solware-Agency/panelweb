@@ -778,7 +778,7 @@ const CasesTable: React.FC<CasesTableProps> = React.memo(
 								{/* Date Filter (single) */}
 								<div className="flex items-center gap-2">
 									<DatePopover open={isStartOpen} onOpenChange={setIsStartOpen}>
-										<DatePopoverTrigger>
+										<DatePopoverTrigger asChild>
 											<Button variant="outline" className="flex items-center gap-2 text-xs">
 												<CalendarIcon className="w-4 h-4" />
 												{startDate ? format(startDate, 'PPP', { locale: es }) : 'Fecha'}
@@ -1107,7 +1107,7 @@ const CasesTable: React.FC<CasesTableProps> = React.memo(
 								{/* Date Filter (single) */}
 								<div className="flex items-center gap-2 flex-shrink-0">
 									<DatePopover open={isStartOpen} onOpenChange={setIsStartOpen}>
-										<DatePopoverTrigger>
+										<DatePopoverTrigger asChild>
 											<Button variant="outline" className="flex items-center gap-2 text-xs">
 												<CalendarIcon className="w-4 h-4" />
 												{startDate ? format(startDate, 'PPP', { locale: es }) : 'Fecha'}

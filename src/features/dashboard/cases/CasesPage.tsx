@@ -1,8 +1,39 @@
-import React from 'react'
-import MainCases from './MainCases'
+import React, { useCallback, useState } from 'react'
+import { RecordsSection } from '@features/form/components/RecordsSection'
+import { useQuery } from '@tanstack/react-query'
+import { getMedicalRecords, searchMedicalRecords } from '@lib/supabase-service'
 
 const CasesPage: React.FC = () => {
-	return <MainCases />
+	const [isFullscreen, setIsFullscreen] = useState(false)
+	const [searchTerm, setSearchTerm] = useState('')
+
+	const {
+		data: casesData,
+		isLoading: casesLoading,
+		error: casesError,
+		refetch: refetchCases,
+	} = useQuery({
+		queryKey: ['medical-cases', searchTerm],
+		queryFn: () => (searchTerm ? searchMedicalRecords(searchTerm) : getMedicalRecords()),
+		staleTime: 1000 * 60 * 5,
+		refetchOnWindowFocus: false,
+	})
+
+	const handleSearch = useCallback((term: string) => {
+		setSearchTerm(term)
+	}, [])
+
+	return (
+		<RecordsSection
+			cases={casesData?.data || []}
+			isLoading={casesLoading}
+			error={casesError}
+			refetch={refetchCases}
+			isFullscreen={isFullscreen}
+			setIsFullscreen={setIsFullscreen}
+			onSearch={handleSearch}
+		/>
+	)
 }
 
 export default CasesPage

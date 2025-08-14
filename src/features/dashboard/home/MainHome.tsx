@@ -209,7 +209,7 @@ function MainHome() {
 													<span className="text-sm text-gray-600 dark:text-gray-400">{branch.branch}</span>
 												</div>
 												<span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-													{branch.percentage.toFixed(1)}% ({formatCurrency(branch.revenue)})
+													{Math.round(branch.percentage)}% ({formatCurrency(branch.revenue)})
 												</span>
 											</div>
 										)
@@ -226,7 +226,7 @@ function MainHome() {
 						description={format(selectedMonth, 'MMMM yyyy', { locale: es })}
 						icon={<DollarSign className="w-5 h-5 sm:w-6 sm:h-6 text-green-600 dark:text-green-400" />}
 						trend={{
-							value: isLoading ? '...' : '+12.5%',
+							value: isLoading ? '...' : '+13%',
 							icon: <TrendingUp className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />,
 							positive: true,
 						}}

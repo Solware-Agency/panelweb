@@ -67,13 +67,13 @@ const RemainingAmount: React.FC = () => {
 											style={{ width: `${Math.min(pendingPaymentsPercentage, 100)}%` }}
 										>
 											{pendingPaymentsPercentage > 15 && (
-												<span className="text-xs text-white font-medium">{pendingPaymentsPercentage.toFixed(1)}%</span>
+												<span className="text-xs text-white font-medium">{Math.round(pendingPaymentsPercentage)}%</span>
 											)}
 										</div>
 									</div>
 									{pendingPaymentsPercentage <= 15 && (
 										<div className="text-xs text-red-700 dark:text-red-300 mt-1 text-center">
-											{pendingPaymentsPercentage.toFixed(1)}% del total de ingresos
+											{Math.round(pendingPaymentsPercentage)}% del total de ingresos
 										</div>
 									)}
 								</div>
@@ -81,8 +81,8 @@ const RemainingAmount: React.FC = () => {
 								{/* Cases Card */}
 								<div className="bg-gradient-to-br from-orange-50 to-orange-100 dark:from-orange-900/20 dark:to-orange-800/20 rounded-xl p-3 border border-orange-200 dark:border-orange-800/30 hover:scale-[1.01] hover:shadow-md transition-all duration-200 cursor-pointer flex flex-col justify-center">
 									<div className="flex flex-col items-center text-center mb-2">
-                                        <div className="p-2 bg-orange-500 rounded-lg mb-2">
-                                            <AlertTriangle className="w-5 h-5 text-white" />
+										<div className="p-2 bg-orange-500 rounded-lg mb-2">
+											<AlertTriangle className="w-5 h-5 text-white" />
 										</div>
 										<div>
 											<p className="text-sm text-orange-700 dark:text-orange-300">Casos Incompletos</p>
@@ -100,14 +100,14 @@ const RemainingAmount: React.FC = () => {
 										>
 											{stats?.totalCases && (stats.incompleteCases / stats.totalCases) * 100 > 15 && (
 												<span className="text-xs text-white font-medium">
-													{((stats.incompleteCases / stats.totalCases) * 100).toFixed(1)}%
+													{Math.round((stats.incompleteCases / stats.totalCases) * 100)}%
 												</span>
 											)}
 										</div>
 									</div>
 									{stats?.totalCases && (stats.incompleteCases / stats.totalCases) * 100 <= 15 && (
 										<div className="text-xs text-orange-700 dark:text-orange-300 mt-1 text-center">
-											{((stats.incompleteCases / stats.totalCases) * 100).toFixed(1)}% del total de casos
+											{Math.round((stats.incompleteCases / stats.totalCases) * 100)}% del total de casos
 										</div>
 									)}
 								</div>
