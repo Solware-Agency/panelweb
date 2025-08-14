@@ -24,14 +24,14 @@ export function BranchBadge({ branch, className }: BranchBadgeProps) {
   }
 
   return (
-    <div 
-      className={cn(
-        "text-center border border-gray-500/30 dark:border-gray-700/50 rounded-lg px-1 py-1 text-xs font-medium",
-        getBranchColor(branch),
-        className
-      )}
-    >
-      {branch}
-    </div>
-  )
+		<div
+			className={cn(
+				'inline-flex w-fit items-center border border-gray-500/30 dark:border-gray-700/50 rounded-lg px-4 py-1 text-xs font-medium',
+				getBranchColor(branch),
+				className,
+			)}
+		>
+			{branch}
+		</div>
+	)
 }
