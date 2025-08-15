@@ -50,7 +50,7 @@ const PatientRow = React.memo(
 			onClick={() => onClick(patient)}
 		>
 			{/* Name Cell */}
-			<td className="w-[20%] px-4 py-2">
+			<td className="w-[20%] px-5 py-3">
 				<div className="flex items-center">
 					<div className="ml-3">
 						<p className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">{patient.full_name}</p>
@@ -59,10 +59,10 @@ const PatientRow = React.memo(
 			</td>
 
 			{/* ID Number Cell */}
-			<td className="w-[15%] px-4 py-2 text-sm text-gray-900 dark:text-gray-100">{patient.id_number}</td>
+			<td className="w-[15%] px-5 py-3 text-sm text-gray-900 dark:text-gray-100">{patient.id_number}</td>
 
 			{/* Age Cell */}
-			<td className="w-[20%] px-4 py-2 text-sm text-gray-900 dark:text-gray-100">
+			<td className="w-[20%] px-5 py-3 text-sm text-gray-900 dark:text-gray-100">
 				{patient.date_of_birth ? (
 					<span>{getAgeDisplay(patient.date_of_birth)} años</span>
 				) : (
@@ -71,10 +71,10 @@ const PatientRow = React.memo(
 			</td>
 
 			{/* Phone Cell */}
-			<td className="w-[15%] px-4 py-2 text-sm text-gray-900 dark:text-gray-100">{patient.phone}</td>
+			<td className="w-[15%] px-5 py-3 text-sm text-gray-900 dark:text-gray-100">{patient.phone}</td>
 
 			{/* Email Cell */}
-			<td className="w-[15%] px-4 py-2 text-sm text-gray-900 dark:text-gray-100 truncate">
+			<td className="w-[15%] px-5 py-3 text-sm text-gray-900 dark:text-gray-100 truncate">
 				{patient.email || <span className="text-gray-500 dark:text-gray-400">No disponible</span>}
 			</td>
 		</tr>
@@ -215,12 +215,12 @@ const PatientsList: React.FC<PatientsListProps> = React.memo(
 		const SortIcon = useCallback(
 			({ field }: { field: SortField }) => {
 				if (sortField !== field) {
-					return <ChevronUp className="w-4 h-4 text-gray-400" />
+					return <ChevronUp className="w-5 h-5 text-gray-400" />
 				}
 				return sortDirection === 'asc' ? (
-					<ChevronUp className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+					<ChevronUp className="w-5 h-5 text-blue-600 dark:text-blue-400" />
 				) : (
-					<ChevronDown className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+					<ChevronDown className="w-5 h-5 text-blue-600 dark:text-blue-400" />
 				)
 			},
 			[sortField, sortDirection],
@@ -262,11 +262,11 @@ const PatientsList: React.FC<PatientsListProps> = React.memo(
 				<Card className="overflow-hidden">
 					{/* Desktop view */}
 					<div className="hidden lg:block">
-						<div className="max-h-[300px] overflow-auto">
+						<div className="max-h-[520px] overflow-auto">
 							<table className="w-full">
 								<thead className="bg-gray-50 dark:bg-gray-800/50 backdrop-blur-[10px] sticky top-0 z-10">
 									<tr>
-										<th className="w-[20%] px-4 py-2 text-left">
+										<th className="w-[20%] px-5 py-3 text-left">
 											<button
 												onClick={() => handleSort('full_name')}
 												className="flex items-center gap-2 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider hover:text-gray-700 dark:hover:text-gray-200"
@@ -275,7 +275,7 @@ const PatientsList: React.FC<PatientsListProps> = React.memo(
 												<SortIcon field="full_name" />
 											</button>
 										</th>
-										<th className="w-[15%] px-4 py-2 text-left">
+										<th className="w-[15%] px-5 py-3 text-left">
 											<button
 												onClick={() => handleSort('id_number')}
 												className="flex items-center gap-2 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider hover:text-gray-700 dark:hover:text-gray-200"
@@ -284,7 +284,7 @@ const PatientsList: React.FC<PatientsListProps> = React.memo(
 												<SortIcon field="id_number" />
 											</button>
 										</th>
-										<th className="w-[20%] px-4 py-2 text-left">
+										<th className="w-[20%] px-5 py-3 text-left">
 											<button
 												onClick={() => handleSort('date_of_birth')}
 												className="flex items-center gap-2 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider hover:text-gray-700 dark:hover:text-gray-200"
@@ -293,7 +293,7 @@ const PatientsList: React.FC<PatientsListProps> = React.memo(
 												<SortIcon field="date_of_birth" />
 											</button>
 										</th>
-										<th className="w-[15%] px-4 py-2 text-left">
+										<th className="w-[15%] px-5 py-3 text-left">
 											<button
 												onClick={() => handleSort('phone')}
 												className="flex items-center gap-2 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider hover:text-gray-700 dark:hover:text-gray-200"
@@ -302,10 +302,10 @@ const PatientsList: React.FC<PatientsListProps> = React.memo(
 												<SortIcon field="phone" />
 											</button>
 										</th>
-										<th className="w-[15%] px-4 py-2 text-left">
+										<th className="w-[15%] px-5 py-3 text-left">
 											<button
 												onClick={() => handleSort('email')}
-												className="flex items-center gap-2 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider hover:text-gray-700 dark:hover:text-gray-200"
+												className="flex items-center gap-2 text-sm font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider hover:text-gray-700 dark:hover:text-gray-200"
 											>
 												Email
 												<SortIcon field="email" />

@@ -7,6 +7,8 @@ import type { MedicalRecord } from '@lib/supabase-service'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { getMedicalRecords } from '@lib/supabase-service'
 import { Card, CardContent } from '@shared/components/ui/card'
+import { Tooltip, TooltipTrigger, TooltipContent } from '@shared/components/ui/tooltip'
+import { Info } from 'lucide-react'
 import { supabase } from '@lib/supabase/config'
 
 // Lazy loaded components
@@ -294,6 +296,16 @@ const MainCases: React.FC = React.memo(() => {
 				{/* Combined Pending Cases and PDF Card */}
 				<Card className="hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 group transition-transform duration-300">
 					<CardContent className="p-4">
+						<div className="flex justify-end">
+							<Tooltip>
+								<TooltipTrigger className="text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300">
+									<Info className="w-4 h-4" />
+								</TooltipTrigger>
+								<TooltipContent>
+									<p>Usa estos botones para filtrar casos pendientes y PDF por generar.</p>
+								</TooltipContent>
+							</Tooltip>
+						</div>
 						{/* Pending Cases Button */}
 						<button
 							className={`w-full flex items-center justify-between p-3 rounded-lg border transition-transform duration-200 cursor-pointer hover:scale-[1.02] hover:shadow-md ${
