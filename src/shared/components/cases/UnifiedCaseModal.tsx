@@ -1113,7 +1113,7 @@ const UnifiedCaseModal: React.FC<CaseDetailPanelProps> = React.memo(({ case_, is
 										<span className="font-semibold">
 											{creatorData?.displayName || currentCase.created_by_display_name || 'Usuario del sistema'}
 										</span>
-										el {format(new Date(currentCase.created_at), 'dd/MM/yyyy', { locale: es })}
+										{' '}el {format(new Date(currentCase.created_at), 'dd/MM/yyyy', { locale: es })}
 									</p>
 								</div>
 								{/* Immunohistochemistry Section - Only for admin users and immuno cases */}

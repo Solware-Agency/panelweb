@@ -594,7 +594,7 @@ const CasesTable: React.FC<CasesTableProps> = React.memo(
 							{/* Close button */}
 							<button
 								onClick={() => setIsFullscreen(false)}
-								className="text-gray-500 dark:text-gray-300 hover:text-red-500 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 text-sm border px-2 sm:px-3 py-1 rounded-md ml-auto sm:ml-0 transition-all duration-200"
+								className="text-gray-500 dark:text-gray-300 hover:text-red-500 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 text-sm border px-2 sm:px-3 py-1 rounded-md ml-auto sm:ml-0 transition-all duration-200 mr-8"
 							>
 								<span className="hidden sm:inline">Cerrar</span> ✕
 							</button>

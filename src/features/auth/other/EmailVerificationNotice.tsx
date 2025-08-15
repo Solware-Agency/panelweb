@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
-import { Mail, RefreshCw, ArrowLeft, CheckCircle, AlertCircle } from 'lucide-react'
+import { Mail, RefreshCw, CheckCircle, AlertCircle } from 'lucide-react'
 import { useAuth } from '@app/providers/AuthContext'
-import { resendConfirmation, signOut } from '@lib/supabase/auth'
+import { resendConfirmation } from '@lib/supabase/auth'
 import { useNavigate } from 'react-router-dom'
 import Aurora from '@shared/components/ui/Aurora'
 import FadeContent from '@shared/components/ui/FadeContent'
@@ -64,11 +64,6 @@ function EmailVerificationNotice() {
 		}
 	}
 
-	const handleLogout = async () => {
-		await signOut()
-		navigate('/')
-	}
-
 	return (
 		<div className="w-screen h-screen relative overflow-hidden bg-gradient-to-br from-black via-black to-black">
 			{/* Aurora Background with New Color Palette */}
@@ -124,7 +119,7 @@ function EmailVerificationNotice() {
 
 							<div className="space-y-3">
 								<button
-									onClick={handleLogout}
+									onClick={() => navigate('/')}
 									disabled={checkingVerification || loading}
 									className="w-full bg-transparent border border-primary text-white rounded-md p-2 transition-transform duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-sm transform hover:scale-[1.02] active:scale-[0.98]"
 								>
@@ -159,20 +154,6 @@ function EmailVerificationNotice() {
 									)}
 								</button>
 							</div>
-						</div>
-
-						<div className="text-center space-y-3">
-							<p className="text-sm text-slate-300">¿Problemas con la verificación?</p>
-							<button
-								onClick={handleLogout}
-								disabled={loading || checkingVerification}
-								className={`flex items-center justify-center gap-2 text-sm text-blue-500 hover:text-blue-400 transition-none mx-auto ${
-									loading || checkingVerification ? 'opacity-50 cursor-not-allowed' : ''
-								}`}
-							>
-								<ArrowLeft size={16} />
-								Cerrar sesión e intentar de nuevo
-							</button>
 						</div>
 
 						<div className="mt-4 text-xs text-slate-300 text-center space-y-2">

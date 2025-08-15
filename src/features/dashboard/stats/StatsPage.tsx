@@ -241,12 +241,16 @@ const StatsPage: React.FC = () => {
 								</Tooltip>
 							</h3>
 							<div className="flex items-center justify-center mb-3 sm:mb-4 md:mb-6">
-								<div className="relative size-28 sm:size-36 md:size-48">
-									<svg className="size-full -rotate-90" viewBox="0 0 36 36">
+								<div className="relative w-28 h-28 sm:w-36 sm:h-36 md:w-48 md:h-48">
+									<svg 
+										className="w-full h-full -rotate-90" 
+										viewBox="0 0 100 100"
+										preserveAspectRatio="xMidYMid meet"
+									>
 										<circle
-											cx="18"
-											cy="18"
-											r="14"
+											cx="50"
+											cy="50"
+											r="40"
 											fill="none"
 											className="stroke-current text-gray-200 dark:text-neutral-700"
 											strokeWidth="4"
@@ -263,9 +267,9 @@ const StatsPage: React.FC = () => {
 											return (
 												<circle
 													key={branch.branch}
-													cx="18"
-													cy="18"
-													r="14"
+													cx="50"
+													cy="50"
+													r="40"
 													fill="none"
 													className={`stroke-current ${
 														colors[index % colors.length]
@@ -273,6 +277,7 @@ const StatsPage: React.FC = () => {
 													strokeWidth={hoveredSegmentIndex === index ? '5' : '4'}
 													strokeDasharray={`${branch.percentage} ${100 - branch.percentage}`}
 													strokeDashoffset={-offset}
+													strokeLinecap="round"
 													onMouseEnter={() => setHoveredSegmentIndex(index)}
 													onMouseLeave={() => setHoveredSegmentIndex(null)}
 													style={{
@@ -285,10 +290,10 @@ const StatsPage: React.FC = () => {
 									</svg>
 									<div className="absolute inset-0 flex items-center justify-center">
 										<div className="text-center">
-											<p className="text-xl sm:text-2xl font-bold text-gray-700 dark:text-gray-300">
+											<p className="text-lg sm:text-xl md:text-2xl font-bold text-gray-700 dark:text-gray-300">
 												{isLoading ? '...' : formatCurrency(stats?.monthlyRevenue || 0)}
 											</p>
-											<p className="text-sm text-gray-500 dark:text-gray-400">Total</p>
+											<p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">Total</p>
 										</div>
 									</div>
 								</div>

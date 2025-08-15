@@ -75,6 +75,19 @@ function RegisterForm() {
 		setMessage('')
 		setRateLimitError(false)
 
+		// Validar nombre de display obligatorio
+		if (!displayName.trim()) {
+			setError('El nombre para mostrar es obligatorio.')
+			return
+		}
+
+		// Validar teléfono obligatorio
+		const normalizedPhone = normalizePhone(phone)
+		if (!normalizedPhone) {
+			setError('El número de teléfono es obligatorio.')
+			return
+		}
+
 		if (password !== confirmPassword) {
 			setError('Las contraseñas no coinciden.')
 			return
@@ -86,14 +99,6 @@ function RegisterForm() {
 
 		try {
 			setLoading(true)
-
-			// Validar teléfono obligatorio y numérico
-			const normalizedPhone = normalizePhone(phone)
-			if (!normalizedPhone) {
-				setError('El número de teléfono es obligatorio.')
-				setLoading(false)
-				return
-			}
 
 			const cleanedEmail = normalizeEmail(email)
 			console.log('Attempting to register user:', cleanedEmail)
@@ -119,7 +124,7 @@ function RegisterForm() {
 			}
 
 			// Signup — aquí el HOOK bloqueará duplicados reales con un 400 "User already registered"
-			const { user, error: signUpError } = await signUp(cleanedEmail, password, displayName, normalizedPhone)
+			const { user, error: signUpError } = await signUp(cleanedEmail, password, displayName.trim(), normalizedPhone)
 
 			if (signUpError) {
 				console.error('Registration error:', signUpError)
@@ -222,7 +227,7 @@ function RegisterForm() {
 
 						<form className="w-full" onSubmit={handleRegister}>
 							<div className="flex flex-col gap-2 mb-4 w-full">
-								<p className="text-sm text-slate-300">Correo electrónico:</p>
+								<p className="text-sm text-slate-300">Correo electrónico: <span className="text-red-400">*</span></p>
 								<input
 									type="email"
 									name="email"
@@ -246,38 +251,38 @@ function RegisterForm() {
 									{emailTaken === false && <span className="text-green-300">Disponible</span>}
 								</div>
 
-								<div className="flex items-center gap-2">
-									<div className="w-full">
-										<p className="text-sm text-slate-300">Nombre para mostrar:</p>
-										<input
-											type="text"
-											name="displayName"
-											placeholder="Tu nombre"
-											value={displayName}
-											onChange={(e) => setDisplayName(e.target.value)}
-											required
-											disabled={loading || rateLimitError}
-											className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all duration-200"
-											autoComplete="name"
-										/>
-									</div>
-									<div className="w-full">
-										<p className="text-sm text-slate-300">Número de teléfono:</p>
-										<input
-											type="tel"
-											name="phone"
-											placeholder="04121234567"
-											value={phone}
-											onChange={(e) => setPhone(e.target.value)}
-											required
-											disabled={loading || rateLimitError}
-											className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all duration-200"
-											autoComplete="tel"
-										/>
-									</div>
+															<div className="flex items-center gap-2">
+								<div className="w-full">
+									<p className="text-sm text-slate-300">Nombre para mostrar: <span className="text-red-400">*</span></p>
+									<input
+										type="text"
+										name="displayName"
+										placeholder="Tu nombre"
+										value={displayName}
+										onChange={(e) => setDisplayName(e.target.value)}
+										required
+										disabled={loading || rateLimitError}
+										className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all duration-200"
+										autoComplete="name"
+									/>
 								</div>
+								<div className="w-full">
+									<p className="text-sm text-slate-300">Número de teléfono: <span className="text-red-400">*</span></p>
+									<input
+										type="tel"
+										name="phone"
+										placeholder="04121234567"
+										value={phone}
+										onChange={(e) => setPhone(e.target.value)}
+										required
+										disabled={loading || rateLimitError}
+										className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all duration-200"
+										autoComplete="tel"
+									/>
+								</div>
+							</div>
 
-								<p className="text-sm text-slate-300">Contraseña:</p>
+								<p className="text-sm text-slate-300">Contraseña: <span className="text-red-400">*</span></p>
 								<div className="relative">
 									<input
 										type={showPassword ? 'text' : 'password'}
@@ -300,7 +305,7 @@ function RegisterForm() {
 									</button>
 								</div>
 
-								<p className="text-sm text-slate-300">Confirmar contraseña:</p>
+								<p className="text-sm text-slate-300">Confirmar contraseña: <span className="text-red-400">*</span></p>
 								<div className="relative">
 									<input
 										type={showConfirmPassword ? 'text' : 'password'}

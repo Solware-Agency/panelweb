@@ -1,7 +1,8 @@
 import React, { useState, useCallback, useMemo, useEffect } from 'react'
 import CasesTable from '@shared/components/cases/CasesTable'
-import { Users, MapPin, FileText, Activity, Download, BarChart3, Stethoscope, FlaskConical } from 'lucide-react'
+import { Users, MapPin, FileText, Activity, Download, BarChart3, Stethoscope, FlaskConical, Info } from 'lucide-react'
 import { Card, CardContent } from '@shared/components/ui/card'
+import { Tooltip, TooltipTrigger, TooltipContent } from '@shared/components/ui/tooltip'
 import { type MedicalRecord } from '@lib/supabase-service'
 import { useUserProfile } from '@shared/hooks/useUserProfile'
 import { useQueryClient } from '@tanstack/react-query'
@@ -303,11 +304,23 @@ export const RecordsSection: React.FC<RecordsSectionProps> = ({
 			{/* Statistics cards */}
 			<div className="grid grid-cols-1 md:grid-cols-3 gap-5 w-full mb-4 sm:mb-6">
 				{/* Combined Pending Cases and PDF Card */}
-				<Card className="hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 group transition-transform duration-300">
+				<Card className="hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 group transition-transform duration-300 relative">
 					<CardContent className="p-4">
+						{/* Tooltip informativo arriba derecha */}
+						<div className="absolute top-2 right-2">
+							<Tooltip>
+								<TooltipTrigger>
+									<Info className="size-4 text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300" />
+								</TooltipTrigger>
+								<TooltipContent>
+									<p>Filtra para ver solo casos pendientes o solo PDF por generar.</p>
+								</TooltipContent>
+							</Tooltip>
+						</div>
+
 						{/* Pending Cases Button */}
 						<button
-							className={`w-full flex items-center justify-between p-3 rounded-lg border transition-transform duration-200 cursor-pointer hover:scale-[1.02] hover:shadow-md ${
+							className={`w-full relative pr-12 mt-3 flex items-center justify-between p-3 rounded-lg border transition-transform duration-200 cursor-pointer hover:scale-[1.02] hover:shadow-md ${
 								showPendingOnly
 									? 'border-primary bg-primary/10 shadow-md shadow-primary/20'
 									: 'border-border hover:border-orange-300 hover:bg-orange-50 dark:hover:bg-orange-900/20'
@@ -328,23 +341,16 @@ export const RecordsSection: React.FC<RecordsSectionProps> = ({
 										}`}
 									/>
 								</div>
-								<div>
-									<p className="text-xs font-medium text-muted-foreground">Casos Pendientes</p>
-									<p className="text-xl font-bold">
-										{stats.total > 0 ? Math.round(((stats.total - stats.completed) / stats.total) * 100) : 0}%
-									</p>
-								</div>
+								<p className="text-xs font-medium text-muted-foreground">Casos Pendientes</p>
 							</div>
-							<div className="text-right">
-								<p className="text-xs text-muted-foreground">
-									{stats.total - stats.completed} de {stats.total} casos
-								</p>
-							</div>
+							<div className="absolute right-3 top-1/2 -translate-y-1/2 text-right tabular-nums">
+                                <p className="text-xl font-bold">{stats.total > 0 ? Math.round(((stats.total - stats.completed) / stats.total) * 100) : 0}%</p>
+                            </div>
 						</button>
 
 						{/* PDF Ready Button */}
 						<button
-							className={`w-full flex items-center justify-between p-3 rounded-lg border transition-transform duration-200 cursor-pointer hover:scale-[1.02] hover:shadow-md mt-3 ${
+							className={`w-full relative pr-12 flex items-center justify-between p-3 rounded-lg border transition-transform duration-200 cursor-pointer hover:scale-[1.02] hover:shadow-md mt-3 ${
 								showPdfReadyOnly
 									? 'border-primary bg-primary/10 shadow-md shadow-primary/20'
 									: 'border-border hover:border-green-300 hover:bg-green-50 dark:hover:bg-green-900/20'
@@ -365,13 +371,10 @@ export const RecordsSection: React.FC<RecordsSectionProps> = ({
 										}`}
 									/>
 								</div>
-								<div>
-									<p className="text-xs font-medium text-muted-foreground">PDF Pendientes</p>
-									<p className="text-xl font-bold">{pendingPdfCases}</p>
-								</div>
+								<p className="text-xs font-medium text-muted-foreground">PDF Pendientes</p>
 							</div>
-							<div className="text-right">
-								<p className="text-xs text-muted-foreground">pendientes por generar</p>
+							<div className="absolute right-3 top-1/2 -translate-y-1/2 text-right tabular-nums">
+								<p className="text-xl font-bold">{pendingPdfCases}</p>
 							</div>
 						</button>
 
@@ -384,8 +387,19 @@ export const RecordsSection: React.FC<RecordsSectionProps> = ({
 				</Card>
 
 				{/* Exam Types Card - Rediseñada más compacta */}
-				<Card className="hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 group transition-transform duration-300">
+				<Card className="hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 group transition-transform duration-300 relative">
 					<CardContent className="p-4">
+						{/* Tooltip informativo arriba derecha */}
+						<div className="absolute top-2 right-2">
+							<Tooltip>
+								<TooltipTrigger>
+									<Info className="size-4 text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300" />
+								</TooltipTrigger>
+								<TooltipContent>
+									<p>Filtra por tipo de examen: Biopsia, Citología o Inmunohistoquímica.</p>
+								</TooltipContent>
+							</Tooltip>
+						</div>
                         <div className="flex items-center gap-3 mb-3">
 							<div className="p-2 rounded-lg bg-blue-100 dark:bg-blue-900/30">
 								<BarChart3 className="h-5 w-5 text-blue-600 dark:text-blue-400" />
@@ -448,8 +462,19 @@ export const RecordsSection: React.FC<RecordsSectionProps> = ({
 				</Card>
 
 				{/* Document Status Card (doc_aprobado) */}
-				<Card className="hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 group transition-transform duration-300">
+				<Card className="hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 group transition-transform duration-300 relative">
 					<CardContent className="p-4">
+						{/* Tooltip informativo arriba derecha */}
+						<div className="absolute top-2 right-2">
+							<Tooltip>
+								<TooltipTrigger>
+									<Info className="size-4 text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300" />
+								</TooltipTrigger>
+								<TooltipContent>
+									<p>Filtra los casos por estatus del documento: faltante, pendiente o aprobado.</p>
+								</TooltipContent>
+							</Tooltip>
+						</div>
                         <div className="flex items-center gap-3 mb-3">
 							<div className="p-2 rounded-lg bg-teal-100 dark:bg-teal-900/30">
 								<FileText className="h-5 w-5 text-teal-600 dark:text-teal-400" />
