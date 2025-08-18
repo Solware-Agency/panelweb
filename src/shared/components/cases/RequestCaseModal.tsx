@@ -210,18 +210,19 @@ const RequestCaseModal: React.FC<GenerateCaseModalProps> = ({ case_, isOpen, onC
 												</div>
 
 												<div className="space-y-3">
-													<div>
-														<label className="block text-sm font-medium text-purple-700 dark:text-purple-300 mb-2">
-															Agregar Inmunorreacciones
-														</label>
-														<TagInput
-															value={inmunorreacciones ?? []}
-															onChange={setInmunorreacciones}
-															placeholder="Escribir inmunorreacción y presionar Enter..."
-															maxTags={20}
-															allowDuplicates={false}
-															className="bg-white dark:bg-gray-800"
-														/>
+																									<div>
+													<label htmlFor="request-inmuno-reactions" className="block text-sm font-medium text-purple-700 dark:text-purple-300 mb-2">
+														Agregar Inmunorreacciones
+													</label>
+													<TagInput
+														id="request-inmuno-reactions"
+														value={inmunorreacciones ?? []}
+														onChange={setInmunorreacciones}
+														placeholder="Escribir inmunorreacción y presionar Enter..."
+														maxTags={20}
+														allowDuplicates={false}
+														className="bg-white dark:bg-gray-800"
+													/>
 														<p className="text-xs text-purple-600 dark:text-purple-400 mt-1">
 															Ejemplo: RE, RP, CK7, CK20, etc. Presiona Enter después de cada una.
 														</p>

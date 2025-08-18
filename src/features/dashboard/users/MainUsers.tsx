@@ -739,10 +739,11 @@ const MainUsers: React.FC = () => {
 									{/* Selector de aprobación */}
 									{canManage && user.id !== currentUser?.id && (
 										<div className="mt-3">
-											<label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+											<label htmlFor={`approval-status-${user.id}`} className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
 												Estado de Aprobación:
 											</label>
 											<CustomDropdown
+												id={`approval-status-${user.id}`}
 												defaultValue={user.estado || 'pendiente'}
 												onChange={(value) => handleApprovalChange(user.id, value as 'pendiente' | 'aprobado')}
 												options={[
@@ -758,10 +759,11 @@ const MainUsers: React.FC = () => {
 									{/* Selector de rol */}
 									{canManage && user.id !== currentUser?.id && (
 										<div className="mt-3">
-											<label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+											<label htmlFor={`user-role-${user.id}`} className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
 												Cambiar Rol:
 											</label>
 											<CustomDropdown
+												id={`user-role-${user.id}`}
 												defaultValue={user.role}
 												onChange={(value) => handleRoleChange(user.id, value as 'owner' | 'employee' | 'admin')}
 												options={[
@@ -777,16 +779,17 @@ const MainUsers: React.FC = () => {
 
 									{/* Selector de sede */}
 									{canManage && (
-										<div className="mt-3">
-											<label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-												Asignar Sede:
-											</label>
-											<CustomDropdown
-												defaultValue={user.assigned_branch || 'none'}
-												onChange={(value) => handleBranchChange(user.id, value === 'none' ? null : value)}
-												options={[
-													{ value: 'none', label: 'Sin restricción de sede' },
-													{ value: 'PMG', label: 'PMG' },
+																			<div className="mt-3">
+										<label htmlFor={`user-branch-${user.id}`} className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+											Asignar Sede:
+										</label>
+										<CustomDropdown
+											id={`user-branch-${user.id}`}
+											defaultValue={user.assigned_branch || 'none'}
+											onChange={(value) => handleBranchChange(user.id, value === 'none' ? null : value)}
+											options={[
+												{ value: 'none', label: 'Sin restricción de sede' },
+												{ value: 'PMG', label: 'PMG' },
 													{ value: 'CPC', label: 'CPC' },
 													{ value: 'CNX', label: 'CNX' },
 													{ value: 'STX', label: 'STX' },
