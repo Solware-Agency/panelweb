@@ -702,23 +702,24 @@ const UnifiedCaseModal: React.FC<CaseDetailPanelProps> = React.memo(({ case_, is
 				handleInputChange(field, newValue),
 			)
 
-			return (
-				<>
-					<label className="text-xs text-gray-500 dark:text-gray-400 mb-1 block">
-						Monto{isVESPaymentMethod(paymentMethod) ? ' (Bs)' : ' ($)'}
-					</label>
-					<Input
-						type="text"
-						inputMode="decimal"
-						placeholder="0,00"
-						value={calculatorHandler.displayValue}
-						onKeyDown={calculatorHandler.handleKeyDown}
-						onPaste={calculatorHandler.handlePaste}
-						onFocus={calculatorHandler.handleFocus}
-						onChange={calculatorHandler.handleChange}
-						className="text-sm border-dashed focus:border-primary focus:ring-primary bg-gray-50 dark:bg-gray-800/50 text-right font-mono"
-						autoComplete="off"
-					/>
+							return (
+					<>
+						<label htmlFor={`amount-${field}`} className="text-xs text-gray-500 dark:text-gray-400 mb-1 block">
+							Monto{isVESPaymentMethod(paymentMethod) ? ' (Bs)' : ' ($)'}
+						</label>
+						<Input
+							id={`amount-${field}`}
+							type="text"
+							inputMode="decimal"
+							placeholder="0,00"
+							value={calculatorHandler.displayValue}
+							onKeyDown={calculatorHandler.handleKeyDown}
+							onPaste={calculatorHandler.handlePaste}
+							onFocus={calculatorHandler.handleFocus}
+							onChange={calculatorHandler.handleChange}
+							className="text-sm border-dashed focus:border-primary focus:ring-primary bg-gray-50 dark:bg-gray-800/50 text-right font-mono"
+							autoComplete="off"
+						/>
 					{isVESPaymentMethod(paymentMethod) && case_?.exchange_rate && value && value > 0 && (
 						<p className="text-xs text-green-600 mt-1 font-medium">
 							≈ ${convertVEStoUSD(value, case_?.exchange_rate).toFixed(2)} USD
@@ -1120,17 +1121,18 @@ const UnifiedCaseModal: React.FC<CaseDetailPanelProps> = React.memo(({ case_, is
 								{canEditImmuno && (
 									<InfoSection title="Inmunorreacciones" icon={Stethoscope}>
 										<div className="space-y-4">
-											<div>
-												<label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">
-													Agregar Inmunorreacciones
-												</label>
-												<TagInput
-													value={immunoReactions}
-													onChange={setImmunoReactions}
-													placeholder="Escribir inmunorreacción y presionar Enter (ej: RE, RP, CERB2)"
-													className="w-full"
-													disabled={isRequestingImmuno}
-												/>
+																					<div>
+											<label htmlFor="immuno-reactions" className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">
+												Agregar Inmunorreacciones
+											</label>
+											<TagInput
+												id="immuno-reactions"
+												value={immunoReactions}
+												onChange={setImmunoReactions}
+												placeholder="Escribir inmunorreacción y presionar Enter (ej: RE, RP, CERB2)"
+												className="w-full"
+												disabled={isRequestingImmuno}
+											/>
 												<p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
 													Escribe cada inmunorreacción y presiona Enter para agregarla como etiqueta
 												</p>
@@ -1569,24 +1571,25 @@ const UnifiedCaseModal: React.FC<CaseDetailPanelProps> = React.memo(({ case_, is
 													{isEditing ? (
 														<>
 															<div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-																<div>
-																	<label className="text-xs text-gray-500 dark:text-gray-400 mb-1 block font-medium">
-																		Método
-																	</label>
-																	<CustomDropdown
-																		options={createDropdownOptions([
-																			'Punto de venta',
-																			'Dólares en efectivo',
-																			'Zelle',
-																			'Pago móvil',
-																			'Bs en efectivo',
-																		])}
-																		value={editedCase.payment_method_1 || ''}
-																		onChange={(value) => handleInputChange('payment_method_1', value)}
-																		placeholder="Seleccionar método"
-																		className="text-sm"
-																		direction="auto"
-																	/>
+																													<div>
+														<label htmlFor="payment-method-1" className="text-xs text-gray-500 dark:text-gray-400 mb-1 block font-medium">
+															Método
+														</label>
+														<CustomDropdown
+															id="payment-method-1"
+															options={createDropdownOptions([
+																'Punto de venta',
+																'Dólares en efectivo',
+																'Zelle',
+																'Pago móvil',
+																'Bs en efectivo',
+															])}
+															value={editedCase.payment_method_1 || ''}
+															onChange={(value) => handleInputChange('payment_method_1', value)}
+															placeholder="Seleccionar método"
+															className="text-sm"
+															direction="auto"
+														/>
 																</div>
 																<div>
 																	{createPaymentAmountInput(
@@ -1595,15 +1598,16 @@ const UnifiedCaseModal: React.FC<CaseDetailPanelProps> = React.memo(({ case_, is
 																		editedCase.payment_method_1,
 																	)}
 																</div>
-																<div>
-																	<label className="text-xs text-gray-500 dark:text-gray-400 mb-1 block font-medium">
-																		Referencia
-																	</label>
-																	<Input
-																		value={editedCase.payment_reference_1 || ''}
-																		onChange={(e) => handleInputChange('payment_reference_1', e.target.value)}
-																		className="text-sm border-dashed focus:border-primary focus:ring-primary bg-gray-50 dark:bg-gray-800/50"
-																	/>
+																													<div>
+														<label htmlFor="payment-reference-1" className="text-xs text-gray-500 dark:text-gray-400 mb-1 block font-medium">
+															Referencia
+														</label>
+														<Input
+															id="payment-reference-1"
+															value={editedCase.payment_reference_1 || ''}
+															onChange={(e) => handleInputChange('payment_reference_1', e.target.value)}
+															className="text-sm border-dashed focus:border-primary focus:ring-primary bg-gray-50 dark:bg-gray-800/50"
+														/>
 																</div>
 															</div>
 															<button
@@ -1646,24 +1650,25 @@ const UnifiedCaseModal: React.FC<CaseDetailPanelProps> = React.memo(({ case_, is
 													{isEditing ? (
 														<>
 															<div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-																<div>
-																	<label className="text-xs text-gray-500 dark:text-gray-400 mb-1 block font-medium">
-																		Método
-																	</label>
-																	<CustomDropdown
-																		options={createDropdownOptions([
-																			'Punto de venta',
-																			'Dólares en efectivo',
-																			'Zelle',
-																			'Pago móvil',
-																			'Bs en efectivo',
-																		])}
-																		value={editedCase.payment_method_2 || ''}
-																		onChange={(value) => handleInputChange('payment_method_2', value)}
-																		placeholder="Seleccionar método"
-																		className="text-sm"
-																		direction="auto"
-																	/>
+																													<div>
+														<label htmlFor="payment-method-2" className="text-xs text-gray-500 dark:text-gray-400 mb-1 block font-medium">
+															Método
+														</label>
+														<CustomDropdown
+															id="payment-method-2"
+															options={createDropdownOptions([
+																'Punto de venta',
+																'Dólares en efectivo',
+																'Zelle',
+																'Pago móvil',
+																'Bs en efectivo',
+															])}
+															value={editedCase.payment_method_2 || ''}
+															onChange={(value) => handleInputChange('payment_method_2', value)}
+															placeholder="Seleccionar método"
+															className="text-sm"
+															direction="auto"
+														/>
 																</div>
 																<div>
 																	{createPaymentAmountInput(
@@ -1672,15 +1677,16 @@ const UnifiedCaseModal: React.FC<CaseDetailPanelProps> = React.memo(({ case_, is
 																		editedCase.payment_method_2,
 																	)}
 																</div>
-																<div>
-																	<label className="text-xs text-gray-500 dark:text-gray-400 mb-1 block font-medium">
-																		Referencia
-																	</label>
-																	<Input
-																		value={editedCase.payment_reference_2 || ''}
-																		onChange={(e) => handleInputChange('payment_reference_2', e.target.value)}
-																		className="text-sm border-dashed focus:border-primary focus:ring-primary bg-gray-50 dark:bg-gray-800/50"
-																	/>
+																													<div>
+														<label htmlFor="payment-reference-2" className="text-xs text-gray-500 dark:text-gray-400 mb-1 block font-medium">
+															Referencia
+														</label>
+														<Input
+															id="payment-reference-2"
+															value={editedCase.payment_reference_2 || ''}
+															onChange={(e) => handleInputChange('payment_reference_2', e.target.value)}
+															className="text-sm border-dashed focus:border-primary focus:ring-primary bg-gray-50 dark:bg-gray-800/50"
+														/>
 																</div>
 															</div>
 															<button
@@ -1723,24 +1729,25 @@ const UnifiedCaseModal: React.FC<CaseDetailPanelProps> = React.memo(({ case_, is
 													{isEditing ? (
 														<>
 															<div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-																<div>
-																	<label className="text-xs text-gray-500 dark:text-gray-400 mb-1 block font-medium">
-																		Método
-																	</label>
-																	<CustomDropdown
-																		options={createDropdownOptions([
-																			'Punto de venta',
-																			'Dólares en efectivo',
-																			'Zelle',
-																			'Pago móvil',
-																			'Bs en efectivo',
-																		])}
-																		value={editedCase.payment_method_3 || ''}
-																		onChange={(value) => handleInputChange('payment_method_3', value)}
-																		placeholder="Seleccionar método"
-																		className="text-sm"
-																		direction="auto"
-																	/>
+																													<div>
+														<label htmlFor="payment-method-3" className="text-xs text-gray-500 dark:text-gray-400 mb-1 block font-medium">
+															Método
+														</label>
+														<CustomDropdown
+															id="payment-method-3"
+															options={createDropdownOptions([
+																'Punto de venta',
+																'Dólares en efectivo',
+																'Zelle',
+																'Pago móvil',
+																'Bs en efectivo',
+															])}
+															value={editedCase.payment_method_3 || ''}
+															onChange={(value) => handleInputChange('payment_method_3', value)}
+															placeholder="Seleccionar método"
+															className="text-sm"
+															direction="auto"
+														/>
 																</div>
 																<div>
 																	{createPaymentAmountInput(
@@ -1749,15 +1756,16 @@ const UnifiedCaseModal: React.FC<CaseDetailPanelProps> = React.memo(({ case_, is
 																		editedCase.payment_method_3,
 																	)}
 																</div>
-																<div>
-																	<label className="text-xs text-gray-500 dark:text-gray-400 mb-1 block font-medium">
-																		Referencia
-																	</label>
-																	<Input
-																		value={editedCase.payment_reference_3 || ''}
-																		onChange={(e) => handleInputChange('payment_reference_3', e.target.value)}
-																		className="text-sm border-dashed focus:border-primary focus:ring-primary bg-gray-50 dark:bg-gray-800/50"
-																	/>
+																													<div>
+														<label htmlFor="payment-reference-3" className="text-xs text-gray-500 dark:text-gray-400 mb-1 block font-medium">
+															Referencia
+														</label>
+														<Input
+															id="payment-reference-3"
+															value={editedCase.payment_reference_3 || ''}
+															onChange={(e) => handleInputChange('payment_reference_3', e.target.value)}
+															className="text-sm border-dashed focus:border-primary focus:ring-primary bg-gray-50 dark:bg-gray-800/50"
+														/>
 																</div>
 															</div>
 															<button
@@ -1800,24 +1808,25 @@ const UnifiedCaseModal: React.FC<CaseDetailPanelProps> = React.memo(({ case_, is
 													{isEditing ? (
 														<>
 															<div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-																<div>
-																	<label className="text-xs text-gray-500 dark:text-gray-400 mb-1 block font-medium">
-																		Método
-																	</label>
-																	<CustomDropdown
-																		options={createDropdownOptions([
-																			'Punto de venta',
-																			'Dólares en efectivo',
-																			'Zelle',
-																			'Pago móvil',
-																			'Bs en efectivo',
-																		])}
-																		value={editedCase.payment_method_4 || ''}
-																		onChange={(value) => handleInputChange('payment_method_4', value)}
-																		placeholder="Seleccionar método"
-																		className="text-sm"
-																		direction="auto"
-																	/>
+																													<div>
+														<label htmlFor="payment-method-4" className="text-xs text-gray-500 dark:text-gray-400 mb-1 block font-medium">
+															Método
+														</label>
+														<CustomDropdown
+															id="payment-method-4"
+															options={createDropdownOptions([
+																'Punto de venta',
+																'Dólares en efectivo',
+																'Zelle',
+																'Pago móvil',
+																'Bs en efectivo',
+															])}
+															value={editedCase.payment_method_4 || ''}
+															onChange={(value) => handleInputChange('payment_method_4', value)}
+															placeholder="Seleccionar método"
+															className="text-sm"
+															direction="auto"
+														/>
 																</div>
 																<div>
 																	{createPaymentAmountInput(
@@ -1826,15 +1835,16 @@ const UnifiedCaseModal: React.FC<CaseDetailPanelProps> = React.memo(({ case_, is
 																		editedCase.payment_method_4,
 																	)}
 																</div>
-																<div>
-																	<label className="text-xs text-gray-500 dark:text-gray-400 mb-1 block font-medium">
-																		Referencia
-																	</label>
-																	<Input
-																		value={editedCase.payment_reference_4 || ''}
-																		onChange={(e) => handleInputChange('payment_reference_4', e.target.value)}
-																		className="text-sm border-dashed focus:border-primary focus:ring-primary bg-gray-50 dark:bg-gray-800/50"
-																	/>
+																													<div>
+														<label htmlFor="payment-reference-4" className="text-xs text-gray-500 dark:text-gray-400 mb-1 block font-medium">
+															Referencia
+														</label>
+														<Input
+															id="payment-reference-4"
+															value={editedCase.payment_reference_4 || ''}
+															onChange={(e) => handleInputChange('payment_reference_4', e.target.value)}
+															className="text-sm border-dashed focus:border-primary focus:ring-primary bg-gray-50 dark:bg-gray-800/50"
+														/>
 																</div>
 															</div>
 															<button
@@ -1985,49 +1995,51 @@ const UnifiedCaseModal: React.FC<CaseDetailPanelProps> = React.memo(({ case_, is
 						</div>
 
 						<div className="space-y-4 mb-6">
-							<div>
-								<label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-									Método de Pago
-								</label>
-								<CustomDropdown
-									options={createDropdownOptions([
-										'Punto de venta',
-										'Dólares en efectivo',
-										'Zelle',
-										'Pago móvil',
-										'Bs en efectivo',
-									])}
-									value={newPayment.method}
-									onChange={(value) => setNewPayment({ ...newPayment, method: value })}
-									placeholder="Seleccionar método"
-									className="w-full"
-									direction="auto"
-								/>
+										<div>
+				<label htmlFor="new-payment-method" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+					Método de Pago
+				</label>
+				<CustomDropdown
+					id="new-payment-method"
+					options={createDropdownOptions([
+						'Punto de venta',
+						'Dólares en efectivo',
+						'Zelle',
+						'Pago móvil',
+						'Bs en efectivo',
+					])}
+					value={newPayment.method}
+					onChange={(value) => setNewPayment({ ...newPayment, method: value })}
+					placeholder="Seleccionar método"
+					className="w-full"
+					direction="auto"
+				/>
 							</div>
 
-							<div>
-								<label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-									Monto{isVESPaymentMethod(newPayment.method) ? ' (Bs)' : ' ($)'}
-								</label>
+										<div>
+				<label htmlFor="new-payment-amount" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+					Monto{isVESPaymentMethod(newPayment.method) ? ' (Bs)' : ' ($)'}
+				</label>
 								{(() => {
 									const calculatorHandler = createCalculatorInputHandler(
 										parseDecimalNumber(newPayment.amount) || 0,
 										(newValue) => setNewPayment({ ...newPayment, amount: newValue.toString() }),
 									)
 
-									return (
-										<Input
-											type="text"
-											inputMode="decimal"
-											value={calculatorHandler.displayValue}
-											onKeyDown={calculatorHandler.handleKeyDown}
-											onPaste={calculatorHandler.handlePaste}
-											onFocus={calculatorHandler.handleFocus}
-											onChange={calculatorHandler.handleChange}
-											placeholder="0,00"
-											className="text-right font-mono"
-											autoComplete="off"
-										/>
+														return (
+						<Input
+							id="new-payment-amount"
+							type="text"
+							inputMode="decimal"
+							value={calculatorHandler.displayValue}
+							onKeyDown={calculatorHandler.handleKeyDown}
+							onPaste={calculatorHandler.handlePaste}
+							onFocus={calculatorHandler.handleFocus}
+							onChange={calculatorHandler.handleChange}
+							placeholder="0,00"
+							className="text-right font-mono"
+							autoComplete="off"
+						/>
 									)
 								})()}
 								{isVESPaymentMethod(newPayment.method) &&
@@ -2040,13 +2052,14 @@ const UnifiedCaseModal: React.FC<CaseDetailPanelProps> = React.memo(({ case_, is
 									)}
 							</div>
 
-							<div>
-								<label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Referencia</label>
-								<Input
-									value={newPayment.reference}
-									onChange={(e) => setNewPayment({ ...newPayment, reference: e.target.value })}
-									placeholder="Referencia de pago"
-								/>
+										<div>
+				<label htmlFor="new-payment-reference" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Referencia</label>
+				<Input
+					id="new-payment-reference"
+					value={newPayment.reference}
+					onChange={(e) => setNewPayment({ ...newPayment, reference: e.target.value })}
+					placeholder="Referencia de pago"
+				/>
 							</div>
 						</div>
 

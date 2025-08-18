@@ -10,6 +10,7 @@ interface TagInputProps {
   disabled?: boolean
   maxTags?: number
   allowDuplicates?: boolean
+  id?: string
 }
 
 export const TagInput: React.FC<TagInputProps> = ({
@@ -20,6 +21,7 @@ export const TagInput: React.FC<TagInputProps> = ({
   disabled = false,
   maxTags,
   allowDuplicates = false,
+  id,
 }) => {
   const [inputValue, setInputValue] = useState('')
   const inputRef = useRef<HTMLInputElement>(null)
@@ -107,6 +109,7 @@ export const TagInput: React.FC<TagInputProps> = ({
         <div className="flex flex-1 items-center">
           <input
             ref={inputRef}
+            id={id}
             type="text"
             value={inputValue}
             onChange={handleInputChange}

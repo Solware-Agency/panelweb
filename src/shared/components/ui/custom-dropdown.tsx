@@ -20,6 +20,7 @@ interface CustomDropdownProps {
 	defaultValue?: string
 	direction?: 'auto' | 'up' | 'down'
 	'data-testid'?: string
+	id?: string
 }
 
 const CustomDropdown = forwardRef<HTMLDivElement, CustomDropdownProps>(
@@ -33,6 +34,7 @@ const CustomDropdown = forwardRef<HTMLDivElement, CustomDropdownProps>(
 			onChange,
 			defaultValue,
 			direction = 'auto',
+			id,
 			...props
 		},
 		ref,
@@ -174,6 +176,7 @@ const CustomDropdown = forwardRef<HTMLDivElement, CustomDropdownProps>(
 			<div ref={combinedRef} className={cn('relative w-full', className)} {...props}>
 				{/* Trigger */}
 				<div
+					id={id}
 					onClick={handleToggle}
 					className={cn(
 						'flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 cursor-pointer transition-transform duration-200 hover:border-primary hover:shadow-sm hover:bg-accent/50',
