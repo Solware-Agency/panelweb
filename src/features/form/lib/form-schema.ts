@@ -41,15 +41,14 @@ export const formSchema = z.object({
 	origin: z
 		.string()
 		.min(1, 'El origen es requerido')
-		.regex(/^[A-Za-zÑñÁáÉéÍíÓóÚúÜü\s]+$/, 'Procedencia solo debe contener letras y espacios'),
+		.regex(/^[A-Za-zÑñÁáÉéÍíÓóÚúÜü\s0-9]+$/, 'Procedencia solo debe contener letras, números y espacios'),
 	treatingDoctor: z
 		.string()
 		.min(1, 'El médico tratante es requerido')
 		.regex(/^[A-Za-zÑñÁáÉéÍíÓóÚúÜü\s]+$/, 'Médico tratante solo debe contener letras y espacios'),
 	sampleType: z
 		.string()
-		.min(1, 'El tipo de muestra es requerido')
-		.regex(/^[A-Za-zÑñÁáÉéÍíÓóÚúÜü\s]+$/, 'Tipo de muestra solo debe contener letras y espacios'),
+		.min(1, 'El tipo de muestra es requerido'),
 	numberOfSamples: z.coerce
 		.number({ invalid_type_error: 'El número de muestras es requerido' })
 		.int()
