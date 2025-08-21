@@ -74,7 +74,7 @@ export const ServiceSection = memo(({ control, inputStyles }: ServiceSectionProp
 									{...field}
 									onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
 										const { value } = e.target
-										if (/^[A-Za-zÑñÁáÉéÍíÓóÚúÜü\s]*$/.test(value)) {
+										if (/^[A-Za-zÑñÁáÉéÍíÓóÚúÜü\s0-9]*$/.test(value)) {
 											field.onChange(e)
 										}
 									}}
@@ -124,12 +124,6 @@ export const ServiceSection = memo(({ control, inputStyles }: ServiceSectionProp
 									placeholder="Ej: Biopsia de Piel"
 									iconRight={<Microscope className="h-4 w-4 text-muted-foreground" />}
 									{...field}
-									onChange={(e) => {
-										const { value } = e.target
-										if (/^[A-Za-zÑñÁáÉéÍíÓóÚúÜü\s]*$/.test(value)) {
-											field.onChange(e)
-										}
-									}}
 									className={inputStyles}
 								/>
 							</FormControl>

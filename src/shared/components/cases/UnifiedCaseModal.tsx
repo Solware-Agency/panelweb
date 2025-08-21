@@ -1422,7 +1422,7 @@ const UnifiedCaseModal: React.FC<CaseDetailPanelProps> = React.memo(({ case_, is
 														value={editedCase.origin || currentCase.origin || ''}
 														onChange={(e) => {
 															const { value } = e.target
-															if (/^[A-Za-zÑñÁáÉéÍíÓóÚúÜü\s]*$/.test(value)) {
+															if (/^[A-Za-zÑñÁáÉéÍíÓóÚúÜü\s0-9]*$/.test(value)) {
 																handleInputChange('origin', value)
 															}
 														}}
@@ -1468,9 +1468,7 @@ const UnifiedCaseModal: React.FC<CaseDetailPanelProps> = React.memo(({ case_, is
 														value={editedCase.sample_type || currentCase.sample_type || ''}
 														onChange={(e) => {
 															const { value } = e.target
-															if (/^[A-Za-zÑñÁáÉéÍíÓóÚúÜü\s]*$/.test(value)) {
-																handleInputChange('sample_type', value)
-															}
+															handleInputChange('sample_type', value)
 														}}
 														className="text-sm border-dashed focus:border-primary focus:ring-primary bg-gray-50 dark:bg-gray-800/50"
 													/>
