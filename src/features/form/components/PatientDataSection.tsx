@@ -57,8 +57,8 @@ export const PatientDataSection = memo(({ control, inputStyles }: PatientDataSec
 					control={control}
 					name="fullName"
 					render={({ field }) => (
-						<FormItem>
-							<FormLabel>Nombre Completo *</FormLabel>
+						<FormItem className="flex flex-col">
+								<FormLabel>Nombre Completo *</FormLabel>
 							<FormControl>
 								<AutocompleteInput
 									fieldName="fullName"
@@ -74,6 +74,8 @@ export const PatientDataSection = memo(({ control, inputStyles }: PatientDataSec
 									className={inputStyles + ' transition-none'}
 								/>
 							</FormControl>
+							{/* Espaciador invisible para mantener altura consistente con el párrafo de cédula */}
+							<div className="min-h-[32px] sm:min-h-[36px]"></div>
 						</FormItem>
 					)}
 				/>
@@ -83,13 +85,8 @@ export const PatientDataSection = memo(({ control, inputStyles }: PatientDataSec
 					control={control}
 					name="idNumber"
 					render={({ field }) => (
-						<FormItem>
-							<FormLabel className="flex items-center gap-2">
-								Cédula *
-								<span className="text-[10px] sm:text-xs text-green-600 bg-green-100 px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full">
-									Autocompletado inteligente
-								</span>
-							</FormLabel>
+						<FormItem className="flex flex-col">
+								<FormLabel>Cédula *</FormLabel>
 							<FormControl>
 								<AutocompleteInput
 									fieldName="idNumber"
@@ -106,7 +103,7 @@ export const PatientDataSection = memo(({ control, inputStyles }: PatientDataSec
 									className={cn(inputStyles, isLoadingPatient && 'border-blue-300 transition-none')}
 								/>
 							</FormControl>
-							<p className="text-[10px] sm:text-xs text-gray-500 mt-1">
+							<p className="text-[10px] sm:text-xs text-gray-500 mt-1 min-h-[32px] sm:min-h-[36px] leading-tight">
 								💡 Haz clic en una cédula para llenar automáticamente los datos del paciente
 							</p>
 						</FormItem>
@@ -118,8 +115,8 @@ export const PatientDataSection = memo(({ control, inputStyles }: PatientDataSec
 					control={control}
 					name="phone"
 					render={({ field }) => (
-						<FormItem>
-							<FormLabel>Teléfono *</FormLabel>
+						<FormItem className="flex flex-col">
+								<FormLabel>Teléfono *</FormLabel>
 							<FormControl>
 								<AutocompleteInput
 									fieldName="phone"
@@ -137,6 +134,8 @@ export const PatientDataSection = memo(({ control, inputStyles }: PatientDataSec
 									className={inputStyles + ' transition-none'}
 								/>
 							</FormControl>
+							{/* Espaciador invisible para mantener altura consistente con el párrafo de cédula */}
+							<div className="min-h-[32px] sm:min-h-[36px]"></div>
 						</FormItem>
 					)}
 				/>
@@ -163,7 +162,10 @@ export const PatientDataSection = memo(({ control, inputStyles }: PatientDataSec
 												const value = e.target.value
 												field.onChange(value === '' ? 0 : Number(value))
 											}}
-											className={inputStyles + ' transition-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none'}
+											className={
+												inputStyles +
+												' transition-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none'
+											}
 										/>
 									</FormControl>
 								</FormItem>

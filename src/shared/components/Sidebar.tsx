@@ -49,7 +49,7 @@ const NavItem: React.FC<NavItemProps> = ({ to, icon, label, showFullContent, onC
 			to={to}
 			className={({ isActive }) =>
 				`flex justify-between items-center gap-2 sm:gap-3 cursor-pointer w-full py-2 px-1 rounded-md transition-none ${
-					isActive ? 'text-primary border-primary' : 'hover:text-primary'
+					isActive ? 'text-Conspat border-primary' : 'hover:text-Conspat'
 				}`
 			}
 			onClick={onClick}
@@ -139,7 +139,7 @@ const NavGroup: React.FC<NavGroupProps> = ({
 		<div className="space-y-1" onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
 			<div
 				className={`flex justify-between items-center gap-2 sm:gap-3 cursor-pointer w-full py-2 px-1 rounded-md transition-none ${
-					isExpanded || isChildActive ? 'text-primary' : 'hover:text-primary'
+					isExpanded || isChildActive ? 'text-Conspat' : 'hover:text-Conspat'
 				}`}
 				title={!showFullContent ? label : undefined}
 				onClick={handleClick}
@@ -269,7 +269,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onClose, isExpanded = false, isMobile
 	const isEmployee = profile?.role === 'employee'
 
 	return (
-		<aside className="bg-white/80 dark:bg-background/50 shadow-lg shadow-primary/50 backdrop-blur-[3px] dark:backdrop-blur-[10px] flex flex-col h-screen py-4 sm:py-6 px-2 sm:px-4 gap-0 border-gray-600 text-gray-700 dark:text-white ease-in-out overflow-hidden border-r border-input">
+		<aside className="bg-white/80 dark:bg-background/50 shadow-lg shadow-primary/50 backdrop-blur-[3px] dark:backdrop-blur-[10px] flex flex-col h-screen py-4 sm:py-6 px-2 sm:px-4 gap-0 text-gray-700 dark:text-white ease-in-out overflow-hidden border-r border-input">
 			{/* Zona scrollable: navegación y grupos */}
 			<div className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden pr-1 flex flex-col items-start gap-4 scrollbar-hide">
 				<div className="flex justify-between items-center w-full mb-2 sm:mb-4">

@@ -379,17 +379,17 @@ const MainCases: React.FC = React.memo(() => {
 				{/* Exam Types Card */}
 				<Card className="hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 group transition-transform duration-300">
 					<CardContent className="p-4">
-                        <div className="flex items-center gap-3 mb-3">
+						<div className="flex items-center gap-3 mb-3">
 							<div className="p-2 rounded-lg bg-blue-100 dark:bg-blue-900/30">
 								<BarChart3 className="h-5 w-5 text-blue-600 dark:text-blue-400" />
 							</div>
 							<div>
-                                <p className="text-xs font-medium text-muted-foreground">Tipos de Examen</p>
+								<p className="text-xs font-medium text-muted-foreground">Tipos de Examen</p>
 							</div>
 						</div>
 
 						<div className="space-y-2">
-                            {/* Biopsia */}
+							{/* Biopsia */}
 							<button
 								className={`w-full flex items-center justify-between p-2 rounded-lg border transition-transform duration-300 cursor-pointer hover:bg-accent ${
 									selectedExamType === 'biopsia'
@@ -399,13 +399,13 @@ const MainCases: React.FC = React.memo(() => {
 								onClick={() => handleExamTypeFilter('biopsia')}
 							>
 								<div className="flex items-center gap-2">
-                                    <Activity className="h-3 w-3 text-green-500" />
+									<Activity className="h-3 w-3 text-green-500" />
 									<span className="text-xs font-medium">Biopsia</span>
 								</div>
 								<span className="text-sm font-bold">{examTypeCounts['biopsia'] || 0}</span>
 							</button>
 
-                            {/* Citología */}
+							{/* Citología */}
 							<button
 								className={`w-full flex items-center justify-between p-2 rounded-lg border transition-transform duration-300 cursor-pointer hover:bg-accent ${
 									selectedExamType === 'citologia'
@@ -414,14 +414,14 @@ const MainCases: React.FC = React.memo(() => {
 								}`}
 								onClick={() => handleExamTypeFilter('citologia')}
 							>
-                                <div className="flex items-center gap-2">
-                                    <Stethoscope className="h-3 w-3 text-blue-500" />
+								<div className="flex items-center gap-2">
+									<Stethoscope className="h-3 w-3 text-blue-500" />
 									<span className="text-xs font-medium">Citología</span>
 								</div>
 								<span className="text-sm font-bold">{examTypeCounts['citologia'] || 0}</span>
 							</button>
 
-                            {/* Inmunohistoquímica */}
+							{/* Inmunohistoquímica */}
 							<button
 								className={`w-full flex items-center justify-between p-2 rounded-lg border transition-transform duration-300 cursor-pointer hover:bg-accent ${
 									selectedExamType === 'inmunohistoquimica'
@@ -430,8 +430,8 @@ const MainCases: React.FC = React.memo(() => {
 								}`}
 								onClick={() => handleExamTypeFilter('inmunohistoquimica')}
 							>
-                                <div className="flex items-center gap-2">
-                                    <FlaskConical className="h-3 w-3 text-orange-500" />
+								<div className="flex items-center gap-2">
+									<FlaskConical className="h-3 w-3 text-orange-500" />
 									<span className="text-xs font-medium">Inmuno</span>
 								</div>
 								<span className="text-sm font-bold">{examTypeCounts['inmunohistoquimica'] || 0}</span>
@@ -443,12 +443,12 @@ const MainCases: React.FC = React.memo(() => {
 				{/* Document Status Card (doc_aprobado) */}
 				<Card className="hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 group transition-transform duration-300">
 					<CardContent className="p-4">
-                        <div className="flex items-center gap-3 mb-3">
+						<div className="flex items-center gap-3 mb-3">
 							<div className="p-2 rounded-lg bg-teal-100 dark:bg-teal-900/30">
 								<FileText className="h-5 w-5 text-teal-600 dark:text-teal-400" />
 							</div>
 							<div>
-                                <p className="text-xs font-medium text-muted-foreground">Estatus de Documento</p>
+								<p className="text-xs font-medium text-muted-foreground">Estatus de Documento</p>
 							</div>
 						</div>
 

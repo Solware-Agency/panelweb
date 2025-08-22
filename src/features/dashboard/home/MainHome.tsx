@@ -356,7 +356,7 @@ function MainHome() {
 										return (
 											<div
 												key={doctor.doctor}
-												className="flex items-center gap-1.5 sm:gap-3 p-1.5 sm:p-3 hover:bg-gray-50 dark:hover:bg-gray-800/50 rounded-lg cursor-pointer hover:scale-105 hover:shadow-lg hover:shadow-primary/20 transition-transform duration-300"
+												className="flex items-center gap-1.5 sm:gap-3 p-1.5 sm:p-3 hover:bg-gray-50 dark:hover:bg-card rounded-lg cursor-pointer hover:scale-105 hover:shadow-lg hover:shadow-primary/20 transition-transform duration-300"
 											>
 												<div className={`w-2 h-2 sm:w-3 sm:h-3 rounded-full ${colors[index % colors.length]}`}></div>
 												<div className="flex-1 min-w-0">
@@ -510,7 +510,7 @@ function MainHome() {
 
 								{/* Quick Actions */}
 								<button
-									className="w-full p-1.5 sm:p-2 md:p-3 bg-primary hover:bg-primary/80 text-white rounded-lg transition-transform duration-300 flex items-center justify-center gap-1.5 sm:gap-2 text-xs sm:text-sm md:text-base hover:scale-105 hover:shadow-lg hover:shadow-primary/20"
+									className="w-full p-1.5 sm:p-2 md:p-3 bg-primary hover:bg-primary/80 rounded-lg transition-transform duration-300 flex items-center justify-center gap-1.5 sm:gap-2 text-xs sm:text-sm md:text-base hover:scale-105 hover:shadow-lg hover:shadow-primary/20 dark:text-gray-700 text-gray-300"
 									onClick={(e) => {
 										e.stopPropagation()
 										navigate('/dashboard/stats')

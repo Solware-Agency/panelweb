@@ -74,6 +74,8 @@ export default {
           secondary: '#AAB7B7',
         },
         darkBorder: '#C8D0DA',
+        Conspat: 'hsl(var(--pinkC))',
+        pinkC: 'hsl(var(--pinkC))',
       },
       borderRadius: {
         lg: 'var(--radius)',
