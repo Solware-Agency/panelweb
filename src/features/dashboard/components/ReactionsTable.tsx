@@ -227,9 +227,9 @@ const ReactionsTable: React.FC = () => {
 				</p>
 			</div>
 
-			<table className="w-full border-collapse rounded-lg overflow-hidden shadow-sm bg-white dark:bg-gray-900">
+			<table className="w-full border-collapse rounded-lg overflow-hidden shadow-sm bg-background">
 				{/* Encabezado */}
-				<thead className="bg-gray-100 dark:bg-gray-800">
+				<thead className="bg-card">
 					<tr className="text-gray-700 dark:text-gray-300 text-sm">
 						<th className="py-3 px-4 text-center border-b border-gray-200 dark:border-gray-700 w-12">
 							<div className="flex justify-center items-center">
@@ -349,7 +349,7 @@ const ReactionsTable: React.FC = () => {
 				</tbody>
 
 				{/* Pie de tabla */}
-				<tfoot className="bg-gray-50 dark:bg-gray-800/80">
+				<tfoot className="bg-card">
 					<tr>
 						<td colSpan={5} className="py-3 px-4 text-left font-medium text-gray-900 dark:text-gray-200">
 							Total

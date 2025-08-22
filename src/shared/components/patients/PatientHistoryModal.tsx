@@ -160,7 +160,7 @@ const PatientHistoryModal: React.FC<PatientHistoryModalProps> = ({ isOpen, onClo
 							{/* Content */}
 							<div className="flex-1 overflow-hidden flex flex-col">
 								{/* Patient Info */}
-								<div className="p-4 sm:p-6 bg-gray-50 dark:bg-gray-800/50">
+								<div className="p-4 sm:p-6 bg-white/80 dark:bg-background/5">
 									<div className="flex flex-col sm:flex-row sm:items-center gap-4">
 										<div className="flex items-center gap-3">
 											<div className="p-3 bg-blue-100 dark:bg-blue-900/30 rounded-full">

@@ -694,25 +694,25 @@ const StepsCaseModal: React.FC<StepsCaseModalProps> = ({ case_, isOpen, onClose,
 			>
 				<div className="w-full max-w-2xl bg-white/80 dark:bg-background/50 backdrop-blur-[3px] dark:backdrop-blur-[10px] rounded-2xl shadow-2xl border border-input overflow-hidden">
 					{/* Header */}
-					<div className="bg-pink-500 px-6 py-4">
+					<div className="bg-background px-6 py-4">
 						<div className="flex items-center justify-between">
 							<div className="flex items-center gap-3">
-								<Sparkles className="w-6 h-6 text-white flex-shrink-0" />
+								<Sparkles className="w-6 h-6 text-black dark:text-white flex-shrink-0" />
 								<div className="min-w-0">
 									<div>
-										<h2 className="text-lg font-bold text-white">Generar Caso Médico - {case_?.code}</h2>
+										<h2 className="text-lg font-bold text-black dark:text-white">Generar Caso Médico - {case_?.code}</h2>
 									</div>
-									<p className="text-sm text-indigo-100 truncate">{case_ ? `Para ${case_.full_name}` : 'Nuevo caso'}</p>
+									<p className="text-sm text-black dark:text-indigo-100 truncate">{case_ ? `Para ${case_.full_name}` : 'Nuevo caso'}</p>
 								</div>
 							</div>
 							<button onClick={handleClose} className="p-1 hover:bg-white/20 rounded-lg transition-none flex-shrink-0">
-								<X className="w-5 h-5 text-white" />
+								<X className="w-5 h-5 text-black dark:text-white" />
 							</button>
 						</div>
 					</div>
 
 					{/* Steps Indicator */}
-					<div className="px-6 py-4 bg-gray-50/50 dark:bg-gray-800/50">
+					<div className="px-6 py-4 bg-card">
 						<div className="flex items-center justify-between">
 							{computedSteps.map((step, index) => {
 								const Icon = step.icon
@@ -766,7 +766,7 @@ const StepsCaseModal: React.FC<StepsCaseModalProps> = ({ case_, isOpen, onClose,
 					</div>
 
 					{/* Footer */}
-					<div className="px-6 py-4 bg-gray-50/50 dark:bg-gray-800/50 border-t border-gray-200 dark:border-gray-700">
+					<div className="px-6 py-4 bg-card border-t border-gray-200 dark:border-gray-700">
 						<div className="flex items-center justify-end gap-3">
 							<div className="flex items-center gap-5">
 								<motion.button

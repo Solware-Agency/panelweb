@@ -46,7 +46,7 @@ const PatientRow = React.memo(
 	({ patient, onClick }: { patient: PatientData; onClick: (patient: PatientData) => void }) => (
 		<tr
 			key={patient.id_number}
-			className="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-transform cursor-pointer"
+			className="hover:bg-background dark:hover:bg-background transition-transform cursor-pointer"
 			onClick={() => onClick(patient)}
 		>
 			{/* Name Cell */}
@@ -264,7 +264,7 @@ const PatientsList: React.FC<PatientsListProps> = React.memo(
 					<div className="hidden lg:block">
 						<div className="max-h-[520px] overflow-auto">
 							<table className="w-full">
-								<thead className="bg-gray-50 dark:bg-gray-800/50 backdrop-blur-[10px] sticky top-0 z-10">
+								<thead className="bg-background backdrop-blur-[10px] sticky top-0 z-10">
 									<tr>
 										<th className="w-[20%] px-5 py-3 text-left">
 											<button
@@ -313,7 +313,7 @@ const PatientsList: React.FC<PatientsListProps> = React.memo(
 										</th>
 									</tr>
 								</thead>
-								<tbody className="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-700">
+								<tbody className="bg-card divide-y divide-gray-200 dark:divide-gray-700">
 									{sortedPatients.length > 0 ? (
 										// Limit desktop view to 30 patients for better performance
 										sortedPatients
