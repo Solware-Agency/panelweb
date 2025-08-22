@@ -29,7 +29,7 @@ export const PaymentMethodItem = memo(
 			const isBolivares = isBolivaresMethod(paymentMethod)
 			return {
 				isBolivares,
-				currencyLabel: isBolivares ? '(Bs)' : '($)',
+				currencyLabel: isBolivares ? 'Bs' : '$',
 				currencySymbol: isBolivares ? 'Bs' : '$',
 			}
 		}, [paymentMethod])

@@ -341,7 +341,7 @@ export const RecordsSection: React.FC<RecordsSectionProps> = ({
 										}`}
 									/>
 								</div>
-								<p className="text-xs font-medium text-muted-foreground">Casos Pendientes</p>
+								<p className="text-xs font-bold text-muted-foreground">Casos Pendientes</p>
 							</div>
 							<div className="absolute right-3 top-1/2 -translate-y-1/2 text-right tabular-nums">
                                 <p className="text-xl font-bold">{stats.total > 0 ? Math.round(((stats.total - stats.completed) / stats.total) * 100) : 0}%</p>
@@ -371,7 +371,7 @@ export const RecordsSection: React.FC<RecordsSectionProps> = ({
 										}`}
 									/>
 								</div>
-								<p className="text-xs font-medium text-muted-foreground">PDF Pendientes</p>
+								<p className="text-xs font-bold text-muted-foreground">PDF Pendientes</p>
 							</div>
 							<div className="absolute right-3 top-1/2 -translate-y-1/2 text-right tabular-nums">
 								<p className="text-xl font-bold">{pendingPdfCases}</p>
