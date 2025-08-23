@@ -705,7 +705,7 @@ const UnifiedCaseModal: React.FC<CaseDetailPanelProps> = React.memo(({ case_, is
 							return (
 					<>
 						<label htmlFor={`amount-${field}`} className="text-xs text-gray-500 dark:text-gray-400 mb-1 block">
-							Monto{isVESPaymentMethod(paymentMethod) ? ' (Bs)' : ' ($)'}
+							Monto{isVESPaymentMethod(paymentMethod) ? ' Bs' : ' $'}
 						</label>
 						<Input
 							id={`amount-${field}`}
@@ -2016,7 +2016,7 @@ const UnifiedCaseModal: React.FC<CaseDetailPanelProps> = React.memo(({ case_, is
 
 										<div>
 				<label htmlFor="new-payment-amount" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-					Monto{isVESPaymentMethod(newPayment.method) ? ' (Bs)' : ' ($)'}
+					Monto{isVESPaymentMethod(newPayment.method) ? ' Bs' : ' $'}
 				</label>
 								{(() => {
 									const calculatorHandler = createCalculatorInputHandler(

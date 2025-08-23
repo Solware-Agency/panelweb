@@ -58,7 +58,7 @@ const DoctorRevenueReport: React.FC = () => {
 												% del Total
 											</th>
 											<th className="text-right py-2 px-1 text-gray-600 dark:text-gray-400 font-semibold text-xs">
-												Monto Total ($)
+												Monto Total
 											</th>
 										</tr>
 									</thead>

@@ -253,7 +253,7 @@ const StatsPage: React.FC = () => {
 											r="40"
 											fill="none"
 											className="stroke-current text-gray-200 dark:text-neutral-700"
-											strokeWidth="4"
+											strokeWidth="6"
 										></circle>
 										{stats?.revenueByBranch.map((branch, index) => {
 											const colors = [
@@ -274,7 +274,7 @@ const StatsPage: React.FC = () => {
 													className={`stroke-current ${
 														colors[index % colors.length]
 													} transition-transform duration-200`}
-													strokeWidth={hoveredSegmentIndex === index ? '5' : '4'}
+													strokeWidth={hoveredSegmentIndex === index ? '8' : '6'}
 													strokeDasharray={`${branch.percentage} ${100 - branch.percentage}`}
 													strokeDashoffset={-offset}
 													strokeLinecap="round"

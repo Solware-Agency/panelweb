@@ -329,7 +329,7 @@ const MainCases: React.FC = React.memo(() => {
 										}`}
 									/>
 								</div>
-								<p className="text-sm font-medium text-muted-foreground">Casos Pendientes</p>
+								<p className="text-sm font-bold text-muted-foreground">Casos Pendientes</p>
 							</div>
 							<div className="text-right">
 								<p className="text-xl font-bold">
@@ -361,7 +361,7 @@ const MainCases: React.FC = React.memo(() => {
 										}`}
 									/>
 								</div>
-								<p className="text-sm font-medium text-muted-foreground">PDF Pendientes</p>
+								<p className="text-sm font-bold text-muted-foreground">PDF Pendientes</p>
 							</div>
 							<div className="text-right">
 								<p className="text-xl font-bold">{pendingPdfCases}</p>
