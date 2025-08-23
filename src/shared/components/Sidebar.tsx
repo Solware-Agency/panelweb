@@ -303,6 +303,17 @@ const Sidebar: React.FC<SidebarProps> = ({ onClose, isExpanded = false, isMobile
 							/>
 						</div>
 					)}
+					{!isEmployee && !isAdmin && (
+						<div className="py-1">
+							<NavItem
+								to="/dashboard/medical-form"
+								icon={<FileText className="stroke-2 size-5 shrink-0" />}
+								label="Formulario"
+								showFullContent={showFullContent}
+								onClick={onClose}
+							/>
+						</div>
+					)}
 
 					{/* Employee specific routes */}
 					{isEmployee && (
