@@ -16,9 +16,7 @@ export const RemainingAmount = lazy(() => import('@features/dashboard/components
 export const ReactionsTable = lazy(() => import('@features/dashboard/components/ReactionsTable'))
 
 // Form components that use heavy libraries
-export const MedicalForm = lazy(() =>
-	import('@features/form/components/MedicalForm').then((module) => ({ default: module.MedicalForm })),
-)
+export const MedicalForm = lazy(() => import('@features/form/components/MedicalForm'))
 export const MedicalFormContainer = lazy(() =>
 	import('@features/form/components/MedicalFormContainer').then((module) => ({ default: module.MedicalFormContainer })),
 )
