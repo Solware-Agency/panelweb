@@ -25,6 +25,7 @@ import {
 	FormRoute,
 	PrivateRoute,
 	DoctorsSection,
+	MedicalForm,
 } from '@app/routes/lazy-routes'
 
 // Loading component for Suspense fallback
@@ -160,6 +161,7 @@ function App() {
 								<Route path="patients" element={<PatientsPage />} />
 								<Route path="changelog" element={<ChangelogPage />} />
 								<Route path="doctors" element={<DoctorsSection />} />
+								<Route path="medical-form" element={<MedicalForm />} />
 							</Route>
 						</Routes>
 					</Suspense>

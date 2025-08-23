@@ -29,6 +29,7 @@ export const MyCasesPage = lazy(() => import('@features/dashboard/cases/MyCasesP
 export const SettingsPage = lazy(() => import('@features/dashboard/settings/SettingsPage'))
 export const ChangelogPage = lazy(() => import('@features/dashboard/changelog/ChangelogPage'))
 export const PatientsPage = lazy(() => import('@features/dashboard/patients/PatientsPage'))
+export const MedicalForm = lazy(() => import('@features/form/components/MedicalForm'))
 
 // Form pages - lazy loaded
 export const Form = lazy(() => import('@features/form/pages/Form'))
