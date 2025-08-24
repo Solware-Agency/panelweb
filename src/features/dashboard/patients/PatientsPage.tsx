@@ -1,9 +1,10 @@
-import React, { useState, useCallback, useMemo } from 'react'
-import { useQuery } from '@tanstack/react-query'
+import React, { useState, useCallback, useMemo, useEffect } from 'react'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { getMedicalRecords } from '@lib/supabase-service'
 import { Search } from 'lucide-react'
 import { Input } from '@shared/components/ui/input'
 import PatientsList from './PatientsList'
+import { supabase } from '@lib/supabase/config'
 
 // Tipo base para los datos que vienen de la API
 type RawMedicalRecord = {
@@ -19,6 +20,7 @@ type RawMedicalRecord = {
 	phone?: string
 	created_at?: string
 	date?: string
+	edad?: string | null
 }
 
 // Tipo normalizado que coincide con el esperado por PatientsList
@@ -31,6 +33,7 @@ type NormalizedMedicalRecord = {
 	date_of_birth: string | null
 	created_at: string
 	date: string
+	edad: string | null
 	[key: string]: unknown
 }
 
@@ -41,6 +44,32 @@ type MedicalRecordsQueryResult = {
 
 const PatientsPage: React.FC = React.memo(() => {
 	const [searchTerm, setSearchTerm] = useState('')
+	const queryClient = useQueryClient()
+
+	// Suscripción a cambios en tiempo real
+	useEffect(() => {
+		// Suscribirse a los cambios de la tabla medical_records_clean
+		const subscription = supabase
+			.channel('medical_records_changes')
+			.on(
+				'postgres_changes',
+				{
+					event: '*', // Escuchar INSERT, UPDATE y DELETE
+					schema: 'public',
+					table: 'medical_records_clean',
+				},
+				() => {
+					// Invalidar la caché para forzar una nueva consulta
+					queryClient.invalidateQueries({ queryKey: ['all-medical-records'] })
+				},
+			)
+			.subscribe()
+
+		// Limpiar la suscripción cuando el componente se desmonte
+		return () => {
+			subscription.unsubscribe()
+		}
+	}, [queryClient])
 
 	// Fetch all medical records - optimized to prevent unnecessary refetches
 	const {
@@ -81,6 +110,7 @@ const PatientsPage: React.FC = React.memo(() => {
 						email: item.email ?? null,
 						created_at: item.created_at ?? item.date ?? new Date().toISOString(),
 						date: item.date ?? item.created_at ?? new Date().toISOString(),
+						edad: item.edad ?? null,
 					}
 
 					// Devolvemos el registro normalizado
