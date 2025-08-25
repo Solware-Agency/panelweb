@@ -59,6 +59,9 @@ const pdfStep = {
 }
 
 const StepsCaseModal: React.FC<StepsCaseModalProps> = ({ case_, isOpen, onClose, onSuccess }) => {
+	const GENERATE_DOC = import.meta.env.VITE_GENERATE_DOC_WEBHOOK
+	const GENERATE_PDF = import.meta.env.VITE_GENERATE_PDF_WEBHOOK
+
 	const [activeStep, setActiveStep] = useState(0)
 	const [isCompleting, setIsCompleting] = useState(false)
 	const [isSaving, setIsSaving] = useState(false)
@@ -192,17 +195,22 @@ const StepsCaseModal: React.FC<StepsCaseModalProps> = ({ case_, isOpen, onClose,
 			}
 
 			console.log('[2] No existe googledocs_url, enviando POST a n8n...')
-			const webhookRes = await fetch(
-				'https://solwareagencia.app.n8n.cloud/webhook/7c840100-fd50-4598-9c48-c7ce60f82506',
-				{
-					method: 'POST',
-					headers: {
-						'Content-Type': 'application/json',
-						Accept: 'application/json',
-					},
-					body: JSON.stringify({ caseId: case_.id }),
+
+			// Verificar que la URL del webhook esté configurada
+			if (!GENERATE_DOC) {
+				throw new Error('URL del webhook de generación de documento no configurada. Verifica las variables de entorno.')
+			}
+
+			console.log('Generate Doc Webhook URL:', GENERATE_DOC)
+
+			const webhookRes = await fetch(GENERATE_DOC, {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+					Accept: 'application/json',
 				},
-			)
+				body: JSON.stringify({ caseId: case_.id }),
+			})
 
 			console.log('[2] Webhook enviado. Status:', webhookRes.status)
 
@@ -258,9 +266,23 @@ const StepsCaseModal: React.FC<StepsCaseModalProps> = ({ case_, isOpen, onClose,
 			}
 		} catch (err) {
 			console.error('[ERROR] handleGenerateCaseAndOpenDoc:', err)
+
+			let errorMessage = 'Ocurrió un problema al abrir el documento.'
+
+			if (err instanceof TypeError && err.message === 'Failed to fetch') {
+				errorMessage =
+					'No se pudo conectar con el servidor n8n. Posibles causas:\n• El servidor n8n no está funcionando\n• Firewall bloqueando la conexión\n• URL del webhook incorrecta\n• Puerto 5678 cerrado o inaccesible'
+			} else if (err instanceof Error && err.message.includes('SSL')) {
+				errorMessage = 'Error de certificado SSL. El servidor n8n tiene un problema de seguridad.'
+			} else if (err instanceof Error && err.message.includes('CONNECTION_RESET')) {
+				errorMessage = 'El servidor n8n rechazó la conexión. Verifica que el servicio esté funcionando.'
+			} else if (err instanceof Error && err.message.includes('URL del webhook')) {
+				errorMessage = err.message
+			}
+
 			toast({
 				title: '❌ Error inesperado',
-				description: 'Ocurrió un problema al abrir el documento.',
+				description: errorMessage,
 				variant: 'destructive',
 			})
 		} finally {
@@ -355,17 +377,21 @@ const StepsCaseModal: React.FC<StepsCaseModalProps> = ({ case_, isOpen, onClose,
 
 			console.log('Request body:', requestBody)
 
-			const response = await fetch(
-				'https://solwareagencia.app.n8n.cloud/webhook/36596a3a-0aeb-4ee1-887f-854324cc785b',
-				{
-					method: 'POST',
-					headers: {
-						'Content-Type': 'application/json',
-						Accept: 'application/json',
-					},
-					body: JSON.stringify(requestBody),
+			// Verificar que la URL del webhook esté configurada
+			if (!GENERATE_PDF) {
+				throw new Error('URL del webhook PDF no configurada. Verifica las variables de entorno.')
+			}
+
+			console.log('Webhook URL:', GENERATE_PDF)
+
+			const response = await fetch(GENERATE_PDF, {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+					Accept: 'application/json',
 				},
-			)
+				body: JSON.stringify(requestBody),
+			})
 
 			console.log('Response status:', response.status)
 
@@ -475,11 +501,18 @@ const StepsCaseModal: React.FC<StepsCaseModalProps> = ({ case_, isOpen, onClose,
 
 			if (error instanceof TypeError && error.message === 'Failed to fetch') {
 				errorMessage =
-					'No se pudo conectar con el servidor. Verifica tu conexión a internet o contacta al administrador.'
+					'No se pudo conectar con el servidor n8n. Posibles causas:\n• El servidor n8n no está funcionando\n• Firewall bloqueando la conexión\n• URL del webhook incorrecta\n• Puerto 5678 cerrado o inaccesible'
+			} else if (error instanceof Error && error.message.includes('SSL')) {
+				errorMessage =
+					'Error de certificado SSL. El servidor n8n tiene un problema de seguridad. Contacta al administrador.'
+			} else if (error instanceof Error && error.message.includes('CONNECTION_RESET')) {
+				errorMessage = 'El servidor n8n rechazó la conexión. Verifica que el servicio esté funcionando.'
 			} else if (error instanceof Error && error.message.includes('CORS')) {
 				errorMessage = 'Error de configuración del servidor (CORS). Contacta al administrador.'
 			} else if (error instanceof Error && error.message.includes('HTTP')) {
 				errorMessage = `Error del servidor: ${error.message}`
+			} else if (error instanceof Error && error.message.includes('URL del webhook')) {
+				errorMessage = error.message
 			}
 
 			toast({
@@ -676,146 +709,163 @@ const StepsCaseModal: React.FC<StepsCaseModalProps> = ({ case_, isOpen, onClose,
 
 	return (
 		<AnimatePresence>
-			{/* Backdrop */}
-			<motion.div
-				initial={{ opacity: 0 }}
-				animate={{ opacity: 1 }}
-				exit={{ opacity: 0 }}
-				onClick={handleClose}
-				className="fixed inset-0 bg-black/50 backdrop-blur-sm modal-overlay"
-			/>
+			{isOpen && (
+				<>
+					{/* Backdrop */}
+					<motion.div
+						key="backdrop"
+						initial={{ opacity: 0 }}
+						animate={{ opacity: 1 }}
+						exit={{ opacity: 0 }}
+						onClick={handleClose}
+						className="fixed inset-0 bg-black/50 backdrop-blur-sm modal-overlay"
+					/>
 
-			{/* Modal */}
-			<motion.div
-				initial={{ opacity: 0, scale: 0.9, y: 20 }}
-				animate={{ opacity: 1, scale: 1, y: 0 }}
-				exit={{ opacity: 0, scale: 0.9, y: 20 }}
-				className="fixed inset-0 modal-content flex items-center justify-center p-4"
-			>
-				<div className="w-full max-w-2xl bg-white/80 dark:bg-background/50 backdrop-blur-[3px] dark:backdrop-blur-[10px] rounded-2xl shadow-2xl border border-input overflow-hidden">
-					{/* Header */}
-					<div className="bg-background px-6 py-4">
-						<div className="flex items-center justify-between">
-							<div className="flex items-center gap-3">
-								<Sparkles className="w-6 h-6 text-black dark:text-white flex-shrink-0" />
-								<div className="min-w-0">
-									<div>
-										<h2 className="text-lg font-bold text-black dark:text-white">Generar Caso Médico - {case_?.code}</h2>
+					{/* Modal */}
+					<motion.div
+						key="modal"
+						initial={{ opacity: 0, scale: 0.9, y: 20 }}
+						animate={{ opacity: 1, scale: 1, y: 0 }}
+						exit={{ opacity: 0, scale: 0.9, y: 20 }}
+						className="fixed inset-0 modal-content flex items-center justify-center p-4"
+					>
+						<div className="w-full max-w-2xl bg-white/80 dark:bg-background/50 backdrop-blur-[3px] dark:backdrop-blur-[10px] rounded-2xl shadow-2xl border border-input overflow-hidden">
+							{/* Header */}
+							<div className="bg-background px-6 py-4">
+								<div className="flex items-center justify-between">
+									<div className="flex items-center gap-3">
+										<Sparkles className="w-6 h-6 text-black dark:text-white flex-shrink-0" />
+										<div className="min-w-0">
+											<div>
+												<h2 className="text-lg font-bold text-black dark:text-white">
+													Generar Caso Médico - {case_?.code}
+												</h2>
+											</div>
+											<p className="text-sm text-black dark:text-indigo-100 truncate">
+												{case_ ? `Para ${case_.full_name}` : 'Nuevo caso'}
+											</p>
+										</div>
 									</div>
-									<p className="text-sm text-black dark:text-indigo-100 truncate">{case_ ? `Para ${case_.full_name}` : 'Nuevo caso'}</p>
+									<button
+										onClick={handleClose}
+										className="p-1 hover:bg-white/20 rounded-lg transition-none flex-shrink-0"
+									>
+										<X className="w-5 h-5 text-black dark:text-white" />
+									</button>
 								</div>
 							</div>
-							<button onClick={handleClose} className="p-1 hover:bg-white/20 rounded-lg transition-none flex-shrink-0">
-								<X className="w-5 h-5 text-black dark:text-white" />
-							</button>
-						</div>
-					</div>
 
-					{/* Steps Indicator */}
-					<div className="px-6 py-4 bg-card">
-						<div className="flex items-center justify-between">
-							{computedSteps.map((step, index) => {
-								const Icon = step.icon
-								const isActive = index === activeStep
-								const isCompleted = index < activeStep
+							{/* Steps Indicator */}
+							<div className="px-6 py-4 bg-card">
+								<div className="flex items-center justify-between">
+									{computedSteps.map((step, index) => {
+										const Icon = step.icon
+										const isActive = index === activeStep
+										const isCompleted = index < activeStep
 
-								return (
-									<div key={step.id} className="flex items-center justify-center flex-1 last-of-type:flex-none">
-										<div className="flex flex-col items-center">
-											<motion.div
-												className={`w-8 h-8 rounded-full flex items-center justify-center border-2 transition-transform duration-300 ${
-													isCompleted
-														? 'border-green-500 text-gray-800 dark:text-white'
-														: isActive
-														? 'border-pink-500 text-gray-800 dark:text-white'
-														: 'bg-gray-200 dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-500'
-												}`}
-												whileHover={{ scale: 1.05 }}
-											>
-												<Icon className="w-4 h-4 text-gray-800 dark:text-white" />
-											</motion.div>
-											<div className="mt-2 text-center">
-												<p
-													className={`text-xs font-medium ${
-														isActive ? 'text-pink-400' : 'text-gray-600 dark:text-gray-400'
-													}`}
-												>
-													{step.title}
-												</p>
-												<p className="text-xs text-gray-500 dark:text-gray-500 hidden sm:block">{step.description}</p>
+										return (
+											<div key={step.id} className="flex items-center justify-center flex-1 last-of-type:flex-none">
+												<div className="flex flex-col items-center">
+													<motion.div
+														className={`w-8 h-8 rounded-full flex items-center justify-center border-2 transition-transform duration-300 ${
+															isCompleted
+																? 'border-green-500 text-gray-800 dark:text-white'
+																: isActive
+																? 'border-pink-500 text-gray-800 dark:text-white'
+																: 'bg-gray-200 dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-500'
+														}`}
+														whileHover={{ scale: 1.05 }}
+													>
+														<Icon className="w-4 h-4 text-gray-800 dark:text-white" />
+													</motion.div>
+													<div className="mt-2 text-center">
+														<p
+															className={`text-xs font-medium ${
+																isActive ? 'text-pink-400' : 'text-gray-600 dark:text-gray-400'
+															}`}
+														>
+															{step.title}
+														</p>
+														<p className="text-xs text-gray-500 dark:text-gray-500 hidden sm:block">
+															{step.description}
+														</p>
+													</div>
+												</div>
+												{index < computedSteps.length - 1 && (
+													<div
+														className={`flex-1 h-0.5 mx-2 transition-none duration-300 ${
+															index < activeStep ? 'bg-green-500' : 'bg-gray-300 dark:bg-gray-600'
+														}`}
+													/>
+												)}
 											</div>
-										</div>
-										{index < computedSteps.length - 1 && (
-											<div
-												className={`flex-1 h-0.5 mx-2 transition-none duration-300 ${
-													index < activeStep ? 'bg-green-500' : 'bg-gray-300 dark:bg-gray-600'
-												}`}
-											/>
-										)}
+										)
+									})}
+								</div>
+							</div>
+
+							{/* Content */}
+							<div className="px-6 py-6 flex flex-col">
+								<AnimatePresence mode="wait">
+									<div key={activeStep} className="flex-1">
+										{renderStepContent()}
 									</div>
-								)
-							})}
-						</div>
-					</div>
+								</AnimatePresence>
+							</div>
 
-					{/* Content */}
-					<div className="px-6 py-6 flex flex-col">
-						<AnimatePresence mode="wait">
-							<div className="flex-1">{renderStepContent()}</div>
-						</AnimatePresence>
-					</div>
+							{/* Footer */}
+							<div className="px-6 py-4 bg-card border-t border-gray-200 dark:border-gray-700">
+								<div className="flex items-center justify-end gap-3">
+									<div className="flex items-center gap-5">
+										<motion.button
+											onClick={handleBack}
+											disabled={isSaving}
+											className={`flex items-center gap-2 px-6 py-2 bg-transparent border border-pink-500 text-gray-800 dark:text-white font-medium rounded-lg hover:from-indigo-600 hover:to-purple-600 transition-transform duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl ${
+												activeStep === 0 ? 'hidden' : ''
+											}`}
+											whileHover={{ scale: 1.02 }}
+											whileTap={{ scale: 0.98 }}
+										>
+											<ArrowLeft className="w-4 h-4" />
+											Anterior
+										</motion.button>
 
-					{/* Footer */}
-					<div className="px-6 py-4 bg-card border-t border-gray-200 dark:border-gray-700">
-						<div className="flex items-center justify-end gap-3">
-							<div className="flex items-center gap-5">
-								<motion.button
-									onClick={handleBack}
-									disabled={isSaving}
-									className={`flex items-center gap-2 px-6 py-2 bg-transparent border border-pink-500 text-gray-800 dark:text-white font-medium rounded-lg hover:from-indigo-600 hover:to-purple-600 transition-transform duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl ${
-										activeStep === 0 ? 'hidden' : ''
-									}`}
-									whileHover={{ scale: 1.02 }}
-									whileTap={{ scale: 0.98 }}
-								>
-									<ArrowLeft className="w-4 h-4" />
-									Anterior
-								</motion.button>
-
-								<motion.button
-									onClick={handleNext}
-									disabled={isCompleting || isSaving || isGeneratingPDF}
-									className="flex items-center gap-2 px-6 py-2 bg-transparent border border-pink-500 text-gray-800 dark:text-white font-medium rounded-lg hover:from-indigo-600 hover:to-purple-600 transition-transform duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl"
-									whileHover={{ scale: 1.02 }}
-									whileTap={{ scale: 0.98 }}
-								>
-									{isCompleting ? (
-										<>
-											<div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-											<span className="hidden sm:inline">Saliendo...</span>
-										</>
-									) : isSaving || isGeneratingPDF ? (
-										<>
-											<div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-											<span className="hidden sm:inline">Cargando...</span>
-										</>
-									) : activeStep === computedSteps.length - 1 ? (
-										<>
-											<Heart className="w-4 h-4" />
-											<span className="hidden sm:inline">Terminar Proceso</span>
-										</>
-									) : (
-										<>
-											<span className="hidden sm:inline">Siguiente</span>
-											<ArrowRight className="w-4 h-4" />
-										</>
-									)}
-								</motion.button>
+										<motion.button
+											onClick={handleNext}
+											disabled={isCompleting || isSaving || isGeneratingPDF}
+											className="flex items-center gap-2 px-6 py-2 bg-transparent border border-pink-500 text-gray-800 dark:text-white font-medium rounded-lg hover:from-indigo-600 hover:to-purple-600 transition-transform duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl"
+											whileHover={{ scale: 1.02 }}
+											whileTap={{ scale: 0.98 }}
+										>
+											{isCompleting ? (
+												<>
+													<div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+													<span className="hidden sm:inline">Saliendo...</span>
+												</>
+											) : isSaving || isGeneratingPDF ? (
+												<>
+													<div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+													<span className="hidden sm:inline">Cargando...</span>
+												</>
+											) : activeStep === computedSteps.length - 1 ? (
+												<>
+													<Heart className="w-4 h-4" />
+													<span className="hidden sm:inline">Terminar Proceso</span>
+												</>
+											) : (
+												<>
+													<span className="hidden sm:inline">Siguiente</span>
+													<ArrowRight className="w-4 h-4" />
+												</>
+											)}
+										</motion.button>
+									</div>
+								</div>
 							</div>
 						</div>
-					</div>
-				</div>
-			</motion.div>
+					</motion.div>
+				</>
+			)}
 		</AnimatePresence>
 	)
 }
