@@ -30,6 +30,7 @@ export const SettingsPage = lazy(() => import('@features/dashboard/settings/Sett
 export const ChangelogPage = lazy(() => import('@features/dashboard/changelog/ChangelogPage'))
 export const PatientsPage = lazy(() => import('@features/dashboard/patients/PatientsPage'))
 export const MedicalForm = lazy(() => import('@features/form/components/MedicalForm'))
+export const StandaloneChatPage = lazy(() => import('@features/ChatAI/pages/StandaloneChatPage'))
 
 // Form pages - lazy loaded
 export const Form = lazy(() => import('@features/form/pages/Form'))

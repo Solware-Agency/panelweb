@@ -26,6 +26,7 @@ import {
 	PrivateRoute,
 	DoctorsSection,
 	MedicalForm,
+	StandaloneChatPage,
 } from '@app/routes/lazy-routes'
 
 // Loading component for Suspense fallback
@@ -139,6 +140,16 @@ function App() {
 
 							{/* Default route */}
 							<Route path="/" element={<LoginPage />} />
+
+							{/* Chat independiente - Sin layout */}
+							<Route
+								path="/chat"
+								element={
+									<PrivateRoute requiredRole={undefined}>
+										<StandaloneChatPage />
+									</PrivateRoute>
+								}
+							/>
 
 							{/* Protected dashboard routes */}
 							<Route

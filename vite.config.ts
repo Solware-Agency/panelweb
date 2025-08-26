@@ -28,6 +28,15 @@ export default defineConfig(({ mode }) => ({
 			'@assets': path.resolve(__dirname, 'src/assets'),
 		},
 	},
+	server: {
+		proxy: {
+			'/api': {
+				target: 'http://localhost:3001',
+				changeOrigin: true,
+				secure: false,
+			},
+		},
+	},
 	build: {
 		chunkSizeWarningLimit: 1000,
 		rollupOptions: {

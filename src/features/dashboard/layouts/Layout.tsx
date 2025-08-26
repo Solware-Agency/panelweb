@@ -4,7 +4,7 @@ import { AnimatePresence, motion } from 'framer-motion'
 import { useDarkMode } from '@shared/hooks/useDarkMode'
 import { useFullscreenDetection } from '@shared/hooks/useFullscreenDetection'
 import Sidebar from '@shared/components/Sidebar'
-import {Menu} from 'lucide-react'
+import { Menu } from 'lucide-react'
 import { useGlobalOverlayOpen } from '@shared/hooks/useGlobalOverlayOpen'
 
 const Layout: React.FC = () => {
@@ -28,10 +28,10 @@ const Layout: React.FC = () => {
 		setSidebarExpanded(false)
 	}
 
-  // Contar sidebar móvil como overlay abierto para ocultar hamburguesa
-  useGlobalOverlayOpen(sidebarOpen)
+	// Contar sidebar móvil como overlay abierto para ocultar hamburguesa
+	useGlobalOverlayOpen(sidebarOpen)
 
-  return (
+	return (
 		<div className="min-h-screen bg-white dark:bg-background">
 			{/* Mobile overlay */}
 			<AnimatePresence>
