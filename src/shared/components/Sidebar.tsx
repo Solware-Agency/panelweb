@@ -16,6 +16,7 @@ import {
 	ChevronRight,
 	Folder,
 	Clipboard,
+	MessageSquareText,
 } from 'lucide-react'
 import { NavLink, useNavigate } from 'react-router-dom'
 import { useAuth } from '@app/providers/AuthContext'
@@ -290,7 +291,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onClose, isExpanded = false, isMobile
 					</a>
 				</div>
 
-				<div className="flex flex-col justify-center gap-4">
+				<div className="flex flex-col justify-center gap-2">
 					{/* Common menu items for all roles */}
 					{!isEmployee && !isAdmin && (
 						<div className="py-1">
@@ -399,15 +400,15 @@ const Sidebar: React.FC<SidebarProps> = ({ onClose, isExpanded = false, isMobile
 							)}
 							{/* {isOwner && (
 								<>
-									<NavItem
-										to="/form"
-										icon={<FileText className="stroke-2 size-5 shrink-0" />}
-										label="Formulario"
-										showFullContent={showFullContent}
-										onClick={onClose}
-									/>
+								<NavItem
+								to="/form"
+								icon={<FileText className="stroke-2 size-5 shrink-0" />}
+								label="Formulario"
+								showFullContent={showFullContent}
+								onClick={onClose}
+								/>
 								</>
-							)} */}
+								)} */}
 						</NavGroup>
 					)}
 
@@ -448,7 +449,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onClose, isExpanded = false, isMobile
 								label="Médicos"
 								showFullContent={showFullContent}
 								onClick={onClose}
-							/> */}
+								/> */}
 							<NavItem
 								to="/dashboard/changelog"
 								icon={<History className="stroke-2 size-5 shrink-0" />}
@@ -468,6 +469,18 @@ const Sidebar: React.FC<SidebarProps> = ({ onClose, isExpanded = false, isMobile
 							showFullContent={showFullContent}
 							onClick={onClose}
 						/>
+					)}
+
+					{!isEmployee && !isAdmin && (
+						<div className="py-1">
+							<NavItem
+								to="/chat"
+								icon={<MessageSquareText className="stroke-2 size-5 shrink-0" />}
+								label="Chat IA"
+								showFullContent={showFullContent}
+								onClick={onClose}
+							/>
+						</div>
 					)}
 
 					{isAdmin && (
