@@ -75,7 +75,7 @@ const StandaloneChatPage = () => {
 					messages: [
 						{
 							role: 'user',
-							parts: [{ type: 'text', text: userMessage.content }],
+							content: userMessage.content,
 						},
 					],
 				}),

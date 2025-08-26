@@ -10,10 +10,11 @@
     "preview": "vite preview",
     "analyze": "vite build --mode analyze",
     "unused:components": "ts-unused-exports tsconfig.json",
-    "server": "node server.js",
-    "start": "npm run build && node server.js",
-    "start:prod": "NODE_ENV=production node server.js",
-    "dev:server": "NODE_ENV=development node server.js"
+    "server": "node backend/server.js",
+    "start": "npm run build && node backend/server.js",
+    "start:prod": "NODE_ENV=production node backend/server.js",
+    "dev:server": "node -r dotenv/config backend/server.js",
+    "dev:full": "concurrently \"pnpm dev:server\" \"pnpm dev\" --names \"BACKEND,FRONTEND\" --prefix-colors \"blue,green\""
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",
@@ -96,6 +97,7 @@
     "@types/react-window": "^1.8.8",
     "@vitejs/plugin-react": "^4.4.1",
     "autoprefixer": "^10.4.20",
+    "concurrently": "^9.2.1",
     "eslint": "^9.25.0",
     "eslint-plugin-react-hooks": "^5.2.0",
     "eslint-plugin-react-refresh": "^0.4.19",

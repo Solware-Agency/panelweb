@@ -1,14 +1,5 @@
-// backend/routes/chat.js
-import express from 'express';
-import fetch from 'node-fetch';
+// api/chat.js
 import crypto from 'crypto';
-
-const router = express.Router();
-
-// Variables de entorno
-const FLOWISE_API_URL = process.env.FLOWISE_API_URL;
-const FLOWISE_AGENTFLOW_ID = process.env.FLOWISE_AGENTFLOW_ID;
-const FLOWISE_API_KEY = process.env.FLOWISE_API_KEY;
 
 function normalizeRole(role) {
   const r = String(role ?? '').toLowerCase().trim();
@@ -57,15 +48,28 @@ function extractText(content) {
 }
 
 function getOrCreateSessionId(req) {
-  const cookie = req.cookies.agentflow_session;
+  const cookie = req.cookies?.agentflow_session;
   if (cookie) return cookie;
   return `chat-${crypto.randomUUID()}`;
 }
 
-router.post('/chat', async (req, res) => {
+export default async function handler(req, res) {
+  // Configurar CORS para Vercel
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, Cookie');
+
+  if (req.method === 'OPTIONS') return res.status(200).end();
+  if (req.method !== 'POST') return res.status(405).json({ error: 'Método no permitido' });
+
   try {
-    console.log('Received request body:', JSON.stringify(req.body, null, 2));
+    console.log('Vercel API - Received request body:', JSON.stringify(req.body, null, 2));
     const { messages } = req.body;
+
+    // Variables de entorno (usar tanto VITE_ como versiones sin prefijo para compatibilidad)
+    const FLOWISE_API_URL = process.env.FLOWISE_API_URL || process.env.VITE_FLOWISE_API_URL;
+    const FLOWISE_AGENTFLOW_ID = process.env.FLOWISE_AGENTFLOW_ID || process.env.VITE_FLOWISE_AGENTFLOW_ID;
+    const FLOWISE_API_KEY = process.env.FLOWISE_API_KEY || process.env.VITE_FLOWISE_API_KEY;
 
     // Procesar mensajes
     const rawMessages = Array.isArray(messages) ? messages : [];
@@ -166,7 +170,7 @@ router.post('/chat', async (req, res) => {
     pump();
 
   } catch (err) {
-    console.error('POST /api/chat ERROR', err);
+    console.error('Vercel API - POST /api/chat ERROR', err);
 
     // Verificar si los headers ya fueron enviados
     if (!res.headersSent) {
@@ -186,6 +190,4 @@ router.post('/chat', async (req, res) => {
     res.write('d:{"finishReason":"error","usage":{"promptTokens":0,"completionTokens":0}}\n');
     res.end();
   }
-});
-
-export default router;
+}
