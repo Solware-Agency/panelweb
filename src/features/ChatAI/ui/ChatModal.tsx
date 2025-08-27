@@ -207,7 +207,7 @@ function ChatModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }
 								<div className="whitespace-pre-wrap leading-relaxed">
 									{message.content}
 									{message.isStreaming && (
-										<SyncLoader loading={true} color={'#4f4f4f'} size={10} speedMultiplier={1.5} />
+										<SyncLoader loading={true} color={'#4f4f4f'} size={8} speedMultiplier={.5} />
 									)}
 								</div>
 							</div>
