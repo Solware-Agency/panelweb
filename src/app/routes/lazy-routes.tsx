@@ -25,6 +25,7 @@ export const AuthCallback = lazy(() => import('@features/auth/other/AuthCallback
 export const Layout = lazy(() => import('@features/dashboard/layouts/Layout'))
 export const EmployeeLayout = lazy(() => import('@features/employee/layouts/EmployeeLayout'))
 export const AdminLayout = lazy(() => import('@features/admin/layouts/AdminLayout'))
+
 export const HomePage = lazy(() => import('@features/dashboard/home/HomePage'))
 export const StatsPage = lazy(() => import('@features/dashboard/stats/StatsPage'))
 export const ReportsPage = lazy(() => import('@features/dashboard/reports/ReportsPage'))
@@ -33,6 +34,7 @@ export const CasesPage = lazy(() => import('@features/dashboard/cases/CasesPage'
 export const MyCasesPage = lazy(() => import('@features/dashboard/cases/MyCasesPage'))
 export const SettingsPage = lazy(() => import('@features/dashboard/settings/SettingsPage'))
 export const ChangelogPage = lazy(() => import('@features/dashboard/changelog/ChangelogPage'))
+
 export const StandaloneChangelogPage = lazy(() => import('@features/dashboard/changelog/StandaloneChangelogPage'))
 export const PatientsPage = lazy(() => import('@features/dashboard/patients/PatientsPage'))
 export const MedicalForm = lazy(() => import('@features/form/components/MedicalForm'))
