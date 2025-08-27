@@ -5,7 +5,7 @@ import type { JSX } from 'react'
 
 interface PrivateRouteProps {
 	children: JSX.Element
-	requiredRole?: 'owner' | 'employee' | 'admin'
+	requiredRole?: 'owner' | 'employee' | 'admin' | Array<'owner' | 'employee' | 'admin'>
 }
 
 /**
@@ -81,20 +81,24 @@ const PrivateRoute = ({ children, requiredRole }: PrivateRouteProps) => {
 	}
 
 	// Check role permissions if a specific role is required
-	if (requiredRole && profile.role !== requiredRole) {
-		console.log(`User role "${profile.role}" does not match required role "${requiredRole}"`)
+	if (requiredRole) {
+		const allowedRoles = Array.isArray(requiredRole) ? requiredRole : [requiredRole]
 
-		// Redirect based on actual user role to their proper home
-		switch (profile.role) {
-			case 'owner':
-				return <Navigate to="/dashboard/home" replace />
-			case 'admin':
-				return <Navigate to="/medic/cases" replace />
-			case 'employee':
-				return <Navigate to="/employee/form" replace />
-			default:
-				// Fallback for unknown roles
-				return <Navigate to="/employee/form" replace />
+		if (!allowedRoles.includes(profile.role)) {
+			console.log(`User role "${profile.role}" not in allowed roles: ${allowedRoles.join(', ')}`)
+
+			// Redirect based on actual user role to their proper home
+			switch (profile.role) {
+				case 'owner':
+					return <Navigate to="/dashboard/home" replace />
+				case 'admin':
+					return <Navigate to="/medic/cases" replace />
+				case 'employee':
+					return <Navigate to="/employee/form" replace />
+				default:
+					// Fallback for unknown roles
+					return <Navigate to="/employee/form" replace />
+			}
 		}
 	}
 
