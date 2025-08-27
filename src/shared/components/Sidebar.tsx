@@ -341,13 +341,6 @@ const Sidebar: React.FC<SidebarProps> = ({ onClose, isExpanded = false, isMobile
 								onClick={onClose}
 							/> */}
 							<NavItem
-								to="/dashboard/changelog"
-								icon={<History className="stroke-2 size-5 shrink-0" />}
-								label="Historial"
-								showFullContent={showFullContent}
-								onClick={onClose}
-							/>
-							<NavItem
 								to="/patients"
 								icon={<Users className="stroke-2 size-5 shrink-0" />}
 								label="Pacientes"
@@ -483,9 +476,9 @@ const Sidebar: React.FC<SidebarProps> = ({ onClose, isExpanded = false, isMobile
 						</div>
 					)}
 
-					{isAdmin && (
+					{(isAdmin || isEmployee) && (
 						<NavItem
-							to="/dashboard/changelog"
+							to="/changelogpage"
 							icon={<History className="stroke-2 size-5 shrink-0" />}
 							label="Historial"
 							showFullContent={showFullContent}

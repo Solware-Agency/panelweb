@@ -31,6 +31,7 @@ export const CasesPage = lazy(() => import("@features/dashboard/cases/CasesPage"
 export const MyCasesPage = lazy(() => import("@features/dashboard/cases/MyCasesPage"))
 export const SettingsPage = lazy(() => import("@features/dashboard/settings/SettingsPage"))
 export const ChangelogPage = lazy(() => import("@features/dashboard/changelog/ChangelogPage"))
+export const StandaloneChangelogPage = lazy(() => import('@features/dashboard/changelog/StandaloneChangelogPage'))
 export const PatientsPage = lazy(() => import("@features/dashboard/patients/PatientsPage"))
 export const MedicalForm = lazy(() => import("@features/form/components/MedicalForm"))
 export const StandaloneChatPage = lazy(() => import("@features/ChatAI/pages/StandaloneChatPage"))

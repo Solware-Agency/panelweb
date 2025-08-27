@@ -7,6 +7,7 @@ export const CaseDetailPanel = lazy(() => import('./cases/CaseDetailPanel'))
 export const RequestCaseModal = lazy(() => import('./cases/RequestCaseModal'))
 export const StepsCaseModal = lazy(() => import('./cases/StepsCaseModal'))
 export const StatDetailPanel = lazy(() => import('./ui/stat-detail-panel'))
+export const Changelog = lazy(() => import('@features/dashboard/changelog/ChangelogPage'))
 
 // Dashboard components that use heavy libraries
 export const ExamTypePieChart = lazy(() => import('@features/dashboard/components/ExamTypePieChart'))

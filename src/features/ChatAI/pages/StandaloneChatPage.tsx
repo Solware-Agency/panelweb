@@ -4,6 +4,7 @@ import { Button } from '../ui/button'
 import { Input } from '../ui/input'
 import { Send, User, Bot, Sparkles, MessageCircle, ArrowLeft } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
+import { SyncLoader } from 'react-spinners'
 
 interface Message {
 	id: string
@@ -28,6 +29,16 @@ const StandaloneChatPage = () => {
 	useEffect(() => {
 		scrollToBottom()
 	}, [messages])
+
+	const clearChat = () => {
+		setMessages([])
+		setInput('')
+	}
+
+	if (input.trim() === ':cls') {
+		clearChat()
+		return
+	}
 
 	const handleBackToDashboard = () => {
 		navigate('/dashboard')
@@ -218,7 +229,7 @@ const StandaloneChatPage = () => {
 								<div className="whitespace-pre-wrap text-sm leading-relaxed">
 									{message.content}
 									{message.isStreaming && (
-										<span className="inline-block w-2 h-4 bg-current ml-1 animate-pulse opacity-60 rounded-sm" />
+										<SyncLoader loading={true} color={'#4f4f4f'} size={5} speedMultiplier={1.5} />
 									)}
 								</div>
 							</div>
