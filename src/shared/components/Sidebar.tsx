@@ -377,13 +377,6 @@ const Sidebar: React.FC<SidebarProps> = ({ onClose, isExpanded = false, isMobile
 								showFullContent={showFullContent}
 								onClick={onClose}
 							/>
-							<NavItem
-								to="/chat"
-								icon={<Brain className="stroke-2 size-5 shrink-0" />}
-								label="SolPat"
-								showFullContent={showFullContent}
-								onClick={onClose}
-							/>
 						</>
 					)}
 
@@ -452,6 +445,16 @@ const Sidebar: React.FC<SidebarProps> = ({ onClose, isExpanded = false, isMobile
 								onClick={onClose}
 							/>
 						</>
+					)}
+
+					{(isOwner || isAdmin) && (
+						<NavItem
+							to="/chat"
+							icon={<MessageSquareText className="stroke-2 size-5 shrink-0" />}
+							label="Chat IA"
+							showFullContent={showFullContent}
+							onClick={onClose}
+						/>
 					)}
 				</div>
 			</div>

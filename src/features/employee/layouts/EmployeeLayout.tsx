@@ -6,6 +6,7 @@ import { useFullscreenDetection } from '@shared/hooks/useFullscreenDetection'
 import Sidebar from '@shared/components/Sidebar'
 import { Menu } from 'lucide-react'
 import { useGlobalOverlayOpen } from '@shared/hooks/useGlobalOverlayOpen'
+import ChatButton from '@features/ChatAI/ui/ChatButton'
 
 const EmployeeLayout: React.FC = () => {
 	const { isDark, toggleDarkMode } = useDarkMode()
@@ -77,6 +78,8 @@ const EmployeeLayout: React.FC = () => {
 					<Menu className="h-5 w-5 text-gray-600 dark:text-gray-400 " />
 				</button>
 			)}
+
+			<ChatButton />
 
 			{/* Main content - Adjusted z-index and positioning */}
 			<main className={`min-h-screen flex flex-col relative z-10 ${!isFullscreenMode ? 'lg:pl-16' : ''}`}>

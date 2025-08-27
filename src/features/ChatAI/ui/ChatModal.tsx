@@ -157,21 +157,25 @@ function ChatModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }
 		}
 	}
 
-	if (!isOpen) return null
-
 	return (
 		<>
 			{/* Overlay para cerrar al hacer clic fuera */}
-			<div className="fixed inset-0 z-40" onClick={onClose} />
+			{isOpen && <div className="fixed inset-0 z-40" onClick={onClose} />}
 
 			{/* Modal */}
-			<div className="fixed bottom-6 right-6 w-96 h-[550px] bg-background border rounded-lg shadow-2xl z-50 flex flex-col">
+			<div
+				className={`fixed bottom-4 right-4 w-96 h-[580px] bg-background border rounded-lg shadow-2xl z-50 flex flex-col transition-[translate,opacity,scale] duration-500 ease-in-out ${
+					!isOpen
+						? 'translate-x-[500px] translate-y-[600px] opacity-0 scale-75 pointer-events-none'
+						: 'translate-x-0 translate-y-0 opacity-100 scale-100'
+				}`}
+			>
 				{/* Header */}
 				<header className="flex items-center justify-between p-4 border-b">
 					<h1 className="text-lg font-bold">SolPat IA</h1>
 					<button
 						onClick={onClose}
-						className="text-gray-500 dark:text-gray-300 hover:text-red-500 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 text-sm border px-2 py-1 rounded-md transition-all duration-200"
+						className="text-gray-500 dark:text-gray-300 hover:text-red-500 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 text-sm border px-2 py-1 rounded-md"
 					>
 						✕
 					</button>
@@ -207,7 +211,7 @@ function ChatModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }
 								<div className="whitespace-pre-wrap leading-relaxed">
 									{message.content}
 									{message.isStreaming && (
-										<SyncLoader loading={true} color={'#4f4f4f'} size={8} speedMultiplier={.5} />
+										<SyncLoader loading={true} color={'#4f4f4f'} size={8} speedMultiplier={0.5} />
 									)}
 								</div>
 							</div>

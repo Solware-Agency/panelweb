@@ -159,11 +159,11 @@ function App() {
 								<Route path="settings" element={<SettingsPage />} />
 							</Route>
 
-							{/* Standalone Chat Route - Only for Owner */}
+							{/* Standalone Chat Route - For Owner and Admin */}
 							<Route
 								path="/chat"
 								element={
-									<PrivateRoute requiredRole={'owner'}>
+									<PrivateRoute requiredRole={['owner', 'admin']}>
 										<StandaloneChatPage />
 									</PrivateRoute>
 								}
