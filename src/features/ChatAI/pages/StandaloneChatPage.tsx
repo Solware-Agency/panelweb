@@ -229,7 +229,7 @@ const StandaloneChatPage = () => {
 								<div className="whitespace-pre-wrap text-sm leading-relaxed">
 									{message.content}
 									{message.isStreaming && (
-										<SyncLoader loading={true} color={'#4f4f4f'} size={5} speedMultiplier={1.5} />
+										<SyncLoader loading={true} color={'#4f4f4f'} size={8} speedMultiplier={.5} />
 									)}
 								</div>
 							</div>
