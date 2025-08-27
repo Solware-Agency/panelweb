@@ -1,49 +1,21 @@
-import { useState, useEffect } from 'react'
+import { useTheme } from '@app/providers/ThemeProvider'
 
 export const useDarkMode = () => {
-	const [isDark, setIsDark] = useState(() => {
-		if (typeof window === 'undefined') return false
+	const { theme, setTheme } = useTheme()
 
-		const savedTheme = localStorage.getItem('theme')
-		const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
-
-		return savedTheme === 'dark' || (!savedTheme && prefersDark)
-	})
-
-	useEffect(() => {
-		const root = window.document.documentElement
-
-		// Eliminar todas las clases de tema primero
-		root.classList.remove('light', 'dark')
-
-		// Aplicar la clase apropiada
-		if (isDark) {
-			root.classList.add('dark')
-			localStorage.setItem('theme', 'dark')
-		} else {
-			root.classList.add('light')
-			localStorage.setItem('theme', 'light')
-		}
-	}, [isDark])
-
-	// Escuchar cambios en las preferencias del sistema
-	useEffect(() => {
-		const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
-
-		const handleChange = (e: MediaQueryListEvent) => {
-			// Solo cambiar si no hay tema guardado en localStorage
-			const savedTheme = localStorage.getItem('theme')
-			if (!savedTheme) {
-				setIsDark(e.matches)
-			}
-		}
-
-		mediaQuery.addEventListener('change', handleChange)
-		return () => mediaQuery.removeEventListener('change', handleChange)
-	}, [])
+	// Determinar si está en modo oscuro basado en el tema actual
+	const isDark = theme === 'dark' || (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches)
 
 	const toggleDarkMode = () => {
-		setIsDark((prev) => !prev)
+		if (theme === 'dark') {
+			setTheme('light')
+		} else {
+			setTheme('dark')
+		}
+	}
+
+	const setIsDark = (dark: boolean) => {
+		setTheme(dark ? 'dark' : 'light')
 	}
 
 	return { isDark, setIsDark, toggleDarkMode }

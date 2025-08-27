@@ -1,5 +1,4 @@
 import { Toaster as Sonner } from '@shared/components/ui/sonner'
-import { ThemeProvider } from '@app/providers/ThemeProvider'
 import { useQuery } from '@tanstack/react-query'
 import { useState, useCallback, Suspense, useEffect, useRef } from 'react'
 import { Tabs, TabsContent } from '@shared/components/ui/tabs'
@@ -16,6 +15,7 @@ import { useResetForm } from '@shared/hooks/useResetForm'
 import { type FormValues } from '@features/form/lib/form-schema'
 import { useToast } from '@shared/hooks/use-toast'
 import { useFullscreenDetection } from '@shared/hooks/useFullscreenDetection'
+import ChatButton from '@features/ChatAI/ui/ChatButton'
 
 // Import Menu icon for mobile sidebar toggle
 import { Menu } from 'lucide-react'
@@ -28,6 +28,7 @@ import {
 	SettingsSection,
 	DoctorsSection,
 	PatientsPage,
+	Changelog,
 } from '@shared/components/lazy-components'
 
 // Type for MedicalFormRef
@@ -81,8 +82,8 @@ function FormContent() {
 	const { toast } = useToast()
 	const medicalFormRef = useRef<MedicalFormRef>(null)
 
-  // Si el sidebar móvil está abierto, ocultar el botón hamburguesa globalmente
-  useGlobalOverlayOpen(sidebarOpen)
+	// Si el sidebar móvil está abierto, ocultar el botón hamburguesa globalmente
+	useGlobalOverlayOpen(sidebarOpen)
 
 	// Determine active tab based on current route
 	useEffect(() => {
@@ -136,6 +137,12 @@ function FormContent() {
 		(value: string) => {
 			setActiveTab(value)
 
+			// If user wants to access changelog, navigate to independent route
+			if (value === 'changelog') {
+				navigate('/changelogpage')
+				return
+			}
+
 			// If user is Employee, navigate to the corresponding route
 			if (profile?.role === 'employee') {
 				const routeMap = {
@@ -167,6 +174,7 @@ function FormContent() {
 	return (
 		<>
 			<Sonner />
+			<ChatButton />
 			<div className="fixed top-4 right-4 z-50 flex items-center gap-2">
 				{/* Mobile sidebar toggle button */}
 				{activeTab === 'form' && (
@@ -261,6 +269,10 @@ function FormContent() {
 						<TabsContent value="patients">
 							<PatientsPage />
 						</TabsContent>
+
+						<TabsContent value="changelog">
+							<Changelog />
+						</TabsContent>
 					</Tabs>
 				</main>
 			</div>
@@ -270,10 +282,8 @@ function FormContent() {
 
 export default function Form() {
 	return (
-		<ThemeProvider defaultTheme="system" storageKey="ui-theme">
-			<div className="overflow-x-hidden">
-				<FormContent />
-			</div>
-		</ThemeProvider>
+		<div className="overflow-x-hidden">
+			<FormContent />
+		</div>
 	)
 }
