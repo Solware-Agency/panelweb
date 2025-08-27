@@ -23,6 +23,8 @@ export const AuthCallback = lazy(() => import("@features/auth/other/AuthCallback
 
 // Dashboard pages - lazy loaded
 export const Layout = lazy(() => import("@features/dashboard/layouts/Layout"))
+export const EmployeeLayout = lazy(() => import('@features/employee/layouts/EmployeeLayout'))
+export const AdminLayout = lazy(() => import('@features/admin/layouts/AdminLayout'))
 export const HomePage = lazy(() => import("@features/dashboard/home/HomePage"))
 export const StatsPage = lazy(() => import("@features/dashboard/stats/StatsPage"))
 export const ReportsPage = lazy(() => import("@features/dashboard/reports/ReportsPage"))

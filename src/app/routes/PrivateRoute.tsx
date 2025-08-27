@@ -57,7 +57,12 @@ const PrivateRoute = ({ children, requiredRole }: PrivateRouteProps) => {
 				<div className="bg-white p-8 rounded-lg max-w-md text-center">
 					<div className="text-red-500 mb-4">
 						<svg className="w-12 h-12 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-							<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.732-.833-2.464 0L4.35 16.5c-.77.833.192 2.5 1.732 2.5z" />
+							<path
+								strokeLinecap="round"
+								strokeLinejoin="round"
+								strokeWidth={2}
+								d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.732-.833-2.464 0L4.35 16.5c-.77.833.192 2.5 1.732 2.5z"
+							/>
 						</svg>
 					</div>
 					<h3 className="text-lg font-semibold text-gray-900 mb-2">Error de Perfil</h3>
@@ -76,16 +81,20 @@ const PrivateRoute = ({ children, requiredRole }: PrivateRouteProps) => {
 	}
 
 	// Check role permissions if a specific role is required
-	if (requiredRole === 'owner' && profile.role !== 'owner') {
-		console.log(`User role "${profile.role}" does not match required role "owner"`)
+	if (requiredRole && profile.role !== requiredRole) {
+		console.log(`User role "${profile.role}" does not match required role "${requiredRole}"`)
 
-		// Redirect based on actual user role
-		if (profile.role === 'admin') {
-			return <Navigate to="/dashboard/my-cases" replace />
-		} else if (profile.role === 'employee') {
-			return <Navigate to="/form" replace />
-		} else {
-			return <Navigate to="/form" replace />
+		// Redirect based on actual user role to their proper home
+		switch (profile.role) {
+			case 'owner':
+				return <Navigate to="/dashboard/home" replace />
+			case 'admin':
+				return <Navigate to="/medic/cases" replace />
+			case 'employee':
+				return <Navigate to="/employee/form" replace />
+			default:
+				// Fallback for unknown roles
+				return <Navigate to="/employee/form" replace />
 		}
 	}
 
