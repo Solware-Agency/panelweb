@@ -16,7 +16,7 @@ import {
 	ChevronRight,
 	Folder,
 	Clipboard,
-	MessageSquareText,
+	Brain,
 } from 'lucide-react'
 import { NavLink, useNavigate } from 'react-router-dom'
 import { useAuth } from '@app/providers/AuthContext'
@@ -379,8 +379,8 @@ const Sidebar: React.FC<SidebarProps> = ({ onClose, isExpanded = false, isMobile
 							/>
 							<NavItem
 								to="/chat"
-								icon={<MessageSquareText className="stroke-2 size-5 shrink-0" />}
-								label="Chat IA"
+								icon={<Brain className="stroke-2 size-5 shrink-0" />}
+								label="SolPat"
 								showFullContent={showFullContent}
 								onClick={onClose}
 							/>
@@ -390,6 +390,13 @@ const Sidebar: React.FC<SidebarProps> = ({ onClose, isExpanded = false, isMobile
 					{/* Employee specific routes */}
 					{isEmployee && (
 						<>
+							<NavItem
+								to="/employee/home"
+								icon={<Home className="stroke-2 size-5 shrink-0" />}
+								label="Inicio"
+								showFullContent={showFullContent}
+								onClick={onClose}
+							/>
 							<NavItem
 								to="/employee/form"
 								icon={<FileText className="stroke-2 size-5 shrink-0" />}
