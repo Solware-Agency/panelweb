@@ -28,6 +28,7 @@ export const AdminLayout = lazy(() => import('@features/admin/layouts/AdminLayou
 
 export const HomePage = lazy(() => import('@features/dashboard/home/HomePage'))
 export const StatsPage = lazy(() => import('@features/dashboard/stats/StatsPage'))
+export const ReceptionistHomePage = lazy(() => import('@features/dashboard/home/ReceptionistHomePage'))
 export const ReportsPage = lazy(() => import('@features/dashboard/reports/ReportsPage'))
 export const UsersPage = lazy(() => import('@features/dashboard/users/UsersPage'))
 export const CasesPage = lazy(() => import('@features/dashboard/cases/CasesPage'))
