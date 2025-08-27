@@ -15,6 +15,7 @@ import {
 	Layout,
 	EmployeeLayout,
 	HomePage,
+	ReceptionistHomePage,
 	StatsPage,
 	ReportsPage,
 	UsersPage,
@@ -131,13 +132,16 @@ function App() {
 								}
 							>
 								{/* Nested routes that will render in the Outlet */}
-								<Route index element={<MedicalForm />} />
+								<Route index element={<ReceptionistHomePage />} />
+								<Route path="home" element={<ReceptionistHomePage />} />
 								<Route path="form" element={<MedicalForm />} />
 								<Route path="records" element={<CasesPage />} />
 								<Route path="patients" element={<PatientsPage />} />
 								<Route path="changelogpage" element={<ChangelogPage />} />
 								<Route path="settings" element={<SettingsPage />} />
 							</Route>
+
+
 
 							<Route
 								path="/medic"

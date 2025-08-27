@@ -28,7 +28,7 @@ export const useSecureRedirect = (options: UseSecureRedirectOptions = {}): UseSe
 	const {
 		redirectOnMount = true,
 		ownerPath = '/dashboard/home',
-		employeePath = '/employee/form',
+		employeePath = '/employee/home',
 		adminPath = '/medic/cases',
 		onRedirect,
 	} = options
