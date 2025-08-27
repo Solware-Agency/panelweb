@@ -41,7 +41,7 @@ const StandaloneChatPage = () => {
 	}
 
 	const handleBackToDashboard = () => {
-		navigate('/dashboard')
+		navigate('/dashboard/home')
 	}
 
 	const sendMessage = async () => {

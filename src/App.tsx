@@ -13,6 +13,7 @@ import {
 	AuthCallback,
 	NotFoundPage,
 	Layout,
+	EmployeeLayout,
 	HomePage,
 	StatsPage,
 	ReportsPage,
@@ -21,14 +22,14 @@ import {
 	MyCasesPage,
 	SettingsPage,
 	ChangelogPage,
-	StandaloneChangelogPage,
-	Form,
+	// StandaloneChangelogPage,
 	PatientsPage,
-	FormRoute,
+	// FormRoute,
 	PrivateRoute,
 	DoctorsSection,
 	MedicalForm,
 	StandaloneChatPage,
+	AdminLayout,
 } from '@app/routes/lazy-routes'
 
 // Loading component for Suspense fallback
@@ -92,76 +93,11 @@ function App() {
 							<Route path="/new-password" element={<NewPasswordPage />} />
 							<Route path="/email-verification-notice" element={<EmailVerificationNotice />} />
 							<Route path="/pending-approval" element={<PendingApprovalPage />} />
-							<Route
-								path="/changelogpage"
-								element={
-									<PrivateRoute requiredRole={'employee'}>
-										<StandaloneChangelogPage />
-									</PrivateRoute>
-								}
-							/>
 
 							{/* Auth callback route for email verification and password reset */}
 							<Route path="/auth/callback" element={<AuthCallback />} />
 
-							{/* Form route for regular users */}
-							<Route
-								path="/form"
-								element={
-									<FormRoute>
-										<Form />
-									</FormRoute>
-								}
-							/>
-
-							{/* Form sub-routes for Employee users */}
-							<Route
-								path="/records"
-								element={
-									<FormRoute>
-										<Form />
-									</FormRoute>
-								}
-							/>
-							<Route
-								path="/doctors"
-								element={
-									<FormRoute>
-										<Form />
-									</FormRoute>
-								}
-							/>
-							<Route
-								path="/patients"
-								element={
-									<FormRoute>
-										<Form />
-									</FormRoute>
-								}
-							/>
-							<Route
-								path="/settings"
-								element={
-									<FormRoute>
-										<Form />
-									</FormRoute>
-								}
-							/>
-
-							{/* Default route */}
-							<Route path="/" element={<LoginPage />} />
-
-							{/* Chat independiente - Sin layout */}
-							<Route
-								path="/chat"
-								element={
-									<PrivateRoute requiredRole={'owner'}>
-										<StandaloneChatPage />
-									</PrivateRoute>
-								}
-							/>
-
-							{/* Protected dashboard routes */}
+							{/* Protected owner routes */}
 							<Route
 								path="/dashboard"
 								element={
@@ -178,12 +114,56 @@ function App() {
 								<Route path="users" element={<UsersPage />} />
 								<Route path="cases" element={<CasesPage />} />
 								<Route path="my-cases" element={<MyCasesPage />} />
-								<Route path="settings" element={<SettingsPage />} />
 								<Route path="patients" element={<PatientsPage />} />
 								<Route path="changelog" element={<ChangelogPage />} />
 								<Route path="doctors" element={<DoctorsSection />} />
 								<Route path="medical-form" element={<MedicalForm />} />
+								<Route path="settings" element={<SettingsPage />} />
 							</Route>
+
+							{/* Protected employee routes */}
+							<Route
+								path="/employee"
+								element={
+									<PrivateRoute requiredRole={'employee'}>
+										<EmployeeLayout />
+									</PrivateRoute>
+								}
+							>
+								{/* Nested routes that will render in the Outlet */}
+								<Route index element={<MedicalForm />} />
+								<Route path="form" element={<MedicalForm />} />
+								<Route path="records" element={<CasesPage />} />
+								<Route path="patients" element={<PatientsPage />} />
+								<Route path="changelogpage" element={<ChangelogPage />} />
+								<Route path="settings" element={<SettingsPage />} />
+							</Route>
+
+							<Route
+								path="/medic"
+								element={
+									<PrivateRoute requiredRole={'admin'}>
+										<AdminLayout />
+									</PrivateRoute>
+								}
+							>
+								{/* Nested routes that will render in the Outlet */}
+								<Route index element={<CasesPage />} />
+								<Route path="cases" element={<CasesPage />} />
+								<Route path="my-cases" element={<MyCasesPage />} />
+								<Route path="users" element={<UsersPage />} />
+								<Route path="settings" element={<SettingsPage />} />
+							</Route>
+
+							{/* Standalone Chat Route - Only for Owner */}
+							<Route
+								path="/chat"
+								element={
+									<PrivateRoute requiredRole={'owner'}>
+										<StandaloneChatPage />
+									</PrivateRoute>
+								}
+							/>
 
 							{/* 404 Route - Must be last */}
 							<Route path="*" element={<NotFoundPage />} />

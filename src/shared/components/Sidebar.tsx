@@ -5,7 +5,7 @@ import {
 	FileText,
 	FolderInput,
 	LogOut,
-	Microscope,
+	// Microscope,
 	Moon,
 	Sun,
 	Users,
@@ -191,7 +191,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onClose, isExpanded = false, isMobile
 
 	// Definir las rutas de cada grupo
 	const clinicalPaths = ['/dashboard/cases', '/dashboard/my-cases', '/dashboard/patients', '/patients']
-	const reportsPaths = ['/dashboard/stats', '/dashboard/reports', '/dashboard/changelog']
+	const reportsPaths = ['/dashboard/stats', '/dashboard/reports']
 
 	const [expandedGroups, setExpandedGroups] = React.useState<Record<string, boolean>>({
 		clinical: false,
@@ -292,159 +292,127 @@ const Sidebar: React.FC<SidebarProps> = ({ onClose, isExpanded = false, isMobile
 				</div>
 
 				<div className="flex flex-col justify-center gap-2">
-					{/* Common menu items for all roles */}
-					{!isEmployee && !isAdmin && (
-						<div className="py-1">
-							<NavItem
-								to="/dashboard/home"
-								icon={<Home className="stroke-2 size-5 shrink-0" />}
-								label="Inicio"
-								showFullContent={showFullContent}
-								onClick={onClose}
-							/>
-						</div>
-					)}
-					{!isEmployee && !isAdmin && (
-						<div className="py-1">
-							<NavItem
-								to="/dashboard/medical-form"
-								icon={<FileText className="stroke-2 size-5 shrink-0" />}
-								label="Formulario"
-								showFullContent={showFullContent}
-								onClick={onClose}
-							/>
-						</div>
-					)}
-
-					{/* Employee specific routes */}
-					{isEmployee && (
+					{isOwner && (
 						<>
+							<div className="py-1">
+								<NavItem
+									to="/dashboard/home"
+									icon={<Home className="stroke-2 size-5 shrink-0" />}
+									label="Inicio"
+									showFullContent={showFullContent}
+									onClick={onClose}
+								/>
+							</div>
+							<div className="py-1">
+								<NavItem
+									to="/dashboard/medical-form"
+									icon={<FileText className="stroke-2 size-5 shrink-0" />}
+									label="Formulario"
+									showFullContent={showFullContent}
+									onClick={onClose}
+								/>
+							</div>
+							<NavGroup
+								icon={<Folder className="stroke-2 size-4 sm:size-5 shrink-0" />}
+								label="Clínico"
+								showFullContent={showFullContent}
+								isExpanded={expandedGroups.clinical}
+								onToggle={() => toggleGroup('clinical')}
+								childPaths={clinicalPaths}
+								isMobile={isMobile}
+							>
+								{/* Cases - For all roles */}
+								<NavItem
+									to="/dashboard/cases"
+									icon={<FolderInput className="stroke-2 size-5 shrink-0" />}
+									label="Casos"
+									showFullContent={showFullContent}
+									onClick={onClose}
+								/>
+
+								<NavItem
+									to="/dashboard/patients"
+									icon={<User className="stroke-2 size-5 shrink-0" />}
+									label="Pacientes"
+									showFullContent={showFullContent}
+									onClick={onClose}
+								/>
+							</NavGroup>
+							<NavGroup
+								icon={<FileText className="stroke-2 size-4 sm:size-5 shrink-0" />}
+								label="Análisis"
+								showFullContent={showFullContent}
+								isExpanded={expandedGroups.reports}
+								onToggle={() => toggleGroup('reports')}
+								childPaths={reportsPaths}
+								isMobile={isMobile}
+							>
+								<NavItem
+									to="/dashboard/stats"
+									icon={<PieChart className="stroke-2 size-5 shrink-0" />}
+									label="Estadísticas"
+									showFullContent={showFullContent}
+									onClick={onClose}
+								/>
+
+								<NavItem
+									to="/dashboard/reports"
+									icon={<Clipboard className="stroke-2 size-5 shrink-0" />}
+									label="Reportes"
+									showFullContent={showFullContent}
+									onClick={onClose}
+								/>
+							</NavGroup>
 							<NavItem
-								to="/form"
-								icon={<FileText className="stroke-2 size-5 shrink-0" />}
-								label="Formulario"
+								to="/dashboard/changelog"
+								icon={<History className="stroke-2 size-5 shrink-0" />}
+								label="Historial"
 								showFullContent={showFullContent}
 								onClick={onClose}
 							/>
 							<NavItem
-								to="/records"
-								icon={<FolderInput className="stroke-2 size-5 shrink-0" />}
-								label="Registros"
+								to="/dashboard/users"
+								icon={<Users className="stroke-2 size-4 sm:size-5 shrink-0" />}
+								label="Usuarios"
 								showFullContent={showFullContent}
 								onClick={onClose}
 							/>
-							{/* <NavItem
-								to="/doctors"
-								icon={<Stethoscope className="stroke-2 size-5 shrink-0" />}
-								label="Médicos"
-								showFullContent={showFullContent}
-								onClick={onClose}
-							/> */}
 							<NavItem
-								to="/patients"
-								icon={<Users className="stroke-2 size-5 shrink-0" />}
-								label="Pacientes"
+								to="/chat"
+								icon={<MessageSquareText className="stroke-2 size-5 shrink-0" />}
+								label="Chat IA"
 								showFullContent={showFullContent}
 								onClick={onClose}
 							/>
 						</>
 					)}
 
-					{/* Clinical Group - Cases, Patients, My Cases */}
-					{(isAdmin || isOwner) && (
-						<NavGroup
-							icon={<Folder className="stroke-2 size-4 sm:size-5 shrink-0" />}
-							label="Clínico"
-							showFullContent={showFullContent}
-							isExpanded={expandedGroups.clinical}
-							onToggle={() => toggleGroup('clinical')}
-							childPaths={clinicalPaths}
-							isMobile={isMobile}
-						>
-							{/* Cases - For all roles */}
+					{/* Employee specific routes */}
+					{isEmployee && (
+						<>
 							<NavItem
-								to="/dashboard/cases"
-								icon={<FolderInput className="stroke-2 size-5 shrink-0" />}
-								label="Casos"
-								showFullContent={showFullContent}
-								onClick={onClose}
-							/>
-
-							{/* My Cases - Only for admin */}
-							{isAdmin && (
-								<NavItem
-									to="/dashboard/my-cases"
-									icon={<Microscope className="stroke-2 size-5 shrink-0" />}
-									label="Mis Casos"
-									showFullContent={showFullContent}
-									onClick={onClose}
-								/>
-							)}
-
-							{/* Patients - For all roles */}
-							{(isOwner || isEmployee) && (
-								<NavItem
-									to={isEmployee ? '/patients' : '/dashboard/patients'}
-									icon={<User className="stroke-2 size-5 shrink-0" />}
-									label="Pacientes"
-									showFullContent={showFullContent}
-									onClick={onClose}
-								/>
-							)}
-							{/* {isOwner && (
-								<>
-								<NavItem
-								to="/form"
+								to="/employee/form"
 								icon={<FileText className="stroke-2 size-5 shrink-0" />}
 								label="Formulario"
 								showFullContent={showFullContent}
 								onClick={onClose}
-								/>
-								</>
-								)} */}
-						</NavGroup>
-					)}
-
-					{/* Reports Group - Stats, Reports, Changelog */}
-					{isOwner && (
-						<NavGroup
-							icon={<FileText className="stroke-2 size-4 sm:size-5 shrink-0" />}
-							label="Análisis"
-							showFullContent={showFullContent}
-							isExpanded={expandedGroups.reports}
-							onToggle={() => toggleGroup('reports')}
-							childPaths={reportsPaths}
-							isMobile={isMobile}
-						>
+							/>
 							<NavItem
-								to="/dashboard/stats"
-								icon={<PieChart className="stroke-2 size-5 shrink-0" />}
-								label="Estadísticas"
+								to="/employee/records"
+								icon={<FolderInput className="stroke-2 size-5 shrink-0" />}
+								label="Registros"
 								showFullContent={showFullContent}
 								onClick={onClose}
 							/>
-
 							<NavItem
-								to="/dashboard/reports"
-								icon={<Clipboard className="stroke-2 size-5 shrink-0" />}
-								label="Reportes"
+								to="/employee/patients"
+								icon={<Users className="stroke-2 size-5 shrink-0" />}
+								label="Pacientes"
 								showFullContent={showFullContent}
 								onClick={onClose}
 							/>
-						</NavGroup>
-					)}
-
-					{isOwner && (
-						<>
-							{/* <NavItem
-								to="/dashboard/doctors"
-								icon={<Stethoscope className="stroke-2 size-5 shrink-0" />}
-								label="Médicos"
-								showFullContent={showFullContent}
-								onClick={onClose}
-								/> */}
 							<NavItem
-								to="/dashboard/changelog"
+								to="/employee/changelogpage"
 								icon={<History className="stroke-2 size-5 shrink-0" />}
 								label="Historial"
 								showFullContent={showFullContent}
@@ -453,46 +421,39 @@ const Sidebar: React.FC<SidebarProps> = ({ onClose, isExpanded = false, isMobile
 						</>
 					)}
 
-					{/* Users - For owner and admin */}
-					{(isOwner || isAdmin) && (
-						<NavItem
-							to="/dashboard/users"
-							icon={<Users className="stroke-2 size-4 sm:size-5 shrink-0" />}
-							label="Usuarios"
-							showFullContent={showFullContent}
-							onClick={onClose}
-						/>
-					)}
-
-					{!isEmployee && !isAdmin && (
-						<div className="py-1">
+					{isAdmin && (
+						<>
 							<NavItem
-								to="/chat"
-								icon={<MessageSquareText className="stroke-2 size-5 shrink-0" />}
-								label="Chat IA"
+								to="/medic/cases"
+								icon={<FolderInput className="stroke-2 size-5 shrink-0" />}
+								label="Casos"
 								showFullContent={showFullContent}
 								onClick={onClose}
 							/>
-						</div>
-					)}
-
-					{(isAdmin || isEmployee) && (
-						<NavItem
-							to="/changelogpage"
-							icon={<History className="stroke-2 size-5 shrink-0" />}
-							label="Historial"
-							showFullContent={showFullContent}
-							onClick={onClose}
-						/>
+							<NavItem
+								to="/medic/my-cases"
+								icon={<FolderInput className="stroke-2 size-5 shrink-0" />}
+								label="Mis Casos"
+								showFullContent={showFullContent}
+								onClick={onClose}
+							/>
+							<NavItem
+								to="/medic/users"
+								icon={<Users className="stroke-2 size-5 shrink-0" />}
+								label="Usuarios"
+								showFullContent={showFullContent}
+								onClick={onClose}
+							/>
+						</>
 					)}
 				</div>
 			</div>
 
 			{/* Pie fijo: Ajustes, tema y salir */}
 			<div className="shrink-0 flex flex-col justify-center gap-1 border-t border-input pt-2 sm:pt-3">
-				{isEmployee && (
+				{isOwner && (
 					<NavItem
-						to="/settings"
+						to="/dashboard/settings"
 						icon={<Settings className="stroke-2 size-4 sm:size-5 shrink-0" />}
 						label="Ajustes"
 						showFullContent={showFullContent}
@@ -500,9 +461,19 @@ const Sidebar: React.FC<SidebarProps> = ({ onClose, isExpanded = false, isMobile
 					/>
 				)}
 
-				{!isEmployee && (
+				{isEmployee && (
 					<NavItem
-						to="/dashboard/settings"
+						to="/employee/settings"
+						icon={<Settings className="stroke-2 size-4 sm:size-5 shrink-0" />}
+						label="Ajustes"
+						showFullContent={showFullContent}
+						onClick={onClose}
+					/>
+				)}
+
+				{isAdmin && (
+					<NavItem
+						to="/medic/settings"
 						icon={<Settings className="stroke-2 size-4 sm:size-5 shrink-0" />}
 						label="Ajustes"
 						showFullContent={showFullContent}
