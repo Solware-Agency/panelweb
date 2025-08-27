@@ -94,10 +94,10 @@ const PrivateRoute = ({ children, requiredRole }: PrivateRouteProps) => {
 				case 'admin':
 					return <Navigate to="/medic/cases" replace />
 				case 'employee':
-					return <Navigate to="/employee/form" replace />
+					return <Navigate to="/employee/home" replace />
 				default:
 					// Fallback for unknown roles
-					return <Navigate to="/employee/form" replace />
+					return <Navigate to="/employee/home" replace />
 			}
 		}
 	}

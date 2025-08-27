@@ -450,7 +450,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onClose, isExpanded = false, isMobile
 					{(isOwner || isAdmin) && (
 						<NavItem
 							to="/chat"
-							icon={<MessageSquareText className="stroke-2 size-5 shrink-0" />}
+							icon={<Brain className="stroke-2 size-5 shrink-0" />}
 							label="Chat IA"
 							showFullContent={showFullContent}
 							onClick={onClose}
