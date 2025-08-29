@@ -105,7 +105,7 @@ const ReceptionistHomePage: React.FC = () => {
 				{navigationButtons.map((button, index) => (
 					<Card
 						key={index}
-						className="dark:bg-background bg-white rounded-xl p-6 cursor-pointer hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 transition-all duration-300 group"
+						className="dark:bg-background bg-white rounded-xl p-6 cursor-pointer hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 transition-transform duration-300 group"
 						onClick={() => {
 							if (button.onClick) {
 								button.onClick()
@@ -115,11 +115,11 @@ const ReceptionistHomePage: React.FC = () => {
 						}}
 					>
 						<div className="flex flex-col items-center text-center space-y-4">
-							<div className="p-4 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 group-hover:from-blue-600 group-hover:to-purple-600 transition-all duration-300">
+							<div className="p-4 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 group-hover:from-blue-600 group-hover:to-purple-600 transition-transform duration-300">
 								<button.icon className="w-8 h-8 text-white" />
 							</div>
 							<div>
-								<h3 className="text-lg font-semibold text-gray-700 dark:text-gray-300 group-hover:text-primary transition-colors duration-300">
+								<h3 className="text-lg font-semibold text-gray-700 dark:text-gray-300 group-hover:text-primary">
 									{button.title}
 								</h3>
 								<p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
