@@ -84,7 +84,7 @@ const EmployeeLayout: React.FC = () => {
 			{/* Main content - Adjusted z-index and positioning */}
 			<main className={`min-h-screen flex flex-col relative z-10 ${!isFullscreenMode ? 'lg:pl-16' : ''}`}>
 				<div className="flex-1 overflow-x-hidden overflow-y-auto">
-					<div className="container mx-auto px-2 sm:px-4 py-4 sm:py-6">
+					<div className="container mx-auto px-2 sm:px-4 py-2 sm:py-4">
 						<Outlet />
 					</div>
 				</div>

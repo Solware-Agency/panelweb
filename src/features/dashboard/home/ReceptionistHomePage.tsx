@@ -38,7 +38,7 @@ const ReceptionistHomePage: React.FC = () => {
 			title: 'Formulario',
 			icon: FileText,
 			path: '/employee/form',
-			description: 'Llenar nuevo formulario'
+			description: 'Crear nuevo registro'
 		},
 		{
 			title: 'Registros',
@@ -74,38 +74,38 @@ const ReceptionistHomePage: React.FC = () => {
 	]
 
 	return (
-		<div className="max-w-6xl mx-auto">
-			{/* Welcome Banner */}
-			<Card className="mb-8 dark:bg-background bg-white rounded-xl py-6 px-8 flex flex-col sm:flex-row items-center justify-between shadow-lg cursor-pointer hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 transition-transform duration-300">
-				<div className="flex-1 text-center sm:text-left mb-4 sm:mb-0">
-					<div className="flex flex-col sm:flex-row items-center sm:items-start gap-2 mb-2">
+		<div className="max-w-6xl mx-auto h-full flex flex-col">
+			{/* Welcome Banner - Compact */}
+			<Card className="mb-4 dark:bg-background bg-white rounded-xl py-4 px-6 flex flex-col sm:flex-row items-center justify-between shadow-lg cursor-pointer hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 transition-transform duration-300">
+				<div className="flex-1 text-center sm:text-left mb-3 sm:mb-0">
+					<div className="flex flex-col sm:flex-row items-center sm:items-start gap-2 mb-1">
 						<div>
-							<h1 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 bg-clip-text text-transparent">
+							<h1 className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 bg-clip-text text-transparent">
 								Bienvenido a SolHub
 							</h1>
 							<div className="flex items-center justify-center sm:justify-start gap-2 mt-1 font-semibold">
 								{profile?.display_name && (
-									<span className="text-md text-primary">{profile.display_name}</span>
+									<span className="text-sm sm:text-md text-primary">{profile.display_name}</span>
 								)}
 							</div>
 						</div>
 					</div>
-					<p className="text-gray-600 dark:text-gray-300 mb-4 text-base">
+					<p className="text-gray-600 dark:text-gray-300 text-sm sm:text-base">
 						Gestiona pacientes y registros médicos de forma eficiente.
 					</p>
 				</div>
 				<div className="relative">
 					<div className="absolute inset-0 bg-gradient-to-r from-blue-400 to-purple-500 rounded-full blur-xl opacity-5 animate-pulse"></div>
-					<EyeTrackingComponent className="w-24 h-24 sm:w-28 sm:h-28 z-10" />
+					<EyeTrackingComponent className="w-20 h-20 sm:w-24 sm:h-24 z-10" />
 				</div>
 			</Card>
 
-			{/* Navigation Grid */}
-			<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+			{/* Navigation Grid - Compact spacing */}
+			<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 flex-1">
 				{navigationButtons.map((button, index) => (
 					<Card
 						key={index}
-						className="dark:bg-background bg-white rounded-xl p-6 cursor-pointer hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 transition-transform duration-300 group"
+						className="dark:bg-background bg-white rounded-xl p-4 cursor-pointer hover:border-primary hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 transition-transform duration-300 group"
 						onClick={() => {
 							if (button.onClick) {
 								button.onClick()
@@ -114,15 +114,15 @@ const ReceptionistHomePage: React.FC = () => {
 							}
 						}}
 					>
-						<div className="flex flex-col items-center text-center space-y-4">
-							<div className="p-4 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 group-hover:from-blue-600 group-hover:to-purple-600 transition-transform duration-300">
-								<button.icon className="w-8 h-8 text-white" />
+						<div className="flex flex-col items-center text-center space-y-3">
+							<div className="p-3 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 group-hover:from-blue-600 group-hover:to-purple-600 transition-transform duration-300">
+								<button.icon className="w-6 h-6 text-white" />
 							</div>
 							<div>
-								<h3 className="text-lg font-semibold text-gray-700 dark:text-gray-300 group-hover:text-primary">
+								<h3 className="text-base font-semibold text-gray-700 dark:text-gray-300 group-hover:text-primary">
 									{button.title}
 								</h3>
-								<p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+								<p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
 									{button.description}
 								</p>
 							</div>
