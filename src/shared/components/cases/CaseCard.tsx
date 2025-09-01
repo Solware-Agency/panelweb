@@ -36,7 +36,9 @@ const CaseCard: React.FC<CaseCardProps> = ({ case_, onView, onGenerate, onReacti
 					<div className="flex items-center gap-2">
 						<User className="w-4 h-4 text-blue-600 dark:text-blue-400 flex-shrink-0" />
 						<div className="min-w-0">
-							<p className="font-medium text-gray-900 dark:text-gray-100 text-sm truncate">{case_.full_name}</p>
+							<p className="font-medium text-gray-900 dark:text-gray-100 text-sm truncate">
+								{case_.nombre || case_.full_name}
+							</p>
 						</div>
 					</div>
 				</div>

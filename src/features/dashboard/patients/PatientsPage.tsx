@@ -1,66 +1,30 @@
-import React, { useState, useCallback, useMemo, useEffect } from 'react'
+import React, { useState, useCallback, useEffect } from 'react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
-import { getMedicalRecords } from '@lib/supabase-service'
+import { getPatients } from '@lib/patients-service'
 import { Search } from 'lucide-react'
 import { Input } from '@shared/components/ui/input'
 import PatientsList from './PatientsList'
 import { supabase } from '@lib/supabase/config'
 
-// Tipo base para los datos que vienen de la API
-type RawMedicalRecord = {
-	id: string
-	name: string
-	cedula?: string | null
-	telefono?: string | null
-	email: string | null
-	date_of_birth?: string | null
-	fecha_nacimiento?: string | null
-	full_name?: string | null
-	id_number?: string
-	phone?: string
-	created_at?: string
-	date?: string
-	edad?: string | null
-}
-
-// Tipo normalizado que coincide con el esperado por PatientsList
-type NormalizedMedicalRecord = {
-	id: string
-	full_name: string
-	id_number: string
-	phone: string
-	email: string | null
-	date_of_birth: string | null
-	created_at: string
-	date: string
-	edad: string | null
-	[key: string]: unknown
-}
-
-type MedicalRecordsQueryResult = {
-	data: NormalizedMedicalRecord[]
-	error: Error | null
-}
-
 const PatientsPage: React.FC = React.memo(() => {
 	const [searchTerm, setSearchTerm] = useState('')
+	const [currentPage, setCurrentPage] = useState(1)
 	const queryClient = useQueryClient()
 
-	// Suscripción a cambios en tiempo real
+	// Suscripción a cambios en tiempo real para la tabla patients
 	useEffect(() => {
-		// Suscribirse a los cambios de la tabla medical_records_clean
 		const subscription = supabase
-			.channel('medical_records_changes')
+			.channel('patients_changes')
 			.on(
 				'postgres_changes',
 				{
 					event: '*', // Escuchar INSERT, UPDATE y DELETE
 					schema: 'public',
-					table: 'medical_records_clean',
+					table: 'patients',
 				},
 				() => {
 					// Invalidar la caché para forzar una nueva consulta
-					queryClient.invalidateQueries({ queryKey: ['all-medical-records'] })
+					queryClient.invalidateQueries({ queryKey: ['patients'] })
 				},
 			)
 			.subscribe()
@@ -71,92 +35,75 @@ const PatientsPage: React.FC = React.memo(() => {
 		}
 	}, [queryClient])
 
-	// Fetch all medical records - optimized to prevent unnecessary refetches
+	// Fetch patients with pagination and search
 	const {
-		data: recordsData,
+		data: patientsData,
 		isLoading,
 		error,
 	} = useQuery({
-		queryKey: ['all-medical-records'],
-		queryFn: () => getMedicalRecords(),
+		queryKey: ['patients', currentPage, searchTerm],
+		queryFn: () => getPatients(currentPage, 50, searchTerm),
 		staleTime: 1000 * 60 * 5, // 5 minutes
-		refetchOnWindowFocus: false, // Prevent refetching on window focus
-		refetchOnReconnect: false, // Prevent refetching on reconnect
+		refetchOnWindowFocus: false,
+		refetchOnReconnect: false,
 	})
 
-	// Handle search
+	// Handle search - reset to page 1 when searching
 	const handleSearchChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
 		setSearchTerm(e.target.value)
+		setCurrentPage(1) // Reset to first page when searching
 	}, [])
 
-	// Memoize and normalize the records data
-	const memoizedRecordsData = useMemo<MedicalRecordsQueryResult | null>(() => {
-		if (!recordsData) return null
-
-		const { data, error } = recordsData as unknown as {
-			data: RawMedicalRecord[] | null
-			error: unknown
-		}
-
-		const mappedData: NormalizedMedicalRecord[] = Array.isArray(data)
-			? data.map((item: RawMedicalRecord): NormalizedMedicalRecord => {
-					// Primero creamos un objeto base con los campos requeridos
-					const normalizedRecord: NormalizedMedicalRecord = {
-						id: item.id,
-						date_of_birth: item.date_of_birth ?? item.fecha_nacimiento ?? null,
-						full_name: item.full_name ?? item.name ?? 'Sin nombre',
-						id_number: item.id_number ?? 'Sin ID',
-						phone: item.phone ?? 'Sin teléfono',
-						email: item.email ?? null,
-						created_at: item.created_at ?? item.date ?? new Date().toISOString(),
-						date: item.date ?? item.created_at ?? new Date().toISOString(),
-						edad: item.edad ?? null,
-					}
-
-					// Devolvemos el registro normalizado
-					return normalizedRecord
-			  })
-			: []
-
-		return {
-			data: mappedData,
-			error: error as Error | null,
-		}
-	}, [recordsData])
+	// Handle page change
+	const handlePageChange = useCallback((page: number) => {
+		setCurrentPage(page)
+	}, [])
 
 	return (
 		<div>
 			{/* Título y descripción arriba */}
 			<div className="mb-4 sm:mb-6">
-				<div>
-					<h1 className="text-2xl sm:text-3xl font-bold">Pacientes</h1>
-					<div className="w-16 sm:w-24 h-1 bg-primary mt-2 rounded-full" />
+				<div className="flex items-center justify-between">
+					<div>
+						<h1 className="text-2xl sm:text-3xl font-bold">Pacientes</h1>
+						<div className="w-16 sm:w-24 h-1 bg-primary mt-2 rounded-full" />
+					</div>
 				</div>
 				<p className="text-sm text-gray-600 dark:text-gray-400 mt-1 sm:mt-2">
 					Gestiona la información de los pacientes registrados en el sistema
 				</p>
 			</div>
 
-			{/* Barra de búsqueda justo encima de los resultados */}
-			<div className="mb-4">
-				<div className="relative max-w-md">
+			{/* Barra de búsqueda y estadísticas */}
+			<div className="mb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+				<div className="relative max-w-md flex-1">
 					<Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
 					<Input
 						type="text"
-						placeholder="Buscar por nombre, cédula, teléfono o email..."
+						placeholder="Buscar por nombre, cédula o teléfono..."
 						value={searchTerm}
 						onChange={handleSearchChange}
 						className="pl-10"
 					/>
 				</div>
+
+				{/* Mostrar estadísticas */}
+				{patientsData && (
+					<div className="text-sm text-gray-600 dark:text-gray-400">
+						{patientsData.count} paciente{patientsData.count !== 1 ? 's' : ''} registrado
+						{patientsData.count !== 1 ? 's' : ''}
+					</div>
+				)}
 			</div>
 
 			{/* Resultados */}
 			<PatientsList
-				searchTerm={searchTerm}
-				recordsData={memoizedRecordsData?.data ?? []}
+				patientsData={patientsData?.data ?? []}
 				isLoading={isLoading}
-				error={error || memoizedRecordsData?.error || null}
+				error={error}
+				currentPage={currentPage}
+				totalPages={patientsData?.totalPages ?? 0}
+				onPageChange={handlePageChange}
 			/>
 		</div>
 	)

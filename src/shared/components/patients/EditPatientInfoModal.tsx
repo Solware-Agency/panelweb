@@ -7,17 +7,12 @@ import { Button } from '@shared/components/ui/button'
 import { useToast } from '@shared/hooks/use-toast'
 import { supabase } from '@lib/supabase/config'
 import type { ChangeLog } from '@lib/supabase-service'
+import type { Patient } from '@lib/patients-service'
 
 interface EditPatientInfoModalProps {
 	isOpen: boolean
 	onClose: () => void
-	patient: {
-		id_number: string
-		full_name: string
-		phone: string
-		email: string | null
-		edad?: string | null
-	}
+	patient: Patient
 	onSave?: () => void
 }
 
@@ -25,11 +20,10 @@ const EditPatientInfoModal = ({ isOpen, onClose, patient, onSave }: EditPatientI
 	const { toast } = useToast()
 	const [isLoading, setIsLoading] = useState(false)
 	const [formData, setFormData] = useState({
-		full_name: patient.full_name,
-		phone: patient.phone,
+		nombre: patient.nombre,
+		telefono: patient.telefono || '',
 		email: patient.email || '',
-		edad: patient.edad?.split(' ')[0] || '',
-		edadUnidad: patient.edad?.includes('MESES') ? 'MESES' : 'AÑOS',
+		edad: patient.edad || 0,
 	})
 
 	const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -48,25 +42,25 @@ const EditPatientInfoModal = ({ isOpen, onClose, patient, onSave }: EditPatientI
 			} = await supabase.auth.getUser()
 			if (!user) throw new Error('No se pudo obtener el usuario actual')
 
-			// Preparar los cambios para el registro
+			// Preparar los cambios para el registro usando nueva estructura
 			const changes = []
-			if (formData.full_name !== patient.full_name) {
+			if (formData.nombre !== patient.nombre) {
 				changes.push({
-					field: 'full_name',
+					field: 'nombre',
 					fieldLabel: 'Nombre Completo',
-					oldValue: patient.full_name,
-					newValue: formData.full_name,
+					oldValue: patient.nombre,
+					newValue: formData.nombre,
 				})
 			}
-			if (formData.phone !== patient.phone) {
+			if (formData.telefono !== (patient.telefono || '')) {
 				changes.push({
-					field: 'phone',
+					field: 'telefono',
 					fieldLabel: 'Teléfono',
-					oldValue: patient.phone,
-					newValue: formData.phone,
+					oldValue: patient.telefono,
+					newValue: formData.telefono || null,
 				})
 			}
-			if (formData.email !== patient.email) {
+			if (formData.email !== (patient.email || '')) {
 				changes.push({
 					field: 'email',
 					fieldLabel: 'Email',
@@ -74,13 +68,12 @@ const EditPatientInfoModal = ({ isOpen, onClose, patient, onSave }: EditPatientI
 					newValue: formData.email || null,
 				})
 			}
-			const newEdad = formData.edad ? `${formData.edad} ${formData.edadUnidad}` : null
-			if (newEdad !== patient.edad) {
+			if (formData.edad !== patient.edad) {
 				changes.push({
 					field: 'edad',
 					fieldLabel: 'Edad',
-					oldValue: patient.edad,
-					newValue: newEdad,
+					oldValue: patient.edad?.toString(),
+					newValue: formData.edad.toString(),
 				})
 			}
 
@@ -92,47 +85,38 @@ const EditPatientInfoModal = ({ isOpen, onClose, patient, onSave }: EditPatientI
 				return
 			}
 
-			// Actualizar todos los registros que tengan esta cédula
+			// Actualizar el paciente en la nueva tabla patients
 			const { error: updateError } = await supabase
-				.from('medical_records_clean')
+				.from('patients')
 				.update({
-					full_name: formData.full_name,
-					phone: formData.phone,
+					nombre: formData.nombre,
+					telefono: formData.telefono || null,
 					email: formData.email || null,
-					edad: formData.edad ? `${formData.edad} ${formData.edadUnidad}` : null,
+					edad: formData.edad,
 					updated_at: new Date().toISOString(),
 				})
-				.eq('id_number', patient.id_number)
+				.eq('id', patient.id)
 
 			if (updateError) throw updateError
 
-			// Obtener todos los registros afectados para registrar los cambios
-			const { data: affectedRecords } = await supabase
-				.from('medical_records_clean')
-				.select('id')
-				.eq('id_number', patient.id_number)
-
-			if (!affectedRecords) throw new Error('No se pudieron obtener los registros afectados')
-
-			// Registrar los cambios en change_logs para cada registro afectado
-			for (const record of affectedRecords) {
-				for (const change of changes) {
-					const changeLog: ChangeLog = {
-						medical_record_id: record.id,
-						user_id: user.id,
-						user_email: user.email || 'unknown@email.com',
-						user_display_name: user.user_metadata?.display_name || null,
-						field_name: change.field,
-						field_label: change.fieldLabel,
-						old_value: change.oldValue || null,
-						new_value: change.newValue || null,
-						changed_at: new Date().toISOString(),
-					}
-
-					const { error: logError } = await supabase.from('change_logs').insert(changeLog)
-
-					if (logError) throw logError
+			// Registrar los cambios en change_logs para el paciente
+			for (const change of changes) {
+				const changeLog: ChangeLog = {
+					patient_id: patient.id,
+					entity_type: 'patient',
+					user_id: user.id,
+					user_email: user.email || 'unknown@email.com',
+					user_display_name: user.user_metadata?.display_name || null,
+					field_name: change.field,
+					field_label: change.fieldLabel,
+					old_value: change.oldValue || null,
+					new_value: change.newValue || null,
+					changed_at: new Date().toISOString(),
 				}
+
+				const { error: logError } = await supabase.from('change_logs').insert(changeLog)
+
+				if (logError) throw logError
 			}
 
 			toast({
@@ -185,10 +169,10 @@ const EditPatientInfoModal = ({ isOpen, onClose, patient, onSave }: EditPatientI
 									<div>
 										<div>
 											<h2 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-gray-100">
-												Editando Paciente: {patient.full_name}
+												Editando Paciente: {patient.nombre}
 											</h2>
 										</div>
-										<p className="text-sm text-gray-600 dark:text-gray-400 mt-1">Cédula: {patient.id_number}</p>
+										<p className="text-sm text-gray-600 dark:text-gray-400 mt-1">Cédula: {patient.cedula}</p>
 									</div>
 									<button
 										onClick={onClose}
@@ -209,12 +193,12 @@ const EditPatientInfoModal = ({ isOpen, onClose, patient, onSave }: EditPatientI
 											<div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
 												<div className="space-y-2">
 													<label className="text-sm text-gray-500 dark:text-gray-400">Nombre Completo</label>
-													<Input name="full_name" value={formData.full_name} onChange={handleChange} required />
+													<Input name="nombre" value={formData.nombre} onChange={handleChange} required />
 												</div>
 
 												<div className="space-y-2">
 													<label className="text-sm text-gray-500 dark:text-gray-400">Teléfono</label>
-													<Input name="phone" value={formData.phone} onChange={handleChange} required />
+													<Input name="telefono" value={formData.telefono} onChange={handleChange} />
 												</div>
 
 												<div className="space-y-2">
@@ -223,26 +207,15 @@ const EditPatientInfoModal = ({ isOpen, onClose, patient, onSave }: EditPatientI
 												</div>
 
 												<div className="space-y-2">
-													<label className="text-sm text-gray-500 dark:text-gray-400">Edad</label>
-													<div className="flex gap-2">
-														<Input
-															type="number"
-															name="edad"
-															value={formData.edad}
-															onChange={handleChange}
-															placeholder="Ej: 18"
-															className="flex-1"
-														/>
-														<CustomDropdown
-															options={[
-																{ value: 'AÑOS', label: 'AÑOS' },
-																{ value: 'MESES', label: 'MESES' },
-															]}
-															value={formData.edadUnidad}
-															onChange={(value) => setFormData((prev) => ({ ...prev, edadUnidad: value }))}
-															className="w-32"
-														/>
-													</div>
+													<label className="text-sm text-gray-500 dark:text-gray-400">Edad (años)</label>
+													<Input
+														type="number"
+														name="edad"
+														value={formData.edad}
+														onChange={handleChange}
+														placeholder="Ej: 25"
+														className="flex-1"
+													/>
 												</div>
 
 												{/* <div className="space-y-2">

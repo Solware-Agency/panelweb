@@ -7,24 +7,19 @@ import { es } from 'date-fns/locale'
 import { useQuery } from '@tanstack/react-query'
 import { supabase } from '@lib/supabase/config'
 import { BranchBadge } from '@shared/components/ui/branch-badge'
-import type { MedicalRecord } from '@lib/supabase-service'
+import type { MedicalCaseWithPatient } from '@lib/medical-cases-service'
 import { Button } from '@shared/components/ui/button'
 import { Input } from '@shared/components/ui/input'
 import { useBodyScrollLock } from '@shared/hooks/useBodyScrollLock'
 import { useGlobalOverlayOpen } from '@shared/hooks/useGlobalOverlayOpen'
 import EditPatientInfoModal from './EditPatientInfoModal'
 
+import type { Patient } from '@lib/patients-service'
+
 interface PatientHistoryModalProps {
 	isOpen: boolean
 	onClose: () => void
-	patient: {
-		id_number: string
-		full_name: string
-		phone: string
-		email: string | null
-		date_of_birth: string | null
-		edad?: string | null
-	} | null
+	patient: Patient | null
 }
 
 const PatientHistoryModal: React.FC<PatientHistoryModalProps> = ({ isOpen, onClose, patient }) => {
@@ -41,38 +36,38 @@ const PatientHistoryModal: React.FC<PatientHistoryModalProps> = ({ isOpen, onClo
 		setIsEditing(false)
 	}
 
-	// Fetch patient's medical records
+	// Fetch patient's medical records - usando nueva estructura
 	const { data, isLoading, error, refetch } = useQuery({
-		queryKey: ['patient-history', patient?.id_number],
+		queryKey: ['patient-history', patient?.id],
 		queryFn: async () => {
-			if (!patient?.id_number) return { data: [] }
+			if (!patient?.id) return { data: [] }
 
 			const { data, error } = await supabase
-				.from('medical_records_clean')
+				.from('medical_cases_with_patient')
 				.select('*')
-				.eq('id_number', patient.id_number)
+				.eq('patient_id', patient.id)
 				.order('created_at', { ascending: false })
 
 			if (error) throw error
 			return { data: data || [] }
 		},
-		enabled: isOpen && !!patient?.id_number,
+		enabled: isOpen && !!patient?.id,
 		staleTime: 1000 * 60 * 5, // 5 minutes
 	})
 
-	// Realtime: actualizar automáticamente el historial del paciente
+	// Realtime: actualizar automáticamente el historial del paciente - usando nueva estructura
 	useEffect(() => {
-		if (!isOpen || !patient?.id_number) return
+		if (!isOpen || !patient?.id) return
 
 		const channel = supabase
-			.channel(`realtime-patient-history-${patient.id_number}`)
+			.channel(`realtime-patient-history-${patient.id}`)
 			.on(
 				'postgres_changes',
 				{
 					event: '*',
 					schema: 'public',
 					table: 'medical_records_clean',
-					filter: `id_number=eq.${patient.id_number}`,
+					filter: `patient_id=eq.${patient.id}`,
 				},
 				() => {
 					refetch()
@@ -83,9 +78,9 @@ const PatientHistoryModal: React.FC<PatientHistoryModalProps> = ({ isOpen, onClo
 		return () => {
 			supabase.removeChannel(channel)
 		}
-	}, [isOpen, patient?.id_number, refetch])
+	}, [isOpen, patient?.id, refetch])
 
-	// Filter cases based on search term
+	// Filter cases based on search term - usando nueva estructura
 	const filteredCases = React.useMemo(() => {
 		if (!data?.data) return []
 
@@ -93,7 +88,7 @@ const PatientHistoryModal: React.FC<PatientHistoryModalProps> = ({ isOpen, onClo
 
 		const searchLower = searchTerm.toLowerCase()
 		return data.data.filter(
-			(caseItem: MedicalRecord) =>
+			(caseItem: MedicalCaseWithPatient) =>
 				(caseItem.code?.toLowerCase() || '').includes(searchLower) ||
 				(caseItem.exam_type?.toLowerCase() || '').includes(searchLower) ||
 				(caseItem.treating_doctor?.toLowerCase() || '').includes(searchLower) ||
@@ -181,7 +176,7 @@ const PatientHistoryModal: React.FC<PatientHistoryModalProps> = ({ isOpen, onClo
 												</div>
 												<div>
 													<h3 className="flex items-center gap-3 text-lg font-semibold text-gray-900 dark:text-gray-100">
-														{patient.full_name}{' '}
+														{patient.nombre}{' '}
 														<button
 															onClick={editPatient}
 															className="text-gray-500 dark:text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors duration-200 cursor-pointer"
@@ -189,27 +184,29 @@ const PatientHistoryModal: React.FC<PatientHistoryModalProps> = ({ isOpen, onClo
 															<UserPen className="size-5 cursor-pointer" />
 														</button>
 													</h3>
-													<p className="text-sm text-gray-600 dark:text-gray-400">Cédula: {patient.id_number}</p>
+													<p className="text-sm text-gray-600 dark:text-gray-400">Cédula: {patient.cedula}</p>
 												</div>
 											</div>
 
 											<div className="flex flex-col sm:flex-row gap-2 sm:gap-3 sm:ml-auto w-full sm:w-auto">
 												<div className="flex items-center gap-1 text-sm w-full sm:w-auto">
-													<button
-														onClick={() => {
-															const phoneNumber = patient.phone.replace(/\D/g, '')
-															const message = encodeURIComponent(
-																'Hola, me comunico desde el sistema médico. ¿Cómo está usted?',
-															)
-															const whatsappUrl = `https://api.whatsapp.com/send/?phone=${phoneNumber}&text=${message}&type=phone_number&app_absent=0`
-															window.open(whatsappUrl, '_blank')
-														}}
-														className="flex items-center gap-2 px-3 py-1.5 rounded-lg hover:bg-green-50 dark:hover:bg-green-900/20 hover:text-green-600 transition-all duration-200 cursor-pointer group w-full sm:w-auto justify-start"
-														title="Enviar mensaje por WhatsApp"
-													>
-														<WhatsAppIcon className="h-4 w-4 text-gray-500 group-hover:text-green-600 transition-colors duration-200" />
-														<span className="text-sm font-medium">{patient.phone}</span>
-													</button>
+													{patient.telefono && (
+														<button
+															onClick={() => {
+																const phoneNumber = patient.telefono.replace(/\D/g, '')
+																const message = encodeURIComponent(
+																	'Hola, me comunico desde el sistema médico. ¿Cómo está usted?',
+																)
+																const whatsappUrl = `https://api.whatsapp.com/send/?phone=${phoneNumber}&text=${message}&type=phone_number&app_absent=0`
+																window.open(whatsappUrl, '_blank')
+															}}
+															className="flex items-center gap-2 px-3 py-1.5 rounded-lg hover:bg-green-50 dark:hover:bg-green-900/20 hover:text-green-600 transition-all duration-200 cursor-pointer group w-full sm:w-auto justify-start"
+															title="Enviar mensaje por WhatsApp"
+														>
+															<WhatsAppIcon className="h-4 w-4 text-gray-500 group-hover:text-green-600 transition-colors duration-200" />
+															<span className="text-sm font-medium">{patient.telefono}</span>
+														</button>
+													)}
 												</div>
 
 												{patient.email && (
@@ -281,7 +278,7 @@ const PatientHistoryModal: React.FC<PatientHistoryModalProps> = ({ isOpen, onClo
 											</div>
 										) : (
 											<div className="space-y-4">
-												{filteredCases.map((caseItem: MedicalRecord) => (
+												{filteredCases.map((caseItem: MedicalCaseWithPatient) => (
 													<div
 														key={caseItem.id}
 														className="bg-white/60 dark:bg-background/30 backdrop-blur-[5px] border border-input rounded-lg p-4 hover:shadow-md transition-shadow"

@@ -116,10 +116,10 @@ export const useAutocomplete = (fieldName: string) => {
 
 				// Updated field mapping to match the actual database schema
 				const fieldMapping: Record<string, string> = {
-					// Datos del paciente
-					fullName: 'full_name',
-					idNumber: 'id_number',
-					phone: 'phone',
+					// Datos del paciente (ahora en tabla patients)
+					fullName: 'nombre',
+					idNumber: 'cedula',
+					phone: 'telefono',
 					email: 'email',
 
 					// Datos del servicio
@@ -147,23 +147,41 @@ export const useAutocomplete = (fieldName: string) => {
 
 				const dbFieldName = fieldMapping[fieldName] || fieldName
 
-				// Verify the field exists in the database schema before querying
-				const validFields = [
-					'full_name', 'id_number', 'phone', 'email', 'exam_type', 'origin', 
-					'treating_doctor', 'sample_type', 'relationship', 'branch', 'comments',
-					'payment_method_1', 'payment_method_2', 'payment_method_3', 'payment_method_4',
-					'payment_reference_1', 'payment_reference_2', 'payment_reference_3', 'payment_reference_4',
-					'payment_status'
-				]
+				// Determinar qué tabla usar según el campo
+				const patientFields = ['nombre', 'cedula', 'telefono', 'email'] // Campos en tabla patients
+				const caseFields = [
+					'exam_type',
+					'origin',
+					'treating_doctor',
+					'sample_type',
+					'relationship',
+					'branch',
+					'comments',
+					'payment_method_1',
+					'payment_method_2',
+					'payment_method_3',
+					'payment_method_4',
+					'payment_reference_1',
+					'payment_reference_2',
+					'payment_reference_3',
+					'payment_reference_4',
+					'payment_status',
+				] // Campos en tabla medical_records_clean
 
-				if (!validFields.includes(dbFieldName)) {
-					console.warn(`Field '${dbFieldName}' is not a valid field in medical_records_clean table`)
+				const isPatientField = patientFields.includes(dbFieldName)
+				const isCaseField = caseFields.includes(dbFieldName)
+
+				if (!isPatientField && !isCaseField) {
+					console.warn(`Field '${dbFieldName}' is not a valid field in any table`)
 					setIsLoading(false)
 					return
 				}
 
+				// Seleccionar la tabla correcta
+				const tableName = isPatientField ? 'patients' : 'medical_records_clean'
+
 				const { data, error } = await supabase
-					.from('medical_records_clean')
+					.from(tableName)
 					.select(dbFieldName)
 					.not(dbFieldName, 'is', null)
 					.not(dbFieldName, 'eq', '')

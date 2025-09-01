@@ -2,47 +2,54 @@ import { useQuery } from '@tanstack/react-query'
 import { supabase } from '@lib/supabase/config'
 import { startOfMonth, endOfMonth, format, startOfYear, endOfYear } from 'date-fns'
 import { es } from 'date-fns/locale'
+import type { Database } from '@shared/types/types'
+
+type MedicalCaseWithPatientView = Database['public']['Views']['medical_cases_with_patient']['Row']
 
 export interface DashboardStats {
-  totalRevenue: number
-  uniquePatients: number
-  completedCases: number
-  incompleteCases: number
-  pendingPayments: number
-  monthlyRevenue: number
-  newPatientsThisMonth: number
-  revenueByBranch: Array<{ branch: string; revenue: number; percentage: number }>
-  revenueByExamType: Array<{ examType: string; revenue: number; count: number }>
-  salesTrendByMonth: Array<{ month: string; revenue: number; isSelected?: boolean; monthIndex: number }>
-  topExamTypes: Array<{ examType: string; count: number; revenue: number }>
-  topTreatingDoctors: Array<{ doctor: string; cases: number; revenue: number }>
-  revenueByOrigin: Array<{ origin: string; revenue: number; cases: number; percentage: number }>
-  totalCases: number
+	totalRevenue: number
+	uniquePatients: number
+	completedCases: number
+	incompleteCases: number
+	pendingPayments: number
+	monthlyRevenue: number
+	newPatientsThisMonth: number
+	revenueByBranch: Array<{ branch: string; revenue: number; percentage: number }>
+	revenueByExamType: Array<{ examType: string; revenue: number; count: number }>
+	salesTrendByMonth: Array<{ month: string; revenue: number; isSelected?: boolean; monthIndex: number }>
+	topExamTypes: Array<{ examType: string; count: number; revenue: number }>
+	topTreatingDoctors: Array<{ doctor: string; cases: number; revenue: number }>
+	revenueByOrigin: Array<{ origin: string; revenue: number; cases: number; percentage: number }>
+	totalCases: number
 }
 
 // Function to normalize exam type names
 const normalizeExamType = (examType: string): string => {
-  if (!examType) return ''
-  
-  return examType
-    .toLowerCase()
-    .trim()
-    // Remove accents and diacritics
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
-    // Normalize common variations
-    .replace(/citologia/g, 'citologia')
-    .replace(/biopsia/g, 'biopsia')
-    .replace(/inmunohistoquimica/g, 'inmunohistoquimica')
+	if (!examType) return ''
+
+	return (
+		examType
+			.toLowerCase()
+			.trim()
+			// Remove accents and diacritics
+			.normalize('NFD')
+			.replace(/[\u0300-\u036f]/g, '')
+			// Normalize common variations
+			.replace(/citologia/g, 'citologia')
+			.replace(/biopsia/g, 'biopsia')
+			.replace(/inmunohistoquimica/g, 'inmunohistoquimica')
+	)
 }
 
 export const useDashboardStats = (selectedMonth?: Date, selectedYear?: number) => {
-  return useQuery({
-    queryKey: ['dashboard-stats', selectedMonth?.toISOString(), selectedYear],
-    queryFn: async (): Promise<DashboardStats> => {
-      try {
-				// Get all records for general stats
-				const { data: allRecords, error: allError } = await supabase.from('medical_records_clean').select('*')
+	return useQuery({
+		queryKey: ['dashboard-stats', selectedMonth?.toISOString(), selectedYear],
+		queryFn: async (): Promise<DashboardStats> => {
+			try {
+				// Use medical_cases_with_patient view for better performance
+				const { data: allRecords, error: allError } = (await supabase
+					.from('medical_cases_with_patient')
+					.select('*')) as { data: MedicalCaseWithPatientView[] | null; error: any }
 
 				if (allError) throw allError
 
@@ -51,21 +58,28 @@ export const useDashboardStats = (selectedMonth?: Date, selectedYear?: number) =
 				const monthStart = startOfMonth(currentMonth)
 				const monthEnd = endOfMonth(currentMonth)
 
-				const { data: monthRecords, error: monthError } = await supabase
-					.from('medical_records_clean')
-					.select('*')
-					.gte('created_at', monthStart.toISOString())
-					.lte('created_at', monthEnd.toISOString())
-
-				if (monthError) throw monthError
+				// Filter records for current month from allRecords (more efficient)
+				const monthRecords =
+					allRecords?.filter((record) => {
+						if (!record.created_at) return false
+						const recordDate = new Date(record.created_at)
+						return recordDate >= monthStart && recordDate <= monthEnd
+					}) || []
 
 				// Calculate total revenue
 				const totalRevenue = allRecords?.reduce((sum, record) => sum + (record.total_amount || 0), 0) || 0
 
-				// Calculate unique patients - CORREGIDO: solo contar registros con id_number válido
-				const validRecords = allRecords?.filter((r) => r.id_number && r.id_number.trim() !== '') || []
-				const uniquePatientIds = new Set(validRecords.map((record) => record.id_number))
+				// Calculate unique patients - Con nueva estructura es más eficiente
+				const uniquePatientIds = new Set(allRecords?.filter((r) => r.patient_id).map((record) => record.patient_id))
 				const uniquePatients = uniquePatientIds.size
+
+				// Alternative: Get actual count from patients table for accuracy
+				const { count: actualPatientsCount } = await supabase
+					.from('patients')
+					.select('*', { count: 'exact', head: true })
+
+				// Use actual count from patients table for more accurate stats
+				const finalUniquePatients = actualPatientsCount || uniquePatients
 
 				// Calcular casos pagados e incompletos
 				const completedCases = allRecords?.filter((record) => record.payment_status === 'Pagado').length || 0
@@ -75,29 +89,24 @@ export const useDashboardStats = (selectedMonth?: Date, selectedYear?: number) =
 				// Calcular pagos pendientes (montos restantes)
 				const pendingPayments =
 					allRecords?.reduce((sum, record) => {
-						// Si el estado de pago no es pagado, sumar el restante
+						// Si el estado de pago no es pagado, sumar el total
 						if (record.payment_status !== 'Pagado') {
-							return sum + (record.remaining || record.total_amount || 0)
+							return sum + (record.total_amount || 0)
 						}
-						return sum + (record.remaining || 0)
+						return sum
 					}, 0) || 0
 
 				// Calculate monthly revenue
 				const monthlyRevenue = monthRecords?.reduce((sum, record) => sum + (record.total_amount || 0), 0) || 0
 
-				// Calculate new patients this month - CORREGIDO: usar solo registros válidos
+				// Calculate new patients this month - usando patient_id de la nueva estructura
 				const existingPatientIds = new Set(
 					allRecords
-						?.filter(
-							(record) =>
-								record.id_number && record.id_number.trim() !== '' && new Date(record.created_at) < monthStart,
-						)
-						.map((record) => record.id_number) || [],
+						?.filter((record) => record.patient_id && record.created_at && new Date(record.created_at) < monthStart)
+						.map((record) => record.patient_id) || [],
 				)
 				const monthPatientIds = new Set(
-					monthRecords
-						?.filter((record) => record.id_number && record.id_number.trim() !== '')
-						.map((record) => record.id_number) || [],
+					monthRecords?.filter((record) => record.patient_id).map((record) => record.patient_id) || [],
 				)
 				const newPatientsThisMonth = Array.from(monthPatientIds).filter((id) => !existingPatientIds.has(id)).length
 
@@ -148,6 +157,7 @@ export const useDashboardStats = (selectedMonth?: Date, selectedYear?: number) =
 				// Filter records for the selected year
 				const yearRecords =
 					allRecords?.filter((record) => {
+						if (!record.created_at) return false
 						const recordDate = new Date(record.created_at)
 						return recordDate >= yearStart && recordDate <= yearEnd
 					}) || []
@@ -158,7 +168,7 @@ export const useDashboardStats = (selectedMonth?: Date, selectedYear?: number) =
 					const monthDate = new Date(currentYear, month, 1)
 					const monthKey = format(monthDate, 'yyyy-MM')
 					const monthRevenue = yearRecords
-						.filter((record) => format(new Date(record.created_at), 'yyyy-MM') === monthKey)
+						.filter((record) => record.created_at && format(new Date(record.created_at), 'yyyy-MM') === monthKey)
 						.reduce((sum, record) => sum + (record.total_amount || 0), 0)
 
 					salesTrendByMonth.push({
@@ -237,7 +247,7 @@ export const useDashboardStats = (selectedMonth?: Date, selectedYear?: number) =
 
 				return {
 					totalRevenue,
-					uniquePatients,
+					uniquePatients: finalUniquePatients,
 					completedCases,
 					incompleteCases,
 					pendingPayments,
@@ -255,10 +265,10 @@ export const useDashboardStats = (selectedMonth?: Date, selectedYear?: number) =
 				console.error('Error fetching dashboard stats:', error)
 				throw error
 			}
-    },
-    staleTime: 1000 * 60 * 5, // 5 minutes
-    refetchOnWindowFocus: false,
-  })
+		},
+		staleTime: 1000 * 60 * 5, // 5 minutes
+		refetchOnWindowFocus: false,
+	})
 }
 
 export const useMonthSelector = () => {

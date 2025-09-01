@@ -2,15 +2,16 @@ import React from 'react'
 import { motion, AnimatePresence } from 'motion/react'
 import { X, User, FileText, DollarSign, AlertTriangle, Microscope, Download } from 'lucide-react'
 import type { MedicalRecord } from '@lib/supabase-service'
+import type { MedicalCaseWithPatient } from '@lib/medical-cases-service'
 import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
 import { BranchBadge } from '@shared/components/ui/branch-badge'
 
 interface CaseDetailPanelProps {
-	case_: MedicalRecord | null
+	case_: MedicalCaseWithPatient | null
 	isOpen: boolean
 	onClose: () => void
-	onCaseSelect: (case_: MedicalRecord) => void
+	onCaseSelect: (case_: MedicalCaseWithPatient) => void
 }
 
 const CaseDetailPanel: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClose }) => {
@@ -20,22 +21,23 @@ const CaseDetailPanel: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClos
 	const formattedDate = case_.date ? format(new Date(case_.date), 'dd/MM/yyyy', { locale: es }) : 'N/A'
 
 	// Get age display
-	const ageDisplay = case_.edad || 'Sin edad'
+	// Get age from new structure (patient) or fallback to legacy field
+	const ageDisplay = case_.edad ? `${case_.edad} años` : 'Sin edad'
 
 	// Get payment status color
-    const getStatusColor = (status: string) => {
-			const normalized = (status || '').toString().trim().toLowerCase()
-			switch (normalized) {
-				case 'pagado':
-				case 'completado':
-					return 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300'
-				case 'pendiente':
-					return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300'
-				case 'incompleto':
-				default:
-					return 'bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-300'
-			}
+	const getStatusColor = (status: string) => {
+		const normalized = (status || '').toString().trim().toLowerCase()
+		switch (normalized) {
+			case 'pagado':
+			case 'completado':
+				return 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300'
+			case 'pendiente':
+				return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300'
+			case 'incompleto':
+			default:
+				return 'bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-300'
 		}
+	}
 
 	return (
 		<AnimatePresence>
@@ -63,8 +65,10 @@ const CaseDetailPanel: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClos
 							<div className="flex items-center justify-between">
 								<div>
 									<div>
-						<h2 className="text-lg sm:text-2xl font-bold text-gray-900 dark:text-gray-100">Detalles del Caso</h2>
-					</div>
+										<h2 className="text-lg sm:text-2xl font-bold text-gray-900 dark:text-gray-100">
+											Detalles del Caso
+										</h2>
+									</div>
 									<div className="flex items-center gap-1.5 sm:gap-2 mt-1 sm:mt-2">
 										{case_.code && (
 											<span className="inline-flex items-center gap-1 px-1.5 sm:px-2 py-0.5 sm:py-1 text-xs font-semibold rounded-full bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300">
@@ -107,11 +111,11 @@ const CaseDetailPanel: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClos
 									<div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
 										<div>
 											<p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">Nombre completo:</p>
-											<p className="text-sm sm:text-base font-medium">{case_.full_name}</p>
+											<p className="text-sm sm:text-base font-medium">{case_.nombre}</p>
 										</div>
 										<div>
 											<p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">Cédula:</p>
-											<p className="text-sm sm:text-base font-medium">{case_.id_number}</p>
+											<p className="text-sm sm:text-base font-medium">{case_.cedula}</p>
 										</div>
 									</div>
 									<div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
@@ -121,13 +125,13 @@ const CaseDetailPanel: React.FC<CaseDetailPanelProps> = ({ case_, isOpen, onClos
 										</div>
 										<div>
 											<p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">Teléfono:</p>
-											<p className="text-sm sm:text-base font-medium">{case_.phone}</p>
+											<p className="text-sm sm:text-base font-medium">{case_.telefono}</p>
 										</div>
 									</div>
-									{case_.email && (
+									{case_.patient_email && (
 										<div>
 											<p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">Email:</p>
-											<p className="text-sm sm:text-base font-medium break-words">{case_.email}</p>
+											<p className="text-sm sm:text-base font-medium break-words">{case_.patient_email}</p>
 										</div>
 									)}
 								</div>

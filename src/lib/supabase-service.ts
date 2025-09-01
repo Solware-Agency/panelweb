@@ -14,7 +14,9 @@ export interface CustomError extends Error {
 
 export interface ChangeLog {
 	id?: string
-	medical_record_id: string
+	medical_record_id?: string | null
+	patient_id?: string | null
+	entity_type?: string | null
 	user_id: string
 	user_email: string
 	user_display_name: string | null
@@ -23,29 +25,37 @@ export interface ChangeLog {
 	old_value: string | null
 	new_value: string | null
 	changed_at: string
+	deleted_record_info?: string | null
 	created_at?: string
 	log?: string | null
 }
 
 // Result row type for getAllChangeLogs with joined case info
 export interface ChangeLogJoined {
-  id: string
-  medical_record_id: string | null
-  user_id: string
-  user_email: string
-  user_display_name: string | null
-  field_name: string
-  field_label: string
-  old_value: string | null
-  new_value: string | null
-  changed_at: string
-  created_at: string | null
-  deleted_record_info?: string | null
-  medical_records_clean?: {
-    id: string | null
-    full_name: string | null
-    code: string | null
-  } | null
+	id: string
+	medical_record_id: string | null
+	patient_id: string | null // Nueva columna
+	entity_type: string | null // Nueva columna: 'patient' o 'medical_case'
+	user_id: string
+	user_email: string
+	user_display_name: string | null
+	field_name: string
+	field_label: string
+	old_value: string | null
+	new_value: string | null
+	changed_at: string
+	created_at: string | null
+	deleted_record_info?: string | null
+	medical_records_clean?: {
+		id: string | null
+		code: string | null
+		patient_id: string | null
+	} | null
+	patients?: {
+		id: string | null
+		nombre: string | null
+		cedula: string | null
+	} | null
 }
 
 // Helper function to format age display
@@ -77,6 +87,9 @@ export const testConnection = async () => {
 	}
 }
 
+// LEGACY FUNCTION - NO LONGER USED WITH NEW STRUCTURE
+// Using registration-service.ts instead
+/*
 export const insertMedicalRecord = async (
 	formData: FormValues,
 	exchangeRate?: number,
@@ -280,6 +293,7 @@ export const insertMedicalRecord = async (
 		return { data: null, error: error as CustomError }
 	}
 }
+*/
 
 export const getMedicalRecords = async () => {
 	try {
@@ -322,6 +336,9 @@ export const searchMedicalRecords = async (searchTerm: string) => {
 	}
 }
 
+// LEGACY FUNCTION - NO LONGER USED WITH NEW STRUCTURE  
+// Using medical-cases-service.ts instead
+/*
 export const updateMedicalRecord = async (id: string, updates: Partial<MedicalRecord>) => {
 	try {
 		console.log(`🔄 Updating medical record ${id} in ${TABLE_NAME}:`, updates)
@@ -361,13 +378,14 @@ export const updateMedicalRecord = async (id: string, updates: Partial<MedicalRe
 			return { data: null, error }
 		}
 
-		console.log(`✅ Medical record updated successfully in ${TABLE_NAME}:`, data)
-		return { data, error: null }
-	} catch (error) {
-		console.error(`❌ Error updating record in ${TABLE_NAME}:`, error)
-		return { data: null, error }
-	}
+			console.log(`✅ Medical record updated successfully in ${TABLE_NAME}:`, data)
+	return { data, error: null }
+} catch (error) {
+	console.error(`❌ Error updating record in ${TABLE_NAME}:`, error)
+	return { data: null, error }
 }
+}
+*/
 
 export const deleteMedicalRecord = async (id: string) => {
 	try {
@@ -489,8 +507,13 @@ export const getAllChangeLogs = async (limit = 50, offset = 0) => {
 				*,
 				medical_records_clean(
 					id,
-					full_name,
-					code
+					code,
+					patient_id
+				),
+				patients(
+					id,
+					nombre,
+					cedula
 				)
 			`,
 			)
@@ -502,43 +525,70 @@ export const getAllChangeLogs = async (limit = 50, offset = 0) => {
 			return { data: null, error }
 		}
 
-        // Transform the data to handle deleted records and return a strongly-typed array
-        const transformedData: ChangeLogJoined[] | undefined = data?.map((row: unknown) => {
-            const log = row as Record<string, unknown>
-            const result: ChangeLogJoined = {
-                id: String(log['id'] ?? ''),
-                medical_record_id: (log['medical_record_id'] as string | null) ?? null,
-                user_id: String(log['user_id'] ?? ''),
-                user_email: String(log['user_email'] ?? ''),
-                user_display_name: (log['user_display_name'] as string | null) ?? null,
-                field_name: String(log['field_name'] ?? ''),
-                field_label: String(log['field_label'] ?? ''),
-                old_value: (log['old_value'] as string | null) ?? null,
-                new_value: (log['new_value'] as string | null) ?? null,
-                changed_at: String(log['changed_at'] ?? ''),
-                created_at: (log['created_at'] as string | null) ?? null,
-                deleted_record_info: (log['deleted_record_info'] as string | null) ?? null,
-                medical_records_clean: (log['medical_records_clean'] as {
-                    id: string | null
-                    full_name: string | null
-                    code: string | null
-                } | null | undefined) ?? undefined,
-            }
+		// Transform the data to handle deleted records and return a strongly-typed array
+		const transformedData: ChangeLogJoined[] | undefined = data?.map((row: unknown) => {
+			const log = row as Record<string, unknown>
+			const result: ChangeLogJoined = {
+				id: String(log['id'] ?? ''),
+				medical_record_id: (log['medical_record_id'] as string | null) ?? null,
+				patient_id: (log['patient_id'] as string | null) ?? null,
+				entity_type: (log['entity_type'] as string | null) ?? null,
+				user_id: String(log['user_id'] ?? ''),
+				user_email: String(log['user_email'] ?? ''),
+				user_display_name: (log['user_display_name'] as string | null) ?? null,
+				field_name: String(log['field_name'] ?? ''),
+				field_label: String(log['field_label'] ?? ''),
+				old_value: (log['old_value'] as string | null) ?? null,
+				new_value: (log['new_value'] as string | null) ?? null,
+				changed_at: String(log['changed_at'] ?? ''),
+				created_at: (log['created_at'] as string | null) ?? null,
+				deleted_record_info: (log['deleted_record_info'] as string | null) ?? null,
+				medical_records_clean:
+					(log['medical_records_clean'] as
+						| {
+								id: string | null
+								code: string | null
+								patient_id: string | null
+						  }
+						| null
+						| undefined) ?? undefined,
+				patients:
+					(log['patients'] as
+						| {
+								id: string | null
+								nombre: string | null
+								cedula: string | null
+						  }
+						| null
+						| undefined) ?? undefined,
+			}
 
-            if (!result.medical_record_id && result.deleted_record_info) {
-                return {
-                    ...result,
-                    medical_records_clean: {
-                        id: null,
-                        full_name: result.deleted_record_info,
-                        code: null,
-                    },
-                }
-            }
-            return result
-        })
+			if (!result.medical_record_id && !result.patient_id && result.deleted_record_info) {
+				// Handle deleted records - try to determine if it was a patient or medical case
+				if (result.entity_type === 'patient') {
+					return {
+						...result,
+						patients: {
+							id: null,
+							nombre: result.deleted_record_info,
+							cedula: null,
+						},
+					}
+				} else {
+					return {
+						...result,
+						medical_records_clean: {
+							id: null,
+							code: result.deleted_record_info,
+							patient_id: null,
+						},
+					}
+				}
+			}
+			return result
+		})
 
-        return { data: transformedData, error: null }
+		return { data: transformedData, error: null }
 	} catch (error) {
 		console.error('Error fetching all change logs:', error)
 		return { data: null, error }
