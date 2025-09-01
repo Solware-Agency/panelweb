@@ -1,7 +1,8 @@
 import React, { useCallback, useState } from 'react'
 import { RecordsSection } from '@features/form/components/RecordsSection'
 import { useQuery } from '@tanstack/react-query'
-import { getMedicalRecords, searchMedicalRecords } from '@lib/supabase-service'
+import { getCasesWithPatientInfo } from '@lib/medical-cases-service'
+import { mapToLegacyRecords } from '@lib/mappers'
 
 const CasesPage: React.FC = () => {
 	const [isFullscreen, setIsFullscreen] = useState(false)
@@ -14,7 +15,7 @@ const CasesPage: React.FC = () => {
 		refetch: refetchCases,
 	} = useQuery({
 		queryKey: ['medical-cases', searchTerm],
-		queryFn: () => (searchTerm ? searchMedicalRecords(searchTerm) : getMedicalRecords()),
+		queryFn: () => getCasesWithPatientInfo(1, 1000, { searchTerm }),
 		staleTime: 1000 * 60 * 5,
 		refetchOnWindowFocus: false,
 	})
@@ -25,7 +26,7 @@ const CasesPage: React.FC = () => {
 
 	return (
 		<RecordsSection
-			cases={casesData?.data || []}
+			cases={casesData?.data ? mapToLegacyRecords(casesData.data) : []}
 			isLoading={casesLoading}
 			error={casesError}
 			refetch={refetchCases}

@@ -7,23 +7,23 @@ import {
 	Stethoscope,
 	CreditCard,
 	FileText,
-	// CheckCircle,
-	Hash,
-	Download,
 	Edit,
 	Trash2,
 	Loader2,
 	AlertCircle,
 	Save,
 	XCircle,
-	Plus,
-	DollarSign,
 	History,
 	Eye,
 	Send,
 } from 'lucide-react'
-import type { MedicalRecord } from '@lib/supabase-service'
-import { deleteMedicalRecord, updateMedicalRecordWithLog, getChangeLogsForRecord } from '@lib/supabase-service'
+import type { MedicalCaseWithPatient, MedicalCaseUpdate } from '@lib/medical-cases-service'
+import type { PatientUpdate } from '@lib/patients-service'
+import { 
+	updateMedicalCase, 
+	deleteMedicalCase
+} from '@lib/medical-cases-service'
+import { updatePatient } from '@lib/patients-service'
 import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
 import { useQuery } from '@tanstack/react-query'
@@ -39,20 +39,17 @@ import { useAuth } from '@app/providers/AuthContext'
 import { useUserProfile } from '@shared/hooks/useUserProfile'
 import TagInput from '@shared/components/ui/tag-input'
 import { WhatsAppIcon } from '@shared/components/icons/WhatsAppIcon'
-import {
-	parseDecimalNumber,
-	createCalculatorInputHandler,
-	isVESPaymentMethod,
-	convertVEStoUSD,
-	autoCorrectDecimalAmount,
-} from '@shared/utils/number-utils'
+// Payment utilities removed - not needed in new structure
+// import { ... } from '@shared/utils/number-utils'
 import { useBodyScrollLock } from '@shared/hooks/useBodyScrollLock'
 import { useGlobalOverlayOpen } from '@shared/hooks/useGlobalOverlayOpen'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@shared/components/ui/tooltip'
 
 interface ChangeLogEntry {
 	id: string
-	medical_record_id: string
+	medical_record_id: string | null
+	patient_id: string | null
+	entity_type: string | null
 	user_id: string
 	user_email: string
 	field_name: string
@@ -60,15 +57,16 @@ interface ChangeLogEntry {
 	old_value: string | null
 	new_value: string | null
 	changed_at: string
+	deleted_record_info: string | null
 }
 
 interface CaseDetailPanelProps {
-	case_: MedicalRecord | null
+	case_: MedicalCaseWithPatient | null
 	isOpen: boolean
 	onClose: () => void
 	onSave?: () => void
 	onDelete?: () => void
-	onCaseSelect: (case_: MedicalRecord) => void
+	onCaseSelect: (case_: MedicalCaseWithPatient) => void
 }
 
 interface ImmunoRequest {
@@ -144,13 +142,10 @@ const UnifiedCaseModal: React.FC<CaseDetailPanelProps> = React.memo(({ case_, is
 	const [isDeleting, setIsDeleting] = useState(false)
 	const [isEditing, setIsEditing] = useState(false)
 	const [isSaving, setIsSaving] = useState(false)
-	const [editedCase, setEditedCase] = useState<Partial<MedicalRecord>>({})
-	const [isAddPaymentModalOpen, setIsAddPaymentModalOpen] = useState(false)
-	const [newPayment, setNewPayment] = useState({
-		method: '',
-		amount: '',
-		reference: '',
-	})
+	const [editedCase, setEditedCase] = useState<Partial<MedicalCaseWithPatient>>({})
+	// Payment modal states removed - not needed in new structure
+	// const [isAddPaymentModalOpen, setIsAddPaymentModalOpen] = useState(false)
+	// const [newPayment, setNewPayment] = useState({...})
 	const [isChangelogOpen, setIsChangelogOpen] = useState(false)
 
 	// Immunohistochemistry specific states
@@ -182,11 +177,11 @@ const UnifiedCaseModal: React.FC<CaseDetailPanelProps> = React.memo(({ case_, is
 			if (!case_) return null
 
 			// First try to get creator info from the record itself (for new records)
-			if (case_.created_by && case_.created_by_display_name) {
+			if (case_.generated_by) {
 				return {
-					id: case_.created_by,
+					id: case_.generated_by,
 					email: '', // We don't have the email in the record
-					displayName: case_.created_by_display_name,
+					displayName: 'Usuario del sistema',
 				}
 			}
 
@@ -239,14 +234,18 @@ const UnifiedCaseModal: React.FC<CaseDetailPanelProps> = React.memo(({ case_, is
 		queryFn: async () => {
 			if (!case_?.id) return null
 
-			const { data, error } = await supabase.from('medical_records_clean').select('*').eq('id', case_.id).single()
+			const { data, error } = await supabase
+				.from('medical_cases_with_patient')
+				.select('*')
+				.eq('id', case_.id)
+				.single()
 
 			if (error) {
 				console.error('Error fetching updated case data:', error)
 				return null
 			}
 
-			return data as MedicalRecord
+			return data as MedicalCaseWithPatient
 		},
 		enabled: !!case_?.id && isOpen,
 	})
@@ -263,7 +262,19 @@ const UnifiedCaseModal: React.FC<CaseDetailPanelProps> = React.memo(({ case_, is
 		queryKey: ['record-changelogs', case_?.id],
 		queryFn: async () => {
 			if (!case_?.id) return { data: [] }
-			return getChangeLogsForRecord(case_.id)
+			// Obtener logs del caso médico
+			const { data, error } = await supabase
+				.from('change_logs')
+				.select('*')
+				.eq('medical_record_id', case_.id)
+				.order('changed_at', { ascending: false })
+			
+			if (error) {
+				console.error('Error fetching change logs:', error)
+				return { data: [] }
+			}
+			
+			return { data: data || [] }
 		},
 		enabled: !!case_?.id && isOpen && isChangelogOpen,
 	})
@@ -271,60 +282,25 @@ const UnifiedCaseModal: React.FC<CaseDetailPanelProps> = React.memo(({ case_, is
 	// Initialize edited case when currentCase changes or when entering edit mode
 	useEffect(() => {
 		if (currentCase && isEditing) {
-			// Auto-correct decimal amounts when loading for editing
-			const correctedCase: Partial<MedicalRecord> = { ...currentCase }
-
-			// Auto-correct payment amounts
-			for (let i = 1; i <= 4; i++) {
-				const methodKey = `payment_method_${i}` as keyof MedicalRecord
-				const amountKey = `payment_amount_${i}` as keyof MedicalRecord
-
-				const method = correctedCase[methodKey] as string | null
-				const amount = correctedCase[amountKey] as number | null
-
-				if (method && amount) {
-					const { correctedAmount, wasCorreted, reason } = autoCorrectDecimalAmount(
-						amount,
-						method,
-						currentCase.exchange_rate || undefined,
-					)
-
-					if (wasCorreted) {
-						;(correctedCase as Partial<Record<keyof MedicalRecord, number | null>>)[amountKey] = correctedAmount
-						console.log(`⚠️ Auto-corregido ${amountKey}:`, reason)
-						toast({
-							title: '⚠️ Auto-corregido desde BD',
-							description: reason,
-							className: 'bg-orange-100 border-orange-400 text-orange-800',
-						})
-					}
-				}
-			}
-
+			// Initialize with current case data - separating patient and case data
 			setEditedCase({
-				full_name: correctedCase.full_name,
-				id_number: correctedCase.id_number,
-				phone: correctedCase.phone,
-				email: correctedCase.email,
-				edad: correctedCase.edad,
-				comments: correctedCase.comments,
-				payment_method_1: correctedCase.payment_method_1,
-				payment_amount_1: correctedCase.payment_amount_1,
-				payment_reference_1: correctedCase.payment_reference_1,
-				payment_method_2: correctedCase.payment_method_2,
-				payment_amount_2: correctedCase.payment_amount_2,
-				payment_reference_2: correctedCase.payment_reference_2,
-				payment_method_3: correctedCase.payment_method_3,
-				payment_amount_3: correctedCase.payment_amount_3,
-				payment_reference_3: correctedCase.payment_reference_3,
-				payment_method_4: correctedCase.payment_method_4,
-				payment_amount_4: correctedCase.payment_amount_4,
-				payment_reference_4: correctedCase.payment_reference_4,
+				// Patient data
+				nombre: currentCase.nombre,
+				cedula: currentCase.cedula,
+				telefono: currentCase.telefono,
+				patient_email: currentCase.patient_email,
+				edad: currentCase.edad,
+				// Case data
+				exam_type: currentCase.exam_type,
+				treating_doctor: currentCase.treating_doctor,
+				origin: currentCase.origin,
+				branch: currentCase.branch,
+				comments: currentCase.comments,
 			})
 		} else {
 			setEditedCase({})
 		}
-	}, [currentCase, isEditing, toast])
+	}, [currentCase, isEditing])
 
 	// Initialize immuno reactions from existing request
 	useEffect(() => {
@@ -367,10 +343,10 @@ const UnifiedCaseModal: React.FC<CaseDetailPanelProps> = React.memo(({ case_, is
 
 		setIsDeleting(true)
 		try {
-			const { error } = await deleteMedicalRecord(currentCase.id!)
+			const result = await deleteMedicalCase(currentCase.id)
 
-			if (error) {
-				throw error
+			if (!result.success) {
+				throw new Error(result.error || 'Error al eliminar el caso')
 			}
 
 			toast({
@@ -400,7 +376,7 @@ const UnifiedCaseModal: React.FC<CaseDetailPanelProps> = React.memo(({ case_, is
 	}
 
 	const handleInputChange = useCallback((field: string, value: unknown) => {
-		setEditedCase((prev: Partial<MedicalRecord>) => ({
+		setEditedCase((prev: Partial<MedicalCaseWithPatient>) => ({
 			...prev,
 			[field]: value,
 		}))
@@ -470,24 +446,68 @@ const UnifiedCaseModal: React.FC<CaseDetailPanelProps> = React.memo(({ case_, is
 
 		setIsSaving(true)
 		try {
-			// Detect changes
-			const changes = []
-			for (const [key, value] of Object.entries(editedCase)) {
-				// Skip if value hasn't changed
-				if (value === currentCase[key as keyof MedicalRecord]) continue
+			// Separar cambios en datos del paciente vs datos del caso
+			const patientFields = ['nombre', 'telefono', 'patient_email', 'edad']
+			const caseFields = ['exam_type', 'treating_doctor', 'origin', 'branch', 'comments']
 
-				// Add to changes array (coerce undefined to null to satisfy types)
-				const oldVal = currentCase[key as keyof MedicalRecord]
-				const newVal = value as string | number | boolean | null | undefined
-				changes.push({
-					field: key,
-					fieldLabel: getFieldLabel(key),
-					oldValue: (oldVal ?? null) as string | number | boolean | null,
-					newValue: (newVal ?? null) as string | number | boolean | null,
-				})
+			// Detectar cambios en datos del paciente
+			const patientChanges: Partial<PatientUpdate> = {}
+			const patientChangeLogs = []
+			
+			for (const field of patientFields) {
+				const newValue = editedCase[field as keyof MedicalCaseWithPatient]
+				const oldValue = currentCase[field as keyof MedicalCaseWithPatient]
+				
+				if (newValue !== oldValue) {
+					// Map patient_email to email for the patient update
+					if (field === 'patient_email') {
+						patientChanges.email = newValue as string | null
+					} else if (field === 'nombre') {
+						patientChanges.nombre = newValue as string
+					} else if (field === 'telefono') {
+						patientChanges.telefono = newValue as string | null
+					} else if (field === 'edad') {
+						patientChanges.edad = newValue as number | null
+					}
+					patientChangeLogs.push({
+						field,
+						fieldLabel: getFieldLabel(field),
+						oldValue,
+						newValue
+					})
+				}
 			}
 
-			if (changes.length === 0) {
+			// Detectar cambios en datos del caso
+			const caseChanges: Partial<MedicalCaseUpdate> = {}
+			const caseChangeLogs = []
+			
+			for (const field of caseFields) {
+				const newValue = editedCase[field as keyof MedicalCaseWithPatient]
+				const oldValue = currentCase[field as keyof MedicalCaseWithPatient]
+				
+				if (newValue !== oldValue) {
+					if (field === 'exam_type') {
+						caseChanges.exam_type = newValue as string
+					} else if (field === 'treating_doctor') {
+						caseChanges.treating_doctor = newValue as string
+					} else if (field === 'origin') {
+						caseChanges.origin = newValue as string
+					} else if (field === 'branch') {
+						caseChanges.branch = newValue as string
+					} else if (field === 'comments') {
+						caseChanges.comments = newValue as string | null
+					}
+					caseChangeLogs.push({
+						field,
+						fieldLabel: getFieldLabel(field),
+						oldValue,
+						newValue
+					})
+				}
+			}
+
+			if (Object.keys(patientChanges).length === 0 && Object.keys(caseChanges).length === 0) {
 				toast({
 					title: 'Sin cambios',
 					description: 'No se detectaron cambios para guardar.',
@@ -498,39 +518,14 @@ const UnifiedCaseModal: React.FC<CaseDetailPanelProps> = React.memo(({ case_, is
 				return
 			}
 
-			// Determinar si hay cambios en los datos del paciente
-			const patientDataChanges = changes.filter((change) =>
-				['full_name', 'phone', 'email', 'edad'].includes(change.field),
-			)
-
-			if (patientDataChanges.length > 0) {
-				// Actualizar todos los registros que tengan esta cédula
-				const { error: updateError } = await supabase
-					.from('medical_records_clean')
-					.update({
-						full_name: editedCase.full_name,
-						phone: editedCase.phone,
-						email: editedCase.email,
-						edad: editedCase.edad,
-						updated_at: new Date().toISOString(),
-					})
-					.eq('id_number', currentCase.id_number)
-
-				if (updateError) throw updateError
-
-				// Obtener todos los registros afectados para registrar los cambios
-				const { data: affectedRecords } = await supabase
-					.from('medical_records_clean')
-					.select('id')
-					.eq('id_number', currentCase.id_number)
-
-				if (!affectedRecords) throw new Error('No se pudieron obtener los registros afectados')
-
-				// Registrar los cambios en change_logs para cada registro afectado
-				for (const record of affectedRecords) {
-					for (const change of patientDataChanges) {
+			// Actualizar datos del paciente si hay cambios
+			if (Object.keys(patientChanges).length > 0) {
+				await updatePatient(currentCase.cedula, patientChanges)
+				
+				// Registrar cambios en logs para el paciente
+				for (const change of patientChangeLogs) {
 						const changeLog = {
-							medical_record_id: record.id,
+						patient_id: currentCase.patient_id,
 							user_id: user.id,
 							user_email: user.email || 'unknown@email.com',
 							user_display_name: user.user_metadata?.display_name || null,
@@ -539,34 +534,41 @@ const UnifiedCaseModal: React.FC<CaseDetailPanelProps> = React.memo(({ case_, is
 							old_value: change.oldValue?.toString() || null,
 							new_value: change.newValue?.toString() || null,
 							changed_at: new Date().toISOString(),
+						entity_type: 'patient'
 						}
 
 						const { error: logError } = await supabase.from('change_logs').insert(changeLog)
-						if (logError) throw logError
-					}
+					if (logError) console.error('Error logging patient change:', logError)
 				}
 
 				toast({
 					title: '✅ Datos del paciente actualizados',
-					description: 'Los cambios se han aplicado a todos los registros del paciente.',
+					description: 'Los cambios del paciente se han guardado exitosamente.',
 					className: 'bg-green-100 border-green-400 text-green-800',
 				})
 			}
 
-			// Para otros cambios que no son datos del paciente, actualizar solo este registro
-			const otherChanges = changes.filter((change) => !['full_name', 'phone', 'email', 'edad'].includes(change.field))
+			// Actualizar datos del caso si hay cambios
+			if (Object.keys(caseChanges).length > 0) {
+				await updateMedicalCase(currentCase.id, caseChanges)
+				
+				// Registrar cambios en logs para el caso
+				for (const change of caseChangeLogs) {
+					const changeLog = {
+						medical_record_id: currentCase.id,
+						user_id: user.id,
+						user_email: user.email || 'unknown@email.com',
+						user_display_name: user.user_metadata?.display_name || null,
+						field_name: change.field,
+						field_label: change.fieldLabel,
+						old_value: change.oldValue?.toString() || null,
+						new_value: change.newValue?.toString() || null,
+						changed_at: new Date().toISOString(),
+						entity_type: 'medical_case'
+					}
 
-			if (otherChanges.length > 0) {
-				const { error } = await updateMedicalRecordWithLog(
-					currentCase.id!,
-					editedCase,
-					otherChanges,
-					user.id,
-					user.email || 'unknown@email.com',
-				)
-
-				if (error) {
-					throw error
+					const { error: logError } = await supabase.from('change_logs').insert(changeLog)
+					if (logError) console.error('Error logging case change:', logError)
 				}
 
 				toast({
@@ -601,56 +603,10 @@ const UnifiedCaseModal: React.FC<CaseDetailPanelProps> = React.memo(({ case_, is
 		}
 	}
 
-	const handleAddPayment = () => {
-		if (!case_ || !editedCase) return
+	// Payment functions removed in new structure - payments handled separately
+	// const handleAddPayment = () => { ... }
 
-		// Find the first empty payment slot
-		let paymentSlot = 0
-		for (let i = 1; i <= 4; i++) {
-			const methodKey = `payment_method_${i}` as keyof MedicalRecord
-			if (!editedCase[methodKey]) {
-				paymentSlot = i
-				break
-			}
-		}
-
-		if (paymentSlot === 0) {
-			toast({
-				title: '❌ Límite alcanzado',
-				description: 'Ya has agregado el máximo de 4 métodos de pago.',
-				variant: 'destructive',
-			})
-			return
-		}
-
-		// Add the new payment
-		setEditedCase((prev: Partial<MedicalRecord>) => ({
-			...prev,
-			[`payment_method_${paymentSlot}`]: newPayment.method,
-			[`payment_amount_${paymentSlot}`]: parseFloat(newPayment.amount),
-			[`payment_reference_${paymentSlot}`]: newPayment.reference,
-		}))
-
-		// Reset form and close modal
-		setNewPayment({
-			method: '',
-			amount: '',
-			reference: '',
-		})
-		setIsAddPaymentModalOpen(false)
-	}
-
-	const handleRemovePayment = (index: number) => {
-		if (!case_ || !editedCase) return
-
-		// Remove the payment
-		setEditedCase((prev: Partial<MedicalRecord>) => ({
-			...prev,
-			[`payment_method_${index}`]: null,
-			[`payment_amount_${index}`]: null,
-			[`payment_reference_${index}`]: null,
-		}))
-	}
+	// const handleRemovePayment = (index: number) => { ... }
 
 	const toggleChangelog = () => {
 		setIsChangelogOpen(!isChangelogOpen)
@@ -660,7 +616,7 @@ const UnifiedCaseModal: React.FC<CaseDetailPanelProps> = React.memo(({ case_, is
 	}
 
 	const handleSendEmail = () => {
-		if (!case_?.email) {
+		if (!case_?.patient_email) {
 			toast({
 				title: '❌ Error',
 				description: 'Este caso no tiene un correo electrónico asociado.',
@@ -670,12 +626,12 @@ const UnifiedCaseModal: React.FC<CaseDetailPanelProps> = React.memo(({ case_, is
 		}
 
 		// Create mailto link with case information
-		const subject = `Caso ${case_.code || case_.id} - ${case_.full_name}`
+		const subject = `Caso ${case_.code || case_.id} - ${case_.nombre}`
 		const body =
-			`Hola ${case_.full_name},\n\nLe escribimos desde el laboratorio conspat por su caso ${case_.code || 'N/A'}.\n\n` +
+			`Hola ${case_.nombre},\n\nLe escribimos desde el laboratorio conspat por su caso ${case_.code || 'N/A'}.\n\n` +
 			`Saludos cordiales.`
 
-		const mailtoLink = `mailto:${case_.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`
+		const mailtoLink = `mailto:${case_.patient_email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`
 
 		window.open(mailtoLink, '_blank')
 
@@ -686,7 +642,7 @@ const UnifiedCaseModal: React.FC<CaseDetailPanelProps> = React.memo(({ case_, is
 	}
 
 	const handleSendWhatsApp = () => {
-		if (!case_?.phone) {
+		if (!case_?.telefono) {
 			toast({
 				title: '❌ Error',
 				description: 'Este caso no tiene un número de teléfono asociado.',
@@ -696,12 +652,12 @@ const UnifiedCaseModal: React.FC<CaseDetailPanelProps> = React.memo(({ case_, is
 		}
 
 		// Create WhatsApp message with case information
-		const message = `Hola ${case_.full_name}, le escribimos desde el laboratorio conspat por su caso ${
+		const message = `Hola ${case_.nombre}, le escribimos desde el laboratorio conspat por su caso ${
 			case_.code || 'N/A'
 		}.`
 
 		// Format phone number (remove spaces, dashes, etc.)
-		const cleanPhone = case_.phone.replace(/[\s-()]/g, '')
+		const cleanPhone = case_.telefono?.replace(/[\s-()]/g, '') || ''
 		const whatsappLink = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(message)}`
 
 		window.open(whatsappLink, '_blank')
@@ -714,118 +670,44 @@ const UnifiedCaseModal: React.FC<CaseDetailPanelProps> = React.memo(({ case_, is
 
 	const getFieldLabel = (field: string): string => {
 		const labels: Record<string, string> = {
+			// Patient fields (new structure)
+			nombre: 'Nombre Completo',
+			cedula: 'Cédula',
+			telefono: 'Teléfono',
+			patient_email: 'Correo Electrónico',
+			edad: 'Edad',
+			// Case fields (new structure)
+			exam_type: 'Tipo de Examen',
+			origin: 'Origen',
+			treating_doctor: 'Médico Tratante',
+			branch: 'Sede',
+			total_amount: 'Monto Total',
+			payment_status: 'Estado de Pago',
+			status: 'Estado',
+			comments: 'Comentarios',
+			// Legacy fields (for backward compatibility)
 			full_name: 'Nombre Completo',
 			id_number: 'Cédula',
 			phone: 'Teléfono',
 			email: 'Correo Electrónico',
-			edad: 'Edad',
-			exam_type: 'Tipo de Examen',
-			origin: 'Origen',
-			treating_doctor: 'Médico Tratante',
-			sample_type: 'Tipo de Muestra',
-			number_of_samples: 'Cantidad de Muestras',
-			relationship: 'Relación',
-			branch: 'Sede',
-			date: 'Fecha de Registro',
-			total_amount: 'Monto Total',
-			exchange_rate: 'Tasa de Cambio',
-			payment_status: 'Estado de Pago',
-			remaining: 'Monto Restante',
-			comments: 'Comentarios',
-			payment_method_1: 'Método de Pago 1',
-			payment_amount_1: 'Monto de Pago 1',
-			payment_reference_1: 'Referencia de Pago 1',
-			payment_method_2: 'Método de Pago 2',
-			payment_amount_2: 'Monto de Pago 2',
-			payment_reference_2: 'Referencia de Pago 2',
-			payment_method_3: 'Método de Pago 3',
-			payment_amount_3: 'Monto de Pago 3',
-			payment_reference_3: 'Referencia de Pago 3',
-			payment_method_4: 'Método de Pago 4',
-			payment_amount_4: 'Monto de Pago 4',
-			payment_reference_4: 'Referencia de Pago 4',
 		}
 		return labels[field] || field
 	}
 
-	// Función auxiliar para mostrar el símbolo correcto según el método
-	const getPaymentSymbol = useCallback((method?: string | null) => {
-		if (!method) return ''
-		return isVESPaymentMethod(method) ? 'Bs' : '$'
-	}, [])
+	// Payment symbol function removed - not needed in new structure
+	// const getPaymentSymbol = useCallback((method?: string | null) => { ... }, [])
 
-	// Helper para crear inputs de pago con parsing correcto usando calculator handler
-	const createPaymentAmountInput = useCallback(
-		(field: string, value: number | null | undefined, paymentMethod?: string | null) => {
-			const calculatorHandler = createCalculatorInputHandler(value ?? 0, (newValue) =>
-				handleInputChange(field, newValue),
-			)
+	// Payment input creation function removed - not needed in new structure
+	// const createPaymentAmountInput = useCallback((...) => { ... }, [...])
 
-			return (
-				<>
-					<label htmlFor={`amount-${field}`} className="text-xs text-gray-500 dark:text-gray-400 mb-1 block">
-						Monto{isVESPaymentMethod(paymentMethod) ? ' Bs' : ' $'}
-					</label>
-					<Input
-						id={`amount-${field}`}
-						type="text"
-						inputMode="decimal"
-						placeholder="0,00"
-						value={calculatorHandler.displayValue}
-						onKeyDown={calculatorHandler.handleKeyDown}
-						onPaste={calculatorHandler.handlePaste}
-						onFocus={calculatorHandler.handleFocus}
-						onChange={calculatorHandler.handleChange}
-						className="text-sm border-dashed focus:border-primary focus:ring-primary bg-gray-50 dark:bg-gray-800/50 text-right font-mono"
-						autoComplete="off"
-					/>
-					{isVESPaymentMethod(paymentMethod) && case_?.exchange_rate && value && value > 0 && (
-						<p className="text-xs text-green-600 mt-1 font-medium">
-							≈ ${convertVEStoUSD(value, case_?.exchange_rate).toFixed(2)} USD
-						</p>
-					)}
-				</>
-			)
-		},
-		[case_?.exchange_rate, handleInputChange],
-	)
-
-	// Cálculo en vivo del monto pendiente (USD y VES) mientras se edita
-	const getPaymentInUSD = useCallback(
-		(amount?: number | null, method?: string | null) => {
-			if (!amount || amount <= 0) return 0
-			if (isVESPaymentMethod(method || '')) {
-				const rate = currentCase?.exchange_rate ?? 0
-				return rate > 0 ? convertVEStoUSD(amount, rate) : 0
-			}
-			return amount
-		},
-		[currentCase?.exchange_rate],
-	)
-
-	const sumPaymentsUSD = useCallback(
-		(source: Partial<MedicalRecord> | MedicalRecord | null | undefined) => {
-			if (!source) return 0
-			type PaymentMethodKeys = 'payment_method_1' | 'payment_method_2' | 'payment_method_3' | 'payment_method_4'
-			type PaymentAmountKeys = 'payment_amount_1' | 'payment_amount_2' | 'payment_amount_3' | 'payment_amount_4'
-
-			let total = 0
-			for (let i = 1 as 1 | 2 | 3 | 4; i <= 4; i = (i + 1) as 1 | 2 | 3 | 4) {
-				const methodKey = `payment_method_${i}` as PaymentMethodKeys
-				const amountKey = `payment_amount_${i}` as PaymentAmountKeys
-				const method = (source as Partial<Record<PaymentMethodKeys, string | null>>)[methodKey]
-				const amount = (source as Partial<Record<PaymentAmountKeys, number | null>>)[amountKey]
-				total += getPaymentInUSD(amount ?? 0, method ?? null)
-			}
-			return total
-		},
-		[getPaymentInUSD],
-	)
-
-	const paidUSD = sumPaymentsUSD(isEditing ? (editedCase as Partial<MedicalRecord>) : currentCase)
-	const totalUSD = (editedCase.total_amount as number | undefined) ?? currentCase?.total_amount ?? 0
-	const remainingUSD = Math.max(0, totalUSD - paidUSD)
-	const remainingVES = currentCase?.exchange_rate ? remainingUSD * currentCase.exchange_rate : 0
+	// Payment calculation functions removed - not needed in new structure since
+	// payments are handled by a separate payment system
+	// const getPaymentInUSD = useCallback(...)
+	// const sumPaymentsUSD = useCallback(...)
+	// const paidUSD = ...
+	// const totalUSD = ...
+	// const remainingUSD = ...
+	// const remainingVES = ...
 
 	// Get action type display text and icon for changelog
 	const getActionTypeInfo = useCallback((log: ChangeLogEntry) => {
@@ -902,70 +784,8 @@ const UnifiedCaseModal: React.FC<CaseDetailPanelProps> = React.memo(({ case_, is
 
 	if (!currentCase) return null
 
-	const handleRedirectToPDF = async (caseId: string) => {
-		if (!caseId) {
-			toast({
-				title: '❌ Error',
-				description: 'No se encontró el ID del caso.',
-				variant: 'destructive',
-			})
-			return
-		}
-
-		try {
-			const { data, error } = await supabase
-				.from('medical_records_clean')
-				.select('informe_qr, code, full_name')
-				.eq('id', caseId)
-				.single<MedicalRecord>()
-
-			if (error) {
-				console.error('Error obteniendo informe_qr:', error)
-				toast({
-					title: '❌ Error',
-					description: 'No se pudo obtener el PDF. Intenta nuevamente.',
-					variant: 'destructive',
-				})
-				return
-			}
-
-			if (!data?.informe_qr) {
-				toast({
-					title: '📄 Sin PDF disponible',
-					description: 'Este caso aún no tiene un documento generado.',
-					variant: 'destructive',
-				})
-				return
-			}
-
-			// Descargar el archivo directamente usando fetch
-			const response = await fetch(data.informe_qr)
-			if (!response.ok) {
-				throw new Error(`Error al descargar: ${response.status}`)
-			}
-
-			const blob = await response.blob()
-			const url = window.URL.createObjectURL(blob)
-			const link = document.createElement('a')
-			link.href = url
-
-			const caseCode = data.code || caseId
-			const fileName = `${caseCode}.pdf`
-			link.download = fileName
-
-			document.body.appendChild(link)
-			link.click()
-			document.body.removeChild(link)
-			window.URL.revokeObjectURL(url) // Limpiar memoria
-		} catch (err) {
-			console.error('Error al intentar redirigir al PDF:', err)
-			toast({
-				title: '❌ Error inesperado',
-				description: 'Hubo un problema al abrir el documento.',
-				variant: 'destructive',
-			})
-		}
-	}
+	// PDF functionality temporarily disabled in new structure
+	// const handleRedirectToPDF = async (caseId: string) => { ... }
 
 	return (
 		<>
@@ -1080,15 +900,7 @@ const UnifiedCaseModal: React.FC<CaseDetailPanelProps> = React.memo(({ case_, is
 											>
 												{currentCase.payment_status}
 											</span>
-											{currentCase.informe_qr && (
-												<button
-													onClick={() => handleRedirectToPDF(currentCase.id)}
-													className="inline-flex items-center gap-1 px-1.5 sm:px-2 py-0.5 sm:py-1 text-xs font-semibold rounded-full bg-teal-100 text-teal-800 dark:bg-teal-900/30 dark:text-teal-300"
-												>
-													<Download className="w-4 h-4" />
-													Descargar PDF
-												</button>
-											)}
+																									{/* PDF download temporarily disabled in new structure */}
 										</div>
 										{/* Action Buttons */}
 										<div className="flex gap-2 mt-4">
@@ -1171,9 +983,9 @@ const UnifiedCaseModal: React.FC<CaseDetailPanelProps> = React.memo(({ case_, is
 									<p className="text-teal-400 text-sm">
 										Este caso fue creado por{' '}
 										<span className="font-semibold">
-											{creatorData?.displayName || currentCase.created_by_display_name || 'Usuario del sistema'}
+									{creatorData?.displayName || 'Usuario del sistema'}
 										</span>{' '}
-										el {format(new Date(currentCase.created_at), 'dd/MM/yyyy', { locale: es })}
+								el {currentCase.created_at ? format(new Date(currentCase.created_at), 'dd/MM/yyyy', { locale: es }) : 'Fecha no disponible'}
 									</p>
 								</div>
 								{/* Immunohistochemistry Section - Only for admin users and immuno cases */}
@@ -1283,7 +1095,7 @@ const UnifiedCaseModal: React.FC<CaseDetailPanelProps> = React.memo(({ case_, is
 											</div>
 										) : (
 											<div className="space-y-4 max-h-80 overflow-y-auto">
-												{changelogsData.data.map((log: ChangeLogEntry) => {
+											{changelogsData.data.map((log) => {
 													const actionInfo = getActionTypeInfo(log)
 													return (
 														<div
@@ -1335,20 +1147,20 @@ const UnifiedCaseModal: React.FC<CaseDetailPanelProps> = React.memo(({ case_, is
 									<div className="space-y-1">
 										<InfoRow
 											label="Nombre completo"
-											value={currentCase.full_name}
-											field="full_name"
+											value={currentCase.nombre}
+											field="nombre"
 											isEditing={isEditing}
-											editedValue={editedCase.full_name ?? null}
+											editedValue={editedCase.nombre ?? null}
 											onChange={handleInputChange}
 										/>
-										<InfoRow label="Cédula" value={currentCase.id_number} editable={false} />
+										<InfoRow label="Cédula" value={currentCase.cedula} editable={false} />
 										{/* Edad: input numérico + dropdown (AÑOS/MESES) */}
 										<div className="flex flex-col sm:flex-row sm:justify-between py-3 border-b border-gray-200 dark:border-gray-700 last:border-b-0 hover:bg-gray-50 dark:hover:bg-gray-800/30 transition-transform duration-150 rounded px-2 -mx-2">
 											<span className="text-sm font-medium text-gray-600 dark:text-gray-400">Edad:</span>
 											{isEditing ? (
 												<div className="sm:w-1/2 grid grid-cols-2 gap-2">
 													{(() => {
-														const parsed = parseEdad((editedCase.edad ?? currentCase.edad) as string | null)
+																																	const parsed = parseEdad(String(editedCase.edad ?? currentCase.edad ?? ''))
 														const ageValue = parsed.value
 														const ageUnit = parsed.unit
 														return (
@@ -1372,7 +1184,7 @@ const UnifiedCaseModal: React.FC<CaseDetailPanelProps> = React.memo(({ case_, is
 																	options={createDropdownOptions(['MESES', 'AÑOS'])}
 																	value={ageUnit || 'AÑOS'}
 																	onChange={(newUnit) => {
-																		const parsedNow = parseEdad((editedCase.edad ?? currentCase.edad) as string | null)
+																																									const parsedNow = parseEdad(String(editedCase.edad ?? currentCase.edad ?? ''))
 																		const valueNow = parsedNow.value
 																		const valueToUse = valueNow === '' ? '' : valueNow
 																		const newEdad = valueToUse === '' ? null : `${valueToUse} ${newUnit}`
@@ -1394,22 +1206,22 @@ const UnifiedCaseModal: React.FC<CaseDetailPanelProps> = React.memo(({ case_, is
 										</div>
 										<InfoRow
 											label="Teléfono"
-											value={currentCase.phone}
-											field="phone"
+										value={currentCase.telefono || ''}
+										field="telefono"
 											isEditing={isEditing}
-											editedValue={editedCase.phone ?? null}
+										editedValue={editedCase.telefono ?? null}
 											onChange={handleInputChange}
 										/>
 										<InfoRow
 											label="Email"
-											value={currentCase.email || 'N/A'}
-											field="email"
+										value={currentCase.patient_email || 'N/A'}
+										field="patient_email"
 											type="email"
 											isEditing={isEditing}
-											editedValue={editedCase.email ?? null}
+										editedValue={editedCase.patient_email ?? null}
 											onChange={handleInputChange}
 										/>
-										<InfoRow label="Relación" value={currentCase.relationship || 'N/A'} editable={false} />
+										{/* Note: relationship field not in new structure, could be added if needed */}
 									</div>
 								</InfoSection>
 
@@ -1542,24 +1354,18 @@ const UnifiedCaseModal: React.FC<CaseDetailPanelProps> = React.memo(({ case_, is
 											</span>
 											{isEditing ? (
 												<div className="sm:w-1/2">
+																															{/* Note: number_of_samples not in current new structure, can be added if needed */}
 													<Input
 														type="number"
-														placeholder="0"
-														value={
-															editedCase.number_of_samples !== undefined
-																? editedCase.number_of_samples
-																: currentCase.number_of_samples || ''
-														}
-														onChange={(e) => {
-															const value = e.target.value
-															handleInputChange('number_of_samples', value === '' ? 0 : Number(value))
-														}}
+																			placeholder="1"
+																			value="1"
+																			disabled
 														className="text-sm border-dashed focus:border-primary focus:ring-primary bg-gray-50 dark:bg-gray-800/50"
 													/>
 												</div>
 											) : (
 												<span className="text-sm text-gray-900 dark:text-gray-100 sm:text-right font-medium">
-													{currentCase.number_of_samples || 'N/A'}
+																	1
 												</span>
 											)}
 										</div>
@@ -1567,7 +1373,7 @@ const UnifiedCaseModal: React.FC<CaseDetailPanelProps> = React.memo(({ case_, is
 										{/* Fecha de registro - NO EDITABLE */}
 										<InfoRow
 											label="Fecha de registro"
-											value={new Date(currentCase.date || '').toLocaleDateString('es-ES')}
+															value={new Date(currentCase.created_at || '').toLocaleDateString('es-ES')}
 											editable={false}
 										/>
 									</div>
@@ -1578,385 +1384,39 @@ const UnifiedCaseModal: React.FC<CaseDetailPanelProps> = React.memo(({ case_, is
 									<div className="space-y-1">
 										<InfoRow
 											label="Monto total"
-											value={`$${currentCase.total_amount.toLocaleString()}`}
+													value={`$${currentCase.total_amount?.toLocaleString() || '0'}`}
 											editable={false}
 										/>
-										<InfoRow label="Tasa de cambio" value={currentCase.exchange_rate?.toFixed(2)} editable={false} />
+												{/* Note: exchange_rate not in new structure */}
 									</div>
 
-									{remainingUSD > 0 && (
-										<div className="bg-red-50 dark:bg-red-900/20 p-2 sm:p-3 rounded-lg border border-red-200 dark:border-red-800">
+																				{/* Payment status indicator based on payment_status field */}
+											{currentCase.payment_status !== 'Pagado' && (
+												<div className="bg-orange-50 dark:bg-orange-900/20 p-2 sm:p-3 rounded-lg border border-orange-200 dark:border-orange-800">
 											<div className="flex items-center gap-1.5 sm:gap-2">
-												<AlertTriangle className="w-5 h-5 text-red-600 dark:text-red-400" />
-												<p className="text-xs sm:text-sm font-medium text-red-800 dark:text-red-300">
-													Monto pendiente: ${remainingUSD.toLocaleString()} - Bs. {remainingVES.toLocaleString()}
+														<AlertTriangle className="w-5 h-5 text-orange-600 dark:text-orange-400" />
+														<p className="text-xs sm:text-sm font-medium text-orange-800 dark:text-orange-300">
+															Estado de pago: {currentCase.payment_status}
 												</p>
 											</div>
 										</div>
 									)}
 
-									{/* Payment Methods */}
+																					{/* Payment Methods - Note: Payment details moved to separate system in new structure */}
 									<div className="mt-4">
 										<div className="flex items-center justify-between mb-2">
-											<h4 className="text-sm font-medium text-gray-700 dark:text-gray-300">Formas de Pago:</h4>
-											{isEditing && (
-												<Button
-													size="sm"
-													variant="outline"
-													onClick={() => setIsAddPaymentModalOpen(true)}
-													className="text-xs flex items-center gap-1"
-													disabled={
-														!!editedCase.payment_method_1 &&
-														!!editedCase.payment_method_2 &&
-														!!editedCase.payment_method_3 &&
-														!!editedCase.payment_method_4
-													}
-												>
-													<Plus className="w-3 h-3" />
-													Agregar Método
-												</Button>
-											)}
+														<h4 className="text-sm font-medium text-gray-700 dark:text-gray-300">Estado de Pago:</h4>
 										</div>
 										<div className="space-y-2">
-											{/* Payment Method 1 */}
-											{(currentCase.payment_method_1 || (isEditing && editedCase.payment_method_1)) && (
-												<div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 p-4 rounded-lg border border-blue-200 dark:border-blue-700 relative transition-all duration-200 hover:shadow-md hover:border-blue-300 dark:hover:border-blue-600">
-													{isEditing ? (
-														<>
-															<div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-																<div>
-																	<label
-																		htmlFor="payment-method-1"
-																		className="text-xs text-gray-500 dark:text-gray-400 mb-1 block font-medium"
-																	>
-																		Método
-																	</label>
-																	<CustomDropdown
-																		id="payment-method-1"
-																		options={createDropdownOptions([
-																			'Punto de venta',
-																			'Dólares en efectivo',
-																			'Zelle',
-																			'Pago móvil',
-																			'Bs en efectivo',
-																		])}
-																		value={editedCase.payment_method_1 || ''}
-																		onChange={(value) => handleInputChange('payment_method_1', value)}
-																		placeholder="Seleccionar método"
-																		className="text-sm"
-																		direction="auto"
-																	/>
-																</div>
-																<div>
-																	{createPaymentAmountInput(
-																		'payment_amount_1',
-																		editedCase.payment_amount_1,
-																		editedCase.payment_method_1,
-																	)}
-																</div>
-																<div>
-																	<label
-																		htmlFor="payment-reference-1"
-																		className="text-xs text-gray-500 dark:text-gray-400 mb-1 block font-medium"
-																	>
-																		Referencia
-																	</label>
-																	<Input
-																		id="payment-reference-1"
-																		value={editedCase.payment_reference_1 || ''}
-																		onChange={(e) => handleInputChange('payment_reference_1', e.target.value)}
-																		className="text-sm border-dashed focus:border-primary focus:ring-primary bg-gray-50 dark:bg-gray-800/50"
-																	/>
-																</div>
-															</div>
-															<button
-																onClick={() => handleRemovePayment(1)}
-																className="absolute -top-2 -right-2 bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 p-1 rounded-full hover:bg-red-200 dark:hover:bg-red-900/50 transition-all duration-200 hover:scale-110"
-															>
-																<XCircle className="w-4 h-4" />
-															</button>
-														</>
-													) : (
-														<div className="flex justify-between items-center">
-															<div className="flex items-center gap-2">
-																<CreditCard className="w-4 h-4 text-blue-600 dark:text-blue-400" />
-																<span className="text-sm font-medium text-gray-900 dark:text-gray-100">
-																	{currentCase.payment_method_1}
+														<div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 p-4 rounded-lg border border-blue-200 dark:border-blue-700">
+															<div className="flex justify-center items-center">
+																<span className={`inline-flex px-3 py-1 text-sm font-semibold rounded-full ${
+																	getStatusColor(currentCase.payment_status)
+																}`}>
+																	{currentCase.payment_status}
 																</span>
 															</div>
-															<span className="text-lg font-bold text-blue-600 dark:text-blue-400 font-mono">
-																{getPaymentSymbol(currentCase.payment_method_1)}{' '}
-																{currentCase.payment_amount_1?.toLocaleString('es-VE', {
-																	minimumFractionDigits: 2,
-																	maximumFractionDigits: 2,
-																})}
-															</span>
 														</div>
-													)}
-													{(currentCase.payment_reference_1 || (isEditing && editedCase.payment_reference_1)) &&
-														!isEditing && (
-															<div className="text-xs text-gray-500 dark:text-gray-400 mt-2 flex items-center gap-1">
-																<Hash className="w-3 h-3" />
-																Ref: {editedCase.payment_reference_1 || currentCase.payment_reference_1}
-															</div>
-														)}
-												</div>
-											)}
-
-											{/* Payment Method 2 */}
-											{(currentCase.payment_method_2 || (isEditing && editedCase.payment_method_2)) && (
-												<div className="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 p-4 rounded-lg border border-green-200 dark:border-green-700 relative transition-all duration-200 hover:shadow-md hover:border-green-300 dark:hover:border-green-600">
-													{isEditing ? (
-														<>
-															<div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-																<div>
-																	<label
-																		htmlFor="payment-method-2"
-																		className="text-xs text-gray-500 dark:text-gray-400 mb-1 block font-medium"
-																	>
-																		Método
-																	</label>
-																	<CustomDropdown
-																		id="payment-method-2"
-																		options={createDropdownOptions([
-																			'Punto de venta',
-																			'Dólares en efectivo',
-																			'Zelle',
-																			'Pago móvil',
-																			'Bs en efectivo',
-																		])}
-																		value={editedCase.payment_method_2 || ''}
-																		onChange={(value) => handleInputChange('payment_method_2', value)}
-																		placeholder="Seleccionar método"
-																		className="text-sm"
-																		direction="auto"
-																	/>
-																</div>
-																<div>
-																	{createPaymentAmountInput(
-																		'payment_amount_2',
-																		editedCase.payment_amount_2,
-																		editedCase.payment_method_2,
-																	)}
-																</div>
-																<div>
-																	<label
-																		htmlFor="payment-reference-2"
-																		className="text-xs text-gray-500 dark:text-gray-400 mb-1 block font-medium"
-																	>
-																		Referencia
-																	</label>
-																	<Input
-																		id="payment-reference-2"
-																		value={editedCase.payment_reference_2 || ''}
-																		onChange={(e) => handleInputChange('payment_reference_2', e.target.value)}
-																		className="text-sm border-dashed focus:border-primary focus:ring-primary bg-gray-50 dark:bg-gray-800/50"
-																	/>
-																</div>
-															</div>
-															<button
-																onClick={() => handleRemovePayment(2)}
-																className="absolute -top-2 -right-2 bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 p-1 rounded-full hover:bg-red-200 dark:hover:bg-red-900/50 transition-all duration-200 hover:scale-110"
-															>
-																<XCircle className="w-4 h-4" />
-															</button>
-														</>
-													) : (
-														<div className="flex justify-between items-center">
-															<div className="flex items-center gap-2">
-																<CreditCard className="w-4 h-4 text-green-600 dark:text-green-400" />
-																<span className="text-sm font-medium text-gray-900 dark:text-gray-100">
-																	{currentCase.payment_method_2}
-																</span>
-															</div>
-															<span className="text-lg font-bold text-green-600 dark:text-green-400 font-mono">
-																{getPaymentSymbol(currentCase.payment_method_2)}{' '}
-																{currentCase.payment_amount_2?.toLocaleString('es-VE', {
-																	minimumFractionDigits: 2,
-																	maximumFractionDigits: 2,
-																})}
-															</span>
-														</div>
-													)}
-													{(currentCase.payment_reference_2 || (isEditing && editedCase.payment_reference_2)) &&
-														!isEditing && (
-															<div className="text-xs text-gray-500 dark:text-gray-400 mt-2 flex items-center gap-1">
-																<Hash className="w-3 h-3" />
-																Ref: {editedCase.payment_reference_2 || currentCase.payment_reference_2}
-															</div>
-														)}
-												</div>
-											)}
-
-											{/* Payment Method 3 */}
-											{(currentCase.payment_method_3 || (isEditing && editedCase.payment_method_3)) && (
-												<div className="bg-gradient-to-r from-purple-50 to-violet-50 dark:from-purple-900/20 dark:to-violet-900/20 p-4 rounded-lg border border-purple-200 dark:border-purple-700 relative transition-all duration-200 hover:shadow-md hover:border-purple-300 dark:hover:border-purple-600">
-													{isEditing ? (
-														<>
-															<div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-																<div>
-																	<label
-																		htmlFor="payment-method-3"
-																		className="text-xs text-gray-500 dark:text-gray-400 mb-1 block font-medium"
-																	>
-																		Método
-																	</label>
-																	<CustomDropdown
-																		id="payment-method-3"
-																		options={createDropdownOptions([
-																			'Punto de venta',
-																			'Dólares en efectivo',
-																			'Zelle',
-																			'Pago móvil',
-																			'Bs en efectivo',
-																		])}
-																		value={editedCase.payment_method_3 || ''}
-																		onChange={(value) => handleInputChange('payment_method_3', value)}
-																		placeholder="Seleccionar método"
-																		className="text-sm"
-																		direction="auto"
-																	/>
-																</div>
-																<div>
-																	{createPaymentAmountInput(
-																		'payment_amount_3',
-																		editedCase.payment_amount_3,
-																		editedCase.payment_method_3,
-																	)}
-																</div>
-																<div>
-																	<label
-																		htmlFor="payment-reference-3"
-																		className="text-xs text-gray-500 dark:text-gray-400 mb-1 block font-medium"
-																	>
-																		Referencia
-																	</label>
-																	<Input
-																		id="payment-reference-3"
-																		value={editedCase.payment_reference_3 || ''}
-																		onChange={(e) => handleInputChange('payment_reference_3', e.target.value)}
-																		className="text-sm border-dashed focus:border-primary focus:ring-primary bg-gray-50 dark:bg-gray-800/50"
-																	/>
-																</div>
-															</div>
-															<button
-																onClick={() => handleRemovePayment(3)}
-																className="absolute -top-2 -right-2 bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 p-1 rounded-full hover:bg-red-200 dark:hover:bg-red-900/50 transition-all duration-200 hover:scale-110"
-															>
-																<XCircle className="w-4 h-4" />
-															</button>
-														</>
-													) : (
-														<div className="flex justify-between items-center">
-															<div className="flex items-center gap-2">
-																<CreditCard className="w-4 h-4 text-purple-600 dark:text-purple-400" />
-																<span className="text-sm font-medium text-gray-900 dark:text-gray-100">
-																	{currentCase.payment_method_3}
-																</span>
-															</div>
-															<span className="text-lg font-bold text-purple-600 dark:text-purple-400 font-mono">
-																{getPaymentSymbol(currentCase.payment_method_3)}{' '}
-																{currentCase.payment_amount_3?.toLocaleString('es-VE', {
-																	minimumFractionDigits: 2,
-																	maximumFractionDigits: 2,
-																})}
-															</span>
-														</div>
-													)}
-													{(currentCase.payment_reference_3 || (isEditing && editedCase.payment_reference_3)) &&
-														!isEditing && (
-															<div className="text-xs text-gray-500 dark:text-gray-400 mt-2 flex items-center gap-1">
-																<Hash className="w-3 h-3" />
-																Ref: {editedCase.payment_reference_3 || currentCase.payment_reference_3}
-															</div>
-														)}
-												</div>
-											)}
-
-											{/* Payment Method 4 */}
-											{(currentCase.payment_method_4 || (isEditing && editedCase.payment_method_4)) && (
-												<div className="bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20 p-4 rounded-lg border border-amber-200 dark:border-amber-700 relative transition-all duration-200 hover:shadow-md hover:border-amber-300 dark:hover:border-amber-600">
-													{isEditing ? (
-														<>
-															<div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-																<div>
-																	<label
-																		htmlFor="payment-method-4"
-																		className="text-xs text-gray-500 dark:text-gray-400 mb-1 block font-medium"
-																	>
-																		Método
-																	</label>
-																	<CustomDropdown
-																		id="payment-method-4"
-																		options={createDropdownOptions([
-																			'Punto de venta',
-																			'Dólares en efectivo',
-																			'Zelle',
-																			'Pago móvil',
-																			'Bs en efectivo',
-																		])}
-																		value={editedCase.payment_method_4 || ''}
-																		onChange={(value) => handleInputChange('payment_method_4', value)}
-																		placeholder="Seleccionar método"
-																		className="text-sm"
-																		direction="auto"
-																	/>
-																</div>
-																<div>
-																	{createPaymentAmountInput(
-																		'payment_amount_4',
-																		editedCase.payment_amount_4,
-																		editedCase.payment_method_4,
-																	)}
-																</div>
-																<div>
-																	<label
-																		htmlFor="payment-reference-4"
-																		className="text-xs text-gray-500 dark:text-gray-400 mb-1 block font-medium"
-																	>
-																		Referencia
-																	</label>
-																	<Input
-																		id="payment-reference-4"
-																		value={editedCase.payment_reference_4 || ''}
-																		onChange={(e) => handleInputChange('payment_reference_4', e.target.value)}
-																		className="text-sm border-dashed focus:border-primary focus:ring-primary bg-gray-50 dark:bg-gray-800/50"
-																	/>
-																</div>
-															</div>
-															<button
-																onClick={() => handleRemovePayment(4)}
-																className="absolute -top-2 -right-2 bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 p-1 rounded-full hover:bg-red-200 dark:hover:bg-red-900/50 transition-all duration-200 hover:scale-110"
-															>
-																<XCircle className="w-4 h-4" />
-															</button>
-														</>
-													) : (
-														<div className="flex justify-between items-center">
-															<div className="flex items-center gap-2">
-																<CreditCard className="w-4 h-4 text-amber-600 dark:text-amber-400" />
-																<span className="text-sm font-medium text-gray-900 dark:text-gray-100">
-																	{currentCase.payment_method_4}
-																</span>
-															</div>
-															<span className="text-lg font-bold text-amber-600 dark:text-amber-400 font-mono">
-																{getPaymentSymbol(currentCase.payment_method_4)}{' '}
-																{currentCase.payment_amount_4?.toLocaleString('es-VE', {
-																	minimumFractionDigits: 2,
-																	maximumFractionDigits: 2,
-																})}
-															</span>
-														</div>
-													)}
-													{(currentCase.payment_reference_4 || (isEditing && editedCase.payment_reference_4)) &&
-														!isEditing && (
-															<div className="text-xs text-gray-500 dark:text-gray-400 mt-2 flex items-center gap-1">
-																<Hash className="w-3 h-3" />
-																Ref: {editedCase.payment_reference_4 || currentCase.payment_reference_4}
-															</div>
-														)}
-												</div>
-											)}
 										</div>
 									</div>
 								</InfoSection>
@@ -2052,120 +1512,7 @@ const UnifiedCaseModal: React.FC<CaseDetailPanelProps> = React.memo(({ case_, is
 				</div>
 			)}
 
-			{/* Add Payment Modal */}
-			{isAddPaymentModalOpen && (
-				<div className="fixed inset-0 z-[999999999] flex items-center justify-center bg-black/50">
-					<div className="bg-white/90 dark:bg-background/70 backdrop-blur-[10px] rounded-lg p-6 max-w-md w-full mx-4 shadow-xl border border-input">
-						<div className="flex items-center justify-between mb-4">
-							<div className="flex items-center gap-3">
-								<div className="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-full">
-									<DollarSign className="w-5 h-5 text-blue-600 dark:text-blue-400" />
-								</div>
-								<h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Agregar Método de Pago</h3>
-							</div>
-							<button
-								onClick={() => setIsAddPaymentModalOpen(false)}
-								className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-none"
-							>
-								<X className="w-5 h-5 text-gray-500 dark:text-gray-400" />
-							</button>
-						</div>
-
-						<div className="space-y-4 mb-6">
-							<div>
-								<label
-									htmlFor="new-payment-method"
-									className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-								>
-									Método de Pago
-								</label>
-								<CustomDropdown
-									id="new-payment-method"
-									options={createDropdownOptions([
-										'Punto de venta',
-										'Dólares en efectivo',
-										'Zelle',
-										'Pago móvil',
-										'Bs en efectivo',
-									])}
-									value={newPayment.method}
-									onChange={(value) => setNewPayment({ ...newPayment, method: value })}
-									placeholder="Seleccionar método"
-									className="w-full"
-									direction="auto"
-								/>
-							</div>
-
-							<div>
-								<label
-									htmlFor="new-payment-amount"
-									className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-								>
-									Monto{isVESPaymentMethod(newPayment.method) ? ' Bs' : ' $'}
-								</label>
-								{(() => {
-									const calculatorHandler = createCalculatorInputHandler(
-										parseDecimalNumber(newPayment.amount) || 0,
-										(newValue) => setNewPayment({ ...newPayment, amount: newValue.toString() }),
-									)
-
-									return (
-										<Input
-											id="new-payment-amount"
-											type="text"
-											inputMode="decimal"
-											value={calculatorHandler.displayValue}
-											onKeyDown={calculatorHandler.handleKeyDown}
-											onPaste={calculatorHandler.handlePaste}
-											onFocus={calculatorHandler.handleFocus}
-											onChange={calculatorHandler.handleChange}
-											placeholder="0,00"
-											className="text-right font-mono"
-											autoComplete="off"
-										/>
-									)
-								})()}
-								{isVESPaymentMethod(newPayment.method) &&
-									currentCase?.exchange_rate &&
-									parseDecimalNumber(newPayment.amount) > 0 && (
-										<p className="text-xs text-green-600 mt-1 font-medium">
-											≈ ${convertVEStoUSD(parseDecimalNumber(newPayment.amount), currentCase.exchange_rate).toFixed(2)}{' '}
-											USD
-										</p>
-									)}
-							</div>
-
-							<div>
-								<label
-									htmlFor="new-payment-reference"
-									className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-								>
-									Referencia
-								</label>
-								<Input
-									id="new-payment-reference"
-									value={newPayment.reference}
-									onChange={(e) => setNewPayment({ ...newPayment, reference: e.target.value })}
-									placeholder="Referencia de pago"
-								/>
-							</div>
-						</div>
-
-						<div className="flex flex-col sm:flex-row gap-3 sm:justify-end">
-							<Button variant="outline" onClick={() => setIsAddPaymentModalOpen(false)}>
-								Cancelar
-							</Button>
-							<Button
-								onClick={handleAddPayment}
-								disabled={!newPayment.method || !newPayment.amount}
-								className="bg-primary hover:bg-primary/80"
-							>
-								Agregar Pago
-							</Button>
-						</div>
-					</div>
-				</div>
-			)}
+			{/* Add Payment Modal removed - not needed in new structure */}
 		</>
 	)
 })

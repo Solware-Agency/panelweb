@@ -9,8 +9,11 @@ import {
 	Maximize2,
 	Calendar as CalendarIcon,
 } from 'lucide-react'
-import type { MedicalRecord } from '@lib/supabase-service'
+import type { Database } from '@shared/types/types'
 import { getAgeDisplay } from '@lib/supabase-service'
+
+// Tipo unificado que incluye todos los campos necesarios para compatibilidad
+type UnifiedMedicalRecord = Database['public']['Views']['medical_cases_with_patient']['Row']
 import { useToast } from '@shared/hooks/use-toast'
 import { Button } from '@shared/components/ui/button'
 import { Input } from '@shared/components/ui/input'
@@ -36,17 +39,17 @@ import { es } from 'date-fns/locale'
 import { CustomDropdown } from '@shared/components/ui/custom-dropdown'
 
 interface CasesTableProps {
-	cases: MedicalRecord[]
+	cases: UnifiedMedicalRecord[]
 	isLoading: boolean
 	error: unknown
 	refetch: () => void
 	isFullscreen: boolean
 	setIsFullscreen: (value: boolean) => void
 	onSearch?: (term: string) => void
-	onCaseSelect?: (case_: MedicalRecord) => void
+	onCaseSelect?: (case_: UnifiedMedicalRecord) => void
 }
 
-type SortField = 'id' | 'created_at' | 'full_name' | 'total_amount' | 'code'
+type SortField = 'id' | 'created_at' | 'nombre' | 'total_amount' | 'code'
 type SortDirection = 'asc' | 'desc'
 
 const CasesTable: React.FC<CasesTableProps> = React.memo(
@@ -61,9 +64,9 @@ const CasesTable: React.FC<CasesTableProps> = React.memo(
 		const [isStartOpen, setIsStartOpen] = useState(false)
 		const [sortField, setSortField] = useState<SortField>('created_at')
 		const [sortDirection, setSortDirection] = useState<SortDirection>('desc')
-		const [selectedCaseForGenerate, setSelectedCaseForGenerate] = useState<MedicalRecord | null>(null)
+		const [selectedCaseForGenerate, setSelectedCaseForGenerate] = useState<UnifiedMedicalRecord | null>(null)
 		const [isGenerateModalOpen, setIsGenerateModalOpen] = useState(false)
-		const [selectedCaseForView, setSelectedCaseForView] = useState<MedicalRecord | null>(null)
+		const [selectedCaseForView, setSelectedCaseForView] = useState<UnifiedMedicalRecord | null>(null)
 		const [isViewModalOpen, setIsViewModalOpen] = useState(false)
 		const [showPdfReadyOnly, setShowPdfReadyOnly] = useState(false)
 		const [selectedDoctors, setSelectedDoctors] = useState<string[]>([])
@@ -107,7 +110,7 @@ const CasesTable: React.FC<CasesTableProps> = React.memo(
 			],
 			[],
 		)
-		const handleGenerateEmployeeCase = useCallback((case_: MedicalRecord) => {
+		const handleGenerateEmployeeCase = useCallback((case_: UnifiedMedicalRecord) => {
 			setSelectedCaseForGenerate(case_)
 			setIsStepsModalOpen(true)
 		}, [])
@@ -151,7 +154,7 @@ const CasesTable: React.FC<CasesTableProps> = React.memo(
 		)
 
 		const handleGenerateCase = useCallback(
-			(case_: MedicalRecord) => {
+			(case_: UnifiedMedicalRecord) => {
 				// Check if user has permission to generate cases
 				if (!canRequest) {
 					toast({
@@ -213,7 +216,7 @@ const CasesTable: React.FC<CasesTableProps> = React.memo(
 		}, [showPdfReadyOnly])
 
 		const handleCaseSelect = useCallback(
-			(case_: MedicalRecord) => {
+			(case_: UnifiedMedicalRecord) => {
 				// If onCaseSelect prop is provided, use it (for external selection)
 				if (onCaseSelect) {
 					onCaseSelect(case_)
@@ -247,7 +250,7 @@ const CasesTable: React.FC<CasesTableProps> = React.memo(
 
 			// Apply client-side filtering only for local filters
 			// (searchTerm is handled by the parent component via onSearch)
-			const filtered = casesToProcess.filter((case_) => {
+			const filtered = casesToProcess.filter((case_: UnifiedMedicalRecord) => {
 				// Skip if case_ is null or undefined
 				if (!case_) return false
 
@@ -332,8 +335,8 @@ const CasesTable: React.FC<CasesTableProps> = React.memo(
 				if (!onSearch && searchTerm && searchTerm.trim()) {
 					const searchLower = searchTerm.toLowerCase()
 					matchesSearch =
-						(case_.full_name?.toLowerCase() || '').includes(searchLower) ||
-						(case_.id_number?.toLowerCase() || '').includes(searchLower) ||
+						(case_.nombre?.toLowerCase() || '').includes(searchLower) ||
+						(case_.cedula?.toLowerCase() || '').includes(searchLower) ||
 						(case_.treating_doctor?.toLowerCase() || '').includes(searchLower) ||
 						(case_.code?.toLowerCase() || '').includes(searchLower) ||
 						(case_.branch?.toLowerCase() || '').includes(searchLower)
@@ -604,7 +607,7 @@ const CasesTable: React.FC<CasesTableProps> = React.memo(
 					{/* Doctor Filter Panel - Conditionally rendered */}
 					{showDoctorFilter && (
 						<div className="mb-4">
-							<DoctorFilterPanel cases={cases} onFilterChange={handleDoctorFilterChange} />
+							<DoctorFilterPanel cases={cases as any} onFilterChange={handleDoctorFilterChange} />
 						</div>
 					)}
 
@@ -684,11 +687,11 @@ const CasesTable: React.FC<CasesTableProps> = React.memo(
 										</th>
 										<th className="px-4 py-3 text-left">
 											<button
-												onClick={() => handleSort('full_name')}
+												onClick={() => handleSort('nombre')}
 												className="flex items-center gap-2 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider hover:text-gray-700 dark:hover:text-gray-200 text-left"
 											>
 												Paciente
-												<SortIcon field="full_name" />
+												<SortIcon field="nombre" />
 											</button>
 										</th>
 										<th className="px-3 py-3 text-center">
@@ -722,7 +725,7 @@ const CasesTable: React.FC<CasesTableProps> = React.memo(
 									{paginatedCases.length > 0 ? (
 										// Render paginated cases
 										paginatedCases.map((case_) => {
-											const ageDisplay = case_.edad ? getAgeDisplay(case_.edad) : ''
+											const ageDisplay = case_.edad ? getAgeDisplay(case_.edad.toString()) : ''
 
 											return (
 												<tr key={case_.id} className="hover:bg-gray-50 dark:hover:bg-gray-800/50">
@@ -747,11 +750,9 @@ const CasesTable: React.FC<CasesTableProps> = React.memo(
 													</td>
 													<td className="px-4 py-4">
 														<div className="text-left">
-															<div className="text-sm font-medium text-gray-900 dark:text-gray-100">
-																{case_.full_name}
-															</div>
+															<div className="text-sm font-medium text-gray-900 dark:text-gray-100">{case_.nombre}</div>
 															<div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
-																<span>{case_.id_number}</span>
+																<span>{case_.cedula}</span>
 																{ageDisplay && (
 																	<>
 																		<span>•</span>
@@ -961,7 +962,7 @@ const CasesTable: React.FC<CasesTableProps> = React.memo(
 					{/* Doctor Filter Panel - Conditionally rendered */}
 					{showDoctorFilter && (
 						<div className="mb-4">
-							<DoctorFilterPanel cases={cases} onFilterChange={handleDoctorFilterChange} />
+							<DoctorFilterPanel cases={cases as any} onFilterChange={handleDoctorFilterChange} />
 						</div>
 					)}
 
@@ -1018,11 +1019,11 @@ const CasesTable: React.FC<CasesTableProps> = React.memo(
 											</th>
 											<th className="px-4 py-3 text-left">
 												<button
-													onClick={() => handleSort('full_name')}
+													onClick={() => handleSort('nombre')}
 													className="flex items-center gap-2 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider hover:text-gray-700 dark:hover:text-gray-200 text-left"
 												>
 													Paciente
-													<SortIcon field="full_name" />
+													<SortIcon field="nombre" />
 												</button>
 											</th>
 											<th className="px-3 py-3 text-center">
@@ -1056,7 +1057,7 @@ const CasesTable: React.FC<CasesTableProps> = React.memo(
 										{paginatedCases.length > 0 ? (
 											// Render paginated cases
 											paginatedCases.map((case_) => {
-												const ageDisplay = case_.edad || ''
+												const ageDisplay = case_.edad ? case_.edad.toString() : ''
 
 												return (
 													<tr key={case_.id} className="hover:bg-gray-50 dark:hover:bg-gray-800/50">
@@ -1082,10 +1083,10 @@ const CasesTable: React.FC<CasesTableProps> = React.memo(
 														<td className="px-4 py-4">
 															<div className="text-left">
 																<div className="text-sm font-medium text-gray-900 dark:text-gray-100">
-																	{case_.full_name}
+																	{case_.nombre}
 																</div>
 																<div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
-																	<span>{case_.id_number}</span>
+																	<span>{case_.cedula}</span>
 																	{ageDisplay && (
 																		<>
 																			<span>•</span>
@@ -1190,7 +1191,7 @@ const CasesTable: React.FC<CasesTableProps> = React.memo(
 				{(profile?.role === 'admin' || profile?.role === 'owner') &&
 					selectedCaseForGenerate?.exam_type?.toLowerCase().includes('inmuno') && (
 						<RequestCaseModal
-							case_={selectedCaseForGenerate}
+							case_={selectedCaseForGenerate as any}
 							isOpen={isGenerateModalOpen}
 							onClose={() => {
 								setIsGenerateModalOpen(false)
@@ -1203,17 +1204,19 @@ const CasesTable: React.FC<CasesTableProps> = React.memo(
 					)}
 
 				{/* Steps Case Modal - Para todos los roles */}
-				<HorizontalLinearStepper
-					case_={selectedCaseForGenerate as MedicalRecord}
-					isOpen={isStepsModalOpen}
-					onClose={() => {
-						setIsStepsModalOpen(false)
-						setSelectedCaseForGenerate(null)
-					}}
-					onSuccess={() => {
-						refetch()
-					}}
-				/>
+				{selectedCaseForGenerate && (
+					<HorizontalLinearStepper
+						case_={selectedCaseForGenerate as any}
+						isOpen={isStepsModalOpen}
+						onClose={() => {
+							setIsStepsModalOpen(false)
+							setSelectedCaseForGenerate(null)
+						}}
+						onSuccess={() => {
+							refetch()
+						}}
+					/>
+				)}
 			</>
 		)
 	},

@@ -1,11 +1,11 @@
 import React, { useState, useCallback, useMemo, useEffect, Suspense } from 'react'
 import { Download, Users, Activity, FileText, BarChart3, Stethoscope, FlaskConical } from 'lucide-react'
 import CasesTable from '@shared/components/cases/CasesTable'
-// import CaseDetailPanel from '@shared/components/cases/CaseDetailPanel'
-// import UnifiedCaseModal from '@shared/components/cases/UnifiedCaseModal'
-import type { MedicalRecord } from '@lib/supabase-service'
+import type { MedicalCaseWithPatient } from '@lib/medical-cases-service'
+import { mapToLegacyRecords } from '@lib/mappers'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
-import { getMedicalRecords } from '@lib/supabase-service'
+import { getCasesWithPatientInfo } from '@lib/medical-cases-service'
+// import { getMedicalCasesStats } from '@lib/medical-cases-service' // Commented out - not currently used
 import { Card, CardContent } from '@shared/components/ui/card'
 import { Tooltip, TooltipTrigger, TooltipContent } from '@shared/components/ui/tooltip'
 import { Info } from 'lucide-react'
@@ -25,27 +25,45 @@ const MainCases: React.FC = React.memo(() => {
 	const queryClient = useQueryClient()
 
 	useEffect(() => {
-		const channel = supabase
+		// Suscribirse a cambios en ambas tablas
+		const casesChannel = supabase
 			.channel('realtime-cases')
 			.on(
 				'postgres_changes',
 				{
-					event: '*', // INSERT | UPDATE | DELETE
+					event: '*',
 					schema: 'public',
 					table: 'medical_records_clean',
 				},
 				() => {
-					queryClient.invalidateQueries({ queryKey: ['medical-cases'] }) // tanstack refetch
+					queryClient.invalidateQueries({ queryKey: ['medical-cases'] })
+					queryClient.invalidateQueries({ queryKey: ['cases-stats'] })
+				},
+			)
+			.subscribe()
+
+		const patientsChannel = supabase
+			.channel('realtime-patients')
+			.on(
+				'postgres_changes',
+				{
+					event: '*',
+					schema: 'public',
+					table: 'patients',
+				},
+				() => {
+					queryClient.invalidateQueries({ queryKey: ['medical-cases'] })
 				},
 			)
 			.subscribe()
 
 		return () => {
-			supabase.removeChannel(channel)
+			supabase.removeChannel(casesChannel)
+			supabase.removeChannel(patientsChannel)
 		}
 	}, [queryClient])
 
-	const [selectedCase, setSelectedCase] = useState<MedicalRecord | null>(null)
+	const [selectedCase, setSelectedCase] = useState<MedicalCaseWithPatient | null>(null)
 	const [isPanelOpen, setIsPanelOpen] = useState(false)
 	const [isFullscreen, setIsFullscreen] = useState(false)
 
@@ -53,26 +71,45 @@ const MainCases: React.FC = React.memo(() => {
 	const [showPendingOnly, setShowPendingOnly] = useState(false)
 	const [showPdfReadyOnly, setShowPdfReadyOnly] = useState(false)
 	const [selectedExamType, setSelectedExamType] = useState<string | null>(null)
-  const [selectedDocAprobado, setSelectedDocAprobado] = useState<'faltante' | 'pendiente' | 'aprobado' | null>(null)
+	const [selectedDocAprobado, setSelectedDocAprobado] = useState<'faltante' | 'pendiente' | 'aprobado' | null>(null)
 
-	// Query for refreshing data - optimized to prevent unnecessary refetches
+	// Query for cases with patient info - optimized for new structure
 	const casesQueryResult = useQuery({
 		queryKey: ['medical-cases'],
-		queryFn: () => getMedicalRecords(),
-		staleTime: 1000 * 60 * 2, // 5 minutes
-		refetchOnWindowFocus: true, // Prevent refetching on window focus
+		queryFn: () => getCasesWithPatientInfo(1, 1000), // Get more cases for dashboard
+		staleTime: 1000 * 60 * 2,
+		refetchOnWindowFocus: true,
 		refetchOnReconnect: true,
-		refetchInterval: 1000 * 60 * 1, // Prevent refetching on reconnect
+		refetchInterval: 1000 * 60 * 1,
 	})
 
+	// Query for statistics - commented out for now as it's not being used
+	// const statsQueryResult = useQuery({
+	//	queryKey: ['cases-stats'],
+	//	queryFn: () => getMedicalCasesStats(),
+	//	staleTime: 1000 * 60 * 5,
+	//	refetchOnWindowFocus: false,
+	// })
+
 	const { refetch, isLoading } = casesQueryResult
-	const cases: MedicalRecord[] = useMemo(() => casesQueryResult.data?.data || [], [casesQueryResult.data])
+	const cases: MedicalCaseWithPatient[] = useMemo(() => casesQueryResult.data?.data || [], [casesQueryResult.data])
 	const error = casesQueryResult.error
 
-	const handleCaseSelect = useCallback((case_: MedicalRecord) => {
+	const handleCaseSelect = useCallback((case_: MedicalCaseWithPatient) => {
 		setSelectedCase(case_)
 		setIsPanelOpen(true)
 	}, [])
+
+	const handleLegacyCaseSelect = useCallback(
+		(legacyCase: MedicalCaseWithPatient) => {
+			// Find the original case from our data
+			const originalCase = cases?.find((c) => c.id === legacyCase.id)
+			if (originalCase) {
+				handleCaseSelect(originalCase)
+			}
+		},
+		[cases, handleCaseSelect],
+	)
 
 	const handlePanelClose = useCallback(() => {
 		setIsPanelOpen(false)
@@ -188,15 +225,18 @@ const MainCases: React.FC = React.memo(() => {
 		return filtered
 	}, [cases, showPendingOnly, showPdfReadyOnly, selectedExamType, selectedDocAprobado])
 
-	// Calculate statistics
-	const stats = useMemo(() => {
+	// Use statistics from service instead of manual calculation
+	const localStats = useMemo(() => {
 		if (!cases || cases.length === 0) {
-			return { total: 0, totalAmount: 0, completed: 0, examTypes: {} }
+			return { total: 0, totalAmount: 0, completed: 0 }
 		}
 
 		const total = cases.length
-		const totalAmount = cases.reduce((sum: number, record: MedicalRecord) => sum + (record.total_amount || 0), 0)
-		const completed = cases.filter((record: MedicalRecord) => record.payment_status === 'Pagado').length
+		const totalAmount = cases.reduce(
+			(sum: number, record: MedicalCaseWithPatient) => sum + (record.total_amount || 0),
+			0,
+		)
+		const completed = cases.filter((record: MedicalCaseWithPatient) => record.payment_status === 'Pagado').length
 
 		return { total, totalAmount, completed }
 	}, [cases])
@@ -333,7 +373,10 @@ const MainCases: React.FC = React.memo(() => {
 							</div>
 							<div className="text-right">
 								<p className="text-xl font-bold">
-									{stats.total > 0 ? Math.round(((stats.total - stats.completed) / stats.total) * 100) : 0}%
+									{localStats.total > 0
+										? Math.round(((localStats.total - localStats.completed) / localStats.total) * 100)
+										: 0}
+									%
 								</p>
 							</div>
 						</button>
@@ -507,8 +550,8 @@ const MainCases: React.FC = React.memo(() => {
 
 			{/* Cases Table */}
 			<CasesTable
-				onCaseSelect={handleCaseSelect}
-				cases={filteredCases}
+				onCaseSelect={handleLegacyCaseSelect}
+				cases={filteredCases ? mapToLegacyRecords(filteredCases) : []}
 				isLoading={isLoading}
 				error={error}
 				refetch={refetch}

@@ -1,7 +1,8 @@
 import React, { useState, useCallback, useMemo, useEffect } from 'react'
 import CasesTable from '@shared/components/cases/CasesTable'
 import CaseDetailPanel from '@shared/components/cases/CaseDetailPanel'
-import type { MedicalRecord } from '@lib/supabase-service'
+import type { MedicalCaseWithPatient } from '@lib/medical-cases-service'
+import { mapToLegacyRecords } from '@lib/mappers'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { supabase } from '@lib/supabase/config'
 import { useAuth } from '@app/providers/AuthContext'
@@ -31,7 +32,7 @@ const MyCases: React.FC = React.memo(() => {
 		}
 	}, [queryClient])
 
-	const [selectedCase, setSelectedCase] = useState<MedicalRecord | null>(null)
+	const [selectedCase, setSelectedCase] = useState<MedicalCaseWithPatient | null>(null)
 	const [isPanelOpen, setIsPanelOpen] = useState(false)
 	const [isFullscreen, setIsFullscreen] = useState(false)
 	const [selectedDoctors, setSelectedDoctors] = useState<string[]>([])
@@ -45,7 +46,7 @@ const MyCases: React.FC = React.memo(() => {
 			if (!user) return { data: [] }
 
 			const { data, error } = await supabase
-				.from('medical_records_clean')
+				.from('medical_cases_with_patient')
 				.select('*')
 				.eq('generated_by', user.id)
 				.order('created_at', { ascending: false })
@@ -63,13 +64,24 @@ const MyCases: React.FC = React.memo(() => {
 	})
 
 	const { refetch, isLoading } = casesQueryResult
-	const cases: MedicalRecord[] = useMemo(() => casesQueryResult.data?.data || [], [casesQueryResult.data])
+	const cases: MedicalCaseWithPatient[] = useMemo(() => casesQueryResult.data?.data || [], [casesQueryResult.data])
 	const error = casesQueryResult.error
 
-	const handleCaseSelect = useCallback((case_: MedicalRecord) => {
+	const handleCaseSelect = useCallback((case_: MedicalCaseWithPatient) => {
 		setSelectedCase(case_)
 		setIsPanelOpen(true)
 	}, [])
+
+	const handleLegacyCaseSelect = useCallback(
+		(legacyCase: MedicalCaseWithPatient) => {
+			// Find the original case from our data
+			const originalCase = cases?.find((c) => c.id === legacyCase.id)
+			if (originalCase) {
+				handleCaseSelect(originalCase)
+			}
+		},
+		[cases, handleCaseSelect],
+	)
 
 	const handlePanelClose = useCallback(() => {
 		setIsPanelOpen(false)
@@ -114,14 +126,14 @@ const MyCases: React.FC = React.memo(() => {
 			{/* Doctor Filter Panel - Conditionally rendered */}
 			{showDoctorFilter && (
 				<div className="mb-4 sm:mb-6">
-					<DoctorFilterPanel cases={cases} onFilterChange={handleDoctorFilterChange} />
+					<DoctorFilterPanel cases={cases ? mapToLegacyRecords(cases) : []} onFilterChange={handleDoctorFilterChange} />
 				</div>
 			)}
 
 			{/* Cases Table */}
 			<CasesTable
-				onCaseSelect={handleCaseSelect}
-				cases={filteredCases}
+				onCaseSelect={handleLegacyCaseSelect}
+				cases={filteredCases ? mapToLegacyRecords(filteredCases) : []}
 				isLoading={isLoading}
 				error={error}
 				refetch={refetch}

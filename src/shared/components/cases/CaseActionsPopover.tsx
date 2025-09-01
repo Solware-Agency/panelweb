@@ -1,5 +1,5 @@
 import React from 'react'
-import type { MedicalRecord } from '@lib/supabase-service'
+import type { MedicalCaseWithPatient } from '@lib/medical-cases-service'
 import { Eye, FileText, FlaskConical } from 'lucide-react'
 import {
 	PopoverBody,
@@ -10,10 +10,10 @@ import {
 } from '@shared/components/ui/PopoverInput'
 
 interface CaseActionsPopoverProps {
-	case_: MedicalRecord
-	onView: (case_: MedicalRecord) => void
-	onGenerate: (case_: MedicalRecord) => void
-	onReactions?: (case_: MedicalRecord) => void
+	case_: MedicalCaseWithPatient
+	onView: (case_: MedicalCaseWithPatient) => void
+	onGenerate: (case_: MedicalCaseWithPatient) => void
+	onReactions?: (case_: MedicalCaseWithPatient) => void
 	canRequest: boolean
 }
 

@@ -1,3 +1,5 @@
+export type Json = string | number | boolean | null | { [key: string]: Json | undefined } | Json[]
+
 export type Database = {
 	public: {
 		Tables: {
@@ -118,14 +120,46 @@ export type Database = {
 				}
 				Relationships: []
 			}
+			patients: {
+				Row: {
+					id: string
+					cedula: string
+					nombre: string
+					edad: number | null
+					telefono: string | null
+					email: string | null
+					created_at: string | null
+					updated_at: string | null
+					version: number | null
+				}
+				Insert: {
+					id?: string
+					cedula: string
+					nombre: string
+					edad?: number | null
+					telefono?: string | null
+					email?: string | null
+					created_at?: string | null
+					updated_at?: string | null
+					version?: number | null
+				}
+				Update: {
+					id?: string
+					cedula?: string
+					nombre?: string
+					edad?: number | null
+					telefono?: string | null
+					email?: string | null
+					created_at?: string | null
+					updated_at?: string | null
+					version?: number | null
+				}
+				Relationships: []
+			}
 			medical_records_clean: {
 				Row: {
 					id: string
-					full_name: string
-					id_number: string
-					phone: string
-					edad: string | null
-					email: string | null
+					patient_id: string | null
 					exam_type: string
 					origin: string
 					treating_doctor: string
@@ -152,8 +186,8 @@ export type Database = {
 					payment_reference_4: string | null
 					comments: string | null
 					code: string | null
-					created_at: string
-					updated_at: string
+					created_at: string | null
+					updated_at: string | null
 					created_by: string | null
 					created_by_display_name: string | null
 					material_remitido: string | null
@@ -164,26 +198,20 @@ export type Database = {
 					pdf_en_ready: boolean | null
 					attachment_url: string | null
 					inmunohistoquimica: string | null
-					positivo: string | null
-					negativo: string | null
-					ki67: string | null
-					conclusion_diagnostica: string | null
-					generated_by: string | null
-					generated_by_display_name: string | null
-					generated_at: string | null
 					ims: string | null
 					googledocs_url: string | null
 					informepdf_url: string | null
 					informe_qr: string | null
+					generated_by: string | null
+					generated_by_display_name: string | null
+					generated_at: string | null
+					log: string | null
+					token: string | null
 					doc_aprobado?: 'faltante' | 'pendiente' | 'aprobado'
 				}
 				Insert: {
 					id?: string
-					full_name: string
-					id_number: string
-					phone: string
-					edad?: string | null
-					email?: string | null
+					patient_id?: string | null
 					exam_type: string
 					origin: string
 					treating_doctor: string
@@ -454,7 +482,9 @@ export type Database = {
 			change_logs: {
 				Row: {
 					id: string
-					medical_record_id: string
+					medical_record_id: string | null
+					patient_id: string | null
+					entity_type: string | null
 					user_id: string
 					user_email: string
 					user_display_name: string | null
@@ -464,10 +494,13 @@ export type Database = {
 					new_value: string | null
 					changed_at: string
 					created_at: string | null
+					deleted_record_info: string | null
 				}
 				Insert: {
 					id?: string
-					medical_record_id: string
+					medical_record_id?: string | null
+					patient_id?: string | null
+					entity_type?: string | null
 					user_id: string
 					user_email: string
 					user_display_name?: string | null
@@ -477,10 +510,13 @@ export type Database = {
 					new_value?: string | null
 					changed_at?: string
 					created_at?: string | null
+					deleted_record_info?: string | null
 				}
 				Update: {
 					id?: string
-					medical_record_id?: string
+					medical_record_id?: string | null
+					patient_id?: string | null
+					entity_type?: string | null
 					user_id?: string
 					user_email?: string
 					user_display_name?: string | null
@@ -490,6 +526,7 @@ export type Database = {
 					new_value?: string | null
 					changed_at?: string
 					created_at?: string | null
+					deleted_record_info?: string | null
 				}
 				Relationships: []
 			}
@@ -516,7 +553,87 @@ export type Database = {
 			}
 		}
 		Views: {
-			[_ in never]: never
+			medical_cases_with_patient: {
+				Row: {
+					// Campos de medical_records_clean
+					id: string
+					patient_id: string | null
+					exam_type: string
+					origin: string
+					treating_doctor: string
+					sample_type: string
+					number_of_samples: number
+					relationship: string | null
+					branch: string
+					date: string
+					total_amount: number
+					exchange_rate: number | null
+					payment_status: string
+					remaining: number
+					payment_method_1: string | null
+					payment_amount_1: number | null
+					payment_reference_1: string | null
+					payment_method_2: string | null
+					payment_amount_2: number | null
+					payment_reference_2: string | null
+					payment_method_3: string | null
+					payment_amount_3: number | null
+					payment_reference_3: string | null
+					payment_method_4: string | null
+					payment_amount_4: number | null
+					payment_reference_4: string | null
+					comments: string | null
+					code: string | null
+					created_at: string | null
+					updated_at: string | null
+					created_by: string | null
+					created_by_display_name: string | null
+					material_remitido: string | null
+					informacion_clinica: string | null
+					descripcion_macroscopica: string | null
+					diagnostico: string | null
+					comentario: string | null
+					pdf_en_ready: boolean | null
+					attachment_url: string | null
+					archivo_adjunto_url: string | null
+					doc_aprobado: 'faltante' | 'pendiente' | 'aprobado' | null
+					generated_by: string | null
+					version: number | null
+					// Campos de patients
+					cedula: string
+					nombre: string
+					edad: number | null
+					telefono: string | null
+					patient_email: string | null
+				}
+				Insert: {
+					[_ in never]: never
+				}
+				Update: {
+					[_ in never]: never
+				}
+				Relationships: []
+			}
+			patient_statistics: {
+				Row: {
+					id: string
+					cedula: string
+					nombre: string
+					edad: number | null
+					telefono: string | null
+					email: string | null
+					total_cases: number | null
+					total_spent: number | null
+					last_visit: string | null
+				}
+				Insert: {
+					[_ in never]: never
+				}
+				Update: {
+					[_ in never]: never
+				}
+				Relationships: []
+			}
 		}
 		Functions: {
 			[_ in never]: never
@@ -632,3 +749,22 @@ export const Constants = {
 } as const
 
 export type MedicalRecordInsert = TablesInsert<'medical_records_clean'>
+
+// Tipo unificado para MedicalRecord que incluye todos los campos necesarios
+export type MedicalRecord = Database['public']['Views']['medical_cases_with_patient']['Row'] & {
+	// Alias para compatibilidad con el código existente
+	full_name: string // apunta a nombre
+	id_number: string // apunta a cedula
+	phone: string | null // apunta a telefono
+	edad_display?: string // para compatibilidad
+	email: string | null // apunta a patient_email
+	// Campos adicionales para compatibilidad
+	inmuno?: string // Campo legacy
+	ims?: string | null // Campo para inmunorreacciones
+	positivo?: string | null
+	negativo?: string | null
+	ki67?: string | null
+	conclusion_diagnostica?: string | null
+	archivo_adjunto_url?: string | null
+	version?: number | null
+}

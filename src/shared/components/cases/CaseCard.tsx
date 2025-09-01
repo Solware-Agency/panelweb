@@ -1,15 +1,15 @@
 import React from 'react'
-import type { MedicalRecord } from '@lib/supabase-service'
+import type { MedicalCaseWithPatient } from '@lib/medical-cases-service'
 import { User } from 'lucide-react'
 import { BranchBadge } from '@shared/components/ui/branch-badge'
 import CaseActionsPopover from './CaseActionsPopover'
 import { getStatusColor } from './status'
 
 interface CaseCardProps {
-	case_: MedicalRecord
-	onView: (case_: MedicalRecord) => void
-	onGenerate: (case_: MedicalRecord) => void
-	onReactions?: (case_: MedicalRecord) => void
+	case_: MedicalCaseWithPatient
+	onView: (case_: MedicalCaseWithPatient) => void
+	onGenerate: (case_: MedicalCaseWithPatient) => void
+	onReactions?: (case_: MedicalCaseWithPatient) => void
 	canRequest: boolean
 }
 
@@ -36,7 +36,7 @@ const CaseCard: React.FC<CaseCardProps> = ({ case_, onView, onGenerate, onReacti
 					<div className="flex items-center gap-2">
 						<User className="w-4 h-4 text-blue-600 dark:text-blue-400 flex-shrink-0" />
 						<div className="min-w-0">
-							<p className="font-medium text-gray-900 dark:text-gray-100 text-sm truncate">{case_.full_name}</p>
+							<p className="font-medium text-gray-900 dark:text-gray-100 text-sm truncate">{case_.nombre}</p>
 						</div>
 					</div>
 				</div>

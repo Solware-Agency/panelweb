@@ -7,7 +7,7 @@ import { useToast } from '@shared/hooks/use-toast'
 import { useAuth } from '@app/providers/AuthContext'
 import { useUserProfile } from '@shared/hooks/useUserProfile'
 import { updateMedicalRecordWithLog, createOrUpdateImmunoRequest } from '@lib/supabase-service'
-import type { MedicalRecord } from '@lib/supabase-service'
+import type { MedicalRecord } from '@shared/types/types'
 import { useBodyScrollLock } from '@shared/hooks/useBodyScrollLock'
 import { useGlobalOverlayOpen } from '@shared/hooks/useGlobalOverlayOpen'
 
@@ -164,7 +164,9 @@ const RequestCaseModal: React.FC<GenerateCaseModalProps> = ({ case_, isOpen, onC
 										<p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">
 											{case_.code || case_.id?.slice(-6).toUpperCase()}
 										</p>
-										<p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">• {case_.full_name}</p>
+										<p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">
+											• {case_.nombre || case_.full_name}
+										</p>
 									</div>
 								</div>
 								<button
@@ -210,19 +212,22 @@ const RequestCaseModal: React.FC<GenerateCaseModalProps> = ({ case_, isOpen, onC
 												</div>
 
 												<div className="space-y-3">
-																									<div>
-													<label htmlFor="request-inmuno-reactions" className="block text-sm font-medium text-purple-700 dark:text-purple-300 mb-2">
-														Agregar Inmunorreacciones
-													</label>
-													<TagInput
-														id="request-inmuno-reactions"
-														value={inmunorreacciones ?? []}
-														onChange={setInmunorreacciones}
-														placeholder="Escribir inmunorreacción y presionar Enter..."
-														maxTags={20}
-														allowDuplicates={false}
-														className="bg-white dark:bg-gray-800"
-													/>
+													<div>
+														<label
+															htmlFor="request-inmuno-reactions"
+															className="block text-sm font-medium text-purple-700 dark:text-purple-300 mb-2"
+														>
+															Agregar Inmunorreacciones
+														</label>
+														<TagInput
+															id="request-inmuno-reactions"
+															value={inmunorreacciones ?? []}
+															onChange={setInmunorreacciones}
+															placeholder="Escribir inmunorreacción y presionar Enter..."
+															maxTags={20}
+															allowDuplicates={false}
+															className="bg-white dark:bg-gray-800"
+														/>
 														<p className="text-xs text-purple-600 dark:text-purple-400 mt-1">
 															Ejemplo: RE, RP, CK7, CK20, etc. Presiona Enter después de cada una.
 														</p>

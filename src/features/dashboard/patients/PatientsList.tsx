@@ -1,441 +1,364 @@
-import React, { useState, useCallback, useMemo, useEffect } from 'react'
-import { Phone, Mail, Calendar, ChevronUp, ChevronDown } from 'lucide-react'
+import React, { useState, useCallback, useMemo } from 'react'
+import { Phone, Mail, Calendar, ChevronUp, ChevronDown, ChevronLeft, ChevronRight } from 'lucide-react'
 import { Card } from '@shared/components/ui/card'
-import { supabase } from '@lib/supabase/config'
+import { Button } from '@shared/components/ui/button'
 import PatientHistoryModal from '@shared/components/patients/PatientHistoryModal'
+import type { Patient } from '@lib/patients-service'
 
-// Define interface for patient data
-type SortField = 'full_name' | 'id_number' | 'edad' | 'phone' | 'email' | 'lastVisit'
+// Define interface for patient data (adaptado a nueva estructura)
+type SortField = 'nombre' | 'cedula' | 'edad' | 'telefono' | 'email' | 'created_at'
 type SortDirection = 'asc' | 'desc'
 
-interface PatientData {
-	id_number: string
-	full_name: string
-	phone: string
-	email: string | null
-	edad: string | null | undefined
-	date_of_birth: string | null
-	lastVisit: string
-	totalVisits: number
-}
-
-// Define interface for medical record from database
-interface MedicalRecord {
-	id: string
-	full_name: string
-	id_number: string
-	phone: string
-	email: string | null
-	date_of_birth: string | null
-	created_at: string
-	date: string
-	[key: string]: unknown
-}
-
-// Props interface for PatientsList
+// Props interface for PatientsList - usando nueva estructura
 interface PatientsListProps {
-	searchTerm: string
-	recordsData: MedicalRecord[] // ✅ solo array limpio
+	patientsData: Patient[]
 	isLoading: boolean
 	error: Error | null
+	currentPage: number
+	totalPages: number
+	onPageChange: (page: number) => void
 }
 
 // Memoized Patient Row Component for better performance
-const PatientRow = React.memo(
-	({ patient, onClick }: { patient: PatientData; onClick: (patient: PatientData) => void }) => (
-		<tr
-			key={patient.id_number}
-			className="hover:bg-background dark:hover:bg-background transition-transform cursor-pointer"
-			onClick={() => onClick(patient)}
-		>
-			{/* Name Cell */}
-			<td className="w-[20%] px-5 py-3">
-				<div className="flex items-center">
-					<div className="ml-3">
-						<p className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">{patient.full_name}</p>
-					</div>
+const PatientRow = React.memo(({ patient, onClick }: { patient: Patient; onClick: (patient: Patient) => void }) => (
+	<tr
+		key={patient.id}
+		className="hover:bg-background dark:hover:bg-background transition-transform cursor-pointer"
+		onClick={() => onClick(patient)}
+	>
+		{/* Name Cell */}
+		<td className="w-[20%] px-5 py-3">
+			<div className="flex items-center">
+				<div className="ml-3">
+					<p className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">{patient.nombre}</p>
 				</div>
-			</td>
+			</div>
+		</td>
 
-			{/* ID Number Cell */}
-			<td className="w-[15%] px-5 py-3 text-sm text-gray-900 dark:text-gray-100">{patient.id_number}</td>
+		{/* ID Number Cell */}
+		<td className="w-[15%] px-5 py-3 text-sm text-gray-900 dark:text-gray-100">{patient.cedula}</td>
 
-			{/* Age Cell */}
-			<td className="w-[20%] px-5 py-3 text-sm text-gray-900 dark:text-gray-100">
-				{patient.edad ? (
-					<span>{patient.edad}</span>
-				) : (
-					<span className="text-gray-500 dark:text-gray-400">No disponible</span>
-				)}
-			</td>
+		{/* Age Cell */}
+		<td className="w-[20%] px-5 py-3 text-sm text-gray-900 dark:text-gray-100">
+			{patient.edad ? (
+				<span>{patient.edad} años</span>
+			) : (
+				<span className="text-gray-500 dark:text-gray-400">No disponible</span>
+			)}
+		</td>
 
-			{/* Phone Cell */}
-			<td className="w-[15%] px-5 py-3 text-sm text-gray-900 dark:text-gray-100">{patient.phone}</td>
+		{/* Phone Cell */}
+		<td className="w-[15%] px-5 py-3 text-sm text-gray-900 dark:text-gray-100">
+			{patient.telefono || <span className="text-gray-500 dark:text-gray-400">No disponible</span>}
+		</td>
 
-			{/* Email Cell */}
-			<td className="w-[15%] px-5 py-3 text-sm text-gray-900 dark:text-gray-100 truncate">
-				{patient.email || <span className="text-gray-500 dark:text-gray-400">No disponible</span>}
-			</td>
-		</tr>
-	),
-)
+		{/* Email Cell */}
+		<td className="w-[15%] px-5 py-3 text-sm text-gray-900 dark:text-gray-100 truncate">
+			{patient.email || <span className="text-gray-500 dark:text-gray-400">No disponible</span>}
+		</td>
+	</tr>
+))
 
 PatientRow.displayName = 'PatientRow'
 
 // Use React.memo to prevent unnecessary re-renders
-const PatientsList: React.FC<PatientsListProps> = React.memo(({ searchTerm, recordsData, isLoading, error }) => {
-	const [sortField, setSortField] = useState<SortField>('full_name')
-	const [sortDirection, setSortDirection] = useState<SortDirection>('asc')
-	const [selectedPatient, setSelectedPatient] = useState<PatientData | null>(null)
-	const [isModalOpen, setIsModalOpen] = useState(false)
+const PatientsList: React.FC<PatientsListProps> = React.memo(
+	({ patientsData, isLoading, error, currentPage, totalPages, onPageChange }) => {
+		const [sortField, setSortField] = useState<SortField>('nombre')
+		const [sortDirection, setSortDirection] = useState<SortDirection>('asc')
+		const [selectedPatient, setSelectedPatient] = useState<Patient | null>(null)
+		const [isModalOpen, setIsModalOpen] = useState(false)
 
-	// Suscripción a cambios en tiempo real
-	useEffect(() => {
-		// Suscribirse a los cambios de la tabla medical_records_clean
-		const subscription = supabase
-			.channel('medical_records_changes')
-			.on(
-				'postgres_changes',
-				{
-					event: '*', // Escuchar INSERT, UPDATE y DELETE
-					schema: 'public',
-					table: 'medical_records_clean',
-				},
-				() => {
-					// Cuando hay cambios, el componente padre debería actualizar recordsData
-					console.log('Cambios detectados en medical_records_clean')
-				},
-			)
-			.subscribe()
+		// Sort patients - simplificado para la nueva estructura
+		const sortedPatients = useMemo(() => {
+			if (!patientsData || patientsData.length === 0) return []
 
-		// Limpiar la suscripción cuando el componente se desmonte
-		return () => {
-			subscription.unsubscribe()
-		}
-	}, []) // Solo se ejecuta una vez al montar el componente
+			return [...patientsData].sort((a: Patient, b: Patient) => {
+				let aValue = a[sortField]
+				let bValue = b[sortField]
 
-	// Process records to get unique patients - OPTIMIZED FOR PERFORMANCE
-	const patients = useMemo(() => {
-		if (!recordsData || recordsData.length === 0) return []
+				// Handle null values
+				if (aValue === null || aValue === undefined) aValue = ''
+				if (bValue === null || bValue === undefined) bValue = ''
 
-		// Use a more efficient approach to process records
-		const map = new Map<string, PatientData>()
-		const dataArray = recordsData
+				// Special handling for edad - convert to number for proper sorting
+				if (sortField === 'edad') {
+					const aNum = Number(aValue) || 0
+					const bNum = Number(bValue) || 0
+					return sortDirection === 'asc' ? aNum - bNum : bNum - aNum
+				} else {
+					// String comparison for text fields
+					const aStr = String(aValue).toLowerCase()
+					const bStr = String(bValue).toLowerCase()
 
-		for (let i = 0; i < dataArray.length; i++) {
-			const record = dataArray[i]
-
-			// Skip invalid records early
-			if (!record.id_number || record.id_number.trim() === '') {
-				continue
-			}
-
-			const existingPatient = map.get(record.id_number)
-			const recordTimestamp = record.created_at || record.date
-
-			if (!existingPatient) {
-				map.set(record.id_number, {
-					id_number: record.id_number,
-					full_name: record.full_name,
-					phone: record.phone,
-					email: record.email,
-					edad: typeof record.edad === 'string' ? record.edad : null,
-					date_of_birth: record.date_of_birth ?? null,
-					lastVisit: recordTimestamp,
-					totalVisits: 1,
-				})
-			} else {
-				// Solo actualizar si este registro es más reciente
-				if (recordTimestamp > existingPatient.lastVisit) {
-					existingPatient.lastVisit = recordTimestamp
-					if (record.full_name) existingPatient.full_name = record.full_name
-					if (record.phone) existingPatient.phone = record.phone
-					if (record.email) existingPatient.email = record.email
-					if (record.date_of_birth) existingPatient.date_of_birth = record.date_of_birth
-					if (record.edad !== undefined && record.edad !== null) existingPatient.edad = String(record.edad)
+					if (sortDirection === 'asc') {
+						return aStr > bStr ? 1 : -1
+					} else {
+						return aStr < bStr ? 1 : -1
+					}
 				}
-				existingPatient.totalVisits += 1
-			}
+			})
+		}, [patientsData, sortField, sortDirection])
+
+		// Handle sort
+		const handleSort = useCallback(
+			(field: SortField) => {
+				if (sortField === field) {
+					setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc')
+				} else {
+					setSortField(field)
+					setSortDirection('asc')
+				}
+			},
+			[sortField, sortDirection],
+		)
+
+		// Handle patient selection
+		const handlePatientClick = useCallback((patient: Patient) => {
+			console.log('Patient clicked:', patient.nombre)
+			setSelectedPatient(patient)
+			setIsModalOpen(true)
+		}, [])
+
+		// Sort icon component
+		const SortIcon = useCallback(
+			({ field }: { field: SortField }) => {
+				if (sortField !== field) {
+					return <ChevronUp className="w-5 h-5 text-gray-400" />
+				}
+				return sortDirection === 'asc' ? (
+					<ChevronUp className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+				) : (
+					<ChevronDown className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+				)
+			},
+			[sortField, sortDirection],
+		)
+
+		// Loading state
+		if (isLoading) {
+			return (
+				<Card className="p-6">
+					<div className="flex items-center justify-center py-12">
+						<div className="flex items-center gap-3">
+							<div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary"></div>
+							<span className="text-lg text-gray-700 dark:text-gray-300">Cargando pacientes...</span>
+						</div>
+					</div>
+				</Card>
+			)
 		}
 
-		return Array.from(map.values())
-	}, [recordsData])
-
-	// Filter patients based on search term - OPTIMIZED
-	const filteredPatients = useMemo(() => {
-		if (!patients || patients.length === 0) return []
-
-		// If no search term, return all patients (no filtering needed)
-		if (!searchTerm || searchTerm.trim() === '') return patients
-
-		const searchLower = searchTerm.toLowerCase()
-		return patients.filter((patient: PatientData) => {
+		// Error state
+		if (error) {
 			return (
-				patient.full_name?.toLowerCase().includes(searchLower) ||
-				patient.id_number?.toLowerCase().includes(searchLower) ||
-				patient.phone?.toLowerCase().includes(searchLower) ||
-				(patient.email && patient.email.toLowerCase().includes(searchLower))
-			)
-		})
-	}, [patients, searchTerm])
-
-	// Sort patients - OPTIMIZED
-	const sortedPatients = useMemo(() => {
-		if (!filteredPatients || filteredPatients.length === 0) return []
-
-		// Limit the number of patients to display for better performance
-		const maxPatients = 500 // Limit to 500 patients
-		const patientsToSort =
-			filteredPatients.length > maxPatients ? filteredPatients.slice(0, maxPatients) : filteredPatients
-
-		return [...patientsToSort].sort((a: PatientData, b: PatientData) => {
-			let aValue: string = String(a[sortField] ?? '')
-			let bValue: string = String(b[sortField] ?? '')
-
-			// Handle null values
-			if (aValue === null || aValue === undefined) aValue = ''
-			if (bValue === null || bValue === undefined) bValue = ''
-
-			// Special handling for edad - convert to number for proper sorting
-			if (sortField === 'edad') {
-				aValue = aValue || '0'
-				bValue = bValue || '0'
-				return sortDirection === 'asc' ? Number(aValue) - Number(bValue) : Number(bValue) - Number(aValue)
-			} else if (typeof aValue === 'string') {
-				// String comparison for text fields
-				aValue = aValue.toLowerCase()
-				bValue = bValue.toLowerCase()
-			}
-
-			if (sortDirection === 'asc') {
-				return aValue > bValue ? 1 : -1
-			} else {
-				return aValue < bValue ? 1 : -1
-			}
-		})
-	}, [filteredPatients, sortField, sortDirection])
-
-	// Handle sort
-	const handleSort = useCallback(
-		(field: SortField) => {
-			if (sortField === field) {
-				setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc')
-			} else {
-				setSortField(field)
-				setSortDirection('asc')
-			}
-		},
-		[sortField, sortDirection],
-	)
-
-	// Handle patient selection
-	const handlePatientClick = useCallback((patient: PatientData) => {
-		setSelectedPatient(patient)
-		setIsModalOpen(true)
-	}, [])
-
-	// Sort icon component
-	const SortIcon = useCallback(
-		({ field }: { field: SortField }) => {
-			if (sortField !== field) {
-				return <ChevronUp className="w-5 h-5 text-gray-400" />
-			}
-			return sortDirection === 'asc' ? (
-				<ChevronUp className="w-5 h-5 text-blue-600 dark:text-blue-400" />
-			) : (
-				<ChevronDown className="w-5 h-5 text-blue-600 dark:text-blue-400" />
-			)
-		},
-		[sortField, sortDirection],
-	)
-
-	// Loading state
-	if (isLoading) {
-		return (
-			<Card className="p-6">
-				<div className="flex items-center justify-center py-12">
-					<div className="flex items-center gap-3">
-						<div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary"></div>
-						<span className="text-lg text-gray-700 dark:text-gray-300">Cargando pacientes...</span>
+				<Card className="p-6 bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800">
+					<div className="text-center py-12">
+						<div className="text-red-500 dark:text-red-400">
+							<p className="text-lg font-medium">Error al cargar los pacientes</p>
+							<p className="text-sm mt-2">Verifica tu conexión a internet o contacta al administrador</p>
+						</div>
 					</div>
-				</div>
-			</Card>
-		)
-	}
+				</Card>
+			)
+		}
 
-	// Error state
-	if (error) {
+		// Render the component
 		return (
-			<Card className="p-6 bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800">
-				<div className="text-center py-12">
-					<div className="text-red-500 dark:text-red-400">
-						<p className="text-lg font-medium">Error al cargar los pacientes</p>
-						<p className="text-sm mt-2">Verifica tu conexión a internet o contacta al administrador</p>
-					</div>
-				</div>
-			</Card>
-		)
-	}
-
-	// Render the component
-	return (
-		<div className="">
-			{/* Patients table */}
-			<Card className="overflow-hidden">
-				{/* Desktop view */}
-				<div className="hidden lg:block">
-					<div className="max-h-[520px] overflow-auto">
-						<table className="w-full">
-							<thead className="bg-background backdrop-blur-[10px] sticky top-0 z-10">
-								<tr>
-									<th className="w-[20%] px-5 py-3 text-left">
-										<button
-											onClick={() => handleSort('full_name')}
-											className="flex items-center gap-2 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider hover:text-gray-700 dark:hover:text-gray-200"
-										>
-											Nombre
-											<SortIcon field="full_name" />
-										</button>
-									</th>
-									<th className="w-[15%] px-5 py-3 text-left">
-										<button
-											onClick={() => handleSort('id_number')}
-											className="flex items-center gap-2 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider hover:text-gray-700 dark:hover:text-gray-200"
-										>
-											Cédula
-											<SortIcon field="id_number" />
-										</button>
-									</th>
-									<th className="w-[20%] px-5 py-3 text-left">
-										<button
-											onClick={() => handleSort('edad')}
-											className="flex items-center gap-2 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider hover:text-gray-700 dark:hover:text-gray-200"
-										>
-											Edad
-											<SortIcon field="edad" />
-										</button>
-									</th>
-									<th className="w-[15%] px-5 py-3 text-left">
-										<button
-											onClick={() => handleSort('phone')}
-											className="flex items-center gap-2 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider hover:text-gray-700 dark:hover:text-gray-200"
-										>
-											Teléfono
-											<SortIcon field="phone" />
-										</button>
-									</th>
-									<th className="w-[15%] px-5 py-3 text-left">
-										<button
-											onClick={() => handleSort('email')}
-											className="flex items-center gap-2 text-sm font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider hover:text-gray-700 dark:hover:text-gray-200"
-										>
-											Email
-											<SortIcon field="email" />
-										</button>
-									</th>
-								</tr>
-							</thead>
-							<tbody className="bg-card divide-y divide-gray-200 dark:divide-gray-700">
-								{sortedPatients.length > 0 ? (
-									// Limit desktop view to 30 patients for better performance
-									sortedPatients
-										.slice(0, 30)
-										.map((patient: PatientData) => (
-											<PatientRow key={patient.id_number} patient={patient} onClick={handlePatientClick} />
-										))
-								) : (
+			<div className="">
+				{/* Patients table */}
+				<Card className="overflow-hidden">
+					{/* Desktop view */}
+					<div className="hidden lg:block">
+						<div className="max-h-[520px] overflow-auto">
+							<table className="w-full">
+								<thead className="bg-background backdrop-blur-[10px] sticky top-0 z-10">
 									<tr>
-										<td colSpan={7} className="px-4 py-8 text-center text-gray-500 dark:text-gray-400">
-											<p className="text-lg font-medium">No se encontraron pacientes</p>
-											<p className="text-sm">
-												{searchTerm ? 'Intenta con otra búsqueda' : 'Aún no hay pacientes registrados'}
-											</p>
-										</td>
+										<th className="w-[20%] px-5 py-3 text-left">
+											<button
+												onClick={() => handleSort('nombre')}
+												className="flex items-center gap-2 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider hover:text-gray-700 dark:hover:text-gray-200"
+											>
+												Nombre
+												<SortIcon field="nombre" />
+											</button>
+										</th>
+										<th className="w-[15%] px-5 py-3 text-left">
+											<button
+												onClick={() => handleSort('cedula')}
+												className="flex items-center gap-2 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider hover:text-gray-700 dark:hover:text-gray-200"
+											>
+												Cédula
+												<SortIcon field="cedula" />
+											</button>
+										</th>
+										<th className="w-[20%] px-5 py-3 text-left">
+											<button
+												onClick={() => handleSort('edad')}
+												className="flex items-center gap-2 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider hover:text-gray-700 dark:hover:text-gray-200"
+											>
+												Edad
+												<SortIcon field="edad" />
+											</button>
+										</th>
+										<th className="w-[15%] px-5 py-3 text-left">
+											<button
+												onClick={() => handleSort('telefono')}
+												className="flex items-center gap-2 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider hover:text-gray-700 dark:hover:text-gray-200"
+											>
+												Teléfono
+												<SortIcon field="telefono" />
+											</button>
+										</th>
+										<th className="w-[15%] px-5 py-3 text-left">
+											<button
+												onClick={() => handleSort('email')}
+												className="flex items-center gap-2 text-sm font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider hover:text-gray-700 dark:hover:text-gray-200"
+											>
+												Email
+												<SortIcon field="email" />
+											</button>
+										</th>
 									</tr>
-								)}
-							</tbody>
-						</table>
+								</thead>
+								<tbody className="bg-card divide-y divide-gray-200 dark:divide-gray-700">
+									{sortedPatients.length > 0 ? (
+										sortedPatients.map((patient: Patient) => (
+											<PatientRow key={patient.id} patient={patient} onClick={handlePatientClick} />
+										))
+									) : (
+										<tr>
+											<td colSpan={5} className="px-4 py-8 text-center text-gray-500 dark:text-gray-400">
+												<p className="text-lg font-medium">No se encontraron pacientes</p>
+												<p className="text-sm">Aún no hay pacientes registrados</p>
+											</td>
+										</tr>
+									)}
+								</tbody>
+							</table>
+						</div>
 
-						{/* Performance notice for desktop */}
-						{sortedPatients.length > 30 && (
-							<div className="p-4 text-center border-t border-gray-200 dark:border-gray-700">
-								<p className="text-sm text-gray-500 dark:text-gray-400 mb-2">
-									Mostrando 30 de {sortedPatients.length} pacientes
-								</p>
-								<p className="text-xs text-gray-400">Usa la búsqueda para filtrar resultados específicos</p>
+						{/* Pagination */}
+						{totalPages > 1 && (
+							<div className="flex items-center justify-between px-4 py-3 border-t border-gray-200 dark:border-gray-700">
+								<div className="text-sm text-gray-700 dark:text-gray-300">
+									Página {currentPage} de {totalPages}
+								</div>
+								<div className="flex gap-2">
+									<Button
+										variant="outline"
+										size="sm"
+										onClick={() => onPageChange(currentPage - 1)}
+										disabled={currentPage === 1}
+									>
+										<ChevronLeft className="w-4 h-4" />
+									</Button>
+									<Button
+										variant="outline"
+										size="sm"
+										onClick={() => onPageChange(currentPage + 1)}
+										disabled={currentPage === totalPages}
+									>
+										<ChevronRight className="w-4 h-4" />
+									</Button>
+								</div>
 							</div>
 						)}
 					</div>
-				</div>
 
-				{/* Mobile view - cards */}
-				<div className="lg:hidden">
-					{sortedPatients.length > 0 ? (
-						<div className="grid grid-cols-1 sm:grid-cols-2 gap-3 p-3">
-							{/* Limit mobile view to 20 patients for better performance */}
-							{sortedPatients.slice(0, 20).map((patient: PatientData) => (
-								<div
-									key={patient.id_number}
-									className="bg-white dark:bg-gray-800/50 p-3 rounded-lg border border-gray-200 dark:border-gray-700 hover:shadow-md transition-transform duration-200 cursor-pointer"
-									onClick={() => handlePatientClick(patient)}
-								>
-									<div className="flex items-center mb-2">
-										<div className="ml-2 min-w-0">
-											<p className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">
-												{patient.full_name}
-											</p>
-										</div>
-									</div>
-
-									<div className="grid grid-cols-2 gap-2 text-xs">
-										<div className="col-span-2">
-											<div className="flex items-center">
-												<Calendar className="h-3 w-3 text-gray-400 mr-1 flex-shrink-0" />
-												<span className="text-gray-600 dark:text-gray-300 text-xs">{patient.edad}</span>
+					{/* Mobile view - cards */}
+					<div className="lg:hidden">
+						{sortedPatients.length > 0 ? (
+							<div className="grid grid-cols-1 sm:grid-cols-2 gap-3 p-3">
+								{sortedPatients.map((patient: Patient) => (
+									<div
+										key={patient.id}
+										className="bg-white dark:bg-gray-800/50 p-3 rounded-lg border border-gray-200 dark:border-gray-700 hover:shadow-md transition-transform duration-200 cursor-pointer"
+										onClick={() => handlePatientClick(patient)}
+									>
+										<div className="flex items-center mb-2">
+											<div className="ml-2 min-w-0">
+												<p className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">
+													{patient.nombre}
+												</p>
+												<p className="text-xs text-gray-500 dark:text-gray-400">Cédula: {patient.cedula}</p>
 											</div>
 										</div>
 
-										<div>
-											<div className="flex items-center">
-												<Phone className="h-3 w-3 text-gray-400 mr-1 flex-shrink-0" />
-												<span className="text-gray-600 dark:text-gray-300 text-xs truncate">{patient.phone}</span>
-											</div>
-										</div>
-
-										{patient.email && (
-											<div className="col-span-2 mt-1">
+										<div className="grid grid-cols-2 gap-2 text-xs">
+											<div className="col-span-2">
 												<div className="flex items-center">
-													<Mail className="h-3 w-3 text-gray-400 mr-1 flex-shrink-0" />
-													<span className="text-gray-600 dark:text-gray-300 text-xs truncate">{patient.email}</span>
+													<Calendar className="h-3 w-3 text-gray-400 mr-1 flex-shrink-0" />
+													<span className="text-gray-600 dark:text-gray-300 text-xs">
+														{patient.edad ? `${patient.edad} años` : 'Edad no disponible'}
+													</span>
 												</div>
 											</div>
-										)}
+
+											<div>
+												<div className="flex items-center">
+													<Phone className="h-3 w-3 text-gray-400 mr-1 flex-shrink-0" />
+													<span className="text-gray-600 dark:text-gray-300 text-xs truncate">
+														{patient.telefono || 'No disponible'}
+													</span>
+												</div>
+											</div>
+
+											{patient.email && (
+												<div className="col-span-2 mt-1">
+													<div className="flex items-center">
+														<Mail className="h-3 w-3 text-gray-400 mr-1 flex-shrink-0" />
+														<span className="text-gray-600 dark:text-gray-300 text-xs truncate">{patient.email}</span>
+													</div>
+												</div>
+											)}
+										</div>
 									</div>
+								))}
+							</div>
+						) : (
+							<div className="p-8 text-center text-gray-500 dark:text-gray-400">
+								<p className="text-lg font-medium">No se encontraron pacientes</p>
+								<p className="text-sm">Aún no hay pacientes registrados</p>
+							</div>
+						)}
+
+						{/* Mobile Pagination */}
+						{totalPages > 1 && (
+							<div className="flex items-center justify-between px-4 py-3 border-t border-gray-200 dark:border-gray-700">
+								<div className="text-sm text-gray-700 dark:text-gray-300">
+									Página {currentPage} de {totalPages}
 								</div>
-							))}
-						</div>
-					) : (
-						<div className="p-8 text-center text-gray-500 dark:text-gray-400">
-							<p className="text-lg font-medium">No se encontraron pacientes</p>
-							<p className="text-sm">{searchTerm ? 'Intenta con otra búsqueda' : 'Aún no hay pacientes registrados'}</p>
-						</div>
-					)}
+								<div className="flex gap-2">
+									<Button
+										variant="outline"
+										size="sm"
+										onClick={() => onPageChange(currentPage - 1)}
+										disabled={currentPage === 1}
+									>
+										<ChevronLeft className="w-4 h-4" />
+									</Button>
+									<Button
+										variant="outline"
+										size="sm"
+										onClick={() => onPageChange(currentPage + 1)}
+										disabled={currentPage === totalPages}
+									>
+										<ChevronRight className="w-4 h-4" />
+									</Button>
+								</div>
+							</div>
+						)}
+					</div>
+				</Card>
 
-					{sortedPatients.length > 20 && (
-						<div className="p-4 text-center border-t border-gray-200 dark:border-gray-700">
-							<p className="text-sm text-gray-500 dark:text-gray-400 mb-2">
-								Mostrando 20 de {sortedPatients.length} pacientes
-							</p>
-							<p className="text-xs text-gray-400 mb-2">Usa la búsqueda para filtrar resultados específicos</p>
-						</div>
-					)}
-				</div>
-			</Card>
+				{/* Patient History Modal */}
+				<PatientHistoryModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} patient={selectedPatient} />
+			</div>
+		)
+	},
+)
 
-			{/* Patient History Modal */}
-			<PatientHistoryModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} patient={selectedPatient} />
-		</div>
-	)
-})
+PatientsList.displayName = 'PatientsList'
 
 export default PatientsList

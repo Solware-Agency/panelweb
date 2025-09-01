@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback, useMemo } from 'react'
 import { Button } from '@shared/components/ui/button'
 import { Form } from '@shared/components/ui/form'
 import { useToast } from '@shared/hooks/use-toast'
-import { formSchema, type FormValues } from '@features/form/lib/form-schema'
+import { formSchema } from '@features/form/lib/form-schema'
 import { PatientDataSection } from './PatientDataSection'
 import { ServiceSection } from './ServiceSection'
 import { PaymentSection } from './PaymentSection'
@@ -12,7 +12,7 @@ import { CommentsSection } from './CommentsSection'
 import { FilePlus2, Loader2, Trash2 } from 'lucide-react'
 import { useExchangeRate } from '@shared/hooks/useExchangeRate'
 import { useResetForm } from '@shared/hooks/useResetForm'
-import { insertMedicalRecord } from '@lib/supabase-service'
+import { registerMedicalCase, validateRegistrationData, type FormValues } from '@lib/registration-service'
 import { useUserProfile } from '@shared/hooks/useUserProfile'
 
 const getInitialFormValues = (): FormValues => ({
@@ -20,15 +20,19 @@ const getInitialFormValues = (): FormValues => ({
 	idNumber: '',
 	phone: '',
 	ageValue: 0,
-	ageUnit: 'MESES' as const,
+	ageUnit: 'AÑOS' as const,
 	email: '',
 	examType: '',
-	origin: '',
+	doctorName: '',
 	treatingDoctor: '',
+	patientType: '',
+	origin: '',
+	originType: '',
+	patientBranch: '',
+	branch: '',
 	sampleType: '',
 	numberOfSamples: 1,
 	relationship: '',
-	branch: '',
 	registrationDate: new Date(),
 	totalAmount: 0.01, // Changed from 0 to 0.01 to comply with database constraint
 	payments: [{ method: '', amount: 0, reference: '' }],
@@ -96,46 +100,52 @@ export function MedicalFormContainer() {
 			setIsSubmitting(true)
 
 			try {
-				console.log('Enviando datos del formulario:', data)
-				const { data: insertedRecord, error } = await insertMedicalRecord(data, exchangeRate)
+				console.log('Enviando datos del formulario con nueva estructura:', data)
 
-				if (error) {
-					console.error('Error al guardar en Supabase:', error)
-
-					if (error.code === 'TABLE_NOT_EXISTS') {
-						toast({
-							title: ' Tabla no encontrada',
-							description: 'La tabla de registros m�dicos no existe. Contacta al administrador del sistema.',
-							variant: 'destructive',
-						})
-					} else if (error.code === 'TOTAL_AMOUNT_CONSTRAINT') {
-						toast({
-							title: ' Error en el monto total',
-							description: error.message,
-							variant: 'destructive',
-						})
-					} else if (error.code === 'VALIDATION_ERROR') {
-						toast({
-							title: ' Error de validaci�n',
-							description: error.message,
-							variant: 'destructive',
-						})
-					} else {
-						toast({
-							title: '? Error al guardar',
-							description: 'Hubo un problema al guardar el registro. Intenta nuevamente.',
-							variant: 'destructive',
-						})
-					}
+				// Validar datos antes del envío
+				const validationErrors = validateRegistrationData(data)
+				if (validationErrors.length > 0) {
+					toast({
+						title: '❌ Error de validación',
+						description: validationErrors.join(', '),
+						variant: 'destructive',
+					})
 					return
 				}
 
-				console.log('Registro guardado exitosamente:', insertedRecord)
+				// Registrar caso médico con nueva estructura
+				const result = await registerMedicalCase(data)
 
-				// Show success message
+				if (result.error) {
+					console.error('Error al guardar con nueva estructura:', result.error)
+					toast({
+						title: '❌ Error al guardar',
+						description: result.error,
+						variant: 'destructive',
+					})
+					return
+				}
+
+				console.log('Registro guardado exitosamente con nueva estructura:', {
+					patient: result.patient,
+					medicalCase: result.medicalCase,
+					isNewPatient: result.isNewPatient,
+					patientUpdated: result.patientUpdated,
+				})
+
+				// Mensaje de éxito personalizado
+				let successMessage = 'El caso médico se ha registrado correctamente.'
+				if (result.isNewPatient) {
+					successMessage += ' Se creó un nuevo paciente.'
+				} else if (result.patientUpdated) {
+					successMessage += ' Se actualizaron los datos del paciente.'
+				} else {
+					successMessage += ' Se agregó a un paciente existente.'
+				}
+
 				toast({
-					title: ' Registro guardado',
-					description: 'El registro m�dico se ha guardado correctamente.',
+					title: '✅ Registro guardado',
+					description: successMessage,
 				})
 
 				// Reset form and show new record button
@@ -150,8 +160,8 @@ export function MedicalFormContainer() {
 			} catch (error) {
 				console.error('Error inesperado:', error)
 				toast({
-					title: ' Error inesperado',
-					description: 'Ocurri� un error inesperado. Intenta nuevamente.',
+					title: '❌ Error inesperado',
+					description: 'Ocurrió un error inesperado. Intenta nuevamente.',
 					variant: 'destructive',
 				})
 			} finally {

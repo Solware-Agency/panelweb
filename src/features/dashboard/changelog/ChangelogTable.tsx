@@ -25,10 +25,12 @@ import { supabase } from '@lib/supabase/config'
 import { Popover, PopoverContent, PopoverTrigger } from '@shared/components/ui/popover'
 import { Calendar as CalendarComponent } from '@shared/components/ui/calendar'
 
-// Type for the actual data returned from the query
+// Type for the actual data returned from the query - updated for new structure
 type ChangeLogData = {
 	id: string
 	medical_record_id: string | null
+	patient_id: string | null  // Nueva columna
+	entity_type: string | null  // Nueva columna: 'patient' o 'medical_case'
 	user_id: string
 	user_email: string
 	user_display_name?: string | null
@@ -39,10 +41,15 @@ type ChangeLogData = {
 	changed_at: string
 	created_at: string | null
 	deleted_record_info?: string | null
+	// Referencias opcionales a los datos relacionados
 	medical_records_clean?: {
 		id: string | null
-		full_name: string | null
 		code: string | null
+	} | null
+	patients?: {
+		id: string | null
+		nombre: string | null
+		cedula: string | null
 	} | null
 }
 
@@ -75,6 +82,7 @@ const ChangelogTable: React.FC = () => {
 
 	const [searchTerm, setSearchTerm] = useState('')
 	const [actionFilter, setActionFilter] = useState<string>('all')
+	const [entityTypeFilter, setEntityTypeFilter] = useState<string>('all') // Nuevo filtro
 	const [dateFilter, setDateFilter] = useState<Date | undefined>(undefined)
 	const [isDatePickerOpen, setIsDatePickerOpen] = useState(false)
 	const [page, setPage] = useState(0)
@@ -97,20 +105,20 @@ const ChangelogTable: React.FC = () => {
 		staleTime: 1000 * 60 * 5, // 5 minutes
 	})
 
-	// Filter logs based on search term, action type, and date
+	// Filter logs based on search term, action type, entity type, and date
 	const filteredLogs = React.useMemo(() => {
 		if (!logsData?.data) return []
 
 		return logsData.data.filter((log: ChangeLogData) => {
-			// Search filter
+			// Search filter - updated for new structure
 			const matchesSearch =
 				(log.user_display_name || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
 				log.user_email.toLowerCase().includes(searchTerm.toLowerCase()) ||
 				log.field_label.toLowerCase().includes(searchTerm.toLowerCase()) ||
-				(log.medical_records_clean?.full_name || log.deleted_record_info || '')
-					.toLowerCase()
-					.includes(searchTerm.toLowerCase()) ||
 				(log.medical_records_clean?.code || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+				(log.patients?.nombre || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+				(log.patients?.cedula || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+				(log.deleted_record_info || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
 				(log.old_value || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
 				(log.new_value || '').toLowerCase().includes(searchTerm.toLowerCase())
 
@@ -124,6 +132,14 @@ const ChangelogTable: React.FC = () => {
 				matchesAction = log.field_name !== 'created_record' && log.field_name !== 'deleted_record'
 			}
 
+			// Entity type filter (nuevo)
+			let matchesEntityType = true
+			if (entityTypeFilter === 'patient') {
+				matchesEntityType = log.entity_type === 'patient'
+			} else if (entityTypeFilter === 'medical_case') {
+				matchesEntityType = log.entity_type === 'medical_case'
+			}
+
 			// Date filter
 			let matchesDate = true
 			if (dateFilter) {
@@ -134,9 +150,9 @@ const ChangelogTable: React.FC = () => {
 					logDate.getFullYear() === dateFilter.getFullYear()
 			}
 
-			return matchesSearch && matchesAction && matchesDate
+			return matchesSearch && matchesAction && matchesEntityType && matchesDate
 		})
-	}, [logsData?.data, searchTerm, actionFilter, dateFilter])
+	}, [logsData?.data, searchTerm, actionFilter, entityTypeFilter, dateFilter])
 
 	// Function to delete a change log entry (only for owners)
 
@@ -180,6 +196,7 @@ const ChangelogTable: React.FC = () => {
 	const clearFilters = () => {
 		setSearchTerm('')
 		setActionFilter('all')
+		setEntityTypeFilter('all') // Nuevo filtro
 		setDateFilter(undefined)
 	}
 
@@ -274,6 +291,23 @@ const ChangelogTable: React.FC = () => {
 						</div>
 					</div>
 
+					{/* Entity Type Filter */}
+					<div className="flex items-center gap-2">
+						<FileText className="w-4 h-4 text-gray-400" />
+						<div className="w-40">
+							<CustomDropdown
+								value={entityTypeFilter}
+								onChange={(v) => setEntityTypeFilter(v)}
+								placeholder="Tipo de entidad"
+								options={[
+									{ value: 'all', label: 'Todas las entidades' },
+									{ value: 'patient', label: 'Pacientes' },
+									{ value: 'medical_case', label: 'Casos Médicos' },
+								]}
+							/>
+						</div>
+					</div>
+
 					{/* Date Filter */}
 					<div className="flex items-center gap-2">
 						<Popover open={isDatePickerOpen} onOpenChange={setIsDatePickerOpen}>
@@ -299,7 +333,7 @@ const ChangelogTable: React.FC = () => {
 					</div>
 
 					{/* Clear Filters */}
-					{(searchTerm || actionFilter !== 'all' || dateFilter) && (
+					{(searchTerm || actionFilter !== 'all' || entityTypeFilter !== 'all' || dateFilter) && (
 						<Button variant="ghost" onClick={clearFilters} className="text-sm">
 							Limpiar filtros
 						</Button>
@@ -322,7 +356,7 @@ const ChangelogTable: React.FC = () => {
 							<History className="w-16 h-16 text-gray-300 dark:text-gray-600 mb-4" />
 							<p className="text-lg font-medium text-gray-500 dark:text-gray-400">No se encontraron registros</p>
 							<p className="text-sm text-gray-400 dark:text-gray-500">
-								{searchTerm || actionFilter !== 'all' || dateFilter
+								{searchTerm || actionFilter !== 'all' || entityTypeFilter !== 'all' || dateFilter
 									? 'Intenta ajustar los filtros de búsqueda'
 									: 'Aún no hay registros en el historial de cambios'}
 							</p>
@@ -347,7 +381,7 @@ const ChangelogTable: React.FC = () => {
 											</th>
 											<th className="px-4 py-3 text-left">
 												<div className="flex items-center gap-2 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-													Caso
+													Entidad
 												</div>
 											</th>
 											<th className="px-4 py-3 text-left">
@@ -385,16 +419,32 @@ const ChangelogTable: React.FC = () => {
 														</span>
 													</td>
 
-													{/* Case */}
+													{/* Entity (Case/Patient) */}
 													<td className="px-4 py-4">
 														<div className="flex flex-col">
-															<span className="text-sm font-medium text-gray-900 dark:text-gray-100">
-																{log.medical_records_clean?.full_name || log.deleted_record_info || 'Caso eliminado'}
-															</span>
-															{log.medical_records_clean?.code && (
-																<span className="text-xs text-gray-500 dark:text-gray-400">
-																	{log.medical_records_clean.code}
-																</span>
+															{log.entity_type === 'patient' ? (
+																<>
+																	<span className="text-sm font-medium text-gray-900 dark:text-gray-100">
+																		{log.patients?.nombre || log.deleted_record_info || 'Paciente eliminado'}
+																	</span>
+																	{log.patients?.cedula && (
+																		<span className="text-xs text-gray-500 dark:text-gray-400">
+																			Cédula: {log.patients.cedula}
+																		</span>
+																	)}
+																	<span className="text-xs text-blue-600 dark:text-blue-400 bg-blue-100 dark:bg-blue-900/30 px-2 py-1 rounded-full w-fit">
+																		Paciente
+																	</span>
+																</>
+															) : (
+																<>
+																	<span className="text-sm font-medium text-gray-900 dark:text-gray-100">
+																		{log.medical_records_clean?.code || log.deleted_record_info || 'Caso eliminado'}
+																	</span>
+																	<span className="text-xs text-green-600 dark:text-green-400 bg-green-100 dark:bg-green-900/30 px-2 py-1 rounded-full w-fit">
+																		Caso Médico
+																	</span>
+																</>
 															)}
 														</div>
 													</td>
@@ -475,17 +525,35 @@ const ChangelogTable: React.FC = () => {
 													<span className="text-xs text-gray-900 dark:text-gray-100 truncate">{log.user_email}</span>
 												</div>
 
-												{/* Case */}
+												{/* Entity (Case/Patient) */}
 												<div className="mb-2">
-													<span className="text-xs text-gray-500 dark:text-gray-400">Caso:</span>
-													<div className="flex flex-col">
-														<span className="text-sm font-medium text-gray-900 dark:text-gray-100">
-															{log.medical_records_clean?.full_name || log.deleted_record_info || 'Caso eliminado'}
-														</span>
-														{log.medical_records_clean?.code && (
-															<span className="text-xs text-gray-500 dark:text-gray-400">
-																{log.medical_records_clean.code}
-															</span>
+													<span className="text-xs text-gray-500 dark:text-gray-400">
+														{log.entity_type === 'patient' ? 'Paciente:' : 'Caso:'}
+													</span>
+													<div className="flex flex-col gap-1">
+														{log.entity_type === 'patient' ? (
+															<>
+																<span className="text-sm font-medium text-gray-900 dark:text-gray-100">
+																	{log.patients?.nombre || log.deleted_record_info || 'Paciente eliminado'}
+																</span>
+																{log.patients?.cedula && (
+																	<span className="text-xs text-gray-500 dark:text-gray-400">
+																		Cédula: {log.patients.cedula}
+																	</span>
+																)}
+																<span className="text-xs text-blue-600 dark:text-blue-400 bg-blue-100 dark:bg-blue-900/30 px-2 py-1 rounded-full w-fit">
+																	Paciente
+																</span>
+															</>
+														) : (
+															<>
+																<span className="text-sm font-medium text-gray-900 dark:text-gray-100">
+																	{log.medical_records_clean?.code || log.deleted_record_info || 'Caso eliminado'}
+																</span>
+																<span className="text-xs text-green-600 dark:text-green-400 bg-green-100 dark:bg-green-900/30 px-2 py-1 rounded-full w-fit">
+																	Caso Médico
+																</span>
+															</>
 														)}
 													</div>
 												</div>
