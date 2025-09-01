@@ -56,13 +56,16 @@ export interface MedicalCaseInsert {
 	patient_id?: string | null
 	exam_type: string
 	origin: string
-	doctor_name: string
-	patient_type: string
+	treating_doctor: string
+	sample_type: string
+	number_of_samples: number
+	relationship?: string | null
 	branch: string
-	code: string
+	date: string
+	code?: string
 	total_amount: number
 	payment_status: string
-	status: string
+	status?: string
 	comments?: string | null
 	generated_by?: string | null
 	created_at?: string | null
@@ -72,8 +75,8 @@ export interface MedicalCaseInsert {
 
 // Tipos para el resultado del registro
 export interface RegistrationResult {
-	patient: PatientInsert | null
-	medicalCase: MedicalCaseInsert | null
+	patient: any | null // Patient type from service
+	medicalCase: any | null // MedicalCase type from service
 	isNewPatient: boolean
 	patientUpdated: boolean
 	error?: string
@@ -133,8 +136,10 @@ export const registerMedicalCase = async (formData: FormValues): Promise<Registr
 
 		// PASO 2: Crear caso médico enlazado al paciente
 		console.log('📋 Creando caso médico...')
+		// Remove auto-generated fields before passing to createMedicalCase
+		const { created_at, updated_at, ...cleanCaseData } = caseData
 		const medicalCase = await createMedicalCase({
-			...caseData,
+			...cleanCaseData,
 			patient_id: patient.id,
 		})
 
@@ -187,9 +192,12 @@ const prepareRegistrationData = (formData: FormValues, userId?: string) => {
 		// Información del examen
 		exam_type: formData.examType,
 		origin: formData.origin,
-		doctor_name: formData.treatingDoctor || formData.doctorName,
-		patient_type: formData.patientType,
+		treating_doctor: formData.treatingDoctor || formData.doctorName,
+		sample_type: formData.sampleType || '',
+		number_of_samples: formData.numberOfSamples || 1,
+		relationship: formData.relationship || null,
 		branch: formData.branch || formData.patientBranch,
+		date: formData.registrationDate.toISOString(),
 		code: '', // Se generará automáticamente
 
 		// Información financiera

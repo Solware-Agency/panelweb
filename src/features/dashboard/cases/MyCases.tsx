@@ -2,8 +2,7 @@ import React, { useState, useCallback, useMemo, useEffect } from 'react'
 import CasesTable from '@shared/components/cases/CasesTable'
 import CaseDetailPanel from '@shared/components/cases/CaseDetailPanel'
 import type { MedicalCaseWithPatient } from '@lib/medical-cases-service'
-import type { MedicalRecord } from '@shared/types/types'
-import { mapToLegacyRecord, mapToLegacyRecords } from '@lib/mappers'
+import { mapToLegacyRecords } from '@lib/mappers'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { supabase } from '@lib/supabase/config'
 import { useAuth } from '@app/providers/AuthContext'
@@ -74,7 +73,7 @@ const MyCases: React.FC = React.memo(() => {
 	}, [])
 
 	const handleLegacyCaseSelect = useCallback(
-		(legacyCase: MedicalRecord) => {
+		(legacyCase: MedicalCaseWithPatient) => {
 			// Find the original case from our data
 			const originalCase = cases?.find((c) => c.id === legacyCase.id)
 			if (originalCase) {

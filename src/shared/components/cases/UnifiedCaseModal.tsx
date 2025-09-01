@@ -490,7 +490,7 @@ const UnifiedCaseModal: React.FC<CaseDetailPanelProps> = React.memo(({ case_, is
 					if (field === 'exam_type') {
 						caseChanges.exam_type = newValue as string
 					} else if (field === 'treating_doctor') {
-						caseChanges.doctor_name = newValue as string
+						caseChanges.treating_doctor = newValue as string
 					} else if (field === 'origin') {
 						caseChanges.origin = newValue as string
 					} else if (field === 'branch') {

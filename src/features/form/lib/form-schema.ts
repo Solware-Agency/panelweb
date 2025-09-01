@@ -31,10 +31,9 @@ export const formSchema = z.object({
 		})
 		.min(0, 'La edad debe ser un número positivo')
 		.max(150, 'La edad no puede ser mayor a 150'),
-	ageUnit: z
-		.enum(['MESES', 'AÑOS'], {
-			required_error: 'Debe seleccionar la unidad de edad.',
-		}),
+	ageUnit: z.enum(['MESES', 'AÑOS'], {
+		required_error: 'Debe seleccionar la unidad de edad.',
+	}),
 	email: z.string().email('Correo electrónico inválido').optional().or(z.literal('')),
 	registrationDate: z.date({ required_error: 'La fecha de registro es requerida.' }),
 	examType: z.string().min(1, 'El tipo de exámen es requerido'),
@@ -46,9 +45,7 @@ export const formSchema = z.object({
 		.string()
 		.min(1, 'El médico tratante es requerido')
 		.regex(/^[A-Za-zÑñÁáÉéÍíÓóÚúÜü\s]+$/, 'Médico tratante solo debe contener letras y espacios'),
-	sampleType: z
-		.string()
-		.min(1, 'El tipo de muestra es requerido'),
+	sampleType: z.string().min(1, 'El tipo de muestra es requerido'),
 	numberOfSamples: z.coerce
 		.number({ invalid_type_error: 'El número de muestras es requerido' })
 		.int()
@@ -61,6 +58,11 @@ export const formSchema = z.object({
 		.min(0.01, 'El monto total debe ser mayor a cero'),
 	payments: z.array(paymentSchema).optional().default([]),
 	comments: z.string().optional(),
+	// Campos adicionales para compatibilidad con registration-service
+	doctorName: z.string().default(''),
+	patientType: z.string().default(''),
+	originType: z.string().default(''),
+	patientBranch: z.string().default(''),
 })
 
 export type FormValues = z.infer<typeof formSchema>

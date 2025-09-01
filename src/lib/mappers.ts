@@ -17,15 +17,16 @@ export const mapToLegacyRecord = (record: MedicalCaseWithPatient): MedicalRecord
 		id_number: record.cedula,
 		phone: record.telefono,
 		email: record.patient_email,
+		edad: record.edad ? `${record.edad} años` : null,
 		edad_display: record.edad ? `${record.edad} años` : undefined,
 		// Agregar campos faltantes con valores por defecto
 		inmuno: '', // Campo legacy
-		inmunohistoquimica: null,
-		ims: null,
-		googledocs_url: null,
-		informepdf_url: null,
-		archivo_adjunto_url: null,
-		doc_aprobado: null,
+		inmunohistoquimica: (record as any).inmunohistoquimica || null,
+		ims: (record as any).ims || null,
+		googledocs_url: (record as any).googledocs_url || null,
+		informepdf_url: (record as any).informepdf_url || null,
+		archivo_adjunto_url: (record as any).archivo_adjunto_url || null,
+		doc_aprobado: record.doc_aprobado || null,
 		version: record.version || 1,
 	} as MedicalRecord
 }

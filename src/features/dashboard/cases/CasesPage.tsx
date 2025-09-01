@@ -7,7 +7,6 @@ import { mapToLegacyRecords } from '@lib/mappers'
 const CasesPage: React.FC = () => {
 	const [isFullscreen, setIsFullscreen] = useState(false)
 	const [searchTerm, setSearchTerm] = useState('')
-	const [currentPage, setCurrentPage] = useState(1)
 
 	const {
 		data: casesData,
@@ -15,15 +14,14 @@ const CasesPage: React.FC = () => {
 		error: casesError,
 		refetch: refetchCases,
 	} = useQuery({
-		queryKey: ['medical-cases', searchTerm, currentPage],
-		queryFn: () => getCasesWithPatientInfo(currentPage, 50, { searchTerm }),
+		queryKey: ['medical-cases', searchTerm],
+		queryFn: () => getCasesWithPatientInfo(1, 1000, { searchTerm }),
 		staleTime: 1000 * 60 * 5,
 		refetchOnWindowFocus: false,
 	})
 
 	const handleSearch = useCallback((term: string) => {
 		setSearchTerm(term)
-		setCurrentPage(1) // Reset to first page when searching
 	}, [])
 
 	return (
@@ -35,9 +33,6 @@ const CasesPage: React.FC = () => {
 			isFullscreen={isFullscreen}
 			setIsFullscreen={setIsFullscreen}
 			onSearch={handleSearch}
-			currentPage={currentPage}
-			totalPages={casesData?.totalPages || 0}
-			onPageChange={setCurrentPage}
 		/>
 	)
 }

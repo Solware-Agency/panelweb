@@ -7,7 +7,7 @@ import { FormDropdown, createDropdownOptions } from '@shared/components/ui/form-
 import { Card, CardContent, CardHeader, CardTitle } from '@shared/components/ui/card'
 import { useUserProfile } from '@shared/hooks/useUserProfile'
 import { useEffect, memo } from 'react'
-import { Stethoscope, MapPin, Microscope, Hash } from 'lucide-react'
+import { Stethoscope, MapPin, Microscope } from 'lucide-react'
 
 interface ServiceSectionProps {
 	control: Control<FormValues>
@@ -22,10 +22,12 @@ export const ServiceSection = memo(({ control, inputStyles }: ServiceSectionProp
 	useEffect(() => {
 		if (profile?.assigned_branch && !branch) {
 			// Set the branch to the user's assigned branch
-			const setValue = control._options.context?.setValue
-			if (setValue) {
-				setValue('branch', profile.assigned_branch)
-			}
+			// Note: This would need to be passed as a prop or use useFormContext
+			// For now, we'll comment this out as it's not working correctly
+			// const setValue = control._options.context?.setValue
+			// if (setValue) {
+			// 	setValue('branch', profile.assigned_branch)
+			// }
 		}
 	}, [profile, branch, control])
 
@@ -143,7 +145,6 @@ export const ServiceSection = memo(({ control, inputStyles }: ServiceSectionProp
 									type="number"
 									placeholder="0"
 									{...field}
-									iconRight={<Hash className="h-4 w-4 text-muted-foreground" />}
 									value={field.value === 0 ? '' : field.value}
 									onChange={(e) => {
 										const value = e.target.value
@@ -166,7 +167,7 @@ export const ServiceSection = memo(({ control, inputStyles }: ServiceSectionProp
 							<FormControl>
 								<AutocompleteInput
 									fieldName="relationship"
-                                    placeholder="Relación con el Caso"
+									placeholder="Relación con el Caso"
 									{...field}
 									className={inputStyles}
 								/>

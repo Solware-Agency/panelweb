@@ -1,6 +1,6 @@
 import { motion, AnimatePresence } from 'motion/react'
 import { ArrowLeftFromLine, Save } from 'lucide-react'
-import { CustomDropdown } from '@shared/components/ui/custom-dropdown'
+// import { CustomDropdown } from '@shared/components/ui/custom-dropdown' // No longer used
 import { useState } from 'react'
 import { Input } from '@shared/components/ui/input'
 import { Button } from '@shared/components/ui/button'

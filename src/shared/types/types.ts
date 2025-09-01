@@ -750,7 +750,7 @@ export const Constants = {
 
 export type MedicalRecordInsert = TablesInsert<'medical_records_clean'>
 
-// Legacy type for compatibility - usar siempre MedicalCaseWithPatient en su lugar
+// Tipo unificado para MedicalRecord que incluye todos los campos necesarios
 export type MedicalRecord = Database['public']['Views']['medical_cases_with_patient']['Row'] & {
 	// Alias para compatibilidad con el código existente
 	full_name: string // apunta a nombre
@@ -758,4 +758,13 @@ export type MedicalRecord = Database['public']['Views']['medical_cases_with_pati
 	phone: string | null // apunta a telefono
 	edad_display?: string // para compatibilidad
 	email: string | null // apunta a patient_email
+	// Campos adicionales para compatibilidad
+	inmuno?: string // Campo legacy
+	ims?: string | null // Campo para inmunorreacciones
+	positivo?: string | null
+	negativo?: string | null
+	ki67?: string | null
+	conclusion_diagnostica?: string | null
+	archivo_adjunto_url?: string | null
+	version?: number | null
 }

@@ -193,7 +193,7 @@ const PatientHistoryModal: React.FC<PatientHistoryModalProps> = ({ isOpen, onClo
 													{patient.telefono && (
 														<button
 															onClick={() => {
-																const phoneNumber = patient.telefono.replace(/\D/g, '')
+																const phoneNumber = patient.telefono?.replace(/\D/g, '') || ''
 																const message = encodeURIComponent(
 																	'Hola, me comunico desde el sistema médico. ¿Cómo está usted?',
 																)

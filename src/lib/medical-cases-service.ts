@@ -34,12 +34,10 @@ export interface MedicalCase {
 	payment_method_4: string | null
 	payment_amount_4: number | null
 	payment_reference_4: string | null
-	status: string
 	comments: string | null
 	generated_by: string | null
 	created_at: string | null
 	updated_at: string | null
-	version: number | null
 	// Campos adicionales del esquema original para compatibilidad
 	log: string | null
 	diagnostico: string | null
@@ -47,8 +45,21 @@ export interface MedicalCase {
 	ims: string | null
 	googledocs_url: string | null
 	informepdf_url: string | null
-	archivo_adjunto_url: string | null
-	doc_aprobado: string | null
+	attachment_url: string | null
+	doc_aprobado: 'faltante' | 'pendiente' | 'aprobado' | undefined
+	// Campos adicionales que existen en la tabla
+	exchange_rate: number | null
+	created_by: string | null
+	created_by_display_name: string | null
+	material_remitido: string | null
+	informacion_clinica: string | null
+	descripcion_macroscopica: string | null
+	comentario: string | null
+	pdf_en_ready: boolean | null
+	informe_qr: string | null
+	generated_by_display_name: string | null
+	generated_at: string | null
+	token: string | null
 }
 
 export interface MedicalCaseInsert {
@@ -78,12 +89,35 @@ export interface MedicalCaseInsert {
 	payment_method_4?: string | null
 	payment_amount_4?: number | null
 	payment_reference_4?: string | null
-	status?: string
 	comments?: string | null
 	generated_by?: string | null
-	created_at?: string | null
-	updated_at?: string | null
-	version?: number | null
+	created_at?: string
+	updated_at?: string
+	// Campos adicionales que existen en la tabla
+	exchange_rate?: number | null
+	created_by?: string | null
+	created_by_display_name?: string | null
+	material_remitido?: string | null
+	informacion_clinica?: string | null
+	descripcion_macroscopica?: string | null
+	diagnostico?: string | null
+	comentario?: string | null
+	pdf_en_ready?: boolean | null
+	attachment_url?: string | null
+	inmunohistoquimica?: string | null
+	positivo?: string | null
+	negativo?: string | null
+	ki67?: string | null
+	conclusion_diagnostica?: string | null
+	generated_by_display_name?: string | null
+	generated_at?: string | null
+	log?: string | null
+	ims?: string | null
+	googledocs_url?: string | null
+	informepdf_url?: string | null
+	informe_qr?: string | null
+	token?: string | null
+	doc_aprobado?: 'faltante' | 'pendiente' | 'aprobado' | undefined
 }
 
 export interface MedicalCaseUpdate {
@@ -100,7 +134,7 @@ export interface MedicalCaseUpdate {
 	code?: string
 	total_amount?: number
 	payment_status?: string
-	remaining?: number | null
+	remaining?: number
 	payment_method_1?: string | null
 	payment_amount_1?: number | null
 	payment_reference_1?: string | null
@@ -113,12 +147,35 @@ export interface MedicalCaseUpdate {
 	payment_method_4?: string | null
 	payment_amount_4?: number | null
 	payment_reference_4?: string | null
-	status?: string
 	comments?: string | null
 	generated_by?: string | null
-	created_at?: string | null
-	updated_at?: string | null
-	version?: number | null
+	created_at?: string
+	updated_at?: string
+	// Campos adicionales que existen en la tabla
+	exchange_rate?: number | null
+	created_by?: string | null
+	created_by_display_name?: string | null
+	material_remitido?: string | null
+	informacion_clinica?: string | null
+	descripcion_macroscopica?: string | null
+	diagnostico?: string | null
+	comentario?: string | null
+	pdf_en_ready?: boolean | null
+	attachment_url?: string | null
+	inmunohistoquimica?: string | null
+	positivo?: string | null
+	negativo?: string | null
+	ki67?: string | null
+	conclusion_diagnostica?: string | null
+	generated_by_display_name?: string | null
+	generated_at?: string | null
+	log?: string | null
+	ims?: string | null
+	googledocs_url?: string | null
+	informepdf_url?: string | null
+	informe_qr?: string | null
+	token?: string | null
+	doc_aprobado?: 'faltante' | 'pendiente' | 'aprobado' | undefined
 }
 
 // Tipo para casos médicos con información del paciente (usando la vista)
@@ -138,14 +195,17 @@ export const createMedicalCase = async (caseData: MedicalCaseInsert): Promise<Me
 			throw new Error('patient_id es requerido para crear un caso médico')
 		}
 
-		const { data, error } = await supabase.from('medical_records_clean').insert(caseData).select().single()
+		// Remove auto-generated fields for insert
+		// eslint-disable-next-line @typescript-eslint/no-unused-vars
+		const { created_at, updated_at, ...insertData } = caseData
+		const { data, error } = await supabase.from('medical_records_clean').insert(insertData).select().single()
 
 		if (error) {
 			throw error
 		}
 
 		console.log('✅ Caso médico creado exitosamente:', data)
-		return data
+		return data as MedicalCase
 	} catch (error) {
 		console.error('❌ Error creando caso médico:', error)
 		throw error
@@ -167,7 +227,7 @@ export const getCasesByPatientId = async (patientId: string): Promise<MedicalCas
 			throw error
 		}
 
-		return data || []
+		return (data || []) as MedicalCase[]
 	} catch (error) {
 		console.error('Error obteniendo casos por paciente:', error)
 		throw error
@@ -188,7 +248,7 @@ export const getCaseById = async (caseId: string): Promise<MedicalCase | null> =
 			throw error
 		}
 
-		return data
+		return data as MedicalCase
 	} catch (error) {
 		console.error('Error obteniendo caso por ID:', error)
 		throw error
@@ -299,7 +359,7 @@ export const updateMedicalCase = async (
 		}
 
 		console.log('✅ Caso médico actualizado exitosamente:', data)
-		return data
+		return data as MedicalCase
 	} catch (error) {
 		console.error('❌ Error actualizando caso médico:', error)
 		throw error

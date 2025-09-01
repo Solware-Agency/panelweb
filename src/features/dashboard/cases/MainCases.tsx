@@ -2,10 +2,10 @@ import React, { useState, useCallback, useMemo, useEffect, Suspense } from 'reac
 import { Download, Users, Activity, FileText, BarChart3, Stethoscope, FlaskConical } from 'lucide-react'
 import CasesTable from '@shared/components/cases/CasesTable'
 import type { MedicalCaseWithPatient } from '@lib/medical-cases-service'
-import type { MedicalRecord } from '@shared/types/types'
-import { mapToLegacyRecord, mapToLegacyRecords } from '@lib/mappers'
+import { mapToLegacyRecords } from '@lib/mappers'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
-import { getCasesWithPatientInfo, getMedicalCasesStats } from '@lib/medical-cases-service'
+import { getCasesWithPatientInfo } from '@lib/medical-cases-service'
+// import { getMedicalCasesStats } from '@lib/medical-cases-service' // Commented out - not currently used
 import { Card, CardContent } from '@shared/components/ui/card'
 import { Tooltip, TooltipTrigger, TooltipContent } from '@shared/components/ui/tooltip'
 import { Info } from 'lucide-react'
@@ -83,31 +83,33 @@ const MainCases: React.FC = React.memo(() => {
 		refetchInterval: 1000 * 60 * 1,
 	})
 
-	// Query for statistics
-	const statsQueryResult = useQuery({
-		queryKey: ['cases-stats'],
-		queryFn: () => getMedicalCasesStats(),
-		staleTime: 1000 * 60 * 5,
-		refetchOnWindowFocus: false,
-	})
+	// Query for statistics - commented out for now as it's not being used
+	// const statsQueryResult = useQuery({
+	//	queryKey: ['cases-stats'],
+	//	queryFn: () => getMedicalCasesStats(),
+	//	staleTime: 1000 * 60 * 5,
+	//	refetchOnWindowFocus: false,
+	// })
 
 	const { refetch, isLoading } = casesQueryResult
 	const cases: MedicalCaseWithPatient[] = useMemo(() => casesQueryResult.data?.data || [], [casesQueryResult.data])
 	const error = casesQueryResult.error
-	const stats = statsQueryResult.data
 
 	const handleCaseSelect = useCallback((case_: MedicalCaseWithPatient) => {
 		setSelectedCase(case_)
 		setIsPanelOpen(true)
 	}, [])
 
-	const handleLegacyCaseSelect = useCallback((legacyCase: MedicalRecord) => {
-		// Find the original case from our data
-		const originalCase = cases?.find(c => c.id === legacyCase.id)
-		if (originalCase) {
-			handleCaseSelect(originalCase)
-		}
-	}, [cases, handleCaseSelect])
+	const handleLegacyCaseSelect = useCallback(
+		(legacyCase: MedicalCaseWithPatient) => {
+			// Find the original case from our data
+			const originalCase = cases?.find((c) => c.id === legacyCase.id)
+			if (originalCase) {
+				handleCaseSelect(originalCase)
+			}
+		},
+		[cases, handleCaseSelect],
+	)
 
 	const handlePanelClose = useCallback(() => {
 		setIsPanelOpen(false)

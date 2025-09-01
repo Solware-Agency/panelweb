@@ -1,11 +1,8 @@
 import { supabase } from '@lib/supabase/config'
-import { type FormValues } from '@features/form/lib/form-schema'
-import { prepareSubmissionData } from '@features/form/lib/prepareSubmissionData'
-import { calculatePaymentDetailsFromRecord } from '@features/form/lib/payment/payment-utils'
-import type { MedicalRecordInsert } from '@shared/types/types'
-import type { Database } from '@shared/types/types'
+// Legacy imports removed - using new structure
 
-export type MedicalRecord = Database['public']['Tables']['medical_records_clean']['Row']
+// Usar el tipo unificado de types.ts
+export type MedicalRecord = import('@shared/types/types').MedicalRecord
 
 export interface CustomError extends Error {
 	code?: string
@@ -614,14 +611,16 @@ export const updateMedicalRecordWithLog = async (
 		console.log('Changes to log:', changes)
 
 		// Update the medical record first (this now includes payment status calculation)
-		const { data: updatedRecord, error: updateError } = await updateMedicalRecord(id, updates)
+		// Legacy function call removed - using medical-cases-service instead
+		// const { data: updatedRecord, error: updateError } = await updateMedicalRecord(id, updates)
+		throw new Error('Use medical-cases-service for updates')
 
-		if (updateError) {
-			console.error('❌ Error updating medical record:', updateError)
-			return { data: null, error: updateError }
-		}
+		// if (updateError) {
+		//	console.error('❌ Error updating medical record:', updateError)
+		//	return { data: null, error: updateError }
+		// }
 
-		console.log('✅ Medical record updated successfully:', updatedRecord)
+		// console.log('✅ Medical record updated successfully:', updatedRecord)
 
 		// Save change logs
 		const { error: logError } = await saveChangeLog(id, userId, userEmail, changes)
@@ -635,7 +634,8 @@ export const updateMedicalRecordWithLog = async (
 		}
 
 		console.log('✅ Medical record updated and change logs saved successfully')
-		return { data: updatedRecord, error: null }
+		// return { data: updatedRecord, error: null }
+	return { data: null, error: new Error('Use medical-cases-service for updates') }
 	} catch (error) {
 		console.error('❌ Unexpected error in updateMedicalRecordWithLog:', error)
 		return { data: null, error }
@@ -816,7 +816,8 @@ export const updateImmunoRequestPrice = async (requestId: string, precioUnitario
 	}
 }
 // Mantener compatibilidad con nombres anteriores
-export const insertCliente = insertMedicalRecord
+// Legacy function removed
+// export const insertCliente = insertMedicalRecord
 export const getClientes = getMedicalRecords
 export const getClienteById = getMedicalRecordById
 export const searchClientes = searchMedicalRecords

@@ -1,7 +1,7 @@
 import React from 'react'
 import { motion, AnimatePresence } from 'motion/react'
 import { X, User, FileText, DollarSign, AlertTriangle, Microscope, Download } from 'lucide-react'
-import type { MedicalRecord } from '@lib/supabase-service'
+// import type { MedicalRecord } from '@lib/supabase-service' // No longer needed
 import type { MedicalCaseWithPatient } from '@lib/medical-cases-service'
 import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
