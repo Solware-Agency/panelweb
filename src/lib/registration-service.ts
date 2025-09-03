@@ -203,7 +203,6 @@ const prepareRegistrationData = (formData: FormValues, userId?: string) => {
 		// Información financiera
 		total_amount: formData.totalAmount,
 		payment_status: remaining > 0 ? 'Pendiente' : 'Pagado',
-		status: 'Pendiente',
 
 		// Información adicional
 		comments: formData.comments || null,
