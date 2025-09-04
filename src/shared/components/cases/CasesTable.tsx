@@ -9,11 +9,11 @@ import {
 	Maximize2,
 	Calendar as CalendarIcon,
 } from 'lucide-react'
-import type { Database } from '@shared/types/types'
+import type { MedicalCaseWithPatient } from '@lib/medical-cases-service'
 import { getAgeDisplay } from '@lib/supabase-service'
 
 // Tipo unificado que incluye todos los campos necesarios para compatibilidad
-type UnifiedMedicalRecord = Database['public']['Views']['medical_cases_with_patient']['Row']
+type UnifiedMedicalRecord = MedicalCaseWithPatient
 import { useToast } from '@shared/hooks/use-toast'
 import { Button } from '@shared/components/ui/button'
 import { Input } from '@shared/components/ui/input'

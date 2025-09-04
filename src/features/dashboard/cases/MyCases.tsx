@@ -4,6 +4,7 @@ import CaseDetailPanel from '@shared/components/cases/CaseDetailPanel'
 import type { MedicalCaseWithPatient } from '@lib/medical-cases-service'
 import { mapToLegacyRecords } from '@lib/mappers'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { getCasesWithPatientInfo } from '@lib/medical-cases-service'
 import { supabase } from '@lib/supabase/config'
 import { useAuth } from '@app/providers/AuthContext'
 import DoctorFilterPanel from '@shared/components/cases/DoctorFilterPanel'
@@ -45,17 +46,14 @@ const MyCases: React.FC = React.memo(() => {
 		queryFn: async () => {
 			if (!user) return { data: [] }
 
-			const { data, error } = await supabase
-				.from('medical_cases_with_patient')
-				.select('*')
-				.eq('generated_by', user.id)
-				.order('created_at', { ascending: false })
-
-			if (error) {
+			try {
+				const result = await getCasesWithPatientInfo(1, 1000, {})
+				// Filtrar por generated_by después de obtener los datos
+				const filteredData = result.data.filter((case_) => case_.generated_by === user.id)
+				return { data: filteredData }
+			} catch (error) {
 				throw error
 			}
-
-			return { data: data || [] }
 		},
 		staleTime: 1000 * 60 * 5, // 5 minutes
 		enabled: !!user, // Only run query if user is logged in

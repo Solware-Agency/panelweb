@@ -4,7 +4,7 @@
 // Servicios para manejar medical_records_clean con referencia a patients
 
 import { supabase } from './supabase/config'
-import type { Database } from '@shared/types/types'
+// import type { Database } from '@shared/types/types' // No longer used
 
 // Tipos específicos para casos médicos (simplificados para evitar problemas de importación)
 export interface MedicalCase {
@@ -178,8 +178,58 @@ export interface MedicalCaseUpdate {
 	doc_aprobado?: 'faltante' | 'pendiente' | 'aprobado' | undefined
 }
 
-// Tipo para casos médicos con información del paciente (usando la vista)
-export type MedicalCaseWithPatient = Database['public']['Views']['medical_cases_with_patient']['Row']
+// Tipo para casos médicos con información del paciente (usando JOIN directo)
+export interface MedicalCaseWithPatient {
+	// Campos de medical_records_clean
+	id: string
+	patient_id: string | null
+	exam_type: string
+	origin: string
+	treating_doctor: string
+	sample_type: string
+	number_of_samples: number
+	relationship: string | null
+	branch: string
+	date: string
+	total_amount: number
+	exchange_rate: number | null
+	payment_status: string
+	remaining: number
+	payment_method_1: string | null
+	payment_amount_1: number | null
+	payment_reference_1: string | null
+	payment_method_2: string | null
+	payment_amount_2: number | null
+	payment_reference_2: string | null
+	payment_method_3: string | null
+	payment_amount_3: number | null
+	payment_reference_3: string | null
+	payment_method_4: string | null
+	payment_amount_4: number | null
+	payment_reference_4: string | null
+	comments: string | null
+	code: string | null
+	created_at: string | null
+	updated_at: string | null
+	created_by: string | null
+	created_by_display_name: string | null
+	material_remitido: string | null
+	informacion_clinica: string | null
+	descripcion_macroscopica: string | null
+	diagnostico: string | null
+	comentario: string | null
+	pdf_en_ready: boolean | null
+	attachment_url: string | null
+	doc_aprobado: 'faltante' | 'pendiente' | 'aprobado' | null
+	generated_by: string | null
+	version: number | null
+	// Campos de patients
+	cedula: string
+	nombre: string
+	edad: string | null
+	telefono: string | null
+	patient_email: string | null
+}
 
 // =====================================================================
 // FUNCIONES DEL SERVICIO DE CASOS MÉDICOS
@@ -256,7 +306,7 @@ export const getCaseById = async (caseId: string): Promise<MedicalCase | null> =
 }
 
 /**
- * Obtener casos médicos con información del paciente (usando vista)
+ * Obtener casos médicos con información del paciente (usando JOIN directo)
  */
 export const getCasesWithPatientInfo = async (
 	page = 1,
@@ -271,12 +321,24 @@ export const getCasesWithPatientInfo = async (
 	},
 ) => {
 	try {
-		let query = supabase.from('medical_cases_with_patient').select('*', { count: 'exact' })
+		// Construir la consulta con JOIN directo
+		let query = supabase
+			.from('medical_records_clean')
+			.select(`
+				*,
+				patients!inner(
+					cedula,
+					nombre,
+					edad,
+					telefono,
+					email
+				)
+			`, { count: 'exact' })
 
 		// Aplicar filtros
 		if (filters?.searchTerm) {
 			query = query.or(
-				`nombre.ilike.%${filters.searchTerm}%,cedula.ilike.%${filters.searchTerm}%,code.ilike.%${filters.searchTerm}%`,
+				`patients.nombre.ilike.%${filters.searchTerm}%,patients.cedula.ilike.%${filters.searchTerm}%,code.ilike.%${filters.searchTerm}%`,
 			)
 		}
 
@@ -310,8 +372,19 @@ export const getCasesWithPatientInfo = async (
 			throw error
 		}
 
+		// Transformar los datos para que coincidan con la interfaz
+		const transformedData = (data || []).map((item: any) => ({
+			...item,
+			cedula: item.patients?.cedula || '',
+			nombre: item.patients?.nombre || '',
+			edad: item.patients?.edad || null,
+			telefono: item.patients?.telefono || null,
+			patient_email: item.patients?.email || null,
+			version: item.version || null,
+		})) as MedicalCaseWithPatient[]
+
 		return {
-			data: data || [],
+			data: transformedData,
 			count: count || 0,
 			page,
 			limit,
@@ -449,7 +522,21 @@ const logMedicalCaseChanges = async (
  */
 export const findCaseByCode = async (code: string): Promise<MedicalCaseWithPatient | null> => {
 	try {
-		const { data, error } = await supabase.from('medical_cases_with_patient').select('*').eq('code', code).single()
+		const { data, error } = await supabase
+			.from('medical_records_clean')
+			.select(`
+				*,
+				patients(
+					id,
+					cedula,
+					nombre,
+					edad,
+					telefono,
+					email
+				)
+			`)
+			.eq('code', code)
+			.single()
 
 		if (error) {
 			if (error.code === 'PGRST116') {
@@ -458,7 +545,19 @@ export const findCaseByCode = async (code: string): Promise<MedicalCaseWithPatie
 			throw error
 		}
 
-		return data
+		// Transformar los datos para que coincidan con la interfaz
+		const transformedData = {
+			...data,
+			patient_id: (data as any).patients?.id || data.patient_id,
+			cedula: (data as any).patients?.cedula || '',
+			nombre: (data as any).patients?.nombre || '',
+			edad: (data as any).patients?.edad || null,
+			telefono: (data as any).patients?.telefono || null,
+			patient_email: (data as any).patients?.email || null,
+			version: (data as any).version || null,
+		} as MedicalCaseWithPatient
+
+		return transformedData
 	} catch (error) {
 		console.error('Error buscando caso por código:', error)
 		throw error
@@ -471,7 +570,7 @@ export const findCaseByCode = async (code: string): Promise<MedicalCaseWithPatie
 export const getMedicalCasesStats = async (filters?: { dateFrom?: string; dateTo?: string; branch?: string }) => {
 	try {
 		let query = supabase
-			.from('medical_cases_with_patient')
+			.from('medical_records_clean')
 			.select('total_amount, payment_status, exam_type, branch, date')
 
 		// Aplicar filtros
@@ -498,7 +597,7 @@ export const getMedicalCasesStats = async (filters?: { dateFrom?: string; dateTo
 			totalCases: data?.length || 0,
 			totalRevenue: data?.reduce((sum, case_) => sum + (case_.total_amount || 0), 0) || 0,
 			paidCases: data?.filter((case_) => case_.payment_status === 'Pagado').length || 0,
-			pendingCases: data?.filter((case_) => case_.payment_status === 'Pendiente').length || 0,
+			pendingCases: data?.filter((case_) => case_.payment_status === 'Incompleto').length || 0,
 			examTypeBreakdown: {} as Record<string, number>,
 			branchBreakdown: {} as Record<string, number>,
 		}

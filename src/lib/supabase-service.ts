@@ -653,7 +653,7 @@ export const getMedicalRecordsStats = async () => {
 					total: data.length,
 					totalAmount: data.reduce((sum, record) => sum + record.total_amount, 0),
 					completed: data.filter((record) => record.payment_status === 'Pagado').length,
-					pending: data.filter((record) => record.payment_status === 'Pendiente').length,
+					pending: data.filter((record) => record.payment_status === 'Incompleto').length,
 					incomplete: data.filter((record) => record.payment_status === 'Incompleto').length,
 				}
 

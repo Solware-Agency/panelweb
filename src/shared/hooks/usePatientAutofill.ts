@@ -39,10 +39,14 @@ export const usePatientAutofill = (setValue: UseFormSetValue<FormValues>) => {
 					setValue('phone', data.telefono || '')
 					setValue('email', data.email || '')
 
-					// En la nueva estructura, edad es un número directo
+					// Parsear la edad del paciente para extraer valor y unidad
 					if (data.edad) {
-						setValue('ageValue', data.edad)
-						// No hay ageUnit en FormValues, se asume que es años por defecto
+						const match = data.edad.match(/^(\d+)\s*(AÑOS|MESES)$/i)
+						if (match) {
+							const ageValue = Number(match[1])
+							setValue('ageValue', ageValue)
+							// Nota: ageUnit no está en FormValues, se asume AÑOS por defecto
+						}
 					}
 
 					setLastFilledPatient(data.nombre)
