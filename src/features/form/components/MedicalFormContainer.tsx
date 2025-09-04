@@ -101,9 +101,11 @@ export function MedicalFormContainer() {
 
 			try {
 				console.log('Enviando datos del formulario con nueva estructura:', data)
+				console.log('Datos de pagos:', data.payments)
+				console.log('Tasa de cambio:', exchangeRate)
 
 				// Validar datos antes del envío
-				const validationErrors = validateRegistrationData(data)
+				const validationErrors = validateRegistrationData(data, exchangeRate)
 				if (validationErrors.length > 0) {
 					toast({
 						title: '❌ Error de validación',
@@ -114,7 +116,7 @@ export function MedicalFormContainer() {
 				}
 
 				// Registrar caso médico con nueva estructura
-				const result = await registerMedicalCase(data)
+				const result = await registerMedicalCase(data, exchangeRate)
 
 				if (result.error) {
 					console.error('Error al guardar con nueva estructura:', result.error)

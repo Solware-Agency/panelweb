@@ -20,7 +20,7 @@ import {
 	ReportsPage,
 	UsersPage,
 	CasesPage,
-	MyCasesPage,
+	// MyCasesPage,
 	SettingsPage,
 	ChangelogPage,
 	// StandaloneChangelogPage,
@@ -114,7 +114,7 @@ function App() {
 								<Route path="reports" element={<ReportsPage />} />
 								<Route path="users" element={<UsersPage />} />
 								<Route path="cases" element={<CasesPage />} />
-								<Route path="my-cases" element={<MyCasesPage />} />
+								{/* <Route path="my-cases" element={<MyCasesPage />} /> */}
 								<Route path="patients" element={<PatientsPage />} />
 								<Route path="changelog" element={<ChangelogPage />} />
 								<Route path="doctors" element={<DoctorsSection />} />
@@ -154,7 +154,7 @@ function App() {
 								{/* Nested routes that will render in the Outlet */}
 								<Route index element={<CasesPage />} />
 								<Route path="cases" element={<CasesPage />} />
-								<Route path="my-cases" element={<MyCasesPage />} />
+								{/* <Route path="my-cases" element={<MyCasesPage />} /> */}
 								<Route path="users" element={<UsersPage />} />
 								<Route path="settings" element={<SettingsPage />} />
 							</Route>

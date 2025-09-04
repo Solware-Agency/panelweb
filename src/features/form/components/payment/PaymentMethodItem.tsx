@@ -82,16 +82,13 @@ export const PaymentMethodItem = memo(
 
 							return (
 								<FormItem>
-									<FormLabel>
-										Monto {currencyLabel}
-									</FormLabel>
+									<FormLabel>Monto {currencyLabel}</FormLabel>
 									<FormControl>
 										<div className="flex flex-col gap-1 w-full">
 											<div className="w-full">
 												<Input
 													type="text"
 													inputMode="decimal"
-													
 													placeholder={calculatorHandler.placeholder}
 													value={calculatorHandler.displayValue}
 													onKeyDown={calculatorHandler.handleKeyDown}

@@ -29,7 +29,7 @@ import { useToast } from '@shared/hooks/use-toast'
 import { Button } from '@shared/components/ui/button'
 import { Input } from '@shared/components/ui/input'
 import { Textarea } from '@shared/components/ui/textarea'
-import { createDropdownOptions } from '@shared/components/ui/form-dropdown'
+import { createDropdownOptions, FormDropdown } from '@shared/components/ui/form-dropdown'
 import { CustomDropdown } from '@shared/components/ui/custom-dropdown'
 import { AutocompleteInput } from '@shared/components/ui/autocomplete-input'
 import { useAuth } from '@app/providers/AuthContext'
@@ -41,6 +41,7 @@ import { WhatsAppIcon } from '@shared/components/icons/WhatsAppIcon'
 import { useBodyScrollLock } from '@shared/hooks/useBodyScrollLock'
 import { useGlobalOverlayOpen } from '@shared/hooks/useGlobalOverlayOpen'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@shared/components/ui/tooltip'
+import { createCalculatorInputHandlerWithCurrency } from '@shared/utils/number-utils'
 
 interface ChangeLogEntry {
 	id: string
@@ -55,6 +56,17 @@ interface ChangeLogEntry {
 	new_value: string | null
 	changed_at: string
 	deleted_record_info: string | null
+}
+
+interface PaymentMethod {
+	method: string
+	amount: number
+	reference: string
+}
+
+// Extend MedicalCaseUpdate to include payment method fields
+interface ExtendedMedicalCaseUpdate extends MedicalCaseUpdate {
+	[key: string]: unknown
 }
 
 interface CaseDetailPanelProps {
@@ -149,6 +161,14 @@ const UnifiedCaseModal: React.FC<CaseDetailPanelProps> = React.memo(({ case_, is
 	const [immunoReactions, setImmunoReactions] = useState<string[]>([])
 	const [isRequestingImmuno, setIsRequestingImmuno] = useState(false)
 
+	// Payment editing states
+	const [paymentMethods, setPaymentMethods] = useState<PaymentMethod[]>([])
+	const [newPaymentMethod, setNewPaymentMethod] = useState<PaymentMethod>({
+		method: '',
+		amount: 0,
+		reference: '',
+	})
+
 	// Query to get existing immuno request for this case
 	const { data: existingImmunoRequest, refetch: refetchImmunoRequest } = useQuery({
 		queryKey: ['immuno-request', case_?.id],
@@ -174,15 +194,16 @@ const UnifiedCaseModal: React.FC<CaseDetailPanelProps> = React.memo(({ case_, is
 			if (!case_) return null
 
 			// First try to get creator info from the record itself (for new records)
-			if (case_.generated_by) {
+			// Priorizar los nuevos campos created_by y created_by_display_name
+			if (case_.created_by && case_.created_by_display_name) {
 				return {
-					id: case_.generated_by,
+					id: case_.created_by,
 					email: '', // We don't have the email in the record
-					displayName: 'Usuario del sistema',
+					displayName: case_.created_by_display_name,
 				}
 			}
 
-			// If not available, try to get from change logs
+			// Fallback: try to get from change logs
 			if (!case_.id) return null
 
 			const { data, error } = await supabase
@@ -289,9 +310,26 @@ const UnifiedCaseModal: React.FC<CaseDetailPanelProps> = React.memo(({ case_, is
 				origin: currentCase.origin,
 				branch: currentCase.branch,
 				comments: currentCase.comments,
+				// Financial data
+				total_amount: currentCase.total_amount,
+				exchange_rate: currentCase.exchange_rate,
 			})
+
+			// Initialize payment methods from current case
+			const methods: PaymentMethod[] = []
+			for (let i = 1; i <= 4; i++) {
+				const method = currentCase[`payment_method_${i}` as keyof MedicalCaseWithPatient] as string
+				const amount = currentCase[`payment_amount_${i}` as keyof MedicalCaseWithPatient] as number
+				const reference = currentCase[`payment_reference_${i}` as keyof MedicalCaseWithPatient] as string
+
+				if (method && amount) {
+					methods.push({ method, amount, reference: reference || '' })
+				}
+			}
+			setPaymentMethods(methods)
 		} else {
 			setEditedCase({})
+			setPaymentMethods([])
 		}
 	}, [currentCase, isEditing])
 
@@ -316,6 +354,8 @@ const UnifiedCaseModal: React.FC<CaseDetailPanelProps> = React.memo(({ case_, is
 	const handleCancelEdit = () => {
 		setIsEditing(false)
 		setEditedCase({})
+		setPaymentMethods([])
+		setNewPaymentMethod({ method: '', amount: 0, reference: '' })
 		setImmunoReactions(
 			existingImmunoRequest
 				? existingImmunoRequest.inmunorreacciones
@@ -374,6 +414,41 @@ const UnifiedCaseModal: React.FC<CaseDetailPanelProps> = React.memo(({ case_, is
 			[field]: value,
 		}))
 	}, [])
+
+	// Payment method handlers
+	const handlePaymentMethodChange = (index: number, field: keyof PaymentMethod, value: string | number) => {
+		const updatedMethods = [...paymentMethods]
+		updatedMethods[index] = { ...updatedMethods[index], [field]: value }
+		setPaymentMethods(updatedMethods)
+	}
+
+	const handleAddPaymentMethod = () => {
+		if (!newPaymentMethod.method || !newPaymentMethod.amount) {
+			toast({
+				title: '❌ Error',
+				description: 'Debe completar el método de pago y el monto.',
+				variant: 'destructive',
+			})
+			return
+		}
+
+		if (paymentMethods.length >= 4) {
+			toast({
+				title: '❌ Error',
+				description: 'No se pueden agregar más de 4 métodos de pago.',
+				variant: 'destructive',
+			})
+			return
+		}
+
+		setPaymentMethods([...paymentMethods, { ...newPaymentMethod }])
+		setNewPaymentMethod({ method: '', amount: 0, reference: '' })
+	}
+
+	const handleRemovePaymentMethod = (index: number) => {
+		const updatedMethods = paymentMethods.filter((_, i) => i !== index)
+		setPaymentMethods(updatedMethods)
+	}
 
 	const handleRequestImmunoReactions = async () => {
 		if (!case_ || !user || immunoReactions.length === 0) return
@@ -442,6 +517,7 @@ const UnifiedCaseModal: React.FC<CaseDetailPanelProps> = React.memo(({ case_, is
 			// Separar cambios en datos del paciente vs datos del caso
 			const patientFields = ['nombre', 'telefono', 'patient_email', 'edad']
 			const caseFields = ['exam_type', 'treating_doctor', 'origin', 'branch', 'comments']
+			const financialFields = ['total_amount', 'exchange_rate']
 
 			// Detectar cambios en datos del paciente
 			const patientChanges: Partial<PatientUpdate> = {}
@@ -500,7 +576,97 @@ const UnifiedCaseModal: React.FC<CaseDetailPanelProps> = React.memo(({ case_, is
 				}
 			}
 
-			if (Object.keys(patientChanges).length === 0 && Object.keys(caseChanges).length === 0) {
+			// Detectar cambios en datos financieros
+			const financialChanges: Partial<ExtendedMedicalCaseUpdate> = {}
+			const financialChangeLogs = []
+
+			for (const field of financialFields) {
+				const newValue = editedCase[field as keyof MedicalCaseWithPatient]
+				const oldValue = currentCase[field as keyof MedicalCaseWithPatient]
+
+				if (newValue !== oldValue) {
+					if (field === 'total_amount') {
+						financialChanges.total_amount = newValue as number
+					} else if (field === 'exchange_rate') {
+						financialChanges.exchange_rate = newValue as number
+					}
+					financialChangeLogs.push({
+						field,
+						fieldLabel: getFieldLabel(field),
+						oldValue,
+						newValue,
+					})
+				}
+			}
+
+			// Actualizar métodos de pago si hay cambios
+			const currentPaymentMethods: PaymentMethod[] = []
+			for (let i = 1; i <= 4; i++) {
+				const method = currentCase[`payment_method_${i}` as keyof MedicalCaseWithPatient] as string
+				const amount = currentCase[`payment_amount_${i}` as keyof MedicalCaseWithPatient] as number
+				const reference = currentCase[`payment_reference_${i}` as keyof MedicalCaseWithPatient] as string
+
+				if (method && amount) {
+					currentPaymentMethods.push({ method, amount, reference: reference || '' })
+				}
+			}
+
+			// Verificar si hay cambios en los métodos de pago
+			const paymentMethodsChanged =
+				paymentMethods.length !== currentPaymentMethods.length ||
+				paymentMethods.some((pm, index) => {
+					const current = currentPaymentMethods[index]
+					return (
+						!current ||
+						pm.method !== current.method ||
+						pm.amount !== current.amount ||
+						pm.reference !== current.reference
+					)
+				})
+
+			if (paymentMethodsChanged) {
+				// Limpiar todos los campos de pago existentes
+				for (let i = 1; i <= 4; i++) {
+					financialChanges[`payment_method_${i}`] = null
+					financialChanges[`payment_amount_${i}`] = null
+					financialChanges[`payment_reference_${i}`] = null
+				}
+
+				// Agregar los nuevos métodos de pago
+				paymentMethods.forEach((pm, index) => {
+					const i = index + 1
+					financialChanges[`payment_method_${i}`] = pm.method
+					financialChanges[`payment_amount_${i}`] = pm.amount
+					financialChanges[`payment_reference_${i}`] = pm.reference || null
+				})
+
+				// Calcular monto restante
+				const totalAmount = editedCase.total_amount || currentCase.total_amount || 0
+				const totalPaid = paymentMethods.reduce((sum, pm) => sum + (pm.amount || 0), 0)
+				financialChanges.remaining = Math.max(0, totalAmount - totalPaid)
+
+				// Actualizar estado de pago
+				if (totalPaid >= totalAmount) {
+					financialChanges.payment_status = 'Pagado'
+				} else if (totalPaid > 0) {
+					financialChanges.payment_status = 'Parcial'
+				} else {
+					financialChanges.payment_status = 'Incompleto'
+				}
+
+				financialChangeLogs.push({
+					field: 'payment_methods',
+					fieldLabel: 'Métodos de Pago',
+					oldValue: currentPaymentMethods.map((pm) => `${pm.method}: $${pm.amount}`).join(', '),
+					newValue: paymentMethods.map((payment) => `${payment.method}: $${payment.amount}`).join(', '),
+				})
+			}
+
+			if (
+				Object.keys(patientChanges).length === 0 &&
+				Object.keys(caseChanges).length === 0 &&
+				Object.keys(financialChanges).length === 0
+			) {
 				toast({
 					title: 'Sin cambios',
 					description: 'No se detectaron cambios para guardar.',
@@ -574,6 +740,36 @@ const UnifiedCaseModal: React.FC<CaseDetailPanelProps> = React.memo(({ case_, is
 				})
 			}
 
+			// Actualizar datos financieros si hay cambios
+			if (Object.keys(financialChanges).length > 0) {
+				await updateMedicalCase(currentCase.id, financialChanges, user.id)
+
+				// Registrar cambios en logs para el caso
+				for (const change of financialChangeLogs) {
+					const changeLog = {
+						medical_record_id: currentCase.id,
+						user_id: user.id,
+						user_email: user.email || 'unknown@email.com',
+						user_display_name: user.user_metadata?.display_name || null,
+						field_name: change.field,
+						field_label: change.fieldLabel,
+						old_value: change.oldValue?.toString() || null,
+						new_value: change.newValue?.toString() || null,
+						changed_at: new Date().toISOString(),
+						entity_type: 'medical_case',
+					}
+
+					const { error: logError } = await supabase.from('change_logs').insert(changeLog)
+					if (logError) console.error('Error logging financial change:', logError)
+				}
+
+				toast({
+					title: '✅ Información financiera actualizada',
+					description: 'Los cambios financieros se han guardado exitosamente.',
+					className: 'bg-green-100 border-green-400 text-green-800',
+				})
+			}
+
 			// Refetch the case data to get the updated information
 			refetchCaseData()
 
@@ -582,6 +778,7 @@ const UnifiedCaseModal: React.FC<CaseDetailPanelProps> = React.memo(({ case_, is
 
 			// Clear edited case state
 			setEditedCase({})
+			setPaymentMethods([])
 
 			// Call onSave callback if provided
 			if (onSave) {
@@ -680,6 +877,7 @@ const UnifiedCaseModal: React.FC<CaseDetailPanelProps> = React.memo(({ case_, is
 			treating_doctor: 'Médico Tratante',
 			branch: 'Sede',
 			total_amount: 'Monto Total',
+			exchange_rate: 'Tasa de Cambio',
 			payment_status: 'Estado de Pago',
 			status: 'Estado',
 			comments: 'Comentarios',
@@ -783,6 +981,29 @@ const UnifiedCaseModal: React.FC<CaseDetailPanelProps> = React.memo(({ case_, is
 
 	// PDF functionality temporarily disabled in new structure
 	// const handleRedirectToPDF = async (caseId: string) => { ... }
+
+	// Calculate financial information
+	const totalAmount = currentCase?.total_amount || 0
+	const exchangeRate = currentCase?.exchange_rate || 0
+
+	// Get payment methods from current case data
+	const currentPaymentMethods: PaymentMethod[] = []
+	for (let i = 1; i <= 4; i++) {
+		const method = currentCase[`payment_method_${i}` as keyof MedicalCaseWithPatient] as string
+		const amount = currentCase[`payment_amount_${i}` as keyof MedicalCaseWithPatient] as number
+		const reference = currentCase[`payment_reference_${i}` as keyof MedicalCaseWithPatient] as string
+
+		if (method && amount) {
+			currentPaymentMethods.push({ method, amount, reference: reference || '' })
+		}
+	}
+
+	// Use current payment methods if not editing, otherwise use edited ones
+	const effectivePaymentMethods = isEditing ? paymentMethods : currentPaymentMethods
+	const totalPaid = effectivePaymentMethods.reduce((sum, pm) => sum + (pm.amount || 0), 0)
+	const remainingUSD = Math.max(0, totalAmount - totalPaid)
+	const remainingVES = remainingUSD * exchangeRate
+	const isPaymentComplete = totalPaid >= totalAmount
 
 	return (
 		<>
@@ -906,7 +1127,7 @@ const UnifiedCaseModal: React.FC<CaseDetailPanelProps> = React.memo(({ case_, is
 													<button
 														onClick={handleSaveChanges}
 														disabled={isSaving}
-														className="inline-flex items-center gap-1 px-3 py-2 text-xs font-semibold rounded-md bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300"
+														className="inline-flex items-center gap-1 px-3 py-2 text-xs font-semibold rounded-md bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300 cursor-pointer"
 													>
 														{isSaving ? (
 															<>
@@ -922,7 +1143,7 @@ const UnifiedCaseModal: React.FC<CaseDetailPanelProps> = React.memo(({ case_, is
 													</button>
 													<button
 														onClick={handleCancelEdit}
-														className="inline-flex items-center gap-1 px-3 py-2 text-xs font-semibold rounded-md bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300"
+														className="inline-flex items-center gap-1 px-3 py-2 text-xs font-semibold rounded-md bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300 cursor-pointer"
 														disabled={isSaving}
 													>
 														<XCircle className="w-4 h-4" />
@@ -1376,43 +1597,303 @@ const UnifiedCaseModal: React.FC<CaseDetailPanelProps> = React.memo(({ case_, is
 
 								{/* Financial Information */}
 								<InfoSection title="Información Financiera" icon={CreditCard}>
-									<div className="space-y-1">
-										<InfoRow
-											label="Monto total"
-											value={`$${currentCase.total_amount?.toLocaleString() || '0'}`}
-											editable={false}
-										/>
-										{/* Note: exchange_rate not in new structure */}
-									</div>
+									<div className="space-y-4">
+										{/* Total Amount - Editable */}
+										<div className="flex flex-col sm:flex-row sm:justify-between py-3 border-b border-gray-200 dark:border-gray-700 last:border-b-0 hover:bg-gray-50 dark:hover:bg-gray-800/30 transition-transform duration-150 rounded px-2 -mx-2">
+											<span className="text-sm font-medium text-gray-600 dark:text-gray-400">Monto total:</span>
+											{isEditing ? (
+												<div className="sm:w-1/2">
+													{(() => {
+														const calculatorHandler = createCalculatorInputHandlerWithCurrency(
+															editedCase.total_amount || currentCase?.total_amount || 0,
+															(value) => handleInputChange('total_amount', value),
+															'USD',
+															exchangeRate,
+														)
 
-									{/* Payment status indicator based on payment_status field */}
-									{currentCase.payment_status !== 'Pagado' && (
-										<div className="bg-orange-50 dark:bg-orange-900/20 p-2 sm:p-3 rounded-lg border border-orange-200 dark:border-orange-800">
-											<div className="flex items-center gap-1.5 sm:gap-2">
-												<AlertTriangle className="w-5 h-5 text-orange-600 dark:text-orange-400" />
-												<p className="text-xs sm:text-sm font-medium text-orange-800 dark:text-orange-300">
-													Estado de pago: {currentCase.payment_status}
-												</p>
-											</div>
-										</div>
-									)}
-
-									{/* Payment Methods - Note: Payment details moved to separate system in new structure */}
-									<div className="mt-4">
-										<div className="flex items-center justify-between mb-2">
-											<h4 className="text-sm font-medium text-gray-700 dark:text-gray-300">Estado de Pago:</h4>
-										</div>
-										<div className="space-y-2">
-											<div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 p-4 rounded-lg border border-blue-200 dark:border-blue-700">
-												<div className="flex justify-center items-center">
-													<span
-														className={`inline-flex px-3 py-1 text-sm font-semibold rounded-full ${getStatusColor(
-															currentCase.payment_status,
-														)}`}
-													>
-														{currentCase.payment_status}
-													</span>
+														return (
+															<div className="flex flex-col gap-1 w-full">
+																<div className="w-full">
+																	<Input
+																		type="text"
+																		inputMode="decimal"
+																		placeholder={calculatorHandler.placeholder}
+																		value={calculatorHandler.displayValue}
+																		onKeyDown={calculatorHandler.handleKeyDown}
+																		onPaste={calculatorHandler.handlePaste}
+																		onFocus={calculatorHandler.handleFocus}
+																		onChange={calculatorHandler.handleChange}
+																		className="text-sm border-dashed focus:border-primary focus:ring-primary bg-gray-50 dark:bg-gray-800/50 text-right font-mono"
+																		autoComplete="off"
+																	/>
+																</div>
+																{calculatorHandler.conversionText && (
+																	<p className="text-xs text-green-600 dark:text-green-400 text-right">
+																		{calculatorHandler.conversionText}
+																	</p>
+																)}
+															</div>
+														)
+													})()}
 												</div>
+											) : (
+												<span className="text-sm text-gray-900 dark:text-gray-100 sm:text-right font-medium">
+													${totalAmount.toFixed(2)}
+												</span>
+											)}
+										</div>
+
+										{/* Exchange Rate - NOT Editable */}
+										<div className="flex flex-col sm:flex-row sm:justify-between py-3 border-b border-gray-200 dark:border-gray-700 last:border-b-0 hover:bg-gray-50 dark:hover:bg-gray-800/30 transition-transform duration-150 rounded px-2 -mx-2">
+											<span className="text-sm font-medium text-gray-600 dark:text-gray-400">
+												Tasa de cambio (USD/VES):
+											</span>
+											<span className="text-sm text-gray-900 dark:text-gray-100 sm:text-right font-medium">
+												{exchangeRate.toFixed(2)}
+											</span>
+										</div>
+
+										{/* Payment Status Display */}
+										{isPaymentComplete ? (
+											<div className="bg-green-50 dark:bg-green-900/20 p-3 rounded-lg border border-green-200 dark:border-green-800">
+												<div className="flex items-center gap-2 mb-2">
+													<span className="text-green-600 dark:text-green-400">✅</span>
+													<p className="text-sm font-medium text-green-800 dark:text-green-300">Pago completo:</p>
+												</div>
+												<div className="grid grid-cols-2 gap-4 text-sm">
+													<div>
+														<span className="text-green-700 dark:text-green-400">En USD:</span>
+														<p className="font-medium text-green-800 dark:text-green-300">${totalAmount.toFixed(2)}</p>
+													</div>
+													<div>
+														<span className="text-green-700 dark:text-green-400">En Bs:</span>
+														<p className="font-medium text-green-800 dark:text-green-300">
+															Bs. {(totalAmount * exchangeRate).toFixed(2)}
+														</p>
+													</div>
+												</div>
+											</div>
+										) : remainingUSD > 0 ? (
+											<div className="bg-orange-50 dark:bg-orange-900/20 p-3 rounded-lg border border-orange-200 dark:border-orange-800">
+												<div className="flex items-center gap-2 mb-2">
+													<AlertTriangle className="w-5 h-5 text-orange-600 dark:text-orange-400" />
+													<p className="text-sm font-medium text-orange-800 dark:text-orange-300">Monto faltante:</p>
+												</div>
+												<div className="grid grid-cols-2 gap-4 text-sm">
+													<div>
+														<span className="text-orange-700 dark:text-orange-400">En USD:</span>
+														<p className="font-medium text-orange-800 dark:text-orange-300">
+															${remainingUSD.toFixed(2)}
+														</p>
+													</div>
+													<div>
+														<span className="text-orange-700 dark:text-orange-400">En Bs:</span>
+														<p className="font-medium text-orange-800 dark:text-orange-300">
+															Bs. {remainingVES.toFixed(2)}
+														</p>
+													</div>
+												</div>
+											</div>
+										) : null}
+
+										{/* Payment Methods Section */}
+										<div className="mt-4">
+											<div className="flex items-center justify-between mb-3">
+												<h4 className="text-sm font-medium text-gray-700 dark:text-gray-300">Métodos de Pago:</h4>
+												{isEditing && effectivePaymentMethods.length < 4 && (
+													<Button
+														onClick={handleAddPaymentMethod}
+														size="sm"
+														className="bg-green-600 hover:bg-green-700 text-white cursor-pointer"
+													>
+														<CreditCard className="w-4 h-4 mr-1" />
+														Agregar
+													</Button>
+												)}
+											</div>
+											<div className="flex flex-col gap-2">
+												{/* Existing Payment Methods */}
+												{effectivePaymentMethods.length > 0 ? (
+													<div className="space-y-3">
+														{effectivePaymentMethods.map((payment, index) => (
+															<div
+																key={index}
+																className="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg border border-blue-200 dark:border-blue-800"
+															>
+																<div className="flex items-center justify-between mb-2">
+																	<span className="text-xs font-medium text-black dark:text-white">
+																		Método de Pago #{index + 1}
+																	</span>
+																	{isEditing && (
+																		<Button
+																			onClick={() => handleRemovePaymentMethod(index)}
+																			size="sm"
+																			variant="destructive"
+																			className="h-6 w-6 p-0 cursor-pointer"
+																		>
+																			<X className="w-3 h-3" />
+																		</Button>
+																	)}
+																</div>
+
+																<div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+																	{isEditing ? (
+																		<>
+																			<FormDropdown
+																				options={createDropdownOptions([
+																					'Punto de venta',
+																					'Dólares en efectivo',
+																					'Zelle',
+																					'Pago móvil',
+																					'Bs en efectivo',
+																				])}
+																				value={payment.method}
+																				onChange={(value) => handlePaymentMethodChange(index, 'method', value)}
+																				placeholder="Método"
+																				className="text-xs border-dashed focus:border-primary focus:ring-primary"
+																			/>
+																			{(() => {
+																				const calculatorHandler = createCalculatorInputHandlerWithCurrency(
+																					payment.amount || 0,
+																					(value) => handlePaymentMethodChange(index, 'amount', value),
+																					payment.method,
+																					exchangeRate,
+																				)
+
+																				return (
+																					<div className="flex flex-col gap-1 w-full">
+																						<div className="w-full">
+																							<Input
+																								type="text"
+																								inputMode="decimal"
+																								placeholder={calculatorHandler.placeholder}
+																								value={calculatorHandler.displayValue}
+																								onKeyDown={calculatorHandler.handleKeyDown}
+																								onPaste={calculatorHandler.handlePaste}
+																								onFocus={calculatorHandler.handleFocus}
+																								onChange={calculatorHandler.handleChange}
+																								className="text-xs border-dashed focus:border-primary focus:ring-primary text-right font-mono"
+																								autoComplete="off"
+																							/>
+																						</div>
+																						{calculatorHandler.conversionText && (
+																							<p className="text-xs text-green-600 dark:text-green-400 text-right">
+																								{calculatorHandler.conversionText}
+																							</p>
+																						)}
+																					</div>
+																				)
+																			})()}
+																			<Input
+																				placeholder="Referencia"
+																				value={payment.reference}
+																				onChange={(e) => handlePaymentMethodChange(index, 'reference', e.target.value)}
+																				className="text-xs border-dashed focus:border-primary focus:ring-primary"
+																			/>
+																		</>
+																	) : (
+																		<>
+																			<div className="flex flex-col">
+																				<span className="text-xs text-blue-700 dark:text-blue-400 font-medium mb-1">
+																					Forma de Pago
+																				</span>
+																				<span className="text-xs text-blue-800 dark:text-blue-300 font-medium">
+																					{payment.method}
+																				</span>
+																			</div>
+																			<div className="flex flex-col">
+																				<span className="text-xs text-blue-700 dark:text-blue-400 font-medium mb-1">
+																					Monto
+																				</span>
+																				<span className="text-xs text-blue-800 dark:text-blue-300 font-medium">
+																					${payment.amount.toFixed(2)}
+																				</span>
+																			</div>
+																			<div className="flex flex-col">
+																				<span className="text-xs text-blue-700 dark:text-blue-400 font-medium mb-1">
+																					Referencia
+																				</span>
+																				<span className="text-xs text-blue-800 dark:text-blue-300">
+																					{payment.reference || 'Sin referencia'}
+																				</span>
+																			</div>
+																		</>
+																	)}
+																</div>
+															</div>
+														))}
+													</div>
+												) : (
+													<div className="text-center p-4 text-gray-500 dark:text-gray-400 text-sm">
+														{effectivePaymentMethods.length === 0
+															? 'No hay métodos de pago registrados'
+															: 'Cargando métodos de pago...'}
+													</div>
+												)}
+
+												{/* Add New Payment Method Form */}
+												{isEditing && effectivePaymentMethods.length < 4 && (
+													<div className="bg-gray-50 dark:bg-gray-800/50 p-3 rounded-lg border border-gray-200 dark:border-gray-700">
+														<h5 className="text-xs font-medium text-gray-700 dark:text-gray-300 mb-2">
+															Agregar Nuevo Método de Pago:
+														</h5>
+														<div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+															<FormDropdown
+																options={createDropdownOptions([
+																	'Punto de venta',
+																	'Dólares en efectivo',
+																	'Zelle',
+																	'Pago móvil',
+																	'Bs en efectivo',
+																])}
+																value={newPaymentMethod.method}
+																onChange={(value) => setNewPaymentMethod({ ...newPaymentMethod, method: value })}
+																placeholder="Método"
+																className="text-xs border-dashed focus:border-primary focus:ring-primary"
+															/>
+															{(() => {
+																const calculatorHandler = createCalculatorInputHandlerWithCurrency(
+																	newPaymentMethod.amount || 0,
+																	(value) => setNewPaymentMethod({ ...newPaymentMethod, amount: value }),
+																	newPaymentMethod.method,
+																	exchangeRate,
+																)
+
+																return (
+																	<div className="flex flex-col gap-1 w-full">
+																		<div className="w-full">
+																			<Input
+																				type="text"
+																				inputMode="decimal"
+																				placeholder={calculatorHandler.placeholder}
+																				value={calculatorHandler.displayValue}
+																				onKeyDown={calculatorHandler.handleKeyDown}
+																				onPaste={calculatorHandler.handlePaste}
+																				onFocus={calculatorHandler.handleFocus}
+																				onChange={calculatorHandler.handleChange}
+																				className="text-xs border-dashed focus:border-primary focus:ring-primary text-right font-mono"
+																				autoComplete="off"
+																			/>
+																		</div>
+																		{calculatorHandler.conversionText && (
+																			<p className="text-xs text-green-600 dark:text-green-400 text-right">
+																				{calculatorHandler.conversionText}
+																			</p>
+																		)}
+																	</div>
+																)
+															})()}
+															<Input
+																placeholder="Referencia"
+																value={newPaymentMethod.reference}
+																onChange={(e) =>
+																	setNewPaymentMethod({ ...newPaymentMethod, reference: e.target.value })
+																}
+																className="text-xs border-dashed focus:border-primary focus:ring-primary"
+															/>
+														</div>
+													</div>
+												)}
 											</div>
 										</div>
 									</div>

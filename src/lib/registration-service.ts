@@ -7,6 +7,7 @@
 import { findPatientByCedula, createPatient, updatePatient } from './patients-service'
 import { createMedicalCase } from './medical-cases-service'
 import { supabase } from './supabase/config'
+import { validateFormPayments } from '../features/form/lib/payment/payment-utils'
 
 // Tipo de formulario (evita importación circular)
 export interface FormValues {
@@ -65,12 +66,28 @@ export interface MedicalCaseInsert {
 	code?: string
 	total_amount: number
 	payment_status: string
-	status?: string
+	remaining?: number
+	payment_method_1?: string | null
+	payment_amount_1?: number | null
+	payment_reference_1?: string | null
+	payment_method_2?: string | null
+	payment_amount_2?: number | null
+	payment_reference_2?: string | null
+	payment_method_3?: string | null
+	payment_amount_3?: number | null
+	payment_reference_3?: string | null
+	payment_method_4?: string | null
+	payment_amount_4?: number | null
+	payment_reference_4?: string | null
+	exchange_rate?: number | null
 	comments?: string | null
 	generated_by?: string | null
 	created_at?: string | null
 	updated_at?: string | null
 	version?: number | null
+	// Campos adicionales para tracking de creación
+	created_by?: string | null
+	created_by_display_name?: string | null
 }
 
 // Tipos para el resultado del registro
@@ -93,7 +110,7 @@ export interface RegistrationResult {
  * 3. Si existe, verifica si hay cambios en datos del paciente
  * 4. Crea el caso médico enlazado al paciente
  */
-export const registerMedicalCase = async (formData: FormValues): Promise<RegistrationResult> => {
+export const registerMedicalCase = async (formData: FormValues, exchangeRate?: number): Promise<RegistrationResult> => {
 	try {
 		console.log('🚀 Iniciando registro con nueva estructura...')
 
@@ -106,7 +123,12 @@ export const registerMedicalCase = async (formData: FormValues): Promise<Registr
 		}
 
 		// Preparar datos del paciente y del caso
-		const { patientData, caseData } = prepareRegistrationData(formData, user.id)
+		const { patientData, caseData } = prepareRegistrationData(formData, user, exchangeRate)
+
+		console.log('📊 Datos preparados para inserción:')
+		console.log('Patient Data:', patientData)
+		console.log('Case Data:', caseData)
+		console.log('Exchange Rate:', exchangeRate)
 
 		// PASO 1: Buscar paciente existente por cédula
 		console.log(`🔍 Buscando paciente con cédula: ${patientData.cedula}`)
@@ -170,7 +192,7 @@ export const registerMedicalCase = async (formData: FormValues): Promise<Registr
 /**
  * Preparar datos separados para paciente y caso médico
  */
-const prepareRegistrationData = (formData: FormValues, userId?: string) => {
+const prepareRegistrationData = (formData: FormValues, user: any, exchangeRate?: number) => {
 	// Datos del paciente (tabla patients)
 	const patientData: PatientInsert = {
 		cedula: formData.idNumber,
@@ -203,12 +225,31 @@ const prepareRegistrationData = (formData: FormValues, userId?: string) => {
 		// Información financiera
 		total_amount: formData.totalAmount,
 		payment_status: remaining > 0 ? 'Incompleto' : 'Pagado',
+		remaining: remaining,
+		exchange_rate: exchangeRate || null,
+
+		// Información de pagos
+		payment_method_1: formData.payments?.[0]?.method || null,
+		payment_amount_1: formData.payments?.[0]?.amount || null,
+		payment_reference_1: formData.payments?.[0]?.reference || null,
+		payment_method_2: formData.payments?.[1]?.method || null,
+		payment_amount_2: formData.payments?.[1]?.amount || null,
+		payment_reference_2: formData.payments?.[1]?.reference || null,
+		payment_method_3: formData.payments?.[2]?.method || null,
+		payment_amount_3: formData.payments?.[2]?.amount || null,
+		payment_reference_3: formData.payments?.[2]?.reference || null,
+		payment_method_4: formData.payments?.[3]?.method || null,
+		payment_amount_4: formData.payments?.[3]?.amount || null,
+		payment_reference_4: formData.payments?.[3]?.reference || null,
 
 		// Información adicional
 		comments: formData.comments || null,
 
 		// Metadatos
-		generated_by: userId || null,
+		generated_by: user.id || null,
+		// Campos adicionales para tracking de creación
+		created_by: user.id || null,
+		created_by_display_name: user.user_metadata?.full_name || user.user_metadata?.name || user.email || null,
 	}
 
 	return { patientData, caseData }
@@ -256,7 +297,7 @@ export const searchPatientForForm = async (cedula: string) => {
 		// Parsear la edad del paciente para extraer valor y unidad
 		let ageValue = 0
 		let ageUnit: 'AÑOS' | 'MESES' = 'AÑOS'
-		
+
 		if (patient.edad) {
 			const match = patient.edad.match(/^(\d+)\s*(AÑOS|MESES)$/i)
 			if (match) {
@@ -275,7 +316,6 @@ export const searchPatientForForm = async (cedula: string) => {
 			// Otros campos se llenan con valores por defecto
 			ageValue: ageValue,
 			ageUnit: ageUnit,
-			
 		}
 	} catch (error) {
 		console.error('Error buscando paciente para formulario:', error)
@@ -286,7 +326,7 @@ export const searchPatientForForm = async (cedula: string) => {
 /**
  * Validar datos antes del registro
  */
-export const validateRegistrationData = (formData: FormValues): string[] => {
+export const validateRegistrationData = (formData: FormValues, exchangeRate?: number): string[] => {
 	const errors: string[] = []
 
 	// Validaciones obligatorias
@@ -314,12 +354,16 @@ export const validateRegistrationData = (formData: FormValues): string[] => {
 		errors.push('El monto total debe ser mayor a 0')
 	}
 
-	// Validar que al menos un método de pago tenga datos si hay montos
+	// Validar pagos usando la función que convierte correctamente las monedas
 	const hasPayments = formData.payments?.some((payment) => (payment.amount || 0) > 0) || false
-	const totalPayments = formData.payments?.reduce((sum, payment) => sum + (payment.amount || 0), 0) || 0
 
-	if (hasPayments && totalPayments > formData.totalAmount) {
-		errors.push('El total de pagos no puede ser mayor al monto total')
+	if (hasPayments) {
+		// Validar que los pagos no excedan el monto total (con conversión de monedas)
+		const paymentValidation = validateFormPayments(formData.payments || [], formData.totalAmount, exchangeRate)
+
+		if (!paymentValidation.isValid) {
+			errors.push(paymentValidation.errorMessage || 'Error en la validación de pagos')
+		}
 	}
 
 	return errors

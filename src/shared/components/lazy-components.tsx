@@ -3,7 +3,7 @@ import { lazy } from 'react'
 // Components that use heavy libraries - lazy loaded
 export const PatientHistoryModal = lazy(() => import('./patients/PatientHistoryModal'))
 export const UnifiedCaseModal = lazy(() => import('./cases/UnifiedCaseModal'))
-export const CaseDetailPanel = lazy(() => import('./cases/CaseDetailPanel'))
+// export const CaseDetailPanel = lazy(() => import('./cases/CaseDetailPanel'))
 export const RequestCaseModal = lazy(() => import('./cases/RequestCaseModal'))
 export const StepsCaseModal = lazy(() => import('./cases/StepsCaseModal'))
 export const StatDetailPanel = lazy(() => import('./ui/stat-detail-panel'))

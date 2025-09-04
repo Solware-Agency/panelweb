@@ -32,7 +32,7 @@ export const ReceptionistHomePage = lazy(() => import('@features/dashboard/home/
 export const ReportsPage = lazy(() => import('@features/dashboard/reports/ReportsPage'))
 export const UsersPage = lazy(() => import('@features/dashboard/users/UsersPage'))
 export const CasesPage = lazy(() => import('@features/dashboard/cases/CasesPage'))
-export const MyCasesPage = lazy(() => import('@features/dashboard/cases/MyCasesPage'))
+// export const MyCasesPage = lazy(() => import('@features/dashboard/cases/MyCasesPage'))
 export const SettingsPage = lazy(() => import('@features/dashboard/settings/SettingsPage'))
 export const ChangelogPage = lazy(() => import('@features/dashboard/changelog/ChangelogPage'))
 
