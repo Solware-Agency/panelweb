@@ -147,17 +147,64 @@ export const validatePaymentTotal = (
  * @returns Total amount paid in USD
  */
 export const calculateTotalPaidUSD = (payments: Payment[], exchangeRate: number | undefined): number => {
-	return payments.reduce((acc, payment) => {
+	let totalUSD = 0
+	
+	payments.forEach(payment => {
 		const amount = payment.amount ? parseDecimalNumber(payment.amount) : 0
-		if (!payment.method || !amount) return acc
+		if (!payment.method || !amount) return
 
 		if (isBolivaresMethod(payment.method)) {
 			if (exchangeRate && exchangeRate > 0) {
-				return acc + amount / exchangeRate
+				const usdAmount = amount / exchangeRate
+				console.log(`💰 Convirtiendo ${amount} Bs a USD: ${amount} / ${exchangeRate} = ${usdAmount.toFixed(2)} USD`)
+				totalUSD += usdAmount
+			} else {
+				console.warn(`⚠️ No hay tasa de cambio para convertir ${amount} Bs (método: ${payment.method})`)
+				// Si no hay tasa de cambio, no podemos validar correctamente
+				// Retornamos el monto original para evitar falsos positivos
+				totalUSD += amount
 			}
-			return acc
 		} else {
-			return acc + amount
+			console.log(`💵 Pago en USD: ${amount} USD`)
+			totalUSD += amount
 		}
-	}, 0)
+	})
+	
+	console.log(`📊 Total calculado en USD: ${totalUSD.toFixed(2)} USD`)
+	return totalUSD
+}
+
+/**
+ * Validates form payments for registration (specific for form validation)
+ * @param payments Array of payment objects from form
+ * @param totalAmount Total amount in USD
+ * @param exchangeRate Current exchange rate (VES/USD)
+ * @returns Validation result with details
+ */
+export const validateFormPayments = (
+	payments: Payment[],
+	totalAmount: number,
+	exchangeRate: number | undefined,
+): { isValid: boolean; totalPaidUSD: number; errorMessage?: string } => {
+	// Filter out empty payments
+	const validPayments = payments.filter(payment => payment.method && payment.amount && payment.amount > 0)
+	
+	if (validPayments.length === 0) {
+		return { isValid: true, totalPaidUSD: 0 }
+	}
+
+	// Calculate total paid in USD (converting VES payments)
+	const totalPaidUSD = calculateTotalPaidUSD(validPayments, exchangeRate)
+	
+	// Check if total paid exceeds total amount (with tolerance for floating point precision)
+	// Allow for small differences (less than 1 cent) due to currency conversion precision
+	const tolerance = 0.01
+	const difference = totalPaidUSD - totalAmount
+	
+	if (difference > tolerance) {
+		const errorMessage = `El total de pagos (${totalPaidUSD.toFixed(2)} USD) excede el monto total del caso (${totalAmount.toFixed(2)} USD) por $${difference.toFixed(2)} USD`
+		return { isValid: false, totalPaidUSD, errorMessage }
+	}
+
+	return { isValid: true, totalPaidUSD }
 }
