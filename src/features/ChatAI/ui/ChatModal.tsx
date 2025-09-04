@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from 'react'
 import { Input } from './input'
 import { Button } from './button'
 import { Send, User, Bot, MessageCircle } from 'lucide-react'
-import { SyncLoader } from 'react-spinners'
+import { LoaderOne } from '@shared/components/ui/loader'
 
 interface Message {
 	id: string
@@ -208,12 +208,8 @@ function ChatModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }
 										: 'bg-card border border-border/50 text-card-foreground'
 								}`}
 							>
-								<div className="whitespace-pre-wrap leading-relaxed">
-									{message.content}
-									{message.isStreaming && (
-										<SyncLoader loading={true} color={'#4f4f4f'} size={8} speedMultiplier={0.5} />
-									)}
-								</div>
+								{message.content}
+								{message.isStreaming && <LoaderOne size="size-2" />}
 							</div>
 
 							{message.role === 'user' && (

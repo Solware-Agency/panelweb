@@ -4,7 +4,7 @@ import { Button } from '../ui/button'
 import { Input } from '../ui/input'
 import { Send, User, Bot, Sparkles, MessageCircle, ArrowLeft } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
-import { SyncLoader } from 'react-spinners'
+import { LoaderOne } from '@shared/components/ui/loader'
 
 interface Message {
 	id: string
@@ -229,7 +229,7 @@ const StandaloneChatPage = () => {
 								<div className="whitespace-pre-wrap text-sm leading-relaxed">
 									{message.content}
 									{message.isStreaming && (
-										<SyncLoader loading={true} color={'#4f4f4f'} size={8} speedMultiplier={.5} />
+										<LoaderOne size="size-2" />
 									)}
 								</div>
 							</div>
@@ -268,12 +268,6 @@ const StandaloneChatPage = () => {
 							<Send className="size-4" />
 						</Button>
 					</div>
-					{isLoading && (
-						<div className="flex items-center gap-2 mt-3 text-muted-foreground text-sm">
-							<div className="w-4 h-4 border-2 border-Conspat/30 border-t-Conspat rounded-full animate-spin"></div>
-							<span>Escribiendo respuesta...</span>
-						</div>
-					)}
 				</div>
 			</div>
 		</div>
