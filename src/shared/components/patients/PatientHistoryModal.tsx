@@ -6,6 +6,7 @@ import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
 import { useQuery } from '@tanstack/react-query'
 import { supabase } from '@lib/supabase/config'
+import { getCasesWithPatientInfo } from '@lib/medical-cases-service'
 import { BranchBadge } from '@shared/components/ui/branch-badge'
 import type { MedicalCaseWithPatient } from '@lib/medical-cases-service'
 import { Button } from '@shared/components/ui/button'
@@ -42,14 +43,14 @@ const PatientHistoryModal: React.FC<PatientHistoryModalProps> = ({ isOpen, onClo
 		queryFn: async () => {
 			if (!patient?.id) return { data: [] }
 
-			const { data, error } = await supabase
-				.from('medical_cases_with_patient')
-				.select('*')
-				.eq('patient_id', patient.id)
-				.order('created_at', { ascending: false })
-
-			if (error) throw error
-			return { data: data || [] }
+			try {
+				const result = await getCasesWithPatientInfo(1, 1000, {})
+				// Filtrar por patient_id después de obtener los datos
+				const filteredData = result.data.filter((case_) => case_.patient_id === patient.id)
+				return { data: filteredData }
+			} catch (error) {
+				throw error
+			}
 		},
 		enabled: isOpen && !!patient?.id,
 		staleTime: 1000 * 60 * 5, // 5 minutes
@@ -104,9 +105,8 @@ const PatientHistoryModal: React.FC<PatientHistoryModalProps> = ({ isOpen, onClo
 			case 'pagado':
 			case 'completado':
 				return 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300'
-			case 'pendiente':
-				return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300'
 			case 'incompleto':
+				return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300'
 			default:
 				return 'bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-300'
 		}

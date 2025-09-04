@@ -42,7 +42,7 @@ export interface PatientInsert {
 	id?: string
 	cedula: string
 	nombre: string
-	edad?: number | null
+	edad?: string | null
 	telefono?: string | null
 	email?: string | null
 	created_at?: string | null
@@ -175,7 +175,7 @@ const prepareRegistrationData = (formData: FormValues, userId?: string) => {
 	const patientData: PatientInsert = {
 		cedula: formData.idNumber,
 		nombre: formData.fullName,
-		edad: formData.ageUnit === 'AÑOS' ? formData.ageValue : null, // Solo guardar edad en años
+		edad: formData.ageValue ? `${formData.ageValue} ${formData.ageUnit}` : null,
 		telefono: formData.phone,
 		email: formData.email || null,
 	}
@@ -202,7 +202,7 @@ const prepareRegistrationData = (formData: FormValues, userId?: string) => {
 
 		// Información financiera
 		total_amount: formData.totalAmount,
-		payment_status: remaining > 0 ? 'Pendiente' : 'Pagado',
+		payment_status: remaining > 0 ? 'Incompleto' : 'Pagado',
 
 		// Información adicional
 		comments: formData.comments || null,
@@ -253,16 +253,28 @@ export const searchPatientForForm = async (cedula: string) => {
 			return null
 		}
 
+		// Parsear la edad del paciente para extraer valor y unidad
+		let ageValue = 0
+		let ageUnit: 'AÑOS' | 'MESES' = 'AÑOS'
+		
+		if (patient.edad) {
+			const match = patient.edad.match(/^(\d+)\s*(AÑOS|MESES)$/i)
+			if (match) {
+				ageValue = Number(match[1])
+				ageUnit = match[2].toUpperCase() === 'AÑOS' ? 'AÑOS' : 'MESES'
+			}
+		}
+
 		// Convertir datos del paciente al formato del formulario
 		return {
 			fullName: patient.nombre,
 			idNumber: patient.cedula,
 			phone: patient.telefono || '',
-			edad: patient.edad || 0,
+			edad: patient.edad || '',
 			email: patient.email || '',
 			// Otros campos se llenan con valores por defecto
-			ageValue: patient.edad || 0,
-			ageUnit: 'AÑOS' as const,
+			ageValue: ageValue,
+			ageUnit: ageUnit,
 			
 		}
 	} catch (error) {

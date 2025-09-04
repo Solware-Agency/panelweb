@@ -10,7 +10,7 @@ export interface Patient {
 	id: string
 	cedula: string
 	nombre: string
-	edad: number | null
+	edad: string | null
 	telefono: string | null
 	email: string | null
 	created_at: string | null
@@ -22,7 +22,7 @@ export interface PatientInsert {
 	id?: string
 	cedula: string
 	nombre: string
-	edad?: number | null
+	edad?: string | null
 	telefono?: string | null
 	email?: string | null
 	created_at?: string | null
@@ -34,7 +34,7 @@ export interface PatientUpdate {
 	id?: string
 	cedula?: string
 	nombre?: string
-	edad?: number | null
+	edad?: string | null
 	telefono?: string | null
 	email?: string | null
 	created_at?: string | null
@@ -242,20 +242,48 @@ export const getPatients = async (page = 1, limit = 50, searchTerm?: string) => 
 }
 
 /**
- * Obtener estadísticas de un paciente usando la vista patient_statistics
+ * Obtener estadísticas de un paciente usando consultas directas
  */
 export const getPatientStatistics = async (patientId: string) => {
 	try {
-		const { data, error } = await supabase.from('patient_statistics').select('*').eq('id', patientId).single()
+		// Obtener información del paciente
+		const { data: patient, error: patientError } = await supabase
+			.from('patients')
+			.select('*')
+			.eq('id', patientId)
+			.single()
 
-		if (error) {
-			if (error.code === 'PGRST116') {
-				return null
-			}
-			throw error
+		if (patientError) {
+			throw patientError
 		}
 
-		return data
+		// Obtener casos médicos del paciente
+		const { data: cases, error: casesError } = await supabase
+			.from('medical_records_clean')
+			.select('total_amount, date')
+			.eq('patient_id', patientId)
+			.order('date', { ascending: false })
+
+		if (casesError) {
+			throw casesError
+		}
+
+		// Calcular estadísticas
+		const totalCases = cases?.length || 0
+		const totalSpent = cases?.reduce((sum, case_) => sum + (case_.total_amount || 0), 0) || 0
+		const lastVisit = cases?.[0]?.date || null
+
+		return {
+			id: patient.id,
+			cedula: patient.cedula,
+			nombre: patient.nombre,
+			edad: patient.edad,
+			telefono: patient.telefono,
+			email: patient.email,
+			total_cases: totalCases,
+			total_spent: totalSpent,
+			last_visit: lastVisit,
+		}
 	} catch (error) {
 		console.error('Error obteniendo estadísticas del paciente:', error)
 		throw error

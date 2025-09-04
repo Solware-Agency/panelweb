@@ -19,10 +19,7 @@ import {
 } from 'lucide-react'
 import type { MedicalCaseWithPatient, MedicalCaseUpdate } from '@lib/medical-cases-service'
 import type { PatientUpdate } from '@lib/patients-service'
-import { 
-	updateMedicalCase, 
-	deleteMedicalCase
-} from '@lib/medical-cases-service'
+import { updateMedicalCase, deleteMedicalCase, findCaseByCode } from '@lib/medical-cases-service'
 import { updatePatient } from '@lib/patients-service'
 import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
@@ -234,18 +231,14 @@ const UnifiedCaseModal: React.FC<CaseDetailPanelProps> = React.memo(({ case_, is
 		queryFn: async () => {
 			if (!case_?.id) return null
 
-			const { data, error } = await supabase
-				.from('medical_cases_with_patient')
-				.select('*')
-				.eq('id', case_.id)
-				.single()
-
-			if (error) {
+			// Usar la función findCaseByCode en lugar de la vista eliminada
+			try {
+				const caseData = await findCaseByCode(case_.code || '')
+				return caseData
+			} catch (error) {
 				console.error('Error fetching updated case data:', error)
 				return null
 			}
-
-			return data as MedicalCaseWithPatient
 		},
 		enabled: !!case_?.id && isOpen,
 	})
@@ -268,12 +261,12 @@ const UnifiedCaseModal: React.FC<CaseDetailPanelProps> = React.memo(({ case_, is
 				.select('*')
 				.eq('medical_record_id', case_.id)
 				.order('changed_at', { ascending: false })
-			
+
 			if (error) {
 				console.error('Error fetching change logs:', error)
 				return { data: [] }
 			}
-			
+
 			return { data: data || [] }
 		},
 		enabled: !!case_?.id && isOpen && isChangelogOpen,
@@ -453,11 +446,11 @@ const UnifiedCaseModal: React.FC<CaseDetailPanelProps> = React.memo(({ case_, is
 			// Detectar cambios en datos del paciente
 			const patientChanges: Partial<PatientUpdate> = {}
 			const patientChangeLogs = []
-			
+
 			for (const field of patientFields) {
 				const newValue = editedCase[field as keyof MedicalCaseWithPatient]
 				const oldValue = currentCase[field as keyof MedicalCaseWithPatient]
-				
+
 				if (newValue !== oldValue) {
 					// Map patient_email to email for the patient update
 					if (field === 'patient_email') {
@@ -467,13 +460,13 @@ const UnifiedCaseModal: React.FC<CaseDetailPanelProps> = React.memo(({ case_, is
 					} else if (field === 'telefono') {
 						patientChanges.telefono = newValue as string | null
 					} else if (field === 'edad') {
-						patientChanges.edad = newValue as number | null
+						patientChanges.edad = newValue as string | null
 					}
 					patientChangeLogs.push({
 						field,
 						fieldLabel: getFieldLabel(field),
 						oldValue,
-						newValue
+						newValue,
 					})
 				}
 			}
@@ -481,11 +474,11 @@ const UnifiedCaseModal: React.FC<CaseDetailPanelProps> = React.memo(({ case_, is
 			// Detectar cambios en datos del caso
 			const caseChanges: Partial<MedicalCaseUpdate> = {}
 			const caseChangeLogs = []
-			
+
 			for (const field of caseFields) {
 				const newValue = editedCase[field as keyof MedicalCaseWithPatient]
 				const oldValue = currentCase[field as keyof MedicalCaseWithPatient]
-				
+
 				if (newValue !== oldValue) {
 					if (field === 'exam_type') {
 						caseChanges.exam_type = newValue as string
@@ -502,7 +495,7 @@ const UnifiedCaseModal: React.FC<CaseDetailPanelProps> = React.memo(({ case_, is
 						field,
 						fieldLabel: getFieldLabel(field),
 						oldValue,
-						newValue
+						newValue,
 					})
 				}
 			}
@@ -520,24 +513,27 @@ const UnifiedCaseModal: React.FC<CaseDetailPanelProps> = React.memo(({ case_, is
 
 			// Actualizar datos del paciente si hay cambios
 			if (Object.keys(patientChanges).length > 0) {
-				await updatePatient(currentCase.cedula, patientChanges)
-				
+				if (!currentCase.patient_id) {
+					throw new Error('No se puede actualizar el paciente: patient_id no está disponible')
+				}
+				await updatePatient(currentCase.patient_id, patientChanges, user.id)
+
 				// Registrar cambios en logs para el paciente
 				for (const change of patientChangeLogs) {
-						const changeLog = {
+					const changeLog = {
 						patient_id: currentCase.patient_id,
-							user_id: user.id,
-							user_email: user.email || 'unknown@email.com',
-							user_display_name: user.user_metadata?.display_name || null,
-							field_name: change.field,
-							field_label: change.fieldLabel,
-							old_value: change.oldValue?.toString() || null,
-							new_value: change.newValue?.toString() || null,
-							changed_at: new Date().toISOString(),
-						entity_type: 'patient'
-						}
+						user_id: user.id,
+						user_email: user.email || 'unknown@email.com',
+						user_display_name: user.user_metadata?.display_name || null,
+						field_name: change.field,
+						field_label: change.fieldLabel,
+						old_value: change.oldValue?.toString() || null,
+						new_value: change.newValue?.toString() || null,
+						changed_at: new Date().toISOString(),
+						entity_type: 'patient',
+					}
 
-						const { error: logError } = await supabase.from('change_logs').insert(changeLog)
+					const { error: logError } = await supabase.from('change_logs').insert(changeLog)
 					if (logError) console.error('Error logging patient change:', logError)
 				}
 
@@ -550,8 +546,8 @@ const UnifiedCaseModal: React.FC<CaseDetailPanelProps> = React.memo(({ case_, is
 
 			// Actualizar datos del caso si hay cambios
 			if (Object.keys(caseChanges).length > 0) {
-				await updateMedicalCase(currentCase.id, caseChanges)
-				
+				await updateMedicalCase(currentCase.id, caseChanges, user.id)
+
 				// Registrar cambios en logs para el caso
 				for (const change of caseChangeLogs) {
 					const changeLog = {
@@ -564,7 +560,7 @@ const UnifiedCaseModal: React.FC<CaseDetailPanelProps> = React.memo(({ case_, is
 						old_value: change.oldValue?.toString() || null,
 						new_value: change.newValue?.toString() || null,
 						changed_at: new Date().toISOString(),
-						entity_type: 'medical_case'
+						entity_type: 'medical_case',
 					}
 
 					const { error: logError } = await supabase.from('change_logs').insert(changeLog)
@@ -631,7 +627,9 @@ const UnifiedCaseModal: React.FC<CaseDetailPanelProps> = React.memo(({ case_, is
 			`Hola ${case_.nombre},\n\nLe escribimos desde el laboratorio conspat por su caso ${case_.code || 'N/A'}.\n\n` +
 			`Saludos cordiales.`
 
-		const mailtoLink = `mailto:${case_.patient_email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`
+		const mailtoLink = `mailto:${case_.patient_email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(
+			body,
+		)}`
 
 		window.open(mailtoLink, '_blank')
 
@@ -772,11 +770,10 @@ const UnifiedCaseModal: React.FC<CaseDetailPanelProps> = React.memo(({ case_, is
 				return 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300'
 			case 'en proceso':
 				return 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300'
-			case 'pendiente':
+			case 'incompleto':
 				return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300'
 			case 'cancelado':
 				return 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300'
-			case 'incompleto':
 			default:
 				return 'bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-300'
 		}
@@ -900,7 +897,7 @@ const UnifiedCaseModal: React.FC<CaseDetailPanelProps> = React.memo(({ case_, is
 											>
 												{currentCase.payment_status}
 											</span>
-																									{/* PDF download temporarily disabled in new structure */}
+											{/* PDF download temporarily disabled in new structure */}
 										</div>
 										{/* Action Buttons */}
 										<div className="flex gap-2 mt-4">
@@ -982,10 +979,10 @@ const UnifiedCaseModal: React.FC<CaseDetailPanelProps> = React.memo(({ case_, is
 								<div className="bg-gradient-to-br from-teal-50 to-cyan-50 dark:from-teal-900/20 dark:to-cyan-900/20 p-4 rounded-lg border border-teal-200 dark:border-teal-800">
 									<p className="text-teal-400 text-sm">
 										Este caso fue creado por{' '}
-										<span className="font-semibold">
-									{creatorData?.displayName || 'Usuario del sistema'}
-										</span>{' '}
-								el {currentCase.created_at ? format(new Date(currentCase.created_at), 'dd/MM/yyyy', { locale: es }) : 'Fecha no disponible'}
+										<span className="font-semibold">{creatorData?.displayName || 'Usuario del sistema'}</span> el{' '}
+										{currentCase.created_at
+											? format(new Date(currentCase.created_at), 'dd/MM/yyyy', { locale: es })
+											: 'Fecha no disponible'}
 									</p>
 								</div>
 								{/* Immunohistochemistry Section - Only for admin users and immuno cases */}
@@ -1041,7 +1038,7 @@ const UnifiedCaseModal: React.FC<CaseDetailPanelProps> = React.memo(({ case_, is
 																		: 'bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-300'
 																}`}
 															>
-																{existingImmunoRequest.pagado ? 'Pagado' : 'Pendiente de pago'}
+																{existingImmunoRequest.pagado ? 'Pagado' : 'Incompleto'}
 															</span>
 														</div>
 													</div>
@@ -1095,7 +1092,7 @@ const UnifiedCaseModal: React.FC<CaseDetailPanelProps> = React.memo(({ case_, is
 											</div>
 										) : (
 											<div className="space-y-4 max-h-80 overflow-y-auto">
-											{changelogsData.data.map((log) => {
+												{changelogsData.data.map((log) => {
 													const actionInfo = getActionTypeInfo(log)
 													return (
 														<div
@@ -1160,7 +1157,7 @@ const UnifiedCaseModal: React.FC<CaseDetailPanelProps> = React.memo(({ case_, is
 											{isEditing ? (
 												<div className="sm:w-1/2 grid grid-cols-2 gap-2">
 													{(() => {
-																																	const parsed = parseEdad(String(editedCase.edad ?? currentCase.edad ?? ''))
+														const parsed = parseEdad(String(editedCase.edad ?? currentCase.edad ?? ''))
 														const ageValue = parsed.value
 														const ageUnit = parsed.unit
 														return (
@@ -1184,7 +1181,7 @@ const UnifiedCaseModal: React.FC<CaseDetailPanelProps> = React.memo(({ case_, is
 																	options={createDropdownOptions(['MESES', 'AÑOS'])}
 																	value={ageUnit || 'AÑOS'}
 																	onChange={(newUnit) => {
-																																									const parsedNow = parseEdad(String(editedCase.edad ?? currentCase.edad ?? ''))
+																		const parsedNow = parseEdad(String(editedCase.edad ?? currentCase.edad ?? ''))
 																		const valueNow = parsedNow.value
 																		const valueToUse = valueNow === '' ? '' : valueNow
 																		const newEdad = valueToUse === '' ? null : `${valueToUse} ${newUnit}`
@@ -1206,19 +1203,19 @@ const UnifiedCaseModal: React.FC<CaseDetailPanelProps> = React.memo(({ case_, is
 										</div>
 										<InfoRow
 											label="Teléfono"
-										value={currentCase.telefono || ''}
-										field="telefono"
+											value={currentCase.telefono || ''}
+											field="telefono"
 											isEditing={isEditing}
-										editedValue={editedCase.telefono ?? null}
+											editedValue={editedCase.telefono ?? null}
 											onChange={handleInputChange}
 										/>
 										<InfoRow
 											label="Email"
-										value={currentCase.patient_email || 'N/A'}
-										field="patient_email"
+											value={currentCase.patient_email || 'N/A'}
+											field="patient_email"
 											type="email"
 											isEditing={isEditing}
-										editedValue={editedCase.patient_email ?? null}
+											editedValue={editedCase.patient_email ?? null}
 											onChange={handleInputChange}
 										/>
 										{/* Note: relationship field not in new structure, could be added if needed */}
@@ -1354,26 +1351,24 @@ const UnifiedCaseModal: React.FC<CaseDetailPanelProps> = React.memo(({ case_, is
 											</span>
 											{isEditing ? (
 												<div className="sm:w-1/2">
-																															{/* Note: number_of_samples not in current new structure, can be added if needed */}
+													{/* Note: number_of_samples not in current new structure, can be added if needed */}
 													<Input
 														type="number"
-																			placeholder="1"
-																			value="1"
-																			disabled
+														placeholder="1"
+														value="1"
+														disabled
 														className="text-sm border-dashed focus:border-primary focus:ring-primary bg-gray-50 dark:bg-gray-800/50"
 													/>
 												</div>
 											) : (
-												<span className="text-sm text-gray-900 dark:text-gray-100 sm:text-right font-medium">
-																	1
-												</span>
+												<span className="text-sm text-gray-900 dark:text-gray-100 sm:text-right font-medium">1</span>
 											)}
 										</div>
 
 										{/* Fecha de registro - NO EDITABLE */}
 										<InfoRow
 											label="Fecha de registro"
-															value={new Date(currentCase.created_at || '').toLocaleDateString('es-ES')}
+											value={new Date(currentCase.created_at || '').toLocaleDateString('es-ES')}
 											editable={false}
 										/>
 									</div>
@@ -1384,39 +1379,41 @@ const UnifiedCaseModal: React.FC<CaseDetailPanelProps> = React.memo(({ case_, is
 									<div className="space-y-1">
 										<InfoRow
 											label="Monto total"
-													value={`$${currentCase.total_amount?.toLocaleString() || '0'}`}
+											value={`$${currentCase.total_amount?.toLocaleString() || '0'}`}
 											editable={false}
 										/>
-												{/* Note: exchange_rate not in new structure */}
+										{/* Note: exchange_rate not in new structure */}
 									</div>
 
-																				{/* Payment status indicator based on payment_status field */}
-											{currentCase.payment_status !== 'Pagado' && (
-												<div className="bg-orange-50 dark:bg-orange-900/20 p-2 sm:p-3 rounded-lg border border-orange-200 dark:border-orange-800">
+									{/* Payment status indicator based on payment_status field */}
+									{currentCase.payment_status !== 'Pagado' && (
+										<div className="bg-orange-50 dark:bg-orange-900/20 p-2 sm:p-3 rounded-lg border border-orange-200 dark:border-orange-800">
 											<div className="flex items-center gap-1.5 sm:gap-2">
-														<AlertTriangle className="w-5 h-5 text-orange-600 dark:text-orange-400" />
-														<p className="text-xs sm:text-sm font-medium text-orange-800 dark:text-orange-300">
-															Estado de pago: {currentCase.payment_status}
+												<AlertTriangle className="w-5 h-5 text-orange-600 dark:text-orange-400" />
+												<p className="text-xs sm:text-sm font-medium text-orange-800 dark:text-orange-300">
+													Estado de pago: {currentCase.payment_status}
 												</p>
 											</div>
 										</div>
 									)}
 
-																					{/* Payment Methods - Note: Payment details moved to separate system in new structure */}
+									{/* Payment Methods - Note: Payment details moved to separate system in new structure */}
 									<div className="mt-4">
 										<div className="flex items-center justify-between mb-2">
-														<h4 className="text-sm font-medium text-gray-700 dark:text-gray-300">Estado de Pago:</h4>
+											<h4 className="text-sm font-medium text-gray-700 dark:text-gray-300">Estado de Pago:</h4>
 										</div>
 										<div className="space-y-2">
-														<div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 p-4 rounded-lg border border-blue-200 dark:border-blue-700">
-															<div className="flex justify-center items-center">
-																<span className={`inline-flex px-3 py-1 text-sm font-semibold rounded-full ${
-																	getStatusColor(currentCase.payment_status)
-																}`}>
-																	{currentCase.payment_status}
-																</span>
-															</div>
-														</div>
+											<div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 p-4 rounded-lg border border-blue-200 dark:border-blue-700">
+												<div className="flex justify-center items-center">
+													<span
+														className={`inline-flex px-3 py-1 text-sm font-semibold rounded-full ${getStatusColor(
+															currentCase.payment_status,
+														)}`}
+													>
+														{currentCase.payment_status}
+													</span>
+												</div>
+											</div>
 										</div>
 									</div>
 								</InfoSection>

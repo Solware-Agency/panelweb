@@ -1,13 +1,26 @@
 import { motion, AnimatePresence } from 'motion/react'
 import { ArrowLeftFromLine, Save } from 'lucide-react'
-// import { CustomDropdown } from '@shared/components/ui/custom-dropdown' // No longer used
 import { useState } from 'react'
 import { Input } from '@shared/components/ui/input'
 import { Button } from '@shared/components/ui/button'
+import { CustomDropdown } from '@shared/components/ui/custom-dropdown'
+import { createDropdownOptions } from '@shared/components/ui/form-dropdown'
 import { useToast } from '@shared/hooks/use-toast'
 import { supabase } from '@lib/supabase/config'
 import type { ChangeLog } from '@lib/supabase-service'
 import type { Patient } from '@lib/patients-service'
+
+// Helper to parse edad string like "10 AÑOS" or "5 MESES"
+function parseEdad(edad: string | null | undefined): { value: number | ''; unit: 'AÑOS' | 'MESES' | '' } {
+	if (!edad) return { value: '', unit: '' }
+	const match = String(edad)
+		.trim()
+		.match(/^(\d+)\s*(AÑOS|MESES)$/i)
+	if (!match) return { value: '', unit: '' }
+	const value = Number(match[1])
+	const unit = match[2].toUpperCase() as 'AÑOS' | 'MESES'
+	return { value: Number.isNaN(value) ? '' : value, unit }
+}
 
 interface EditPatientInfoModalProps {
 	isOpen: boolean
@@ -19,16 +32,38 @@ interface EditPatientInfoModalProps {
 const EditPatientInfoModal = ({ isOpen, onClose, patient, onSave }: EditPatientInfoModalProps) => {
 	const { toast } = useToast()
 	const [isLoading, setIsLoading] = useState(false)
+
+	// Parse the initial edad value
+	const initialEdad = parseEdad(patient.edad)
+
 	const [formData, setFormData] = useState({
 		nombre: patient.nombre,
 		telefono: patient.telefono || '',
 		email: patient.email || '',
-		edad: patient.edad || 0,
+		edad: patient.edad || '',
 	})
+
+	const [edadValue, setEdadValue] = useState(initialEdad.value)
+	const [edadUnit, setEdadUnit] = useState<'AÑOS' | 'MESES'>(initialEdad.unit || 'AÑOS')
 
 	const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		const { name, value } = e.target
 		setFormData((prev) => ({ ...prev, [name]: value }))
+	}
+
+	const handleEdadChange = (value: number | '') => {
+		setEdadValue(value)
+		// Update formData.edad with the combined string
+		const newEdad = value === '' ? '' : `${value} ${edadUnit}`
+		setFormData((prev) => ({ ...prev, edad: newEdad }))
+	}
+
+	const handleEdadUnitChange = (unit: string) => {
+		const newUnit = unit as 'AÑOS' | 'MESES'
+		setEdadUnit(newUnit)
+		// Update formData.edad with the combined string
+		const newEdad = edadValue === '' ? '' : `${edadValue} ${newUnit}`
+		setFormData((prev) => ({ ...prev, edad: newEdad }))
 	}
 
 	const handleSubmit = async (e: React.FormEvent) => {
@@ -207,15 +242,30 @@ const EditPatientInfoModal = ({ isOpen, onClose, patient, onSave }: EditPatientI
 												</div>
 
 												<div className="space-y-2">
-													<label className="text-sm text-gray-500 dark:text-gray-400">Edad (años)</label>
-													<Input
-														type="number"
-														name="edad"
-														value={formData.edad}
-														onChange={handleChange}
-														placeholder="Ej: 25"
-														className="flex-1"
-													/>
+													<label className="text-sm text-gray-500 dark:text-gray-400">Edad</label>
+													<div className="grid grid-cols-2 gap-2">
+														<Input
+															type="number"
+															placeholder="0"
+															value={edadValue === '' ? '' : edadValue}
+															min={0}
+															max={150}
+															onChange={(e) => {
+																const newValue = e.target.value
+																const numeric = newValue === '' ? '' : Number(newValue)
+																handleEdadChange(numeric)
+															}}
+															className="text-sm"
+														/>
+														<CustomDropdown
+															options={createDropdownOptions(['MESES', 'AÑOS'])}
+															value={edadUnit}
+															onChange={handleEdadUnitChange}
+															placeholder="Unidad"
+															className="text-sm"
+															direction="auto"
+														/>
+													</div>
 												</div>
 
 												{/* <div className="space-y-2">

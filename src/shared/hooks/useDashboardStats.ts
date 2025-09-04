@@ -2,9 +2,59 @@ import { useQuery } from '@tanstack/react-query'
 import { supabase } from '@lib/supabase/config'
 import { startOfMonth, endOfMonth, format, startOfYear, endOfYear } from 'date-fns'
 import { es } from 'date-fns/locale'
-import type { Database } from '@shared/types/types'
 
-type MedicalCaseWithPatientView = Database['public']['Views']['medical_cases_with_patient']['Row']
+// Tipo local para casos médicos con información del paciente
+export interface MedicalCaseWithPatient {
+	// Campos de medical_records_clean
+	id: string
+	patient_id: string | null
+	exam_type: string
+	origin: string
+	treating_doctor: string
+	sample_type: string
+	number_of_samples: number
+	relationship: string | null
+	branch: string
+	date: string
+	total_amount: number
+	exchange_rate: number | null
+	payment_status: string
+	remaining: number
+	payment_method_1: string | null
+	payment_amount_1: number | null
+	payment_reference_1: string | null
+	payment_method_2: string | null
+	payment_amount_2: number | null
+	payment_reference_2: string | null
+	payment_method_3: string | null
+	payment_amount_3: number | null
+	payment_reference_3: string | null
+	payment_method_4: string | null
+	payment_amount_4: number | null
+	payment_reference_4: string | null
+	comments: string | null
+	code: string | null
+	created_at: string | null
+	updated_at: string | null
+	created_by: string | null
+	created_by_display_name: string | null
+	material_remitido: string | null
+	informacion_clinica: string | null
+	descripcion_macroscopica: string | null
+	diagnostico: string | null
+	comentario: string | null
+	pdf_en_ready: boolean | null
+	attachment_url: string | null
+	doc_aprobado: 'faltante' | 'pendiente' | 'aprobado' | null
+	generated_by: string | null
+	version: number | null
+	// Campos de patients
+	cedula: string
+	nombre: string
+	edad: string | null
+	telefono: string | null
+	patient_email: string | null
+}
 
 export interface DashboardStats {
 	totalRevenue: number
@@ -46,10 +96,30 @@ export const useDashboardStats = (selectedMonth?: Date, selectedYear?: number) =
 		queryKey: ['dashboard-stats', selectedMonth?.toISOString(), selectedYear],
 		queryFn: async (): Promise<DashboardStats> => {
 			try {
-				// Use medical_cases_with_patient view for better performance
-				const { data: allRecords, error: allError } = (await supabase
-					.from('medical_cases_with_patient')
-					.select('*')) as { data: MedicalCaseWithPatientView[] | null; error: any }
+				// Obtener casos médicos con información del paciente usando JOIN directo
+				const { data: allRecords, error: allError } = await supabase.from('medical_records_clean').select(`
+						*,
+						patients!inner(
+							cedula,
+							nombre,
+							edad,
+							telefono,
+							email
+						)
+					`)
+
+				if (allError) throw allError
+
+				// Transformar los datos para que coincidan con la interfaz
+				const transformedRecords = (allRecords || []).map((item: any) => ({
+					...item,
+					cedula: item.patients?.cedula || '',
+					nombre: item.patients?.nombre || '',
+					edad: item.patients?.edad || null,
+					telefono: item.patients?.telefono || null,
+					patient_email: item.patients?.email || null,
+					version: item.version || null,
+				})) as MedicalCaseWithPatient[]
 
 				if (allError) throw allError
 
@@ -58,19 +128,21 @@ export const useDashboardStats = (selectedMonth?: Date, selectedYear?: number) =
 				const monthStart = startOfMonth(currentMonth)
 				const monthEnd = endOfMonth(currentMonth)
 
-				// Filter records for current month from allRecords (more efficient)
+				// Filter records for current month from transformedRecords (more efficient)
 				const monthRecords =
-					allRecords?.filter((record) => {
+					transformedRecords?.filter((record) => {
 						if (!record.created_at) return false
 						const recordDate = new Date(record.created_at)
 						return recordDate >= monthStart && recordDate <= monthEnd
 					}) || []
 
 				// Calculate total revenue
-				const totalRevenue = allRecords?.reduce((sum, record) => sum + (record.total_amount || 0), 0) || 0
+				const totalRevenue = transformedRecords?.reduce((sum, record) => sum + (record.total_amount || 0), 0) || 0
 
 				// Calculate unique patients - Con nueva estructura es más eficiente
-				const uniquePatientIds = new Set(allRecords?.filter((r) => r.patient_id).map((record) => record.patient_id))
+				const uniquePatientIds = new Set(
+					transformedRecords?.filter((r) => r.patient_id).map((record) => record.patient_id),
+				)
 				const uniquePatients = uniquePatientIds.size
 
 				// Alternative: Get actual count from patients table for accuracy
@@ -82,13 +154,13 @@ export const useDashboardStats = (selectedMonth?: Date, selectedYear?: number) =
 				const finalUniquePatients = actualPatientsCount || uniquePatients
 
 				// Calcular casos pagados e incompletos
-				const completedCases = allRecords?.filter((record) => record.payment_status === 'Pagado').length || 0
-				const totalCases = allRecords?.length || 0
+				const completedCases = transformedRecords?.filter((record) => record.payment_status === 'Pagado').length || 0
+				const totalCases = transformedRecords?.length || 0
 				const incompleteCases = totalCases - completedCases
 
 				// Calcular pagos pendientes (montos restantes)
 				const pendingPayments =
-					allRecords?.reduce((sum, record) => {
+					transformedRecords?.reduce((sum, record) => {
 						// Si el estado de pago no es pagado, sumar el total
 						if (record.payment_status !== 'Pagado') {
 							return sum + (record.total_amount || 0)
@@ -101,7 +173,7 @@ export const useDashboardStats = (selectedMonth?: Date, selectedYear?: number) =
 
 				// Calculate new patients this month - usando patient_id de la nueva estructura
 				const existingPatientIds = new Set(
-					allRecords
+					transformedRecords
 						?.filter((record) => record.patient_id && record.created_at && new Date(record.created_at) < monthStart)
 						.map((record) => record.patient_id) || [],
 				)
@@ -127,7 +199,7 @@ export const useDashboardStats = (selectedMonth?: Date, selectedYear?: number) =
 
 				// Calculate revenue by exam type (with normalization)
 				const examTypeRevenue = new Map<string, { revenue: number; count: number; originalName: string }>()
-				allRecords?.forEach((record) => {
+				transformedRecords?.forEach((record) => {
 					const normalizedType = normalizeExamType(record.exam_type)
 					const current = examTypeRevenue.get(normalizedType) || {
 						revenue: 0,
@@ -156,7 +228,7 @@ export const useDashboardStats = (selectedMonth?: Date, selectedYear?: number) =
 
 				// Filter records for the selected year
 				const yearRecords =
-					allRecords?.filter((record) => {
+					transformedRecords?.filter((record) => {
 						if (!record.created_at) return false
 						const recordDate = new Date(record.created_at)
 						return recordDate >= yearStart && recordDate <= yearEnd
@@ -181,7 +253,7 @@ export const useDashboardStats = (selectedMonth?: Date, selectedYear?: number) =
 
 				// Calculate top exam types by frequency (with normalization)
 				const examTypeCounts = new Map<string, { count: number; revenue: number; originalName: string }>()
-				allRecords?.forEach((record) => {
+				transformedRecords?.forEach((record) => {
 					const normalizedType = normalizeExamType(record.exam_type)
 					const current = examTypeCounts.get(normalizedType) || { count: 0, revenue: 0, originalName: record.exam_type }
 					examTypeCounts.set(normalizedType, {
@@ -202,7 +274,7 @@ export const useDashboardStats = (selectedMonth?: Date, selectedYear?: number) =
 
 				// Calculate top treating doctors
 				const doctorStats = new Map<string, { cases: number; revenue: number }>()
-				allRecords?.forEach((record) => {
+				transformedRecords?.forEach((record) => {
 					const doctor = record.treating_doctor?.trim()
 					if (doctor) {
 						const current = doctorStats.get(doctor) || { cases: 0, revenue: 0 }
@@ -224,7 +296,7 @@ export const useDashboardStats = (selectedMonth?: Date, selectedYear?: number) =
 
 				// Calculate revenue by origin (procedencia)
 				const originStats = new Map<string, { cases: number; revenue: number }>()
-				allRecords?.forEach((record) => {
+				transformedRecords?.forEach((record) => {
 					const origin = record.origin?.trim()
 					if (origin) {
 						const current = originStats.get(origin) || { cases: 0, revenue: 0 }
