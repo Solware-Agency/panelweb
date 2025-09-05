@@ -4,7 +4,9 @@ import { useDashboardStats } from '@shared/hooks/useDashboardStats'
 import { YearSelector } from '@shared/components/ui/year-selector'
 import StatCard from '@shared/components/ui/stat-card'
 import { Card } from '@shared/components/ui/card'
+import { CustomPieChart } from '@shared/components/ui/custom-pie-chart'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@shared/components/ui/tooltip'
+import type { StatType } from '@shared/components/ui/stat-detail-panel'
 
 // Lazy loaded components
 import {
@@ -26,9 +28,8 @@ const StatsPage: React.FC = () => {
 	const [selectedMonth, setSelectedMonth] = useState<Date>(new Date())
 	const [selectedYear, setSelectedYear] = useState<number>(new Date().getFullYear())
 	const { data: stats, isLoading, error } = useDashboardStats(selectedMonth, selectedYear)
-	const [selectedStat, setSelectedStat] = useState<any>(null)
+	const [selectedStat, setSelectedStat] = useState<StatType | null>(null)
 	const [isDetailPanelOpen, setIsDetailPanelOpen] = useState(false)
-	const [hoveredSegmentIndex, setHoveredSegmentIndex] = useState<number | null>(null)
 
 	if (error) {
 		console.error('Error loading stats:', error)
@@ -55,7 +56,7 @@ const StatsPage: React.FC = () => {
 		setSelectedMonth(new Date(year, selectedMonth.getMonth(), 1))
 	}
 
-	const handleStatCardClick = (statType: any) => {
+	const handleStatCardClick = (statType: StatType) => {
 		setSelectedStat(statType)
 		setIsDetailPanelOpen(true)
 	}
@@ -240,101 +241,12 @@ const StatsPage: React.FC = () => {
 									</TooltipContent>
 								</Tooltip>
 							</h3>
-							<div className="flex items-center justify-center mb-3 sm:mb-4 md:mb-6">
-								<div className="relative w-28 h-28 sm:w-36 sm:h-36 md:w-48 md:h-48">
-									<svg 
-										className="w-full h-full -rotate-90" 
-										viewBox="0 0 100 100"
-										preserveAspectRatio="xMidYMid meet"
-									>
-										<circle
-											cx="50"
-											cy="50"
-											r="40"
-											fill="none"
-											className="stroke-current text-gray-200 dark:text-neutral-700"
-											strokeWidth="6"
-										></circle>
-										{stats?.revenueByBranch.map((branch, index) => {
-											const colors = [
-												'text-blue-500',
-												'text-green-500',
-												'text-orange-500',
-												'text-red-500',
-												'text-purple-500',
-											]
-											const offset = stats.revenueByBranch.slice(0, index).reduce((sum, b) => sum + b.percentage, 0)
-											return (
-												<circle
-													key={branch.branch}
-													cx="50"
-													cy="50"
-													r="40"
-													fill="none"
-													className={`stroke-current ${
-														colors[index % colors.length]
-													} transition-transform duration-200`}
-													strokeWidth={hoveredSegmentIndex === index ? '8' : '6'}
-													strokeDasharray={`${branch.percentage} ${100 - branch.percentage}`}
-													strokeDashoffset={-offset}
-													strokeLinecap="round"
-													onMouseEnter={() => setHoveredSegmentIndex(index)}
-													onMouseLeave={() => setHoveredSegmentIndex(null)}
-													style={{
-														cursor: 'pointer',
-														filter: hoveredSegmentIndex === index ? 'drop-shadow(0 0 3px currentColor)' : 'none',
-													}}
-												></circle>
-											)
-										})}
-									</svg>
-									<div className="absolute inset-0 flex items-center justify-center">
-										<div className="text-center">
-											<p className="text-lg sm:text-xl md:text-2xl font-bold text-gray-700 dark:text-gray-300">
-												{isLoading ? '...' : formatCurrency(stats?.monthlyRevenue || 0)}
-											</p>
-											<p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">Total</p>
-										</div>
-									</div>
-								</div>
-							</div>
-							<div className="space-y-2 sm:space-y-3">
-								{isLoading ? (
-									<div className="space-y-1 sm:space-y-2">
-										{[1, 2, 3, 4].map((i) => (
-											<div key={i} className="animate-pulse bg-gray-200 dark:bg-gray-700 h-5 sm:h-6 rounded"></div>
-										))}
-									</div>
-								) : (
-									stats?.revenueByBranch.map((branch, index) => {
-										const colors = ['bg-blue-500', 'bg-green-500', 'bg-orange-500', 'bg-red-500', 'bg-purple-500']
-										return (
-											<div
-												key={branch.branch}
-												className="flex items-center justify-between transition-transform duration-200"
-												onMouseEnter={() => setHoveredSegmentIndex(index)}
-												onMouseLeave={() => setHoveredSegmentIndex(null)}
-												style={{
-													transform: hoveredSegmentIndex === index ? 'scale(1.05)' : 'scale(1)',
-													cursor: 'pointer',
-												}}
-											>
-												<div className="flex items-center gap-2">
-													<div
-														className={`w-3 h-3 ${colors[index % colors.length]} rounded-full ${
-															hoveredSegmentIndex === index ? 'animate-pulse' : ''
-														}`}
-													></div>
-													<span className="text-sm text-gray-600 dark:text-gray-400">{branch.branch}</span>
-												</div>
-												<span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-													{Math.round(branch.percentage)}% ({formatCurrency(branch.revenue)})
-												</span>
-											</div>
-										)
-									})
-								)}
-							</div>
+							{/* Donut Chart con Recharts */}
+							<CustomPieChart
+								data={stats?.revenueByBranch || []}
+								total={stats?.monthlyRevenue || 0}
+								isLoading={isLoading}
+							/>
 						</div>
 					</Card>
 				</div>
@@ -371,7 +283,7 @@ const StatsPage: React.FC = () => {
 				<StatDetailPanel
 					isOpen={isDetailPanelOpen}
 					onClose={handleDetailPanelClose}
-					statType={selectedStat}
+					statType={selectedStat || 'totalRevenue'}
 					stats={stats}
 					isLoading={isLoading}
 				/>

@@ -15,6 +15,7 @@ import { useDashboardStats } from '@shared/hooks/useDashboardStats'
 import { YearSelector } from '@shared/components/ui/year-selector'
 import StatCard from '@shared/components/ui/stat-card'
 import { Card } from '@shared/components/ui/card'
+import { CustomPieChart } from '@shared/components/ui/custom-pie-chart'
 import { useState, Suspense } from 'react'
 import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
@@ -37,7 +38,6 @@ function MainHome() {
 	const [selectedYear, setSelectedYear] = useState<number>(new Date().getFullYear())
 	const { data: stats, isLoading, error } = useDashboardStats(selectedMonth, selectedYear)
 	const { profile } = useUserProfile()
-	const [hoveredBranchIndex, setHoveredBranchIndex] = useState<number | null>(null)
 	const [selectedStat, setSelectedStat] = useState<any>(null)
 	const [isDetailPanelOpen, setIsDetailPanelOpen] = useState(false)
 
@@ -126,96 +126,12 @@ function MainHome() {
 									</TooltipContent>
 								</Tooltip>
 							</h3>
-							<div className="flex items-center justify-center mb-2 sm:mb-3 md:mb-4">
-								<div className="relative size-24 sm:size-28 md:size-36">
-									<svg className="size-full -rotate-90" viewBox="0 0 36 36">
-										<circle
-											cx="18"
-											cy="18"
-											r="14"
-											fill="none"
-											className="stroke-current text-gray-200 dark:text-neutral-700"
-											strokeWidth="4"
-										></circle>
-										{stats?.revenueByBranch.map((branch, index) => {
-											const colors = [
-												'text-blue-500',
-												'text-green-500',
-												'text-orange-500',
-												'text-red-500',
-												'text-purple-500',
-											]
-											const offset = stats.revenueByBranch.slice(0, index).reduce((sum, b) => sum + b.percentage, 0)
-											return (
-												<circle
-													key={branch.branch}
-													cx="18"
-													cy="18"
-													r="14"
-													fill="none"
-													className={`stroke-current ${
-														colors[index % colors.length]
-													} transition-transform duration-200`}
-													strokeWidth={hoveredBranchIndex === index ? '5' : '4'}
-													strokeDasharray={`${branch.percentage} ${100 - branch.percentage}`}
-													strokeDashoffset={-offset}
-													onMouseEnter={() => setHoveredBranchIndex(index)}
-													onMouseLeave={() => setHoveredBranchIndex(null)}
-													style={{
-														cursor: 'pointer',
-														filter: hoveredBranchIndex === index ? 'drop-shadow(0 0 1px currentColor)' : 'none',
-													}}
-												></circle>
-											)
-										})}
-									</svg>
-									<div className="absolute inset-0 flex items-center justify-center">
-										<div className="text-center">
-											<p className="text-xl sm:text-2xl font-bold text-gray-700 dark:text-gray-300">
-												{isLoading ? '...' : formatCurrency(stats?.monthlyRevenue || 0)}
-											</p>
-											<p className="text-sm text-gray-500 dark:text-gray-400">Total del Mes</p>
-										</div>
-									</div>
-								</div>
-							</div>
-							<div className="space-y-1 sm:space-y-2">
-								{isLoading ? (
-									<div className="space-y-1">
-										{[1, 2, 3, 4].map((i) => (
-											<div key={i} className="animate-pulse bg-gray-200 dark:bg-gray-700 h-4 sm:h-5 rounded"></div>
-										))}
-									</div>
-								) : (
-									stats?.revenueByBranch.map((branch, index) => {
-										const colors = ['bg-blue-500', 'bg-green-500', 'bg-orange-500', 'bg-red-500', 'bg-purple-500']
-										return (
-											<div
-												key={branch.branch}
-												className="flex items-center justify-between transition-transform duration-200"
-												onMouseEnter={() => setHoveredBranchIndex(index)}
-												onMouseLeave={() => setHoveredBranchIndex(null)}
-												style={{
-													transform: hoveredBranchIndex === index ? 'scale(1.05)' : 'scale(1)',
-													cursor: 'pointer',
-												}}
-											>
-												<div className="flex items-center gap-2">
-													<div
-														className={`w-3 h-3 ${colors[index % colors.length]} rounded-full ${
-															hoveredBranchIndex === index ? 'animate-pulse' : ''
-														}`}
-													></div>
-													<span className="text-sm text-gray-600 dark:text-gray-400">{branch.branch}</span>
-												</div>
-												<span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-													{Math.round(branch.percentage)}% ({formatCurrency(branch.revenue)})
-												</span>
-											</div>
-										)
-									})
-								)}
-							</div>
+							{/* Donut Chart con Recharts */}
+							<CustomPieChart
+								data={stats?.revenueByBranch || []}
+								total={stats?.monthlyRevenue || 0}
+								isLoading={isLoading}
+							/>
 						</div>
 					</Card>
 
