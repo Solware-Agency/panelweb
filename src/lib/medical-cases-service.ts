@@ -397,6 +397,123 @@ export const getCasesWithPatientInfo = async (
 }
 
 /**
+ * Obtener TODOS los casos médicos con información del paciente (sin límite de paginación)
+ * Esta función maneja automáticamente la paginación para obtener todos los registros
+ */
+export const getAllCasesWithPatientInfo = async (
+	filters?: {
+		searchTerm?: string
+		branch?: string
+		dateFrom?: string
+		dateTo?: string
+		examType?: string
+		paymentStatus?: string
+	},
+) => {
+	try {
+		const allData: MedicalCaseWithPatient[] = []
+		let page = 1
+		const pageSize = 1000 // Usar el límite máximo de Supabase por página
+		let hasMoreData = true
+		let totalCount = 0
+
+		while (hasMoreData) {
+			// Construir la consulta con JOIN directo
+			let query = supabase
+				.from('medical_records_clean')
+				.select(`
+					*,
+					patients!inner(
+						cedula,
+						nombre,
+						edad,
+						telefono,
+						email
+					)
+				`, { count: 'exact' })
+
+			// Aplicar filtros
+			if (filters?.searchTerm) {
+				query = query.or(
+					`patients.nombre.ilike.%${filters.searchTerm}%,patients.cedula.ilike.%${filters.searchTerm}%,code.ilike.%${filters.searchTerm}%`,
+				)
+			}
+
+			if (filters?.branch) {
+				query = query.eq('branch', filters.branch)
+			}
+
+			if (filters?.dateFrom) {
+				query = query.gte('date', filters.dateFrom)
+			}
+
+			if (filters?.dateTo) {
+				query = query.lte('date', filters.dateTo)
+			}
+
+			if (filters?.examType) {
+				query = query.eq('exam_type', filters.examType)
+			}
+
+			if (filters?.paymentStatus) {
+				query = query.eq('payment_status', filters.paymentStatus)
+			}
+
+			// Paginación
+			const from = (page - 1) * pageSize
+			const to = from + pageSize - 1
+
+			const { data, error, count } = await query.range(from, to).order('created_at', { ascending: false })
+
+			if (error) {
+				throw error
+			}
+
+			// Obtener el conteo total en la primera página
+			if (page === 1) {
+				totalCount = count || 0
+			}
+
+			// Transformar los datos para que coincidan con la interfaz
+			const transformedData = (data || []).map((item: any) => ({
+				...item,
+				cedula: item.patients?.cedula || '',
+				nombre: item.patients?.nombre || '',
+				edad: item.patients?.edad || null,
+				telefono: item.patients?.telefono || null,
+				patient_email: item.patients?.email || null,
+				version: item.version || null,
+			})) as MedicalCaseWithPatient[]
+
+			allData.push(...transformedData)
+
+			// Verificar si hay más datos
+			hasMoreData = transformedData.length === pageSize && allData.length < totalCount
+			page++
+
+			// Prevenir bucles infinitos
+			if (page > 100) {
+				console.warn('Límite de páginas alcanzado para evitar bucles infinitos')
+				break
+			}
+		}
+
+		console.log(`✅ Obtenidos ${allData.length} casos médicos de ${totalCount} totales`)
+
+		return {
+			data: allData,
+			count: totalCount,
+			page: 1,
+			limit: allData.length,
+			totalPages: 1,
+		}
+	} catch (error) {
+		console.error('Error obteniendo todos los casos con información del paciente:', error)
+		throw error
+	}
+}
+
+/**
  * Actualizar caso médico
  */
 export const updateMedicalCase = async (

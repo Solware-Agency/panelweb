@@ -6,7 +6,7 @@ import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
 import { useQuery } from '@tanstack/react-query'
 import { supabase } from '@lib/supabase/config'
-import { getCasesWithPatientInfo } from '@lib/medical-cases-service'
+import { getAllCasesWithPatientInfo } from '@lib/medical-cases-service'
 import { BranchBadge } from '@shared/components/ui/branch-badge'
 import type { MedicalCaseWithPatient } from '@lib/medical-cases-service'
 import { Button } from '@shared/components/ui/button'
@@ -44,7 +44,7 @@ const PatientHistoryModal: React.FC<PatientHistoryModalProps> = ({ isOpen, onClo
 			if (!patient?.id) return { data: [] }
 
 			try {
-				const result = await getCasesWithPatientInfo(1, 1000, {})
+				const result = await getAllCasesWithPatientInfo({})
 				// Filtrar por patient_id después de obtener los datos
 				const filteredData = result.data.filter((case_) => case_.patient_id === patient.id)
 				return { data: filteredData }

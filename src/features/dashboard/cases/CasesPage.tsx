@@ -1,7 +1,7 @@
 import React, { useCallback, useState } from 'react'
 import { RecordsSection } from '@features/form/components/RecordsSection'
 import { useQuery } from '@tanstack/react-query'
-import { getCasesWithPatientInfo } from '@lib/medical-cases-service'
+import { getAllCasesWithPatientInfo } from '@lib/medical-cases-service'
 import { mapToLegacyRecords } from '@lib/mappers'
 
 const CasesPage: React.FC = () => {
@@ -15,7 +15,7 @@ const CasesPage: React.FC = () => {
 		refetch: refetchCases,
 	} = useQuery({
 		queryKey: ['medical-cases', searchTerm],
-		queryFn: () => getCasesWithPatientInfo(1, 1000, { searchTerm }),
+		queryFn: () => getAllCasesWithPatientInfo({ searchTerm }),
 		staleTime: 1000 * 60 * 5,
 		refetchOnWindowFocus: false,
 	})
