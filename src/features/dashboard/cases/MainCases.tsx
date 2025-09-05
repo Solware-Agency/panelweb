@@ -4,7 +4,7 @@ import CasesTable from '@shared/components/cases/CasesTable'
 import type { MedicalCaseWithPatient } from '@lib/medical-cases-service'
 import { mapToLegacyRecords } from '@lib/mappers'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
-import { getCasesWithPatientInfo } from '@lib/medical-cases-service'
+import { getAllCasesWithPatientInfo } from '@lib/medical-cases-service'
 // import { getMedicalCasesStats } from '@lib/medical-cases-service' // Commented out - not currently used
 import { Card, CardContent } from '@shared/components/ui/card'
 import { Tooltip, TooltipTrigger, TooltipContent } from '@shared/components/ui/tooltip'
@@ -76,7 +76,7 @@ const MainCases: React.FC = React.memo(() => {
 	// Query for cases with patient info - optimized for new structure
 	const casesQueryResult = useQuery({
 		queryKey: ['medical-cases'],
-		queryFn: () => getCasesWithPatientInfo(1, 1000), // Get more cases for dashboard
+		queryFn: () => getAllCasesWithPatientInfo(), // Get ALL cases for dashboard (no pagination limit)
 		staleTime: 1000 * 60 * 2,
 		refetchOnWindowFocus: true,
 		refetchOnReconnect: true,
