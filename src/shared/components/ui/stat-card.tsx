@@ -41,7 +41,7 @@ const StatCard: React.FC<StatCardProps> = ({
       onClick={onClick}
       data-stat-type={statType}
     >
-      <div className="bg-white dark:bg-background rounded-lg p-3 sm:p-4 md:p-6">
+      <div className="bg-white dark:bg-background rounded-lg p-3 sm:p-4 md:p-6 flex flex-col justify-between">
         <div className="flex items-center justify-between mb-2 sm:mb-3">
           <div className="p-1 sm:p-1.5 md:p-2 bg-gray-100 dark:bg-gray-800 rounded-lg">
             {icon}
