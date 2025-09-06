@@ -2,6 +2,7 @@ import React from 'react'
 import { motion, AnimatePresence } from 'motion/react'
 import { X, BarChart3, DollarSign, Users, CheckCircle, XCircle } from 'lucide-react'
 import { Button } from '@shared/components/ui/button'
+import { CustomPieChart } from '@shared/components/ui/custom-pie-chart'
 import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
 import { useBodyScrollLock } from '@shared/hooks/useBodyScrollLock'
@@ -36,8 +37,8 @@ const StatDetailPanel: React.FC<StatDetailPanelProps> = ({
 	isLoading,
 	selectedMonth,
 }) => {
-  useBodyScrollLock(isOpen)
-  useGlobalOverlayOpen(isOpen)
+	useBodyScrollLock(isOpen)
+	useGlobalOverlayOpen(isOpen)
 	const formatCurrency = (amount: number) => {
 		return new Intl.NumberFormat('es-VE', {
 			style: 'currency',
@@ -640,77 +641,17 @@ const StatDetailPanel: React.FC<StatDetailPanelProps> = ({
 							<div>
 								<h3 className="text-xl font-bold mb-4 text-gray-900 dark:text-gray-100">Ingresos por Sede</h3>
 							</div>
-							<div className="flex items-center justify-center mb-6">
-								<div className="relative size-48">
-									<svg className="size-full -rotate-90" viewBox="0 0 36 36">
-										<circle
-											cx="18"
-											cy="18"
-											r="14"
-											fill="none"
-											className="stroke-current text-gray-200 dark:text-neutral-700"
-											strokeWidth="4"
-										></circle>
-										{stats.revenueByBranch &&
-											stats.revenueByBranch.map((branch: any, index: number) => {
-												const colors = [
-													'text-blue-500',
-													'text-green-500',
-													'text-orange-500',
-													'text-red-500',
-													'text-purple-500',
-												]
-												const offset = stats.revenueByBranch
-													.slice(0, index)
-													.reduce((sum: number, b: any) => sum + b.percentage, 0)
-												return (
-													<circle
-														key={branch.branch}
-														cx="18"
-														cy="18"
-														r="14"
-														fill="none"
-														className={`stroke-current ${colors[index % colors.length]}`}
-														strokeWidth="4"
-														strokeDasharray={`${branch.percentage} ${100 - branch.percentage}`}
-														strokeDashoffset={-offset}
-														strokeLinecap="round"
-													></circle>
-												)
-											})}
-									</svg>
-									<div className="absolute inset-0 flex items-center justify-center">
-										<div className="text-center">
-											<p className="text-xl font-bold text-gray-700 dark:text-gray-300">
-												{formatCurrency(stats.monthlyRevenue || 0)}
-											</p>
-											<p className="text-xs text-gray-500 dark:text-gray-400">Total del Mes</p>
-										</div>
-									</div>
-								</div>
-							</div>
-							<div className="space-y-3">
-								{stats.revenueByBranch &&
-									stats.revenueByBranch.map((branch: any, index: number) => {
-										const colors = ['bg-blue-500', 'bg-green-500', 'bg-orange-500', 'bg-red-500', 'bg-purple-500']
-										return (
-											<div key={branch.branch} className="flex items-center justify-between">
-												<div className="flex items-center gap-2">
-													<div className={`w-3 h-3 ${colors[index % colors.length]} rounded-full`}></div>
-													<span className="text-sm text-gray-600 dark:text-gray-400">{branch.branch}</span>
-												</div>
-												<div className="flex flex-col items-end">
-													<span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-														{formatCurrency(branch.revenue)}
-													</span>
-													<span className="text-xs text-gray-500 dark:text-gray-400">
-														{branch.percentage.toFixed(1)}%
-													</span>
-												</div>
-											</div>
-										)
-									})}
-							</div>
+							{stats.revenueByBranch && (
+								<CustomPieChart
+									data={stats.revenueByBranch.map((branch: any) => ({
+										branch: branch.branch,
+										revenue: branch.revenue,
+										percentage: branch.percentage,
+									}))}
+									total={stats.monthlyRevenue || 0}
+									isLoading={isLoading}
+								/>
+							)}
 						</div>
 
 						<div className="bg-white/60 dark:bg-background/30 backdrop-blur-[5px] rounded-lg p-6 border border-input">
