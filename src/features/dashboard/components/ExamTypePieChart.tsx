@@ -53,7 +53,7 @@ const ExamTypePieChart: React.FC = () => {
 
 	// Get color for exam type - using the same colors as other charts
 	const getExamTypeColor = (index: number) => {
-		const colors = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6']
+		const colors = ['#ec4899', '#a855f7', '#3b82f6']
 		return colors[index % colors.length]
 	}
 
