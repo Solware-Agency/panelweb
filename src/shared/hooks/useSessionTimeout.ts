@@ -54,10 +54,13 @@ export function useSessionTimeout({ user, onTimeout, onWarning, warningThreshold
 					.from('user_settings')
 					.select('session_timeout')
 					.eq('id', user.id)
-					.single()
+					.maybeSingle() // Use maybeSingle() instead of single() to handle empty results
 
-				if (error && error.code !== 'PGRST116') {
+				if (error) {
 					console.error('Error loading user timeout:', error)
+					// If there's an error, use default timeout
+					setSessionTimeout(30)
+					localStorage.setItem('sessionTimeout', '30')
 					return
 				}
 

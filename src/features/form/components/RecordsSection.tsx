@@ -30,27 +30,56 @@ export const RecordsSection: React.FC<RecordsSectionProps> = ({
 	const queryClient = useQueryClient()
 
 	useEffect(() => {
-		const channel = supabase
-			.channel('realtime-records-section')
-			.on(
-				'postgres_changes',
-				{
-					event: '*', // INSERT | UPDATE | DELETE
-					schema: 'public',
-					table: 'medical_records_clean',
-				},
-				() => {
-					// Invalidate any queries that might be used by the parent component
-					queryClient.invalidateQueries({ queryKey: ['medical-cases'] })
-					queryClient.invalidateQueries({ queryKey: ['my-medical-cases'] })
-					// Also trigger the refetch function passed as prop
-					refetch()
-				},
-			)
-			.subscribe()
+		console.log('🚀 [RecordsSection] Iniciando suscripción realtime...')
+		console.log('🔍 [RecordsSection] Estado de realtime:', supabase.realtime.isConnected())
+
+		// Verificar autenticación
+		supabase.auth.getSession().then(({ data: { session } }) => {
+			console.log('🔐 [RecordsSection] Usuario autenticado:', session?.user?.email)
+			console.log('🔐 [RecordsSection] Token válido:', !!session?.access_token)
+		})
+
+		// Esperar un poco antes de suscribirse para asegurar que la conexión esté lista
+		const timeoutId = setTimeout(() => {
+			console.log('⏰ [RecordsSection] Intentando suscripción después del timeout...')
+
+			const channel = supabase
+				.channel('realtime-records-section')
+				.on(
+					'postgres_changes',
+					{
+						event: '*', // INSERT | UPDATE | DELETE
+						schema: 'public',
+						table: 'medical_records_clean',
+					},
+					(payload) => {
+						console.log('🔄 [RecordsSection] Cambio detectado en medical_records_clean:', payload)
+						console.log('🔄 [RecordsSection] Invalidando queries...')
+						// Invalidate any queries that might be used by the parent component
+						queryClient.invalidateQueries({ queryKey: ['medical-cases'] })
+						queryClient.invalidateQueries({ queryKey: ['my-medical-cases'] })
+						// Also trigger the refetch function passed as prop
+						refetch()
+					},
+				)
+				.subscribe((status) => {
+					console.log('📡 [RecordsSection] Estado del canal:', status)
+					if (status === 'SUBSCRIBED') {
+						console.log('✅ [RecordsSection] Suscripción exitosa')
+					} else if (status === 'CHANNEL_ERROR') {
+						console.error('❌ [RecordsSection] Error en canal')
+					} else if (status === 'CLOSED') {
+						console.warn('⚠️ [RecordsSection] Canal cerrado')
+					}
+				})
+
+			// Store channel reference for cleanup
+			return channel
+		}, 2000) // Esperar 2 segundos
 
 		return () => {
-			supabase.removeChannel(channel)
+			console.log('🧹 [RecordsSection] Limpiando suscripción')
+			clearTimeout(timeoutId)
 		}
 	}, [queryClient, refetch])
 
