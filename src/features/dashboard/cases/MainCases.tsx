@@ -25,6 +25,8 @@ const MainCases: React.FC = React.memo(() => {
 	const queryClient = useQueryClient()
 
 	useEffect(() => {
+		console.log('🚀 [Realtime] Iniciando suscripciones...')
+
 		// Suscribirse a cambios en ambas tablas
 		const casesChannel = supabase
 			.channel('realtime-cases')
@@ -35,12 +37,21 @@ const MainCases: React.FC = React.memo(() => {
 					schema: 'public',
 					table: 'medical_records_clean',
 				},
-				() => {
+				(payload) => {
+					console.log('🔄 [Realtime] Cambio detectado en medical_records_clean:', payload)
+					console.log('🔄 [Realtime] Invalidando queries...')
 					queryClient.invalidateQueries({ queryKey: ['medical-cases'] })
 					queryClient.invalidateQueries({ queryKey: ['cases-stats'] })
 				},
 			)
-			.subscribe()
+			.subscribe((status) => {
+				console.log('📡 [Realtime] Estado del canal cases:', status)
+				if (status === 'SUBSCRIBED') {
+					console.log('✅ [Realtime] Suscripción a medical_records_clean exitosa')
+				} else if (status === 'CHANNEL_ERROR') {
+					console.error('❌ [Realtime] Error en canal medical_records_clean')
+				}
+			})
 
 		const patientsChannel = supabase
 			.channel('realtime-patients')
@@ -51,13 +62,23 @@ const MainCases: React.FC = React.memo(() => {
 					schema: 'public',
 					table: 'patients',
 				},
-				() => {
+				(payload) => {
+					console.log('🔄 [Realtime] Cambio detectado en patients:', payload)
+					console.log('🔄 [Realtime] Invalidando queries...')
 					queryClient.invalidateQueries({ queryKey: ['medical-cases'] })
 				},
 			)
-			.subscribe()
+			.subscribe((status) => {
+				console.log('📡 [Realtime] Estado del canal patients:', status)
+				if (status === 'SUBSCRIBED') {
+					console.log('✅ [Realtime] Suscripción a patients exitosa')
+				} else if (status === 'CHANNEL_ERROR') {
+					console.error('❌ [Realtime] Error en canal patients')
+				}
+			})
 
 		return () => {
+			console.log('🧹 [Realtime] Limpiando suscripciones')
 			supabase.removeChannel(casesChannel)
 			supabase.removeChannel(patientsChannel)
 		}
@@ -76,7 +97,10 @@ const MainCases: React.FC = React.memo(() => {
 	// Query for cases with patient info - optimized for new structure
 	const casesQueryResult = useQuery({
 		queryKey: ['medical-cases'],
-		queryFn: () => getAllCasesWithPatientInfo(), // Get ALL cases for dashboard (no pagination limit)
+		queryFn: () => {
+			console.log('🔄 [Query] Ejecutando getAllCasesWithPatientInfo...')
+			return getAllCasesWithPatientInfo()
+		}, // Get ALL cases for dashboard (no pagination limit)
 		staleTime: 1000 * 60 * 2,
 		refetchOnWindowFocus: true,
 		refetchOnReconnect: true,
@@ -94,6 +118,19 @@ const MainCases: React.FC = React.memo(() => {
 	const { refetch, isLoading } = casesQueryResult
 	const cases: MedicalCaseWithPatient[] = useMemo(() => casesQueryResult.data?.data || [], [casesQueryResult.data])
 	const error = casesQueryResult.error
+
+	// Handle query success and error with useEffect
+	useEffect(() => {
+		if (casesQueryResult.data) {
+			console.log('✅ [Query] Datos cargados exitosamente:', casesQueryResult.data?.data?.length, 'casos')
+		}
+	}, [casesQueryResult.data])
+
+	useEffect(() => {
+		if (casesQueryResult.error) {
+			console.error('❌ [Query] Error cargando casos:', casesQueryResult.error)
+		}
+	}, [casesQueryResult.error])
 
 	const handleCaseSelect = useCallback((case_: MedicalCaseWithPatient) => {
 		setSelectedCase(case_)

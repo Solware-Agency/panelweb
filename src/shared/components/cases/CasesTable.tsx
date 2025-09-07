@@ -10,7 +10,6 @@ import {
 	Calendar as CalendarIcon,
 } from 'lucide-react'
 import type { MedicalCaseWithPatient } from '@lib/medical-cases-service'
-import { getAgeDisplay } from '@lib/supabase-service'
 
 // Tipo unificado que incluye todos los campos necesarios para compatibilidad
 type UnifiedMedicalRecord = MedicalCaseWithPatient
@@ -725,7 +724,7 @@ const CasesTable: React.FC<CasesTableProps> = React.memo(
 									{paginatedCases.length > 0 ? (
 										// Render paginated cases
 										paginatedCases.map((case_) => {
-											const ageDisplay = case_.edad ? getAgeDisplay(case_.edad.toString()) : ''
+											const ageDisplay = case_.edad || ''
 
 											return (
 												<tr key={case_.id} className="hover:bg-gray-50 dark:hover:bg-gray-800/50">
@@ -1057,7 +1056,7 @@ const CasesTable: React.FC<CasesTableProps> = React.memo(
 										{paginatedCases.length > 0 ? (
 											// Render paginated cases
 											paginatedCases.map((case_) => {
-												const ageDisplay = case_.edad ? case_.edad.toString() : ''
+												const ageDisplay = case_.edad || ''
 
 												return (
 													<tr key={case_.id} className="hover:bg-gray-50 dark:hover:bg-gray-800/50">

@@ -27,10 +27,15 @@ export function useSessionTimeoutSettings({ user }: UseSessionTimeoutSettingsOpt
 					.from('user_settings')
 					.select('session_timeout')
 					.eq('id', user.id)
-					.single()
+					.maybeSingle() // Use maybeSingle() instead of single() to handle empty results
 
-				if (error && error.code !== 'PGRST116') {
+				if (error) {
 					console.error('Error loading user timeout:', error)
+					// If there's an error, use default timeout
+					if (isMounted) {
+						setSessionTimeout(30)
+						localStorage.setItem('sessionTimeout', '30')
+					}
 					return
 				}
 
@@ -43,6 +48,11 @@ export function useSessionTimeoutSettings({ user }: UseSessionTimeoutSettingsOpt
 				localStorage.setItem('sessionTimeout', timeoutMinutes.toString())
 			} catch (error) {
 				console.error('Error loading user timeout:', error)
+				// If there's an error, use default timeout
+				if (isMounted) {
+					setSessionTimeout(30)
+					localStorage.setItem('sessionTimeout', '30')
+				}
 			} finally {
 				if (isMounted) {
 					setIsLoading(false)

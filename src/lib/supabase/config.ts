@@ -35,6 +35,11 @@ export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABL
 	db: {
 		schema: 'public',
 	},
+	realtime: {
+		params: {
+			eventsPerSecond: 10,
+		},
+	},
 	global: {
 		headers: {
 			'Content-Type': 'application/json',
@@ -59,3 +64,7 @@ supabase
 			console.error('❌ Error inesperado conectando con tabla medical_records_clean:', err)
 		},
 	)
+
+// Verificar conexión de realtime
+console.log('📡 [Realtime] Inicializando realtime...')
+console.log('📡 [Realtime] Estado de conexión:', supabase.realtime.isConnected())
