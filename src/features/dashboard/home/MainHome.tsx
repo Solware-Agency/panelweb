@@ -217,8 +217,8 @@ function MainHome() {
 												key={month.month}
 												className={`flex-1 rounded-t-sm hover:translate-y-[-4px] transition-transform duration-200 cursor-pointer ${
 													isSelected
-														? 'bg-gradient-to-t from-purple-600 to-purple-400 shadow-lg'
-														: 'bg-gradient-to-t from-blue-500 to-blue-300 hover:from-blue-600 hover:to-blue-400'
+														? 'bg-gradient-to-b from-purple-500 to-purple-600 hover:from-purple-500 hover:to-purple-700 shadow-lg'
+														: 'bg-gradient-to-b from-blue-500 to-blue-600 hover:from-blue-500 hover:to-blue-700'
 												}`}
 												style={{ height: `${Math.max(height, 20)}%` }} // FIXED: Increased minimum height for better UX
 												title={`${month.month}: ${formatCurrency(month.revenue)}`}
@@ -242,8 +242,8 @@ function MainHome() {
 						<div className="h-full flex flex-col" onClick={() => navigate('/dashboard/stats')}>
 							<div className="flex items-center justify-between mb-2 sm:mb-3">
 								<div className="flex items-center gap-1 sm:gap-2">
-									<div className="p-1 sm:p-1.5 bg-purple-100 dark:bg-purple-900/30 rounded-lg">
-										<Stethoscope className="w-3 h-3 sm:w-4 sm:h-4 md:w-5 md:h-5 text-purple-600 dark:text-purple-400" />
+									<div className="p-1 sm:p-1.5 bg-purple-100 dark:bg-purple-800/30 rounded-lg">
+										<Stethoscope className="w-3 h-3 sm:w-4 sm:h-4 md:w-5 md:h-5 text-purple-600 dark:text-purple-600" />
 									</div>
 									<h3 className="text-xs sm:text-sm md:text-base font-bold text-gray-700 dark:text-gray-300">
 										Médicos Tratantes
@@ -328,19 +328,19 @@ function MainHome() {
 									stats?.topExamTypes.slice(0, 3).map((exam, index) => {
 										const colors = [
 											{
+												bg: 'from-pink-50 to-pink-100 dark:from-pink-900/20 dark:to-pink-800/20',
+												text: 'text-pink-600 dark:text-pink-500',
+												badge: 'bg-pink-600',
+											},
+											{
+												bg: 'from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-800/20',
+												text: 'text-purple-600 dark:text-purple-500',
+												badge: 'bg-purple-600',
+											},
+											{
 												bg: 'from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20',
-												text: 'text-blue-600 dark:text-blue-400',
+												text: 'text-blue-500 dark:text-blue-400',
 												badge: 'bg-blue-500',
-											},
-											{
-												bg: 'from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20',
-												text: 'text-green-600 dark:text-green-400',
-												badge: 'bg-green-500',
-											},
-											{
-												bg: 'from-orange-50 to-orange-100 dark:from-orange-900/20 dark:to-orange-800/20',
-												text: 'text-orange-600 dark:text-orange-400',
-												badge: 'bg-orange-500',
 											},
 										]
 										const color = colors[index]
