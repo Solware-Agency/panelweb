@@ -83,7 +83,7 @@ export const RecordsSection: React.FC<RecordsSectionProps> = ({
 		}
 	}, [queryClient, refetch])
 
-  const { profile } = useUserProfile()
+	const { profile } = useUserProfile()
 	const [showPendingOnly, setShowPendingOnly] = useState(false)
 	const [selectedExamType, setSelectedExamType] = useState<string | null>(null)
 	const [showPdfReadyOnly, setShowPdfReadyOnly] = useState(false)
@@ -373,8 +373,10 @@ export const RecordsSection: React.FC<RecordsSectionProps> = ({
 								<p className="text-xs font-bold text-muted-foreground">Casos Pendientes</p>
 							</div>
 							<div className="absolute right-3 top-1/2 -translate-y-1/2 text-right tabular-nums">
-                                <p className="text-xl font-bold">{stats.total > 0 ? Math.round(((stats.total - stats.completed) / stats.total) * 100) : 0}%</p>
-                            </div>
+								<p className="text-xl font-bold">
+									{stats.total > 0 ? Math.round(((stats.total - stats.completed) / stats.total) * 100) : 0}%
+								</p>
+							</div>
 						</button>
 
 						{/* PDF Ready Button */}
@@ -429,17 +431,17 @@ export const RecordsSection: React.FC<RecordsSectionProps> = ({
 								</TooltipContent>
 							</Tooltip>
 						</div>
-                        <div className="flex items-center gap-3 mb-3">
+						<div className="flex items-center gap-3 mb-3">
 							<div className="p-2 rounded-lg bg-blue-100 dark:bg-blue-900/30">
 								<BarChart3 className="h-5 w-5 text-blue-600 dark:text-blue-400" />
 							</div>
 							<div>
-                                <p className="text-xs font-medium text-muted-foreground">Tipos de Examen</p>
+								<p className="text-xs font-medium text-muted-foreground">Tipos de Examen</p>
 							</div>
 						</div>
 
 						<div className="space-y-2">
-                            {/* Biopsia */}
+							{/* Biopsia */}
 							<div
 								className={`flex items-center justify-between p-2 rounded-lg border transition-transform duration-200 cursor-pointer hover:bg-accent ${
 									selectedExamType === 'biopsia'
@@ -449,13 +451,13 @@ export const RecordsSection: React.FC<RecordsSectionProps> = ({
 								onClick={() => handleExamTypeFilter('biopsia')}
 							>
 								<div className="flex items-center gap-2">
-                                    <Activity className="h-3 w-3 text-green-500" />
+									<Activity className="h-3 w-3 text-pink-600" />
 									<span className="text-xs font-medium">Biopsia</span>
 								</div>
 								<span className="text-sm font-bold">{examTypeCounts['biopsia'] || 0}</span>
 							</div>
 
-                            {/* Citología */}
+							{/* Citología */}
 							<div
 								className={`flex items-center justify-between p-2 rounded-lg border transition-transform duration-200 cursor-pointer hover:bg-accent ${
 									selectedExamType === 'citologia'
@@ -464,14 +466,14 @@ export const RecordsSection: React.FC<RecordsSectionProps> = ({
 								}`}
 								onClick={() => handleExamTypeFilter('citologia')}
 							>
-                                <div className="flex items-center gap-2">
-                                    <Stethoscope className="h-3 w-3 text-blue-500" />
+								<div className="flex items-center gap-2">
+									<Stethoscope className="h-3 w-3 text-purple-600" />
 									<span className="text-xs font-medium">Citología</span>
 								</div>
 								<span className="text-sm font-bold">{examTypeCounts['citologia'] || 0}</span>
 							</div>
 
-                            {/* Inmunohistoquímica */}
+							{/* Inmunohistoquímica */}
 							<div
 								className={`flex items-center justify-between p-2 rounded-lg border transition-transform duration-200 cursor-pointer hover:bg-accent ${
 									selectedExamType === 'inmunohistoquimica'
@@ -480,9 +482,9 @@ export const RecordsSection: React.FC<RecordsSectionProps> = ({
 								}`}
 								onClick={() => handleExamTypeFilter('inmunohistoquimica')}
 							>
-                                <div className="flex items-center gap-2">
-                                    <FlaskConical className="h-3 w-3 text-orange-500" />
-                                    <span className="text-xs font-medium">Inmunohistoquímica</span>
+								<div className="flex items-center gap-2">
+									<FlaskConical className="h-3 w-3 text-blue-500" />
+									<span className="text-xs font-medium">Inmunohistoquímica</span>
 								</div>
 								<span className="text-sm font-bold">{examTypeCounts['inmunohistoquimica'] || 0}</span>
 							</div>
@@ -504,12 +506,12 @@ export const RecordsSection: React.FC<RecordsSectionProps> = ({
 								</TooltipContent>
 							</Tooltip>
 						</div>
-                        <div className="flex items-center gap-3 mb-3">
+						<div className="flex items-center gap-3 mb-3">
 							<div className="p-2 rounded-lg bg-teal-100 dark:bg-teal-900/30">
 								<FileText className="h-5 w-5 text-teal-600 dark:text-teal-400" />
 							</div>
 							<div>
-                                <p className="text-xs font-medium text-muted-foreground">Estatus de Documento</p>
+								<p className="text-xs font-medium text-muted-foreground">Estatus de Documento</p>
 							</div>
 						</div>
 
