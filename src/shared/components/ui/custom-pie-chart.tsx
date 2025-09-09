@@ -54,7 +54,7 @@ export const CustomPieChart: React.FC<CustomPieChartProps> = ({ data, total, isL
 	}
 
 	return (
-		<div className="w-full">
+		<div className="w-full lg:grid grid-cols-2 gap-4 justify-center items-center">
 			{/* Donut Chart */}
 			<div className="h-64 relative">
 				<ResponsiveContainer width="100%" height="100%">
@@ -97,9 +97,7 @@ export const CustomPieChart: React.FC<CustomPieChartProps> = ({ data, total, isL
 				{/* Total en el centro del donut */}
 				<div className="absolute inset-0 flex items-center justify-center pointer-events-none">
 					<div className="bg-white/60 dark:bg-background/30 backdrop-blur-[5px] border border-input rounded-full size-32 flex flex-col items-center justify-center">
-						<p className="text-lg sm:text-xl font-bold text-gray-700 dark:text-gray-300">
-							{formatCurrency(total)}
-						</p>
+						<p className="text-lg sm:text-xl font-bold text-gray-700 dark:text-gray-300">{formatCurrency(total)}</p>
 						<p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">Total del Mes</p>
 					</div>
 				</div>

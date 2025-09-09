@@ -219,11 +219,6 @@ const StatsPage: React.FC = () => {
 									</span>
 								))}
 							</div>
-							<div className="mt-2 sm:mt-4 text-center">
-								<p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">
-									Haz clic en una barra para seleccionar el mes
-								</p>
-							</div>
 						</div>
 					</Card>
 
