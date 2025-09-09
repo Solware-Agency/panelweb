@@ -205,7 +205,7 @@ const CustomDropdown = forwardRef<HTMLDivElement, CustomDropdownProps>(
 					'overflow-visible rounded-md border bg-popover text-popover-foreground shadow-md animate-in fade-in-0 duration-200',
 					isInModal ? 'absolute z-50' : 'fixed z-[999999]',
 				)}
-				style={menuStyle}
+				style={menuStyle || undefined}
 				role="listbox"
 			>
 				{options.length === 0 ? (
