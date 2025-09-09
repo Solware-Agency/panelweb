@@ -28,14 +28,14 @@ export const calculatePaymentDetails = (
 ) => {
 	const totalAmountValue = totalAmount ? parseDecimalNumber(totalAmount) : 0
 
-	// If total amount is 0, consider payment complete
-    if (totalAmountValue === 0) {
-			return {
-				paymentStatus: 'Pagado',
-				isPaymentComplete: true,
-				missingAmount: 0,
-			}
+	// If total amount is 0, don't show payment status (let validation handle it)
+	if (totalAmountValue === 0) {
+		return {
+			paymentStatus: null,
+			isPaymentComplete: false,
+			missingAmount: 0,
 		}
+	}
 
 	const currentTotalPaid = payments.reduce((acc, payment) => {
 		const amount = payment.amount ? parseDecimalNumber(payment.amount) : 0
@@ -66,13 +66,13 @@ export const calculatePaymentDetails = (
 		// Consider payment complete if difference is less than 1 cent
 		isPaymentComplete = Math.abs(finalTotalPaid - totalAmountValue) < 0.01
 
-        if (isPaymentComplete) {
-					paymentStatus = 'Pagado'
-					missingAmount = 0
-				} else if (missingAmount > 0.009) {
-					// If missing less than 1 cent, don't show anything
-					paymentStatus = `Incompleto`
-				}
+		if (isPaymentComplete) {
+			paymentStatus = 'Pagado'
+			missingAmount = 0
+		} else if (missingAmount > 0.009) {
+			// If missing less than 1 cent, don't show anything
+			paymentStatus = `Incompleto`
+		}
 	}
 
 	return { paymentStatus, isPaymentComplete, missingAmount }

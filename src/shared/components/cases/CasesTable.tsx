@@ -17,6 +17,7 @@ import Pagination from './Pagination'
 import FiltersModal from './FiltersModal'
 import { getStatusColor } from './status'
 import { BranchBadge } from '@shared/components/ui/branch-badge'
+import { calculatePaymentDetails } from '@features/form/lib/payment/payment-utils'
 
 interface CasesTableProps {
 	cases: UnifiedMedicalRecord[]
@@ -31,6 +32,41 @@ interface CasesTableProps {
 
 type SortField = 'id' | 'created_at' | 'nombre' | 'total_amount' | 'code'
 type SortDirection = 'asc' | 'desc'
+
+// Helper function to calculate correct payment status for a case
+const calculateCasePaymentStatus = (case_: UnifiedMedicalRecord) => {
+	// Convert medical record payment fields to payments array format
+	const payments = []
+
+	for (let i = 1; i <= 4; i++) {
+		const method = case_[`payment_method_${i}` as keyof UnifiedMedicalRecord] as string | null
+		const amount = case_[`payment_amount_${i}` as keyof UnifiedMedicalRecord] as number | null
+
+		if (method && amount && amount > 0) {
+			payments.push({
+				method,
+				amount,
+				reference: '', // Reference not needed for calculation
+			})
+		}
+	}
+
+	// Use the correct payment calculation logic
+	const { paymentStatus, isPaymentComplete, missingAmount } = calculatePaymentDetails(
+		payments,
+		case_.total_amount,
+		case_.exchange_rate || undefined,
+	)
+
+	// Convert "Parcial" to "Incompleto" for consistency
+	const normalizedStatus = paymentStatus === 'Parcial' ? 'Incompleto' : paymentStatus || 'Incompleto'
+
+	return {
+		paymentStatus: normalizedStatus,
+		isPaymentComplete,
+		missingAmount: missingAmount || 0,
+	}
+}
 
 const CasesTable: React.FC<CasesTableProps> = React.memo(
 	({ cases, isLoading, error, refetch, isFullscreen, setIsFullscreen, onSearch, onCaseSelect }) => {
@@ -288,16 +324,18 @@ const CasesTable: React.FC<CasesTableProps> = React.memo(
 					selectedDoctors.length === 0 ||
 					(case_.treating_doctor && selectedDoctors.includes(case_.treating_doctor.trim()))
 
-				// Status filter
+				// Status filter - use calculated payment status instead of database field
 				let matchesStatus = true
-				const paymentStatusNormalized = (case_.payment_status || '').toString().trim().toLowerCase()
-				if (statusFilter === 'Pagado') {
-					matchesStatus = paymentStatusNormalized === 'pagado'
-				} else if (statusFilter === 'Incompleto') {
-					// "Incompleto" incluye todos los estados distintos de pagado
-					matchesStatus = paymentStatusNormalized !== 'pagado'
+				if (statusFilter !== 'all') {
+					const { paymentStatus } = calculateCasePaymentStatus(case_)
+					const paymentStatusNormalized = paymentStatus.toLowerCase()
+					if (statusFilter === 'Pagado') {
+						matchesStatus = paymentStatusNormalized === 'pagado'
+					} else if (statusFilter === 'Incompleto') {
+						// "Incompleto" incluye todos los estados distintos de pagado (incluyendo "Parcial")
+						matchesStatus = paymentStatusNormalized !== 'pagado'
+					}
 				}
-				// If statusFilter is 'all', matchesStatus remains true
 
 				// Branch filter
 				const normalize = (str: string | null | undefined) => (str ? str.trim().toLowerCase() : '')
@@ -667,13 +705,18 @@ const CasesTable: React.FC<CasesTableProps> = React.memo(
 																	{case_.code}
 																</div>
 															)}
-															<span
-																className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(
-																	case_.payment_status,
-																)}`}
-															>
-																{case_.payment_status}
-															</span>
+															{(() => {
+																const { paymentStatus } = calculateCasePaymentStatus(case_)
+																return (
+																	<span
+																		className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(
+																			paymentStatus,
+																		)}`}
+																	>
+																		{paymentStatus}
+																	</span>
+																)
+															})()}
 														</div>
 													</td>
 													<td className="px-4 py-4 text-sm text-gray-900 dark:text-gray-100 text-left">
@@ -706,11 +749,16 @@ const CasesTable: React.FC<CasesTableProps> = React.memo(
 														<div className="text-sm font-medium text-gray-900 dark:text-gray-100">
 															${case_.total_amount.toLocaleString()}
 														</div>
-														{case_.remaining > 0 && (
-															<div className="text-xs text-red-600 dark:text-red-400">
-																Faltante: ${case_.remaining.toLocaleString()}
-															</div>
-														)}
+														{(() => {
+															const { missingAmount } = calculateCasePaymentStatus(case_)
+															return (
+																missingAmount > 0 && (
+																	<div className="text-xs text-red-600 dark:text-red-400">
+																		Faltante: ${missingAmount.toFixed(2)}
+																	</div>
+																)
+															)
+														})()}
 													</td>
 													<td className="px-4 py-4">
 														<div className="flex justify-center mx-5">
@@ -924,13 +972,18 @@ const CasesTable: React.FC<CasesTableProps> = React.memo(
 																		{case_.code}
 																	</div>
 																)}
-																<span
-																	className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(
-																		case_.payment_status,
-																	)}`}
-																>
-																	{case_.payment_status}
-																</span>
+																{(() => {
+																	const { paymentStatus } = calculateCasePaymentStatus(case_)
+																	return (
+																		<span
+																			className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(
+																				paymentStatus,
+																			)}`}
+																		>
+																			{paymentStatus}
+																		</span>
+																	)
+																})()}
 															</div>
 														</td>
 														<td className="px-4 py-4 text-sm text-gray-900 dark:text-gray-100 text-left">
@@ -965,11 +1018,16 @@ const CasesTable: React.FC<CasesTableProps> = React.memo(
 															<div className="text-sm font-medium text-gray-900 dark:text-gray-100">
 																${case_.total_amount.toLocaleString()}
 															</div>
-															{case_.remaining > 0 && (
-																<div className="text-xs text-red-600 dark:text-red-400">
-																	Faltante: ${case_.remaining.toLocaleString()}
-																</div>
-															)}
+															{(() => {
+																const { missingAmount } = calculateCasePaymentStatus(case_)
+																return (
+																	missingAmount > 0 && (
+																		<div className="text-xs text-red-600 dark:text-red-400">
+																			Faltante: ${missingAmount.toFixed(2)}
+																		</div>
+																	)
+																)
+															})()}
 														</td>
 														<td className="px-4 py-4">
 															<div className="flex justify-center mx-5">

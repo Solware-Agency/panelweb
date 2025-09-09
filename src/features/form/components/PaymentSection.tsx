@@ -89,15 +89,23 @@ export const PaymentSection = memo(({
 						isLoadingRate={isLoadingRate}
 						inputStyles={inputStyles}
 					/>
-					
+
 					{/* Estado de pago - aparece en la misma línea */}
 					<div className="flex items-center justify-center">
-						{/* Alerta de monto pendiente */}
-						{!isPaymentComplete && missingAmount && missingAmount > 0 && (
+						{/* Mensaje de error cuando monto total es 0 */}
+						{totalAmount === 0 && (
 							<div className="dark:bg-red-900 bg-red-900 text-red-200 border border-red-700 rounded-lg px-4 py-3 text-sm font-semibold">
 								<div className="flex items-center">
-									Monto pendiente: ${missingAmount.toFixed(2)}
+									<span className="mr-1">⚠️</span>
+									El monto total debe ser mayor a 0,01
 								</div>
+							</div>
+						)}
+
+						{/* Alerta de monto pendiente */}
+						{totalAmount > 0 && !isPaymentComplete && missingAmount && missingAmount > 0 && (
+							<div className="dark:bg-red-900 bg-red-900 text-red-200 border border-red-700 rounded-lg px-4 py-3 text-sm font-semibold">
+								<div className="flex items-center">Monto pendiente: ${missingAmount.toFixed(2)}</div>
 								{exchangeRate && (
 									<div className="mt-1 text-sm text-red-300 font-normal">
 										Equivalente: Bs {(missingAmount * exchangeRate).toFixed(2)}
@@ -107,15 +115,13 @@ export const PaymentSection = memo(({
 						)}
 
 						{/* Mensaje de pago completado */}
-						{isPaymentComplete && (
+						{totalAmount > 0 && isPaymentComplete && (
 							<div className="bg-green-900/70 text-green-200 border border-green-700 rounded-lg px-3 py-2 text-xs font-semibold">
 								<div className="flex items-center">
 									<span className="mr-1">✅</span>
 									Pago completado
 								</div>
-								<div className="mt-1 text-xs text-green-300 font-normal">
-									El monto total ha sido cubierto
-								</div>
+								<div className="mt-1 text-xs text-green-300 font-normal">El monto total ha sido cubierto</div>
 							</div>
 						)}
 					</div>
