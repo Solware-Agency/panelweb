@@ -33,5 +33,5 @@ export function getDownloadUrl(caseId: string, token: string | null, directUrl: 
  * Verifica si una URL es válida para descarga
  */
 export function isValidDownloadUrl(url: string): boolean {
-	return url && url.length > 0 && (url.startsWith('http') || url.startsWith('/api/'))
+	return Boolean(url && url.length > 0 && (url.startsWith('http') || url.startsWith('/api/')))
 }
