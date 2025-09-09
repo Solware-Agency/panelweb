@@ -69,9 +69,17 @@ const CustomDropdown = forwardRef<HTMLDivElement, CustomDropdownProps>(
 			}
 
 			// Use capture phase to ensure we catch events before modal handlers
-			document.addEventListener('mousedown', handleClickOutside, true)
-			return () => document.removeEventListener('mousedown', handleClickOutside, true)
-		}, [])
+			// Only add listener when dropdown is open
+			if (isOpen) {
+				document.addEventListener('mousedown', handleClickOutside, true)
+			}
+
+			return () => {
+				if (isOpen) {
+					document.removeEventListener('mousedown', handleClickOutside, true)
+				}
+			}
+		}, [isOpen])
 
 		// Handle keyboard navigation
 		useEffect(() => {
@@ -167,7 +175,9 @@ const CustomDropdown = forwardRef<HTMLDivElement, CustomDropdownProps>(
 			e?.preventDefault()
 			e?.stopPropagation()
 			const next = !isOpen
-			if (next) computePositioning()
+			if (next) {
+				computePositioning()
+			}
 			setIsOpen(next)
 		}
 
@@ -176,10 +186,13 @@ const CustomDropdown = forwardRef<HTMLDivElement, CustomDropdownProps>(
 			if (!isOpen) return
 			const onScroll = () => setIsOpen(false) // Close dropdown on scroll to keep it fixed
 			const onResize = () => computePositioning()
-			window.addEventListener('scroll', onScroll, true)
+
+			// Only listen to scroll events on the window, not on all elements
+			window.addEventListener('scroll', onScroll, { passive: true })
 			window.addEventListener('resize', onResize)
+
 			return () => {
-				window.removeEventListener('scroll', onScroll, true)
+				window.removeEventListener('scroll', onScroll)
 				window.removeEventListener('resize', onResize)
 			}
 		}, [isOpen])
@@ -203,10 +216,14 @@ const CustomDropdown = forwardRef<HTMLDivElement, CustomDropdownProps>(
 				ref={listRef}
 				className={cn(
 					'overflow-visible rounded-md border bg-popover text-popover-foreground shadow-md animate-in fade-in-0 duration-200',
-					isInModal ? 'absolute z-50' : 'fixed z-[999999]',
+					isInModal ? 'absolute z-50' : 'fixed z-[1000]',
 				)}
 				style={menuStyle || undefined}
 				role="listbox"
+				onMouseDown={(e) => {
+					// Prevent the dropdown from closing when clicking inside it
+					e.stopPropagation()
+				}}
 			>
 				{options.length === 0 ? (
 					<div className="px-3 py-2 text-sm text-muted-foreground">No hay opciones disponibles</div>
@@ -223,6 +240,7 @@ const CustomDropdown = forwardRef<HTMLDivElement, CustomDropdownProps>(
 							}}
 							onMouseDown={(e) => {
 								e.preventDefault()
+								e.stopPropagation()
 							}}
 							className={cn(
 								'relative flex w-full cursor-pointer select-none items-center rounded-sm px-3 py-2 text-sm outline-none transition-colors duration-150 hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground',
@@ -245,6 +263,10 @@ const CustomDropdown = forwardRef<HTMLDivElement, CustomDropdownProps>(
 				<div
 					id={id}
 					onClick={handleToggle}
+					onMouseDown={(e) => {
+						// Prevent the dropdown from closing when clicking the trigger
+						e.stopPropagation()
+					}}
 					className={cn(
 						'flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 cursor-pointer transition-transform duration-200 hover:border-primary hover:shadow-sm hover:bg-accent/50',
 						disabled && 'cursor-not-allowed opacity-50 hover:border-input hover:shadow-none hover:bg-background',
