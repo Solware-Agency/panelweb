@@ -145,6 +145,10 @@ function RegisterForm() {
 						'Se ha alcanzado el límite de envío de correos electrónicos. Este es un límite temporal del servicio de email.',
 					)
 					startRetryCountdown(300)
+				} else if (msg.includes('Error sending confirmation email') || msg.includes('535 5.7.8')) {
+					setError(
+						'Error temporal del servicio de email. Por favor, contacta al administrador o intenta de nuevo más tarde.',
+					)
 				} else {
 					setError('Error al crear la cuenta. Inténtalo de nuevo.')
 				}
@@ -183,6 +187,10 @@ function RegisterForm() {
 					'Se ha alcanzado el límite de envío de correos electrónicos. Este es un límite temporal del servicio de email.',
 				)
 				startRetryCountdown(300)
+			} else if (msg.includes('Error sending confirmation email') || msg.includes('535 5.7.8')) {
+				setError(
+					'Error temporal del servicio de email. Por favor, contacta al administrador o intenta de nuevo más tarde.',
+				)
 			} else {
 				setError('Error al crear la cuenta. Inténtalo de nuevo.')
 			}

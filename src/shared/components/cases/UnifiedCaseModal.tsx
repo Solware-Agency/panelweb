@@ -16,6 +16,7 @@ import {
 	History,
 	Eye,
 	Send,
+	Copy,
 } from 'lucide-react'
 import type { MedicalCaseWithPatient, MedicalCaseUpdate } from '@lib/medical-cases-service'
 import type { PatientUpdate } from '@lib/patients-service'
@@ -42,6 +43,12 @@ import { useBodyScrollLock } from '@shared/hooks/useBodyScrollLock'
 import { useGlobalOverlayOpen } from '@shared/hooks/useGlobalOverlayOpen'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@shared/components/ui/tooltip'
 import { createCalculatorInputHandlerWithCurrency } from '@shared/utils/number-utils'
+import {
+	calculatePaymentDetails,
+	calculateTotalPaidUSD,
+	isBolivaresMethod,
+} from '@features/form/lib/payment/payment-utils'
+import { createCalculatorInputHandler } from '@shared/utils/number-utils'
 
 interface ChangeLogEntry {
 	id: string
@@ -168,6 +175,10 @@ const UnifiedCaseModal: React.FC<CaseDetailPanelProps> = React.memo(({ case_, is
 		amount: 0,
 		reference: '',
 	})
+	const [isAddingNewPayment, setIsAddingNewPayment] = useState(false)
+
+	// Converter states
+	const [converterUsdValue, setConverterUsdValue] = useState('')
 
 	// Query to get existing immuno request for this case
 	const { data: existingImmunoRequest, refetch: refetchImmunoRequest } = useQuery({
@@ -276,19 +287,65 @@ const UnifiedCaseModal: React.FC<CaseDetailPanelProps> = React.memo(({ case_, is
 		queryKey: ['record-changelogs', case_?.id],
 		queryFn: async () => {
 			if (!case_?.id) return { data: [] }
-			// Obtener logs del caso médico
-			const { data, error } = await supabase
+			
+			// Obtener logs del caso médico desde change_logs
+			const { data: changeLogs, error: changeLogsError } = await supabase
 				.from('change_logs')
 				.select('*')
 				.eq('medical_record_id', case_.id)
 				.order('changed_at', { ascending: false })
 
-			if (error) {
-				console.error('Error fetching change logs:', error)
-				return { data: [] }
+			if (changeLogsError) {
+				console.error('Error fetching change logs:', changeLogsError)
 			}
 
-			return { data: data || [] }
+			// Obtener logs de eliminación desde deletion_logs
+			const { data: deletionLogs, error: deletionLogsError } = await supabase
+				.from('deletion_logs')
+				.select('*')
+				.eq('deleted_medical_record_id', case_.id)
+				.order('deleted_at', { ascending: false })
+
+			if (deletionLogsError) {
+				console.error('Error fetching deletion logs:', deletionLogsError)
+			}
+
+			// Combinar y formatear los logs
+			const allLogs = []
+			
+			// Agregar logs de cambios
+			if (changeLogs) {
+				allLogs.push(...changeLogs.map(log => ({
+					...log,
+					changed_at: log.changed_at,
+					source: 'change_logs'
+				})))
+			}
+			
+			// Agregar logs de eliminación
+			if (deletionLogs) {
+				allLogs.push(...deletionLogs.map(log => ({
+					id: log.id,
+					medical_record_id: log.deleted_medical_record_id,
+					patient_id: log.deleted_patient_id,
+					user_id: log.user_id,
+					user_email: log.user_email,
+					user_display_name: log.user_display_name,
+					field_name: 'deleted_record',
+					field_label: 'Registro Eliminado',
+					old_value: log.deleted_record_info,
+					new_value: null,
+					changed_at: log.deleted_at,
+					deleted_record_info: log.deleted_record_info,
+					entity_type: log.entity_type,
+					source: 'deletion_logs'
+				})))
+			}
+
+			// Ordenar por fecha de cambio (más reciente primero)
+			allLogs.sort((a, b) => new Date(b.changed_at).getTime() - new Date(a.changed_at).getTime())
+
+			return { data: allLogs }
 		},
 		enabled: !!case_?.id && isOpen && isChangelogOpen,
 	})
@@ -356,6 +413,7 @@ const UnifiedCaseModal: React.FC<CaseDetailPanelProps> = React.memo(({ case_, is
 		setEditedCase({})
 		setPaymentMethods([])
 		setNewPaymentMethod({ method: '', amount: 0, reference: '' })
+		setIsAddingNewPayment(false)
 		setImmunoReactions(
 			existingImmunoRequest
 				? existingImmunoRequest.inmunorreacciones
@@ -443,11 +501,38 @@ const UnifiedCaseModal: React.FC<CaseDetailPanelProps> = React.memo(({ case_, is
 
 		setPaymentMethods([...paymentMethods, { ...newPaymentMethod }])
 		setNewPaymentMethod({ method: '', amount: 0, reference: '' })
+		setIsAddingNewPayment(false)
 	}
 
 	const handleRemovePaymentMethod = (index: number) => {
 		const updatedMethods = paymentMethods.filter((_, i) => i !== index)
 		setPaymentMethods(updatedMethods)
+	}
+
+	const handleCancelEditPayment = () => {
+		setIsAddingNewPayment(false)
+		setNewPaymentMethod({ method: '', amount: 0, reference: '' })
+	}
+
+	const handleStartAddingPayment = () => {
+		// Si ya hay un método de pago nuevo con datos, agregarlo primero
+		if (newPaymentMethod.method && newPaymentMethod.amount > 0) {
+			handleAddPaymentMethod()
+			// Luego iniciar el proceso de agregar uno nuevo
+			setIsAddingNewPayment(true)
+			setNewPaymentMethod({ method: '', amount: 0, reference: '' })
+		} else if (isAddingNewPayment) {
+			// Si ya está en modo agregar pero no hay datos completos, mostrar mensaje
+			toast({
+				title: '⚠️ Complete el método de pago',
+				description: 'Por favor complete el método de pago y el monto antes de agregar otro.',
+				variant: 'default',
+			})
+		} else {
+			// Iniciar el proceso de agregar uno nuevo
+			setIsAddingNewPayment(true)
+			setNewPaymentMethod({ method: '', amount: 0, reference: '' })
+		}
 	}
 
 	const handleRequestImmunoReactions = async () => {
@@ -611,10 +696,16 @@ const UnifiedCaseModal: React.FC<CaseDetailPanelProps> = React.memo(({ case_, is
 				}
 			}
 
+			// Si hay un método de pago nuevo en el formulario, agregarlo automáticamente
+			let finalPaymentMethods = [...paymentMethods]
+			if (isAddingNewPayment && newPaymentMethod.method && newPaymentMethod.amount > 0) {
+				finalPaymentMethods.push({ ...newPaymentMethod })
+			}
+
 			// Verificar si hay cambios en los métodos de pago
 			const paymentMethodsChanged =
-				paymentMethods.length !== currentPaymentMethods.length ||
-				paymentMethods.some((pm, index) => {
+				finalPaymentMethods.length !== currentPaymentMethods.length ||
+				finalPaymentMethods.some((pm, index) => {
 					const current = currentPaymentMethods[index]
 					return (
 						!current ||
@@ -633,23 +724,21 @@ const UnifiedCaseModal: React.FC<CaseDetailPanelProps> = React.memo(({ case_, is
 				}
 
 				// Agregar los nuevos métodos de pago
-				paymentMethods.forEach((pm, index) => {
+				finalPaymentMethods.forEach((pm, index) => {
 					const i = index + 1
 					financialChanges[`payment_method_${i}`] = pm.method
 					financialChanges[`payment_amount_${i}`] = pm.amount
 					financialChanges[`payment_reference_${i}`] = pm.reference || null
 				})
 
-				// Calcular monto restante
+				// Calcular monto restante usando la lógica correcta de conversión
 				const totalAmount = editedCase.total_amount || currentCase.total_amount || 0
-				const totalPaid = paymentMethods.reduce((sum, pm) => sum + (pm.amount || 0), 0)
-				financialChanges.remaining = Math.max(0, totalAmount - totalPaid)
+				const totalPaidUSD = calculateTotalPaidUSD(finalPaymentMethods, exchangeRate)
+				financialChanges.remaining = Math.max(0, totalAmount - totalPaidUSD)
 
-				// Actualizar estado de pago
-				if (totalPaid >= totalAmount) {
+				// Actualizar estado de pago (solo Incompleto o Pagado)
+				if (totalPaidUSD >= totalAmount) {
 					financialChanges.payment_status = 'Pagado'
-				} else if (totalPaid > 0) {
-					financialChanges.payment_status = 'Parcial'
 				} else {
 					financialChanges.payment_status = 'Incompleto'
 				}
@@ -658,7 +747,7 @@ const UnifiedCaseModal: React.FC<CaseDetailPanelProps> = React.memo(({ case_, is
 					field: 'payment_methods',
 					fieldLabel: 'Métodos de Pago',
 					oldValue: currentPaymentMethods.map((pm) => `${pm.method}: $${pm.amount}`).join(', '),
-					newValue: paymentMethods.map((payment) => `${payment.method}: $${payment.amount}`).join(', '),
+					newValue: finalPaymentMethods.map((payment) => `${payment.method}: $${payment.amount}`).join(', '),
 				})
 			}
 
@@ -779,6 +868,8 @@ const UnifiedCaseModal: React.FC<CaseDetailPanelProps> = React.memo(({ case_, is
 			// Clear edited case state
 			setEditedCase({})
 			setPaymentMethods([])
+			setIsAddingNewPayment(false)
+			setNewPaymentMethod({ method: '', amount: 0, reference: '' })
 
 			// Call onSave callback if provided
 			if (onSave) {
@@ -969,6 +1060,7 @@ const UnifiedCaseModal: React.FC<CaseDetailPanelProps> = React.memo(({ case_, is
 			case 'en proceso':
 				return 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300'
 			case 'incompleto':
+			case 'parcial': // Tratar "Parcial" como "Incompleto"
 				return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300'
 			case 'cancelado':
 				return 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300'
@@ -986,6 +1078,10 @@ const UnifiedCaseModal: React.FC<CaseDetailPanelProps> = React.memo(({ case_, is
 	const totalAmount = currentCase?.total_amount || 0
 	const exchangeRate = currentCase?.exchange_rate || 0
 
+	// Calculate VES value for converter
+	const converterVesValue =
+		converterUsdValue && exchangeRate > 0 ? (parseFloat(converterUsdValue) * exchangeRate).toFixed(2) : ''
+
 	// Get payment methods from current case data
 	const currentPaymentMethods: PaymentMethod[] = []
 	for (let i = 1; i <= 4; i++) {
@@ -1000,10 +1096,10 @@ const UnifiedCaseModal: React.FC<CaseDetailPanelProps> = React.memo(({ case_, is
 
 	// Use current payment methods if not editing, otherwise use edited ones
 	const effectivePaymentMethods = isEditing ? paymentMethods : currentPaymentMethods
-	const totalPaid = effectivePaymentMethods.reduce((sum, pm) => sum + (pm.amount || 0), 0)
-	const remainingUSD = Math.max(0, totalAmount - totalPaid)
+	const totalPaidUSD = calculateTotalPaidUSD(effectivePaymentMethods, exchangeRate)
+	const remainingUSD = Math.max(0, totalAmount - totalPaidUSD)
 	const remainingVES = remainingUSD * exchangeRate
-	const isPaymentComplete = totalPaid >= totalAmount
+	const isPaymentComplete = totalPaidUSD >= totalAmount
 
 	return (
 		<>
@@ -1653,6 +1749,72 @@ const UnifiedCaseModal: React.FC<CaseDetailPanelProps> = React.memo(({ case_, is
 											</span>
 										</div>
 
+										{/* Currency Converter - Only visible in edit mode */}
+										{isEditing && (
+											<div className="py-3 border-b border-gray-200 dark:border-gray-700 last:border-b-0 hover:bg-gray-50 dark:hover:bg-gray-800/30 transition-transform duration-150 rounded px-2 -mx-2">
+												<div className="w-full space-y-2">
+													<label className="text-sm font-medium text-gray-600 dark:text-gray-400">
+														Convertidor USD a VES
+													</label>
+													{(() => {
+														const calculatorHandler = createCalculatorInputHandler(
+															parseFloat(converterUsdValue) || 0,
+															(value: number) => setConverterUsdValue(value.toString()),
+														)
+
+														return (
+															<>
+																<Input
+																	type="text"
+																	inputMode="decimal"
+																	placeholder="0,00"
+																	value={calculatorHandler.displayValue}
+																	onKeyDown={calculatorHandler.handleKeyDown}
+																	onPaste={calculatorHandler.handlePaste}
+																	onFocus={calculatorHandler.handleFocus}
+																	onChange={calculatorHandler.handleChange}
+																	className="text-sm border-dashed focus:border-primary focus:ring-primary bg-gray-50 dark:bg-gray-800/50 text-right font-mono"
+																	autoComplete="off"
+																/>
+																{converterVesValue && (
+																	<div className="flex items-center gap-2">
+																		<p className="text-xs sm:text-sm font-bold text-green-600 dark:text-green-400">
+																			{converterVesValue} VES
+																		</p>
+																		<Button
+																			variant="ghost"
+																			size="icon"
+																			type="button"
+																			className="h-6 w-6 flex-shrink-0"
+																			onClick={async () => {
+																				try {
+																					await navigator.clipboard.writeText(converterVesValue)
+																					toast({
+																						title: '📋 Copiado',
+																						description: `VES copiado al portapapeles`,
+																						className: 'bg-green-100 border-green-400 text-green-800',
+																					})
+																				} catch {
+																					toast({
+																						title: '❌ No se pudo copiar',
+																						description: 'Intenta nuevamente.',
+																						variant: 'destructive',
+																					})
+																				}
+																			}}
+																			aria-label="Copiar VES"
+																		>
+																			<Copy className="size-4" />
+																		</Button>
+																	</div>
+																)}
+															</>
+														)
+													})()}
+												</div>
+											</div>
+										)}
+
 										{/* Payment Status Display */}
 										{isPaymentComplete ? (
 											<div className="bg-green-50 dark:bg-green-900/20 p-3 rounded-lg border border-green-200 dark:border-green-800">
@@ -1702,7 +1864,7 @@ const UnifiedCaseModal: React.FC<CaseDetailPanelProps> = React.memo(({ case_, is
 												<h4 className="text-sm font-medium text-gray-700 dark:text-gray-300">Métodos de Pago:</h4>
 												{isEditing && effectivePaymentMethods.length < 4 && (
 													<Button
-														onClick={handleAddPaymentMethod}
+														onClick={handleStartAddingPayment}
 														size="sm"
 														className="bg-green-600 hover:bg-green-700 text-white cursor-pointer"
 													>
@@ -1832,11 +1994,22 @@ const UnifiedCaseModal: React.FC<CaseDetailPanelProps> = React.memo(({ case_, is
 												)}
 
 												{/* Add New Payment Method Form */}
-												{isEditing && effectivePaymentMethods.length < 4 && (
+												{isEditing && isAddingNewPayment && (
 													<div className="bg-gray-50 dark:bg-gray-800/50 p-3 rounded-lg border border-gray-200 dark:border-gray-700">
-														<h5 className="text-xs font-medium text-gray-700 dark:text-gray-300 mb-2">
-															Agregar Nuevo Método de Pago:
-														</h5>
+														<div className="flex items-center justify-between mb-2">
+															<h5 className="text-xs font-medium text-gray-700 dark:text-gray-300">
+																Agregar Nuevo Método de Pago:
+															</h5>
+															<Button
+																onClick={handleCancelEditPayment}
+																size="sm"
+																variant="outline"
+																className="h-6 px-2 text-xs cursor-pointer"
+															>
+																<X className="w-3 h-3 mr-1" />
+																Cancelar
+															</Button>
+														</div>
 														<div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
 															<FormDropdown
 																options={createDropdownOptions([

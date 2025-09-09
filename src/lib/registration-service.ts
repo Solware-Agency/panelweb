@@ -7,7 +7,7 @@
 import { findPatientByCedula, createPatient, updatePatient } from './patients-service'
 import { createMedicalCase } from './medical-cases-service'
 import { supabase } from './supabase/config'
-import { validateFormPayments } from '../features/form/lib/payment/payment-utils'
+import { validateFormPayments, calculatePaymentDetails } from '../features/form/lib/payment/payment-utils'
 
 // Tipo de formulario (evita importación circular)
 export interface FormValues {
@@ -205,9 +205,13 @@ const prepareRegistrationData = (formData: FormValues, user: any, exchangeRate?:
 	// Preparar edad para el caso médico (mantener el formato original) - No se usa en nueva estructura
 	// const edadFormatted = formData.ageUnit === 'AÑOS' ? `${formData.ageValue}` : `${formData.ageValue} ${formData.ageUnit.toLowerCase()}`
 
-	// Calcular remaining amount
-	const totalPayments = formData.payments?.reduce((sum, payment) => sum + (payment.amount || 0), 0) || 0
-	const remaining = Math.max(0, formData.totalAmount - totalPayments)
+	// Calcular remaining amount usando la lógica correcta de conversión de monedas
+	const { paymentStatus, isPaymentComplete, missingAmount } = calculatePaymentDetails(
+		formData.payments || [],
+		formData.totalAmount,
+		exchangeRate,
+	)
+	const remaining = missingAmount || 0
 
 	// Datos del caso médico (tabla medical_records_clean)
 	const caseData: MedicalCaseInsert = {
@@ -224,7 +228,7 @@ const prepareRegistrationData = (formData: FormValues, user: any, exchangeRate?:
 
 		// Información financiera
 		total_amount: formData.totalAmount,
-		payment_status: remaining > 0 ? 'Incompleto' : 'Pagado',
+		payment_status: paymentStatus || 'Incompleto',
 		remaining: remaining,
 		exchange_rate: exchangeRate || null,
 
