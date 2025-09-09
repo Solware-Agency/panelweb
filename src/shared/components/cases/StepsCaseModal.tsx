@@ -490,17 +490,19 @@ const StepsCaseModal: React.FC<StepsCaseModalProps> = ({ case_, isOpen, onClose,
 			while (attempts < maxAttempts) {
 				const { data, error } = await supabase
 					.from('medical_records_clean')
-					.select('informe_qr')
+					.select('informepdf_url, token')
 					.eq('id', case_.id)
-					.single<MedicalRecord>()
+					.single<MedicalRecord & { token?: string }>()
 
 				if (error) {
-					console.error('Error obteniendo informe_qr:', error)
+					console.error('Error obteniendo informepdf_url:', error)
 					break
 				}
 
-				if (data?.informe_qr) {
-					pdfUrl = data.informe_qr
+				if (data?.informepdf_url && data?.token) {
+					// Usar el endpoint de descarga con token en lugar de acceder directamente
+					const downloadUrl = `/api/download-pdf?caseId=${case_.id}&token=${data.token}`
+					pdfUrl = downloadUrl
 					break
 				}
 
@@ -519,7 +521,7 @@ const StepsCaseModal: React.FC<StepsCaseModalProps> = ({ case_, isOpen, onClose,
 			}
 
 			try {
-				// Descargar el archivo directamente usando fetch
+				// Descargar el archivo usando el endpoint de descarga
 				const response = await fetch(pdfUrl)
 				if (!response.ok) {
 					throw new Error(`Error al descargar: ${response.status}`)
