@@ -1,41 +1,22 @@
 import React, { useState, useMemo, useCallback, useEffect } from 'react'
-import {
-	ChevronUp,
-	ChevronDown,
-	Search,
-	Filter,
-	Stethoscope,
-	FileText,
-	Maximize2,
-	Calendar as CalendarIcon,
-} from 'lucide-react'
+import { ChevronUp, ChevronDown, Search, Maximize2 } from 'lucide-react'
 import type { MedicalCaseWithPatient } from '@lib/medical-cases-service'
 
 // Tipo unificado que incluye todos los campos necesarios para compatibilidad
 type UnifiedMedicalRecord = MedicalCaseWithPatient
 import { useToast } from '@shared/hooks/use-toast'
-import { Button } from '@shared/components/ui/button'
 import { Input } from '@shared/components/ui/input'
 import { useAuth } from '@app/providers/AuthContext'
 import { useUserProfile } from '@shared/hooks/useUserProfile'
 import RequestCaseModal from './RequestCaseModal'
-import DoctorFilterPanel from './DoctorFilterPanel'
 import UnifiedCaseModal from './UnifiedCaseModal'
 import HorizontalLinearStepper from './StepsCaseModal'
 import CaseActionsPopover from './CaseActionsPopover'
 import CaseCard from './CaseCard'
 import Pagination from './Pagination'
+import FiltersModal from './FiltersModal'
 import { getStatusColor } from './status'
 import { BranchBadge } from '@shared/components/ui/branch-badge'
-import {
-	Popover as DatePopover,
-	PopoverContent as DatePopoverContent,
-	PopoverTrigger as DatePopoverTrigger,
-} from '@shared/components/ui/popover'
-import { Calendar as CalendarComponent } from '@shared/components/ui/calendar'
-import { format } from 'date-fns'
-import { es } from 'date-fns/locale'
-import { CustomDropdown } from '@shared/components/ui/custom-dropdown'
 
 interface CasesTableProps {
 	cases: UnifiedMedicalRecord[]
@@ -60,7 +41,6 @@ const CasesTable: React.FC<CasesTableProps> = React.memo(
 		const [statusFilter, setStatusFilter] = useState<string>('all')
 		const [branchFilter, setBranchFilter] = useState<string>('all')
 		const [startDate, setStartDate] = useState<Date | undefined>(undefined)
-		const [isStartOpen, setIsStartOpen] = useState(false)
 		const [sortField, setSortField] = useState<SortField>('created_at')
 		const [sortDirection, setSortDirection] = useState<SortDirection>('desc')
 		const [selectedCaseForGenerate, setSelectedCaseForGenerate] = useState<UnifiedMedicalRecord | null>(null)
@@ -69,10 +49,17 @@ const CasesTable: React.FC<CasesTableProps> = React.memo(
 		const [isViewModalOpen, setIsViewModalOpen] = useState(false)
 		const [showPdfReadyOnly, setShowPdfReadyOnly] = useState(false)
 		const [selectedDoctors, setSelectedDoctors] = useState<string[]>([])
-		const [showDoctorFilter, setShowDoctorFilter] = useState(false)
 		const [isSearching, setIsSearching] = useState(false)
 		const [isStepsModalOpen, setIsStepsModalOpen] = useState(false)
 		const [shouldUpdateSelectedCase, setShouldUpdateSelectedCase] = useState(false)
+		const [isFiltersModalOpen, setIsFiltersModalOpen] = useState(false)
+
+		// Filtros temporales para el modal (solo se aplican al hacer clic en "Aplicar Filtros")
+		const [tempStatusFilter, setTempStatusFilter] = useState<string>('all')
+		const [tempBranchFilter, setTempBranchFilter] = useState<string>('all')
+		const [tempStartDate, setTempStartDate] = useState<Date | undefined>(undefined)
+		const [tempShowPdfReadyOnly, setTempShowPdfReadyOnly] = useState(false)
+		const [tempSelectedDoctors, setTempSelectedDoctors] = useState<string[]>([])
 
 		// Paginación
 		const [currentPage, setCurrentPage] = useState(1)
@@ -129,6 +116,17 @@ const CasesTable: React.FC<CasesTableProps> = React.memo(
 		useEffect(() => {
 			setCurrentPage(1)
 		}, [statusFilter, branchFilter, showPdfReadyOnly, selectedDoctors, searchTerm, startDate])
+
+		// Sync temp filters with current filters when modal opens
+		useEffect(() => {
+			if (isFiltersModalOpen) {
+				setTempStatusFilter(statusFilter)
+				setTempBranchFilter(branchFilter)
+				setTempStartDate(startDate)
+				setTempShowPdfReadyOnly(showPdfReadyOnly)
+				setTempSelectedDoctors(selectedDoctors)
+			}
+		}, [isFiltersModalOpen, statusFilter, branchFilter, startDate, showPdfReadyOnly, selectedDoctors])
 
 		// Determine if user can edit, delete, or generate cases based on role
 		// const canGenerate = profile?.role === 'owner' || profile?.role === 'admin'
@@ -199,20 +197,52 @@ const CasesTable: React.FC<CasesTableProps> = React.memo(
 			},
 			[onSearch, searchTerm],
 		)
-		// Handle doctor filter change
-		const handleDoctorFilterChange = useCallback((doctors: string[]) => {
-			setSelectedDoctors(doctors)
+
+		// Handle clear all filters
+		const handleClearAllFilters = useCallback(() => {
+			setStatusFilter('all')
+			setBranchFilter('all')
+			setStartDate(undefined)
+			setShowPdfReadyOnly(false)
+			setSelectedDoctors([])
+			setSearchTerm('')
+			// También limpiar los filtros temporales
+			setTempStatusFilter('all')
+			setTempBranchFilter('all')
+			setTempStartDate(undefined)
+			setTempShowPdfReadyOnly(false)
+			setTempSelectedDoctors([])
 		}, [])
 
-		// Toggle doctor filter panel
-		const toggleDoctorFilter = useCallback(() => {
-			setShowDoctorFilter((prev) => !prev)
+		// Handle apply filters from modal
+		const handleApplyFilters = useCallback(() => {
+			setStatusFilter(tempStatusFilter)
+			setBranchFilter(tempBranchFilter)
+			setStartDate(tempStartDate)
+			setShowPdfReadyOnly(tempShowPdfReadyOnly)
+			setSelectedDoctors(tempSelectedDoctors)
+		}, [tempStatusFilter, tempBranchFilter, tempStartDate, tempShowPdfReadyOnly, tempSelectedDoctors])
+
+		// Handle temp filter changes
+		const handleTempStatusFilterChange = useCallback((value: string) => {
+			setTempStatusFilter(value)
 		}, [])
 
-		// Handle PDF filter toggle
-		const handlePdfFilterToggle = useCallback(() => {
-			setShowPdfReadyOnly(!showPdfReadyOnly)
-		}, [showPdfReadyOnly])
+		const handleTempBranchFilterChange = useCallback((value: string) => {
+			setTempBranchFilter(value)
+		}, [])
+
+		const handleTempStartDateChange = useCallback((date: Date | undefined) => {
+			setTempStartDate(date)
+		}, [])
+
+		const handleTempPdfFilterToggle = useCallback(() => {
+			setTempShowPdfReadyOnly(!tempShowPdfReadyOnly)
+		}, [tempShowPdfReadyOnly])
+
+		const handleTempDoctorFilterChange = useCallback((doctors: string[]) => {
+			setTempSelectedDoctors(doctors)
+		}, [])
 
 		const handleCaseSelect = useCallback(
 			(case_: UnifiedMedicalRecord) => {
@@ -486,14 +516,12 @@ const CasesTable: React.FC<CasesTableProps> = React.memo(
 							<div className="flex flex-col sm:flex-row gap-2 sm:gap-4 flex-1">
 								{/* Search - Acortada */}
 								<div className="w-full sm:max-w-md relative flex-1">
-									<Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
 									<Input
 										type="text"
 										placeholder="Buscar por nombre, código, cédula, estudio o médico..."
 										value={searchTerm}
 										onChange={handleSearchChange}
 										onKeyDown={handleSearchKeyDown}
-										className="pl-10"
 									/>
 									{isSearching && (
 										<div className="absolute right-3 top-1/2 transform -translate-y-1/2">
@@ -502,92 +530,26 @@ const CasesTable: React.FC<CasesTableProps> = React.memo(
 									)}
 								</div>
 
-								{/* Status Filter - Updated with only Pagado and Incompleto */}
-								<div className="flex items-center gap-2 flex-shrink-0 min-w-[180px]">
-									<CustomDropdown
-										options={statusOptions}
-										value={statusFilter}
-										placeholder="Estatus"
-										onChange={(val) => setStatusFilter(val)}
-										data-testid="status-filter"
-									/>
-								</div>
-
-								{/* Date Filter (single) */}
-								<div className="flex items-center gap-2">
-									<DatePopover open={isStartOpen} onOpenChange={setIsStartOpen}>
-										<DatePopoverTrigger asChild>
-											<Button variant="outline" className="flex items-center gap-2 text-xs">
-												<CalendarIcon className="w-4 h-4" />
-												{startDate ? format(startDate, 'PPP', { locale: es }) : 'Fecha'}
-											</Button>
-										</DatePopoverTrigger>
-										<DatePopoverContent className="w-auto p-0">
-											<CalendarComponent
-												mode="single"
-												selected={startDate}
-												onSelect={(date) => {
-													setStartDate(date || undefined)
-													setIsStartOpen(false)
-												}}
-												initialFocus
-												locale={es}
-												toDate={new Date()}
-												disabled={{ after: new Date() }}
-											/>
-										</DatePopoverContent>
-									</DatePopover>
-
-									{startDate && (
-										<Button
-											onClick={() => setStartDate(undefined)}
-											variant="ghost"
-											size="sm"
-											className="text-xs px-2 py-1"
-											title="Limpiar fecha inicial"
-										>
-											Limpiar
-										</Button>
-									)}
-								</div>
-
-								{/* Branch Filter - Only show if user doesn't have assigned branch */}
-								<div className="flex items-center gap-2 flex-shrink-0 min-w-[180px]">
-									<CustomDropdown
-										options={branchOptions}
-										value={branchFilter}
-										placeholder="Sede"
-										onChange={(val) => setBranchFilter(val)}
-										data-testid="branch-filter"
-									/>
-								</div>
-
-								{/* Doctor Filter Button */}
-								<Button
-									onClick={toggleDoctorFilter}
-									variant={showDoctorFilter ? 'default' : 'outline'}
-									className="flex items-center gap-2"
-									title="Filtrar por médico"
-								>
-									<Stethoscope className="w-4 h-4 hidden sm:inline" />
-									<span className="inline">Médicos</span>
-									{selectedDoctors.length > 0 && (
-										<span className="bg-white dark:bg-gray-800 text-primary text-xs px-2 py-0.5 rounded-full">
-											{selectedDoctors.length}
-										</span>
-									)}
-								</Button>
-
-								{/* PDF Ready Filter */}
-								<Button
-									onClick={handlePdfFilterToggle}
-									variant={showPdfReadyOnly ? 'default' : 'outline'}
-									className="flex items-center gap-2"
-									title="Filtrar PDF disponibles"
-								>
-									<FileText className="w-4 h-4" />
-									<span className="text-sm font-medium">PDF Disponibles</span>
-								</Button>
+								{/* Unified Filters Modal */}
+								<FiltersModal
+									isOpen={isFiltersModalOpen}
+									onOpenChange={setIsFiltersModalOpen}
+									statusFilter={tempStatusFilter}
+									onStatusFilterChange={handleTempStatusFilterChange}
+									branchFilter={tempBranchFilter}
+									onBranchFilterChange={handleTempBranchFilterChange}
+									startDate={tempStartDate}
+									onStartDateChange={handleTempStartDateChange}
+									showPdfReadyOnly={tempShowPdfReadyOnly}
+									onPdfFilterToggle={handleTempPdfFilterToggle}
+									selectedDoctors={tempSelectedDoctors}
+									onDoctorFilterChange={handleTempDoctorFilterChange}
+									statusOptions={statusOptions}
+									branchOptions={branchOptions}
+									cases={cases}
+									onApplyFilters={handleApplyFilters}
+									onClearAllFilters={handleClearAllFilters}
+								/>
 							</div>
 
 							{/* Results count */}
@@ -601,36 +563,6 @@ const CasesTable: React.FC<CasesTableProps> = React.memo(
 								<span className="hidden sm:inline">Cerrar</span> ✕
 							</button>
 						</div>
-					</div>
-
-					{/* Doctor Filter Panel - Conditionally rendered */}
-					{showDoctorFilter && (
-						<div className="mb-4">
-							<DoctorFilterPanel cases={cases as any} onFilterChange={handleDoctorFilterChange} />
-						</div>
-					)}
-
-					{/* Active filters indicators */}
-					<div className="flex flex-wrap gap-2 mb-4">
-						{statusFilter !== 'all' && (
-							<div className="px-4 py-2 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg inline-block">
-								<span className="text-sm font-medium text-blue-800 dark:text-blue-300 flex items-center gap-2">
-									<Filter className="w-4 h-4" />
-									Estado: {statusFilter}
-								</span>
-							</div>
-						)}
-
-						{selectedDoctors.length > 0 && (
-							<div className="px-4 py-2 bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800 rounded-lg inline-block">
-								<span className="text-sm font-medium text-purple-800 dark:text-purple-300 flex items-center gap-2">
-									<Stethoscope className="w-4 h-4" />
-									{selectedDoctors.length === 1
-										? `Médico: ${selectedDoctors[0]}`
-										: `${selectedDoctors.length} médicos seleccionados`}
-								</span>
-							</div>
-						)}
 					</div>
 
 					{/* Scrollable Content Area */}
@@ -840,14 +772,12 @@ const CasesTable: React.FC<CasesTableProps> = React.memo(
 							<div className="flex flex-wrap items-center gap-2 sm:gap-3 w-full">
 								{/* Search - Acortada */}
 								<div className="flex-1 min-w-[200px] relative">
-									<Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
 									<Input
 										type="text"
 										placeholder="Buscar por nombre, código, cédula, estudio o médico..."
 										value={searchTerm}
 										onChange={handleSearchChange}
 										onKeyDown={handleSearchKeyDown}
-										className="pl-10"
 									/>
 									{isSearching && (
 										<div className="absolute right-3 top-1/2 transform -translate-y-1/2">
@@ -856,92 +786,26 @@ const CasesTable: React.FC<CasesTableProps> = React.memo(
 									)}
 								</div>
 
-								{/* Status Filter - CustomDropdown */}
-								<div className="flex items-center gap-2 flex-shrink-0 min-w-[180px]">
-									<CustomDropdown
-										options={statusOptions}
-										value={statusFilter}
-										placeholder="Estatus"
-										onChange={(val) => setStatusFilter(val)}
-										data-testid="status-filter"
-									/>
-								</div>
-
-								{/* Date Filter (single) */}
-								<div className="flex items-center gap-2 flex-shrink-0">
-									<DatePopover open={isStartOpen} onOpenChange={setIsStartOpen}>
-										<DatePopoverTrigger asChild>
-											<Button variant="outline" className="flex items-center gap-2 text-xs">
-												<CalendarIcon className="w-4 h-4" />
-												{startDate ? format(startDate, 'PPP', { locale: es }) : 'Fecha'}
-											</Button>
-										</DatePopoverTrigger>
-										<DatePopoverContent className="w-auto p-0">
-											<CalendarComponent
-												mode="single"
-												selected={startDate}
-												onSelect={(date) => {
-													setStartDate(date || undefined)
-													setIsStartOpen(false)
-												}}
-												initialFocus
-												locale={es}
-												toDate={new Date()}
-												disabled={{ after: new Date() }}
-											/>
-										</DatePopoverContent>
-									</DatePopover>
-
-									{startDate && (
-										<Button
-											onClick={() => setStartDate(undefined)}
-											variant="ghost"
-											size="sm"
-											className="text-xs px-2 py-1"
-											title="Limpiar fecha inicial"
-										>
-											Limpiar
-										</Button>
-									)}
-								</div>
-
-								{/* Branch Filter */}
-								<div className="flex items-center gap-2 flex-shrink-0 min-w-[180px]">
-									<CustomDropdown
-										options={branchOptions}
-										value={branchFilter}
-										placeholder="Sede"
-										onChange={(val) => setBranchFilter(val)}
-										data-testid="branch-filter"
-									/>
-								</div>
-
-								{/* Doctor Filter Button */}
-								<Button
-									onClick={toggleDoctorFilter}
-									variant={showDoctorFilter ? 'default' : 'outline'}
-									className="flex items-center gap-2 flex-shrink-0"
-									title="Filtrar por médico"
-								>
-									<Stethoscope className="w-4 h-4 hidden sm:inline" />
-									<span className="inline">Médicos</span>
-									{selectedDoctors.length > 0 && (
-										<span className="bg-white dark:bg-gray-800 text-primary text-xs px-2 py-0.5 rounded-full">
-											{selectedDoctors.length}
-										</span>
-									)}
-								</Button>
-
-								{/* PDF Ready Filter */}
-								<Button
-									onClick={handlePdfFilterToggle}
-									variant={showPdfReadyOnly ? 'default' : 'outline'}
-									className="flex items-center gap-2 flex-shrink-0"
-									title="Filtrar PDF disponibles"
-								>
-									<FileText className="w-4 h-4" />
-									<span className="text-sm font-medium">PDF Disponibles</span>
-								</Button>
+								{/* Unified Filters Modal */}
+								<FiltersModal
+									isOpen={isFiltersModalOpen}
+									onOpenChange={setIsFiltersModalOpen}
+									statusFilter={tempStatusFilter}
+									onStatusFilterChange={handleTempStatusFilterChange}
+									branchFilter={tempBranchFilter}
+									onBranchFilterChange={handleTempBranchFilterChange}
+									startDate={tempStartDate}
+									onStartDateChange={handleTempStartDateChange}
+									showPdfReadyOnly={tempShowPdfReadyOnly}
+									onPdfFilterToggle={handleTempPdfFilterToggle}
+									selectedDoctors={tempSelectedDoctors}
+									onDoctorFilterChange={handleTempDoctorFilterChange}
+									statusOptions={statusOptions}
+									branchOptions={branchOptions}
+									cases={cases}
+									onApplyFilters={handleApplyFilters}
+									onClearAllFilters={handleClearAllFilters}
+								/>
 
 								{/* Results count */}
 								<div className="text-sm text-gray-600 dark:text-gray-400 hidden sm:flex"></div>
@@ -957,13 +821,6 @@ const CasesTable: React.FC<CasesTableProps> = React.memo(
 							</div>
 						</div>
 					</div>
-
-					{/* Doctor Filter Panel - Conditionally rendered */}
-					{showDoctorFilter && (
-						<div className="mb-4">
-							<DoctorFilterPanel cases={cases as any} onFilterChange={handleDoctorFilterChange} />
-						</div>
-					)}
 
 					{/* Mobile View - Cards */}
 					<div className="block lg:hidden overflow-hidden">
@@ -1190,6 +1047,7 @@ const CasesTable: React.FC<CasesTableProps> = React.memo(
 				{(profile?.role === 'admin' || profile?.role === 'owner') &&
 					selectedCaseForGenerate?.exam_type?.toLowerCase().includes('inmuno') && (
 						<RequestCaseModal
+							// eslint-disable-next-line @typescript-eslint/no-explicit-any
 							case_={selectedCaseForGenerate as any}
 							isOpen={isGenerateModalOpen}
 							onClose={() => {
@@ -1205,6 +1063,7 @@ const CasesTable: React.FC<CasesTableProps> = React.memo(
 				{/* Steps Case Modal - Para todos los roles */}
 				{selectedCaseForGenerate && (
 					<HorizontalLinearStepper
+						// eslint-disable-next-line @typescript-eslint/no-explicit-any
 						case_={selectedCaseForGenerate as any}
 						isOpen={isStepsModalOpen}
 						onClose={() => {

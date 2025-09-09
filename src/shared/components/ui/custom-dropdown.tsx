@@ -68,8 +68,9 @@ const CustomDropdown = forwardRef<HTMLDivElement, CustomDropdownProps>(
 				}
 			}
 
-			document.addEventListener('mousedown', handleClickOutside)
-			return () => document.removeEventListener('mousedown', handleClickOutside)
+			// Use capture phase to ensure we catch events before modal handlers
+			document.addEventListener('mousedown', handleClickOutside, true)
+			return () => document.removeEventListener('mousedown', handleClickOutside, true)
 		}, [])
 
 		// Handle keyboard navigation
@@ -110,6 +111,23 @@ const CustomDropdown = forwardRef<HTMLDivElement, CustomDropdownProps>(
 		const computePositioning = () => {
 			const node = dropdownRef.current
 			if (!node) return
+
+			// Check if we're inside a modal or dialog
+			const isInModal = node.closest('[role="dialog"]') || node.closest('.modal') || node.closest('[data-modal]')
+
+			if (isInModal) {
+				// For modals, use relative positioning to avoid portal issues
+				setMenuStyle({
+					position: 'absolute',
+					top: '100%',
+					left: 0,
+					width: '100%',
+					zIndex: 50,
+				})
+				setOpenDirection('down')
+				return
+			}
+
 			const rect = node.getBoundingClientRect()
 			const viewportH = window.innerHeight || document.documentElement.clientHeight
 			const spaceBelow = viewportH - rect.bottom
@@ -144,8 +162,10 @@ const CustomDropdown = forwardRef<HTMLDivElement, CustomDropdownProps>(
 			}
 		}
 
-		const handleToggle = () => {
+		const handleToggle = (e?: React.MouseEvent) => {
 			if (disabled) return
+			e?.preventDefault()
+			e?.stopPropagation()
 			const next = !isOpen
 			if (next) computePositioning()
 			setIsOpen(next)
@@ -172,6 +192,53 @@ const CustomDropdown = forwardRef<HTMLDivElement, CustomDropdownProps>(
 
 		const selectedOption = options.find((option) => option.value === selectedValue)
 
+		// Check if we're inside a modal to determine rendering strategy
+		const isInModal =
+			dropdownRef.current?.closest('[role="dialog"]') ||
+			dropdownRef.current?.closest('.modal') ||
+			dropdownRef.current?.closest('[data-modal]')
+
+		const dropdownContent = (
+			<div
+				ref={listRef}
+				className={cn(
+					'overflow-visible rounded-md border bg-popover text-popover-foreground shadow-md animate-in fade-in-0 duration-200',
+					isInModal ? 'absolute z-50' : 'fixed z-[999999]',
+				)}
+				style={menuStyle}
+				role="listbox"
+			>
+				{options.length === 0 ? (
+					<div className="px-3 py-2 text-sm text-muted-foreground">No hay opciones disponibles</div>
+				) : (
+					options.map((option) => (
+						<div
+							key={option.value}
+							onClick={(e) => {
+								e.preventDefault()
+								e.stopPropagation()
+								if (!option.disabled) {
+									handleSelect(option.value)
+								}
+							}}
+							onMouseDown={(e) => {
+								e.preventDefault()
+							}}
+							className={cn(
+								'relative flex w-full cursor-pointer select-none items-center rounded-sm px-3 py-2 text-sm outline-none transition-colors duration-150 hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground',
+								option.disabled && 'pointer-events-none opacity-50',
+								selectedValue === option.value && 'bg-accent text-accent-foreground',
+							)}
+							role="option"
+							aria-selected={selectedValue === option.value}
+						>
+							<span>{option.label}</span>
+						</div>
+					))
+				)}
+			</div>
+		)
+
 		return (
 			<div ref={combinedRef} className={cn('relative w-full', className)} {...props}>
 				{/* Trigger */}
@@ -195,39 +262,7 @@ const CustomDropdown = forwardRef<HTMLDivElement, CustomDropdownProps>(
 				</div>
 
 				{/* Dropdown Content */}
-				{isOpen &&
-					menuStyle &&
-					ReactDOM.createPortal(
-						<div
-							ref={listRef}
-							className={cn(
-								'fixed z-[99999] overflow-visible rounded-md border bg-popover text-popover-foreground shadow-md animate-in fade-in-0 duration-200',
-							)}
-							style={menuStyle}
-							role="listbox"
-						>
-							{options.length === 0 ? (
-								<div className="px-3 py-2 text-sm text-muted-foreground">No hay opciones disponibles</div>
-							) : (
-								options.map((option) => (
-									<div
-										key={option.value}
-										onClick={() => !option.disabled && handleSelect(option.value)}
-										className={cn(
-											'relative flex w-full cursor-pointer select-none items-center rounded-sm px-3 py-2 text-sm outline-none transition-none duration-150 hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground',
-											option.disabled && 'pointer-events-none opacity-50',
-											selectedValue === option.value && 'bg-accent text-accent-foreground',
-										)}
-										role="option"
-										aria-selected={selectedValue === option.value}
-									>
-										<span className={cn(selectedValue === option.value && '')}>{option.label}</span>
-									</div>
-								))
-							)}
-						</div>,
-						document.body,
-					)}
+				{isOpen && menuStyle && (isInModal ? dropdownContent : ReactDOM.createPortal(dropdownContent, document.body))}
 			</div>
 		)
 	},
