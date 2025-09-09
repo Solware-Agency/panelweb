@@ -59,7 +59,7 @@ const NavItem: React.FC<NavItemProps> = ({ to, icon, label, showFullContent, onC
 			<div className="flex gap-3 items-center min-w-0">
 				{icon}
 				<p
-					className={`text-md whitespace-nowrap transition-none ${
+					className={`text-sm whitespace-nowrap transition-none ${
 						showFullContent ? 'opacity-100 w-auto' : 'opacity-0 w-0 overflow-hidden'
 					}`}
 				>
@@ -148,7 +148,7 @@ const NavGroup: React.FC<NavGroupProps> = ({
 				<div className="flex gap-3 items-center min-w-0">
 					{icon}
 					<p
-						className={`text-md whitespace-nowrap transition-none ${
+						className={`text-sm whitespace-nowrap transition-none ${
 							showFullContent ? 'opacity-100 w-auto' : 'opacity-0 w-0 overflow-hidden'
 						}`}
 					>
@@ -362,14 +362,14 @@ const Sidebar: React.FC<SidebarProps> = ({ onClose, isExpanded = false, isMobile
 									showFullContent={showFullContent}
 									onClick={onClose}
 								/>
+								<NavItem
+									to="/dashboard/changelog"
+									icon={<History className="stroke-2 size-5 shrink-0" />}
+									label="Historial"
+									showFullContent={showFullContent}
+									onClick={onClose}
+								/>
 							</NavGroup>
-							<NavItem
-								to="/dashboard/changelog"
-								icon={<History className="stroke-2 size-5 shrink-0" />}
-								label="Historial"
-								showFullContent={showFullContent}
-								onClick={onClose}
-							/>
 							<NavItem
 								to="/dashboard/users"
 								icon={<Users className="stroke-2 size-4 sm:size-5 shrink-0" />}
@@ -503,7 +503,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onClose, isExpanded = false, isMobile
 						<Moon className="stroke-2 size-4 sm:size-5 shrink-0" />
 					)}
 					<p
-						className={`text-md whitespace-nowrap transition-none ${
+						className={`text-sm whitespace-nowrap transition-none ${
 							showFullContent ? 'opacity-100 w-auto' : 'opacity-0 w-0 overflow-hidden'
 						}`}
 					>
@@ -517,7 +517,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onClose, isExpanded = false, isMobile
 				>
 					<LogOut className="stroke-2 size-4 sm:size-5 shrink-0 text-red-500" />
 					<p
-						className={`text-md whitespace-nowrap transition-none ${
+						className={`text-sm whitespace-nowrap transition-none ${
 							showFullContent ? 'opacity-100 w-auto' : 'opacity-0 w-0 overflow-hidden'
 						}`}
 					>
