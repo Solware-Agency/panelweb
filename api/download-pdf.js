@@ -17,6 +17,8 @@ export default async function handler(req, res) {
   try {
     const { caseId, token } = req.query
 
+    console.log('[DOWNLOAD-PDF] Request:', { caseId, token })
+
     if (!caseId || !token) {
       return res.status(400).json({ error: 'Parámetros faltantes: caseId y token son requeridos' })
     }
@@ -34,27 +36,34 @@ export default async function handler(req, res) {
 
     const supabase = createClient(supabaseUrl, supabaseKey)
 
-    // 🔥 Hacer JOIN con la tabla patients para obtener el nombre del paciente
+    // Obtener los datos del caso sin JOIN para evitar errores
     const { data, error: fetchError } = await supabase
       .from('medical_records_clean')
       .select(`
         informepdf_url, 
         code, 
-        token,
-        patients!inner(nombre)
+        token
       `)
       .eq('id', caseId)
       .single()
 
-    if (!data || data.token !== token) {
-      return res.status(401).json({ error: 'Token no coincide' })
-    }
+    console.log('[DOWNLOAD-PDF] Database response:', { data, fetchError })
 
     if (fetchError) {
+      console.error('[DOWNLOAD-PDF] Database error:', fetchError)
       return res.status(500).json({
         error: 'Error al buscar el documento en la base de datos',
         details: fetchError.message
       })
+    }
+
+    if (!data || data.token !== token) {
+      console.error('[DOWNLOAD-PDF] Token mismatch:', {
+        expected: token,
+        actual: data?.token,
+        hasData: !!data
+      })
+      return res.status(401).json({ error: 'Token no coincide' })
     }
 
     if (!data || !data.informepdf_url) {
@@ -69,7 +78,6 @@ export default async function handler(req, res) {
     const blob = await response.blob()
     const buffer = await blob.arrayBuffer()
 
-    const patientName = data.patients?.nombre || 'paciente'
     const caseCode = data.code || caseId
     const fileName = `${caseCode}.pdf`
 
