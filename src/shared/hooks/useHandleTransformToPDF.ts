@@ -1,6 +1,7 @@
 import { supabase } from '@lib/supabase/config'
 import { useToast } from '@shared/hooks/use-toast'
 import { useState } from 'react'
+import { getDownloadUrl } from '@lib/download-utils'
 
 interface MedicalRecord {
 	id?: string
@@ -101,10 +102,9 @@ export const useHandleTransformToPDF = (case_: MedicalRecord, handleNext: () => 
 					break
 				}
 
-				if (data?.informepdf_url && data?.token) {
-					// Usar el endpoint de descarga con token en lugar de acceder directamente
-					const downloadUrl = `/api/download-pdf?caseId=${case_.id}&token=${data.token}`
-					pdfUrl = downloadUrl
+				if (data?.informepdf_url) {
+					// Usar la utilidad para determinar la URL de descarga apropiada
+					pdfUrl = getDownloadUrl(case_.id, data.token || null, data.informepdf_url || null)
 					break
 				}
 
