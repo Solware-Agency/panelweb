@@ -10,6 +10,7 @@ import { useToast } from '@shared/hooks/use-toast'
 import { useBodyScrollLock } from '@shared/hooks/useBodyScrollLock'
 import { useGlobalOverlayOpen } from '@shared/hooks/useGlobalOverlayOpen'
 import { useUserProfile } from '@shared/hooks/useUserProfile'
+import { getDownloadUrl } from '@lib/download-utils'
 
 interface MedicalRecord {
 	id?: string
@@ -499,10 +500,9 @@ const StepsCaseModal: React.FC<StepsCaseModalProps> = ({ case_, isOpen, onClose,
 					break
 				}
 
-				if (data?.informepdf_url && data?.token) {
-					// Usar el endpoint de descarga con token en lugar de acceder directamente
-					const downloadUrl = `/api/download-pdf?caseId=${case_.id}&token=${data.token}`
-					pdfUrl = downloadUrl
+				if (data?.informepdf_url) {
+					// Usar la utilidad para determinar la URL de descarga apropiada
+					pdfUrl = getDownloadUrl(case_.id, data.token || null, data.informepdf_url || null)
 					break
 				}
 
