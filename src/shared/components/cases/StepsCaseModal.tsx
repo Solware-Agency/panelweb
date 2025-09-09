@@ -196,12 +196,39 @@ const StepsCaseModal: React.FC<StepsCaseModalProps> = ({ case_, isOpen, onClose,
 
 			console.log('[2] No existe googledocs_url, enviando POST a n8n...')
 
+			// Obtener el patient_id del caso
+			const { data: caseData, error: caseError } = await supabase
+				.from('medical_records_clean')
+				.select('patient_id')
+				.eq('id', case_.id)
+				.single()
+
+			if (caseError) {
+				console.error('Error al obtener patient_id del caso:', caseError)
+				toast({
+					title: '❌ Error',
+					description: 'No se pudo obtener la información del paciente.',
+					variant: 'destructive',
+				})
+				return
+			}
+
+			if (!caseData?.patient_id) {
+				toast({
+					title: '❌ Error',
+					description: 'No se encontró el ID del paciente para este caso.',
+					variant: 'destructive',
+				})
+				return
+			}
+
 			// Verificar que la URL del webhook esté configurada
 			if (!GENERATE_DOC) {
 				throw new Error('URL del webhook de generación de documento no configurada. Verifica las variables de entorno.')
 			}
 
 			console.log('Generate Doc Webhook URL:', GENERATE_DOC)
+			console.log('Patient ID:', caseData.patient_id)
 
 			const webhookRes = await fetch(GENERATE_DOC, {
 				method: 'POST',
@@ -209,7 +236,10 @@ const StepsCaseModal: React.FC<StepsCaseModalProps> = ({ case_, isOpen, onClose,
 					'Content-Type': 'application/json',
 					Accept: 'application/json',
 				},
-				body: JSON.stringify({ caseId: case_.id }),
+				body: JSON.stringify({
+					caseId: case_.id,
+					patientId: caseData.patient_id,
+				}),
 			})
 
 			console.log('[2] Webhook enviado. Status:', webhookRes.status)
@@ -371,8 +401,35 @@ const StepsCaseModal: React.FC<StepsCaseModalProps> = ({ case_, isOpen, onClose,
 
 			console.log('Sending request to n8n webhook with case ID:', case_.id)
 
+			// Obtener el patient_id del caso
+			const { data: caseData, error: caseError } = await supabase
+				.from('medical_records_clean')
+				.select('patient_id')
+				.eq('id', case_.id)
+				.single()
+
+			if (caseError) {
+				console.error('Error al obtener patient_id del caso:', caseError)
+				toast({
+					title: '❌ Error',
+					description: 'No se pudo obtener la información del paciente.',
+					variant: 'destructive',
+				})
+				return
+			}
+
+			if (!caseData?.patient_id) {
+				toast({
+					title: '❌ Error',
+					description: 'No se encontró el ID del paciente para este caso.',
+					variant: 'destructive',
+				})
+				return
+			}
+
 			const requestBody = {
 				caseId: case_.id,
+				patientId: caseData.patient_id,
 			}
 
 			console.log('Request body:', requestBody)
@@ -383,6 +440,7 @@ const StepsCaseModal: React.FC<StepsCaseModalProps> = ({ case_, isOpen, onClose,
 			}
 
 			console.log('Webhook URL:', GENERATE_PDF)
+			console.log('Patient ID:', caseData.patient_id)
 
 			const response = await fetch(GENERATE_PDF, {
 				method: 'POST',
