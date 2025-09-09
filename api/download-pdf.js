@@ -34,10 +34,15 @@ export default async function handler(req, res) {
 
     const supabase = createClient(supabaseUrl, supabaseKey)
 
-    // 🔥 Ya no se usa .order()
+    // 🔥 Hacer JOIN con la tabla patients para obtener el nombre del paciente
     const { data, error: fetchError } = await supabase
       .from('medical_records_clean')
-      .select('informepdf_url, full_name, code, token')
+      .select(`
+        informepdf_url, 
+        code, 
+        token,
+        patients!inner(nombre)
+      `)
       .eq('id', caseId)
       .single()
 
@@ -64,7 +69,7 @@ export default async function handler(req, res) {
     const blob = await response.blob()
     const buffer = await blob.arrayBuffer()
 
-    const patientName = data.full_name || 'paciente'
+    const patientName = data.patients?.nombre || 'paciente'
     const caseCode = data.code || caseId
     const fileName = `${caseCode}.pdf`
 

@@ -124,22 +124,35 @@ router.post('/chat', async (req, res) => {
 
     // Agregar timeout y mejor manejo de errores
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 segundos
+    const timeoutId = setTimeout(() => {
+      console.log('🚨 TIMEOUT: Abortando request después de 55 segundos');
+      controller.abort();
+    }, 55000); // 55 segundos (menos que el límite de Vercel)
+
+    console.log('📡 Enviando request a Flowise...');
+    const requestStartTime = Date.now();
 
     const flowiseRes = await fetch(url, {
       method: 'POST',
       headers,
       body: JSON.stringify(requestBody),
       signal: controller.signal
-    }).finally(() => clearTimeout(timeoutId));
+    }).finally(() => {
+      clearTimeout(timeoutId);
+      const requestDuration = Date.now() - requestStartTime;
+      console.log(`⏱️  Request completado en: ${requestDuration}ms`);
+    });
 
     if (!flowiseRes.ok) {
       const errBody = await flowiseRes.text().catch(() => '');
       throw new Error(`Flowise error: ${flowiseRes.status} - ${errBody?.slice(0, 300)}`);
     }
 
+    console.log('📥 Procesando respuesta de Flowise...');
     const data = await flowiseRes.json();
     const responseText = data.text || 'No response from AgentFlow';
+
+    console.log('✅ Respuesta recibida:', responseText.substring(0, 100) + '...');
 
     // Configurar headers para streaming
     res.writeHead(200, {
@@ -149,6 +162,7 @@ router.post('/chat', async (req, res) => {
       'Set-Cookie': `agentflow_session=${sessionId}; Path=/; Max-Age=1209600; SameSite=Lax`,
     });
 
+    console.log('🔄 Iniciando streaming de respuesta...');
     // Streaming de respuesta
     const words = responseText.split(/\s+/).filter(Boolean);
     let i = 0;
@@ -163,6 +177,7 @@ router.post('/chat', async (req, res) => {
         res.write(`0:${data}\n`);
         setTimeout(pump, 50);
       } else {
+        console.log('✅ Streaming completado');
         res.write('d:{"finishReason":"stop","usage":{"promptTokens":0,"completionTokens":0}}\n');
         res.end();
       }
