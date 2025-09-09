@@ -206,7 +206,7 @@ const prepareRegistrationData = (formData: FormValues, user: any, exchangeRate?:
 	// const edadFormatted = formData.ageUnit === 'AÑOS' ? `${formData.ageValue}` : `${formData.ageValue} ${formData.ageUnit.toLowerCase()}`
 
 	// Calcular remaining amount usando la lógica correcta de conversión de monedas
-	const { paymentStatus, isPaymentComplete, missingAmount } = calculatePaymentDetails(
+	const { paymentStatus, missingAmount } = calculatePaymentDetails(
 		formData.payments || [],
 		formData.totalAmount,
 		exchangeRate,

@@ -55,7 +55,7 @@ const calculateCasePaymentStatus = (case_: UnifiedMedicalRecord) => {
 	const { paymentStatus, isPaymentComplete, missingAmount } = calculatePaymentDetails(
 		payments,
 		case_.total_amount,
-		case_.exchange_rate,
+		case_.exchange_rate || undefined,
 	)
 
 	// Convert "Parcial" to "Incompleto" for consistency

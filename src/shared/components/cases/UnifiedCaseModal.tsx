@@ -44,9 +44,7 @@ import { useGlobalOverlayOpen } from '@shared/hooks/useGlobalOverlayOpen'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@shared/components/ui/tooltip'
 import { createCalculatorInputHandlerWithCurrency } from '@shared/utils/number-utils'
 import {
-	calculatePaymentDetails,
 	calculateTotalPaidUSD,
-	isBolivaresMethod,
 } from '@features/form/lib/payment/payment-utils'
 import { createCalculatorInputHandler } from '@shared/utils/number-utils'
 
@@ -63,6 +61,18 @@ interface ChangeLogEntry {
 	new_value: string | null
 	changed_at: string
 	deleted_record_info: string | null
+}
+
+interface DeletionLogEntry {
+	id: string
+	deleted_medical_record_id: string
+	deleted_patient_id: string | null
+	user_id: string
+	user_email: string
+	user_display_name: string | null
+	deleted_record_info: string
+	deleted_at: string
+	entity_type: string | null
 }
 
 interface PaymentMethod {
@@ -304,7 +314,7 @@ const UnifiedCaseModal: React.FC<CaseDetailPanelProps> = React.memo(({ case_, is
 				.from('deletion_logs')
 				.select('*')
 				.eq('deleted_medical_record_id', case_.id)
-				.order('deleted_at', { ascending: false })
+				.order('deleted_at', { ascending: false }) as { data: DeletionLogEntry[] | null, error: any }
 
 			if (deletionLogsError) {
 				console.error('Error fetching deletion logs:', deletionLogsError)
