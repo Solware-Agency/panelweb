@@ -92,17 +92,19 @@ export const useHandleTransformToPDF = (case_: MedicalRecord, handleNext: () => 
 			while (attempts < maxAttempts) {
 				const { data, error } = await supabase
 					.from('medical_records_clean')
-					.select('informepdf_url')
+					.select('informepdf_url, token')
 					.eq('id', case_.id)
-					.single<MedicalRecord>()
+					.single<MedicalRecord & { token?: string }>()
 
 				if (error) {
 					console.error('Error obteniendo informepdf_url:', error)
 					break
 				}
 
-				if (data?.informepdf_url) {
-					pdfUrl = data.informepdf_url
+				if (data?.informepdf_url && data?.token) {
+					// Usar el endpoint de descarga con token en lugar de acceder directamente
+					const downloadUrl = `/api/download-pdf?caseId=${case_.id}&token=${data.token}`
+					pdfUrl = downloadUrl
 					break
 				}
 
