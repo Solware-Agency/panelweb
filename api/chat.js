@@ -129,9 +129,9 @@ export default async function handler(req, res) {
     // Agregar timeout y mejor manejo de errores
     const controller = new AbortController();
     const timeoutId = setTimeout(() => {
-      console.log('🚨 TIMEOUT: Abortando request después de 55 segundos');
+      console.log('🚨 TIMEOUT: Abortando request después de 30 segundos');
       controller.abort();
-    }, 55000); // 55 segundos (menos que el límite de Vercel)
+    }, 30000); // 30 segundos para evitar timeouts de Flowise
 
     console.log('📡 Enviando request a Flowise...');
     const requestStartTime = Date.now();
@@ -149,6 +149,18 @@ export default async function handler(req, res) {
 
     if (!flowiseRes.ok) {
       const errBody = await flowiseRes.text().catch(() => '');
+      console.error('❌ Flowise Error Details:', {
+        status: flowiseRes.status,
+        statusText: flowiseRes.statusText,
+        headers: Object.fromEntries(flowiseRes.headers.entries()),
+        body: errBody
+      });
+
+      // Manejar específicamente el error de timeout
+      if (errBody.includes('Request timed out') || errBody.includes('timeout')) {
+        throw new Error('El flujo de Flowise está tardando demasiado en responder. Por favor, revisa la configuración del Condition Agent node en Flowise.');
+      }
+
       throw new Error(`Flowise error: ${flowiseRes.status} - ${errBody?.slice(0, 300)}`);
     }
 
