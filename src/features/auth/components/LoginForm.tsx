@@ -27,6 +27,24 @@ function LoginForm() {
 		},
 	})
 
+	// Efecto para detectar parámetros de URL y pre-llenar campos
+	useEffect(() => {
+		const urlParams = new URLSearchParams(window.location.search)
+		const demoEmail = urlParams.get('demo')
+
+		if (demoEmail === 'true') {
+			setEmail('juegosgeorge0502@gmail.com')
+			setPassword('george0502')
+			toast({
+				title: 'Credenciales de prueba cargadas',
+				description: 'Haz clic en "Iniciar sesión" para continuar',
+			})
+
+			// Limpiar la URL
+			window.history.replaceState({}, '', window.location.pathname)
+		}
+	}, [])
+
 	// Suscripción Realtime por email para detectar aprobación estando en login
 	useEffect(() => {
 		if (!awaitingApproval || !email) return
