@@ -3,6 +3,8 @@ import { Input } from './input'
 import { Button } from './button'
 import { Send, User, Bot, MessageCircle } from 'lucide-react'
 import { LoaderOne } from '@shared/components/ui/loader'
+import ReactMarkdown from 'react-markdown'
+import remarkGfm from 'remark-gfm'
 
 interface Message {
 	id: string
@@ -113,9 +115,11 @@ function ChatModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }
 							if (data.type === 'text-delta' && data.textDelta) {
 								accumulatedContent += data.textDelta
 
-								// Actualizar el mensaje del asistente
+								// Actualizar el mensaje del asistente y ocultar el indicador de carga cuando hay contenido
 								setMessages((prev) =>
-									prev.map((msg) => (msg.id === assistantMessage.id ? { ...msg, content: accumulatedContent } : msg)),
+									prev.map((msg) =>
+										msg.id === assistantMessage.id ? { ...msg, content: accumulatedContent, isStreaming: false } : msg,
+									),
 								)
 							}
 						} catch (e) {
@@ -182,7 +186,7 @@ function ChatModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }
 				</header>
 
 				{/* Messages */}
-				<div className="flex-1 overflow-y-auto p-4 space-y-4">
+				<div className="flex-1 overflow-y-auto p-4 space-y-6">
 					{messages.length === 0 && (
 						<div className="text-center text-muted-foreground mt-16">
 							<div className="w-12 h-12 mx-auto mb-4 rounded-xl bg-gradient-to-br from-Conspat/10 to-Conspat/5 flex items-center justify-center border border-Conspat/20">
@@ -194,7 +198,10 @@ function ChatModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }
 					)}
 
 					{messages.map((message) => (
-						<div key={message.id} className={`flex gap-2 ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+						<div
+							key={message.id}
+							className={`flex gap-3 mb-4 ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
+						>
 							{message.role === 'assistant' && (
 								<div className="w-6 h-6 rounded-lg bg-gradient-to-br from-Conspat to-Conspat/80 flex items-center justify-center text-white shadow-sm shrink-0 mt-1">
 									<Bot className="w-3 h-3" />
@@ -202,13 +209,19 @@ function ChatModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }
 							)}
 
 							<div
-								className={`max-w-[80%] rounded-xl px-3 py-2 text-xs ${
+								className={`max-w-[80%] rounded-xl px-3 py-3 text-xs ${
 									message.role === 'user'
 										? 'bg-Conspat text-white shadow-sm'
 										: 'bg-card border border-border/50 text-card-foreground'
 								}`}
 							>
-								{message.content}
+								{message.role === 'assistant' ? (
+									<div className="prose prose-sm max-w-none prose-headings:text-foreground prose-p:text-foreground prose-strong:text-foreground prose-em:text-foreground prose-li:text-foreground">
+										<ReactMarkdown remarkPlugins={[remarkGfm]}>{message.content}</ReactMarkdown>
+									</div>
+								) : (
+									message.content
+								)}
 								{message.isStreaming && <LoaderOne size="size-2" />}
 							</div>
 

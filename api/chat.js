@@ -1,6 +1,40 @@
 // api/chat.js
 import crypto from 'crypto';
 
+// Función para procesar y mejorar el formato markdown
+function processMarkdownFormat(text) {
+  if (!text) return text;
+
+  // Convertir listas con guiones que están en una sola línea a formato markdown correcto
+  // Buscar patrones como "- **Texto:** contenido - **Texto2:** contenido"
+
+  // Dividir el texto en partes y procesar cada elemento de lista
+  const parts = text.split(/- \*\*([^*]+):\*\*/);
+
+  if (parts.length > 1) {
+    let result = parts[0]; // Texto antes de la primera lista
+
+    for (let i = 1; i < parts.length; i += 2) {
+      const label = parts[i];
+      const content = parts[i + 1] || '';
+
+      // Extraer el contenido hasta el siguiente elemento o final
+      const nextElementMatch = content.match(/^([^-]+?)(?= - \*\*|$)/);
+      const itemContent = nextElementMatch ? nextElementMatch[1].trim() : content.trim();
+
+      result += `- **${label}:** ${itemContent}\n`;
+    }
+
+    text = result;
+  }
+
+  // Limpiar espacios extra y asegurar formato correcto
+  text = text.replace(/\n\s*\n/g, '\n\n');
+  text = text.replace(/\s+$/gm, '');
+
+  return text;
+}
+
 function normalizeRole(role) {
   const r = String(role ?? '').toLowerCase().trim();
   if (r === 'user' || r === 'assistant' || r === 'system') return r;
@@ -166,7 +200,10 @@ export default async function handler(req, res) {
 
     console.log('📥 Procesando respuesta de Flowise...');
     const data = await flowiseRes.json();
-    const responseText = data.text || 'No response from AgentFlow';
+    let responseText = data.text || 'No response from AgentFlow';
+
+    // Procesar el texto para mejorar el formato markdown
+    responseText = processMarkdownFormat(responseText);
 
     console.log('✅ Respuesta recibida:', responseText.substring(0, 100) + '...');
 
@@ -179,19 +216,19 @@ export default async function handler(req, res) {
     });
 
     console.log('🔄 Iniciando streaming de respuesta...');
-    // Streaming de respuesta
-    const words = responseText.split(/\s+/).filter(Boolean);
+    // Streaming de respuesta preservando formato markdown
+    const chunks = responseText.split(/(\s+)/).filter(Boolean);
     let i = 0;
 
     function pump() {
-      if (i < words.length) {
-        const word = words[i++];
+      if (i < chunks.length) {
+        const chunk = chunks[i++];
         const data = JSON.stringify({
           type: "text-delta",
-          textDelta: (i === 1 ? word : ' ' + word)
+          textDelta: chunk
         });
         res.write(`0:${data}\n`);
-        setTimeout(pump, 50);
+        setTimeout(pump, 30);
       } else {
         console.log('✅ Streaming completado');
         res.write('d:{"finishReason":"stop","usage":{"promptTokens":0,"completionTokens":0}}\n');
