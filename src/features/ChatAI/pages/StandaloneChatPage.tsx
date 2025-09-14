@@ -5,6 +5,8 @@ import { Input } from '../ui/input'
 import { Send, User, Bot, Sparkles, MessageCircle, ArrowLeft } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { LoaderOne } from '@shared/components/ui/loader'
+import ReactMarkdown from 'react-markdown'
+import remarkGfm from 'remark-gfm'
 
 interface Message {
 	id: string
@@ -121,9 +123,11 @@ const StandaloneChatPage = () => {
 							if (data.type === 'text-delta' && data.textDelta) {
 								accumulatedContent += data.textDelta
 
-								// Actualizar el mensaje del asistente
+								// Actualizar el mensaje del asistente y ocultar el indicador de carga cuando hay contenido
 								setMessages((prev) =>
-									prev.map((msg) => (msg.id === assistantMessage.id ? { ...msg, content: accumulatedContent } : msg)),
+									prev.map((msg) =>
+										msg.id === assistantMessage.id ? { ...msg, content: accumulatedContent, isStreaming: false } : msg,
+									),
 								)
 							}
 						} catch (e) {
@@ -197,7 +201,7 @@ const StandaloneChatPage = () => {
 			</div>
 
 			{/* Messages */}
-			<div className="flex-1 min-h-0 overflow-y-auto p-4 space-y-6">
+			<div className="flex-1 min-h-0 overflow-y-auto p-4 space-y-8">
 				<div className="max-w-4xl mx-auto">
 					{messages.length === 0 && (
 						<div className="text-center text-muted-foreground mt-32">
@@ -212,7 +216,10 @@ const StandaloneChatPage = () => {
 					)}
 
 					{messages.map((message) => (
-						<div key={message.id} className={`flex gap-4 ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+						<div
+							key={message.id}
+							className={`flex gap-4 mb-6 ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
+						>
 							{message.role === 'assistant' && (
 								<div className="w-9 h-9 rounded-xl bg-gradient-to-br from-Conspat to-Conspat/80 flex items-center justify-center text-white shadow-lg shadow-Conspat/20 shrink-0 mt-1">
 									<Bot className="w-4 h-4" />
@@ -220,18 +227,20 @@ const StandaloneChatPage = () => {
 							)}
 
 							<div
-								className={`max-w-[75%] rounded-2xl px-4 py-3 shadow-sm ${
+								className={`max-w-[75%] rounded-2xl px-4 py-4 shadow-sm ${
 									message.role === 'user'
 										? 'bg-Conspat text-white shadow-Conspat/20'
 										: 'bg-card border border-border/50 text-card-foreground'
 								}`}
 							>
-								<div className="whitespace-pre-wrap text-sm leading-relaxed">
-									{message.content}
-									{message.isStreaming && (
-										<LoaderOne size="size-2" />
-									)}
-								</div>
+								{message.role === 'assistant' ? (
+									<div className="prose prose-sm max-w-none prose-headings:text-foreground prose-p:text-foreground prose-strong:text-foreground prose-em:text-foreground prose-li:text-foreground prose-ul:text-foreground prose-ol:text-foreground">
+										<ReactMarkdown remarkPlugins={[remarkGfm]}>{message.content}</ReactMarkdown>
+									</div>
+								) : (
+									<div className="whitespace-pre-wrap text-sm leading-relaxed">{message.content}</div>
+								)}
+								{message.isStreaming && <LoaderOne size="size-2" />}
 							</div>
 
 							{message.role === 'user' && (
