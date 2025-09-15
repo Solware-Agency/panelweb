@@ -130,10 +130,6 @@ export const signOut = async (): Promise<{ error: AuthError | null }> => {
 	try {
 		console.log('🧹 Iniciando limpieza de storage...')
 
-		// Limpiar TODO el localStorage
-		localStorage.clear()
-		console.log('✅ localStorage completamente limpiado')
-
 		// Limpiar TODO el sessionStorage
 		sessionStorage.clear()
 		console.log('✅ sessionStorage completamente limpiado')
@@ -148,10 +144,9 @@ export const signOut = async (): Promise<{ error: AuthError | null }> => {
 		console.log('🔐 Intentando logout con Supabase...')
 		const { error } = await supabase.auth.signOut()
 
-		// Limpiar storage nuevamente después del logout
-		localStorage.clear()
+		// Limpiar sessionStorage nuevamente después del logout
 		sessionStorage.clear()
-		console.log('✅ Storage limpiado nuevamente')
+		console.log('✅ sessionStorage limpiado nuevamente')
 
 		if (error) {
 			console.log('⚠️ Logout error (but continuing cleanup):', error)
@@ -161,7 +156,6 @@ export const signOut = async (): Promise<{ error: AuthError | null }> => {
 	} catch (err) {
 		console.error('💥 Unexpected signout error:', err)
 		// Aún así, limpiar todo
-		localStorage.clear()
 		sessionStorage.clear()
 		return { error: null }
 	}

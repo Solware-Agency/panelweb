@@ -22,9 +22,10 @@ const ReceptionistHomePage: React.FC = () => {
 		try {
 			await signOut()
 			// Clear session storage
-			localStorage.removeItem('last_activity_time')
-			localStorage.removeItem('session_expiry_time')
-			localStorage.removeItem('session_timeout_minutes')
+			sessionStorage.removeItem('last_activity_time')
+			sessionStorage.removeItem('session_expiry_time')
+			sessionStorage.removeItem('session_timeout_minutes')
+			sessionStorage.removeItem('sessionTimeout')
 			navigate('/')
 		} catch (error) {
 			console.error('Error during logout:', error)

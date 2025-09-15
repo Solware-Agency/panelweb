@@ -34,7 +34,7 @@ export function useSessionTimeoutSettings({ user }: UseSessionTimeoutSettingsOpt
 					// If there's an error, use default timeout
 					if (isMounted) {
 						setSessionTimeout(30)
-						localStorage.setItem('sessionTimeout', '30')
+						sessionStorage.setItem('sessionTimeout', '30')
 					}
 					return
 				}
@@ -44,14 +44,14 @@ export function useSessionTimeoutSettings({ user }: UseSessionTimeoutSettingsOpt
 					setSessionTimeout(timeoutMinutes)
 				}
 
-				// Also save to localStorage for immediate access
-				localStorage.setItem('sessionTimeout', timeoutMinutes.toString())
+				// Also save to sessionStorage for immediate access
+				sessionStorage.setItem('sessionTimeout', timeoutMinutes.toString())
 			} catch (error) {
 				console.error('Error loading user timeout:', error)
 				// If there's an error, use default timeout
 				if (isMounted) {
 					setSessionTimeout(30)
-					localStorage.setItem('sessionTimeout', '30')
+					sessionStorage.setItem('sessionTimeout', '30')
 				}
 			} finally {
 				if (isMounted) {
@@ -60,8 +60,8 @@ export function useSessionTimeoutSettings({ user }: UseSessionTimeoutSettingsOpt
 			}
 		}
 
-		// Try to load from localStorage first for immediate access
-		const savedTimeout = localStorage.getItem('sessionTimeout')
+		// Try to load from sessionStorage first for immediate access
+		const savedTimeout = sessionStorage.getItem('sessionTimeout')
 		if (savedTimeout) {
 			const timeoutMinutes = parseInt(savedTimeout, 10)
 			if (!isNaN(timeoutMinutes) && SESSION_TIMEOUT_OPTIONS.includes(timeoutMinutes)) {
@@ -96,7 +96,7 @@ export function useSessionTimeoutSettings({ user }: UseSessionTimeoutSettingsOpt
 				}
 
 				setSessionTimeout(minutes)
-				localStorage.setItem('sessionTimeout', minutes.toString())
+				sessionStorage.setItem('sessionTimeout', minutes.toString())
 				return true
 			} catch (error) {
 				console.error('Error updating user timeout:', error)
