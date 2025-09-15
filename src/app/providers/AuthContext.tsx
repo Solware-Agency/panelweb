@@ -104,10 +104,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 	const clearAllStorage = () => {
 		console.log('🧹 Limpiando todo el storage...')
 
-		// Limpiar localStorage completamente
-		localStorage.clear()
-		console.log('✅ localStorage limpiado')
-
 		// Limpiar sessionStorage completamente
 		sessionStorage.clear()
 		console.log('✅ sessionStorage limpiado')

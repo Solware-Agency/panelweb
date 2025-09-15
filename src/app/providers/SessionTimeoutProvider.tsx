@@ -26,9 +26,9 @@ export const SessionTimeoutProvider = ({ children }: { children: ReactNode }) =>
 	const [showWarning, setShowWarning] = useState(false)
 	const [lastActivity, setLastActivity] = useState<number>(Date.now())
 
-	// Get session timeout from localStorage or default to 30 minutes
+	// Get session timeout from sessionStorage or default to 30 minutes
 	const getSessionTimeout = () => {
-		const saved = localStorage.getItem('sessionTimeout')
+		const saved = sessionStorage.getItem('sessionTimeout')
 		return saved ? parseInt(saved, 10) : 30
 	}
 

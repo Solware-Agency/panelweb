@@ -31,6 +31,17 @@ export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABL
 		persistSession: true,
 		detectSessionInUrl: true,
 		flowType: 'pkce',
+		storage: {
+			getItem: (key: string) => {
+				return sessionStorage.getItem(key)
+			},
+			setItem: (key: string, value: string) => {
+				sessionStorage.setItem(key, value)
+			},
+			removeItem: (key: string) => {
+				sessionStorage.removeItem(key)
+			},
+		},
 	},
 	db: {
 		schema: 'public',

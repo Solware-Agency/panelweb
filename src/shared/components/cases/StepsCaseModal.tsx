@@ -778,7 +778,7 @@ const StepsCaseModal: React.FC<StepsCaseModalProps> = ({ case_, isOpen, onClose,
 						animate={{ opacity: 1 }}
 						exit={{ opacity: 0 }}
 						onClick={handleClose}
-						className="fixed inset-0 bg-black/50 backdrop-blur-sm modal-overlay"
+						className="fixed inset-0 bg-black/50 backdrop-blur-sm modal-overlay z-[9999999999999999]"
 					/>
 
 					{/* Modal */}
@@ -787,7 +787,7 @@ const StepsCaseModal: React.FC<StepsCaseModalProps> = ({ case_, isOpen, onClose,
 						initial={{ opacity: 0, scale: 0.9, y: 20 }}
 						animate={{ opacity: 1, scale: 1, y: 0 }}
 						exit={{ opacity: 0, scale: 0.9, y: 20 }}
-						className="fixed inset-0 modal-content flex items-center justify-center p-4"
+						className="fixed inset-0 modal-content flex items-center justify-center p-4 z-[9999999999999999]"
 					>
 						<div className="w-full max-w-2xl bg-white/80 dark:bg-background/50 backdrop-blur-[3px] dark:backdrop-blur-[10px] rounded-2xl shadow-2xl border border-input overflow-hidden">
 							{/* Header */}

@@ -165,7 +165,7 @@ const NavGroup: React.FC<NavGroupProps> = ({
 			<div
 				className={cn(
 					'pl-2 space-y-1 overflow-hidden transition-[max-height] duration-500',
-					isExpanded ? 'max-h-96 transition-[max-height] duration-500' : 'max-h-0 transition-[max-height] duration-300',
+					isExpanded ? 'max-h-96 transition-[max-height] duration-600' : 'max-h-0 transition-[max-height] duration-400',
 				)}
 			>
 				{children}
@@ -258,9 +258,10 @@ const Sidebar: React.FC<SidebarProps> = ({ onClose, isExpanded = false, isMobile
 	const handleLogout = async () => {
 		await signOut()
 		// Clear session storage
-		localStorage.removeItem('last_activity_time')
-		localStorage.removeItem('session_expiry_time')
-		localStorage.removeItem('session_timeout_minutes')
+		sessionStorage.removeItem('last_activity_time')
+		sessionStorage.removeItem('session_expiry_time')
+		sessionStorage.removeItem('session_timeout_minutes')
+		sessionStorage.removeItem('sessionTimeout')
 		navigate('/')
 	}
 

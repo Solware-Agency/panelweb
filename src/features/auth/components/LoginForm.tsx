@@ -157,6 +157,17 @@ function LoginForm() {
 			// Refresh user data and let the secure redirect handle the navigation
 			await refreshUser()
 
+			// Debug: Verificar si la sesión se mantiene después del refresh
+			setTimeout(async () => {
+				const {
+					data: { session },
+				} = await supabase.auth.getSession()
+				console.log('Session after refresh:', session ? 'EXISTS' : 'NULL')
+				if (session) {
+					console.log('Session user:', session.user.email)
+				}
+			}, 1000)
+
 			// No mostrar ningún error ni mensaje aquí. El hook useSecureRedirect se encargará de la redirección.
 		} catch (err: unknown) {
 			console.error('Login error:', err)

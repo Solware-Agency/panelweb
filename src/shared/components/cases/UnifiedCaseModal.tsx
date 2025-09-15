@@ -297,7 +297,7 @@ const UnifiedCaseModal: React.FC<CaseDetailPanelProps> = React.memo(({ case_, is
 		queryKey: ['record-changelogs', case_?.id],
 		queryFn: async () => {
 			if (!case_?.id) return { data: [] }
-			
+
 			// Obtener logs del caso médico desde change_logs
 			const { data: changeLogs, error: changeLogsError } = await supabase
 				.from('change_logs')
@@ -310,11 +310,11 @@ const UnifiedCaseModal: React.FC<CaseDetailPanelProps> = React.memo(({ case_, is
 			}
 
 			// Obtener logs de eliminación desde deletion_logs
-			const { data: deletionLogs, error: deletionLogsError } = await supabase
+			const { data: deletionLogs, error: deletionLogsError } = (await supabase
 				.from('deletion_logs')
 				.select('*')
 				.eq('deleted_medical_record_id', case_.id)
-				.order('deleted_at', { ascending: false }) as { data: DeletionLogEntry[] | null, error: any }
+				.order('deleted_at', { ascending: false })) as { data: DeletionLogEntry[] | null; error: unknown }
 
 			if (deletionLogsError) {
 				console.error('Error fetching deletion logs:', deletionLogsError)
@@ -322,34 +322,38 @@ const UnifiedCaseModal: React.FC<CaseDetailPanelProps> = React.memo(({ case_, is
 
 			// Combinar y formatear los logs
 			const allLogs = []
-			
+
 			// Agregar logs de cambios
 			if (changeLogs) {
-				allLogs.push(...changeLogs.map(log => ({
-					...log,
-					changed_at: log.changed_at,
-					source: 'change_logs'
-				})))
+				allLogs.push(
+					...changeLogs.map((log) => ({
+						...log,
+						changed_at: log.changed_at,
+						source: 'change_logs',
+					})),
+				)
 			}
-			
+
 			// Agregar logs de eliminación
 			if (deletionLogs) {
-				allLogs.push(...deletionLogs.map(log => ({
-					id: log.id,
-					medical_record_id: log.deleted_medical_record_id,
-					patient_id: log.deleted_patient_id,
-					user_id: log.user_id,
-					user_email: log.user_email,
-					user_display_name: log.user_display_name,
-					field_name: 'deleted_record',
-					field_label: 'Registro Eliminado',
-					old_value: log.deleted_record_info,
-					new_value: null,
-					changed_at: log.deleted_at,
-					deleted_record_info: log.deleted_record_info,
-					entity_type: log.entity_type,
-					source: 'deletion_logs'
-				})))
+				allLogs.push(
+					...deletionLogs.map((log) => ({
+						id: log.id,
+						medical_record_id: log.deleted_medical_record_id,
+						patient_id: log.deleted_patient_id,
+						user_id: log.user_id,
+						user_email: log.user_email,
+						user_display_name: log.user_display_name,
+						field_name: 'deleted_record',
+						field_label: 'Registro Eliminado',
+						old_value: log.deleted_record_info,
+						new_value: null,
+						changed_at: log.deleted_at,
+						deleted_record_info: log.deleted_record_info,
+						entity_type: log.entity_type,
+						source: 'deletion_logs',
+					})),
+				)
 			}
 
 			// Ordenar por fecha de cambio (más reciente primero)
@@ -707,7 +711,7 @@ const UnifiedCaseModal: React.FC<CaseDetailPanelProps> = React.memo(({ case_, is
 			}
 
 			// Si hay un método de pago nuevo en el formulario, agregarlo automáticamente
-			let finalPaymentMethods = [...paymentMethods]
+			const finalPaymentMethods = [...paymentMethods]
 			if (isAddingNewPayment && newPaymentMethod.method && newPaymentMethod.amount > 0) {
 				finalPaymentMethods.push({ ...newPaymentMethod })
 			}
@@ -1123,7 +1127,7 @@ const UnifiedCaseModal: React.FC<CaseDetailPanelProps> = React.memo(({ case_, is
 							animate={{ opacity: 1 }}
 							exit={{ opacity: 0 }}
 							onClick={isEditing ? undefined : onClose}
-							className="fixed inset-0 bg-black/50 z-[99999998]"
+							className="fixed inset-0 bg-black/50 z-[9999999999999999]"
 						/>
 
 						{/* Panel */}
@@ -1133,7 +1137,7 @@ const UnifiedCaseModal: React.FC<CaseDetailPanelProps> = React.memo(({ case_, is
 							animate={{ x: 0 }}
 							exit={{ x: '100%' }}
 							transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-							className="fixed right-0 top-0 h-full w-full sm:w-2/3 lg:w-1/2 xl:w-2/5 bg-white/80 dark:bg-background/50 backdrop-blur-[2px] dark:backdrop-blur-[10px] shadow-2xl z-[99999999] overflow-y-auto rounded-lg border-l border-input"
+							className="fixed right-0 top-0 h-full w-full sm:w-2/3 lg:w-1/2 xl:w-2/5 bg-white/80 dark:bg-background/50 backdrop-blur-[2px] dark:backdrop-blur-[10px] shadow-2xl z-[9999999999999999] overflow-y-auto rounded-lg border-l border-input"
 						>
 							<div className="sticky top-0 bg-white/50 dark:bg-background/50 backdrop-blur-[2px] dark:backdrop-blur-[10px] border-b border-input p-3 sm:p-6 z-10">
 								<div className="flex items-center justify-between">
@@ -2131,7 +2135,7 @@ const UnifiedCaseModal: React.FC<CaseDetailPanelProps> = React.memo(({ case_, is
 
 			{/* Delete Confirmation Modal */}
 			{isDeleteModalOpen && (
-				<div className="fixed inset-0 z-[999999999] flex items-center justify-center bg-black/50">
+				<div className="fixed inset-0 z-[9999999999999999] flex items-center justify-center bg-black/50">
 					<div className="bg-white/90 dark:bg-background/70 backdrop-blur-[10px] rounded-lg p-6 max-w-md w-full mx-4 shadow-xl border border-input">
 						<div className="flex items-center gap-3 mb-4">
 							<div className="p-2 bg-red-100 dark:bg-red-900/30 rounded-full">

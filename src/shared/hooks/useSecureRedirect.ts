@@ -139,7 +139,21 @@ export const useSecureRedirect = (options: UseSecureRedirectOptions = {}): UseSe
 
 	// Auto-redirect on mount if enabled and all data is ready
 	useEffect(() => {
+		console.log('useSecureRedirect effect:', {
+			redirectOnMount,
+			authLoading,
+			profileLoading,
+			isRedirecting,
+			hasUser: !!user,
+			hasProfile: !!profile,
+			profileError,
+			userEmail: user?.email,
+			profileRole: profile?.role,
+			profileEstado: profile?.estado,
+		})
+
 		if (redirectOnMount && !authLoading && !profileLoading && !isRedirecting && user && profile && !profileError) {
+			console.log('Calling redirectUser from useEffect')
 			redirectUser()
 		}
 	}, [redirectOnMount, authLoading, profileLoading, user, profile, profileError, isRedirecting])
