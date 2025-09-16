@@ -1,6 +1,6 @@
 import { supabase } from '@lib/supabase/config'
 
-export type DocAprobadoStatus = 'faltante' | 'pendiente' | 'aprobado'
+export type DocAprobadoStatus = 'faltante' | 'pendiente' | 'aprobado' | 'rechazado'
 
 export async function markCaseAsPending(caseId: string) {
 	return supabase
@@ -15,6 +15,15 @@ export async function approveCaseDocument(caseId: string) {
 	return supabase
 		.from('medical_records_clean')
 		.update({ doc_aprobado: 'aprobado' as DocAprobadoStatus, updated_at: new Date().toISOString() })
+		.eq('id', caseId)
+		.select('id, doc_aprobado')
+		.single()
+}
+
+export async function rejectCaseDocument(caseId: string) {
+	return supabase
+		.from('medical_records_clean')
+		.update({ doc_aprobado: 'rechazado' as DocAprobadoStatus, updated_at: new Date().toISOString() })
 		.eq('id', caseId)
 		.select('id, doc_aprobado')
 		.single()

@@ -222,17 +222,40 @@ const CasesTable: React.FC<CasesTableProps> = React.memo(
 			setSearchTerm(e.target.value)
 		}, [])
 
-		// Handle search on Enter key
+		// Handle search on Enter key or when search term changes (debounced)
 		const handleSearchKeyDown = useCallback(
 			(e: React.KeyboardEvent<HTMLInputElement>) => {
 				if (e.key === 'Enter' && onSearch) {
 					setIsSearching(true)
-					onSearch(searchTerm)
+					// Limpiar y validar el término de búsqueda
+					const cleanSearchTerm = searchTerm.trim()
+					if (cleanSearchTerm) {
+						onSearch(cleanSearchTerm)
+					} else {
+						// Si el término está vacío, limpiar la búsqueda
+						onSearch('')
+					}
 					setTimeout(() => setIsSearching(false), 500)
 				}
 			},
 			[onSearch, searchTerm],
 		)
+
+		// Debounced search effect
+		useEffect(() => {
+			if (!onSearch) return
+
+			const timeoutId = setTimeout(() => {
+				const cleanSearchTerm = searchTerm.trim()
+				if (cleanSearchTerm.length >= 2 || cleanSearchTerm.length === 0) {
+					setIsSearching(true)
+					onSearch(cleanSearchTerm)
+					setTimeout(() => setIsSearching(false), 500)
+				}
+			}, 300) // Debounce de 300ms
+
+			return () => clearTimeout(timeoutId)
+		}, [searchTerm, onSearch])
 
 		// Handle clear all filters
 		const handleClearAllFilters = useCallback(() => {
@@ -406,7 +429,8 @@ const CasesTable: React.FC<CasesTableProps> = React.memo(
 						(case_.cedula?.toLowerCase() || '').includes(searchLower) ||
 						(case_.treating_doctor?.toLowerCase() || '').includes(searchLower) ||
 						(case_.code?.toLowerCase() || '').includes(searchLower) ||
-						(case_.branch?.toLowerCase() || '').includes(searchLower)
+						(case_.branch?.toLowerCase() || '').includes(searchLower) ||
+						(case_.exam_type?.toLowerCase() || '').includes(searchLower)
 				}
 
 				return (

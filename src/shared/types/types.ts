@@ -207,7 +207,7 @@ export type Database = {
 					generated_at: string | null
 					log: string | null
 					token: string | null
-					doc_aprobado?: 'faltante' | 'pendiente' | 'aprobado'
+					doc_aprobado?: 'faltante' | 'pendiente' | 'aprobado' | 'rechazado'
 				}
 				Insert: {
 					id?: string
@@ -261,7 +261,7 @@ export type Database = {
 					googledocs_url?: string | null
 					informepdf_url?: string | null
 					informe_qr?: string | null
-					doc_aprobado?: 'faltante' | 'pendiente' | 'aprobado'
+					doc_aprobado?: 'faltante' | 'pendiente' | 'aprobado' | 'rechazado'
 				}
 				Update: {
 					id?: string
@@ -319,7 +319,7 @@ export type Database = {
 					googledocs_url?: string | null
 					informepdf_url?: string | null
 					informe_qr?: string | null
-					doc_aprobado?: 'faltante' | 'pendiente' | 'aprobado'
+					doc_aprobado?: 'faltante' | 'pendiente' | 'aprobado' | 'rechazado'
 				}
 				Relationships: []
 			}
@@ -710,7 +710,7 @@ export interface MedicalRecord {
 	comentario: string | null
 	pdf_en_ready: boolean | null
 	attachment_url: string | null
-	doc_aprobado: 'faltante' | 'pendiente' | 'aprobado' | null
+	doc_aprobado: 'faltante' | 'pendiente' | 'aprobado' | 'rechazado' | null
 	generated_by: string | null
 	version: number | null
 	// Campos de patients

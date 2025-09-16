@@ -322,7 +322,7 @@ export const searchMedicalRecords = async (searchTerm: string) => {
 			.from(TABLE_NAME)
 			.select('*')
 			.or(
-				`full_name.ilike.%${searchTerm}%,id_number.ilike.%${searchTerm}%,phone.ilike.%${searchTerm}%,code.ilike.%${searchTerm}%,treating_doctor.ilike.%${searchTerm}%`,
+				`full_name.ilike.%${searchTerm}%, id_number.ilike.%${searchTerm}%, phone.ilike.%${searchTerm}%, code.ilike.%${searchTerm}%, treating_doctor.ilike.%${searchTerm}%`,
 			)
 			.order('created_at', { ascending: false })
 

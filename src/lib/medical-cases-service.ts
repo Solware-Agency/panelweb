@@ -46,7 +46,7 @@ export interface MedicalCase {
 	googledocs_url: string | null
 	informepdf_url: string | null
 	attachment_url: string | null
-	doc_aprobado: 'faltante' | 'pendiente' | 'aprobado' | undefined
+	doc_aprobado: 'faltante' | 'pendiente' | 'aprobado' | 'rechazado' | undefined
 	// Campos adicionales que existen en la tabla
 	exchange_rate: number | null
 	created_by: string | null
@@ -117,7 +117,7 @@ export interface MedicalCaseInsert {
 	informepdf_url?: string | null
 	informe_qr?: string | null
 	token?: string | null
-	doc_aprobado?: 'faltante' | 'pendiente' | 'aprobado' | undefined
+	doc_aprobado?: 'faltante' | 'pendiente' | 'aprobado' | 'rechazado' | undefined
 }
 
 export interface MedicalCaseUpdate {
@@ -175,7 +175,7 @@ export interface MedicalCaseUpdate {
 	informepdf_url?: string | null
 	informe_qr?: string | null
 	token?: string | null
-	doc_aprobado?: 'faltante' | 'pendiente' | 'aprobado' | undefined
+	doc_aprobado?: 'faltante' | 'pendiente' | 'aprobado' | 'rechazado' | undefined
 }
 
 // Tipo para casos médicos con información del paciente (usando JOIN directo)
@@ -220,7 +220,7 @@ export interface MedicalCaseWithPatient {
 	comentario: string | null
 	pdf_en_ready: boolean | null
 	attachment_url: string | null
-	doc_aprobado: 'faltante' | 'pendiente' | 'aprobado' | null
+	doc_aprobado: 'faltante' | 'pendiente' | 'aprobado' | 'rechazado' | null
 	generated_by: string | null
 	version: number | null
 	// Campos de patients
@@ -322,9 +322,8 @@ export const getCasesWithPatientInfo = async (
 ) => {
 	try {
 		// Construir la consulta con JOIN directo
-		let query = supabase
-			.from('medical_records_clean')
-			.select(`
+		let query = supabase.from('medical_records_clean').select(
+			`
 				*,
 				patients!inner(
 					cedula,
@@ -333,13 +332,28 @@ export const getCasesWithPatientInfo = async (
 					telefono,
 					email
 				)
-			`, { count: 'exact' })
+			`,
+			{ count: 'exact' },
+		)
 
 		// Aplicar filtros
 		if (filters?.searchTerm) {
-			query = query.or(
-				`patients.nombre.ilike.%${filters.searchTerm}%,patients.cedula.ilike.%${filters.searchTerm}%,code.ilike.%${filters.searchTerm}%`,
-			)
+			// Limpiar y validar el término de búsqueda
+			const cleanSearchTerm = filters.searchTerm.trim()
+			console.log('🔍 [DEBUG] Término de búsqueda original:', filters.searchTerm)
+			console.log('🔍 [DEBUG] Término de búsqueda limpio:', cleanSearchTerm)
+			if (cleanSearchTerm) {
+				// Escapar caracteres especiales que pueden causar problemas en PostgREST
+				const escapedSearchTerm = cleanSearchTerm.replace(/[%_\\]/g, '\\$&')
+				console.log('🔍 [DEBUG] Término de búsqueda escapado:', escapedSearchTerm)
+
+				// Usar una aproximación más simple con ilike en lugar de OR complejo
+				// Esto evita problemas de parsing en PostgREST
+				query = query.or(
+					`patients.nombre.ilike.%${escapedSearchTerm}%,patients.cedula.ilike.%${escapedSearchTerm}%,treating_doctor.ilike.%${escapedSearchTerm}%,exam_type.ilike.%${escapedSearchTerm}%,code.ilike.%${escapedSearchTerm}%`,
+				)
+				console.log('🔍 [DEBUG] Aplicando filtro de búsqueda para:', escapedSearchTerm)
+			}
 		}
 
 		if (filters?.branch) {
@@ -400,28 +414,193 @@ export const getCasesWithPatientInfo = async (
  * Obtener TODOS los casos médicos con información del paciente (sin límite de paginación)
  * Esta función maneja automáticamente la paginación para obtener todos los registros
  */
-export const getAllCasesWithPatientInfo = async (
-	filters?: {
-		searchTerm?: string
-		branch?: string
-		dateFrom?: string
-		dateTo?: string
-		examType?: string
-		paymentStatus?: string
-	},
-) => {
+export const getAllCasesWithPatientInfo = async (filters?: {
+	searchTerm?: string
+	branch?: string
+	dateFrom?: string
+	dateTo?: string
+	examType?: string
+	paymentStatus?: string
+}) => {
 	try {
+		// Si hay un término de búsqueda, usar una aproximación diferente para evitar problemas de parsing
+		if (filters?.searchTerm) {
+			const cleanSearchTerm = filters.searchTerm.trim()
+			console.log('🔍 [DEBUG] Término de búsqueda original:', filters.searchTerm)
+			console.log('🔍 [DEBUG] Término de búsqueda limpio:', cleanSearchTerm)
+
+			if (cleanSearchTerm) {
+				// Escapar caracteres especiales
+				const escapedSearchTerm = cleanSearchTerm.replace(/[%_\\]/g, '\\$&')
+				console.log('🔍 [DEBUG] Término de búsqueda escapado:', escapedSearchTerm)
+
+				// Hacer múltiples consultas separadas y combinar resultados
+				const searchPromises = [
+					// Búsqueda por nombre del paciente
+					supabase
+						.from('medical_records_clean')
+						.select(
+							`
+							*,
+							patients!inner(
+								cedula,
+								nombre,
+								edad,
+								telefono,
+								email
+							)
+						`,
+						)
+						.ilike('patients.nombre', `%${escapedSearchTerm}%`)
+						.order('created_at', { ascending: false }),
+
+					// Búsqueda por cédula del paciente
+					supabase
+						.from('medical_records_clean')
+						.select(
+							`
+							*,
+							patients!inner(
+								cedula,
+								nombre,
+								edad,
+								telefono,
+								email
+							)
+						`,
+						)
+						.ilike('patients.cedula', `%${escapedSearchTerm}%`)
+						.order('created_at', { ascending: false }),
+
+					// Búsqueda por médico tratante
+					supabase
+						.from('medical_records_clean')
+						.select(
+							`
+							*,
+							patients!inner(
+								cedula,
+								nombre,
+								edad,
+								telefono,
+								email
+							)
+						`,
+						)
+						.ilike('treating_doctor', `%${escapedSearchTerm}%`)
+						.order('created_at', { ascending: false }),
+
+					// Búsqueda por tipo de examen
+					supabase
+						.from('medical_records_clean')
+						.select(
+							`
+							*,
+							patients!inner(
+								cedula,
+								nombre,
+								edad,
+								telefono,
+								email
+							)
+						`,
+						)
+						.ilike('exam_type', `%${escapedSearchTerm}%`)
+						.order('created_at', { ascending: false }),
+
+					// Búsqueda por código
+					supabase
+						.from('medical_records_clean')
+						.select(
+							`
+							*,
+							patients!inner(
+								cedula,
+								nombre,
+								edad,
+								telefono,
+								email
+							)
+						`,
+						)
+						.ilike('code', `%${escapedSearchTerm}%`)
+						.order('created_at', { ascending: false }),
+				]
+
+				// Ejecutar todas las consultas en paralelo
+				const results = await Promise.all(searchPromises)
+
+				// Verificar errores
+				for (const result of results) {
+					if (result.error) {
+						throw result.error
+					}
+				}
+
+				// Combinar y deduplicar resultados
+				const allResults = results.flatMap((result) => result.data || [])
+				const uniqueResults = new Map()
+
+				for (const item of allResults) {
+					uniqueResults.set(item.id, item)
+				}
+
+				// Transformar los datos
+				const transformedData = Array.from(uniqueResults.values()).map((item: any) => ({
+					...item,
+					cedula: item.patients?.cedula || '',
+					nombre: item.patients?.nombre || '',
+					edad: item.patients?.edad || null,
+					telefono: item.patients?.telefono || null,
+					patient_email: item.patients?.email || null,
+					version: item.version || null,
+				})) as MedicalCaseWithPatient[]
+
+				// Aplicar otros filtros si existen
+				let filteredData = transformedData
+
+				if (filters?.branch) {
+					filteredData = filteredData.filter((item) => item.branch === filters.branch)
+				}
+
+				if (filters?.dateFrom) {
+					filteredData = filteredData.filter((item) => item.date >= filters.dateFrom!)
+				}
+
+				if (filters?.dateTo) {
+					filteredData = filteredData.filter((item) => item.date <= filters.dateTo!)
+				}
+
+				if (filters?.examType) {
+					filteredData = filteredData.filter((item) => item.exam_type === filters.examType)
+				}
+
+				if (filters?.paymentStatus) {
+					filteredData = filteredData.filter((item) => item.payment_status === filters.paymentStatus)
+				}
+
+				console.log(`✅ Obtenidos ${filteredData.length} casos médicos con búsqueda`)
+
+				return {
+					data: filteredData,
+					count: filteredData.length,
+					page: 1,
+					limit: filteredData.length,
+					totalPages: 1,
+				}
+			}
+		}
+
+		// Si no hay término de búsqueda, usar la consulta normal
 		const allData: MedicalCaseWithPatient[] = []
 		let page = 1
-		const pageSize = 1000 // Usar el límite máximo de Supabase por página
+		const pageSize = 1000
 		let hasMoreData = true
 		let totalCount = 0
 
 		while (hasMoreData) {
-			// Construir la consulta con JOIN directo
-			let query = supabase
-				.from('medical_records_clean')
-				.select(`
+			let query = supabase.from('medical_records_clean').select(
+				`
 					*,
 					patients!inner(
 						cedula,
@@ -430,15 +609,11 @@ export const getAllCasesWithPatientInfo = async (
 						telefono,
 						email
 					)
-				`, { count: 'exact' })
+				`,
+				{ count: 'exact' },
+			)
 
-			// Aplicar filtros
-			if (filters?.searchTerm) {
-				query = query.or(
-					`patients.nombre.ilike.%${filters.searchTerm}%,patients.cedula.ilike.%${filters.searchTerm}%,code.ilike.%${filters.searchTerm}%`,
-				)
-			}
-
+			// Aplicar otros filtros
 			if (filters?.branch) {
 				query = query.eq('branch', filters.branch)
 			}
@@ -469,12 +644,10 @@ export const getAllCasesWithPatientInfo = async (
 				throw error
 			}
 
-			// Obtener el conteo total en la primera página
 			if (page === 1) {
 				totalCount = count || 0
 			}
 
-			// Transformar los datos para que coincidan con la interfaz
 			const transformedData = (data || []).map((item: any) => ({
 				...item,
 				cedula: item.patients?.cedula || '',
@@ -486,12 +659,9 @@ export const getAllCasesWithPatientInfo = async (
 			})) as MedicalCaseWithPatient[]
 
 			allData.push(...transformedData)
-
-			// Verificar si hay más datos
 			hasMoreData = transformedData.length === pageSize && allData.length < totalCount
 			page++
 
-			// Prevenir bucles infinitos
 			if (page > 100) {
 				console.warn('Límite de páginas alcanzado para evitar bucles infinitos')
 				break
