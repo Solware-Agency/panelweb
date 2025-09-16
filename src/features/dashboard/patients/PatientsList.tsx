@@ -23,7 +23,7 @@ interface PatientsListProps {
 const PatientRow = React.memo(({ patient, onClick }: { patient: Patient; onClick: (patient: Patient) => void }) => (
 	<tr
 		key={patient.id}
-		className="hover:bg-background dark:hover:bg-background transition-transform cursor-pointer"
+		className="hover:bg-gray-800 dark:hover:bg-gray-800 transition-transform cursor-pointer"
 		onClick={() => onClick(patient)}
 	>
 		{/* Name Cell */}
@@ -172,7 +172,7 @@ const PatientsList: React.FC<PatientsListProps> = React.memo(
 					<div className="hidden lg:block">
 						<div className="max-h-[520px] overflow-auto">
 							<table className="w-full">
-								<thead className="bg-background backdrop-blur-[10px] sticky top-0 z-10">
+								<thead className="bg-black/80 backdrop-blur-[10px] sticky top-0 z-10">
 									<tr>
 										<th className="w-[20%] px-5 py-3 text-left">
 											<button
@@ -221,7 +221,7 @@ const PatientsList: React.FC<PatientsListProps> = React.memo(
 										</th>
 									</tr>
 								</thead>
-								<tbody className="bg-card divide-y divide-gray-200 dark:divide-gray-700">
+								<tbody className="bg-black divide-y divide-gray-200 dark:divide-gray-700">
 									{sortedPatients.length > 0 ? (
 										sortedPatients.map((patient: Patient) => (
 											<PatientRow key={patient.id} patient={patient} onClick={handlePatientClick} />

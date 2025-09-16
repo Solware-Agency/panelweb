@@ -195,11 +195,11 @@ const EditPatientInfoModal = ({ isOpen, onClose, patient, onSave }: EditPatientI
 						onClick={onClose}
 					>
 						<div
-							className="bg-white/80 dark:bg-background/50 backdrop-blur-[10px] rounded-lg shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col border border-input"
+							className="bg-white/80 dark:bg-black backdrop-blur-[10px] rounded-lg shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col border border-input"
 							onClick={(e) => e.stopPropagation()}
 						>
 							{/* Header */}
-							<div className="sticky top-0 bg-white/80 dark:bg-background/50 backdrop-blur-[10px] border-b border-input p-4 sm:p-6 z-10">
+							<div className="sticky top-0 bg-white/80 dark:bg-black backdrop-blur-[10px] border-b border-input p-4 sm:p-6 z-10">
 								<div className="flex items-center justify-between">
 									<div>
 										<div>
@@ -278,7 +278,7 @@ const EditPatientInfoModal = ({ isOpen, onClose, patient, onSave }: EditPatientI
 								</div>
 
 								{/* Footer con botones */}
-								<div className="sticky bottom-0 bg-white/80 dark:bg-background/50 backdrop-blur-[10px] border-t border-input p-4 flex justify-end gap-2">
+								<div className="sticky bottom-0 bg-white/80 dark:bg-black backdrop-blur-[10px] border-t border-input p-4 flex justify-end gap-2">
 									<Button type="button" variant="outline" onClick={onClose} disabled={isLoading}>
 										Cancelar
 									</Button>

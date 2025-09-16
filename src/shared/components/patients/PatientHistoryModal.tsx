@@ -140,16 +140,16 @@ const PatientHistoryModal: React.FC<PatientHistoryModalProps> = ({ isOpen, onClo
 							onClick={onClose}
 						>
 							<div
-								className="bg-white/80 dark:bg-background/50 backdrop-blur-[10px] rounded-lg shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col border border-input"
+										className="bg-white/80 dark:bg-black backdrop-blur-[10px] rounded-lg shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col border border-input"
 								onClick={(e) => e.stopPropagation()}
 							>
 								{/* Header */}
-								<div className="sticky top-0 bg-white/80 dark:bg-background/50 backdrop-blur-[10px] border-b border-input p-4 sm:p-6 z-10">
+										<div className="sticky top-0 bg-white/80 dark:bg-black backdrop-blur-[10px] border-b border-input p-4 sm:p-6 z-10">
 									<div className="flex items-center justify-between">
 										<div>
 											<div>
 												<h2 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-gray-100">
-													Historial del Paciente
+													Historial Médico
 												</h2>
 											</div>
 											<p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
@@ -168,7 +168,7 @@ const PatientHistoryModal: React.FC<PatientHistoryModalProps> = ({ isOpen, onClo
 								{/* Content */}
 								<div className="flex-1 overflow-hidden flex flex-col">
 									{/* Patient Info */}
-									<div className="p-4 sm:p-6 bg-white/80 dark:bg-background/5">
+														<div className="p-4 sm:p-6 bg-white/80 dark:bg-black">
 										<div className="flex flex-col sm:flex-row sm:items-center gap-4">
 											<div className="flex items-center gap-3">
 												<div className="p-3 bg-blue-100 dark:bg-blue-900/30 rounded-full">

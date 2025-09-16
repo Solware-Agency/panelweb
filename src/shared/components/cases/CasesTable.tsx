@@ -105,7 +105,7 @@ const CasesTable: React.FC<CasesTableProps> = React.memo(
 		// Dropdown options
 		const statusOptions = useMemo(
 			() => [
-				{ value: 'all', label: 'Todos los estatus' },
+				{ value: 'all', label: 'Estado de Pago' },
 				{ value: 'Pagado', label: 'Pagado' },
 				{ value: 'Incompleto', label: 'Incompleto' },
 			],
@@ -835,9 +835,6 @@ const CasesTable: React.FC<CasesTableProps> = React.memo(
 							<Pagination
 								currentPage={currentPage}
 								totalPages={totalPages}
-								startIndex={startIndex}
-								endIndex={endIndex}
-								totalItems={filteredAndSortedCases.filtered.length}
 								itemsPerPage={itemsPerPage}
 								pageSizeOptions={pageSizeOptions}
 								onItemsPerPageChange={handleItemsPerPageChange}
@@ -1002,8 +999,6 @@ const CasesTable: React.FC<CasesTableProps> = React.memo(
 										{paginatedCases.length > 0 ? (
 											// Render paginated cases
 											paginatedCases.map((case_) => {
-												const ageDisplay = case_.edad || ''
-
 												return (
 													<tr key={case_.id} className="hover:bg-gray-50 dark:hover:bg-gray-800/50">
 														<td className="px-4 py-4">
@@ -1035,14 +1030,8 @@ const CasesTable: React.FC<CasesTableProps> = React.memo(
 																<div className="text-sm font-medium text-gray-900 dark:text-gray-100">
 																	{case_.nombre}
 																</div>
-																<div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
+																<div className="text-sm text-gray-500 dark:text-gray-400">
 																	<span>{case_.cedula}</span>
-																	{ageDisplay && (
-																		<>
-																			<span>•</span>
-																			<span>{ageDisplay}</span>
-																		</>
-																	)}
 																</div>
 															</div>
 														</td>
@@ -1105,9 +1094,6 @@ const CasesTable: React.FC<CasesTableProps> = React.memo(
 							<Pagination
 								currentPage={currentPage}
 								totalPages={totalPages}
-								startIndex={startIndex}
-								endIndex={endIndex}
-								totalItems={filteredAndSortedCases.filtered.length}
 								itemsPerPage={itemsPerPage}
 								pageSizeOptions={pageSizeOptions}
 								onItemsPerPageChange={handleItemsPerPageChange}
