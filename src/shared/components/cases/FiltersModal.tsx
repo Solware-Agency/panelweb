@@ -13,6 +13,7 @@ import { es } from 'date-fns/locale'
 import { Filter, Stethoscope, FileText, Calendar as CalendarIcon, X } from 'lucide-react'
 import DoctorFilterPanel from './DoctorFilterPanel'
 import type { MedicalCaseWithPatient } from '@lib/medical-cases-service'
+import type { DateRange } from 'react-day-picker'
 
 interface FiltersModalProps {
 	isOpen: boolean
@@ -22,8 +23,8 @@ interface FiltersModalProps {
 	onStatusFilterChange: (value: string) => void
 	branchFilter: string
 	onBranchFilterChange: (value: string) => void
-	startDate: Date | undefined
-	onStartDateChange: (date: Date | undefined) => void
+	dateRange: DateRange | undefined
+	onDateRangeChange: (range: DateRange | undefined) => void
 	showPdfReadyOnly: boolean
 	onPdfFilterToggle: () => void
 	selectedDoctors: string[]
@@ -45,8 +46,8 @@ const FiltersModal: React.FC<FiltersModalProps> = ({
 	onStatusFilterChange,
 	branchFilter,
 	onBranchFilterChange,
-	startDate,
-	onStartDateChange,
+	dateRange,
+	onDateRangeChange,
 	showPdfReadyOnly,
 	onPdfFilterToggle,
 	selectedDoctors,
@@ -57,12 +58,17 @@ const FiltersModal: React.FC<FiltersModalProps> = ({
 	onApplyFilters,
 	onClearAllFilters,
 }) => {
-	const [isStartOpen, setIsStartOpen] = useState(false)
+	const [isDateRangeOpen, setIsDateRangeOpen] = useState(false)
 	const [showDoctorFilter, setShowDoctorFilter] = useState(false)
 
 	// Check if there are any active filters
 	const hasActiveFilters =
-		statusFilter !== 'all' || branchFilter !== 'all' || showPdfReadyOnly || selectedDoctors.length > 0 || startDate
+		statusFilter !== 'all' ||
+		branchFilter !== 'all' ||
+		showPdfReadyOnly ||
+		selectedDoctors.length > 0 ||
+		dateRange?.from ||
+		dateRange?.to
 
 	return (
 		<Dialog open={isOpen} onOpenChange={onOpenChange}>
@@ -81,7 +87,7 @@ const FiltersModal: React.FC<FiltersModalProps> = ({
 								branchFilter !== 'all' ? 1 : 0,
 								showPdfReadyOnly ? 1 : 0,
 								selectedDoctors.length,
-								startDate ? 1 : 0,
+								dateRange?.from || dateRange?.to ? 1 : 0,
 							].reduce((a, b) => a + b, 0)}
 						</span>
 					)}
@@ -121,43 +127,54 @@ const FiltersModal: React.FC<FiltersModalProps> = ({
 						</div>
 					</div>
 
-					{/* Date Filter */}
+					{/* Date Range Filter */}
 					<div className="space-y-3">
 						<h3 className="text-lg font-medium flex items-center gap-2">
 							<CalendarIcon className="w-4 h-4" />
-							Fecha de Registro
+							Rango de Fechas
 						</h3>
 						<div className="flex items-center gap-2">
-							<DatePopover open={isStartOpen} onOpenChange={setIsStartOpen}>
+							<DatePopover open={isDateRangeOpen} onOpenChange={setIsDateRangeOpen}>
 								<DatePopoverTrigger asChild>
 									<Button variant="outline" className="flex items-center gap-2">
 										<CalendarIcon className="w-4 h-4" />
-										{startDate ? format(startDate, 'PPP', { locale: es }) : 'Seleccionar fecha'}
+										{dateRange?.from && dateRange?.to
+											? `${format(dateRange.from, 'dd/MM/yyyy', { locale: es })} - ${format(
+													dateRange.to,
+													'dd/MM/yyyy',
+													{ locale: es },
+											  )}`
+											: dateRange?.from
+											? `Desde ${format(dateRange.from, 'dd/MM/yyyy', { locale: es })}`
+											: 'Seleccionar rango de fechas'}
 									</Button>
 								</DatePopoverTrigger>
 								<DatePopoverContent className="w-auto p-0">
 									<CalendarComponent
-										mode="single"
-										selected={startDate}
-										onSelect={(date) => {
-											onStartDateChange(date || undefined)
-											setIsStartOpen(false)
+										mode="range"
+										selected={dateRange}
+										onSelect={(range) => {
+											onDateRangeChange(range)
+											if (range?.from && range?.to) {
+												setIsDateRangeOpen(false)
+											}
 										}}
 										initialFocus
 										locale={es}
 										toDate={new Date()}
 										disabled={{ after: new Date() }}
+										numberOfMonths={1}
 									/>
 								</DatePopoverContent>
 							</DatePopover>
 
-							{startDate && (
+							{(dateRange?.from || dateRange?.to) && (
 								<Button
-									onClick={() => onStartDateChange(undefined)}
+									onClick={() => onDateRangeChange(undefined)}
 									variant="ghost"
 									size="sm"
 									className="text-xs px-2 py-1"
-									title="Limpiar fecha"
+									title="Limpiar rango de fechas"
 								>
 									<X className="w-4 h-4" />
 								</Button>
@@ -183,7 +200,7 @@ const FiltersModal: React.FC<FiltersModalProps> = ({
 
 						{showDoctorFilter && (
 							<div className="border rounded-lg p-4 bg-gray-50 dark:bg-gray-800/50">
-								<DoctorFilterPanel cases={cases as any} onFilterChange={onDoctorFilterChange} />
+								<DoctorFilterPanel cases={cases} onFilterChange={onDoctorFilterChange} />
 							</div>
 						)}
 
@@ -252,11 +269,16 @@ const FiltersModal: React.FC<FiltersModalProps> = ({
 									</span>
 								)}
 
-								{startDate && (
+								{(dateRange?.from || dateRange?.to) && (
 									<span className="inline-flex items-center gap-1 px-3 py-1 bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-300 text-sm rounded-full">
-										Fecha: {format(startDate, 'dd/MM/yyyy')}
+										Rango:{' '}
+										{dateRange?.from && dateRange?.to
+											? `${format(dateRange.from, 'dd/MM/yyyy')} - ${format(dateRange.to, 'dd/MM/yyyy')}`
+											: dateRange?.from
+											? `Desde ${format(dateRange.from, 'dd/MM/yyyy')}`
+											: `Hasta ${format(dateRange.to!, 'dd/MM/yyyy')}`}
 										<button
-											onClick={() => onStartDateChange(undefined)}
+											onClick={() => onDateRangeChange(undefined)}
 											className="ml-1 hover:text-purple-600 dark:hover:text-purple-200"
 										>
 											<X className="w-3 h-3" />

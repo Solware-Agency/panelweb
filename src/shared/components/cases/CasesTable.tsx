@@ -1,6 +1,7 @@
 import React, { useState, useMemo, useCallback, useEffect } from 'react'
 import { ChevronUp, ChevronDown, Search, Maximize2 } from 'lucide-react'
 import type { MedicalCaseWithPatient } from '@lib/medical-cases-service'
+import type { DateRange } from 'react-day-picker'
 
 // Tipo unificado que incluye todos los campos necesarios para compatibilidad
 type UnifiedMedicalRecord = MedicalCaseWithPatient
@@ -76,7 +77,7 @@ const CasesTable: React.FC<CasesTableProps> = React.memo(
 		const [searchTerm, setSearchTerm] = useState('')
 		const [statusFilter, setStatusFilter] = useState<string>('all')
 		const [branchFilter, setBranchFilter] = useState<string>('all')
-		const [startDate, setStartDate] = useState<Date | undefined>(undefined)
+		const [dateRange, setDateRange] = useState<DateRange | undefined>(undefined)
 		const [sortField, setSortField] = useState<SortField>('created_at')
 		const [sortDirection, setSortDirection] = useState<SortDirection>('desc')
 		const [selectedCaseForGenerate, setSelectedCaseForGenerate] = useState<UnifiedMedicalRecord | null>(null)
@@ -93,7 +94,7 @@ const CasesTable: React.FC<CasesTableProps> = React.memo(
 		// Filtros temporales para el modal (solo se aplican al hacer clic en "Aplicar Filtros")
 		const [tempStatusFilter, setTempStatusFilter] = useState<string>('all')
 		const [tempBranchFilter, setTempBranchFilter] = useState<string>('all')
-		const [tempStartDate, setTempStartDate] = useState<Date | undefined>(undefined)
+		const [tempDateRange, setTempDateRange] = useState<DateRange | undefined>(undefined)
 		const [tempShowPdfReadyOnly, setTempShowPdfReadyOnly] = useState(false)
 		const [tempSelectedDoctors, setTempSelectedDoctors] = useState<string[]>([])
 
@@ -151,18 +152,18 @@ const CasesTable: React.FC<CasesTableProps> = React.memo(
 		// Reset pagination when filters change
 		useEffect(() => {
 			setCurrentPage(1)
-		}, [statusFilter, branchFilter, showPdfReadyOnly, selectedDoctors, searchTerm, startDate])
+		}, [statusFilter, branchFilter, showPdfReadyOnly, selectedDoctors, searchTerm, dateRange])
 
 		// Sync temp filters with current filters when modal opens
 		useEffect(() => {
 			if (isFiltersModalOpen) {
 				setTempStatusFilter(statusFilter)
 				setTempBranchFilter(branchFilter)
-				setTempStartDate(startDate)
+				setTempDateRange(dateRange)
 				setTempShowPdfReadyOnly(showPdfReadyOnly)
 				setTempSelectedDoctors(selectedDoctors)
 			}
-		}, [isFiltersModalOpen, statusFilter, branchFilter, startDate, showPdfReadyOnly, selectedDoctors])
+		}, [isFiltersModalOpen, statusFilter, branchFilter, dateRange, showPdfReadyOnly, selectedDoctors])
 
 		// Determine if user can edit, delete, or generate cases based on role
 		// const canGenerate = profile?.role === 'owner' || profile?.role === 'admin'
@@ -261,14 +262,14 @@ const CasesTable: React.FC<CasesTableProps> = React.memo(
 		const handleClearAllFilters = useCallback(() => {
 			setStatusFilter('all')
 			setBranchFilter('all')
-			setStartDate(undefined)
+			setDateRange(undefined)
 			setShowPdfReadyOnly(false)
 			setSelectedDoctors([])
 			setSearchTerm('')
 			// También limpiar los filtros temporales
 			setTempStatusFilter('all')
 			setTempBranchFilter('all')
-			setTempStartDate(undefined)
+			setTempDateRange(undefined)
 			setTempShowPdfReadyOnly(false)
 			setTempSelectedDoctors([])
 		}, [])
@@ -277,10 +278,10 @@ const CasesTable: React.FC<CasesTableProps> = React.memo(
 		const handleApplyFilters = useCallback(() => {
 			setStatusFilter(tempStatusFilter)
 			setBranchFilter(tempBranchFilter)
-			setStartDate(tempStartDate)
+			setDateRange(tempDateRange)
 			setShowPdfReadyOnly(tempShowPdfReadyOnly)
 			setSelectedDoctors(tempSelectedDoctors)
-		}, [tempStatusFilter, tempBranchFilter, tempStartDate, tempShowPdfReadyOnly, tempSelectedDoctors])
+		}, [tempStatusFilter, tempBranchFilter, tempDateRange, tempShowPdfReadyOnly, tempSelectedDoctors])
 
 		// Handle temp filter changes
 		const handleTempStatusFilterChange = useCallback((value: string) => {
@@ -291,8 +292,8 @@ const CasesTable: React.FC<CasesTableProps> = React.memo(
 			setTempBranchFilter(value)
 		}, [])
 
-		const handleTempStartDateChange = useCallback((date: Date | undefined) => {
-			setTempStartDate(date)
+		const handleTempDateRangeChange = useCallback((range: DateRange | undefined) => {
+			setTempDateRange(range)
 		}, [])
 
 		const handleTempPdfFilterToggle = useCallback(() => {
@@ -382,9 +383,9 @@ const CasesTable: React.FC<CasesTableProps> = React.memo(
 					}
 				}
 
-				// Date filter (comparing only calendar dates robustly)
+				// Date range filter (comparing only calendar dates robustly)
 				let matchesDate = true
-				if (startDate) {
+				if (dateRange?.from || dateRange?.to) {
 					// Helper to format a Date object in local YYYY-MM-DD
 					const formatLocalYmd = (date: Date) => {
 						const year = date.getFullYear()
@@ -392,8 +393,6 @@ const CasesTable: React.FC<CasesTableProps> = React.memo(
 						const day = String(date.getDate()).padStart(2, '0')
 						return `${year}-${month}-${day}`
 					}
-
-					const selectedDateStr = formatLocalYmd(startDate)
 
 					// Derive created date string in LOCAL calendar date.
 					// - If DB gives a date-only (YYYY-MM-DD), use it as-is (no TZ shift).
@@ -417,7 +416,25 @@ const CasesTable: React.FC<CasesTableProps> = React.memo(
 						}
 					}
 
-					matchesDate = createdDateStr === selectedDateStr
+					if (createdDateStr) {
+						// Check if date is within range
+						if (dateRange.from && dateRange.to) {
+							// Both from and to dates selected - check if within range
+							const fromStr = formatLocalYmd(dateRange.from)
+							const toStr = formatLocalYmd(dateRange.to)
+							matchesDate = createdDateStr >= fromStr && createdDateStr <= toStr
+						} else if (dateRange.from) {
+							// Only from date selected - check if date is >= from
+							const fromStr = formatLocalYmd(dateRange.from)
+							matchesDate = createdDateStr >= fromStr
+						} else if (dateRange.to) {
+							// Only to date selected - check if date is <= to
+							const toStr = formatLocalYmd(dateRange.to)
+							matchesDate = createdDateStr <= toStr
+						}
+					} else {
+						matchesDate = false
+					}
 				}
 
 				// Local search filter (only if onSearch is not provided)
@@ -481,7 +498,7 @@ const CasesTable: React.FC<CasesTableProps> = React.memo(
 			searchTerm,
 			onSearch,
 			selectedDoctors,
-			startDate,
+			dateRange,
 		])
 
 		// Paginación
@@ -600,8 +617,8 @@ const CasesTable: React.FC<CasesTableProps> = React.memo(
 									onStatusFilterChange={handleTempStatusFilterChange}
 									branchFilter={tempBranchFilter}
 									onBranchFilterChange={handleTempBranchFilterChange}
-									startDate={tempStartDate}
-									onStartDateChange={handleTempStartDateChange}
+									dateRange={tempDateRange}
+									onDateRangeChange={handleTempDateRangeChange}
 									showPdfReadyOnly={tempShowPdfReadyOnly}
 									onPdfFilterToggle={handleTempPdfFilterToggle}
 									selectedDoctors={tempSelectedDoctors}
@@ -866,8 +883,8 @@ const CasesTable: React.FC<CasesTableProps> = React.memo(
 									onStatusFilterChange={handleTempStatusFilterChange}
 									branchFilter={tempBranchFilter}
 									onBranchFilterChange={handleTempBranchFilterChange}
-									startDate={tempStartDate}
-									onStartDateChange={handleTempStartDateChange}
+									dateRange={tempDateRange}
+									onDateRangeChange={handleTempDateRangeChange}
 									showPdfReadyOnly={tempShowPdfReadyOnly}
 									onPdfFilterToggle={handleTempPdfFilterToggle}
 									selectedDoctors={tempSelectedDoctors}

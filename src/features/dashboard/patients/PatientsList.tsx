@@ -290,7 +290,7 @@ const PatientsList: React.FC<PatientsListProps> = React.memo(
 												<div className="flex items-center">
 													<Calendar className="h-3 w-3 text-gray-400 mr-1 flex-shrink-0" />
 													<span className="text-gray-600 dark:text-gray-300 text-xs">
-														{patient.edad ? `${patient.edad} años` : 'Edad no disponible'}
+														{patient.edad ? `${patient.edad}` : 'Edad no disponible'}
 													</span>
 												</div>
 											</div>

@@ -179,7 +179,7 @@ export const PatientDataSection = memo(({ control, inputStyles }: PatientDataSec
 									<FormLabel className="text-transparent">Unidad</FormLabel>
 									<FormControl>
 										<FormDropdown
-											options={createDropdownOptions(['Meses', 'Años'])}
+											options={createDropdownOptions(['MESES', 'AÑOS'])}
 											value={field.value}
 											onChange={field.onChange}
 											placeholder="Unidad"

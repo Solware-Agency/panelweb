@@ -97,6 +97,7 @@ export function MedicalFormContainer() {
 	// Memoize the submit handler to prevent unnecessary re-renders
 	const onSubmit = useCallback(
 		async (data: FormValues) => {
+			console.log('🚀 onSubmit ejecutándose con datos:', data)
 			setIsSubmitting(true)
 
 			try {
@@ -173,6 +174,37 @@ export function MedicalFormContainer() {
 		[exchangeRate, form, toast, setUsdValue, setVesValue, setVesInputValue, setUsdFromVes],
 	)
 
+	// Handler para errores de validación del formulario
+	const onError = useCallback(
+		(errors: any) => {
+			console.log('❌ Errores de validación del formulario:', errors)
+			toast({
+				title: '❌ Error de validación',
+				description: 'Por favor, revisa los campos marcados en rojo y completa todos los campos requeridos.',
+				variant: 'destructive',
+			})
+		},
+		[toast],
+	)
+
+	// Handler directo para debuggear el botón
+	const handleButtonClick = useCallback(
+		(e: React.MouseEvent) => {
+			console.log('🖱️ Botón clickeado!', e)
+			console.log('📊 Estado del formulario:', {
+				isSubmitting,
+				isSubmitted,
+				formErrors: form.formState.errors,
+				isValid: form.formState.isValid,
+				isDirty: form.formState.isDirty,
+			})
+
+			// Forzar el submit del formulario
+			form.handleSubmit(onSubmit, onError)()
+		},
+		[form, onSubmit, onError, isSubmitting, isSubmitted],
+	)
+
 	// Memoize the clear form handler to prevent unnecessary re-renders
 	const handleClearForm = useCallback(() => {
 		form.reset(getInitialFormValues())
@@ -245,7 +277,7 @@ export function MedicalFormContainer() {
 					</div>
 				</div>
 				<Form {...form}>
-					<form onSubmit={form.handleSubmit(onSubmit)} className="space-y-3 sm:space-y-4 md:space-y-6">
+					<form onSubmit={form.handleSubmit(onSubmit, onError)} className="space-y-3 sm:space-y-4 md:space-y-6">
 						<PatientDataSection control={formControl} inputStyles={inputStyles} />
 						<ServiceSection control={formControl} inputStyles={inputStyles} />
 						<PaymentSection
@@ -275,7 +307,8 @@ export function MedicalFormContainer() {
 							</Button>
 						) : (
 							<Button
-								type="submit"
+								type="button"
+								onClick={handleButtonClick}
 								className="w-full font-bold text-sm sm:text-base py-1.5 sm:py-2 bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white transition-transform duration-300 transform hover:-translate-y-1"
 								disabled={isSubmitting}
 							>
