@@ -80,7 +80,7 @@ export const PaymentHeader = memo(({ control, inputStyles, exchangeRate, isLoadi
 				name="totalAmount"
 				render={({ field }) => (
 					<FormItem className="w-full">
-						<FormLabel className="text-sm sm:text-base">Monto Total ($)</FormLabel>
+						<FormLabel className="text-sm sm:text-base">Monto Total $</FormLabel>
 						<FormControl>
 							{(() => {
 								const calculatorHandler = createCalculatorInputHandler(field.value || 0, field.onChange)

@@ -212,10 +212,11 @@ const PatientHistoryModal: React.FC<PatientHistoryModalProps> = ({ isOpen, onClo
 												{patient.email && (
 													<a
 														href={`mailto:${patient.email}`}
-														className="flex items-center gap-1 text-sm w-full sm:w-auto justify-start px-3 py-1.5 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200 cursor-pointer"
+														className="flex items-center gap-2 px-3 py-1.5 rounded-lg hover:bg-green-50 dark:hover:bg-blue-900/20 hover:text-blue-600 transition-all duration-200 cursor-pointer group w-full sm:w-auto justify-start"
+															title="Enviar mensaje por correo"
 													>
-														<Mail className="h-4 w-4 text-gray-500" />
-														<span>{patient.email}</span>
+														<Mail className="h-4 w-4 text-gray-500 group-hover:text-blue-600 transition-colors duration-200" />
+														<span className="text-sm font-medium">{patient.email}</span>
 													</a>
 												)}
 											</div>
