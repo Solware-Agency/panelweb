@@ -184,6 +184,7 @@ export const PatientDataSection = memo(({ control, inputStyles }: PatientDataSec
 											onChange={field.onChange}
 											placeholder="Unidad"
 											className={inputStyles + ' transition-none'}
+											id="patient-age-unit"
 										/>
 									</FormControl>
 								</FormItem>

@@ -142,6 +142,8 @@ const InfoRow: React.FC<InfoRowProps> = React.memo(
 				{isEditableField ? (
 					<div className="sm:w-1/2">
 						<Input
+							id={`${field}-input`}
+							name={field}
 							type={type}
 							value={String(displayValue ?? '')}
 							onChange={(e) => onChange?.(field!, e.target.value)}
@@ -1503,6 +1505,8 @@ const UnifiedCaseModal: React.FC<CaseDetailPanelProps> = React.memo(({ case_, is
 														return (
 															<>
 																<Input
+																	id="edad-input"
+																	name="edad"
 																	type="number"
 																	placeholder="0"
 																	value={ageValue === '' ? '' : ageValue}
@@ -1518,6 +1522,8 @@ const UnifiedCaseModal: React.FC<CaseDetailPanelProps> = React.memo(({ case_, is
 																	className="text-sm border-dashed focus:border-primary focus:ring-primary bg-gray-50 dark:bg-gray-800/50"
 																/>
 																<CustomDropdown
+																	id="edad-unit-dropdown"
+																	name="edad-unit"
 																	options={createDropdownOptions(['Meses', 'Años'])}
 																	value={ageUnit || 'AÑOS'}
 																	onChange={(newUnit) => {
@@ -1596,6 +1602,8 @@ const UnifiedCaseModal: React.FC<CaseDetailPanelProps> = React.memo(({ case_, is
 											{isEditing ? (
 												<div className="sm:w-1/2">
 													<AutocompleteInput
+														id="treating-doctor-input"
+														name="treating_doctor"
 														fieldName="treatingDoctor"
 														placeholder="Nombre del Médico"
 														value={editedCase.treating_doctor || currentCase.treating_doctor || ''}
@@ -1621,6 +1629,8 @@ const UnifiedCaseModal: React.FC<CaseDetailPanelProps> = React.memo(({ case_, is
 											{isEditing ? (
 												<div className="sm:w-1/2">
 													<AutocompleteInput
+														id="origin-input"
+														name="origin"
 														fieldName="origin"
 														placeholder="Hospital o Clínica"
 														value={editedCase.origin || currentCase.origin || ''}
@@ -1667,6 +1677,8 @@ const UnifiedCaseModal: React.FC<CaseDetailPanelProps> = React.memo(({ case_, is
 											{isEditing ? (
 												<div className="sm:w-1/2">
 													<AutocompleteInput
+														id="sample-type-input"
+														name="sample_type"
 														fieldName="sampleType"
 														placeholder="Ej: Biopsia de Piel"
 														value={editedCase.sample_type || currentCase.sample_type || ''}
@@ -1693,6 +1705,8 @@ const UnifiedCaseModal: React.FC<CaseDetailPanelProps> = React.memo(({ case_, is
 												<div className="sm:w-1/2">
 													{/* Note: number_of_samples not in current new structure, can be added if needed */}
 													<Input
+														id="number-of-samples-input"
+														name="number_of_samples"
 														type="number"
 														placeholder="1"
 														value="1"
@@ -1734,6 +1748,8 @@ const UnifiedCaseModal: React.FC<CaseDetailPanelProps> = React.memo(({ case_, is
 															<div className="flex flex-col gap-1 w-full">
 																<div className="w-full">
 																	<Input
+																		id="total-amount-input"
+																		name="total_amount"
 																		type="text"
 																		inputMode="decimal"
 																		placeholder={calculatorHandler.placeholder}
@@ -1788,6 +1804,8 @@ const UnifiedCaseModal: React.FC<CaseDetailPanelProps> = React.memo(({ case_, is
 														return (
 															<>
 																<Input
+																	id="converter-usd-input"
+																	name="converter_usd"
 																	type="text"
 																	inputMode="decimal"
 																	placeholder="0,00"
@@ -1936,6 +1954,7 @@ const UnifiedCaseModal: React.FC<CaseDetailPanelProps> = React.memo(({ case_, is
 																				onChange={(value) => handlePaymentMethodChange(index, 'method', value)}
 																				placeholder="Método"
 																				className="text-xs border-dashed focus:border-primary focus:ring-primary"
+																				id={`case-payment-method-${index}`}
 																			/>
 																			{(() => {
 																				const calculatorHandler = createCalculatorInputHandlerWithCurrency(
@@ -1949,6 +1968,8 @@ const UnifiedCaseModal: React.FC<CaseDetailPanelProps> = React.memo(({ case_, is
 																					<div className="flex flex-col gap-1 w-full">
 																						<div className="w-full">
 																							<Input
+																								id={`case-payment-amount-${index}`}
+																								name={`payment_amount_${index + 1}`}
 																								type="text"
 																								inputMode="decimal"
 																								placeholder={calculatorHandler.placeholder}
@@ -1970,6 +1991,8 @@ const UnifiedCaseModal: React.FC<CaseDetailPanelProps> = React.memo(({ case_, is
 																				)
 																			})()}
 																			<Input
+																				id={`case-payment-reference-${index}`}
+																				name={`payment_reference_${index + 1}`}
 																				placeholder="Referencia"
 																				value={payment.reference}
 																				onChange={(e) => handlePaymentMethodChange(index, 'reference', e.target.value)}
@@ -2046,6 +2069,7 @@ const UnifiedCaseModal: React.FC<CaseDetailPanelProps> = React.memo(({ case_, is
 																onChange={(value) => setNewPaymentMethod({ ...newPaymentMethod, method: value })}
 																placeholder="Método"
 																className="text-xs border-dashed focus:border-primary focus:ring-primary"
+																id="new-payment-method"
 															/>
 															{(() => {
 																const calculatorHandler = createCalculatorInputHandlerWithCurrency(
@@ -2059,6 +2083,8 @@ const UnifiedCaseModal: React.FC<CaseDetailPanelProps> = React.memo(({ case_, is
 																	<div className="flex flex-col gap-1 w-full">
 																		<div className="w-full">
 																			<Input
+																				id="new-payment-amount"
+																				name="new_payment_amount"
 																				type="text"
 																				inputMode="decimal"
 																				placeholder={calculatorHandler.placeholder}
@@ -2080,6 +2106,8 @@ const UnifiedCaseModal: React.FC<CaseDetailPanelProps> = React.memo(({ case_, is
 																)
 															})()}
 															<Input
+																id="new-payment-reference"
+																name="new_payment_reference"
 																placeholder="Referencia"
 																value={newPaymentMethod.reference}
 																onChange={(e) =>
@@ -2112,6 +2140,8 @@ const UnifiedCaseModal: React.FC<CaseDetailPanelProps> = React.memo(({ case_, is
 											<span className="text-sm font-medium text-gray-600 dark:text-gray-400">Comentarios:</span>
 											{isEditing ? (
 												<Textarea
+													id="comments-textarea"
+													name="comments"
 													value={editedCase.comments || ''}
 													onChange={(e) => handleInputChange('comments', e.target.value)}
 													className="mt-1 w-full min-h-[100px] text-sm border-dashed focus:border-primary focus:ring-primary bg-gray-50 dark:bg-gray-800/50"

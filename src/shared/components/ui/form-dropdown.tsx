@@ -11,6 +11,7 @@ interface FormDropdownProps {
 	onChange?: (value: string) => void
 	defaultValue?: string
 	'data-testid'?: string
+	id?: string
 }
 
 /**
@@ -18,7 +19,7 @@ interface FormDropdownProps {
  * Compatible con react-hook-form y con animaciones verticales suaves
  */
 const FormDropdown = forwardRef<HTMLDivElement, FormDropdownProps>(
-	({ options, value, onChange, className, ...props }, ref) => {
+	({ options, value, onChange, className, id, ...props }, ref) => {
 		return (
 			<CustomDropdown
 				ref={ref}
@@ -26,6 +27,7 @@ const FormDropdown = forwardRef<HTMLDivElement, FormDropdownProps>(
 				value={value}
 				onChange={onChange}
 				className={cn('transition-transform duration-300 focus:border-primary focus:ring-primary', className)}
+				id={id}
 				{...props}
 			/>
 		)
