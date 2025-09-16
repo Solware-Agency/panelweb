@@ -45,7 +45,7 @@ export interface MedicalCaseWithPatient {
 	comentario: string | null
 	pdf_en_ready: boolean | null
 	attachment_url: string | null
-	doc_aprobado: 'faltante' | 'pendiente' | 'aprobado' | null
+	doc_aprobado: 'faltante' | 'pendiente' | 'aprobado' | 'rechazado' | null
 	generated_by: string | null
 	version: number | null
 	// Campos de patients

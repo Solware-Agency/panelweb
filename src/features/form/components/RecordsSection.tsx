@@ -87,7 +87,9 @@ export const RecordsSection: React.FC<RecordsSectionProps> = ({
 	const [showPendingOnly, setShowPendingOnly] = useState(false)
 	const [selectedExamType, setSelectedExamType] = useState<string | null>(null)
 	const [showPdfReadyOnly, setShowPdfReadyOnly] = useState(false)
-	const [selectedDocAprobado, setSelectedDocAprobado] = useState<'faltante' | 'pendiente' | 'aprobado' | null>(null)
+	const [selectedDocAprobado, setSelectedDocAprobado] = useState<
+		'faltante' | 'pendiente' | 'aprobado' | 'rechazado' | null
+	>(null)
 
 	// Filter cases by assigned branch if user has an assigned branch
 	const filteredCases = useMemo(() => {
@@ -218,7 +220,7 @@ export const RecordsSection: React.FC<RecordsSectionProps> = ({
 
 	// Toggle doc_aprobado filter
 	const handleDocAprobadoFilter = useCallback(
-		(status: 'faltante' | 'pendiente' | 'aprobado') => {
+		(status: 'faltante' | 'pendiente' | 'aprobado' | 'rechazado' | null) => {
 			if (selectedDocAprobado === status) {
 				setSelectedDocAprobado(null)
 			} else {
@@ -303,17 +305,18 @@ export const RecordsSection: React.FC<RecordsSectionProps> = ({
 
 	// Counts by doc_aprobado status
 	const docAprobadoCounts = useMemo(() => {
-		const counts: Record<'faltante' | 'pendiente' | 'aprobado', number> = {
+		const counts: Record<'faltante' | 'pendiente' | 'aprobado' | 'rechazado', number> = {
 			faltante: 0,
 			pendiente: 0,
 			aprobado: 0,
+			rechazado: 0,
 		}
 
 		if (cases) {
 			cases.forEach((record) => {
 				const raw = record.doc_aprobado as string | undefined | null
 				const status = (raw ? String(raw) : 'faltante').toLowerCase().trim()
-				if (status === 'faltante' || status === 'pendiente' || status === 'aprobado') {
+				if (status === 'faltante' || status === 'pendiente' || status === 'aprobado' || status === 'rechazado') {
 					counts[status] += 1
 				}
 			})
@@ -515,17 +518,17 @@ export const RecordsSection: React.FC<RecordsSectionProps> = ({
 							</div>
 						</div>
 
-						<div className="space-y-2">
+						<div className="grid grid-cols-2 gap-2 h-full">
 							{/* Faltante */}
 							<div
-								className={`flex items-center justify-between p-2 rounded-lg border transition-transform duration-200 cursor-pointer hover:bg-accent ${
+								className={`flex justify-between p-2 rounded-lg border transition-transform duration-200 cursor-pointer hover:bg-accent ${
 									selectedDocAprobado === 'faltante'
 										? 'border-primary bg-primary/10'
 										: 'border-border hover:border-primary/50'
 								}`}
 								onClick={() => handleDocAprobadoFilter('faltante')}
 							>
-								<div className="flex items-center gap-2">
+								<div className="flex gap-2">
 									<FileText className="h-3 w-3 text-red-500" />
 									<span className="text-xs font-medium">Faltante</span>
 								</div>
@@ -546,6 +549,22 @@ export const RecordsSection: React.FC<RecordsSectionProps> = ({
 									<span className="text-xs font-medium">Pendiente</span>
 								</div>
 								<span className="text-sm font-bold">{docAprobadoCounts['pendiente'] || 0}</span>
+							</div>
+
+							{/* Rechazado */}
+							<div
+								className={`flex items-center justify-between p-2 rounded-lg border transition-transform duration-200 cursor-pointer hover:bg-accent ${
+									selectedDocAprobado === 'rechazado'
+										? 'border-primary bg-primary/10'
+										: 'border-border hover:border-primary/50'
+								}`}
+								onClick={() => handleDocAprobadoFilter('rechazado')}
+							>
+								<div className="flex items-center gap-2">
+									<FileText className="h-3 w-3 text-orange-500" />
+									<span className="text-xs font-medium">Rechazado</span>
+								</div>
+								<span className="text-sm font-bold">{docAprobadoCounts['rechazado'] || 0}</span>
 							</div>
 
 							{/* Aprobado */}

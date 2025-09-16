@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { Button } from '@shared/components/ui/button'
 import { supabase } from '@lib/supabase/config'
 import { X, User, ArrowLeft, ArrowRight, Sparkles, Heart, Shredder, FileCheck, Download } from 'lucide-react'
-import { markCaseAsPending, approveCaseDocument } from '@lib/supabase/services/cases'
+import { markCaseAsPending, approveCaseDocument, rejectCaseDocument } from '@lib/supabase/services/cases'
 import { useToast } from '@shared/hooks/use-toast'
 import { useBodyScrollLock } from '@shared/hooks/useBodyScrollLock'
 import { useGlobalOverlayOpen } from '@shared/hooks/useGlobalOverlayOpen'
@@ -27,7 +27,7 @@ interface MedicalRecord {
 	informe_qr?: string | null
 	code?: string | null
 	pdf_en_ready?: boolean | null
-	doc_aprobado?: 'faltante' | 'pendiente' | 'aprobado'
+	doc_aprobado?: 'faltante' | 'pendiente' | 'aprobado' | 'rechazado'
 }
 
 interface StepsCaseModalProps {
@@ -74,10 +74,48 @@ const StepsCaseModal: React.FC<StepsCaseModalProps> = ({ case_, isOpen, onClose,
 
 	const isOwner = profile?.role === 'owner'
 
-	const [docAprobado, setDocAprobado] = useState<'faltante' | 'pendiente' | 'aprobado'>(
+	const [docAprobado, setDocAprobado] = useState<'faltante' | 'pendiente' | 'aprobado' | 'rechazado'>(
 		case_?.doc_aprobado ?? 'faltante',
 	)
 	const [docUrl, setDocUrl] = useState<string | null>(case_?.googledocs_url ?? null)
+
+	// Construir los pasos dinámicamente: si es owner, agregamos "Aprobar" antes del PDF; el PDF siempre es el último
+	const computedSteps = useMemo(() => {
+		const stepsList = [...baseSteps]
+		if (isOwner) {
+			stepsList.push({
+				id: 'approve',
+				title: 'Autorizar',
+				icon: FileCheck,
+				description: 'Aprobar Documento',
+			})
+		}
+		stepsList.push(pdfStep)
+		return stepsList
+	}, [isOwner])
+
+	// Función para determinar el paso inicial basado en el estado del documento
+	const getInitialStep = () => {
+		if (docAprobado === 'aprobado') {
+			// Si el documento está aprobado, ir directamente al paso del PDF
+			return computedSteps.length - 1
+		}
+		if (isOwner && docAprobado === 'pendiente') {
+			// Si el usuario es owner y el caso está pendiente, ir directamente al paso de autorizar
+			return computedSteps.findIndex((step) => step.id === 'approve')
+		}
+
+		if (!isOwner && docAprobado === 'pendiente') {
+			// Si el usuario no es owner y el caso está pendiente, ir directamente al paso de PDF
+			return computedSteps.findIndex((step) => step.id === 'pdf')
+		}
+
+		if (!isOwner && docAprobado === 'rechazado') {
+			// Si el usuario no es owner y el caso está rechazado, ir directamente al paso de Datos
+			return computedSteps.findIndex((step) => step.id === 'patient')
+		}
+		return 0
+	}
 
 	// Sincronizar estado inicial al abrir el modal
 	useEffect(() => {
@@ -95,20 +133,13 @@ const StepsCaseModal: React.FC<StepsCaseModalProps> = ({ case_, isOpen, onClose,
 		})()
 	}, [isOpen, case_?.id])
 
-	// Construir los pasos dinámicamente: si es owner, agregamos "Aprobar" antes del PDF; el PDF siempre es el último
-	const computedSteps = useMemo(() => {
-		const stepsList = [...baseSteps]
-		if (isOwner) {
-			stepsList.push({
-				id: 'approve',
-				title: 'Autorizar',
-				icon: FileCheck,
-				description: 'Aprobar Documento',
-			})
+	// Actualizar el paso activo cuando el modal se abra y el documento esté aprobado
+	useEffect(() => {
+		if (isOpen) {
+			const initialStep = getInitialStep()
+			setActiveStep(initialStep)
 		}
-		stepsList.push(pdfStep)
-		return stepsList
-	}, [isOwner])
+	}, [isOpen, docAprobado, computedSteps.length])
 
 	const handleNext = () => {
 		if (activeStep < computedSteps.length - 1) {
@@ -367,20 +398,20 @@ const StepsCaseModal: React.FC<StepsCaseModalProps> = ({ case_, isOpen, onClose,
 		}
 	}
 
-	const handleRevertToPending = async () => {
+	const handleReject = async () => {
 		if (!case_?.id) {
 			toast({ title: '❌ Error', description: 'No se encontró el ID del caso.', variant: 'destructive' })
 			return
 		}
 		try {
 			setIsSaving(true)
-			const { error } = await markCaseAsPending(case_.id)
+			const { error } = await rejectCaseDocument(case_.id)
 			if (error) throw error
-			setDocAprobado('pendiente')
-			toast({ title: '↩️ Devuelto a pendiente', description: 'El documento vuelve a estado pendiente.' })
+			setDocAprobado('rechazado')
+			toast({ title: '✅ Documento rechazado', description: 'El documento ha sido rechazado.' })
 		} catch (err) {
-			console.error('Error devolviendo a pendiente:', err)
-			toast({ title: '❌ Error', description: 'No se pudo devolver a pendiente.', variant: 'destructive' })
+			console.error('Error rechazando documento:', err)
+			toast({ title: '❌ Error', description: 'No se pudo rechazar el documento.', variant: 'destructive' })
 		} finally {
 			setIsSaving(false)
 		}
@@ -638,7 +669,7 @@ const StepsCaseModal: React.FC<StepsCaseModalProps> = ({ case_, isOpen, onClose,
 										type="button"
 										className="flex-1 bg-primary hover:bg-primary/80"
 										onClick={handleMarkAsCompleted}
-										disabled={isSaving || docAprobado !== 'faltante' || !docUrl}
+										disabled={isSaving || (docAprobado != 'faltante' && docAprobado !== 'rechazado') || !docUrl}
 									>
 										<Shredder className="w-4 h-4 mr-2" />
 										Marcar como Completado
@@ -682,19 +713,19 @@ const StepsCaseModal: React.FC<StepsCaseModalProps> = ({ case_, isOpen, onClose,
 										type="button"
 										className="flex-1 bg-primary hover:bg-primary/80"
 										onClick={handleApprove}
-										disabled={isSaving || docAprobado !== 'pendiente'}
+										disabled={isSaving || docAprobado === 'aprobado'}
 									>
 										<FileCheck className="w-4 h-4 mr-2" />
-										Marcar como Aprobado
+										Aprobar
 									</Button>
 									<Button
 										type="button"
 										className="flex-1 bg-primary hover:bg-primary/80"
-										onClick={handleRevertToPending}
-										disabled={isSaving || docAprobado !== 'aprobado'}
+										onClick={handleReject}
+										disabled={isSaving || docAprobado === 'rechazado'}
 									>
 										<Shredder className="w-4 h-4 mr-2" />
-										Devolver a Pendiente
+										Rechazar
 									</Button>
 								</div>
 							</div>
@@ -821,7 +852,11 @@ const StepsCaseModal: React.FC<StepsCaseModalProps> = ({ case_, isOpen, onClose,
 									{computedSteps.map((step, index) => {
 										const Icon = step.icon
 										const isActive = index === activeStep
-										const isCompleted = index < activeStep
+										// Si el documento está aprobado y estamos en el paso del PDF, marcar todos los pasos anteriores como completados
+										const isCompleted =
+											docAprobado === 'aprobado' && activeStep === computedSteps.length - 1
+												? index < activeStep
+												: index < activeStep
 
 										return (
 											<div key={step.id} className="flex items-center justify-center flex-1 last-of-type:flex-none">
@@ -854,7 +889,7 @@ const StepsCaseModal: React.FC<StepsCaseModalProps> = ({ case_, isOpen, onClose,
 												{index < computedSteps.length - 1 && (
 													<div
 														className={`flex-1 h-0.5 mx-2 transition-none duration-300 ${
-															index < activeStep ? 'bg-green-500' : 'bg-gray-300 dark:bg-gray-600'
+															isCompleted ? 'bg-green-500' : 'bg-gray-300 dark:bg-gray-600'
 														}`}
 													/>
 												)}

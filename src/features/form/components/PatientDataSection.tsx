@@ -52,41 +52,13 @@ export const PatientDataSection = memo(({ control, inputStyles }: PatientDataSec
 				</CardTitle>
 			</CardHeader>
 			<CardContent className="p-3 sm:p-4 pt-0 sm:pt-0 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-3">
-				{/* Nombre Completo - CON AUTOCOMPLETADO */}
-				<FormField
-					control={control}
-					name="fullName"
-					render={({ field }) => (
-						<FormItem className="flex flex-col">
-								<FormLabel>Nombre Completo *</FormLabel>
-							<FormControl>
-								<AutocompleteInput
-									fieldName="fullName"
-									placeholder="Nombre y Apellido"
-									iconRight={<User className="h-4 w-4 text-muted-foreground" />}
-									{...field}
-									onChange={(e) => {
-										const { value } = e.target
-										if (/^[A-Za-zÑñÁáÉéÍíÓóÚúÜü\s]*$/.test(value)) {
-											field.onChange(e)
-										}
-									}}
-									className={inputStyles + ' transition-none'}
-								/>
-							</FormControl>
-							{/* Espaciador invisible para mantener altura consistente con el párrafo de cédula */}
-							<div className="min-h-[32px] sm:min-h-[36px]"></div>
-						</FormItem>
-					)}
-				/>
-
 				{/* Cédula - CON AUTOCOMPLETADO Y AUTOFILL */}
 				<FormField
 					control={control}
 					name="idNumber"
 					render={({ field }) => (
 						<FormItem className="flex flex-col">
-								<FormLabel>Cédula *</FormLabel>
+							<FormLabel>Cédula *</FormLabel>
 							<FormControl>
 								<AutocompleteInput
 									fieldName="idNumber"
@@ -110,13 +82,41 @@ export const PatientDataSection = memo(({ control, inputStyles }: PatientDataSec
 					)}
 				/>
 
+				{/* Nombre Completo - CON AUTOCOMPLETADO */}
+				<FormField
+					control={control}
+					name="fullName"
+					render={({ field }) => (
+						<FormItem className="flex flex-col">
+							<FormLabel>Nombre Completo *</FormLabel>
+							<FormControl>
+								<AutocompleteInput
+									fieldName="fullName"
+									placeholder="Nombre y Apellido"
+									iconRight={<User className="h-4 w-4 text-muted-foreground" />}
+									{...field}
+									onChange={(e) => {
+										const { value } = e.target
+										if (/^[A-Za-zÑñÁáÉéÍíÓóÚúÜü\s]*$/.test(value)) {
+											field.onChange(e)
+										}
+									}}
+									className={inputStyles + ' transition-none'}
+								/>
+							</FormControl>
+							{/* Espaciador invisible para mantener altura consistente con el párrafo de cédula */}
+							<div className="min-h-[32px] sm:min-h-[36px]"></div>
+						</FormItem>
+					)}
+				/>
+
 				{/* Teléfono - CON AUTOCOMPLETADO */}
 				<FormField
 					control={control}
 					name="phone"
 					render={({ field }) => (
 						<FormItem className="flex flex-col">
-								<FormLabel>Teléfono *</FormLabel>
+							<FormLabel>Teléfono *</FormLabel>
 							<FormControl>
 								<AutocompleteInput
 									fieldName="phone"
@@ -179,7 +179,7 @@ export const PatientDataSection = memo(({ control, inputStyles }: PatientDataSec
 									<FormLabel className="text-transparent">Unidad</FormLabel>
 									<FormControl>
 										<FormDropdown
-											options={createDropdownOptions(['MESES', 'AÑOS'])}
+											options={createDropdownOptions(['Meses', 'Años'])}
 											value={field.value}
 											onChange={field.onChange}
 											placeholder="Unidad"
