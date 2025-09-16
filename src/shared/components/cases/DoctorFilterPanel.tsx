@@ -5,10 +5,10 @@ import { Checkbox } from '@shared/components/ui/checkbox'
 import { Label } from '@shared/components/ui/label'
 import { Input } from '@shared/components/ui/input'
 import { Button } from '@shared/components/ui/button'
-import type { MedicalRecord } from '@lib/supabase-service'
+import type { MedicalCaseWithPatient } from '@lib/medical-cases-service'
 
 interface DoctorFilterPanelProps {
-	cases: MedicalRecord[]
+	cases: MedicalCaseWithPatient[]
 	onFilterChange: (selectedDoctors: string[]) => void
 	className?: string
 }

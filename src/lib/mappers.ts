@@ -17,8 +17,8 @@ export const mapToLegacyRecord = (record: MedicalCaseWithPatient): MedicalRecord
 		id_number: record.cedula,
 		phone: record.telefono,
 		email: record.patient_email,
-		edad: record.edad ? `${record.edad} años` : null,
-		edad_display: record.edad ? `${record.edad} años` : undefined,
+		edad: record.edad ? `${record.edad}` : null,
+		edad_display: record.edad ? `${record.edad}` : undefined,
 		// Agregar campos faltantes con valores por defecto
 		inmuno: '', // Campo legacy
 		inmunohistoquimica: (record as any).inmunohistoquimica || null,

@@ -1523,8 +1523,7 @@ const UnifiedCaseModal: React.FC<CaseDetailPanelProps> = React.memo(({ case_, is
 																/>
 																<CustomDropdown
 																	id="edad-unit-dropdown"
-																	name="edad-unit"
-																	options={createDropdownOptions(['Meses', 'Años'])}
+																	options={createDropdownOptions(['MESES', 'AÑOS'])}
 																	value={ageUnit || 'AÑOS'}
 																	onChange={(newUnit) => {
 																		const parsedNow = parseEdad(String(editedCase.edad ?? currentCase.edad ?? ''))

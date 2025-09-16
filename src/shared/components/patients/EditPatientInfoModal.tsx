@@ -258,7 +258,7 @@ const EditPatientInfoModal = ({ isOpen, onClose, patient, onSave }: EditPatientI
 															className="text-sm"
 														/>
 														<CustomDropdown
-															options={createDropdownOptions(['Meses', 'Años'])}
+															options={createDropdownOptions(['MESES', 'AÑOS'])}
 															value={edadUnit}
 															onChange={handleEdadUnitChange}
 															placeholder="Unidad"
