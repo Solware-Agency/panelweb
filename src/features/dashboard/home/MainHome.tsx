@@ -185,20 +185,17 @@ function MainHome() {
 										minYear={2020}
 										maxYear={new Date().getFullYear() + 2}
 									/>
-									<span className="flex items-center gap-2 text-xs sm:text-sm text-gray-600 dark:text-gray-400">
-										12 meses de {selectedYear}
-										<Tooltip>
-											<TooltipTrigger>
-												<Info className="size-4" />
-											</TooltipTrigger>
-											<TooltipContent>
-												<p>
-													En esta estadistica puedes dar click sobre la barra del mes al que quieres filtrar y el panel
-													se adaptara y te mostrara los ingresos de ese mes.
-												</p>
-											</TooltipContent>
-										</Tooltip>
-									</span>
+									<Tooltip>
+										<TooltipTrigger>
+											<Info className="size-4 text-gray-600 dark:text-gray-400" />
+										</TooltipTrigger>
+										<TooltipContent>
+											<p>
+												En esta estadistica puedes dar click sobre la barra del mes al que quieres filtrar y el panel
+												se adaptara y te mostrara los ingresos de ese mes.
+											</p>
+										</TooltipContent>
+									</Tooltip>
 								</div>
 							</div>
 							<div className="relative h-14 sm:h-18 md:h-20 lg:h-24 flex items-end justify-between gap-0.5 sm:gap-1 md:gap-2">

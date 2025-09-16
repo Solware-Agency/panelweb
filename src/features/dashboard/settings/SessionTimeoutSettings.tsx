@@ -1,9 +1,10 @@
 import { Card } from '@shared/components/ui/card'
-import { Clock, Shield } from 'lucide-react'
+import { Clock, Shield, Info } from 'lucide-react'
 import { useAuth } from '@app/providers/AuthContext'
 import { SESSION_TIMEOUT_OPTIONS } from '@shared/hooks/useSessionTimeoutSettings'
 import { RadioGroup, RadioGroupItem } from '@shared/components/ui/radio-group'
 import { Label } from '@shared/components/ui/label'
+import { Tooltip, TooltipContent, TooltipTrigger } from '@shared/components/ui/tooltip'
 
 export function SessionTimeoutSettings() {
 	const { sessionTimeout, updateUserTimeout, isLoadingTimeout } = useAuth()
@@ -26,6 +27,14 @@ export function SessionTimeoutSettings() {
 				<div className="flex items-center space-x-3">
 					<Clock className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
 					<h3 className="text-lg font-semibold">Tiempo de inactividad</h3>
+					<Tooltip>
+						<TooltipTrigger>
+							<Info className="size-4 text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300" />
+						</TooltipTrigger>
+						<TooltipContent>
+							<p>Su sesión actual está configurada para expirar después de {formatMinutes(sessionTimeout)} de inactividad.</p>
+						</TooltipContent>
+					</Tooltip>
 				</div>
 
 				<div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -77,16 +86,8 @@ export function SessionTimeoutSettings() {
 								</p>
 							</div>
 
-							{/* Información del tiempo de inactividad */}
+							{/* Notas importantes */}
 							<div className="text-xs text-gray-500 dark:text-gray-400 space-y-2">
-								<div className="bg-gray-50 dark:bg-gray-800/50 p-3 rounded-md">
-									<p className="font-medium text-gray-700 dark:text-gray-300 mb-2">Información actual:</p>
-									<p>
-										• Su sesión actual está configurada para expirar después de {formatMinutes(sessionTimeout)} de
-										inactividad.
-									</p>
-								</div>
-
 								<div className="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-md">
 									<p className="font-medium text-blue-700 dark:text-blue-300 mb-2">Notas importantes:</p>
 									<p className="mb-1">• Los cambios en esta configuración se aplicarán inmediatamente.</p>

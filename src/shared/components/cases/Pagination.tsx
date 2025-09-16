@@ -5,9 +5,6 @@ import { CustomDropdown } from '@shared/components/ui/custom-dropdown'
 interface PaginationProps {
 	currentPage: number
 	totalPages: number
-	startIndex: number
-	endIndex: number
-	totalItems: number
 	itemsPerPage: number
 	pageSizeOptions: { value: string; label: string }[]
 	onItemsPerPageChange: (size: number) => void
@@ -19,9 +16,6 @@ interface PaginationProps {
 const Pagination: React.FC<PaginationProps> = ({
 	currentPage,
 	totalPages,
-	startIndex,
-	endIndex,
-	totalItems,
 	itemsPerPage,
 	pageSizeOptions,
 	onItemsPerPageChange,
@@ -46,9 +40,6 @@ const Pagination: React.FC<PaginationProps> = ({
 
 	return (
 		<div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-4 border-t border-gray-200 dark:border-gray-700">
-			<div className="text-sm text-gray-600 dark:text-gray-400">
-				Mostrando {startIndex + 1}-{Math.min(endIndex, totalItems)} de {totalItems} casos
-			</div>
 			<div className="flex items-center gap-2">
 				<div className="flex items-center gap-2">
 					<span className="text-sm text-gray-600 dark:text-gray-400">Mostrar:</span>

@@ -56,6 +56,32 @@ type ChangeLogData = {
 const ChangelogTable: React.FC = () => {
 	const { toast } = useToast()
 	const queryClient = useQueryClient()
+
+	// Función para traducir nombres de campos en inglés a español
+	const translateFieldLabel = (fieldName: string, fieldLabel: string): string => {
+		// Si el field_label ya está en español, usarlo tal como está
+		if (fieldLabel !== fieldName) {
+			return fieldLabel
+		}
+
+		// Mapeo de campos en inglés a español
+		const translations: Record<string, string> = {
+			payment_method_1: 'Método de Pago 1',
+			payment_amount_1: 'Monto de Pago 1',
+			payment_reference_1: 'Referencia de Pago 1',
+			payment_method_2: 'Método de Pago 2',
+			payment_amount_2: 'Monto de Pago 2',
+			payment_reference_2: 'Referencia de Pago 2',
+			payment_method_3: 'Método de Pago 3',
+			payment_amount_3: 'Monto de Pago 3',
+			payment_reference_3: 'Referencia de Pago 3',
+			payment_method_4: 'Método de Pago 4',
+			payment_amount_4: 'Monto de Pago 4',
+			payment_reference_4: 'Referencia de Pago 4',
+		}
+
+		return translations[fieldName] || fieldLabel
+	}
 	useUserProfile()
 
 	// Realtime subscription for change logs
@@ -471,16 +497,15 @@ const ChangelogTable: React.FC = () => {
 																	Eliminación del registro: {log.old_value}
 																</span>
 															) : (
-																<div className="text-sm">
-																	<p className="font-medium text-gray-900 dark:text-gray-100">{log.field_label}</p>
-																	<div className="flex items-center gap-2 mt-1">
-																		<span className="line-through text-gray-500 dark:text-gray-400">
-																			{log.old_value || '(vacío)'}
-																		</span>
-																		<span className="text-xs">→</span>
-																		<span className="text-green-600 dark:text-green-400">
-																			{log.new_value || '(vacío)'}
-																		</span>
+																<div className="text-sm flex items-start gap-4">
+																	<p className="font-medium text-gray-900 dark:text-gray-100 flex-shrink-0 min-w-0">{translateFieldLabel(log.field_name, log.field_label)}</p>
+																	<div className="flex-1 min-w-0">
+																		<div className="text-xs text-gray-500 dark:text-gray-400">
+																			<span className="line-through">Antes: {log.old_value || '(vacío)'}</span>
+																		</div>
+																		<div className="text-xs text-green-600 dark:text-green-400">
+																			<span>Ahora: {log.new_value || '(vacío)'}</span>
+																		</div>
 																	</div>
 																</div>
 															)}
@@ -571,16 +596,15 @@ const ChangelogTable: React.FC = () => {
 																Eliminación del registro: {log.old_value}
 															</span>
 														) : (
-															<div className="text-sm">
-																<p className="font-medium text-gray-900 dark:text-gray-100">{log.field_label}</p>
-																<div className="flex flex-wrap items-center gap-1 mt-1">
-																	<span className="line-through text-gray-500 dark:text-gray-400 text-xs">
-																		{log.old_value || '(vacío)'}
-																	</span>
-																	<span className="text-xs">→</span>
-																	<span className="text-green-600 dark:text-green-400 text-xs">
-																		{log.new_value || '(vacío)'}
-																	</span>
+															<div className="text-sm flex items-start gap-3">
+																<p className="font-medium text-gray-900 dark:text-gray-100 flex-shrink-0 min-w-0">{translateFieldLabel(log.field_name, log.field_label)}</p>
+																<div className="flex-1 min-w-0">
+																	<div className="text-xs text-gray-500 dark:text-gray-400">
+																		<span className="line-through">Antes: {log.old_value || '(vacío)'}</span>
+																	</div>
+																	<div className="text-xs text-green-600 dark:text-green-400">
+																		<span>Ahora: {log.new_value || '(vacío)'}</span>
+																	</div>
 																</div>
 															</div>
 														)}

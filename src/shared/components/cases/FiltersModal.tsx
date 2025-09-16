@@ -93,7 +93,7 @@ const FiltersModal: React.FC<FiltersModalProps> = ({
 					)}
 				</Button>
 			</DialogTrigger>
-			<DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+			<DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto" style={{ backgroundColor: 'rgba(0, 0, 0, 0.8)', backdropFilter: 'blur(10px)' }}>
 				<DialogHeader>
 					<DialogTitle className="flex items-center gap-2">
 						<Filter className="w-5 h-5" />
@@ -105,18 +105,16 @@ const FiltersModal: React.FC<FiltersModalProps> = ({
 					{/* Status and Branch Filters */}
 					<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 						<div className="space-y-3">
-							<h3 className="text-lg font-medium">Estado de Pago</h3>
 							<CustomDropdown
 								options={statusOptions}
 								value={statusFilter}
-								placeholder="Seleccionar estado"
+								placeholder="Estado de Pago"
 								onChange={onStatusFilterChange}
 								data-testid="status-filter"
 							/>
 						</div>
 
 						<div className="space-y-3">
-							<h3 className="text-lg font-medium">Sede</h3>
 							<CustomDropdown
 								options={branchOptions}
 								value={branchFilter}
@@ -124,6 +122,58 @@ const FiltersModal: React.FC<FiltersModalProps> = ({
 								onChange={onBranchFilterChange}
 								data-testid="branch-filter"
 							/>
+						</div>
+					</div>
+
+					{/* Doctor and PDF Filters - Same line */}
+					<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+						{/* Doctor Filter */}
+						<div className="space-y-3">
+							<Button
+								onClick={() => setShowDoctorFilter(!showDoctorFilter)}
+								variant={showDoctorFilter ? 'default' : 'outline'}
+								className="w-full justify-start"
+							>
+								<Stethoscope className="w-4 h-4 mr-2" />
+								Filtrar por Médico
+							</Button>
+
+							{showDoctorFilter && (
+								<div className="border rounded-lg p-4 bg-gray-50 dark:bg-gray-800/50">
+									<DoctorFilterPanel cases={cases} onFilterChange={onDoctorFilterChange} />
+								</div>
+							)}
+
+							{selectedDoctors.length > 0 && (
+								<div className="flex flex-wrap gap-2">
+									{selectedDoctors.map((doctor) => (
+										<span
+											key={doctor}
+											className="inline-flex items-center gap-1 px-3 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300 text-sm rounded-full"
+										>
+											{doctor}
+											<button
+												onClick={() => onDoctorFilterChange(selectedDoctors.filter((d) => d !== doctor))}
+												className="ml-1 hover:text-blue-600 dark:hover:text-blue-200"
+											>
+												<X className="w-3 h-3" />
+											</button>
+										</span>
+									))}
+								</div>
+							)}
+						</div>
+
+						{/* PDF Ready Filter */}
+						<div className="space-y-3">
+							<Button
+								onClick={onPdfFilterToggle}
+								variant={showPdfReadyOnly ? 'default' : 'outline'}
+								className="w-full justify-start"
+							>
+								<FileText className="w-4 h-4 mr-2" />
+								{showPdfReadyOnly ? 'Mostrando solo PDF disponibles' : 'Mostrar solo PDF disponibles'}
+							</Button>
 						</div>
 					</div>
 
@@ -180,64 +230,6 @@ const FiltersModal: React.FC<FiltersModalProps> = ({
 								</Button>
 							)}
 						</div>
-					</div>
-
-					{/* Doctor Filter */}
-					<div className="space-y-3">
-						<div className="flex items-center justify-between">
-							<h3 className="text-lg font-medium flex items-center gap-2">
-								<Stethoscope className="w-4 h-4" />
-								Filtrar por Médico
-							</h3>
-							<Button
-								onClick={() => setShowDoctorFilter(!showDoctorFilter)}
-								variant={showDoctorFilter ? 'default' : 'outline'}
-								size="sm"
-							>
-								{showDoctorFilter ? 'Ocultar' : 'Mostrar'} Filtros
-							</Button>
-						</div>
-
-						{showDoctorFilter && (
-							<div className="border rounded-lg p-4 bg-gray-50 dark:bg-gray-800/50">
-								<DoctorFilterPanel cases={cases} onFilterChange={onDoctorFilterChange} />
-							</div>
-						)}
-
-						{selectedDoctors.length > 0 && (
-							<div className="flex flex-wrap gap-2">
-								{selectedDoctors.map((doctor) => (
-									<span
-										key={doctor}
-										className="inline-flex items-center gap-1 px-3 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300 text-sm rounded-full"
-									>
-										{doctor}
-										<button
-											onClick={() => onDoctorFilterChange(selectedDoctors.filter((d) => d !== doctor))}
-											className="ml-1 hover:text-blue-600 dark:hover:text-blue-200"
-										>
-											<X className="w-3 h-3" />
-										</button>
-									</span>
-								))}
-							</div>
-						)}
-					</div>
-
-					{/* PDF Ready Filter */}
-					<div className="space-y-3">
-						<h3 className="text-lg font-medium flex items-center gap-2">
-							<FileText className="w-4 h-4" />
-							PDF Disponibles
-						</h3>
-						<Button
-							onClick={onPdfFilterToggle}
-							variant={showPdfReadyOnly ? 'default' : 'outline'}
-							className="w-full justify-start"
-						>
-							<FileText className="w-4 h-4 mr-2" />
-							{showPdfReadyOnly ? 'Mostrando solo PDF disponibles' : 'Mostrar solo PDF disponibles'}
-						</Button>
 					</div>
 
 					{/* Active Filters Summary */}

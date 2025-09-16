@@ -105,25 +105,22 @@ const DoctorFilterPanel: React.FC<DoctorFilterPanelProps> = ({ cases, onFilterCh
 				</Button>
 			</div>
 
-			<div className="max-h-[300px] sm:max-h-[400px] overflow-y-auto pr-2 border border-gray-200 dark:border-gray-700 rounded-md">
+			<div className="max-h-[200px] overflow-y-auto pr-2 border border-gray-200 dark:border-gray-700 rounded-md">
 				{filteredDoctors.length > 0 ? (
-					<div className="grid grid-cols-3 gap-1 sm:gap-2 p-2">
+					<div className="space-y-1 p-2">
 						{filteredDoctors.map((doctor) => (
 							<div
 								key={doctor}
-								className="flex items-center space-x-2 py-1 hover:bg-gray-50 dark:hover:bg-gray-800/50 px-2 rounded-md transition-none text-sm"
+								className="flex items-center space-x-2 py-2 hover:bg-gray-50 dark:hover:bg-gray-800/50 px-2 rounded-md transition-none text-sm"
 							>
 								<Checkbox
 									id={`doctor-${doctor}`}
 									checked={selectedDoctors.includes(doctor)}
 									onCheckedChange={() => handleDoctorToggle(doctor)}
 								/>
-								<Label htmlFor={`doctor-${doctor}`} className="flex-1 cursor-pointer text-sm truncate">
+								<Label htmlFor={`doctor-${doctor}`} className="flex-1 cursor-pointer text-sm">
 									{doctor}
 								</Label>
-								<span className="text-xs text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-800 px-2 py-0.5 rounded-full flex-shrink-0">
-									{cases.filter((c) => c.treating_doctor === doctor).length}
-								</span>
 							</div>
 						))}
 					</div>
