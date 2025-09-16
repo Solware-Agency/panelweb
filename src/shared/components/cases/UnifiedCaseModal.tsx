@@ -757,11 +757,20 @@ const UnifiedCaseModal: React.FC<CaseDetailPanelProps> = React.memo(({ case_, is
 					financialChanges.payment_status = 'Incompleto'
 				}
 
+				// Función helper para formatear métodos de pago con el símbolo correcto
+				const formatPaymentMethod = (method: string, amount: number) => {
+					const isBolivares = ['Punto de venta', 'Pago móvil', 'Bs en efectivo'].includes(method)
+					const symbol = isBolivares ? 'Bs' : '$'
+					return `${method}: ${symbol}${amount}`
+				}
+
 				financialChangeLogs.push({
 					field: 'payment_methods',
 					fieldLabel: 'Métodos de Pago',
-					oldValue: currentPaymentMethods.map((pm) => `${pm.method}: $${pm.amount}`).join(', '),
-					newValue: finalPaymentMethods.map((payment) => `${payment.method}: $${payment.amount}`).join(', '),
+					oldValue: currentPaymentMethods.map((pm) => formatPaymentMethod(pm.method, pm.amount)).join(', '),
+					newValue: finalPaymentMethods
+						.map((payment) => formatPaymentMethod(payment.method, payment.amount))
+						.join(', '),
 				})
 			}
 

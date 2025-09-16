@@ -14,9 +14,10 @@ import {
 	User,
 	ChevronDown,
 	ChevronRight,
-	Folder,
 	Clipboard,
+	Microscope,
 	Brain,
+	FolderSearch,
 } from 'lucide-react'
 import { NavLink, useNavigate } from 'react-router-dom'
 import { useAuth } from '@app/providers/AuthContext'
@@ -314,7 +315,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onClose, isExpanded = false, isMobile
 								/>
 							</div>
 							<NavGroup
-								icon={<Folder className="stroke-2 size-4 sm:size-5 shrink-0" />}
+								icon={<Microscope className="stroke-2 size-4 sm:size-5 shrink-0" />}
 								label="Clínico"
 								showFullContent={showFullContent}
 								isExpanded={expandedGroups.clinical}
@@ -340,7 +341,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onClose, isExpanded = false, isMobile
 								/>
 							</NavGroup>
 							<NavGroup
-								icon={<FileText className="stroke-2 size-4 sm:size-5 shrink-0" />}
+								icon={<FolderSearch className="stroke-2 size-4 sm:size-5 shrink-0" />}
 								label="Análisis"
 								showFullContent={showFullContent}
 								isExpanded={expandedGroups.reports}
