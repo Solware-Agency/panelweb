@@ -55,6 +55,7 @@ export const ServiceSection = memo(({ control, inputStyles }: ServiceSectionProp
 									onChange={field.onChange}
 									placeholder="Seleccione una opción"
 									className={inputStyles}
+									id="service-exam-type"
 								/>
 							</FormControl>
 						</FormItem>

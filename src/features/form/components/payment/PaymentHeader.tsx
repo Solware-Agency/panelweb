@@ -65,6 +65,7 @@ export const PaymentHeader = memo(({ control, inputStyles, exchangeRate, isLoadi
 								placeholder="Seleccione una sede"
 								className={inputStyles}
 								disabled={!!profile?.assigned_branch}
+								id="payment-branch"
 							/>
 						</FormControl>
 						{profile?.assigned_branch && (
