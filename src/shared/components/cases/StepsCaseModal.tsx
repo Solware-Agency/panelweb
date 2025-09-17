@@ -5,7 +5,13 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { Button } from '@shared/components/ui/button'
 import { supabase } from '@lib/supabase/config'
 import { X, User, ArrowLeft, ArrowRight, Sparkles, Heart, Shredder, FileCheck, Download } from 'lucide-react'
-import { markCaseAsPending, approveCaseDocument, rejectCaseDocument } from '@lib/supabase/services/cases'
+import {
+	markCaseAsPending,
+	approveCaseDocument,
+	rejectCaseDocument,
+	positiveCaseDocument,
+	negativeCaseDocument,
+} from '@lib/supabase/services/cases'
 import { useToast } from '@shared/hooks/use-toast'
 import { useBodyScrollLock } from '@shared/hooks/useBodyScrollLock'
 import { useGlobalOverlayOpen } from '@shared/hooks/useGlobalOverlayOpen'
@@ -28,6 +34,7 @@ interface MedicalRecord {
 	code?: string | null
 	pdf_en_ready?: boolean | null
 	doc_aprobado?: 'faltante' | 'pendiente' | 'aprobado' | 'rechazado'
+	cito_status?: 'positivo' | 'negativo' | null // Nueva columna para estado citológico
 }
 
 interface StepsCaseModalProps {
@@ -73,16 +80,31 @@ const StepsCaseModal: React.FC<StepsCaseModalProps> = ({ case_, isOpen, onClose,
 	useGlobalOverlayOpen(isOpen)
 
 	const isOwner = profile?.role === 'owner'
+	const isAdmin = profile?.role === 'admin'
+	const isEmployee = profile?.role === 'employee'
+
+	const isCitology = case_?.exam_type === 'Citología'
 
 	const [docAprobado, setDocAprobado] = useState<'faltante' | 'pendiente' | 'aprobado' | 'rechazado'>(
 		case_?.doc_aprobado ?? 'faltante',
 	)
 	const [docUrl, setDocUrl] = useState<string | null>(case_?.googledocs_url ?? null)
 
+	const [citoStatus, setCitoStatus] = useState<'positivo' | 'negativo' | null>(case_?.cito_status ?? null)
+
 	// Construir los pasos dinámicamente: si es owner, agregamos "Aprobar" antes del PDF; el PDF siempre es el último
 	const computedSteps = useMemo(() => {
 		const stepsList = [...baseSteps]
-		if (isOwner) {
+		if (!isEmployee && isCitology) {
+			stepsList.push({
+				id: 'citology',
+				title: 'Citología',
+				icon: FileCheck,
+				description: 'Aprobar Documento',
+			})
+		}
+
+		if (!isEmployee) {
 			stepsList.push({
 				id: 'approve',
 				title: 'Autorizar',
@@ -100,20 +122,34 @@ const StepsCaseModal: React.FC<StepsCaseModalProps> = ({ case_, isOpen, onClose,
 			// Si el documento está aprobado, ir directamente al paso del PDF
 			return computedSteps.length - 1
 		}
-		if (isOwner && docAprobado === 'pendiente') {
-			// Si el usuario es owner y el caso está pendiente, ir directamente al paso de autorizar
+		if (isOwner && docAprobado === 'pendiente' && isCitology && citoStatus === 'positivo') {
+			// Si el usuario es owner y el caso está pendiente y es citología y es positivo, ir directamente al paso de autorizar
+			return computedSteps.findIndex((step) => step.id === 'approve')
+		}
+		if (isAdmin && docAprobado === 'pendiente' && isCitology && citoStatus === 'negativo') {
+			// Si el usuario es admin y el caso está pendiente y es citología y es negativo, ir directamente al paso de autorizar
+			return computedSteps.findIndex((step) => step.id === 'approve')
+		}
+		if (!isEmployee && docAprobado === 'pendiente' && isCitology) {
+			// Si el usuario no es employee y el caso está pendiente y es citología, ir directamente al paso de citología
+			return computedSteps.findIndex((step) => step.id === 'citology')
+		}
+
+		if (!isEmployee && docAprobado === 'pendiente' && !isCitology) {
+			// Si el usuario no es employee y el caso está pendiente y no es citología, ir directamente al paso de autorizar
 			return computedSteps.findIndex((step) => step.id === 'approve')
 		}
 
-		if (!isOwner && docAprobado === 'pendiente') {
-			// Si el usuario no es owner y el caso está pendiente, ir directamente al paso de PDF
+		if (isEmployee && docAprobado === 'pendiente') {
+			// Si el usuario es employee y el caso está pendiente, ir directamente al paso de PDF
 			return computedSteps.findIndex((step) => step.id === 'pdf')
 		}
 
-		if (!isOwner && docAprobado === 'rechazado') {
-			// Si el usuario no es owner y el caso está rechazado, ir directamente al paso de Datos
+		if (isEmployee && docAprobado === 'rechazado') {
+			// Si el usuario es employee y el caso está rechazado, ir directamente al paso de Datos
 			return computedSteps.findIndex((step) => step.id === 'patient')
 		}
+
 		return 0
 	}
 
@@ -398,6 +434,25 @@ const StepsCaseModal: React.FC<StepsCaseModalProps> = ({ case_, isOpen, onClose,
 		}
 	}
 
+	const handlePositive = async () => {
+		if (!case_?.id) {
+			toast({ title: '❌ Error', description: 'No se encontró el ID del caso.', variant: 'destructive' })
+			return
+		}
+		try {
+			setIsSaving(true)
+			const { error } = await positiveCaseDocument(case_.id)
+			if (error) throw error
+			setCitoStatus('positivo')
+			toast({ title: '✅ Documento positivo' })
+		} catch (err) {
+			console.error('Error positivando documento:', err)
+			toast({ title: '❌ Error', description: 'No se pudo positivar el documento.', variant: 'destructive' })
+		} finally {
+			setIsSaving(false)
+		}
+	}
+
 	const handleReject = async () => {
 		if (!case_?.id) {
 			toast({ title: '❌ Error', description: 'No se encontró el ID del caso.', variant: 'destructive' })
@@ -412,6 +467,25 @@ const StepsCaseModal: React.FC<StepsCaseModalProps> = ({ case_, isOpen, onClose,
 		} catch (err) {
 			console.error('Error rechazando documento:', err)
 			toast({ title: '❌ Error', description: 'No se pudo rechazar el documento.', variant: 'destructive' })
+		} finally {
+			setIsSaving(false)
+		}
+	}
+
+	const handleNegative = async () => {
+		if (!case_?.id) {
+			toast({ title: '❌ Error', description: 'No se encontró el ID del caso.', variant: 'destructive' })
+			return
+		}
+		try {
+			setIsSaving(true)
+			const { error } = await negativeCaseDocument(case_.id)
+			if (error) throw error
+			setCitoStatus('negativo')
+			toast({ title: '✅ Documento negativo' })
+		} catch (err) {
+			console.error('Error negativando documento:', err)
+			toast({ title: '❌ Error', description: 'No se pudo negativizar el documento.', variant: 'destructive' })
 		} finally {
 			setIsSaving(false)
 		}
@@ -686,6 +760,49 @@ const StepsCaseModal: React.FC<StepsCaseModalProps> = ({ case_, isOpen, onClose,
 					</motion.div>
 				)
 
+			case 'citology':
+				return (
+					<motion.div
+						initial={{ opacity: 0, y: 20 }}
+						animate={{ opacity: 1, y: 0 }}
+						exit={{ opacity: 0, y: -20 }}
+						className="space-y-4"
+					>
+						<div className="grid gap-4">
+							{/* Paso exclusivo para OWNER: aprobar documento */}
+							<div className="bg-gradient-to-br from-teal-50 to-cyan-50 dark:from-teal-900/20 dark:to-cyan-900/20 p-4 rounded-lg border border-teal-200 dark:border-teal-800">
+								<div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
+									<Button
+										type="button"
+										className="flex-1 bg-primary hover:bg-primary/80"
+										onClick={handlePositive}
+										disabled={isSaving || citoStatus === 'positivo' || !docUrl}
+									>
+										<FileCheck className="w-4 h-4 mr-2" />
+										Positivo
+									</Button>
+									<Button
+										type="button"
+										className="flex-1 bg-primary hover:bg-primary/80"
+										onClick={handleNegative}
+										disabled={isSaving || citoStatus === 'negativo' || !docUrl}
+									>
+										<Shredder className="w-4 h-4 mr-2" />
+										Negativo
+									</Button>
+								</div>
+							</div>
+							<div className="bg-gradient-to-br from-teal-50 to-cyan-50 dark:from-teal-900/20 dark:to-cyan-900/20 p-4 rounded-lg border border-teal-200 dark:border-teal-800">
+								<p className="text-teal-400 text-sm">
+									{docAprobado === 'faltante'
+										? 'Esperando que se complete el documento'
+										: 'Para completar este paso, revisa el documento y marca como aprobado para habilitar la descarga del PDF.'}
+								</p>
+							</div>
+						</div>
+					</motion.div>
+				)
+
 			case 'approve':
 				return (
 					<motion.div
@@ -703,7 +820,7 @@ const StepsCaseModal: React.FC<StepsCaseModalProps> = ({ case_, isOpen, onClose,
 											type="button"
 											className="flex-1 bg-primary hover:bg-primary/80"
 											onClick={() => window.open(docUrl, '_blank')}
-											disabled={isSaving}
+											disabled={isSaving || !docUrl}
 										>
 											<User className="w-4 h-4 mr-2" />
 											Revisar documento
@@ -713,7 +830,13 @@ const StepsCaseModal: React.FC<StepsCaseModalProps> = ({ case_, isOpen, onClose,
 										type="button"
 										className="flex-1 bg-primary hover:bg-primary/80"
 										onClick={handleApprove}
-										disabled={isSaving || docAprobado === 'aprobado'}
+										disabled={
+											isSaving ||
+											docAprobado === 'aprobado' ||
+											!docUrl ||
+											(isCitology && citoStatus === 'positivo' && isAdmin) ||
+											(isCitology && citoStatus === 'negativo' && isOwner)
+										}
 									>
 										<FileCheck className="w-4 h-4 mr-2" />
 										Aprobar
@@ -722,7 +845,13 @@ const StepsCaseModal: React.FC<StepsCaseModalProps> = ({ case_, isOpen, onClose,
 										type="button"
 										className="flex-1 bg-primary hover:bg-primary/80"
 										onClick={handleReject}
-										disabled={isSaving || docAprobado === 'rechazado'}
+										disabled={
+											isSaving ||
+											docAprobado === 'rechazado' ||
+											!docUrl ||
+											(isCitology && citoStatus === 'positivo' && isAdmin) ||
+											(isCitology && citoStatus === 'negativo' && isOwner)
+										}
 									>
 										<Shredder className="w-4 h-4 mr-2" />
 										Rechazar
@@ -820,7 +949,7 @@ const StepsCaseModal: React.FC<StepsCaseModalProps> = ({ case_, isOpen, onClose,
 						exit={{ opacity: 0, scale: 0.9, y: 20 }}
 						className="fixed inset-0 modal-content flex items-center justify-center p-4 z-[9999999999999999]"
 					>
-						<div className="w-full max-w-2xl bg-white/80 dark:bg-background/50 backdrop-blur-[3px] dark:backdrop-blur-[10px] rounded-2xl shadow-2xl border border-input overflow-hidden">
+						<div className="w-full max-w-3xl bg-white/80 dark:bg-background/50 backdrop-blur-[3px] dark:backdrop-blur-[10px] rounded-2xl shadow-2xl border border-input overflow-hidden">
 							{/* Header */}
 							<div className="bg-background px-6 py-4">
 								<div className="flex items-center justify-between">

@@ -60,6 +60,7 @@ export interface MedicalCase {
 	generated_by_display_name: string | null
 	generated_at: string | null
 	token: string | null
+	cito_status: 'positivo' | 'negativo' | null // Nueva columna para estado citológico
 }
 
 export interface MedicalCaseInsert {
@@ -118,6 +119,7 @@ export interface MedicalCaseInsert {
 	informe_qr?: string | null
 	token?: string | null
 	doc_aprobado?: 'faltante' | 'pendiente' | 'aprobado' | 'rechazado' | undefined
+	cito_status?: 'positivo' | 'negativo' | null // Nueva columna para estado citológico
 }
 
 export interface MedicalCaseUpdate {
@@ -176,6 +178,7 @@ export interface MedicalCaseUpdate {
 	informe_qr?: string | null
 	token?: string | null
 	doc_aprobado?: 'faltante' | 'pendiente' | 'aprobado' | 'rechazado' | undefined
+	cito_status?: 'positivo' | 'negativo' | null // Nueva columna para estado citológico
 }
 
 // Tipo para casos médicos con información del paciente (usando JOIN directo)
@@ -223,6 +226,7 @@ export interface MedicalCaseWithPatient {
 	doc_aprobado: 'faltante' | 'pendiente' | 'aprobado' | 'rechazado' | null
 	generated_by: string | null
 	version: number | null
+	cito_status: 'positivo' | 'negativo' | null // Nueva columna para estado citológico
 	// Campos de patients
 	cedula: string
 	nombre: string
@@ -811,7 +815,8 @@ export const findCaseByCode = async (code: string): Promise<MedicalCaseWithPatie
 	try {
 		const { data, error } = await supabase
 			.from('medical_records_clean')
-			.select(`
+			.select(
+				`
 				*,
 				patients(
 					id,
@@ -821,7 +826,8 @@ export const findCaseByCode = async (code: string): Promise<MedicalCaseWithPatie
 					telefono,
 					email
 				)
-			`)
+			`,
+			)
 			.eq('code', code)
 			.single()
 
@@ -842,6 +848,12 @@ export const findCaseByCode = async (code: string): Promise<MedicalCaseWithPatie
 			telefono: (data as any).patients?.telefono || null,
 			patient_email: (data as any).patients?.email || null,
 			version: (data as any).version || null,
+			// Asegurar que todas las propiedades requeridas estén presentes
+			material_remitido: (data as any).material_remitido || null,
+			informacion_clinica: (data as any).informacion_clinica || null,
+			descripcion_macroscopica: (data as any).descripcion_macroscopica || null,
+			diagnostico: (data as any).diagnostico || null,
+			comentario: (data as any).comentario || null,
 		} as MedicalCaseWithPatient
 
 		return transformedData
