@@ -102,6 +102,10 @@ const MainUsers: React.FC = () => {
 						email_confirmed_at: undefined, // Placeholder
 						last_sign_in_at: undefined, // Placeholder
 						password: '********', // Contraseña simulada para demostración
+						role: profile.role as 'owner' | 'employee' | 'admin', // Asegurar que el tipo sea correcto
+						created_at: profile.created_at || new Date().toISOString(), // Asegurar que created_at no sea null
+						updated_at: profile.updated_at || new Date().toISOString(), // Asegurar que updated_at no sea null
+						estado: (profile.estado as 'pendiente' | 'aprobado') || undefined, // Asegurar que el tipo sea correcto
 					})) || []
 
 				return usersWithPasswords

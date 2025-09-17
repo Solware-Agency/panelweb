@@ -48,6 +48,7 @@ export interface MedicalCaseWithPatient {
 	doc_aprobado: 'faltante' | 'pendiente' | 'aprobado' | 'rechazado' | null
 	generated_by: string | null
 	version: number | null
+	cito_status: 'positivo' | 'negativo' | null // Nueva columna para estado citológico
 	// Campos de patients
 	cedula: string
 	nombre: string

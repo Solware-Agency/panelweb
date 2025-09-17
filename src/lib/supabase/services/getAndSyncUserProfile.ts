@@ -50,5 +50,11 @@ export const getAndSyncUserProfile = async (userId: string, userMeta: any): Prom
 		console.log('[🔄] Display name synced')
 	}
 
-	return profile
+	return {
+		...profile,
+		role: profile.role as 'owner' | 'employee' | 'admin',
+		created_at: profile.created_at || new Date().toISOString(),
+		updated_at: profile.updated_at || new Date().toISOString(),
+		estado: (profile.estado as 'pendiente' | 'aprobado') || undefined,
+	}
 }
