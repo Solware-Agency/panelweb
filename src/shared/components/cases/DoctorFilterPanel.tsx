@@ -11,9 +11,10 @@ interface DoctorFilterPanelProps {
 	cases: MedicalCaseWithPatient[]
 	onFilterChange: (selectedDoctors: string[]) => void
 	className?: string
+	filters?: boolean
 }
 
-const DoctorFilterPanel: React.FC<DoctorFilterPanelProps> = ({ cases, onFilterChange, className }) => {
+const DoctorFilterPanel: React.FC<DoctorFilterPanelProps> = ({ cases, onFilterChange, className, filters }) => {
 	const [selectedDoctors, setSelectedDoctors] = useState<string[]>([])
 	const [searchTerm, setSearchTerm] = useState('')
 
@@ -68,12 +69,14 @@ const DoctorFilterPanel: React.FC<DoctorFilterPanelProps> = ({ cases, onFilterCh
 	}, [selectedDoctors, onFilterChange])
 
 	return (
-		<Card className={`p-3 sm:p-4 ${className} mt-4`}>
+		<Card className={`p-3 sm:p-4 ${className}`}>
 			<div className="flex items-center justify-between mb-3 sm:mb-4">
-				<div className="flex items-center gap-2">
-					<Stethoscope className="h-5 w-5 text-primary" />
-					<h3 className="font-medium text-base sm:text-lg">Filtrar por Médico</h3>
-				</div>
+				{!filters && (
+					<div className="flex items-center gap-2">
+						<Stethoscope className="h-5 w-5 text-primary" />
+						<h3 className="font-medium text-base sm:text-lg">Filtrar por Médico</h3>
+					</div>
+				)}
 				{selectedDoctors.length > 0 && (
 					<Button variant="ghost" size="sm" onClick={handleClearFilters} className="text-xs">
 						<X className="h-3 w-3 mr-1" />

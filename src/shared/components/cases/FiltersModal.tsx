@@ -139,28 +139,7 @@ const FiltersModal: React.FC<FiltersModalProps> = ({
 							</Button>
 
 							{showDoctorFilter && (
-								<div className="border rounded-lg p-4 bg-gray-50 dark:bg-gray-800/50">
-									<DoctorFilterPanel cases={cases} onFilterChange={onDoctorFilterChange} />
-								</div>
-							)}
-
-							{selectedDoctors.length > 0 && (
-								<div className="flex flex-wrap gap-2">
-									{selectedDoctors.map((doctor) => (
-										<span
-											key={doctor}
-											className="inline-flex items-center gap-1 px-3 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300 text-sm rounded-full"
-										>
-											{doctor}
-											<button
-												onClick={() => onDoctorFilterChange(selectedDoctors.filter((d) => d !== doctor))}
-												className="ml-1 hover:text-blue-600 dark:hover:text-blue-200"
-											>
-												<X className="w-3 h-3" />
-											</button>
-										</span>
-									))}
-								</div>
+									<DoctorFilterPanel cases={cases} onFilterChange={onDoctorFilterChange} filters={true} />
 							)}
 						</div>
 
