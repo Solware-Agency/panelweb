@@ -432,13 +432,13 @@ const Sidebar: React.FC<SidebarProps> = ({ onClose, isExpanded = false, isMobile
 								showFullContent={showFullContent}
 								onClick={onClose}
 							/>
-							<NavItem
+							{/* <NavItem
 								to="/medic/my-cases"
 								icon={<FolderInput className="stroke-2 size-5 shrink-0" />}
 								label="Mis Casos"
 								showFullContent={showFullContent}
 								onClick={onClose}
-							/>
+							/> */}
 							<NavItem
 								to="/medic/users"
 								icon={<Users className="stroke-2 size-5 shrink-0" />}
