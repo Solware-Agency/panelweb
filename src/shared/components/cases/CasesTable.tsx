@@ -91,12 +91,18 @@ const CasesTable: React.FC<CasesTableProps> = React.memo(
 		const [shouldUpdateSelectedCase, setShouldUpdateSelectedCase] = useState(false)
 		const [isFiltersModalOpen, setIsFiltersModalOpen] = useState(false)
 
+		// Filtros de citología
+		const [citologyPositiveFilter, setCitologyPositiveFilter] = useState(false)
+		const [citologyNegativeFilter, setCitologyNegativeFilter] = useState(false)
+
 		// Filtros temporales para el modal (solo se aplican al hacer clic en "Aplicar Filtros")
 		const [tempStatusFilter, setTempStatusFilter] = useState<string>('all')
 		const [tempBranchFilter, setTempBranchFilter] = useState<string>('all')
 		const [tempDateRange, setTempDateRange] = useState<DateRange | undefined>(undefined)
 		const [tempShowPdfReadyOnly, setTempShowPdfReadyOnly] = useState(false)
 		const [tempSelectedDoctors, setTempSelectedDoctors] = useState<string[]>([])
+		const [tempCitologyPositiveFilter, setTempCitologyPositiveFilter] = useState(false)
+		const [tempCitologyNegativeFilter, setTempCitologyNegativeFilter] = useState(false)
 
 		// Paginación
 		const [currentPage, setCurrentPage] = useState(1)
@@ -152,7 +158,16 @@ const CasesTable: React.FC<CasesTableProps> = React.memo(
 		// Reset pagination when filters change
 		useEffect(() => {
 			setCurrentPage(1)
-		}, [statusFilter, branchFilter, showPdfReadyOnly, selectedDoctors, searchTerm, dateRange])
+		}, [
+			statusFilter,
+			branchFilter,
+			showPdfReadyOnly,
+			selectedDoctors,
+			searchTerm,
+			dateRange,
+			citologyPositiveFilter,
+			citologyNegativeFilter,
+		])
 
 		// Sync temp filters with current filters when modal opens
 		useEffect(() => {
@@ -162,8 +177,19 @@ const CasesTable: React.FC<CasesTableProps> = React.memo(
 				setTempDateRange(dateRange)
 				setTempShowPdfReadyOnly(showPdfReadyOnly)
 				setTempSelectedDoctors(selectedDoctors)
+				setTempCitologyPositiveFilter(citologyPositiveFilter)
+				setTempCitologyNegativeFilter(citologyNegativeFilter)
 			}
-		}, [isFiltersModalOpen, statusFilter, branchFilter, dateRange, showPdfReadyOnly, selectedDoctors])
+		}, [
+			isFiltersModalOpen,
+			statusFilter,
+			branchFilter,
+			dateRange,
+			showPdfReadyOnly,
+			selectedDoctors,
+			citologyPositiveFilter,
+			citologyNegativeFilter,
+		])
 
 		// Determine if user can edit, delete, or generate cases based on role
 		// const canGenerate = profile?.role === 'owner' || profile?.role === 'admin'
@@ -265,6 +291,8 @@ const CasesTable: React.FC<CasesTableProps> = React.memo(
 			setDateRange(undefined)
 			setShowPdfReadyOnly(false)
 			setSelectedDoctors([])
+			setCitologyPositiveFilter(false)
+			setCitologyNegativeFilter(false)
 			setSearchTerm('')
 			// También limpiar los filtros temporales
 			setTempStatusFilter('all')
@@ -272,6 +300,8 @@ const CasesTable: React.FC<CasesTableProps> = React.memo(
 			setTempDateRange(undefined)
 			setTempShowPdfReadyOnly(false)
 			setTempSelectedDoctors([])
+			setTempCitologyPositiveFilter(false)
+			setTempCitologyNegativeFilter(false)
 		}, [])
 
 		// Handle apply filters from modal
@@ -281,7 +311,17 @@ const CasesTable: React.FC<CasesTableProps> = React.memo(
 			setDateRange(tempDateRange)
 			setShowPdfReadyOnly(tempShowPdfReadyOnly)
 			setSelectedDoctors(tempSelectedDoctors)
-		}, [tempStatusFilter, tempBranchFilter, tempDateRange, tempShowPdfReadyOnly, tempSelectedDoctors])
+			setCitologyPositiveFilter(tempCitologyPositiveFilter)
+			setCitologyNegativeFilter(tempCitologyNegativeFilter)
+		}, [
+			tempStatusFilter,
+			tempBranchFilter,
+			tempDateRange,
+			tempShowPdfReadyOnly,
+			tempSelectedDoctors,
+			tempCitologyPositiveFilter,
+			tempCitologyNegativeFilter,
+		])
 
 		// Handle temp filter changes
 		const handleTempStatusFilterChange = useCallback((value: string) => {
@@ -303,6 +343,14 @@ const CasesTable: React.FC<CasesTableProps> = React.memo(
 		const handleTempDoctorFilterChange = useCallback((doctors: string[]) => {
 			setTempSelectedDoctors(doctors)
 		}, [])
+
+		const handleTempCitologyPositiveFilterToggle = useCallback(() => {
+			setTempCitologyPositiveFilter(!tempCitologyPositiveFilter)
+		}, [tempCitologyPositiveFilter])
+
+		const handleTempCitologyNegativeFilterToggle = useCallback(() => {
+			setTempCitologyNegativeFilter(!tempCitologyNegativeFilter)
+		}, [tempCitologyNegativeFilter])
 
 		const handleCaseSelect = useCallback(
 			(case_: UnifiedMedicalRecord) => {
@@ -331,6 +379,8 @@ const CasesTable: React.FC<CasesTableProps> = React.memo(
 				branchFilter !== 'all' ||
 				showPdfReadyOnly ||
 				selectedDoctors.length > 0 ||
+				citologyPositiveFilter ||
+				citologyNegativeFilter ||
 				(searchTerm && searchTerm.trim() !== '') ||
 				(onSearch && searchTerm && searchTerm.trim() !== '')
 
@@ -450,6 +500,20 @@ const CasesTable: React.FC<CasesTableProps> = React.memo(
 						(case_.exam_type?.toLowerCase() || '').includes(searchLower)
 				}
 
+				// Citology filters
+				let matchesCitology = true
+				if (citologyPositiveFilter || citologyNegativeFilter) {
+					const citoEstatus = case_.cito_status
+					if (citologyPositiveFilter && citologyNegativeFilter) {
+						// Si ambos filtros están activos, mostrar todos los casos con cito_estatus
+						matchesCitology = citoEstatus === 'positivo' || citoEstatus === 'negativo'
+					} else if (citologyPositiveFilter) {
+						matchesCitology = citoEstatus === 'positivo'
+					} else if (citologyNegativeFilter) {
+						matchesCitology = citoEstatus === 'negativo'
+					}
+				}
+
 				return (
 					matchesStatus &&
 					matchesBranch &&
@@ -457,7 +521,8 @@ const CasesTable: React.FC<CasesTableProps> = React.memo(
 					matchesPdfReady &&
 					matchesDate &&
 					matchesSearch &&
-					matchesDoctor
+					matchesDoctor &&
+					matchesCitology
 				)
 			})
 
@@ -499,6 +564,8 @@ const CasesTable: React.FC<CasesTableProps> = React.memo(
 			onSearch,
 			selectedDoctors,
 			dateRange,
+			citologyPositiveFilter,
+			citologyNegativeFilter,
 		])
 
 		// Paginación
@@ -623,6 +690,10 @@ const CasesTable: React.FC<CasesTableProps> = React.memo(
 									onPdfFilterToggle={handleTempPdfFilterToggle}
 									selectedDoctors={tempSelectedDoctors}
 									onDoctorFilterChange={handleTempDoctorFilterChange}
+									citologyPositiveFilter={tempCitologyPositiveFilter}
+									onCitologyPositiveFilterToggle={handleTempCitologyPositiveFilterToggle}
+									citologyNegativeFilter={tempCitologyNegativeFilter}
+									onCitologyNegativeFilterToggle={handleTempCitologyNegativeFilterToggle}
 									statusOptions={statusOptions}
 									branchOptions={branchOptions}
 									cases={cases}
@@ -886,6 +957,10 @@ const CasesTable: React.FC<CasesTableProps> = React.memo(
 									onPdfFilterToggle={handleTempPdfFilterToggle}
 									selectedDoctors={tempSelectedDoctors}
 									onDoctorFilterChange={handleTempDoctorFilterChange}
+									citologyPositiveFilter={tempCitologyPositiveFilter}
+									onCitologyPositiveFilterToggle={handleTempCitologyPositiveFilterToggle}
+									citologyNegativeFilter={tempCitologyNegativeFilter}
+									onCitologyNegativeFilterToggle={handleTempCitologyNegativeFilterToggle}
 									statusOptions={statusOptions}
 									branchOptions={branchOptions}
 									cases={cases}
