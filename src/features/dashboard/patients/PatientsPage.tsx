@@ -1,7 +1,6 @@
 import React, { useState, useCallback, useEffect } from 'react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { getPatients } from '@lib/patients-service'
-import { Search } from 'lucide-react'
 import { Input } from '@shared/components/ui/input'
 import PatientsList from './PatientsList'
 import { supabase } from '@lib/supabase/config'
@@ -77,13 +76,11 @@ const PatientsPage: React.FC = React.memo(() => {
 			{/* Barra de búsqueda y estadísticas */}
 			<div className="mb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
 				<div className="relative max-w-md flex-1">
-					<Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
 					<Input
 						type="text"
 						placeholder="Buscar por nombre, cédula o teléfono..."
 						value={searchTerm}
 						onChange={handleSearchChange}
-						className="pl-10"
 					/>
 				</div>
 

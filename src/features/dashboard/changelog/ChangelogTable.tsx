@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import {
 	History,
-	Search,
 	Filter,
 	Calendar,
 	FileText,
@@ -289,13 +288,11 @@ const ChangelogTable: React.FC = () => {
 				<div className="flex flex-col sm:flex-row gap-4">
 					{/* Search */}
 					<div className="flex-1 relative">
-						<Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
 						<Input
 							type="text"
 							placeholder="Buscar por usuario, caso, acción..."
 							value={searchTerm}
 							onChange={(e) => setSearchTerm(e.target.value)}
-							className="pl-10"
 						/>
 					</div>
 
