@@ -3,7 +3,6 @@ import {
 	Users,
 	Mail,
 	Calendar,
-	Search,
 	Crown,
 	Briefcase,
 	MapPin,
@@ -530,13 +529,11 @@ const MainUsers: React.FC = () => {
 						<div className="flex items-center gap-3 flex-shrink-0">
 							{/* Búsqueda */}
 							<div className="relative w-56">
-								<Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
 								<Input
 									type="text"
 									placeholder="Buscar usuarios..."
 									value={searchTerm}
 									onChange={(e) => setSearchTerm(e.target.value)}
-									className="pl-10"
 								/>
 							</div>
 
