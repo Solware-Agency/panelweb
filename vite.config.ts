@@ -42,5 +42,17 @@ export default defineConfig(({ mode }) => ({
 		rollupOptions: {
 			output: {},
 		},
+		// Eliminar console.log en builds (producción)
+		minify: 'terser',
+		terserOptions: {
+			compress: {
+				drop_console: true,
+				drop_debugger: true,
+			},
+		},
+	},
+	// Definir variables de entorno para el cliente
+	define: {
+		__DEV__: mode === 'development',
 	},
 }))
