@@ -11,14 +11,14 @@ import type { ChangeLog } from '@lib/supabase-service'
 import type { Patient } from '@lib/patients-service'
 
 // Helper to parse edad string like "10 AÑOS" or "5 MESES"
-function parseEdad(edad: string | null | undefined): { value: number | ''; unit: 'AÑOS' | 'MESES' | '' } {
+function parseEdad(edad: string | null | undefined): { value: number | ''; unit: 'Años' | 'Meses' | '' } {
 	if (!edad) return { value: '', unit: '' }
 	const match = String(edad)
 		.trim()
 		.match(/^(\d+)\s*(AÑOS|MESES)$/i)
 	if (!match) return { value: '', unit: '' }
 	const value = Number(match[1])
-	const unit = match[2].toUpperCase() as 'AÑOS' | 'MESES'
+	const unit = match[2].toUpperCase() === 'AÑOS' ? 'Años' : 'Meses'
 	return { value: Number.isNaN(value) ? '' : value, unit }
 }
 
@@ -44,7 +44,7 @@ const EditPatientInfoModal = ({ isOpen, onClose, patient, onSave }: EditPatientI
 	})
 
 	const [edadValue, setEdadValue] = useState(initialEdad.value)
-	const [edadUnit, setEdadUnit] = useState<'AÑOS' | 'MESES'>(initialEdad.unit || 'AÑOS')
+	const [edadUnit, setEdadUnit] = useState<'Años' | 'Meses'>(initialEdad.unit || 'Años')
 
 	const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		const { name, value } = e.target
@@ -59,7 +59,7 @@ const EditPatientInfoModal = ({ isOpen, onClose, patient, onSave }: EditPatientI
 	}
 
 	const handleEdadUnitChange = (unit: string) => {
-		const newUnit = unit as 'AÑOS' | 'MESES'
+		const newUnit = unit as 'Años' | 'Meses'
 		setEdadUnit(newUnit)
 		// Update formData.edad with the combined string
 		const newEdad = edadValue === '' ? '' : `${edadValue} ${newUnit}`
@@ -258,7 +258,7 @@ const EditPatientInfoModal = ({ isOpen, onClose, patient, onSave }: EditPatientI
 															className="text-sm"
 														/>
 														<CustomDropdown
-															options={createDropdownOptions(['MESES', 'AÑOS'])}
+															options={createDropdownOptions(['Meses', 'Años'])}
 															value={edadUnit}
 															onChange={handleEdadUnitChange}
 															placeholder="Unidad"

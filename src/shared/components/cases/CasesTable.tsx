@@ -654,268 +654,330 @@ const CasesTable: React.FC<CasesTableProps> = React.memo(
 		// Fullscreen view
 		if (isFullscreen) {
 			return (
-				<div className="fixed inset-0 z-[999999] bg-white dark:bg-background h-screen flex flex-col overflow-hidden">
-					{/* Fixed Header with Controls */}
-					<div className="flex-shrink-0 p-3 sm:p-6 border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-background">
-						<div className="flex flex-wrap items-center gap-2 sm:gap-4">
-							{/* Search and Filters Row */}
-							<div className="flex flex-col sm:flex-row gap-2 sm:gap-4 flex-1">
-								{/* Search - Acortada */}
-								<div className="w-full sm:max-w-md relative flex-1">
-									<Input
-										type="text"
-										placeholder="Buscar por nombre, código, cédula, estudio o médico..."
-										value={searchTerm}
-										onChange={handleSearchChange}
-										onKeyDown={handleSearchKeyDown}
+				<>
+					<div className="fixed inset-0 z-[999999] bg-white dark:bg-background h-screen flex flex-col overflow-hidden">
+						{/* Fixed Header with Controls */}
+						<div className="flex-shrink-0 p-3 sm:p-6 border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-background">
+							<div className="flex flex-wrap items-center gap-2 sm:gap-4">
+								{/* Search and Filters Row */}
+								<div className="flex flex-col sm:flex-row gap-2 sm:gap-4 flex-1">
+									{/* Search - Acortada */}
+									<div className="w-full sm:max-w-md relative flex-1">
+										<Input
+											type="text"
+											placeholder="Buscar por nombre, código, cédula, estudio o médico..."
+											value={searchTerm}
+											onChange={handleSearchChange}
+											onKeyDown={handleSearchKeyDown}
+										/>
+										{isSearching && (
+											<div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+												<div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary"></div>
+											</div>
+										)}
+									</div>
+
+									{/* Unified Filters Modal */}
+									<FiltersModal
+										isOpen={isFiltersModalOpen}
+										onOpenChange={setIsFiltersModalOpen}
+										statusFilter={tempStatusFilter}
+										onStatusFilterChange={handleTempStatusFilterChange}
+										branchFilter={tempBranchFilter}
+										onBranchFilterChange={handleTempBranchFilterChange}
+										dateRange={tempDateRange}
+										onDateRangeChange={handleTempDateRangeChange}
+										showPdfReadyOnly={tempShowPdfReadyOnly}
+										onPdfFilterToggle={handleTempPdfFilterToggle}
+										selectedDoctors={tempSelectedDoctors}
+										onDoctorFilterChange={handleTempDoctorFilterChange}
+										citologyPositiveFilter={tempCitologyPositiveFilter}
+										onCitologyPositiveFilterToggle={handleTempCitologyPositiveFilterToggle}
+										citologyNegativeFilter={tempCitologyNegativeFilter}
+										onCitologyNegativeFilterToggle={handleTempCitologyNegativeFilterToggle}
+										statusOptions={statusOptions}
+										branchOptions={branchOptions}
+										cases={cases}
+										onApplyFilters={handleApplyFilters}
+										onClearAllFilters={handleClearAllFilters}
 									/>
-									{isSearching && (
-										<div className="absolute right-3 top-1/2 transform -translate-y-1/2">
-											<div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary"></div>
+								</div>
+
+								{/* Results count */}
+								<div className="text-sm text-gray-600 dark:text-gray-400 hidden sm:block"></div>
+
+								{/* Close button */}
+								<button
+									onClick={() => setIsFullscreen(false)}
+									className="text-gray-500 dark:text-gray-300 hover:text-red-500 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 text-sm border px-2 sm:px-3 py-1 rounded-md ml-auto sm:ml-0 transition-all duration-200 mr-8"
+								>
+									<span className="hidden sm:inline">Cerrar</span> ✕
+								</button>
+							</div>
+						</div>
+
+						{/* Scrollable Content Area */}
+						<div className="flex-1 overflow-hidden">
+							{/* Mobile View - Cards */}
+							<div className="block lg:hidden h-full overflow-y-auto px-3 py-4">
+								<div className="p-2 sm:p-4 space-y-3 max-h-[45vh] overflow-y-auto">
+									{paginatedCases.length > 0 ? (
+										paginatedCases.map((case_) => (
+											<CaseCard
+												key={case_.id}
+												case_={case_}
+												onView={handleCaseSelect}
+												onGenerate={handleGenerateEmployeeCase}
+												onReactions={handleGenerateCase}
+												canRequest={canRequest}
+											/>
+										))
+									) : (
+										<div className="text-center py-12">
+											<div className="text-gray-500 dark:text-gray-400">
+												<Search className="w-12 h-12 mx-auto mb-4 opacity-50" />
+												<p className="text-lg font-medium">No se encontraron casos</p>
+												<p className="text-sm">Intenta ajustar los filtros de búsqueda</p>
+											</div>
 										</div>
 									)}
 								</div>
-
-								{/* Unified Filters Modal */}
-								<FiltersModal
-									isOpen={isFiltersModalOpen}
-									onOpenChange={setIsFiltersModalOpen}
-									statusFilter={tempStatusFilter}
-									onStatusFilterChange={handleTempStatusFilterChange}
-									branchFilter={tempBranchFilter}
-									onBranchFilterChange={handleTempBranchFilterChange}
-									dateRange={tempDateRange}
-									onDateRangeChange={handleTempDateRangeChange}
-									showPdfReadyOnly={tempShowPdfReadyOnly}
-									onPdfFilterToggle={handleTempPdfFilterToggle}
-									selectedDoctors={tempSelectedDoctors}
-									onDoctorFilterChange={handleTempDoctorFilterChange}
-									citologyPositiveFilter={tempCitologyPositiveFilter}
-									onCitologyPositiveFilterToggle={handleTempCitologyPositiveFilterToggle}
-									citologyNegativeFilter={tempCitologyNegativeFilter}
-									onCitologyNegativeFilterToggle={handleTempCitologyNegativeFilterToggle}
-									statusOptions={statusOptions}
-									branchOptions={branchOptions}
-									cases={cases}
-									onApplyFilters={handleApplyFilters}
-									onClearAllFilters={handleClearAllFilters}
-								/>
 							</div>
 
-							{/* Results count */}
-							<div className="text-sm text-gray-600 dark:text-gray-400 hidden sm:block"></div>
+							{/* Desktop View - Table with virtualization */}
+							<div className="hidden lg:block h-full overflow-y-auto">
+								<table className="w-full responsive-table">
+									<thead className="bg-gray-50/50 dark:bg-background/50 backdrop-blur-[10px] sticky top-0 z-[1000]">
+										<tr>
+											<th className="px-4 py-3 text-left">
+												<button
+													onClick={() => handleSort('code')}
+													className="flex items-center gap-2 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider hover:text-gray-700 dark:hover:text-gray-200 text-left"
+												>
+													Código / Estatus
+													<SortIcon field="code" />
+												</button>
+											</th>
+											<th className="px-4 py-3 text-left">
+												<button
+													onClick={() => handleSort('created_at')}
+													className="flex items-center gap-2 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider hover:text-gray-700 dark:hover:text-gray-200 text-left"
+												>
+													Fecha de Registro
+													<SortIcon field="created_at" />
+												</button>
+											</th>
+											<th className="px-4 py-3 text-left">
+												<button
+													onClick={() => handleSort('nombre')}
+													className="flex items-center gap-2 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider hover:text-gray-700 dark:hover:text-gray-200 text-left"
+												>
+													Paciente
+													<SortIcon field="nombre" />
+												</button>
+											</th>
+											<th className="px-3 py-3 text-center">
+												<span className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+													Sede
+												</span>
+											</th>
+											<th className="px-4 py-3 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider text-center">
+												Estudio
+											</th>
+											<th className="px-4 py-3 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider text-left">
+												Médico Tratante
+											</th>
+											<th className="px-4 py-3 text-left">
+												<button
+													onClick={() => handleSort('total_amount')}
+													className="flex items-center gap-2 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider hover:text-gray-700 dark:hover:text-gray-200 text-left"
+												>
+													Monto Total
+													<SortIcon field="total_amount" />
+												</button>
+											</th>
+											<th className="px-4 py-3 text-center">
+												<span className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+													Opciones
+												</span>
+											</th>
+										</tr>
+									</thead>
+									<tbody className="divide-y divide-gray-200 dark:divide-gray-700">
+										{paginatedCases.length > 0 ? (
+											// Render paginated cases
+											paginatedCases.map((case_) => {
+												const ageDisplay = case_.edad || ''
 
-							{/* Close button */}
-							<button
-								onClick={() => setIsFullscreen(false)}
-								className="text-gray-500 dark:text-gray-300 hover:text-red-500 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 text-sm border px-2 sm:px-3 py-1 rounded-md ml-auto sm:ml-0 transition-all duration-200 mr-8"
-							>
-								<span className="hidden sm:inline">Cerrar</span> ✕
-							</button>
-						</div>
-					</div>
-
-					{/* Scrollable Content Area */}
-					<div className="flex-1 overflow-hidden">
-						{/* Mobile View - Cards */}
-						<div className="block lg:hidden h-full overflow-y-auto px-3 py-4">
-							<div className="p-2 sm:p-4 space-y-3 max-h-[45vh] overflow-y-auto">
-								{paginatedCases.length > 0 ? (
-									paginatedCases.map((case_) => (
-										<CaseCard
-											key={case_.id}
-											case_={case_}
-											onView={handleCaseSelect}
-											onGenerate={handleGenerateEmployeeCase}
-											onReactions={handleGenerateCase}
-											canRequest={canRequest}
-										/>
-									))
-								) : (
-									<div className="text-center py-12">
-										<div className="text-gray-500 dark:text-gray-400">
-											<Search className="w-12 h-12 mx-auto mb-4 opacity-50" />
-											<p className="text-lg font-medium">No se encontraron casos</p>
-											<p className="text-sm">Intenta ajustar los filtros de búsqueda</p>
-										</div>
-									</div>
-								)}
-							</div>
-						</div>
-
-						{/* Desktop View - Table with virtualization */}
-						<div className="hidden lg:block h-full overflow-y-auto">
-							<table className="w-full responsive-table">
-								<thead className="bg-gray-50/50 dark:bg-background/50 backdrop-blur-[10px] sticky top-0 z-[1000]">
-									<tr>
-										<th className="px-4 py-3 text-left">
-											<button
-												onClick={() => handleSort('code')}
-												className="flex items-center gap-2 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider hover:text-gray-700 dark:hover:text-gray-200 text-left"
-											>
-												Código / Estatus
-												<SortIcon field="code" />
-											</button>
-										</th>
-										<th className="px-4 py-3 text-left">
-											<button
-												onClick={() => handleSort('created_at')}
-												className="flex items-center gap-2 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider hover:text-gray-700 dark:hover:text-gray-200 text-left"
-											>
-												Fecha de Registro
-												<SortIcon field="created_at" />
-											</button>
-										</th>
-										<th className="px-4 py-3 text-left">
-											<button
-												onClick={() => handleSort('nombre')}
-												className="flex items-center gap-2 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider hover:text-gray-700 dark:hover:text-gray-200 text-left"
-											>
-												Paciente
-												<SortIcon field="nombre" />
-											</button>
-										</th>
-										<th className="px-3 py-3 text-center">
-											<span className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-												Sede
-											</span>
-										</th>
-										<th className="px-4 py-3 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider text-center">
-											Estudio
-										</th>
-										<th className="px-4 py-3 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider text-left">
-											Médico Tratante
-										</th>
-										<th className="px-4 py-3 text-left">
-											<button
-												onClick={() => handleSort('total_amount')}
-												className="flex items-center gap-2 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider hover:text-gray-700 dark:hover:text-gray-200 text-left"
-											>
-												Monto Total
-												<SortIcon field="total_amount" />
-											</button>
-										</th>
-										<th className="px-4 py-3 text-center">
-											<span className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-												Opciones
-											</span>
-										</th>
-									</tr>
-								</thead>
-								<tbody className="divide-y divide-gray-200 dark:divide-gray-700">
-									{paginatedCases.length > 0 ? (
-										// Render paginated cases
-										paginatedCases.map((case_) => {
-											const ageDisplay = case_.edad || ''
-
-											return (
-												<tr key={case_.id} className="hover:bg-gray-50 dark:hover:bg-gray-800/50">
-													<td className="px-4 py-4">
-														<div className="flex flex-col items-start space-y-1 text-left">
-															{case_.code && (
-																<div className="inline-flex items-center gap-1 px-2 py-1 text-xs font-semibold rounded-full bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300 mb-1">
-																	{case_.code}
+												return (
+													<tr key={case_.id} className="hover:bg-gray-50 dark:hover:bg-gray-800/50">
+														<td className="px-4 py-4">
+															<div className="flex flex-col items-start space-y-1 text-left">
+																{case_.code && (
+																	<div className="inline-flex items-center gap-1 px-2 py-1 text-xs font-semibold rounded-full bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300 mb-1">
+																		{case_.code}
+																	</div>
+																)}
+																{(() => {
+																	const { paymentStatus } = calculateCasePaymentStatus(case_)
+																	return (
+																		<span
+																			className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(
+																				paymentStatus,
+																			)}`}
+																		>
+																			{paymentStatus}
+																		</span>
+																	)
+																})()}
+															</div>
+														</td>
+														<td className="px-4 py-4 text-sm text-gray-900 dark:text-gray-100 text-left">
+															{case_.created_at ? new Date(case_.created_at).toLocaleDateString('es-ES') : 'N/A'}
+														</td>
+														<td className="px-4 py-4">
+															<div className="text-left">
+																<div className="text-sm font-medium text-gray-900 dark:text-gray-100">
+																	{case_.nombre}
 																</div>
-															)}
+																<div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
+																	<span>{case_.cedula}</span>
+																	{ageDisplay && (
+																		<>
+																			<span>•</span>
+																			<span>{ageDisplay}</span>
+																		</>
+																	)}
+																</div>
+															</div>
+														</td>
+														<td className="text-sm text-gray-900 dark:text-gray-100">
+															<BranchBadge branch={case_.branch} />
+														</td>
+														<td className="px-4 py-4 text-sm text-gray-900 dark:text-gray-100 text-center">
+															{case_.exam_type}
+														</td>
+														<td className="px-4 py-4 text-sm text-gray-900 dark:text-gray-100">
+															{case_.treating_doctor}
+														</td>
+														<td className="px-4 py-4">
+															<div className="text-sm font-medium text-gray-900 dark:text-gray-100">
+																${case_.total_amount.toLocaleString()}
+															</div>
 															{(() => {
-																const { paymentStatus } = calculateCasePaymentStatus(case_)
+																const { missingAmount } = calculateCasePaymentStatus(case_)
 																return (
-																	<span
-																		className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(
-																			paymentStatus,
-																		)}`}
-																	>
-																		{paymentStatus}
-																	</span>
+																	missingAmount > 0 && (
+																		<div className="text-xs text-red-600 dark:text-red-400">
+																			Faltante: ${missingAmount.toFixed(2)}
+																		</div>
+																	)
 																)
 															})()}
-														</div>
-													</td>
-													<td className="px-4 py-4 text-sm text-gray-900 dark:text-gray-100 text-left">
-														{case_.created_at ? new Date(case_.created_at).toLocaleDateString('es-ES') : 'N/A'}
-													</td>
-													<td className="px-4 py-4">
-														<div className="text-left">
-															<div className="text-sm font-medium text-gray-900 dark:text-gray-100">{case_.nombre}</div>
-															<div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
-																<span>{case_.cedula}</span>
-																{ageDisplay && (
-																	<>
-																		<span>•</span>
-																		<span>{ageDisplay}</span>
-																	</>
-																)}
+														</td>
+														<td className="px-4 py-4">
+															<div className="flex justify-center mx-5">
+																<CaseActionsPopover
+																	case_={case_}
+																	onView={handleCaseSelect}
+																	onGenerate={handleGenerateEmployeeCase}
+																	onReactions={handleGenerateCase}
+																	canRequest={canRequest}
+																/>
 															</div>
+														</td>
+													</tr>
+												)
+											})
+										) : (
+											<tr>
+												<td colSpan={8}>
+													<div className="text-center py-12">
+														<div className="text-gray-500 dark:text-gray-400">
+															<Search className="w-12 h-12 mx-auto mb-4 opacity-50" />
+															<p className="text-lg font-medium">No se encontraron casos</p>
+															<p className="text-sm">Intenta ajustar los filtros de búsqueda</p>
 														</div>
-													</td>
-													<td className="text-sm text-gray-900 dark:text-gray-100">
-														<BranchBadge branch={case_.branch} />
-													</td>
-													<td className="px-4 py-4 text-sm text-gray-900 dark:text-gray-100 text-center">
-														{case_.exam_type}
-													</td>
-													<td className="px-4 py-4 text-sm text-gray-900 dark:text-gray-100">
-														{case_.treating_doctor}
-													</td>
-													<td className="px-4 py-4">
-														<div className="text-sm font-medium text-gray-900 dark:text-gray-100">
-															${case_.total_amount.toLocaleString()}
-														</div>
-														{(() => {
-															const { missingAmount } = calculateCasePaymentStatus(case_)
-															return (
-																missingAmount > 0 && (
-																	<div className="text-xs text-red-600 dark:text-red-400">
-																		Faltante: ${missingAmount.toFixed(2)}
-																	</div>
-																)
-															)
-														})()}
-													</td>
-													<td className="px-4 py-4">
-														<div className="flex justify-center mx-5">
-															<CaseActionsPopover
-																case_={case_}
-																onView={handleCaseSelect}
-																onGenerate={handleGenerateEmployeeCase}
-																onReactions={handleGenerateCase}
-																canRequest={canRequest}
-															/>
-														</div>
-													</td>
-												</tr>
-											)
-										})
-									) : (
-										<tr>
-											<td colSpan={8}>
-												<div className="text-center py-12">
-													<div className="text-gray-500 dark:text-gray-400">
-														<Search className="w-12 h-12 mx-auto mb-4 opacity-50" />
-														<p className="text-lg font-medium">No se encontraron casos</p>
-														<p className="text-sm">Intenta ajustar los filtros de búsqueda</p>
 													</div>
-												</div>
-											</td>
-										</tr>
-									)}
-								</tbody>
-							</table>
+												</td>
+											</tr>
+										)}
+									</tbody>
+								</table>
 
-							{/* Paginación en vista fullscreen */}
-							<Pagination
-								currentPage={currentPage}
-								totalPages={totalPages}
-								itemsPerPage={itemsPerPage}
-								pageSizeOptions={pageSizeOptions}
-								onItemsPerPageChange={handleItemsPerPageChange}
-								onGoToPage={goToPage}
-								onNext={goToNextPage}
-								onPrev={goToPreviousPage}
-							/>
+								{/* Paginación en vista fullscreen */}
+								<Pagination
+									currentPage={currentPage}
+									totalPages={totalPages}
+									itemsPerPage={itemsPerPage}
+									pageSizeOptions={pageSizeOptions}
+									onItemsPerPageChange={handleItemsPerPageChange}
+									onGoToPage={goToPage}
+									onNext={goToNextPage}
+									onPrev={goToPreviousPage}
+								/>
+							</div>
 						</div>
 					</div>
-				</div>
+
+					{/* Modals for fullscreen mode */}
+					<UnifiedCaseModal
+						case_={selectedCaseForView}
+						isOpen={isViewModalOpen}
+						onClose={() => {
+							setIsViewModalOpen(false)
+							setSelectedCaseForView(null)
+						}}
+						onSave={() => {
+							// Refetch the data to update the cases list
+							refetch()
+
+							// Mark that we should update the selected case when data changes
+							setShouldUpdateSelectedCase(true)
+						}}
+						onDelete={() => {
+							setIsViewModalOpen(false)
+							setSelectedCaseForView(null)
+							refetch()
+						}}
+						onCaseSelect={handleCaseSelect}
+						isFullscreen={isFullscreen}
+					/>
+
+					{/* Generate Case Modal - Solo para admin y solo para inmunohistoquímica */}
+					{(profile?.role === 'admin' || profile?.role === 'owner') &&
+						selectedCaseForGenerate?.exam_type?.toLowerCase().includes('inmuno') && (
+							<RequestCaseModal
+								// eslint-disable-next-line @typescript-eslint/no-explicit-any
+								case_={selectedCaseForGenerate as any}
+								isOpen={isGenerateModalOpen}
+								onClose={() => {
+									setIsGenerateModalOpen(false)
+									setSelectedCaseForGenerate(null)
+								}}
+								onSuccess={() => {
+									refetch()
+								}}
+							/>
+						)}
+
+					{/* Steps Case Modal - Para todos los roles */}
+					{selectedCaseForGenerate && (
+						<HorizontalLinearStepper
+							// eslint-disable-next-line @typescript-eslint/no-explicit-any
+							case_={selectedCaseForGenerate as any}
+							isOpen={isStepsModalOpen}
+							onClose={() => {
+								setIsStepsModalOpen(false)
+								setSelectedCaseForGenerate(null)
+							}}
+							onSuccess={() => {
+								refetch()
+							}}
+							isFullscreen={isFullscreen}
+						/>
+					)}
+				</>
 			)
 		}
 
@@ -1074,6 +1136,7 @@ const CasesTable: React.FC<CasesTableProps> = React.memo(
 										{paginatedCases.length > 0 ? (
 											// Render paginated cases
 											paginatedCases.map((case_) => {
+												const ageDisplay = case_.edad || ''
 												return (
 													<tr key={case_.id} className="hover:bg-gray-50 dark:hover:bg-gray-800/50">
 														<td className="px-4 py-4">
@@ -1105,8 +1168,14 @@ const CasesTable: React.FC<CasesTableProps> = React.memo(
 																<div className="text-sm font-medium text-gray-900 dark:text-gray-100">
 																	{case_.nombre}
 																</div>
-																<div className="text-sm text-gray-500 dark:text-gray-400">
+																<div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
 																	<span>{case_.cedula}</span>
+																	{ageDisplay && (
+																		<>
+																			<span>•</span>
+																			<span>{ageDisplay}</span>
+																		</>
+																	)}
 																</div>
 															</div>
 														</td>
@@ -1201,6 +1270,7 @@ const CasesTable: React.FC<CasesTableProps> = React.memo(
 						refetch()
 					}}
 					onCaseSelect={handleCaseSelect}
+					isFullscreen={isFullscreen}
 				/>
 
 				{/* Generate Case Modal - Solo para admin y solo para inmunohistoquímica */}
@@ -1233,6 +1303,7 @@ const CasesTable: React.FC<CasesTableProps> = React.memo(
 						onSuccess={() => {
 							refetch()
 						}}
+						isFullscreen={isFullscreen}
 					/>
 				)}
 			</>

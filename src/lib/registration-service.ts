@@ -15,7 +15,7 @@ export interface FormValues {
 	idNumber: string
 	phone: string
 	ageValue: number
-	ageUnit: 'AÑOS' | 'MESES'
+	ageUnit: 'Años' | 'Meses'
 	email?: string
 	examType: string
 	doctorName: string
@@ -203,7 +203,7 @@ const prepareRegistrationData = (formData: FormValues, user: any, exchangeRate?:
 	}
 
 	// Preparar edad para el caso médico (mantener el formato original) - No se usa en nueva estructura
-	// const edadFormatted = formData.ageUnit === 'AÑOS' ? `${formData.ageValue}` : `${formData.ageValue} ${formData.ageUnit.toLowerCase()}`
+	// const edadFormatted = formData.ageUnit === 'Años' ? `${formData.ageValue}` : `${formData.ageValue} ${formData.ageUnit.toLowerCase()}`
 
 	// Calcular remaining amount usando la lógica correcta de conversión de monedas
 	const { paymentStatus, missingAmount } = calculatePaymentDetails(
@@ -300,13 +300,13 @@ export const searchPatientForForm = async (cedula: string) => {
 
 		// Parsear la edad del paciente para extraer valor y unidad
 		let ageValue = 0
-		let ageUnit: 'AÑOS' | 'MESES' = 'AÑOS'
+		let ageUnit: 'Años' | 'Meses' = 'Años'
 
 		if (patient.edad) {
 			const match = patient.edad.match(/^(\d+)\s*(AÑOS|MESES)$/i)
 			if (match) {
 				ageValue = Number(match[1])
-				ageUnit = match[2].toUpperCase() === 'AÑOS' ? 'AÑOS' : 'MESES'
+				ageUnit = match[2].toUpperCase() === 'AÑOS' ? 'Años' : 'Meses'
 			}
 		}
 

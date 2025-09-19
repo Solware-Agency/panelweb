@@ -45,7 +45,7 @@ export const usePatientAutofill = (setValue: UseFormSetValue<FormValues>) => {
 						if (match) {
 							const ageValue = Number(match[1])
 							setValue('ageValue', ageValue)
-							// Nota: ageUnit no está en FormValues, se asume AÑOS por defecto
+							// Nota: ageUnit no está en FormValues, se asume Años por defecto
 						}
 					}
 
