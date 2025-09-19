@@ -119,7 +119,7 @@ const FiltersModal: React.FC<FiltersModalProps> = ({
 			</DialogTrigger>
 			<DialogContent
 				className="max-w-4xl max-h-[90vh] overflow-y-auto"
-				style={{ backgroundColor: 'rgba(0, 0, 0, 0.8)', backdropFilter: 'blur(10px)' }}
+				style={{ backgroundColor: 'rgba(0, 0, 0, 0.5)', backdropFilter: 'blur(5px)' }}
 			>
 				<Tabs defaultValue="general" className="w-full">
 					<TabsList className="grid w-full grid-cols-2 gap-4 mt-4">

@@ -41,7 +41,7 @@ const PatientRow = React.memo(({ patient, onClick }: { patient: Patient; onClick
 		{/* Age Cell */}
 		<td className="w-[20%] px-5 py-3 text-sm text-gray-900 dark:text-gray-100">
 			{patient.edad ? (
-				<span>{patient.edad} años</span>
+				<span>{patient.edad}</span>
 			) : (
 				<span className="text-gray-500 dark:text-gray-400">No disponible</span>
 			)}

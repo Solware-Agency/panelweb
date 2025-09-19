@@ -20,7 +20,7 @@ const getInitialFormValues = (): FormValues => ({
 	idNumber: '',
 	phone: '',
 	ageValue: 0,
-	ageUnit: 'AÑOS' as const,
+	ageUnit: 'Años' as const,
 	email: '',
 	examType: '',
 	doctorName: '',
@@ -34,7 +34,7 @@ const getInitialFormValues = (): FormValues => ({
 	numberOfSamples: 1,
 	relationship: '',
 	registrationDate: new Date(),
-	totalAmount: 0.00, // Changed from 0 to 0.01 to comply with database constraint
+	totalAmount: 0.0, // Changed from 0 to 0.01 to comply with database constraint
 	payments: [{ method: '', amount: 0, reference: '' }],
 	comments: '',
 })

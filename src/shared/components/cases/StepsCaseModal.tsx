@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react'
+import ReactDOM from 'react-dom'
 import type { RealtimePostgresChangesPayload } from '@supabase/supabase-js'
 import type { Tables } from '@shared/types/types'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -42,6 +43,7 @@ interface StepsCaseModalProps {
 	isOpen: boolean
 	onClose: () => void
 	onSuccess: () => void
+	isFullscreen?: boolean
 }
 
 const baseSteps = [
@@ -66,7 +68,7 @@ const pdfStep = {
 	description: 'Exportar Documento',
 }
 
-const StepsCaseModal: React.FC<StepsCaseModalProps> = ({ case_, isOpen, onClose, onSuccess }) => {
+const StepsCaseModal: React.FC<StepsCaseModalProps> = ({ case_, isOpen, onClose, onSuccess, isFullscreen = false }) => {
 	const GENERATE_DOC = import.meta.env.VITE_GENERATE_DOC_WEBHOOK
 	const GENERATE_PDF = import.meta.env.VITE_GENERATE_PDF_WEBHOOK
 
@@ -927,7 +929,8 @@ const StepsCaseModal: React.FC<StepsCaseModalProps> = ({ case_, isOpen, onClose,
 
 	if (!isOpen) return null
 
-	return (
+	// Render modal content
+	const modalContent = (
 		<AnimatePresence>
 			{isOpen && (
 				<>
@@ -938,7 +941,9 @@ const StepsCaseModal: React.FC<StepsCaseModalProps> = ({ case_, isOpen, onClose,
 						animate={{ opacity: 1 }}
 						exit={{ opacity: 0 }}
 						onClick={handleClose}
-						className="fixed inset-0 bg-black/50 backdrop-blur-sm modal-overlay z-[9999999999999999]"
+						className={`fixed inset-0 bg-black/50 backdrop-blur-sm modal-overlay ${
+							isFullscreen ? 'z-[99999999999999999]' : 'z-[9999999999999999]'
+						}`}
 					/>
 
 					{/* Modal */}
@@ -947,7 +952,9 @@ const StepsCaseModal: React.FC<StepsCaseModalProps> = ({ case_, isOpen, onClose,
 						initial={{ opacity: 0, scale: 0.9, y: 20 }}
 						animate={{ opacity: 1, scale: 1, y: 0 }}
 						exit={{ opacity: 0, scale: 0.9, y: 20 }}
-						className="fixed inset-0 modal-content flex items-center justify-center p-4 z-[9999999999999999]"
+						className={`fixed inset-0 modal-content flex items-center justify-center p-4 ${
+							isFullscreen ? 'z-[99999999999999999]' : 'z-[9999999999999999]'
+						}`}
 					>
 						<div className="w-full max-w-3xl bg-white/80 dark:bg-background/50 backdrop-blur-[3px] dark:backdrop-blur-[10px] rounded-2xl shadow-2xl border border-input overflow-hidden">
 							{/* Header */}
@@ -1092,6 +1099,13 @@ const StepsCaseModal: React.FC<StepsCaseModalProps> = ({ case_, isOpen, onClose,
 			)}
 		</AnimatePresence>
 	)
+
+	// Use portal when in fullscreen mode to ensure proper rendering
+	if (isFullscreen && isOpen) {
+		return ReactDOM.createPortal(modalContent, document.body)
+	}
+
+	return modalContent
 }
 
 export default StepsCaseModal
